@@ -60,7 +60,7 @@ struct driver_toolkit_t
  * @details
  * 		Constructor.
  */
-_Bool initialize_driver_toolkit_( driver_toolkit_t *toolkit );
+_Bool initialize_driver_toolkit( driver_toolkit_t *toolkit );
 
 
 /**

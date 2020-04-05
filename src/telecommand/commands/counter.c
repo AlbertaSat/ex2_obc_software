@@ -19,10 +19,11 @@
  * @date Feb 1, 2015
  */
 #include <telecommand/commands/registry.h>
+#include <stdio.h>
 
 static void execute_count( telecommand_t *command )
 {
-	printf("EXECUTE COUNT: %d\n", ++*((telecommand_counter_t *) command)->count);
+	printf("EXECUTE COUNT: %d, Called with argument: %s\n", ++*((telecommand_counter_t *) command)->count, ((telecommand_t *) command)->_argument);
 }
 static telecommand_t* clone( telecommand_t* self_ )
 {

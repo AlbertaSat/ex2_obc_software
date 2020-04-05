@@ -20,6 +20,7 @@
  */
 
 #include <driver_toolkit/driver_toolkit.h>
+#include <systems/ground_station/ground_station.h>
 #include <portable_types.h>
 #include <core_defines.h>
 #include <stdio.h>
@@ -37,7 +38,11 @@ _Bool initialize_driver_toolkit( driver_toolkit_t* toolkit )
 	DEV_ASSERT( toolkit );
 
   toolkit = pvPortMalloc(sizeof(driver_toolkit_t));
-  initialize_mock_up_ground_station_dynamic_sizes( toolkit->gs );
+
+	ground_station_t					gs;
+	initialize_mock_up_ground_station(&gs);
+
+	toolkit->gs = &gs;
 
 	return true;
 }
