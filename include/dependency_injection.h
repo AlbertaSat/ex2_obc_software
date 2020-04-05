@@ -25,11 +25,6 @@
 
 // #include <states/state_relay.h>
 #include <telecommand.h>
-// #include <states/state.h>
-// #include <eps/eps.h>
-// #include <comm/comm.h>
-// #include <adcs/adcs.h>
-// #include <logger/logger.h>
 #include <ground_station.h>
 // #include <non_volatile/non_volatile_variable.h>
 
@@ -58,8 +53,7 @@ extern driver_toolkit_t *kitp;
 // typedef struct probe_counter_t{ int enters, exits, nexts; }probe_counter_t;
 // typedef struct state_probe_t{ state_t _super_; probe_counter_t *_counter_; }state_probe_t;
 // void initialize_probe_state( state_probe_t *, probe_counter_t *, filesystem_t *fs );
-void initialize_mock_up_ground_station( ground_station_t *gs );
-void initialize_mock_up_ground_station_dynamic_sizes( ground_station_t *gs );
+
 
 /* Increment an int when executed. A pointer to the int is passed in
  * at initialization and set to zero. */
@@ -72,7 +66,7 @@ void initialize_command_counter( telecommand_counter_t *, int *, driver_toolkit_
 // void initialize_eps_always_safe( eps_t * );
 // /* eps which always outputs low battery voltage / normal mode. */
 // void initialize_eps_always_normal( eps_t * );
-//  eps which always outputs very high voltage / optimal mode. 
+//  eps which always outputs very high voltage / optimal mode.
 // void initialize_eps_always_optimal( eps_t * );
 
 // /* adcs mock which is always in ADCS_MODE_STABILIZED. */

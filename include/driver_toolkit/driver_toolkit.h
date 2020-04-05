@@ -21,8 +21,7 @@
 #ifndef INCLUDE_DRIVER_TOOLKIT_H_
 #define INCLUDE_DRIVER_TOOLKIT_H_
 
-#include <test.h>
-#include "ground_station.h"
+#include "systems/ground_station/ground_station.h"
 
 /* typedefs */
 typedef struct driver_toolkit_t driver_toolkit_t;
@@ -40,7 +39,6 @@ typedef struct driver_toolkit_t driver_toolkit_t;
 struct driver_toolkit_t
 {
 	/* Subsystem Drivers. */
-	test_t* 				test;
 	ground_station_t*	gs;
 	/* Scripting time server. */
 	/* Initialization of this is done in state_bring_up.c */
@@ -48,18 +46,21 @@ struct driver_toolkit_t
 
 	struct
 	{
-		// logger_t 	wod_logger_mem;
-		// logger_t 	dfgm_filt1_logger_mem;
-		// logger_t 	dfgm_filt2_logger_mem;
-		// logger_t	dfgm_raw_logger_mem;
-		// logger_t	dfgm_hk_logger_mem;
-		// logger_t	athena_logger_mem;
-		// logger_t 	udos_logger_mem;
-		// //logger_t 	mnlp_logger_mem;
-		// //logger_t 	state_logger_mem;
-		// //logger_t 	cmnd_status_logger_mem;
+		// loggers will go here
 	}_; /* Private. */
 };
+
+/********************************************************************************/
+/* Constructor Declare															*/
+/********************************************************************************/
+/**
+ * @memberof driver_toolkit_lpc_t
+ * @brief
+ * 		Constructor.
+ * @details
+ * 		Constructor.
+ */
+_Bool initialize_driver_toolkit_( driver_toolkit_t *toolkit );
 
 
 /**

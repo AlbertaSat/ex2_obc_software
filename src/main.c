@@ -1,65 +1,79 @@
 #include "FreeRTOS.h"
 #include <stdio.h>
-#include "dependency_injection.h"
-#include <telecommand_prototype_manager.h>
-#include <parser/interpreter/telecommand_expression.h>
-#include <parser/parser.h>
+
+#include <telecommand/telecommand_prototype_manager.h>
 #include <string.h>
+#include "telecommand/script_daemon.h"
 
 #define COUNT_KEY "count"
 static telecommand_counter_t count_command;
 #define ARG_EXP_STRING "derp_string"
-#define COUNT_KEY2 "count two"
 #define SCRIPT_STRING "COMMAND( \"count two\", \"derp_string\" );"; // valid count command
 
 void vAssertCalled(
-unsigned long ulLine, const char * const pcFileName 
+unsigned long ulLine, const char * const pcFileName
 );
 
 void vAssertCalled(
-unsigned long ulLine, const char * const pcFileName 
+unsigned long ulLine, const char * const pcFileName
 )
 {
 		printf("error line: %lu in file: %s", ulLine, pcFileName);
 }
 
+void test_telecommand(void) {
+	printf("in the test");
+	telecommand_prototype_manager_t*	prototype_manager;
+	telecommand_counter_t							count_command;
+	driver_toolkit_t* 								driver_toolkit;
+	script_daemon_t										daemon;
+	char*															key = COUNT_KEY2;
+	char*								script = SCRIPT_STRING;
+	int									count;
+	_Bool								err;
+
+	initialize_driver_toolkit(driver_toolkit); // This will instantiate hardware interfaces, in this case, using the mock ground_station
+
+	prototype_manager = get_telecommand_prototype_manager( ); // this is used to register a new telecommand
+
+	initialize_command_counter( &count_command, &count, driver_toolkit ); // this overrides virtual functions with the command
+
+	err = prototype_manager->register_prototype( prototype_manager, "count two", (telecommand_t*) &count_command );
+	if( !err ) {
+		printf( "failed to register command prototype" );
+		return -1;
+	}
+	/* Pretend to be ground station, and write telecommand. */
+
+	driver_toolkit->gs.write( &gs, (uint8_t*) script, strlen( script ), TELECOMMAND_PORT, BLOCK_FOREVER );
+  printf("about to init daemon");
+	/* Initialize daemon, it should start up, see the script and run it. */
+	err = initialize_script_daemon( &daemon, driver_toolkit->gs );
+	if( err == false )
+	{
+		/* Error creating daemon. */
+		((telecommand_t*) &count_command)->destroy( (telecommand_t*) &count_command );
+	}
+
+	/* Give daemon CPU time. */
+	task_delay( 300 );
+	/* Assert the daemon ran. */
+	// ASSERT( "Daemon did not execute command", count == 1 );
+
+	((telecommand_t*) &count_command)->destroy( (telecommand_t*) &count_command );
+	daemon.destroy( &daemon );
+}
+
 int main() {
-    // Init toolkit and groundstation
-    ground_station_t* gs = pvPortMalloc(sizeof(ground_station_t));
+	task_t TEST_TELECOMMAND;
+	printf("in main!");
+	create_task(	test_telecommand,
+								"test_telecommand",
+								500,
+								NULL,
+								1,
+								&TEST_TELECOMMAND );
 
-    initialize_mock_up_ground_station(gs);
-    initialize_mock_up_ground_station_dynamic_sizes(gs);
-
-    driver_toolkit_t* driver_toolkit = pvPortMalloc(sizeof(driver_toolkit_t));
-    driver_toolkit->gs = gs;
-
-    parser_t                            parser;
-    char const*                         script = SCRIPT_STRING;
-    script_expression_t*                expression;
-    telecommand_prototype_manager_t*    prototypes;
-    char*                               key = COUNT_KEY2;
-    int                                 count;
-    _Bool                              err;
-
-
-    /* Register the count command with the prototype manager. */
-    prototypes = get_telecommand_prototype_manager( );
-    initialize_command_counter( &count_command, &count, driver_toolkit );
-    err = prototypes->register_prototype( prototypes, key, (telecommand_t*) &count_command );
-    if( !err )
-    {
-        printf( "failed to register command prototype" );
-    }
-
-    initialize_parser( &parser );
-    expression = parser_parse_string( &parser, script, strlen( script ) );
-
-    if( expression != NULL )
-    {
-        printf( "Command has parsed, now we will interpret it\n" );
-        expression->interpret( expression );
-        printf( "command should have executed\n" );
-        expression->destroy( expression );
-    }
+	vTaskStartScheduler();
 	return 0;
 }
