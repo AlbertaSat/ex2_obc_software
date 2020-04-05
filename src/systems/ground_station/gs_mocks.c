@@ -22,6 +22,7 @@
 #define GROUND_STATION_MAX_TX_LENGTH 50
 
 #include <systems/ground_station/ground_station.h>
+#include <stdio.h>
 
 static _Bool in_range;
 static uint8_t p1 = 0, p2 = 0, p3 = 0;
@@ -36,7 +37,6 @@ static _Bool is_in_range( ground_station_t *gs )
 static uint32_t read( ground_station_t *gs, uint8_t *packet, uint32_t size, uint8_t port, block_time_t block )
 {
 	/* copy 'telem_buffer' into 'packet' */
-	printf("reading...\n");
 	uint32_t iter;
 	for( iter = 0; (iter < size && iter < GROUND_STATION_MAX_TX_LENGTH); ++iter )
 	{

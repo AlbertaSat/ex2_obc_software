@@ -4,11 +4,10 @@
 #include <telecommand/telecommand_prototype_manager.h>
 #include <string.h>
 #include "telecommand/script_daemon.h"
+#include "telecommand/commands/registry.h"
+#include "systems/ground_station/ground_station.h"
 
-#define COUNT_KEY "count"
 static telecommand_counter_t count_command;
-#define ARG_EXP_STRING "derp_string"
-#define SCRIPT_STRING "COMMAND( \"count two\", \"derp_string\" );"; // valid count command
 
 void vAssertCalled(
 unsigned long ulLine, const char * const pcFileName
@@ -22,48 +21,64 @@ unsigned long ulLine, const char * const pcFileName
 }
 
 void test_telecommand(void) {
+	printf("-here-");
 	telecommand_prototype_manager_t*	prototype_manager;
 	telecommand_counter_t							count_command;
 	driver_toolkit_t* 								driver_toolkit;
 	script_daemon_t										daemon;
 	int									count;
 	_Bool								err;
+	ground_station_t		gs;
 
+	/*
+	Step 1: initialize driver toolkit - this contains the (mock) ground station, and other hardware in the future
+	*/
+	printf("\n-- initializing driver toolkit --\n");
 	initialize_driver_toolkit(driver_toolkit); // This will instantiate hardware interfaces, in this case, using the mock ground_station
 
-	prototype_manager = get_telecommand_prototype_manager( ); // this is used to register a new telecommand
-
+	/*
+	Step 2: initialize the counter command. All prototypes for commands are found in the telecommand/command folder. This step fills in the execution functions of the command
+	*/
+	printf("\n-- initialize counter command --\n");
 	initialize_command_counter( &count_command, &count, driver_toolkit ); // this overrides virtual functions with the command
 
-	err = prototype_manager->register_prototype( prototype_manager, "count two", (telecommand_t*) &count_command );
-	if( !err ) {
-		printf( "failed to register command prototype" );
-		return -1;
-	}
-	/* Pretend to be ground station, and write telecommand. */
+	/*
+	Step 3: register the telecommand and it's trigger with the prototype_manager. This is done only once.
+					After this step, "COMMAND( count, ... )" will trigger the registered command
+	*/
+	printf("\n-- registring telecommand --\n");
+	prototype_manager = get_telecommand_prototype_manager( ); // this is used to register a new telecommand
+	prototype_manager->register_prototype( prototype_manager, "count", (telecommand_t*) &count_command );
 
-	driver_toolkit->gs.write( &gs, (uint8_t*) "COMMAND( \"count two\", \"derp_string\" );", strlen( script ), TELECOMMAND_PORT, BLOCK_FOREVER );
-  printf("about to init daemon");
-	/* Initialize daemon, it should start up, see the script and run it. */
-	err = initialize_script_daemon( &daemon, driver_toolkit->gs );
-	if( err == false )
+	/* Pretend to be ground station, and write telecommand. */
+	printf("\n-- writing command to ground station --\n");
+	char* script = "COMMAND( \"count\", \"derp_string\" );";
+	initialize_mock_up_ground_station_dynamic_sizes( &gs );
+	gs.write( &gs, (uint8_t*) script, strlen( script ), TELECOMMAND_PORT, BLOCK_FOREVER );
+
+	/*
+	Step 4: Initialize daemon, it should start up, see the script and run it
+	*/
+	printf("\n-- starting telecommand server --\n");
+	if( !initialize_script_daemon( &daemon, &gs ) )
 	{
 		/* Error creating daemon. */
+		printf("could not create daemon");
 		((telecommand_t*) &count_command)->destroy( (telecommand_t*) &count_command );
 	}
 
 	/* Give daemon CPU time. */
 	task_delay( 300 );
-	/* Assert the daemon ran. */
-	// ASSERT( "Daemon did not execute command", count == 1 );
 
 	((telecommand_t*) &count_command)->destroy( (telecommand_t*) &count_command );
 	daemon.destroy( &daemon );
 }
 
 int main() {
+	printf("\n -- starting telecommand example -- \n");
+
 	task_t TEST_TELECOMMAND;
-	printf("in main!");
+
 	create_task(	test_telecommand,
 								"test_telecommand",
 								500,
@@ -72,5 +87,6 @@ int main() {
 								&TEST_TELECOMMAND );
 
 	vTaskStartScheduler();
+
 	return 0;
 }
