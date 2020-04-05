@@ -22,13 +22,10 @@ unsigned long ulLine, const char * const pcFileName
 }
 
 void test_telecommand(void) {
-	printf("in the test");
 	telecommand_prototype_manager_t*	prototype_manager;
 	telecommand_counter_t							count_command;
 	driver_toolkit_t* 								driver_toolkit;
 	script_daemon_t										daemon;
-	char*															key = COUNT_KEY2;
-	char*								script = SCRIPT_STRING;
 	int									count;
 	_Bool								err;
 
@@ -45,7 +42,7 @@ void test_telecommand(void) {
 	}
 	/* Pretend to be ground station, and write telecommand. */
 
-	driver_toolkit->gs.write( &gs, (uint8_t*) script, strlen( script ), TELECOMMAND_PORT, BLOCK_FOREVER );
+	driver_toolkit->gs.write( &gs, (uint8_t*) "COMMAND( \"count two\", \"derp_string\" );", strlen( script ), TELECOMMAND_PORT, BLOCK_FOREVER );
   printf("about to init daemon");
 	/* Initialize daemon, it should start up, see the script and run it. */
 	err = initialize_script_daemon( &daemon, driver_toolkit->gs );
