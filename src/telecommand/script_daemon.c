@@ -53,11 +53,9 @@ static void script_daemon_task( void* self_ )
 	for( ;; )
 	{
 		/* Block until a script comes in. */
-		printf(".");
 		script_size = self->_.gs->read( self->_.gs, script, SCRIPT_MAX_LENGTH, TELECOMMAND_PORT, BLOCK_FOREVER );
 		if( script_size > 0 )
 		{
-			printf("Got a script\n");
 			/* Parse the script into a syntax tree. */
 			expression = parser_parse_string( &self->_.parser, (char const*) script, script_size );
 			if( expression != NULL )
@@ -96,9 +94,7 @@ static void destroy( script_daemon_t* self )
 _Bool initialize_script_daemon( script_daemon_t* self, ground_station_t* gs )
 {
 	DEV_ASSERT( self );
-	printf("BEFIRE GS ASSERT");
 	DEV_ASSERT( gs );
-	printf("AFTER GS ASSERT");
 
 	/* Link virtual methods. */
 	self->destroy = destroy;

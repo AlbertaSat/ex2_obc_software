@@ -9,6 +9,9 @@
 
 static telecommand_counter_t count_command;
 
+SemaphoreHandle_t xSemaphore = NULL;
+ground_station_t		gs;
+
 void vAssertCalled(
 unsigned long ulLine, const char * const pcFileName
 );
@@ -28,7 +31,6 @@ void test_telecommand(void) {
 	script_daemon_t										daemon;
 	int									count;
 	_Bool								err;
-	ground_station_t		gs;
 
 	/*
 	Step 1: initialize driver toolkit - this contains the (mock) ground station, and other hardware in the future
@@ -50,12 +52,6 @@ void test_telecommand(void) {
 	prototype_manager = get_telecommand_prototype_manager( ); // this is used to register a new telecommand
 	prototype_manager->register_prototype( prototype_manager, "count", (telecommand_t*) &count_command );
 
-	/* Pretend to be ground station, and write telecommand. */
-	printf("\n-- writing command to ground station --\n");
-	char* script = "COMMAND( \"count\", \"derp_string\" );";
-	initialize_mock_up_ground_station_dynamic_sizes( &gs );
-	gs.write( &gs, (uint8_t*) script, strlen( script ), TELECOMMAND_PORT, BLOCK_FOREVER );
-
 	/*
 	Step 4: Initialize daemon, it should start up, see the script and run it
 	*/
@@ -69,22 +65,58 @@ void test_telecommand(void) {
 
 	/* Give daemon CPU time. */
 	task_delay( 300 );
+	printf("let the other task go!");
 
+	/*
+	Step 5: Start a new task that will send commands to the server
+	*/
+	for (;;) {	}
 	((telecommand_t*) &count_command)->destroy( (telecommand_t*) &count_command );
 	daemon.destroy( &daemon );
 }
 
+
+void mock_telecommands(void) {
+	for(;;)
+    {
+        /* See if we can obtain the semaphore.  If the semaphore is not
+        available wait 10 ticks to see if it becomes free. */
+				xSemaphoreTake( xSemaphore, ( TickType_t ) 10 );
+
+        /* We were able to obtain the semaphore and can now access the
+        shared resource (i.e. the ground_station) */
+
+				printf("\n-- writing command to ground station --\n");
+				char* script = "COMMAND( \"count\", \"derp_string\" );";
+				initialize_mock_up_ground_station_dynamic_sizes( &gs );
+				gs.write( &gs, (uint8_t*) script, strlen( script ), TELECOMMAND_PORT, BLOCK_FOREVER );
+
+        /* We have finished accessing the shared resource.  Release the
+        semaphore. */
+
+				task_delay(3000);
+    }
+}
+
+
 int main() {
 	printf("\n -- starting telecommand example -- \n");
 
-	task_t TEST_TELECOMMAND;
-
+	task_t TEST_TELECOMMAND, MOCK_TELECOMMANDS;
+	xSemaphore = xSemaphoreCreateMutex();
 	create_task(	test_telecommand,
 								"test_telecommand",
-								500,
+								1000,
 								NULL,
 								1,
 								&TEST_TELECOMMAND );
+
+	create_task(	mock_telecommands,
+								"mock_telecommands",
+								1000,
+								NULL,
+								1,
+								&MOCK_TELECOMMANDS );
 
 	vTaskStartScheduler();
 
