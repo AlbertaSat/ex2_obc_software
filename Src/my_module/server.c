@@ -3,8 +3,7 @@ To build: gcc client_server.c -o client_server.o -c -I
 ../ex2_on_board_computer/Source/include/ -I ../ex2_on_board_computer/Project/ -I
 ../ex2_on_board_computer/libcsp/include/ -I
 ../ex2_on_board_computer/Source/portable/GCC/POSIX/ -I
-../ex2_on_board_computer/libcsp/build/include/ -m32 -lpthread -std=c99 -lrt &&
-ar -rsc client_server.a *.o (sorry for the long ass command)
+../ex2_on_board_computer/libcsp/build/include/ -m32 -lpthread -std=c99 -lrt && ar -rsc client_server.a *.o (sorry for the long ass command)
 */
 #include "telecommand/server.h"
 
