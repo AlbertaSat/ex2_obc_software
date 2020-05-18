@@ -1,7 +1,10 @@
 #ifndef __SYSTEM_H
 #define __SYSTEM_H
+#include "FreeRTOS.h"
 #include <csp/csp.h>
-#include <services.h>
+#include "services.h"
+#include "queue.h"
+
 
 #define TM_TC_BUFF_SIZE 250
 #define NORMAL_TICKS_TO_WAIT 1
@@ -14,8 +17,6 @@ typedef struct {
   xQueueHandle verification_app_queue;
   xQueueHandle hk_app_queue;
   xQueueHandle test_app_queue;
-}service_queues_t;
-
-SAT_returnState start_service_handlers()
+} service_queues_t;
 
 #endif

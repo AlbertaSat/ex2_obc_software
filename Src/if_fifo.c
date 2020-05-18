@@ -7,7 +7,10 @@ To build: gcc client_server.c -o client_server.o -c -I
 ar -rsc client_server.a *.o (sorry for the long ass command)
 */
 
+/* This file should really be in CSP, since it's technically the link layer */
+
 #include "FreeRTOS.h"
+#include "if_fifo.h"
 #include <csp/arch/csp_thread.h>
 #include <csp/csp.h>
 #include <csp/csp_interface.h>
@@ -18,7 +21,6 @@ ar -rsc client_server.a *.o (sorry for the long ass command)
 #include <task.h>
 #include <unistd.h>
 #include "system.h"
-#include "if_fifo.h"
 
 extern csp_iface_t csp_if_fifo;
 uint16_t telecommandId = 0;

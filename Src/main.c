@@ -1,21 +1,26 @@
 /*
-To build: gcc src/*.c src/telecommand/*.c -c -I include/telecommand/ -I ../ex2_on_board_computer/Source/include/ -I ../ex2_on_board_computer/Project/ -I ../ex2_on_board_computer/libcsp/include/ -I ../ex2_on_board_computer/Source/portable/GCC/POSIX/ -I ../ex2_on_board_computer/libcsp/build/include/ -m32 -lpthread -std=c99 -lrt && ar -rsc client_server.a *.o
+To build: gcc src/*.c src/telecommand/*.c -c -I include/telecommand/ -I
+../ex2_on_board_computer/Source/include/ -I ../ex2_on_board_computer/Project/ -I
+../ex2_on_board_computer/libcsp/include/ -I
+../ex2_on_board_computer/Source/portable/GCC/POSIX/ -I
+../ex2_on_board_computer/libcsp/build/include/ -m32 -lpthread -std=c99 -lrt &&
+ar -rsc client_server.a *.o
 
 (sorry for the long ass command)
 */
 #include "FreeRTOS.h"
-#include <csp/arch/csp_thread.h>
 #include <csp/csp.h>
-#include <csp/csp_interface.h>
 #include <fcntl.h>
-#include <services.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <task.h>
 #include <unistd.h>
-#include <system.h>
+
+#include "system.h"
+#include "services.h"
 #include "if_fifo.h"
+#include "my_module.h"
 
 service_queues_t service_queues;
 
@@ -49,11 +54,9 @@ void server_loop(void *parameters) {
     }
     while ((packet = csp_read(conn, 50)) != NULL) {
       switch (csp_conn_dport(conn)) {
-
         case TC_HOUSEKEEPING_SERVICE:
-          err =
-              xQueueSendToBack(service_queues.hk_app_queue, (void *)packet,
-                               NORMAL_TICKS_TO_WAIT);
+          err = xQueueSendToBack(service_queues.hk_app_queue, (void *)packet,
+                                 NORMAL_TICKS_TO_WAIT);
           if (err != pdPASS) {
             printf("FAILED TO QUEUE MESSAGE");
           }
@@ -61,9 +64,8 @@ void server_loop(void *parameters) {
           break;
 
         case TC_TEST_SERVICE:
-          err =
-              xQueueSendToBack(service_queues.test_app_queue, (void *)packet,
-                               NORMAL_TICKS_TO_WAIT);
+          err = xQueueSendToBack(service_queues.test_app_queue, (void *)packet,
+                                 NORMAL_TICKS_TO_WAIT);
           if (err != pdPASS) {
             printf("FAILED TO QUEUE MESSAGE");
           }
@@ -83,18 +85,15 @@ void server_loop(void *parameters) {
 int main(int argc, char **argv) {
   char *tx_channel_name = "server_to_client";
   char *rx_channel_name = "client_to_server";
+  TC_TM_app_id my_address = DEMO_APP_ID;
 
   if (start_service_handlers() != SATR_OK) {
     printf("COULD NOT START TELECOMMAND HANDLER");
     return -1;
   }
 
-  /* Set type */
-  xTaskCreate((TaskFunction_t)server_loop, "SERVER THREAD", 2048, NULL, 1,
-              NULL);
-
   /* Init CSP and CSP buffer system */
-  if (csp_init(TC_TM_app_id[DEMO_APP_ID]) != CSP_ERR_NONE ||
+  if (csp_init(my_address) != CSP_ERR_NONE ||
       csp_buffer_init(64, 512) != CSP_ERR_NONE) {
     printf("Failed to init CSP\r\n");
     return -1;
@@ -113,11 +112,14 @@ int main(int argc, char **argv) {
   }
 
   /* Start fifo RX task */
-  xTaskCreate((TaskFunction_t)fifo_rx, "RX_THREAD", 2048, NULL, 1, &rx_thread);
+  xTaskCreate((TaskFunction_t)fifo_rx, "RX_THREAD", 2048, NULL, 1, NULL);
 
-  /* Set default route and start router */
+  /* Set default route and start router & server */
   csp_route_set(CSP_DEFAULT_ROUTE, &csp_if_fifo, CSP_NODE_MAC);
   csp_route_start_task(0, 0);
+
+  xTaskCreate((TaskFunction_t)server_loop, "SERVER THREAD", 2048, NULL, 1,
+              NULL);
 
   vTaskStartScheduler();
 
