@@ -1,11 +1,11 @@
 #ifndef __TELECOMMAND_HANDLER__
 #define __TELECOMMAND_HANDLER__
 
-#include "FreeRTOS.h"
-#include <task.h>
-#include "queue.h"
 #include <csp/csp.h>
+#include <task.h>
 
+#include "FreeRTOS.h"
+#include "queue.h"
 #include "telecommand/server.h"
 
 /* TYPEDEFS */
@@ -18,9 +18,9 @@ struct telecommand_t {
 
 /* TELECOMMAND QUEUE CONFIGURATIONS */
 #define TELECOMMAND_TICKS_TO_WAIT 1
-#define TELECOMMAND_HANDLER_PRIO  5
-#define TELECOMMAND_QUEUE_LEN     16
-#define TELECOMMAND_QUEUE_SIZE    (sizeof(telecommand_t*))
+#define TELECOMMAND_HANDLER_PRIO 5
+#define TELECOMMAND_QUEUE_LEN 16
+#define TELECOMMAND_QUEUE_SIZE (sizeof(telecommand_t *))
 
 /* RTOS HANDLES */
 TaskHandle_t telecommand_handler_task;
