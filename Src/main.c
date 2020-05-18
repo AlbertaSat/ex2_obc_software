@@ -8,27 +8,81 @@ ar -rsc client_server.a *.o
 
 (sorry for the long ass command)
 */
-#include "FreeRTOS.h"
+#include <FreeRTOS.h>
 #include <csp/csp.h>
 #include <fcntl.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <task.h>
 #include <unistd.h>
-
-#include "system.h"
-#include "services.h"
 #include "if_fifo.h"
 #include "my_module.h"
+#include "services.h"
+#include "system.h"
+#include <csp/interfaces/csp_if_zmqhub.h>
+
 
 service_queues_t service_queues;
 
-csp_iface_t csp_if_fifo = {
-    .name = "fifo",
-    .nexthop = csp_fifo_tx,
-    .mtu = TM_TC_BUFF_SIZE,
-};
+void server_loop(void *parameters);
+void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
+SAT_returnState init_local_gs();
+
+#ifdef USE_LOCAL_GS
+#endif
+
+int main(int argc, char **argv) {
+  TC_TM_app_id my_address = DEMO_APP_ID;
+
+  if (start_service_handlers() != SATR_OK) {
+    printf("COULD NOT START TELECOMMAND HANDLER");
+    return -1;
+  }
+
+  /* Init CSP with address and default settings */
+  csp_conf_t csp_conf;
+  csp_conf_get_defaults(&csp_conf);
+  csp_conf.address = my_address;
+  int error = csp_init(&csp_conf);
+  if (error != CSP_ERR_NONE) {
+      printf("csp_init() failed, error: %d", error);
+      return -1;
+  }
+
+  /* Set default route and start router & server */
+  // csp_route_set(CSP_DEFAULT_ROUTE, &this_interface, CSP_NODE_MAC);
+  csp_route_start_task(500, 0);
+
+  #ifdef USE_LOCALHOST
+  init_local_gs();
+  // csp_iface_t this_interface = csp_if_fifo;
+  #else
+  // implement other interfaces
+  #endif
+
+  xTaskCreate((TaskFunction_t)server_loop, "SERVER THREAD", 2048, NULL, 1,
+              NULL);
+
+  vTaskStartScheduler();
+
+  for (;;) {
+  }
+
+  return 0;
+}
+
+SAT_returnState init_local_gs() {
+  csp_iface_t * default_iface = NULL;
+  int error = csp_zmqhub_init(csp_get_address(), "localhost", 0, &default_iface);
+  if (error != CSP_ERR_NONE) {
+      printf("failed to add ZMQ interface [%s], error: %d", "localhost", error);
+      return SATR_ERROR;
+  }
+  csp_rtable_set(CSP_DEFAULT_ROUTE, 0, default_iface, CSP_NO_VIA_ADDRESS);
+  return SATR_OK;
+}
 
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName) {
   printf("error line: %lu in file: %s", ulLine, pcFileName);
@@ -74,60 +128,9 @@ void server_loop(void *parameters) {
 
         default:
           csp_service_handler(conn, packet);
-          csp_buffer_free(packet);
           break;
       }
     }
     csp_close(conn);
   }
-}
-
-int main(int argc, char **argv) {
-  char *tx_channel_name = "server_to_client";
-  char *rx_channel_name = "client_to_server";
-  TC_TM_app_id my_address = DEMO_APP_ID;
-
-  if (start_service_handlers() != SATR_OK) {
-    printf("COULD NOT START TELECOMMAND HANDLER");
-    return -1;
-  }
-
-  /* Init CSP and CSP buffer system */
-  if (csp_init(my_address) != CSP_ERR_NONE ||
-      csp_buffer_init(64, 512) != CSP_ERR_NONE) {
-    printf("Failed to init CSP\r\n");
-    return -1;
-  }
-
-  tx_channel = open(tx_channel_name, O_RDWR);
-  if (tx_channel < 0) {
-    printf("Failed to open TX channel\r\n");
-    return -1;
-  }
-
-  rx_channel = open(rx_channel_name, O_RDWR);
-  if (rx_channel < 0) {
-    printf("Failed to open RX channel\r\n");
-    return -1;
-  }
-
-  /* Start fifo RX task */
-  xTaskCreate((TaskFunction_t)fifo_rx, "RX_THREAD", 2048, NULL, 1, NULL);
-
-  /* Set default route and start router & server */
-  csp_route_set(CSP_DEFAULT_ROUTE, &csp_if_fifo, CSP_NODE_MAC);
-  csp_route_start_task(0, 0);
-
-  xTaskCreate((TaskFunction_t)server_loop, "SERVER THREAD", 2048, NULL, 1,
-              NULL);
-
-  vTaskStartScheduler();
-
-  for (;;) {
-  }
-
-  close(rx_channel);
-  close(tx_channel);
-
-  return 0;
 }
