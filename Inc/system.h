@@ -1,12 +1,13 @@
 #ifndef __SYSTEM_H
 #define __SYSTEM_H
+#include <FreeRTOS.h>
 #include <csp/csp.h>
 
-#include <FreeRTOS.h>
 #include "queue.h"
 #include "services.h"
 
-#define USE_LOCALHOST // Define for local development, add other options when available
+#define USE_LOCALHOST  // Define for local development, add other options when
+                       // available
 
 #define TM_TC_BUFF_SIZE 250
 #define NORMAL_TICKS_TO_WAIT 1

@@ -10,19 +10,18 @@ ar -rsc client_server.a *.o
 */
 #include <FreeRTOS.h>
 #include <csp/csp.h>
+#include <csp/interfaces/csp_if_zmqhub.h>
 #include <fcntl.h>
 #include <stdint.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <task.h>
 #include <unistd.h>
-#include "if_fifo.h"
+
 #include "my_module.h"
 #include "services.h"
 #include "system.h"
-#include <csp/interfaces/csp_if_zmqhub.h>
-
 
 service_queues_t service_queues;
 
@@ -47,20 +46,20 @@ int main(int argc, char **argv) {
   csp_conf.address = my_address;
   int error = csp_init(&csp_conf);
   if (error != CSP_ERR_NONE) {
-      printf("csp_init() failed, error: %d", error);
-      return -1;
+    printf("csp_init() failed, error: %d", error);
+    return -1;
   }
 
   /* Set default route and start router & server */
   // csp_route_set(CSP_DEFAULT_ROUTE, &this_interface, CSP_NODE_MAC);
   csp_route_start_task(500, 0);
 
-  #ifdef USE_LOCALHOST
+#ifdef USE_LOCALHOST
   init_local_gs();
-  // csp_iface_t this_interface = csp_if_fifo;
-  #else
-  // implement other interfaces
-  #endif
+// csp_iface_t this_interface = csp_if_fifo;
+#else
+// implement other interfaces
+#endif
 
   xTaskCreate((TaskFunction_t)server_loop, "SERVER THREAD", 2048, NULL, 1,
               NULL);
@@ -74,11 +73,12 @@ int main(int argc, char **argv) {
 }
 
 SAT_returnState init_local_gs() {
-  csp_iface_t * default_iface = NULL;
-  int error = csp_zmqhub_init(csp_get_address(), "localhost", 0, &default_iface);
+  csp_iface_t *default_iface = NULL;
+  int error =
+      csp_zmqhub_init(csp_get_address(), "localhost", 0, &default_iface);
   if (error != CSP_ERR_NONE) {
-      printf("failed to add ZMQ interface [%s], error: %d", "localhost", error);
-      return SATR_ERROR;
+    printf("failed to add ZMQ interface [%s], error: %d", "localhost", error);
+    return SATR_ERROR;
   }
   csp_rtable_set(CSP_DEFAULT_ROUTE, 0, default_iface, CSP_NO_VIA_ADDRESS);
   return SATR_OK;
@@ -109,7 +109,8 @@ void server_loop(void *parameters) {
     while ((packet = csp_read(conn, 50)) != NULL) {
       switch (csp_conn_dport(conn)) {
         case TC_HOUSEKEEPING_SERVICE:
-          err = xQueueSendToBack(service_queues.hk_app_queue, (void *)packet,
+          printf("%s", packet->data);
+          err = xQueueSendToBack(service_queues.hk_app_queue, packet,
                                  NORMAL_TICKS_TO_WAIT);
           if (err != pdPASS) {
             printf("FAILED TO QUEUE MESSAGE");
@@ -118,7 +119,7 @@ void server_loop(void *parameters) {
           break;
 
         case TC_TEST_SERVICE:
-          err = xQueueSendToBack(service_queues.test_app_queue, (void *)packet,
+          err = xQueueSendToBack(service_queues.test_app_queue, packet,
                                  NORMAL_TICKS_TO_WAIT);
           if (err != pdPASS) {
             printf("FAILED TO QUEUE MESSAGE");
