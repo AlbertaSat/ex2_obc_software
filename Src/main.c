@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
     printf("csp_init() failed, error: %d", error);
     return -1;
   }
-
+  printf("Running at %d\n", my_address);
   /* Set default route and start router & server */
   // csp_route_set(CSP_DEFAULT_ROUTE, &this_interface, CSP_NODE_MAC);
   csp_route_start_task(500, 0);
@@ -109,7 +109,7 @@ void server_loop(void *parameters) {
     while ((packet = csp_read(conn, 50)) != NULL) {
       switch (csp_conn_dport(conn)) {
         case TC_HOUSEKEEPING_SERVICE:
-          printf("%s", packet->data);
+          printf("%s - %d", packet->data, packet->id);
           err = xQueueSendToBack(service_queues.hk_app_queue, packet,
                                  NORMAL_TICKS_TO_WAIT);
           if (err != pdPASS) {

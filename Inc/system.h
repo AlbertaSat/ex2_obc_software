@@ -9,11 +9,11 @@
 #define USE_LOCALHOST  // Define for local development, add other options when
                        // available
 
-#define TM_TC_BUFF_SIZE 250
+#define TM_TC_BUFF_SIZE 256
 #define NORMAL_TICKS_TO_WAIT 1
 #define NORMAL_SERVICE_PRIO 5
 #define NORMAL_QUEUE_LEN 3
-#define NORMAL_QUEUE_SIZE (sizeof(csp_packet_t *))
+#define NORMAL_QUEUE_SIZE 256
 
 // Define all the services that the module implements
 typedef struct {

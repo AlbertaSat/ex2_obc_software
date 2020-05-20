@@ -7,11 +7,12 @@
 extern service_queues_t service_queues;
 
 static void test_app(void *parameters) {
-  csp_packet_t *packet;
+  csp_packet_t packet;
   for (;;) {
-    if (xQueueReceive(service_queues.test_app_queue, packet,
+    if (xQueueReceive(service_queues.test_app_queue, &packet,
                       NORMAL_TICKS_TO_WAIT) == pdPASS) {
-      printf("TEST SERVICE RX: %s, ID: %d\n", packet->data, packet->id);
+      printf("TEST SERVICE RX: %.*s, ID: %d\n", packet.length, (char*) packet.data,
+             packet.id);
     }
   }
 }
@@ -21,7 +22,7 @@ static void hk_app(void *parameters) {
   for (;;) {
     if (xQueueReceive(service_queues.hk_app_queue, &packet,
                       NORMAL_TICKS_TO_WAIT) == pdPASS) {
-      printf("HOUSEHEEPING SERVICE RX: %s, ID: %d\n", (char *)packet.data,
+      printf("HOUSEKEEPING SERVICE RX: %.*s, ID: %d\n", packet.length, (char*) packet.data,
              packet.id);
     }
   }
