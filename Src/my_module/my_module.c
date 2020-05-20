@@ -11,8 +11,8 @@ static void test_app(void *parameters) {
   for (;;) {
     if (xQueueReceive(service_queues.test_app_queue, &packet,
                       NORMAL_TICKS_TO_WAIT) == pdPASS) {
-      printf("TEST SERVICE RX: %.*s, ID: %d\n", packet.length, (char*) packet.data,
-             packet.id);
+      printf("TEST SERVICE RX: %.*s, ID: %d\n", packet.length,
+             (char *)packet.data, packet.id);
     }
   }
 }
@@ -22,8 +22,8 @@ static void hk_app(void *parameters) {
   for (;;) {
     if (xQueueReceive(service_queues.hk_app_queue, &packet,
                       NORMAL_TICKS_TO_WAIT) == pdPASS) {
-      printf("HOUSEKEEPING SERVICE RX: %.*s, ID: %d\n", packet.length, (char*) packet.data,
-             packet.id);
+      printf("HOUSEKEEPING SERVICE RX: %.*s, ID: %d\n", packet.length,
+             (char *)packet.data, packet.id);
     }
   }
 }
