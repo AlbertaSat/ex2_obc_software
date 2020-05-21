@@ -2,7 +2,10 @@
 #include <stdio.h>
 
 #include "system.h"
+#include "my_module.h"
 #include "task.h"
+
+#include "time_management_service.h"
 
 extern service_queues_t service_queues;
 
@@ -28,9 +31,19 @@ static void hk_app(void *parameters) {
   }
 }
 
-static void time_management_app(void * parameters)
+static void time_management_app_route(void *parameters) {
+  csp_packet_t packet;
+  for(;;) {
+    if (xQueueReceive(service_queues.time_management_app_queue, &packet,
+                      NORMAL_TICKS_TO_WAIT) == pdPASS) {
+      printf("Time time_management_service SERVICE RX: %.*s, ID: %d\n", packet.length,
+             (char *)packet.data, packet.id);
+      time_management_app(&packet);
+    }
+  }
+}
 
-SAT_returnState start_service_handlers() {
+    SAT_returnState start_service_handlers() {
   /**
    * Create the queues & tasks for each service implemented by this module
    */
@@ -55,10 +68,20 @@ SAT_returnState start_service_handlers() {
     return SATR_ERROR;
   };
 
+  if (!(service_queues.time_management_app_queue =
+            xQueueCreate((unsigned portBASE_TYPE)NORMAL_QUEUE_LEN,
+                         (unsigned portBASE_TYPE)NORMAL_QUEUE_SIZE))) {
+    printf("FAILED TO CREATE time_management_app_queue");
+    return SATR_ERROR;
+  };
+
   xTaskCreate((TaskFunction_t)test_app, "test app", 2048, NULL,
               NORMAL_SERVICE_PRIO, NULL);
 
   xTaskCreate((TaskFunction_t)hk_app, "hk app", 2048, NULL, NORMAL_SERVICE_PRIO,
+              NULL);
+
+  xTaskCreate((TaskFunction_t)time_management_app_route, "time_management_app", 2048, NULL, NORMAL_SERVICE_PRIO,
               NULL);
 
   return SATR_OK;

@@ -40,38 +40,38 @@ struct time_keeping {
   struct time_utc utc;
 };
 
-extern SAT_returnState crt_pkt(tc_tm_pkt *pkt, TC_TM_app_id app_id,
-                               uint8_t type, uint8_t ack, uint8_t ser_type,
-                               uint8_t ser_subtype, TC_TM_app_id dest_id);
-extern SAT_returnState route_pkt(tc_tm_pkt *pkt);
+// extern SAT_returnState crt_pkt(tc_tm_pkt *pkt, TC_TM_app_id app_id,
+//                                uint8_t type, uint8_t ack, uint8_t ser_type,
+//                                uint8_t ser_subtype, TC_TM_app_id dest_id);
+// extern SAT_returnState route_pkt(tc_tm_pkt *pkt);
+//
+// void cnv_UTC_QB50(struct time_utc utc, uint32_t *qb);
+//
+// void set_time_QB50(uint32_t qb);
+//
+// void set_time_UTC(struct time_utc utc);
+//
+// void get_time_QB50(uint32_t *qb);
+//
+// void get_time_UTC(struct time_utc *utc);
+//
+// uint32_t return_time_QB50();
 
-void cnv_UTC_QB50(struct time_utc utc, uint32_t *qb);
+SAT_returnState time_management_app(csp_packet_t *pck);
 
-void set_time_QB50(uint32_t qb);
-
-void set_time_UTC(struct time_utc utc);
-
-void get_time_QB50(uint32_t *qb);
-
-void get_time_UTC(struct time_utc *utc);
-
-uint32_t return_time_QB50();
-
-SAT_returnState time_management_app(tc_tm_pkt *pck);
-
-SAT_returnState time_management_report_time_in_utc(tc_tm_pkt *pkt,
-                                                   TC_TM_app_id dest_id);
-
-SAT_returnState time_management_report_time_in_qb50(tc_tm_pkt *pkt,
-                                                    TC_TM_app_id dest_id);
-
-SAT_returnState time_management_crt_pkt_TC(tc_tm_pkt *pkt, uint8_t sid,
-                                           TC_TM_app_id app_id);
-
-SAT_returnState time_management_crt_pkt_TM(tc_tm_pkt *pkt, uint8_t sid,
-                                           TC_TM_app_id app_id);
-
-SAT_returnState time_management_request_time_in_utc(TC_TM_app_id dest_id);
-
-SAT_returnState time_management_force_time_update(TC_TM_app_id dest_id);
+// SAT_returnState time_management_report_time_in_utc(tc_tm_pkt *pkt,
+//                                                    TC_TM_app_id dest_id);
+//
+// SAT_returnState time_management_report_time_in_qb50(tc_tm_pkt *pkt,
+//                                                     TC_TM_app_id dest_id);
+//
+// SAT_returnState time_management_crt_pkt_TC(tc_tm_pkt *pkt, uint8_t sid,
+//                                            TC_TM_app_id app_id);
+//
+// SAT_returnState time_management_crt_pkt_TM(tc_tm_pkt *pkt, uint8_t sid,
+//                                            TC_TM_app_id app_id);
+//
+// SAT_returnState time_management_request_time_in_utc(TC_TM_app_id dest_id);
+//
+// SAT_returnState time_management_force_time_update(TC_TM_app_id dest_id);
 #endif

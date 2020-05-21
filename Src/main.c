@@ -65,7 +65,6 @@ int main(int argc, char **argv) {
   xTaskCreate((TaskFunction_t)server_loop, "SERVER THREAD", 2048, NULL, 1,
               NULL);
 
-  scheduling_service_init();
   vTaskStartScheduler();
 
   for (;;) {
@@ -122,6 +121,15 @@ void server_loop(void *parameters) {
 
         case TC_TEST_SERVICE:
           err = xQueueSendToBack(service_queues.test_app_queue, packet,
+                                 NORMAL_TICKS_TO_WAIT);
+          if (err != pdPASS) {
+            printf("FAILED TO QUEUE MESSAGE");
+          }
+          csp_buffer_free(packet);
+          break;
+
+        case TC_TIME_MANAGEMENT_SERVICE:
+          err = xQueueSendToBack(service_queues.time_management_app_queue, packet,
                                  NORMAL_TICKS_TO_WAIT);
           if (err != pdPASS) {
             printf("FAILED TO QUEUE MESSAGE");
