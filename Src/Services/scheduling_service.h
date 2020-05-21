@@ -121,7 +121,8 @@
 //    */
 //   uint32_t release_time;
 //
-//   /* This is a delta time which when added to the release time of the scheduled
+//   /* This is a delta time which when added to the release time of the
+//   scheduled
 //    * telecommand, the command is expected to complete execution. Timeout
 //    * execution is only set if telecommand sets interlocks, so for our current
 //    * implementation will be always 0 (zero)

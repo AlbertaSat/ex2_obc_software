@@ -1,5 +1,6 @@
-#include <csp/csp.h>
 #include "time_management_service.h"
+
+#include <csp/csp.h>
 #include <stdio.h>
 
 #undef __FILE_ID__
@@ -88,8 +89,8 @@ const uint32_t UTC_QB50_H[25] = {
     64800, 68400, 72000, 75600, 79200, 82800, 86400};
 
 SAT_returnState time_management_app(csp_packet_t *pkt) {
-  unsigned char ser_subtype = ((unsigned char) pkt->data[0]);
-  uint8_t x = ((uint8_t) pkt->data[0]);
+  unsigned char ser_subtype = ((unsigned char)pkt->data[0]);
+  uint8_t x = ((uint8_t)pkt->data[0]);
   printf("subtype %d\n", x);
   fflush(stdout);
 
@@ -116,26 +117,32 @@ SAT_returnState time_management_app(csp_packet_t *pkt) {
   //   pkt->verification_state = SATR_ERROR;
   // } else if (ser_subtype == TM_TIME_SET_IN_UTC) {
   //   /*set time in utc mode*/
-  //   if (!(C_ASSERT(pkt->data[0] >= 1) && C_ASSERT(pkt->data[0] < 8)) == true) {
+  //   if (!(C_ASSERT(pkt->data[0] >= 1) && C_ASSERT(pkt->data[0] < 8)) == true)
+  //   {
   //     return SATR_ERROR;
   //   } /*weekday1to7*/
-  //   if (!(C_ASSERT(pkt->data[1] > 0) && C_ASSERT(pkt->data[1] < 32)) == true) {
+  //   if (!(C_ASSERT(pkt->data[1] > 0) && C_ASSERT(pkt->data[1] < 32)) == true)
+  //   {
   //     return SATR_ERROR;
   //   } /*day1to31*/
-  //   if (!(C_ASSERT(pkt->data[2] > 0) && C_ASSERT(pkt->data[2] < 13)) == true) {
+  //   if (!(C_ASSERT(pkt->data[2] > 0) && C_ASSERT(pkt->data[2] < 13)) == true)
+  //   {
   //     return SATR_ERROR;
   //   } /*month1to12*/
   //   if (!(C_ASSERT(pkt->data[3] >= 0) && C_ASSERT(pkt->data[3] < 100)) ==
   //       true) {
   //     return SATR_ERROR;
   //   } /*year0to99*/
-  //   if (!(C_ASSERT(pkt->data[4] >= 0) && C_ASSERT(pkt->data[4] < 24)) == true) {
+  //   if (!(C_ASSERT(pkt->data[4] >= 0) && C_ASSERT(pkt->data[4] < 24)) ==
+  //   true) {
   //     return SATR_ERROR;
   //   } /*hours0to23*/
-  //   if (!(C_ASSERT(pkt->data[5] >= 0) && C_ASSERT(pkt->data[5] < 60)) == true) {
+  //   if (!(C_ASSERT(pkt->data[5] >= 0) && C_ASSERT(pkt->data[5] < 60)) ==
+  //   true) {
   //     return SATR_ERROR;
   //   } /*minutes0to59*/
-  //   if (!(C_ASSERT(pkt->data[6] >= 0) && C_ASSERT(pkt->data[6] < 60)) == true) {
+  //   if (!(C_ASSERT(pkt->data[6] >= 0) && C_ASSERT(pkt->data[6] < 60)) ==
+  //   true) {
   //     return SATR_ERROR;
   //   } /*seconds0to59*/
   //   temp_time.weekday = pkt->data[0];
@@ -169,28 +176,35 @@ SAT_returnState time_management_app(csp_packet_t *pkt) {
   // } else if (ser_subtype == TM_TIME_REPORT_IN_UTC) {
   //   /* time report from a time_management_service implementor in UTC format
   //    * exists here,
-  //    * user should implement his own code to handle the time report response*/
+  //    * user should implement his own code to handle the time report
+  //    response*/
   //   /*set time in utc mode*/
-  //   if (!(C_ASSERT(pkt->data[0] >= 1) && C_ASSERT(pkt->data[0] < 8)) == true) {
+  //   if (!(C_ASSERT(pkt->data[0] >= 1) && C_ASSERT(pkt->data[0] < 8)) == true)
+  //   {
   //     return SATR_ERROR;
   //   } /*weekday1to7*/
-  //   if (!(C_ASSERT(pkt->data[1] > 0) && C_ASSERT(pkt->data[1] < 32)) == true) {
+  //   if (!(C_ASSERT(pkt->data[1] > 0) && C_ASSERT(pkt->data[1] < 32)) == true)
+  //   {
   //     return SATR_ERROR;
   //   } /*day1to31*/
-  //   if (!(C_ASSERT(pkt->data[2] > 0) && C_ASSERT(pkt->data[2] < 13)) == true) {
+  //   if (!(C_ASSERT(pkt->data[2] > 0) && C_ASSERT(pkt->data[2] < 13)) == true)
+  //   {
   //     return SATR_ERROR;
   //   } /*month1to12*/
   //   if (!(C_ASSERT(pkt->data[3] >= 15) && C_ASSERT(pkt->data[3] < 100)) ==
   //       true) {
   //     return SATR_ERROR;
   //   } /*assert if year before or equal 2015*/
-  //   if (!(C_ASSERT(pkt->data[4] >= 0) && C_ASSERT(pkt->data[4] < 24)) == true) {
+  //   if (!(C_ASSERT(pkt->data[4] >= 0) && C_ASSERT(pkt->data[4] < 24)) ==
+  //   true) {
   //     return SATR_ERROR;
   //   } /*hours0to23*/
-  //   if (!(C_ASSERT(pkt->data[5] >= 0) && C_ASSERT(pkt->data[5] < 60)) == true) {
+  //   if (!(C_ASSERT(pkt->data[5] >= 0) && C_ASSERT(pkt->data[5] < 60)) ==
+  //   true) {
   //     return SATR_ERROR;
   //   } /*minutes0to59*/
-  //   if (!(C_ASSERT(pkt->data[6] >= 0) && C_ASSERT(pkt->data[6] < 60)) == true) {
+  //   if (!(C_ASSERT(pkt->data[6] >= 0) && C_ASSERT(pkt->data[6] < 60)) ==
+  //   true) {
   //     return SATR_ERROR;
   //   } /*seconds0to59*/
   //   temp_time.weekday = pkt->data[0];
@@ -205,7 +219,8 @@ SAT_returnState time_management_app(csp_packet_t *pkt) {
   // } else if (ser_subtype == TM_TIME_REPORT_IN_QB50) {
   //   /*time report from a time_management_service implementor in QB50 format
   //    * exists here,
-  //    * user should implement his own code to handle the time report response*/
+  //    * user should implement his own code to handle the time report
+  //    response*/
   //   pkt->verification_state = SATR_ERROR;
   // }
 
@@ -260,7 +275,8 @@ SAT_returnState time_management_app(csp_packet_t *pkt) {
 //
 // /**
 //  * Requests time in UTC format from a time_management_service implementor.
-//  * @param dest_id is the on-board time_management service implementor to request
+//  * @param dest_id is the on-board time_management service implementor to
+//  request
 //  * time from.
 //  * @return
 //  */
@@ -278,7 +294,8 @@ SAT_returnState time_management_app(csp_packet_t *pkt) {
 //
 // /**
 //  * Forces time update in UTC format to a time_management_service implementor.
-//  * @param dest_id is the on-board time_management service implementor to force
+//  * @param dest_id is the on-board time_management service implementor to
+//  force
 //  * time update on.
 //  * @return
 //  */

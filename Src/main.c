@@ -129,8 +129,8 @@ void server_loop(void *parameters) {
           break;
 
         case TC_TIME_MANAGEMENT_SERVICE:
-          err = xQueueSendToBack(service_queues.time_management_app_queue, packet,
-                                 NORMAL_TICKS_TO_WAIT);
+          err = xQueueSendToBack(service_queues.time_management_app_queue,
+                                 packet, NORMAL_TICKS_TO_WAIT);
           if (err != pdPASS) {
             printf("FAILED TO QUEUE MESSAGE");
           }
