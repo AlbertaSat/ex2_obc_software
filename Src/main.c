@@ -20,9 +20,9 @@ ar -rsc client_server.a *.o
 #include <unistd.h>
 
 #include "my_module.h"
+#include "scheduling_service.h"
 #include "services.h"
 #include "system.h"
-#include "scheduling_service.h"
 
 service_queues_t service_queues;
 
@@ -35,8 +35,6 @@ SAT_returnState init_local_gs();
 
 int main(int argc, char **argv) {
   TC_TM_app_id my_address = DEMO_APP_ID;
-
-
 
   if (start_service_handlers() != SATR_OK) {
     printf("COULD NOT START TELECOMMAND HANDLER");

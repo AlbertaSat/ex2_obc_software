@@ -28,6 +28,8 @@ static void hk_app(void *parameters) {
   }
 }
 
+static void time_management_app(void * parameters)
+
 SAT_returnState start_service_handlers() {
   /**
    * Create the queues & tasks for each service implemented by this module
