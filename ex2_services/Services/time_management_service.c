@@ -1,7 +1,9 @@
+#include "time_management_service.h"
+
 #include <FreeRTOS.h>
 #include <csp/csp.h>
 #include <stdio.h>
-#include "time_management_service.h"
+
 #include "service_utilities.h"
 
 #undef __FILE_ID__
@@ -101,13 +103,13 @@ SAT_returnState time_management_app(csp_packet_t *pkt) {
   printf("%d", ser_subtype);
 
   if (ser_subtype == TM_TIME_SET_IN_UTC) {
-      printf("SET TIME");
-      cnv8_32(&pkt->data[1], &temp_time.unix_timestamp);
-      TIMESTAMP_ISOK(temp_time.unix_timestamp);
-      printf("ts: %d", temp_time.unix_timestamp);
-      fflush(stdout);
-      // set_time_UTC(temp_time);
-      // pkt->verification_state = SATR_OK;
+    printf("SET TIME");
+    cnv8_32(&pkt->data[1], &temp_time.unix_timestamp);
+    TIMESTAMP_ISOK(temp_time.unix_timestamp);
+    printf("ts: %d", temp_time.unix_timestamp);
+    fflush(stdout);
+    // set_time_UTC(temp_time);
+    // pkt->verification_state = SATR_OK;
   }
   // else if (ser_subtype == TM_TIME_SET_IN_UTC) {
   //   /*set time in utc mode*/
