@@ -37,9 +37,11 @@ static void time_management_app_route(void *parameters) {
     if (xQueueReceive(service_queues.time_management_app_queue, &packet,
                       NORMAL_TICKS_TO_WAIT) == pdPASS) {
       printf("Time time_management_service SERVICE RX: %d, ID: %d\n",
-            packet.data[0], packet.id);
+             packet.data[0], packet.id);
       // verify a valid sub-service
-      // configASSERT(packet.data[0] <= (unsigned char) 0 && packet.data[0] < (unsigned char) 0xff); // TODO: figure out the actual range of valid values
+      // configASSERT(packet.data[0] <= (unsigned char) 0 && packet.data[0] <
+      // (unsigned char) 0xff); // TODO: figure out the actual range of valid
+      // values
       time_management_app(&packet);
     }
   }
