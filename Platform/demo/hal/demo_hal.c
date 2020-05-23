@@ -2,10 +2,7 @@
 
 uint32_t current_time;
 
-
-void HAL_RTC_SetTime(uint32_t unix_timestamp) {
-  current_time = unix_timestamp;
-}
+void HAL_RTC_SetTime(uint32_t unix_timestamp) { current_time = unix_timestamp; }
 
 void HAL_RTC_GetTime(uint32_t *unix_timestamp) {
   *unix_timestamp = current_time;

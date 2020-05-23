@@ -13,7 +13,6 @@
 #include "demo_hal.h"
 #endif
 
-
 SAT_returnState time_management_app(csp_packet_t *pkt) {
   uint8_t ser_subtype;
   struct time_utc temp_time;
@@ -23,7 +22,7 @@ SAT_returnState time_management_app(csp_packet_t *pkt) {
   if (ser_subtype == TM_TIME_SET_IN_UTC) {
     printf("SET TIME\n");
     cnv8_32(&pkt->data[1], &temp_time.unix_timestamp);
-    if(!TIMESTAMP_ISOK(temp_time.unix_timestamp)) {
+    if (!TIMESTAMP_ISOK(temp_time.unix_timestamp)) {
       printf("bad timestamp format\n");
       return SATR_ERROR;
     }
@@ -263,9 +262,7 @@ SAT_returnState time_management_app(csp_packet_t *pkt) {
 // void set_time_QB50(uint32_t qb) { /*no general meaning(?)*/
 // }
 //
-void set_time_UTC(struct time_utc utc) {
-  HAL_sys_setTime(utc.unix_timestamp);
-}
+void set_time_UTC(struct time_utc utc) { HAL_sys_setTime(utc.unix_timestamp); }
 //
 // /**
 //  * Fills the destination uint32_t pointer with
