@@ -1,7 +1,8 @@
-#include "time_management_service.h"
-
+#include <FreeRTOS.h>
 #include <csp/csp.h>
 #include <stdio.h>
+#include "time_management_service.h"
+#include "service_utilities.h"
 
 #undef __FILE_ID__
 #define __FILE_ID__ 2
@@ -89,69 +90,29 @@ const uint32_t UTC_QB50_H[25] = {
     64800, 68400, 72000, 75600, 79200, 82800, 86400};
 
 SAT_returnState time_management_app(csp_packet_t *pkt) {
-  unsigned char ser_subtype = ((unsigned char)pkt->data[0]);
-  uint8_t x = ((uint8_t)pkt->data[0]);
-  printf("subtype %d\n", x);
-  fflush(stdout);
+  uint8_t ser_subtype;
+  struct time_utc temp_time;
 
-  // uint8_t ser_subtype;
-  // struct time_utc temp_time;
-  //
-  // if (!C_ASSERT(pkt != NULL && pkt->data != NULL) == true) {
+  // if (!configASSERT(pkt != NULL && pkt->data != NULL) == true) {
   //   return SATR_ERROR;
   // }
-  //
-  // ser_subtype = pkt->ser_subtype;
-  //
-  // if (!C_ASSERT(ser_subtype == TM_TIME_SET_IN_UTC ||
-  //               ser_subtype == TM_TIME_SET_IN_QB50 ||
-  //               ser_subtype == TM_REPORT_TIME_IN_QB50 ||
-  //               ser_subtype == TM_REPORT_TIME_IN_UTC ||
-  //               ser_subtype == TM_TIME_REPORT_IN_UTC ||
-  //               ser_subtype == TM_TIME_REPORT_IN_QB50) == true) {
-  //   return SATR_ERROR;
-  // }
-  //
-  // if (ser_subtype == TM_TIME_SET_IN_QB50) {
-  //   /*set time from 2000 epoch*/
-  //   pkt->verification_state = SATR_ERROR;
-  // } else if (ser_subtype == TM_TIME_SET_IN_UTC) {
+  printf("asdfsadf");
+  ser_subtype = (uint8_t)pkt->data[0];
+  printf("%d", ser_subtype);
+
+  if (ser_subtype == TM_TIME_SET_IN_UTC) {
+      printf("SET TIME");
+      cnv8_32(&pkt->data[1], &temp_time.unix_timestamp);
+      TIMESTAMP_ISOK(temp_time.unix_timestamp);
+      printf("ts: %d", temp_time.unix_timestamp);
+      fflush(stdout);
+      // set_time_UTC(temp_time);
+      // pkt->verification_state = SATR_OK;
+  }
+  // else if (ser_subtype == TM_TIME_SET_IN_UTC) {
   //   /*set time in utc mode*/
-  //   if (!(C_ASSERT(pkt->data[0] >= 1) && C_ASSERT(pkt->data[0] < 8)) == true)
-  //   {
-  //     return SATR_ERROR;
-  //   } /*weekday1to7*/
-  //   if (!(C_ASSERT(pkt->data[1] > 0) && C_ASSERT(pkt->data[1] < 32)) == true)
-  //   {
-  //     return SATR_ERROR;
-  //   } /*day1to31*/
-  //   if (!(C_ASSERT(pkt->data[2] > 0) && C_ASSERT(pkt->data[2] < 13)) == true)
-  //   {
-  //     return SATR_ERROR;
-  //   } /*month1to12*/
-  //   if (!(C_ASSERT(pkt->data[3] >= 0) && C_ASSERT(pkt->data[3] < 100)) ==
-  //       true) {
-  //     return SATR_ERROR;
-  //   } /*year0to99*/
-  //   if (!(C_ASSERT(pkt->data[4] >= 0) && C_ASSERT(pkt->data[4] < 24)) ==
-  //   true) {
-  //     return SATR_ERROR;
-  //   } /*hours0to23*/
-  //   if (!(C_ASSERT(pkt->data[5] >= 0) && C_ASSERT(pkt->data[5] < 60)) ==
-  //   true) {
-  //     return SATR_ERROR;
-  //   } /*minutes0to59*/
-  //   if (!(C_ASSERT(pkt->data[6] >= 0) && C_ASSERT(pkt->data[6] < 60)) ==
-  //   true) {
-  //     return SATR_ERROR;
-  //   } /*seconds0to59*/
-  //   temp_time.weekday = pkt->data[0];
-  //   temp_time.day = pkt->data[1];
-  //   temp_time.month = pkt->data[2];
-  //   temp_time.year = pkt->data[3];
-  //   temp_time.hour = pkt->data[4];
-  //   temp_time.min = pkt->data[5];
-  //   temp_time.sec = pkt->data[6];
+  //   temp_time.unix_timestamp = (uint32_t) pkt->data[1];
+  //   TIMESTAMP_ISOK(temp_time.unix_timestamp)
   //   set_time_UTC(temp_time);
   //   pkt->verification_state = SATR_OK;
   // } else if (ser_subtype == TM_REPORT_TIME_IN_QB50) {

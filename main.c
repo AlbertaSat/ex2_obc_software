@@ -19,7 +19,7 @@ ar -rsc client_server.a *.o
 #include <task.h>
 #include <unistd.h>
 
-#include "my_module.h"
+#include "demo.h"
 #include "scheduling_service.h"
 #include "services.h"
 #include "system.h"

@@ -1,8 +1,9 @@
 #ifndef TIME_MANAGEMENT_H
 #define TIME_MANAGEMENT_H
 
-#include <stdint.h>
 #include <csp/csp.h>
+#include <stdint.h>
+
 #include "services.h"
 // #include "pkt_pool.h"
 
@@ -21,17 +22,13 @@
 
 #define MAX_YEAR 21
 
+#define TIMESTAMP_ISOK(x) (x > 1577836800 && x < 1893456000) ? 1 : 0
+
 #define MIN_QB_SECS 2678400
 #define MAX_QB_SECS 662774400
 
 struct time_utc {
-  uint8_t weekday;
-  uint8_t day;
-  uint8_t month;
-  uint8_t year;
-  uint8_t hour;
-  uint8_t min;
-  uint8_t sec;
+  uint32_t unix_timestamp;
 };
 
 struct time_keeping {
