@@ -116,6 +116,7 @@ libcsp/src/arch/freertos \
 libcsp/src/crypto \
 libcsp/src \
 libcsp/src/drivers/can \
+libcsp/src/drivers/usart \
 libcsp/src/interfaces \
 libcsp/src/rtable \
 libcsp/src/transport \

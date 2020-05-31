@@ -135,6 +135,9 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <FreeRTOS.h>
+#include "HL_sci.h"
+#include "HL_sys_common.h"
+#include "HL_system.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -144,6 +147,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <csp/drivers/usart.h>
 #include <csp/drivers/can_socketcan.h>
 #include <csp/interfaces/csp_if_zmqhub.h>
+#include <csp/interfaces/csp_if_kiss.h>
 
 /* Server port, the port the server listens on for incoming connections from the client. */
 #define MY_SERVER_PORT      10
@@ -158,7 +162,7 @@ static unsigned int server_received = 0;
 /* Server task - handles requests from clients */
 void task_server(void* params) {
 
-//    csp_log_info("Server task started");
+    csp_log_info("Server task started");
 
     /* Create socket with no specific socket options, e.g. accepts CRC32, HMAC, XTEA, etc. if enabled during compilation */
     csp_socket_t *sock = csp_socket(CSP_SO_NONE);
@@ -210,7 +214,7 @@ void task_server(void* params) {
 /* Client task sending requests to server task */
 void task_client (void * params) {
 
-//    csp_log_info("Client task started");
+    csp_log_info("Client task started");
 
     unsigned int count = 0;
 
@@ -300,36 +304,80 @@ int main(int argc, char * argv[]) {
         exit(1);
     }
 
+    csp_usart_conf_t conf = {
+                .device = "yo",
+                .baudrate = 9600, /* supported on all platforms */
+                .databits = 8,
+                .stopbits = 2,
+                .paritysetting = 0,
+                .checkparity = 0};
+            error = csp_usart_open_and_add_kiss_interface(&conf, CSP_IF_KISS_DEFAULT_NAME,  &default_iface);
+
     csp_rtable_set(CSP_DEFAULT_ROUTE, 0, default_iface, CSP_NO_VIA_ADDRESS);
 
 
     /* Start server thread */
-    if ((server_address == 255) || (default_iface == NULL) ||1) {
+    if ((server_address == 255) || (default_iface == NULL)) {
         /* no interfaces specified -> run server & client via loopback */
-        xTaskCreate(task_server, "SERVER", 500, NULL, 0, NULL);
+        xTaskCreate(task_server, "SERVER", 1000, NULL, 0, NULL);
 
     }
 
     /* Start client thread */
     if ((server_address != 255) ||  /* server address specified, I must be client */
-        (default_iface == NULL) || 1) {  /* no interfaces specified -> run server & client via loopback */
-        xTaskCreate(task_client, "CLIENT", 500, NULL, 0, NULL);
+        (default_iface == NULL)) {  /* no interfaces specified -> run server & client via loopback */
+        xTaskCreate(task_client, "CLIENT", 1000, NULL, 0, NULL);
     }
     vTaskStartScheduler();
     /* Wait for execution to end (ctrl+c) */
-    while(1) {
-        csp_sleep_ms(3000);
-
-        if (test_mode) {
-            /* Test mode is intended for checking that host & client can exchange packets over loopback */
-            if (server_received < 5) {
-//                csp_log_error("Server received %u packets", server_received);
-                exit(1);
-            }
-//            csp_log_info("Server received %u packets", server_received);
-            exit(0);
-        }
-    }
+    while(1);
 
     return 0;
 }
+
+
+//#include "FreeRTOS.h"
+//#include "os_semphr.h"
+//#include "stdio.h"
+//
+//typedef struct {
+//    uint8_t len;
+//    uint8_t data[100];
+//} kiss_packet;
+//
+//kiss_packet packet;
+//xSemaphoreHandle sciInturruptSem;
+//
+//void sendTask(void *pvParameters) {
+//    xSemaphoreTake(sciInturruptSem, 0);
+//    for (;;) {
+//        xSemaphoreTake(sciInturruptSem, portMAX_DELAY);
+//        fprintf(stderr, "oo");
+//    }
+//}
+//
+//void sciNotification(sciBASE_t *sci, unsigned flags) {
+//    portBASE_TYPE higherTask = pdFALSE;
+//    xSemaphoreGiveFromISR(sciInturruptSem, &higherTask);
+//    sciReceive(sci, 1, packet.data);
+//}
+//
+//void esmGroup1Notification(int but) {
+//    return;
+//}
+//
+//void esmGroup2Notification(int but) {
+//    return;
+//}
+//
+//void main() {
+//
+//    _enable_IRQ();
+//    sciInit();
+//    sciReceive(sciREG1, 1, packet.data);
+//    vSemaphoreCreateBinary(sciInturruptSem);
+//    xTaskCreate(sendTask, "send task", 500, NULL, 0, NULL);
+//    vTaskStartScheduler();
+//    while(1);
+//    return 1;
+//}

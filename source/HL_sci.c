@@ -137,7 +137,7 @@ void sciInit(void)
     sciREG1->SETINT = (uint32)((uint32)0U << 26U)  /* Framing error */
                    | (uint32)((uint32)0U << 25U)  /* Overrun error */
                    | (uint32)((uint32)0U << 24U)  /* Parity error */
-                   | (uint32)((uint32)0U << 9U)  /* Receive */
+                   | (uint32)((uint32)1U << 9U)  /* Receive */
                    | (uint32)((uint32)0U << 1U)  /* Wakeup */
                    | (uint32)((uint32)0U << 0U);  /* Break detect */
 
@@ -1055,6 +1055,87 @@ void sci4GetConfigValue(sci_config_reg_t *config_reg, config_value_type_t type)
         config_reg->CONFIG_PIO7      = sciREG4->PIO7;     
         config_reg->CONFIG_PIO8      = sciREG4->PIO8; 
     }
+}
+
+/* USER CODE BEGIN (27) */
+/* USER CODE END */
+
+/* SourceId : SCI_SourceId_022 */
+/* DesignId : SCI_DesignId_017 */
+/* Requirements : HL_CONQ_SCI_SR20, HL_CONQ_SCI_SR21 */
+/** @fn void lin1HighLevelInterrupt(void)
+*   @brief Level 0 Interrupt for SCI1
+*/
+#pragma CODE_STATE(lin1HighLevelInterrupt, 32)
+#pragma INTERRUPT(lin1HighLevelInterrupt, IRQ)
+
+void lin1HighLevelInterrupt(void)
+{
+    uint32 vec = sciREG1->INTVECT0;
+	uint8 byte;
+/* USER CODE BEGIN (28) */
+/* USER CODE END */
+
+    switch (vec)
+    {
+    case 1U:
+        sciNotification(sciREG1, (uint32)SCI_WAKE_INT);
+        break;
+    case 3U:
+        sciNotification(sciREG1, (uint32)SCI_PE_INT);
+        break;
+    case 6U:
+        sciNotification(sciREG1, (uint32)SCI_FE_INT);
+        break;
+    case 7U:
+        sciNotification(sciREG1, (uint32)SCI_BREAK_INT);
+        break;
+    case 9U:
+        sciNotification(sciREG1, (uint32)SCI_OE_INT);
+        break;
+
+    case 11U:
+        /* receive */
+        byte = (uint8)(sciREG1->RD & 0x000000FFU);
+
+            if (g_sciTransfer_t[0U].rx_length > 0U)
+            {
+                *g_sciTransfer_t[0U].rx_data = byte;
+                g_sciTransfer_t[0U].rx_data++;
+                
+                g_sciTransfer_t[0U].rx_length--;
+                if (g_sciTransfer_t[0U].rx_length == 0U)
+                {
+                    sciNotification(sciREG1, (uint32)SCI_RX_INT);
+                }
+            }
+        
+        break;
+
+    case 12U:
+        /* transmit */
+		/*SAFETYMCUSW 30 S MR:12.2,12.3 <APPROVED> "Used for data count in Transmit/Receive polling and Interrupt mode" */
+		--g_sciTransfer_t[0U].tx_length;
+        if (g_sciTransfer_t[0U].tx_length > 0U)
+        {
+			uint8 txdata = *g_sciTransfer_t[0U].tx_data;
+            sciREG1->TD = (uint32)txdata;
+            g_sciTransfer_t[0U].tx_data++;
+        }
+        else
+        {
+            sciREG1->CLEARINT = SCI_TX_INT;
+            sciNotification(sciREG1, (uint32)SCI_TX_INT);
+        }
+        break;
+
+    default:
+        /* phantom interrupt, clear flags and return */
+        sciREG1->FLR = sciREG1->SETINTLVL & 0x07000303U;
+         break;
+    }
+/* USER CODE BEGIN (29) */
+/* USER CODE END */
 }
 
 
