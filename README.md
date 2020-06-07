@@ -15,6 +15,6 @@ To build the Docker image. This will take a few minutes (up to ~20 minutes): gra
 Now run:
 
 ```
-docker run -rm -it --network=host satellite_sim:latest
+docker run --rm -it --network=host satellite_sim:latest
 ```
 To begin the image. This will start the zmq proxy and run the satelliteSim with this project in it.
