@@ -5,11 +5,11 @@ This repo will include hardware agnostic/generic implementations of the ECSS ser
 
 ## File structure
 
-[file structure](https://github.com/AlbertaSat/ex2_command_handling_demo/tree/master/Docs/file_layout.pdf)
+![file structure](https://github.com/AlbertaSat/ex2_command_handling_demo/tree/master/Docs/file_layout.pdf)
 
 ## Design structure
 
-[design layout](https://github.com/AlbertaSat/ex2_command_handling_demo/tree/master/Docs/design_layout.pdf)
+![design layout](https://github.com/AlbertaSat/ex2_command_handling_demo/tree/master/Docs/design_layout.pdf)
 
 ## To run locally
 
