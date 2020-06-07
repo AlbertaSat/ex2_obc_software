@@ -1,6 +1,8 @@
 ## ex2 command handling demo
 This repo will include hardware agnostic/generic implementations of the ECSS services
 
+# The design choices for this Repo are outlined in [this](https://docs.google.com/document/d/1lwsXxDpW5vtddGfX8-NMvWY7z-IfMumLlIke-QgDpBo/edit) document
+
 ## To run locally
 
 [Install Docker](https://docs.docker.com/get-docker/) on your machine, and start it running in the background
