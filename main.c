@@ -34,6 +34,7 @@ SAT_returnState init_local_gs();
 #endif
 
 int main(int argc, char **argv) {
+  fprintf(stdout, "-- starting command demo --");
   TC_TM_app_id my_address = DEMO_APP_ID;
 
   if (start_service_handlers() != SATR_OK) {
