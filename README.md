@@ -10,7 +10,7 @@ In the root directory of this project, run:
 ```
 docker build --tag satellite_sim:latest .
 ```
-To build the Docker image. This will take a few minutes: grab a coffee and wait a few minutes. This will need to be redone after every change to the code, but subsequset builds are MUCH faster.
+To build the Docker image. This will take a few minutes (up to ~20 minutes): grab a coffee and chill ☕️. *This will need to be redone after every change to the code*, but subsequset builds are MUCH faster.
 
 Now run:
 
