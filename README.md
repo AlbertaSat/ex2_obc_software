@@ -1,5 +1,5 @@
 ## ex2 command handling demo
-This repo will server as a generic example of how a board on the Ex-Alta 2 satellite will distribute commands, and invoke a service. This same design will be used across the system
+This repo will include hardware agnostic/generic implementations of the ECSS services
 
 ## To run locally
 * Clone [SatelliteSim](https://github.com/AlbertaSat/SatelliteSim/) into the same root directory as this repository (just to keep things simple) and follow the instructions in the SatelliteSim repo for building CSP
