@@ -5,7 +5,7 @@ This repo will include hardware agnostic/generic implementations of the ECSS ser
 
 [Install Docker](https://docs.docker.com/get-docker/) on your machine, and start it running in the background
 
-In the root of this project, run:
+In the root directory of this project, run:
 
 ```
 docker build --tag satellite_sim:latest .
