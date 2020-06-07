@@ -248,8 +248,9 @@ typedef enum {
   3 /*subservice 3, Telecommand to report time in UTC*/
 #define TM_REPORT_TIME_IN_QB50 \
   4 /*subservice 4, Telecommand to report time in QB50*/
-#define TM_TIME_REPORT_IN_UTC 5 /*subservice 5, Telemetry response time in \
-                                   UTC*/
+#define TM_TIME_REPORT_IN_UTC                  \
+  5 /*subservice 5, Telemetry response time in \
+       UTC*/
 #define TM_TIME_REPORT_IN_QB50 \
   6 /*subservice 6, Telemetry response time in QB50*/
 
@@ -421,10 +422,10 @@ typedef struct {
 
   /* packet sequence control */
   uint8_t seq_flags;
-      /* 3 bits, definition in TC_SEQ_xPACKET */  // HANDLED BY CSP
+  /* 3 bits, definition in TC_SEQ_xPACKET */  // HANDLED BY CSP
   uint16_t seq_count;
-      /* 14 bits, packet counter, should be unique for each app id */  // HANDLED
-                                                                       // BY CSP
+  /* 14 bits, packet counter, should be unique for each app id */  // HANDLED
+                                                                   // BY CSP
 
   uint16_t len; /* 16 bits, C = (Number of octets in packet data field) - 1, on struct is the size of data without the headers. on array is with the headers */ // HANDLED BY CSP
 
@@ -435,7 +436,7 @@ typedef struct {
   /*optional*/
   // uint8_t pckt_sub_cnt; /* 8 bits*/
   TC_TM_app_id dest_id;
-      /*on TC is the source id, on TM its the destination id*/  // ??
+  /*on TC is the source id, on TM its the destination id*/  // ??
 
   uint8_t *data; /* pkt data */  // HANDLED BY CSP
 
