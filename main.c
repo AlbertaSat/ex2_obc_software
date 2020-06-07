@@ -1,13 +1,3 @@
-/*
-To build: gcc src/*.c src/telecommand/*.c -c -I include/telecommand/ -I
-../ex2_on_board_computer/Source/include/ -I ../ex2_on_board_computer/Project/ -I
-../ex2_on_board_computer/libcsp/include/ -I
-../ex2_on_board_computer/Source/portable/GCC/POSIX/ -I
-../ex2_on_board_computer/libcsp/build/include/ -m32 -lpthread -std=c99 -lrt &&
-ar -rsc client_server.a *.o
-
-(sorry for the long ass command)
-*/
 #include <FreeRTOS.h>
 #include <csp/csp.h>
 #include <csp/interfaces/csp_if_zmqhub.h>
