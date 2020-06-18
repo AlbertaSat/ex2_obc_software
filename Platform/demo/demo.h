@@ -12,11 +12,18 @@
 // -I ../ex2_on_board_computer/Source/portable/GCC/POSIX/ -I
 // ../ex2_on_board_computer/libcsp/build/include/ -m32 -lpthread -std=c99 -lrt
 // && ar -rsc client_server.a *.o^C
+
+extern xQueueHandle response_queue;
+extern unsigned int sent_count;
+
 #define TM_TC_BUFF_SIZE 256
 #define NORMAL_TICKS_TO_WAIT 1
 #define NORMAL_SERVICE_PRIO 5
 #define NORMAL_QUEUE_LEN 3
 #define NORMAL_QUEUE_SIZE 256
+
+#define ground_address 1
+#define RESPONSE_PORT  8888
 
 // Define all the services that the module implements
 typedef struct {
@@ -27,5 +34,7 @@ typedef struct {
 } service_queues_t;
 
 SAT_returnState start_service_handlers();
+
+SAT_returnState ground_response_task();
 
 #endif

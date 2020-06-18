@@ -14,7 +14,12 @@
 #include "services.h"
 #include "system.h"
 
+/*Create service queues*/
 service_queues_t service_queues;
+/* A response queue to ground station for all service*/
+xQueueHandle response_queue;
+/*create a variable to record # of packets sent to ground*/
+unsigned int sent_count = 0;
 
 void server_loop(void *parameters);
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
