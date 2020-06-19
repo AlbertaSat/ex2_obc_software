@@ -18,8 +18,8 @@
 service_queues_t service_queues;
 /* A response queue to ground station for all service*/
 xQueueHandle response_queue;
-/*create a variable to record # of packets sent to ground*/
-unsigned int sent_count = 0;
+
+
 
 void server_loop(void *parameters);
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
@@ -124,14 +124,14 @@ void server_loop(void *parameters) {
           csp_buffer_free(packet);
           break;
 
-        case TC_TIME_MANAGEMENT_SERVICE:
-          err = xQueueSendToBack(service_queues.time_management_app_queue,
-                                 packet, NORMAL_TICKS_TO_WAIT);
-          if (err != pdPASS) {
-            printf("FAILED TO QUEUE MESSAGE");
-          }
-          csp_buffer_free(packet);
-          break;
+        // case TC_TIME_MANAGEMENT_SERVICE:
+        //   err = xQueueSendToBack(service_queues.time_management_app_queue,
+        //                          packet, NORMAL_TICKS_TO_WAIT);
+        //   if (err != pdPASS) {
+        //     printf("FAILED TO QUEUE MESSAGE");
+        //   }
+        //   csp_buffer_free(packet);
+        //   break;
 
         default:
           csp_service_handler(conn, packet);

@@ -53,3 +53,9 @@ RUN gcc *.c Platform/demo/*.c Platform/demo/hal/*.c Services/*.c -c -I . -I Plat
 WORKDIR /home/SatelliteSim
 RUN make clean && make all
 CMD ./libcsp/build/zmqproxy & ./SatelliteSim
+#CMD ./SatelliteSim
+
+#build ground station
+#WORKDIR /home/ex2_ground_station_software
+#RUN LD_LIBRARY_PATH=/home/SatelliteSim/libcsp/build PYTHONPATH=/home/SatelliteSim/libcsp/#build #python3 Src/groundStation.py -I zmq
+
