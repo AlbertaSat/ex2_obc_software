@@ -15,8 +15,8 @@ extern unsigned int count;
 
 //extern CSP_DEFINE_TASK(hk_app);
 SAT_returnState hk_service_app(csp_packet_t *pkt);
-SAT_returnState tc_hk_para_rep(csp_packet_t *packet, uint32_t timeout);
-SAT_returnState tm_hk_para_rep(uint32_t timeout);
+csp_packet_t* tc_hk_para_rep(csp_packet_t *packet);
+//SAT_returnState tm_hk_para_rep(uint32_t timeout);
 csp_packet_t* hk_para_rep(void);
 
 /*hk data sample*/
