@@ -94,7 +94,7 @@ void server_loop(void *parameters) {
   sock = csp_socket(CSP_SO_NONE);
   csp_bind(sock, CSP_ANY);
   csp_listen(sock, 5);
-  portBASE_TYPE err;
+  portBASE_TYPE err,err2;
 
   /* Super loop */
   for (;;) {
@@ -109,9 +109,11 @@ void server_loop(void *parameters) {
           printf("%s - %d", packet->data, packet->id);
           err = xQueueSendToBack(service_queues.hk_app_queue, packet,
                                  NORMAL_TICKS_TO_WAIT);
-          if (err != pdPASS) {
-            printf("FAILED TO QUEUE MESSAGE");
-          }
+          err2 = xQueueSendToBack(response_queue, conn,
+	                                 NORMAL_TICKS_TO_WAIT);
+	          if (err != pdPASS || err2 != pdPASS) {
+	            printf("FAILED TO QUEUE MESSAGE");
+	          }
           csp_buffer_free(packet);
           break;
 
@@ -124,14 +126,14 @@ void server_loop(void *parameters) {
           csp_buffer_free(packet);
           break;
 
-        // case TC_TIME_MANAGEMENT_SERVICE:
-        //   err = xQueueSendToBack(service_queues.time_management_app_queue,
-        //                          packet, NORMAL_TICKS_TO_WAIT);
-        //   if (err != pdPASS) {
-        //     printf("FAILED TO QUEUE MESSAGE");
-        //   }
-        //   csp_buffer_free(packet);
-        //   break;
+        case TC_TIME_MANAGEMENT_SERVICE:
+          err = xQueueSendToBack(service_queues.time_management_app_queue,
+                                 packet, NORMAL_TICKS_TO_WAIT);
+          if (err != pdPASS) {
+            printf("FAILED TO QUEUE MESSAGE");
+          }
+          csp_buffer_free(packet);
+          break;
 
         default:
           csp_service_handler(conn, packet);

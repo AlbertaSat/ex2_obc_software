@@ -53,7 +53,7 @@ RUN gcc *.c Platform/demo/*.c Platform/demo/hal/*.c Services/*.c -c -I . -I Plat
 WORKDIR /home/SatelliteSim
 RUN make clean && make all
 CMD ./libcsp/build/zmqproxy & ./SatelliteSim
-#CMD ./SatelliteSim
+#CMD ./libcsp/build/zmqproxy
 
 #build ground station
 #WORKDIR /home/ex2_ground_station_software
