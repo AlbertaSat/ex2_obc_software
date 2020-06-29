@@ -17,33 +17,6 @@
 unsigned int count = 0;
 extern service_queues_t service_queues;
 
-/* NB: Basically hk_para_rep will be wrriten in the hardware/platform file.*/
-
-csp_packet_t* hk_para_rep(){
-		csp_packet_t *packet = csp_buffer_get(100);
-		if (packet == NULL) {
-			/* Could not get buffer element */
-			csp_log_error("Failed to get CSP buffer");
-			csp_buffer_free(packet);
-			return NULL;
-		}
-		snprintf((char *) packet->data[1], csp_buffer_data_size(), "HK Data Sample -- EPS CRRENT: 23mA", ++count);
-		//tranfer the task from TC to TM for enabling ground response task
-		packet->data[0] = TM_HK_PARAMETERS_REPORT;
-		packet->length = (strlen((char *) packet->data) + 1);
-
-		return packet;
-}
-
-csp_packet_t* tc_hk_para_rep(csp_packet_t *packet){
-		//execute #25 subtask: parameter report, collecting data from platform
-		packet = hk_para_rep();
-		if(packet->data == NULL){
-			  csp_log_info("HOUSEKEEPING SERVICE REPORT: DATA COLLECTING FAILED")
-				return SATR_ERROR;
-			}
-		return packet;
-}
 
 SAT_returnState hk_service_app(csp_packet_t *pkt) {
   uint8_t ser_subtype = (uint8_t)pkt->data[0];
@@ -64,6 +37,34 @@ SAT_returnState hk_service_app(csp_packet_t *pkt) {
 
 	csp_buffer_free(pkt);
 	return SATR_OK;
+}
+
+/* NB: Basically hk_para_rep will be wrriten in the hardware/platform file.*/
+
+csp_packet_t* hk_para_rep(){
+		csp_packet_t *packet = csp_buffer_get(100);
+		if (packet == NULL) {
+			/* Could not get buffer element */
+			csp_log_error("Failed to get CSP buffer");
+			csp_buffer_free(packet);
+			return NULL;
+		}
+		snprintf((char *) packet->data[1], csp_buffer_data_size(), "HK Data Sample -- EPS CRRENT: 23mA", ++count);
+		//tranfer the task from TC to TM for enabling ground response task
+		packet->data[0] = TM_HK_PARAMETERS_REPORT;
+		packet->length = (strlen((char *) packet->data) + 1);
+
+		return packet;
+}
+
+csp_packet_t* tc_hk_para_rep(csp_packet_t* packet){
+		//execute #25 subtask: parameter report, collecting data from platform
+		packet = hk_para_rep();
+		if(packet->data[1] == NULL){
+			  csp_log_info("HOUSEKEEPING SERVICE REPORT: DATA COLLECTING FAILED")
+				return SATR_ERROR;
+			}
+		return packet;
 }
 
 SAT_returnState ground_response_task(csp_packet_t *packet){
