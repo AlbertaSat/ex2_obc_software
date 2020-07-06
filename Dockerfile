@@ -35,6 +35,9 @@ RUN apt-get install libzmq5 -y
 #install gdb debug tool
 RUN apt-get install gdb -y
 
+#install valgrind memcheck tool
+RUN apt-get -y install valgrind
+
 WORKDIR /home/
 RUN git clone https://github.com/AlbertaSat/SatelliteSim.git
 WORKDIR /home/SatelliteSim
@@ -56,8 +59,6 @@ RUN gcc -g *.c Platform/demo/*.c Platform/demo/hal/*.c Services/*.c -c -I . -I P
 
 WORKDIR /home/SatelliteSim
 RUN make clean && make all
-#CMD ./libcsp/build/zmqproxy &./SatelliteSim
-CMD ./libcsp/build/zmqproxy & gdb -q ./SatelliteSim
-
-
-
+CMD ./libcsp/build/zmqproxy &./SatelliteSim
+#CMD ./libcsp/build/zmqproxy & gdb -q ./SatelliteSim
+#CMD ./libcsp/build/zmqproxy & valgrind --tool=memcheck --leak-check=yes --show-reachable=yes ./SatelliteSim

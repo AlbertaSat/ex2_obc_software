@@ -48,7 +48,6 @@ static void hk_app(void *parameters) {
       printf("111");
       hk_service_app(&packet);
       printf("222");
-      csp_buffer_free(&packet);
     }
   }
 }
