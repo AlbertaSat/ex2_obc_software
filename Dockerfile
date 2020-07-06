@@ -32,6 +32,9 @@ RUN ./configure
 RUN make && make install
 RUN apt-get install libzmq5 -y
 
+#install gdb debug tool
+RUN apt-get install gdb -y
+
 WORKDIR /home/
 RUN git clone https://github.com/AlbertaSat/SatelliteSim.git
 WORKDIR /home/SatelliteSim
@@ -48,14 +51,14 @@ RUN python3 waf build
 # build this codebase
 WORKDIR /home/ex2_command_handling_demo
 COPY . .
-RUN gcc *.c Platform/demo/*.c Platform/demo/hal/*.c Services/*.c -c -I . -I Platform/demo -I Platform/hal -I Services/ -I ../upsat-ecss-services/services/ -I ../SatelliteSim/Source/include/ -I ../SatelliteSim/Project/ -I ../SatelliteSim/libcsp/include/ -I ../SatelliteSim/Source/portable/GCC/POSIX/ -I ../SatelliteSim/libcsp/build/include/ -lpthread -std=c99 -lrt && ar -rsc client_server.a *.o
+#RUN gcc Platform/demo/demo_housekeeping.c -c -I . -I Platform/demo -I Platform/hal -I Services/ -I ../upsat-ecss-services/services/ -I ../SatelliteSim/Source/include/ -I ../SatelliteSim/Project/ -I ../SatelliteSim/libcsp/include/ -I ../SatelliteSim/Source/portable/GCC/POSIX/ -I ../SatelliteSim/libcsp/build/include/ -lpthread -std=c99 -lrt && ar -rsc client_server.a *.o
+RUN gcc -g *.c Platform/demo/*.c Platform/demo/hal/*.c Services/*.c -c -I . -I Platform/demo -I Platform/hal -I Services/ -I ../upsat-ecss-services/services/ -I ../SatelliteSim/Source/include/ -I ../SatelliteSim/Project/ -I ../SatelliteSim/libcsp/include/ -I ../SatelliteSim/Source/portable/GCC/POSIX/ -I ../SatelliteSim/libcsp/build/include/ -lpthread -std=c99 -lrt && ar -rsc client_server.a *.o
 
 WORKDIR /home/SatelliteSim
 RUN make clean && make all
-CMD ./libcsp/build/zmqproxy & ./SatelliteSim
-#CMD ./libcsp/build/zmqproxy
+#CMD ./libcsp/build/zmqproxy &./SatelliteSim
+CMD ./libcsp/build/zmqproxy
+CMD gdb -q ./SatelliteSim
 
-#build ground station
-#WORKDIR /home/ex2_ground_station_software
-#RUN LD_LIBRARY_PATH=/home/SatelliteSim/libcsp/build PYTHONPATH=/home/SatelliteSim/libcsp/#build #python3 Src/groundStation.py -I zmq
+
 

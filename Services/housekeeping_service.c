@@ -19,13 +19,19 @@ extern service_queues_t service_queues;
 
 
 SAT_returnState hk_service_app(csp_packet_t *pkt) {
+ printf("Test HK Service 1");
   uint8_t ser_subtype = (uint8_t)pkt->data[0];
+ printf("Test HK Service 2");
   switch (ser_subtype) {
     case HK_PARAMETERS_REPORT: 
+			printf("Test HK Service 3");
 	    	pkt = tc_hk_para_rep(pkt);
+			printf("Test HK Service 4");
 		    if(pkt->data[1]!= NULL){
 		    		csp_log_info("HK_REPORT_PARAMETERS TASK FINISHED");
 			  }
+			sleep(1);
+			printf("Ground Station Task Checkout");
 		  	if(pkt->data[0] == TM_HK_PARAMETERS_REPORT)//determine if needed to send back to ground
 	  		 	  ground_response_task(pkt);
 	  		break;	    

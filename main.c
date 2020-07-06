@@ -14,6 +14,10 @@
 #include "services.h"
 #include "system.h"
 
+// #ifndef CSP_HAVE_LIBZMQ
+// #define CSP_HAVE_LIBZMQ 1
+// #endif
+
 /*Create service queues*/
 service_queues_t service_queues;
 /* A response queue to ground station for all service*/
@@ -91,6 +95,7 @@ void server_loop(void *parameters) {
   csp_packet_t *packet;
 
   /* Create socket and listen for incoming connections */
+  printf("Under Test 1");
   sock = csp_socket(CSP_SO_NONE);
   csp_bind(sock, CSP_ANY);
   csp_listen(sock, 5);
@@ -98,42 +103,47 @@ void server_loop(void *parameters) {
 
   /* Super loop */
   for (;;) {
+    printf("Under Test Super Loop\n");
     /* Process incoming packet */
     if ((conn = csp_accept(sock, 10000)) == NULL) {
       /* timeout */
       continue;
     }
+    printf("Under Test Accept\n");
     while ((packet = csp_read(conn, 50)) != NULL) {
+      printf("Reading Packet\n");
       switch (csp_conn_dport(conn)) {
         case TC_HOUSEKEEPING_SERVICE:
-          printf("%s - %d", packet->data, packet->id);
+          printf("Read Packet: %s - %d\n", packet->data, packet->id);
           err = xQueueSendToBack(service_queues.hk_app_queue, packet,
                                  NORMAL_TICKS_TO_WAIT);
+          printf("333\n");
           err2 = xQueueSendToBack(response_queue, conn,
 	                                 NORMAL_TICKS_TO_WAIT);
+          printf("444\n");
 	          if (err != pdPASS || err2 != pdPASS) {
 	            printf("FAILED TO QUEUE MESSAGE");
 	          }
+          printf("END OF HK PACKET RECV\n");
           csp_buffer_free(packet);
           break;
+        // case TC_TEST_SERVICE:
+        //   err = xQueueSendToBack(service_queues.test_app_queue, packet,
+        //                          NORMAL_TICKS_TO_WAIT);
+        //   if (err != pdPASS) {
+        //     printf("FAILED TO QUEUE MESSAGE");
+        //   }
+        //   csp_buffer_free(packet);
+        //   break;
 
-        case TC_TEST_SERVICE:
-          err = xQueueSendToBack(service_queues.test_app_queue, packet,
-                                 NORMAL_TICKS_TO_WAIT);
-          if (err != pdPASS) {
-            printf("FAILED TO QUEUE MESSAGE");
-          }
-          csp_buffer_free(packet);
-          break;
-
-        case TC_TIME_MANAGEMENT_SERVICE:
-          err = xQueueSendToBack(service_queues.time_management_app_queue,
-                                 packet, NORMAL_TICKS_TO_WAIT);
-          if (err != pdPASS) {
-            printf("FAILED TO QUEUE MESSAGE");
-          }
-          csp_buffer_free(packet);
-          break;
+        // case TC_TIME_MANAGEMENT_SERVICE:
+        //   err = xQueueSendToBack(service_queues.time_management_app_queue,
+        //                          packet, NORMAL_TICKS_TO_WAIT);
+        //   if (err != pdPASS) {
+        //     printf("FAILED TO QUEUE MESSAGE");
+        //   }
+        //   csp_buffer_free(packet);
+        //   break;
 
         default:
           csp_service_handler(conn, packet);
