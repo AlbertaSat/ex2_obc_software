@@ -1,3 +1,22 @@
+/*
+ * Copyright (C) 2015  University of Alberta
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+/**
+ * @file main.c
+ * @author Andrew Rooney
+ * @date 2020-06-06
+ */
+
 #include <FreeRTOS.h>
 #include <csp/csp.h>
 #include <csp/interfaces/csp_if_zmqhub.h>
@@ -10,7 +29,6 @@
 #include <unistd.h>
 
 #include "demo.h"
-#include "scheduling_service.h"
 #include "services.h"
 #include "system.h"
 
@@ -23,10 +41,7 @@ xQueueHandle response_queue;
 
 void server_loop(void *parameters);
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
-SAT_returnState init_local_gs();
-
-#ifdef USE_LOCAL_GS
-#endif
+SAT_returnState init_zmq();
 
 int main(int argc, char **argv) {
   fprintf(stdout, "-- starting command demo --");
@@ -52,7 +67,7 @@ int main(int argc, char **argv) {
   csp_route_start_task(500, 0);
 
 #ifdef USE_LOCALHOST
-  init_local_gs();
+  init_zmq();
 // csp_iface_t this_interface = csp_if_fifo;
 #else
 // implement other interfaces
@@ -69,7 +84,14 @@ int main(int argc, char **argv) {
   return 0;
 }
 
-SAT_returnState init_local_gs() {
+/**
+ * @brief
+ * 		initialize zmq interface, and configure the routing table
+ * @details
+ * 		start the localhost zmq server and add it to the default route
+ * with no VIA address
+ */
+SAT_returnState init_zmq() {
   csp_iface_t *default_iface = NULL;
   int error =
       csp_zmqhub_init(csp_get_address(), "localhost", 0, &default_iface);
@@ -85,6 +107,15 @@ void vAssertCalled(unsigned long ulLine, const char *const pcFileName) {
   printf("error line: %lu in file: %s", ulLine, pcFileName);
 }
 
+/**
+ * @brief
+ * 		main CSP server loop
+ * @details
+ * 		send incoming CSP packets to the appropriate service queues,
+ * otherwise pass it to the CSP service handler
+ * @param void *parameters
+ * 		not used
+ */
 void server_loop(void *parameters) {
   csp_socket_t *sock;
   csp_conn_t *conn;
@@ -136,6 +167,7 @@ void server_loop(void *parameters) {
           break;
 
         default:
+          /* let CSP respond to requests */
           csp_service_handler(conn, packet);
           break;
       }

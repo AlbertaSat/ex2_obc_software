@@ -1,3 +1,22 @@
+/*
+ * Copyright (C) 2015  University of Alberta
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+/**
+ * @file demo.c
+ * @author Andrew Rooney
+ * @date 2020-06-06
+ */
+
 #include "demo.h"
 
 #include <FreeRTOS.h>
@@ -42,40 +61,24 @@ static void time_management_app_route(void *parameters) {
                       NORMAL_TICKS_TO_WAIT) == pdPASS) {
       printf("Time time_management_service SERVICE RX: %d, ID: %d\n",
              packet.data[0], packet.id);
-      // verify a valid sub-service
-      // configASSERT(packet.data[0] <= (unsigned char) 0 && packet.data[0] <
-      // (unsigned char) 0xff); // TODO: figure out the actual range of valid
-      // values
       time_management_app(&packet);
     }
   }
 }
 
+/**
+ * @brief
+ * 		Initialize service handling tasks, and queues
+ * @details
+ * 		Starts the FreeRTOS queueues and the tasks that wait on them for
+ * incoming CSP
+ * @return SAT_returnState
+ * 		success report
+ */
 SAT_returnState start_service_handlers() {
   /**
    * Create the queues & tasks for each service implemented by this module
    */
-  if (!(service_queues.verification_app_queue =
-            xQueueCreate((unsigned portBASE_TYPE)NORMAL_QUEUE_LEN,
-                         (unsigned portBASE_TYPE)NORMAL_QUEUE_SIZE))) {
-    printf("FAILED TO CREATE VERIFICATION APP QUEUE");
-    return SATR_ERROR;
-  };
-
-  if (!(service_queues.hk_app_queue =
-            xQueueCreate((unsigned portBASE_TYPE)NORMAL_QUEUE_LEN,
-                         (unsigned portBASE_TYPE)NORMAL_QUEUE_SIZE))) {
-    printf("FAILED TO CREATE HK APP QUEUE");
-    return SATR_ERROR;
-  };
-
-  if (!(service_queues.test_app_queue =
-            xQueueCreate((unsigned portBASE_TYPE)NORMAL_QUEUE_LEN,
-                         (unsigned portBASE_TYPE)NORMAL_QUEUE_SIZE))) {
-    printf("FAILED TO CREATE TEST APP QUEUE");
-    return SATR_ERROR;
-  };
-
   if (!(service_queues.time_management_app_queue =
             xQueueCreate((unsigned portBASE_TYPE)NORMAL_QUEUE_LEN,
                          (unsigned portBASE_TYPE)NORMAL_QUEUE_SIZE))) {
