@@ -17,13 +17,12 @@
  * @date 2020-06-06
  */
 
-#include "time_management_service.h"
-
 #include <FreeRTOS.h>
 #include <csp/csp.h>
 #include <stdio.h>
 
 #include "service_utilities.h"
+#include "time_management_service.h"
 
 /* Include the appropriate HAL files */
 #if (SYSTEM_APP_ID == DEMO_APP_ID_)
@@ -47,7 +46,7 @@ SAT_returnState time_management_app(csp_packet_t *pkt) {
   struct time_utc temp_time;
 
   switch (ser_subtype) {
-    case TM_TIME_SET_IN_UTC:
+    case SET_TIME:
       printf("SET TIME\n");
       cnv8_32(&pkt->data[1], &temp_time.unix_timestamp);
       if (!TIMESTAMP_ISOK(temp_time.unix_timestamp)) {
@@ -62,7 +61,7 @@ SAT_returnState time_management_app(csp_packet_t *pkt) {
 
     default:
       printf("No such subservice\n");
-      break;
+      return SATR_PKT_ILLEGAL_SUBSERVICE;
   }
   return SATR_OK;
 }

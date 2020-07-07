@@ -1,5 +1,3 @@
-#include "housekeeping_service.h"
-
 #include <FreeRTOS.h>
 #include <csp/arch/csp_thread.h>
 #include <csp/csp.h>
@@ -11,6 +9,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "housekeeping_service.h"
 #include "demo.h"
 #include "service_utilities.h"
 #include "services.h"
