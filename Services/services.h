@@ -38,10 +38,11 @@ typedef enum {
 
 typedef enum {
   SATR_PKT_ILLEGAL_APPID = 0,
-  SATR_OK = 1,
-  SATR_ERROR = 2,
+  SATR_PKT_ILLEGAL_SUBSERVICE,
+  SATR_OK,
+  SATR_ERROR,
   /*LAST*/
-  SATR_LAST = 56
+  SATR_LAST
 } SAT_returnState;
 
 /* services types & subtypes
@@ -60,7 +61,7 @@ typedef enum {
 
 #define TC_TIME_MANAGEMENT_SERVICE 12
 typedef enum {
-  TM_TIME_SET_IN_UTC = 0
+  SET_TIME = 0
 } Time_Management_Subtype;
 
 #define TM_HK_PARAMETERS_REPORT 0

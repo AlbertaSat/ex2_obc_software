@@ -106,8 +106,8 @@ SAT_returnState start_service_handlers() {
   //   return SATR_ERROR;
   // };
 
-  xTaskCreate((TaskFunction_t)housekeeping_app_route, "hk app", 2048, NULL, NORMAL_SERVICE_PRIO,
-             NULL);
+  xTaskCreate((TaskFunction_t)housekeeping_app_route, "housekeeping_app_route",
+              2048, NULL, NORMAL_SERVICE_PRIO, NULL);
 
   xTaskCreate((TaskFunction_t)time_management_app_route, "time_management_app",
               2048, NULL, NORMAL_SERVICE_PRIO, NULL);
