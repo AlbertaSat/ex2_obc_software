@@ -19,15 +19,24 @@ extern service_queues_t service_queues;
 
 
 SAT_returnState hk_service_app(csp_packet_t *pkt) {
+ printf("Test HK Service 1\n");
   uint8_t ser_subtype = (uint8_t)pkt->data[0];
+ printf("Test HK Service 2\n");
   switch (ser_subtype) {
     case HK_PARAMETERS_REPORT: 
+			printf("Test HK Service 3\n");
 	    	pkt = tc_hk_para_rep(pkt);
+			printf("Test HK Service 4\n");
 		    if(pkt->data[1]!= NULL){
 		    		csp_log_info("HK_REPORT_PARAMETERS TASK FINISHED");
 			  }
-		  	if(pkt->data[0] == TM_HK_PARAMETERS_REPORT)//determine if needed to send back to ground
+			sleep(1);
+			printf("Ground Station Task Checkout\n");
+		  	if(pkt->data[0] == TM_HK_PARAMETERS_REPORT){//determine if needed to send back to ground
+				  printf("Enter Loop\n");
 	  		 	  ground_response_task(pkt);
+				  printf("Loop Finished\n");
+			  }
 	  		break;	    
     default:
 	    	csp_log_error("HK SERVICE NOT FOUND SUBTASK");
@@ -49,7 +58,9 @@ csp_packet_t* hk_para_rep(){
 			csp_buffer_free(packet);
 			return NULL;
 		}
-		snprintf((char *) packet->data[1], csp_buffer_data_size(), "HK Data Sample -- EPS CRRENT: 23mA", ++count);
+		//snprintf((char *) packet->data[1], csp_buffer_data_size(), 16, ++count);
+		packet->data[1] = 16;
+		++count;
 		//tranfer the task from TC to TM for enabling ground response task
 		packet->data[0] = TM_HK_PARAMETERS_REPORT;
 		packet->length = (strlen((char *) packet->data) + 1);
@@ -69,7 +80,7 @@ csp_packet_t* tc_hk_para_rep(csp_packet_t* packet){
 
 SAT_returnState ground_response_task(csp_packet_t *packet){
 
-    csp_log_info("Sending back to ground station...");
+    csp_log_info("Sending back to ground station...\n");
 
     csp_conn_t *conn;
 
@@ -97,7 +108,7 @@ SAT_returnState ground_response_task(csp_packet_t *packet){
 
     /*  Close connection */
     sent_count++;
-    csp_log_info("#%d PACKET HAS BEEN SENT TO GROUND", sent_count);
+    csp_log_info("#%d PACKET HAS BEEN SENT TO GROUND\n", sent_count);
     csp_buffer_free(packet);
     csp_close(conn);
  

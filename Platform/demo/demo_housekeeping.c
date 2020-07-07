@@ -1,18 +1,18 @@
-/*
+// /*
 
-@ This file is for testing housekeeping service loop only, mainly consisting of main.c, demo.c and housekeeping_service.c 
+// @ This file is for testing housekeeping service loop only, mainly consisting of main.c, demo.c and housekeeping_service.c 
 
-@ Current testing hardware platform: DEMO  
+// @ Current testing hardware platform: DEMO  
 
-@ To complie, use command: 
+// @ To complie, use command: 
 
-    gcc Platform/demo/demo_housekeeping.c Platform/demo/hal/*.c -c -I . 
-    -I Platform/demo -I Platform/hal -I Services/ -I ../upsat-ecss-services/services/ 
-    -I ../SatelliteSim/Source/include/ -I ../SatelliteSim/Project/ -I ../SatelliteSim/libcsp/include/ 
-    -I ../SatelliteSim/Source/portable/GCC/POSIX/ -I ../SatelliteSim/libcsp/build/include/ 
-    -lpthread -std=c99 -lrt && ar -rsc client_server.a *.o
+//     gcc Platform/demo/demo_housekeeping.c Platform/demo/hal/*.c -c -I . 
+//     -I Platform/demo -I Platform/hal -I Services/ -I ../upsat-ecss-services/services/ 
+//     -I ../SatelliteSim/Source/include/ -I ../SatelliteSim/Project/ -I ../SatelliteSim/libcsp/include/ 
+//     -I ../SatelliteSim/Source/portable/GCC/POSIX/ -I ../SatelliteSim/libcsp/build/include/ 
+//     -lpthread -std=c99 -lrt && ar -rsc client_server.a *.o
 
-*/
+// */
 
 // #include <stdio.h>
 // #include <string.h>
