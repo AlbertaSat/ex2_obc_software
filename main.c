@@ -37,7 +37,7 @@
 // #endif
 
 /*Create service queues*/
-service_queues_t service_queues;
+Service_Queues_t service_queues;
 /* A response queue to ground station for all service*/
 xQueueHandle response_queue;
 
@@ -48,11 +48,11 @@ void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
 SAT_returnState init_zmq();
 
 int main(int argc, char **argv) {
-  fprintf(stdout, "-- starting command demo --");
+  printf("-- starting command demo --\n");
   TC_TM_app_id my_address = DEMO_APP_ID;
 
   if (start_service_handlers() != SATR_OK) {
-    printf("COULD NOT START TELECOMMAND HANDLER");
+    printf("COULD NOT START TELECOMMAND HANDLER\n");
     return -1;
   }
 
@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
   csp_conf.address = my_address;
   int error = csp_init(&csp_conf);
   if (error != CSP_ERR_NONE) {
-    printf("csp_init() failed, error: %d", error);
+    printf("csp_init() failed, error: %d\n", error);
     return -1;
   }
   printf("Running at %d\n", my_address);
@@ -70,20 +70,18 @@ int main(int argc, char **argv) {
   // csp_route_set(CSP_DEFAULT_ROUTE, &this_interface, CSP_NODE_MAC);
   csp_route_start_task(500, 0);
 
-#ifdef USE_LOCALHOST
+  #ifdef USE_LOCALHOST
   init_zmq();
-// csp_iface_t this_interface = csp_if_fifo;
-#else
-// implement other interfaces
-#endif
+  #else
+  // implement other interfaces perhaps..
+  #endif
 
   xTaskCreate((TaskFunction_t)server_loop, "SERVER THREAD", 2048, NULL, 1,
               NULL);
 
   vTaskStartScheduler();
 
-  for (;;) {
-  }
+  for (;;);
 
   return 0;
 }
@@ -126,55 +124,38 @@ void server_loop(void *parameters) {
   csp_packet_t *packet;
 
   /* Create socket and listen for incoming connections */
-  printf("Under Test 1");
   sock = csp_socket(CSP_SO_NONE);
   csp_bind(sock, CSP_ANY);
   csp_listen(sock, 5);
   portBASE_TYPE err,err2;
 
   /* Super loop */
+  printf("Starting CSP server\n");
   for (;;) {
-    printf("Under Test Super Loop\n");
     /* Process incoming packet */
     if ((conn = csp_accept(sock, 10000)) == NULL) {
       /* timeout */
       continue;
     }
-    printf("Under Test Accept\n");
     while ((packet = csp_read(conn, 50)) != NULL) {
-      printf("Reading Packet\n");
       switch (csp_conn_dport(conn)) {
         case TC_HOUSEKEEPING_SERVICE:
-          printf("Read Packet: %s - %d\n", packet->data, packet->id);
           err = xQueueSendToBack(service_queues.hk_app_queue, packet,
                                  NORMAL_TICKS_TO_WAIT);
-          printf("333\n");
-          err2 = xQueueSendToBack(response_queue, conn,
-	                                 NORMAL_TICKS_TO_WAIT);
-          printf("444\n");
-	          if (err != pdPASS || err2 != pdPASS) {
-	            printf("FAILED TO QUEUE MESSAGE");
-	          }
-          printf("END OF HK PACKET RECV\n");
+          if (err != pdPASS) {
+            printf("FAILED TO QUEUE MESSAGE");
+          }
           csp_buffer_free(packet);
           break;
-        // case TC_TEST_SERVICE:
-        //   err = xQueueSendToBack(service_queues.test_app_queue, packet,
-        //                          NORMAL_TICKS_TO_WAIT);
-        //   if (err != pdPASS) {
-        //     printf("FAILED TO QUEUE MESSAGE");
-        //   }
-        //   csp_buffer_free(packet);
-        //   break;
 
-        // case TC_TIME_MANAGEMENT_SERVICE:
-        //   err = xQueueSendToBack(service_queues.time_management_app_queue,
-        //                          packet, NORMAL_TICKS_TO_WAIT);
-        //   if (err != pdPASS) {
-        //     printf("FAILED TO QUEUE MESSAGE");
-        //   }
-        //   csp_buffer_free(packet);
-        //   break;
+        case TC_TIME_MANAGEMENT_SERVICE:
+          err = xQueueSendToBack(service_queues.time_management_app_queue,
+                                 packet, NORMAL_TICKS_TO_WAIT);
+          if (err != pdPASS) {
+            printf("FAILED TO QUEUE MESSAGE");
+          }
+          csp_buffer_free(packet);
+          break;
 
         default:
           /* let CSP respond to requests */

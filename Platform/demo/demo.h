@@ -40,12 +40,12 @@ extern unsigned int sent_count;
 #define RESPONSE_PORT  8888
 
 // Define all the services that the module implements
+// Defined here are the services implemented by this platform
 typedef struct {
-  xQueueHandle verification_app_queue;
-  xQueueHandle hk_app_queue;
-  xQueueHandle test_app_queue;
-  xQueueHandle time_management_app_queue;
-} service_queues_t;
+  xQueueHandle response_queue,
+  hk_app_queue,
+  time_management_app_queue;
+} Service_Queues_t;
 
 SAT_returnState start_service_handlers();
 

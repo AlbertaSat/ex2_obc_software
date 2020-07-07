@@ -27,46 +27,18 @@
 #include "time_management_service.h"
 #include "services.h"
 
-extern service_queues_t service_queues;
+extern Service_Queues_t service_queues;
 /*create a variable to record # of packets sent to ground*/
 unsigned int sent_count =0;
 
-// static void test_app(void *parameters) {
-//   csp_packet_t packet;
-//   for (;;) {
-//     if (xQueueReceive(service_queues.test_app_queue, &packet,
-//                       NORMAL_TICKS_TO_WAIT) == pdPASS) {
-//       printf("TEST SERVICE RX: %.*s, ID: %d\n", packet.length,
-//              (char *)packet.data, packet.id);
-//     }
-//   }
-// }
-
-// static void hk_app(void *parameters) {
-//   csp_packet_t packet;
-//   for (;;) {
-//     if (xQueueReceive(service_queues.hk_app_queue, &packet,
-//                       NORMAL_TICKS_TO_WAIT) == pdPASS) {
-//       printf("HOUSEKEEPING SERVICE RX: %.*s, ID: %d\n", packet.length,
-//              (char *)packet.data, packet.id);
-//       printf("111");
-//       hk_service_app(&packet);
-//       printf("222");
-//       csp_buffer_free(&packet);
-//     }
-//   }
-// }
-
-static void hk_app(void *parameters) {
+static void housekeeping_app_route(void *parameters) {
   csp_packet_t packet;
   for (;;) {
     if (xQueueReceive(service_queues.hk_app_queue, &packet,
                       NORMAL_TICKS_TO_WAIT) == pdPASS) {
       printf("HOUSEKEEPING SERVICE RX: No.%d, ID: %d\n",
              packet.data[0], packet.id);
-      printf("111");
       hk_service_app(&packet);
-      printf("222");
     }
   }
 }
@@ -103,21 +75,25 @@ SAT_returnState start_service_handlers() {
     return SATR_ERROR;
   };
 
-  if (!(response_queue =
+  if (!(service_queues.hk_app_queue =
             xQueueCreate((unsigned portBASE_TYPE)NORMAL_QUEUE_LEN,
                          (unsigned portBASE_TYPE)NORMAL_QUEUE_SIZE))) {
-    printf("FAILED TO CREATE RESPONSE QUEUE");
+    printf("FAILED TO CREATE hk_app_queue");
     return SATR_ERROR;
   };
 
-  // xTaskCreate((TaskFunction_t)test_app, "test app", 2048, NULL,
-  //            NORMAL_SERVICE_PRIO, NULL);
+  // if (!(response_queue =
+  //           xQueueCreate((unsigned portBASE_TYPE)NORMAL_QUEUE_LEN,
+  //                        (unsigned portBASE_TYPE)NORMAL_QUEUE_SIZE))) {
+  //   printf("FAILED TO CREATE RESPONSE QUEUE");
+  //   return SATR_ERROR;
+  // };
 
-  xTaskCreate((TaskFunction_t)hk_app, "hk app", 2048, NULL, NORMAL_SERVICE_PRIO,
+  xTaskCreate((TaskFunction_t)housekeeping_app_route, "hk app", 2048, NULL, NORMAL_SERVICE_PRIO,
              NULL);
 
-  // xTaskCreate((TaskFunction_t)time_management_app_route, "time_management_app",
-  //             2048, NULL, NORMAL_SERVICE_PRIO, NULL);
+  xTaskCreate((TaskFunction_t)time_management_app_route, "time_management_app",
+              2048, NULL, NORMAL_SERVICE_PRIO, NULL);
 
   return SATR_OK;
 }
