@@ -19,7 +19,18 @@
 
 #include "service_utilities.h"
 
+#include <stdarg.h>
+#include <stdio.h>
+
 #include "time_management_service.h"
+
+void ex2_log(const char *format, ...) {
+  va_list arg;
+  va_start(arg, format);
+  fprintf(stdout, format, arg, 0);
+  va_end(arg);
+  return;
+}
 
 /* The following functions convert integer types from one representation to
  * another. Implementation from

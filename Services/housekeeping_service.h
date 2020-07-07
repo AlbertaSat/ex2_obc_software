@@ -1,5 +1,5 @@
-#ifndef __HOUSEKEEPING_SERVICE_H
-#define __HOUSEKEEPING_SERVICE_H
+#ifndef HOUSEKEEPING_SERVICE_H
+#define HOUSEKEEPING_SERVICE_H
 
 #include "services.h"
 
@@ -31,4 +31,4 @@ typedef enum {
   EPS_SIZE
 }data_sample;
 
-#endif
+#endif /* HOUSEKEEPING_SERVICE_H */
