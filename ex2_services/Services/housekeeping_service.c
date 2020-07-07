@@ -1,48 +1,52 @@
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <stdlib.h>
+#include "housekeeping_service.h"
 
 #include <FreeRTOS.h>
-#include <csp/csp.h>
 #include <csp/arch/csp_thread.h>
-#include <csp/drivers/usart.h>
+#include <csp/csp.h>
 #include <csp/drivers/can_socketcan.h>
+#include <csp/drivers/usart.h>
 #include <csp/interfaces/csp_if_zmqhub.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
-#include "housekeeping_service.h"
-#include "services.h"
 #include "demo.h"
+#include "service_utilities.h"
+#include "services.h"
 
 unsigned int count = 0;
 extern Service_Queues_t service_queues;
 
 
 SAT_returnState hk_service_app(csp_packet_t *pkt) {
- printf("Test HK Service 1\n");
+  ex2_log("Test HK Service 1\n");
   uint8_t ser_subtype = (uint8_t)pkt->data[0];
- printf("Test HK Service 2\n");
+  ex2_log("Test HK Service 2\n");
   switch (ser_subtype) {
     case HK_PARAMETERS_REPORT:
-			printf("Test HK Service 3\n");
-	    	pkt = tc_hk_para_rep(pkt);
-			printf("Test HK Service 4\n");
-		    if(pkt->data[1]!= NULL){
-		    		csp_log_info("HK_REPORT_PARAMETERS TASK FINISHED");
-			  }
+      ex2_log("Test HK Service 3\n");
+      pkt = tc_hk_para_rep(pkt);
+      ex2_log("Test HK Service 4\n");
+      if (pkt->data[1] != NULL) {
+        csp_log_info("HK_REPORT_PARAMETERS TASK FINISHED");
+			}
 			sleep(1);
-			printf("Ground Station Task Checkout\n");
-		  	if(pkt->data[0] == TM_HK_PARAMETERS_REPORT){//determine if needed to send back to ground
-				  printf("Enter Loop\n");
-	  		 	  ground_response_task(pkt);
-				  printf("Loop Finished\n");
-			  }
-	  		break;
+      ex2_log("Ground Station Task Checkout\n");
+      if (pkt->data[0] ==
+          TM_HK_PARAMETERS_REPORT) {  // determine if needed
+                                      // to send back to ground
+        ex2_log("Enter Loop\n");
+        ground_response_task(pkt);
+        ex2_log("Loop Finished\n");
+      }
+      break;
+
     default:
-	    	csp_log_error("HK SERVICE NOT FOUND SUBTASK");
-	    	csp_buffer_free(pkt);
-	    	return SATR_ERROR;
-	}
+      csp_log_error("HK SERVICE NOT FOUND SUBTASK");
+      csp_buffer_free(pkt);
+      return SATR_ERROR;
+        }
 
 	return SATR_OK;
 }
@@ -57,8 +61,9 @@ csp_packet_t* hk_para_rep(){
 			csp_buffer_free(packet);
 			return NULL;
 		}
-		//snprintf((char *) packet->data[1], csp_buffer_data_size(), 16, ++count);
-		packet->data[1] = 16;
+                // snex2_log((char *) packet->data[1], csp_buffer_data_size(),
+                // 16, ++count);
+                packet->data[1] = 16;
 		++count;
 		//tranfer the task from TC to TM for enabling ground response task
 		packet->data[0] = TM_HK_PARAMETERS_REPORT;
@@ -88,8 +93,8 @@ SAT_returnState ground_response_task(csp_packet_t *packet){
     /*To get conn from the response queue*/
     if((err = xQueueReceive(response_queue, conn,
                                     NORMAL_TICKS_TO_WAIT)) != pdPASS){
-        printf("FAILED TO QUEUE MESSAGE TO GROUND");
-        csp_buffer_free(packet);
+      ex2_log("FAILED TO QUEUE MESSAGE TO GROUND");
+      csp_buffer_free(packet);
     }
 
     if (conn == NULL) {
@@ -147,7 +152,8 @@ SAT_returnState ground_response_task(csp_packet_t *packet){
 // 			csp_buffer_free(packet);
 // 			return NULL;
 // 		}
-// 		snprintf((char *) packet->data[1], csp_buffer_data_size(), "HK Data Sample -- EPS CRRENT: 23mA", ++count);
+// 		snex2_log((char *) packet->data[1], csp_buffer_data_size(), "HK
+// Data Sample -- EPS CRRENT: 23mA", ++count);
 // 		/*tranfer the task from TC to TM*/
 // 		packet->data[0] = TM_HK_PARAMETERS_REPORT;
 // 		packet->length = (strlen((char *) packet->data) + 1);

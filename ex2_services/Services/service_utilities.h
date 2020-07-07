@@ -18,6 +18,8 @@
 #include <stdint.h>
 #include "services.h"
 
+void ex2_log(const char *format, ...);
+
 void cnv32_8(const uint32_t from, uint8_t *to);
 
 void cnv16_8(const uint16_t from, uint8_t *to);
