@@ -15,7 +15,7 @@
 #include "demo.h"
 
 unsigned int count = 0;
-extern service_queues_t service_queues;
+extern Service_Queues_t service_queues;
 
 
 SAT_returnState hk_service_app(csp_packet_t *pkt) {
@@ -23,7 +23,7 @@ SAT_returnState hk_service_app(csp_packet_t *pkt) {
   uint8_t ser_subtype = (uint8_t)pkt->data[0];
  printf("Test HK Service 2\n");
   switch (ser_subtype) {
-    case HK_PARAMETERS_REPORT: 
+    case HK_PARAMETERS_REPORT:
 			printf("Test HK Service 3\n");
 	    	pkt = tc_hk_para_rep(pkt);
 			printf("Test HK Service 4\n");
@@ -37,14 +37,13 @@ SAT_returnState hk_service_app(csp_packet_t *pkt) {
 	  		 	  ground_response_task(pkt);
 				  printf("Loop Finished\n");
 			  }
-	  		break;	    
+	  		break;
     default:
 	    	csp_log_error("HK SERVICE NOT FOUND SUBTASK");
 	    	csp_buffer_free(pkt);
 	    	return SATR_ERROR;
 	}
 
-	csp_buffer_free(pkt);
 	return SATR_OK;
 }
 
@@ -87,7 +86,7 @@ SAT_returnState ground_response_task(csp_packet_t *packet){
     portBASE_TYPE err;
     TC_TM_app_id server_address = GND_APP_ID;
     /*To get conn from the response queue*/
-    if((err = xQueueReceive(response_queue, conn, 
+    if((err = xQueueReceive(response_queue, conn,
                                     NORMAL_TICKS_TO_WAIT)) != pdPASS){
         printf("FAILED TO QUEUE MESSAGE TO GROUND");
         csp_buffer_free(packet);
@@ -111,10 +110,10 @@ SAT_returnState ground_response_task(csp_packet_t *packet){
     csp_log_info("#%d PACKET HAS BEEN SENT TO GROUND\n", sent_count);
     csp_buffer_free(packet);
     csp_close(conn);
- 
+
 
     return SATR_OK;
-          
+
 }
 
 /*
@@ -124,14 +123,14 @@ SAT_returnState ground_response_task(csp_packet_t *packet){
 // SAT_returnState hk_service_app(csp_packet_t *pkt) {
 //   uint8_t ser_subtype = (uint8_t)pkt->data[0];
 //   switch (ser_subtype) {
-//     case HK_PARAMETERS_REPORT: 
+//     case HK_PARAMETERS_REPORT:
 // 	    if((tc_hk_para_rep(pkt, NORMAL_TICKS_TO_WAIT)) == SATR_OK){
 // 	    		csp_log_info("HK_REPORT_PARAMETERS TASK FINISHED");
 // 		}
 // 	      		csp_buffer_free(pkt);
 // 	      		ground_response_task();
 // 	      		break;
-	    
+
 //     default:
 //     	csp_log_error("HK SERVICE NOT FOUND SUBTASK");
 //     	csp_buffer_free(pkt);
