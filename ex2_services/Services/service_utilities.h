@@ -16,6 +16,7 @@
 #define SERVICE_UTILITIES_H
 
 #include <stdint.h>
+
 #include "services.h"
 
 void ex2_log(const char *format, ...);

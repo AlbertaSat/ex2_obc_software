@@ -19,6 +19,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+
 #include "subsystems_ids.h"
 
 /* PACKETS */
@@ -56,21 +57,16 @@ typedef enum {
 #define TC_VERIFICATION_SERVICE 8
 
 #define TC_HOUSEKEEPING_SERVICE 9
-typedef enum {
-  TM_HK_PARAMETERS_REPORT = 0
-} Housekeeping_Subtype;
+typedef enum { TM_HK_PARAMETERS_REPORT = 0 } Housekeeping_Subtype;
 
 #define TC_EVENT_SERVICE 10
 
 #define TC_FUNCTION_MANAGEMENT_SERVICE 11
 
 #define TC_TIME_MANAGEMENT_SERVICE 12
-typedef enum {
-  SET_TIME = 0
-} Time_Management_Subtype;
+typedef enum { SET_TIME = 0 } Time_Management_Subtype;
 
 #define TM_HK_PARAMETERS_REPORT 0
-
 
 /* Utility definitions */
 union _cnv {

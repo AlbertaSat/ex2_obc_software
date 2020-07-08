@@ -16,18 +16,18 @@
  * @author Haoran Qi, Andrew Rooney
  * @date 2020-07-07
  */
+#include "housekeeping_service.h"
+
 #include <FreeRTOS.h>
-#include <csp/csp.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
-#include "housekeeping_service.h"
 #include "service_response.h"
-#include "system.h"
 #include "service_utilities.h"
 #include "services.h"
+#include "system.h"
 
 extern Service_Queues_t service_queues;
 unsigned int count = 0;
@@ -39,7 +39,7 @@ SAT_returnState hk_service_app(csp_packet_t *pkt) {
     case HK_PARAMETERS_REPORT:
       if (tc_hk_param_rep() != SATR_OK) {
         csp_log_info("HK_REPORT_PARAMETERS TASK FINISHED");
-			}
+      }
       // ex2_log("Ground Station Task Checkout\n");
       // if (pkt->data[0] ==
       //     TM_HK_PARAMETERS_REPORT) {  // determine if needed
@@ -55,12 +55,12 @@ SAT_returnState hk_service_app(csp_packet_t *pkt) {
       return SATR_PKT_ILLEGAL_SUBSERVICE;
   }
 
-	return SATR_OK;
+  return SATR_OK;
 }
 
 /* NB: Basically hk_para_rep will be wrriten in the hardware/platform file.*/
 
-csp_packet_t* hk_param_rep(){
+csp_packet_t *hk_param_rep() {
   csp_packet_t *packet = csp_buffer_get(100);
   if (packet == NULL) {
     /* Could not get buffer element */
@@ -70,33 +70,34 @@ csp_packet_t* hk_param_rep(){
   }
   packet->data[1] = 16;
   ++count;
-  //tranfer the task from TC to TM for enabling ground response task
-  packet->data[0] = (char) TM_HK_PARAMETERS_REPORT;
-  packet->length = (strlen((char *) packet->data) + 1);
+  // tranfer the task from TC to TM for enabling ground response task
+  packet->data[0] = (char)TM_HK_PARAMETERS_REPORT;
+  packet->length = (strlen((char *)packet->data) + 1);
 
   return packet;
 }
 
-SAT_returnState tc_hk_param_rep(){
-  //execute #25 subtask: parameter report, collecting data from platform
-  csp_packet_t* packet = hk_param_rep();
+SAT_returnState tc_hk_param_rep() {
+  // execute #25 subtask: parameter report, collecting data from platform
+  csp_packet_t *packet = hk_param_rep();
 
-  if(packet == NULL){
-    csp_log_info("HOUSEKEEPING SERVICE REPORT: DATA COLLECTING FAILED")
-    return SATR_ERROR;
+  if (packet == NULL) {
+    csp_log_info(
+        "HOUSEKEEPING SERVICE REPORT: DATA COLLECTING "
+        "FAILED") return SATR_ERROR;
   }
 
-  if (xQueueSendToBack(service_queues.response_queue, packet, NORMAL_TICKS_TO_WAIT) != pdPASS) {
+  if (xQueueSendToBack(service_queues.response_queue, packet,
+                       NORMAL_TICKS_TO_WAIT) != pdPASS) {
     return SATR_ERROR;
   }
 
   return SATR_OK;
 }
 
-
-
 /*
- *Below are the elder version of hk service, may not be processed very soothfully
+ *Below are the elder version of hk service, may not be processed very
+ *soothfully
  */
 
 // SAT_returnState hk_service_app(csp_packet_t *pkt) {
@@ -136,17 +137,15 @@ SAT_returnState tc_hk_param_rep(){
 // }
 
 // SAT_returnState tc_hk_para_rep(csp_packet_t *packet, uint32_t timeout){
-// 		/*execute #25 subtask: parameter report, collecting data from platform*/
-// 		packet = hk_para_rep();
-// 		if(packet->data == NULL){
-// 			csp_log_info("HOUSEKEEPING SERVICE REPORT: DATA COLLECTING FAILED")
-// 				return SATR_ERROR;
+// 		/*execute #25 subtask: parameter report, collecting data from
+// platform*/ 		packet = hk_para_rep(); 		if(packet->data == NULL){
+// 			csp_log_info("HOUSEKEEPING SERVICE REPORT: DATA COLLECTING
+// FAILED") 				return SATR_ERROR;
 // 			}
-// 			if(xQueueSendToBack(response_queue, &packet, timeout) == pdPASS){
-// 				csp_log_info("HOUSEKEEPING SERVICE REPORT: SENT PACKET BACK TO QUEUE, ID: %d\n", packet->id);
-// 			}else{
-// 				csp_log_error("HOUSEKEEPING SERVICE REPORT: ERROR. THE QUEUE WAS FULL, ID: %d\n", packet->id);
-// 				return SATR_ERROR;
+// 			if(xQueueSendToBack(response_queue, &packet, timeout) ==
+// pdPASS){ 				csp_log_info("HOUSEKEEPING SERVICE REPORT: SENT PACKET BACK TO
+// QUEUE, ID: %d\n", packet->id); 			}else{ 				csp_log_error("HOUSEKEEPING SERVICE
+// REPORT: ERROR. THE QUEUE WAS FULL, ID: %d\n", packet->id); 				return SATR_ERROR;
 // 			}
 // 		return SATR_OK;
 // }
