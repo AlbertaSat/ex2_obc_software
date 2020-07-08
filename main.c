@@ -29,8 +29,8 @@
 #include <task.h>
 #include <unistd.h>
 
-#include "services.h"
 #include "service_response.h"
+#include "services.h"
 #include "system.h"
 
 // #ifndef CSP_HAVE_LIBZMQ
@@ -45,7 +45,6 @@ xQueueHandle response_queue;
 void server_loop(void *parameters);
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
 static inline SAT_returnState init_zmq();
-
 
 int main(int argc, char **argv) {
   ex2_log("-- starting command demo --\n");
@@ -78,30 +77,30 @@ int main(int argc, char **argv) {
   // csp_route_set(CSP_DEFAULT_ROUTE, &this_interface, CSP_NODE_MAC);
   csp_route_start_task(500, 0);
 
-  #ifdef USE_LOCALHOST
+#ifdef USE_LOCALHOST
   init_zmq();
-  #else
-  // implement other interfaces perhaps..
-  #endif
+#else
+// implement other interfaces perhaps..
+#endif
 
   if (!(xTaskCreate((TaskFunction_t)server_loop, "SERVER THREAD", 2048, NULL, 1,
-              NULL)) != pdPASS) {
+                    NULL)) != pdPASS) {
     return -1;
   }
 
-  if (!xTaskCreate((TaskFunction_t)service_response_task, "RESPONSE SERVER", 2048, NULL, 1,
-              NULL) != pdPASS) {
+  if (!xTaskCreate((TaskFunction_t)service_response_task, "RESPONSE SERVER",
+                   2048, NULL, 1, NULL) != pdPASS) {
     return -1;
   }
 
   /* Start FreeRTOS! */
   vTaskStartScheduler();
 
-  for (;;);
+  for (;;)
+    ;
 
   return 0;
 }
-
 
 /**
  * @brief
@@ -125,7 +124,6 @@ static inline SAT_returnState init_zmq() {
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName) {
   ex2_log("error line: %lu in file: %s", ulLine, pcFileName);
 }
-
 
 /**
  * @brief
