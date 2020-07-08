@@ -17,8 +17,6 @@
  * @date 2020-06-06
  */
 
-#include "demo.h"
-
 #include <FreeRTOS.h>
 #include <stdio.h>
 
@@ -27,6 +25,9 @@
 #include "system.h"
 #include "task.h"
 #include "time_management_service.h"
+#include "housekeeping_service.h"
+#include "demo.h"
+
 
 extern Service_Queues_t service_queues;
 /*create a variable to record # of packets sent to ground*/
@@ -45,11 +46,11 @@ static void housekeeping_app_route(void *parameters) {
   for (;;) {
     if (xQueueReceive(service_queues.hk_app_queue, &packet,
                       NORMAL_TICKS_TO_WAIT) == pdPASS) {
-      ex2_log("HOUSEKEEPING SERVICE RX: No.%d, ID: %d\n",
-              (int32_t)packet.data[1], packet.id);
       hk_service_app(&packet);
     }
   }
+
+  return;
 }
 
 /**
@@ -65,11 +66,11 @@ static void time_management_app_route(void *parameters) {
   for (;;) {
     if (xQueueReceive(service_queues.time_management_app_queue, &packet,
                       NORMAL_TICKS_TO_WAIT) == pdPASS) {
-      ex2_log("Time time_management_service SERVICE RX: %d, ID: %d\n",
-              packet.data[0], packet.id);
       time_management_app(&packet);
     }
   }
+
+  return;
 }
 
 /**
@@ -86,31 +87,28 @@ SAT_returnState start_service_handlers() {
    * Create the queues & tasks for each service implemented by this module
    */
   if (!(service_queues.time_management_app_queue =
-            xQueueCreate((unsigned portBASE_TYPE)NORMAL_QUEUE_LEN,
-                         (unsigned portBASE_TYPE)NORMAL_QUEUE_SIZE))) {
+            xQueueCreate((unsigned portBASE_TYPE)SERVICE_QUEUE_LEN,
+                         (unsigned portBASE_TYPE)CSP_PKT_QUEUE_SIZE))) {
     ex2_log("FAILED TO CREATE time_management_app_queue");
     return SATR_ERROR;
   };
 
   if (!(service_queues.hk_app_queue =
-            xQueueCreate((unsigned portBASE_TYPE)NORMAL_QUEUE_LEN,
-                         (unsigned portBASE_TYPE)NORMAL_QUEUE_SIZE))) {
+            xQueueCreate((unsigned portBASE_TYPE)SERVICE_QUEUE_LEN,
+                         (unsigned portBASE_TYPE)CSP_PKT_QUEUE_SIZE))) {
     ex2_log("FAILED TO CREATE hk_app_queue");
     return SATR_ERROR;
   };
 
-  // if (!(response_queue =
-  //           xQueueCreate((unsigned portBASE_TYPE)NORMAL_QUEUE_LEN,
-  //                        (unsigned portBASE_TYPE)NORMAL_QUEUE_SIZE))) {
-  //   ex2_log("FAILED TO CREATE RESPONSE QUEUE");
-  //   return SATR_ERROR;
-  // };
+  if (!(xTaskCreate((TaskFunction_t)housekeeping_app_route, "housekeeping_app_route",
+              2048, NULL, NORMAL_SERVICE_PRIO, NULL)) == pdPASS) {
+    return SATR_ERROR;
+  };
 
-  xTaskCreate((TaskFunction_t)housekeeping_app_route, "housekeeping_app_route",
-              2048, NULL, NORMAL_SERVICE_PRIO, NULL);
-
-  xTaskCreate((TaskFunction_t)time_management_app_route, "time_management_app",
-              2048, NULL, NORMAL_SERVICE_PRIO, NULL);
+  if (!(xTaskCreate((TaskFunction_t)time_management_app_route, "time_management_app",
+              2048, NULL, NORMAL_SERVICE_PRIO, NULL)) != pdPASS) {
+    return SATR_ERROR;
+  }
 
   return SATR_OK;
 }

@@ -20,8 +20,11 @@
 #include <stdio.h>
 #include <string.h>
 #include "subsystems_ids.h"
-#include "system.h"
 
+/* PACKETS */
+#define TM_TC_BUFF_SIZE 256
+
+/* SERVICES */
 #define MAX_APP_ID 32     // number of CSP nodes (5-bits)
 #define MAX_SERVICES 64   // number of CSP ports (6-bits)
 #define MAX_SUBTYPES 256  // an 8-bit integer
@@ -41,6 +44,8 @@ typedef enum {
   SATR_PKT_ILLEGAL_SUBSERVICE,
   SATR_OK,
   SATR_ERROR,
+  SATR_RETURN_FROM_TASK,
+  SATR_BUFFER_ERR,
   /*LAST*/
   SATR_LAST
 } SAT_returnState;

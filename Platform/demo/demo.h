@@ -14,6 +14,7 @@
 
 #ifndef DEMO_H
 #define DEMO_H
+
 #include <FreeRTOS.h>
 #include <csp/csp.h>
 
@@ -27,22 +28,18 @@
 // ../ex2_on_board_computer/libcsp/build/include/ -m32 -lpthread -std=c99 -lrt
 // && ar -rsc client_server.a *.o^C
 
-extern xQueueHandle response_queue;
 extern unsigned int sent_count;
 
-#define TM_TC_BUFF_SIZE 256
 #define NORMAL_TICKS_TO_WAIT 1
 #define NORMAL_SERVICE_PRIO 5
-#define NORMAL_QUEUE_LEN 3
-#define NORMAL_QUEUE_SIZE 256
-
-#define ground_address 1
-#define RESPONSE_PORT  8888
+#define SERVICE_QUEUE_LEN 3
+#define RESPONSE_QUEUE_LEN 3
+#define CSP_PKT_QUEUE_SIZE 128
 
 // Define all the services that the module implements
 // Defined here are the services implemented by this platform
 typedef struct {
-  xQueueHandle response_queue,
+  xQueueHandle response_queue, // Each platform must define a response queue
   hk_app_queue,
   time_management_app_queue;
 } Service_Queues_t;

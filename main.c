@@ -13,7 +13,7 @@
  */
 /**
  * @file main.c
- * @author Andrew Rooney
+ * @author Andrew Rooney, Haoran Qi
  * @date 2020-06-06
  */
 
@@ -29,8 +29,8 @@
 #include <task.h>
 #include <unistd.h>
 
-#include "demo.h"
 #include "services.h"
+#include "service_response.h"
 #include "system.h"
 
 // #ifndef CSP_HAVE_LIBZMQ
@@ -46,14 +46,23 @@ void server_loop(void *parameters);
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
 static inline SAT_returnState init_zmq();
 
+
 int main(int argc, char **argv) {
   ex2_log("-- starting command demo --\n");
   TC_TM_app_id my_address = DEMO_APP_ID;
 
+  /* Start platform-implemented service handlers & their queues */
   if (start_service_handlers() != SATR_OK) {
     ex2_log("COULD NOT START TELECOMMAND HANDLER\n");
     return -1;
   }
+
+  if (!(service_queues.response_queue =
+            xQueueCreate((unsigned portBASE_TYPE)RESPONSE_QUEUE_LEN,
+                         (unsigned portBASE_TYPE)CSP_PKT_QUEUE_SIZE))) {
+    ex2_log("FAILED TO CREATE RESPONSE QUEUE");
+    return -1;
+  };
 
   /* Init CSP with address and default settings */
   csp_conf_t csp_conf;
@@ -75,15 +84,24 @@ int main(int argc, char **argv) {
   // implement other interfaces perhaps..
   #endif
 
-  xTaskCreate((TaskFunction_t)server_loop, "SERVER THREAD", 2048, NULL, 1,
-              NULL);
+  if (!(xTaskCreate((TaskFunction_t)server_loop, "SERVER THREAD", 2048, NULL, 1,
+              NULL)) != pdPASS) {
+    return -1;
+  }
 
+  if (!xTaskCreate((TaskFunction_t)service_response_task, "RESPONSE SERVER", 2048, NULL, 1,
+              NULL) != pdPASS) {
+    return -1;
+  }
+
+  /* Start FreeRTOS! */
   vTaskStartScheduler();
 
   for (;;);
 
   return 0;
 }
+
 
 /**
  * @brief
@@ -108,6 +126,7 @@ void vAssertCalled(unsigned long ulLine, const char *const pcFileName) {
   ex2_log("error line: %lu in file: %s", ulLine, pcFileName);
 }
 
+
 /**
  * @brief
  * 		main CSP server loop
@@ -120,13 +139,12 @@ void vAssertCalled(unsigned long ulLine, const char *const pcFileName) {
 void server_loop(void *parameters) {
   csp_socket_t *sock;
   csp_conn_t *conn;
-  csp_packet_t *packet;
 
   /* Create socket and listen for incoming connections */
   sock = csp_socket(CSP_SO_NONE);
   csp_bind(sock, CSP_ANY);
   csp_listen(sock, 5);
-  portBASE_TYPE err,err2;
+  portBASE_TYPE err;
 
   /* Super loop */
   ex2_log("Starting CSP server\n");
@@ -136,6 +154,8 @@ void server_loop(void *parameters) {
       /* timeout */
       continue;
     }
+
+    csp_packet_t *packet;
     while ((packet = csp_read(conn, 50)) != NULL) {
       switch (csp_conn_dport(conn)) {
         case TC_HOUSEKEEPING_SERVICE:
@@ -164,4 +184,6 @@ void server_loop(void *parameters) {
     }
     csp_close(conn);
   }
+
+  return;
 }
