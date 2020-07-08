@@ -17,21 +17,21 @@
  * @date 2020-06-06
  */
 
+#include "demo.h"
+
 #include <FreeRTOS.h>
 #include <stdio.h>
 
+#include "housekeeping_service.h"
 #include "service_utilities.h"
 #include "services.h"
 #include "system.h"
 #include "task.h"
 #include "time_management_service.h"
-#include "housekeeping_service.h"
-#include "demo.h"
-
 
 extern Service_Queues_t service_queues;
 /*create a variable to record # of packets sent to ground*/
-unsigned int sent_count =0;
+unsigned int sent_count = 0;
 
 /**
  * @brief
@@ -100,13 +100,15 @@ SAT_returnState start_service_handlers() {
     return SATR_ERROR;
   };
 
-  if (!(xTaskCreate((TaskFunction_t)housekeeping_app_route, "housekeeping_app_route",
-              2048, NULL, NORMAL_SERVICE_PRIO, NULL)) == pdPASS) {
+  if (!(xTaskCreate((TaskFunction_t)housekeeping_app_route,
+                    "housekeeping_app_route", 2048, NULL, NORMAL_SERVICE_PRIO,
+                    NULL)) == pdPASS) {
     return SATR_ERROR;
   };
 
-  if (!(xTaskCreate((TaskFunction_t)time_management_app_route, "time_management_app",
-              2048, NULL, NORMAL_SERVICE_PRIO, NULL)) != pdPASS) {
+  if (!(xTaskCreate((TaskFunction_t)time_management_app_route,
+                    "time_management_app", 2048, NULL, NORMAL_SERVICE_PRIO,
+                    NULL)) != pdPASS) {
     return SATR_ERROR;
   }
 

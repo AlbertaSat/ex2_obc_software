@@ -17,12 +17,13 @@
  * @date 2020-06-06
  */
 
+#include "time_management_service.h"
+
 #include <FreeRTOS.h>
 #include <csp/csp.h>
 #include <stdio.h>
 
 #include "service_utilities.h"
-#include "time_management_service.h"
 
 /* Include the appropriate HAL files */
 #if (SYSTEM_APP_ID == DEMO_APP_ID_)
