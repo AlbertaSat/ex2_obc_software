@@ -24,6 +24,7 @@
 #include <unistd.h>
 
 #include "housekeeping_service.h"
+#include "service_response.h"
 #include "system.h"
 #include "service_utilities.h"
 #include "services.h"
@@ -36,24 +37,22 @@ SAT_returnState hk_service_app(csp_packet_t *pkt) {
   ex2_log("Test HK Service 2\n");
   switch (ser_subtype) {
     case HK_PARAMETERS_REPORT:
-      pkt = tc_hk_para_rep(pkt);
-      if (pkt->data[1] != NULL) {
+      if (tc_hk_param_rep() != SATR_OK) {
         csp_log_info("HK_REPORT_PARAMETERS TASK FINISHED");
 			}
-      ex2_log("Ground Station Task Checkout\n");
-      if (pkt->data[0] ==
-          TM_HK_PARAMETERS_REPORT) {  // determine if needed
-                                      // to send back to ground
-        ex2_log("Enter Loop\n");
-        ground_response_task(pkt);
-        ex2_log("Loop Finished\n");
-      }
+      // ex2_log("Ground Station Task Checkout\n");
+      // if (pkt->data[0] ==
+      //     TM_HK_PARAMETERS_REPORT) {  // determine if needed
+      //                                 // to send back to ground
+      //   ex2_log("Enter Loop\n");
+      //   ground_response_task(pkt);
+      //   ex2_log("Loop Finished\n");
+      // }
       break;
 
     default:
       csp_log_error("HK SERVICE NOT FOUND SUBTASK");
-      csp_buffer_free(pkt);
-      return SATR_ERROR;
+      return SATR_PKT_ILLEGAL_SUBSERVICE;
   }
 
 	return SATR_OK;
@@ -78,9 +77,9 @@ csp_packet_t* hk_param_rep(){
   return packet;
 }
 
-SAT_returnState tc_hk_param_rep(csp_packet_t* packet){
+SAT_returnState tc_hk_param_rep(){
   //execute #25 subtask: parameter report, collecting data from platform
-  packet = hk_para_rep();
+  csp_packet_t* packet = hk_param_rep();
 
   if(packet == NULL){
     csp_log_info("HOUSEKEEPING SERVICE REPORT: DATA COLLECTING FAILED")
