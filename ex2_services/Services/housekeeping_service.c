@@ -1,137 +1,116 @@
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <stdlib.h>
+/*
+ * Copyright (C) 2015  University of Alberta
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+/**
+ * @file housekeeping_service.c
+ * @author Haoran Qi, Andrew Rooney
+ * @date 2020-07-07
+ */
+#include "housekeeping_service.h"
 
 #include <FreeRTOS.h>
-#include <csp/csp.h>
-#include <csp/arch/csp_thread.h>
-#include <csp/drivers/usart.h>
-#include <csp/drivers/can_socketcan.h>
-#include <csp/interfaces/csp_if_zmqhub.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
-#include "housekeeping_service.h"
+#include "service_response.h"
+#include "service_utilities.h"
 #include "services.h"
-#include "demo.h"
+#include "system.h"
 
+extern Service_Queues_t service_queues;
 unsigned int count = 0;
-extern service_queues_t service_queues;
-
 
 SAT_returnState hk_service_app(csp_packet_t *pkt) {
- printf("Test HK Service 1\n");
   uint8_t ser_subtype = (uint8_t)pkt->data[0];
- printf("Test HK Service 2\n");
+  ex2_log("Test HK Service 2\n");
   switch (ser_subtype) {
-    case HK_PARAMETERS_REPORT: 
-			printf("Test HK Service 3\n");
-	    	pkt = tc_hk_para_rep(pkt);
-			printf("Test HK Service 4\n");
-		    if(pkt->data[1]!= NULL){
-		    		csp_log_info("HK_REPORT_PARAMETERS TASK FINISHED");
-			  }
-			sleep(1);
-			printf("Ground Station Task Checkout\n");
-		  	if(pkt->data[0] == TM_HK_PARAMETERS_REPORT){//determine if needed to send back to ground
-				  printf("Enter Loop\n");
-	  		 	  ground_response_task(pkt);
-				  printf("Loop Finished\n");
-			  }
-	  		break;	    
-    default:
-	    	csp_log_error("HK SERVICE NOT FOUND SUBTASK");
-	    	csp_buffer_free(pkt);
-	    	return SATR_ERROR;
-	}
+    case HK_PARAMETERS_REPORT:
+      if (tc_hk_param_rep() != SATR_OK) {
+        csp_log_info("HK_REPORT_PARAMETERS TASK FINISHED");
+      }
+      // ex2_log("Ground Station Task Checkout\n");
+      // if (pkt->data[0] ==
+      //     TM_HK_PARAMETERS_REPORT) {  // determine if needed
+      //                                 // to send back to ground
+      //   ex2_log("Enter Loop\n");
+      //   ground_response_task(pkt);
+      //   ex2_log("Loop Finished\n");
+      // }
+      break;
 
-	csp_buffer_free(pkt);
-	return SATR_OK;
+    default:
+      csp_log_error("HK SERVICE NOT FOUND SUBTASK");
+      return SATR_PKT_ILLEGAL_SUBSERVICE;
+  }
+
+  return SATR_OK;
 }
 
 /* NB: Basically hk_para_rep will be wrriten in the hardware/platform file.*/
 
-csp_packet_t* hk_para_rep(){
-		csp_packet_t *packet = csp_buffer_get(100);
-		if (packet == NULL) {
-			/* Could not get buffer element */
-			csp_log_error("Failed to get CSP buffer");
-			csp_buffer_free(packet);
-			return NULL;
-		}
-		//snprintf((char *) packet->data[1], csp_buffer_data_size(), 16, ++count);
-		packet->data[1] = 16;
-		++count;
-		//tranfer the task from TC to TM for enabling ground response task
-		packet->data[0] = TM_HK_PARAMETERS_REPORT;
-		packet->length = (strlen((char *) packet->data) + 1);
-
-		return packet;
-}
-
-csp_packet_t* tc_hk_para_rep(csp_packet_t* packet){
-		//execute #25 subtask: parameter report, collecting data from platform
-		packet = hk_para_rep();
-		if(packet->data[1] == NULL){
-			  csp_log_info("HOUSEKEEPING SERVICE REPORT: DATA COLLECTING FAILED")
-				return SATR_ERROR;
-			}
-		return packet;
-}
-
-SAT_returnState ground_response_task(csp_packet_t *packet){
-
-    csp_log_info("Sending back to ground station...\n");
-
-    csp_conn_t *conn;
-
-    portBASE_TYPE err;
-    TC_TM_app_id server_address = GND_APP_ID;
-    /*To get conn from the response queue*/
-    if((err = xQueueReceive(response_queue, conn, 
-                                    NORMAL_TICKS_TO_WAIT)) != pdPASS){
-        printf("FAILED TO QUEUE MESSAGE TO GROUND");
-        csp_buffer_free(packet);
-    }
-
-    if (conn == NULL) {
-      /* Could not get buffer element */
-      csp_log_error("Failed to get CSP CONNECTION");
-      return SATR_ERROR;
-    }
-
-    /*  Send packet to ground */
-    if (!csp_send(conn, packet, 1000)) {
-      /* Send failed */
-      csp_log_error("Send failed");
-      csp_buffer_free(packet);
-    }
-
-    /*  Close connection */
-    sent_count++;
-    csp_log_info("#%d PACKET HAS BEEN SENT TO GROUND\n", sent_count);
+csp_packet_t *hk_param_rep() {
+  csp_packet_t *packet = csp_buffer_get(100);
+  if (packet == NULL) {
+    /* Could not get buffer element */
+    ex2_log("Failed to get CSP buffer");
     csp_buffer_free(packet);
-    csp_close(conn);
- 
+    return NULL;
+  }
+  packet->data[1] = 16;
+  ++count;
+  // tranfer the task from TC to TM for enabling ground response task
+  packet->data[0] = (char)TM_HK_PARAMETERS_REPORT;
+  packet->length = (strlen((char *)packet->data) + 1);
 
-    return SATR_OK;
-          
+  return packet;
+}
+
+SAT_returnState tc_hk_param_rep() {
+  // execute #25 subtask: parameter report, collecting data from platform
+  csp_packet_t *packet = hk_param_rep();
+
+  if (packet == NULL) {
+    csp_log_info(
+        "HOUSEKEEPING SERVICE REPORT: DATA COLLECTING "
+        "FAILED") return SATR_ERROR;
+  }
+
+  if (xQueueSendToBack(service_queues.response_queue, packet,
+                       NORMAL_TICKS_TO_WAIT) != pdPASS) {
+    return SATR_ERROR;
+  }
+
+  return SATR_OK;
 }
 
 /*
- *Below are the elder version of hk service, may not be processed very soothfully
+ *Below are the elder version of hk service, may not be processed very
+ *soothfully
  */
 
 // SAT_returnState hk_service_app(csp_packet_t *pkt) {
 //   uint8_t ser_subtype = (uint8_t)pkt->data[0];
 //   switch (ser_subtype) {
-//     case HK_PARAMETERS_REPORT: 
+//     case HK_PARAMETERS_REPORT:
 // 	    if((tc_hk_para_rep(pkt, NORMAL_TICKS_TO_WAIT)) == SATR_OK){
 // 	    		csp_log_info("HK_REPORT_PARAMETERS TASK FINISHED");
 // 		}
 // 	      		csp_buffer_free(pkt);
 // 	      		ground_response_task();
 // 	      		break;
-	    
+
 //     default:
 //     	csp_log_error("HK SERVICE NOT FOUND SUBTASK");
 //     	csp_buffer_free(pkt);
@@ -148,7 +127,8 @@ SAT_returnState ground_response_task(csp_packet_t *packet){
 // 			csp_buffer_free(packet);
 // 			return NULL;
 // 		}
-// 		snprintf((char *) packet->data[1], csp_buffer_data_size(), "HK Data Sample -- EPS CRRENT: 23mA", ++count);
+// 		snex2_log((char *) packet->data[1], csp_buffer_data_size(), "HK
+// Data Sample -- EPS CRRENT: 23mA", ++count);
 // 		/*tranfer the task from TC to TM*/
 // 		packet->data[0] = TM_HK_PARAMETERS_REPORT;
 // 		packet->length = (strlen((char *) packet->data) + 1);
@@ -157,17 +137,15 @@ SAT_returnState ground_response_task(csp_packet_t *packet){
 // }
 
 // SAT_returnState tc_hk_para_rep(csp_packet_t *packet, uint32_t timeout){
-// 		/*execute #25 subtask: parameter report, collecting data from platform*/
-// 		packet = hk_para_rep();
-// 		if(packet->data == NULL){
-// 			csp_log_info("HOUSEKEEPING SERVICE REPORT: DATA COLLECTING FAILED")
-// 				return SATR_ERROR;
+// 		/*execute #25 subtask: parameter report, collecting data from
+// platform*/ 		packet = hk_para_rep(); 		if(packet->data == NULL){
+// 			csp_log_info("HOUSEKEEPING SERVICE REPORT: DATA COLLECTING
+// FAILED") 				return SATR_ERROR;
 // 			}
-// 			if(xQueueSendToBack(response_queue, &packet, timeout) == pdPASS){
-// 				csp_log_info("HOUSEKEEPING SERVICE REPORT: SENT PACKET BACK TO QUEUE, ID: %d\n", packet->id);
-// 			}else{
-// 				csp_log_error("HOUSEKEEPING SERVICE REPORT: ERROR. THE QUEUE WAS FULL, ID: %d\n", packet->id);
-// 				return SATR_ERROR;
+// 			if(xQueueSendToBack(response_queue, &packet, timeout) ==
+// pdPASS){ 				csp_log_info("HOUSEKEEPING SERVICE REPORT: SENT PACKET BACK TO
+// QUEUE, ID: %d\n", packet->id); 			}else{ 				csp_log_error("HOUSEKEEPING SERVICE
+// REPORT: ERROR. THE QUEUE WAS FULL, ID: %d\n", packet->id); 				return SATR_ERROR;
 // 			}
 // 		return SATR_OK;
 // }

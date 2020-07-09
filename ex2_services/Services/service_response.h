@@ -12,25 +12,9 @@
  * GNU General Public License for more details.
  */
 
-#ifndef TIME_MANAGEMENT_H
-#define TIME_MANAGEMENT_H
+#ifndef SERVICE_RESPONSE_H
+#define SERVICE_RESPONSE_H
 
-#include <csp/csp.h>
-#include <stdint.h>
+void service_response_task(void *param);
 
-#include "services.h"
-
-#define MIN_YEAR 1577836800  // 2020-01-01
-#define MAX_YEAR 1893456000  // 2030-01-01
-
-#define TIMESTAMP_ISOK(x) (x > MIN_YEAR && x < MAX_YEAR) ? 1 : 0
-
-struct time_utc {
-  uint32_t unix_timestamp;
-};
-
-void set_time_UTC(struct time_utc utc);
-
-SAT_returnState time_management_app(csp_packet_t *pck);
-
-#endif /* TIME_MANAGEMENT_H */
+#endif /* SERVICE_RESPONSE_H */
