@@ -1,3 +1,17 @@
+/*
+ * Copyright (C) 2015  University of Alberta
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
 #ifndef SERVICE_UTILITIES_H
 #define SERVICE_UTILITIES_H
 
@@ -5,17 +19,7 @@
 
 #include "services.h"
 
-SAT_returnState checkSum(const uint8_t *data, const uint16_t size,
-                         uint8_t *res_crc);
-
-SAT_returnState unpack_pkt(const uint8_t *buf, tc_tm_pkt *pkt,
-                           const uint16_t size);
-
-SAT_returnState pack_pkt(uint8_t *buf, tc_tm_pkt *pkt, uint16_t *size);
-
-SAT_returnState crt_pkt(tc_tm_pkt *pkt, TC_TM_app_id app_id, uint8_t type,
-                        uint8_t ack, uint8_t ser_type, uint8_t ser_subtype,
-                        TC_TM_app_id dest_id);
+void ex2_log(const char *format, ...);
 
 void cnv32_8(const uint32_t from, uint8_t *to);
 
@@ -38,4 +42,4 @@ void cnv8_D(uint8_t *from, double *to);
 uint16_t htons(uint16_t x);
 uint16_t ntohs(uint16_t x);
 
-#endif
+#endif /* SERVICE_UTILITIES_H */

@@ -32,12 +32,6 @@ RUN ./configure
 RUN make && make install
 RUN apt-get install libzmq5 -y
 
-#install gdb debug tool
-RUN apt-get install gdb -y
-
-#install valgrind memcheck tool
-RUN apt-get -y install valgrind
-
 WORKDIR /home/
 RUN git clone https://github.com/AlbertaSat/SatelliteSim.git
 WORKDIR /home/SatelliteSim
@@ -48,17 +42,16 @@ RUN git submodule update
 
 # build CSP
 WORKDIR /home/SatelliteSim/libcsp
+RUN git fetch origin
+RUN git checkout upstream
 RUN python3 waf configure --with-os=posix --enable-rdp --enable-hmac --enable-xtea --with-loglevel=debug --enable-debug-timestamp --enable-python3-bindings --with-driver-usart=linux --enable-if-zmqhub --enable-examples
 RUN python3 waf build
 
 # build this codebase
 WORKDIR /home/ex2_command_handling_demo
 COPY . .
-#RUN gcc Platform/demo/demo_housekeeping.c -c -I . -I Platform/demo -I Platform/hal -I Services/ -I ../upsat-ecss-services/services/ -I ../SatelliteSim/Source/include/ -I ../SatelliteSim/Project/ -I ../SatelliteSim/libcsp/include/ -I ../SatelliteSim/Source/portable/GCC/POSIX/ -I ../SatelliteSim/libcsp/build/include/ -lpthread -std=c99 -lrt && ar -rsc client_server.a *.o
-RUN gcc -g *.c Platform/demo/*.c Platform/demo/hal/*.c Services/*.c -c -I . -I Platform/demo -I Platform/hal -I Services/ -I ../upsat-ecss-services/services/ -I ../SatelliteSim/Source/include/ -I ../SatelliteSim/Project/ -I ../SatelliteSim/libcsp/include/ -I ../SatelliteSim/Source/portable/GCC/POSIX/ -I ../SatelliteSim/libcsp/build/include/ -lpthread -std=c99 -lrt && ar -rsc client_server.a *.o
+RUN gcc *.c Platform/demo/*.c Platform/demo/hal/*.c Services/*.c -c -I . -I Platform/demo -I Platform/demo/hal -I Services/ -I ../upsat-ecss-services/services/ -I ../SatelliteSim/Source/include/ -I ../SatelliteSim/Project/ -I ../SatelliteSim/libcsp/include/ -I ../SatelliteSim/Source/portable/GCC/POSIX/ -I ../SatelliteSim/libcsp/build/include/ -lpthread -std=c99 -lrt && ar -rsc client_server.a *.o
 
 WORKDIR /home/SatelliteSim
 RUN make clean && make all
-CMD ./libcsp/build/zmqproxy &./SatelliteSim
-#CMD ./libcsp/build/zmqproxy & gdb -q ./SatelliteSim
-#CMD ./libcsp/build/zmqproxy & valgrind --tool=memcheck --leak-check=yes --show-reachable=yes ./SatelliteSim
+CMD ./libcsp/build/zmqproxy & ./SatelliteSim

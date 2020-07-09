@@ -2,7 +2,7 @@ CONTRIBUTION GUIDLINES
 *** Preamble ***
 
 All authored content must contain appropriate preamble including copyright and licence information as shown here:
-
+```
 /*
  * Copyright (C) 2015  University of Alberta
  *
@@ -16,17 +16,20 @@ All authored content must contain appropriate preamble including copyright and l
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+ ````
 All source code files must also contain a file name, list of authors (comma delimited), and a date of creation in the following format:
-
+```
 /**
  * @file <file_name>.<ext>
  * @author <author_names>
  * @date YYYY-MM-DD
  */
+ ```
 *** Function Headings ***
 
 Function must be catalogued in their heading according to the following format:
 
+```
 /**
  * @brief
  * 		<breif (one line) description of the function>
@@ -41,16 +44,18 @@ Function must be catalogued in their heading according to the following format:
  * @return
  * 		<if applicable, brief description of what is returned by the function>
  */
+ ```
 *** Prevent Multiple Inclusions ***
 
 All header files should have preprocessor checking to prevent multiple inclusions:
-
+```
 #ifndef FILENAME_H
 #define FILENAME_H
 
 /* Source code goes here */
 
 #endif /* FILENAME_H_ */
+```
 The header file should have the minimum required #includes possible. If a file is included because it is required for the implementation of the source file, then that file should be included in the source file, not the header file.
 
 *** Commenting ***
@@ -63,16 +68,19 @@ Comments on source code should emphasize why the code is there. A programmer rea
 *** Variable Naming ***
 
 The variable or function name begins with a lower-case letter and the start of a subsequent word begins with a capital letter, and abbreviations are all capital and separated by an ‘_’. When variables are declared their names should be aligned with one another. See this example:
-
+```
 int     exampleOne;
 char    *exampleTwo;
 short   exampleThree_SYS;
+```
 The name of a variable should avoid abbreviations unless the abbreviation is well known or has comments explaining the abbreviation.
 
 All macros should be named using all capital letters, with each word in the name separated by an ‘’. Macros should never start with an ‘’, and should never start, and/or end with a “__” (double underscore). Macros that imitate a function call can be written using the naming convention for functions. For example:
 
+```
 #define MAX_PACKETS 6
 #define exampleFunction(int arg1,int arg2)
+```
 *** Coding Standards ***
 
 Source code style is loosely based on "The GNU Coding Standards" (Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014 Free Software Foundation, Inc.) (Full text available here: [https://www.gnu.org/prep/standards/standards.html]
