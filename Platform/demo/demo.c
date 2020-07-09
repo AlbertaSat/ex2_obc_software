@@ -64,7 +64,6 @@ static void housekeeping_app_route(void *parameters) {
 static void time_management_app_route(void *parameters) {
   csp_packet_t packet;
   for (;;) {
-    ex2_log("time_management_app Receive packet attempt\n");
     if (xQueueReceive(service_queues.time_management_app_queue, &packet,
                       NORMAL_TICKS_TO_WAIT) == pdPASS) {
       time_management_app(&packet);
