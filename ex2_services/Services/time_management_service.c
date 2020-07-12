@@ -51,12 +51,12 @@ SAT_returnState time_management_app(csp_packet_t *pkt) {
       ex2_log("SET TIME\n");
       cnv8_32(&pkt->data[1], &temp_time.unix_timestamp);
       if (!TIMESTAMP_ISOK(temp_time.unix_timestamp)) {
-        ex2_log("it's %d\n", temp_time.unix_timestamp);
+        ex2_log("it's %u\n", temp_time.unix_timestamp);
         ex2_log("Bad timestamp format\n");
         return SATR_ERROR;
       }
-      ex2_log("Set Time: %d\n", temp_time.unix_timestamp);
-      fflush(stdout);
+      printf("Set Time: %u\n", (uint32_t) temp_time.unix_timestamp);
+
       set_time_UTC(temp_time);
       break;
 
