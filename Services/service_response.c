@@ -44,12 +44,15 @@ extern Service_Queues_t service_queues;  // Implemented by the host platform
  */
 void service_response_task(void *param) {
   TC_TM_app_id my_address = SYSTEM_APP_ID;
-  csp_packet_t packet;
+  csp_packet_t *packet;
+  uint32_t in;
   for (;;) {
     /* To get conn from the response queue */
     if (xQueueReceive(service_queues.response_queue, &packet,
                       NORMAL_TICKS_TO_WAIT) == pdPASS) {
-      ex2_log("%d", packet.data[0]);
+      cnv8_32(&packet->data[DATA_BYTE], &in);
+      printf("Set to %u\n", (uint32_t) in);
+      csp_buffer_free(packet);
     }
 
     // if (conn == NULL) {
@@ -72,6 +75,13 @@ void service_response_task(void *param) {
   }
 
   return;
+}
+
+SAT_returnState queue_response(csp_packet_t *packet) {
+  if (xQueueSendToBack(service_queues.response_queue, (void *) &packet, NORMAL_TICKS_TO_WAIT) != pdPASS) {
+    return SATR_ERROR;
+  }
+  return SATR_OK;
 }
 
 /**

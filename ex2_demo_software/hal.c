@@ -1,4 +1,6 @@
 #include "hal.h"
+#include <stdio.h>
+#include <time.h>
 
 typedef struct {
   // THIS IS AN EXAMPLE, not how to actually

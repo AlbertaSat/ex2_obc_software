@@ -29,8 +29,6 @@ struct time_utc {
   uint32_t unix_timestamp;
 };
 
-void set_time_UTC(struct time_utc utc);
-
 SAT_returnState time_management_app(csp_packet_t *pck);
 
 #endif /* TIME_MANAGEMENT_H */

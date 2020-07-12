@@ -21,6 +21,7 @@
 #define SYSTEM_H
 
 #include "demo.h"
+#include "demo_hal.h"
 
 #define SYSTEM_APP_ID _DEMO_APP_ID_
 #define USE_LOCALHOST  // Define for local development, add other options when
