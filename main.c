@@ -83,12 +83,12 @@ int main(int argc, char **argv) {
 // implement other interfaces perhaps..
 #endif
 
-  if (!(xTaskCreate((TaskFunction_t)server_loop, "SERVER THREAD", 2048, NULL, 1,
-                    NULL)) != pdPASS) {
+  if (xTaskCreate((TaskFunction_t)server_loop, "SERVER THREAD", 2048, NULL, 1,
+                    NULL) != pdPASS) {
     return -1;
   }
 
-  if (!xTaskCreate((TaskFunction_t)service_response_task, "RESPONSE SERVER",
+  if (xTaskCreate((TaskFunction_t)service_response_task, "RESPONSE SERVER",
                    2048, NULL, 1, NULL) != pdPASS) {
     return -1;
   }

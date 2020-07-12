@@ -17,6 +17,7 @@
  * @date 2020-06-06
  */
 #include "service_response.h"
+#include "service_utilities.h"
 
 #include <FreeRTOS.h>
 #include <csp/csp.h>
