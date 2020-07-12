@@ -27,8 +27,9 @@
 void ex2_log(const char *format, ...) {
   va_list arg;
   va_start(arg, format);
-  fprintf(stdout, format, arg, 0);
+  printf(format, arg, 0);
   va_end(arg);
+  fflush(stdout);
   return;
 }
 

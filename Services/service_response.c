@@ -17,12 +17,16 @@
  * @date 2020-06-06
  */
 #include "service_response.h"
-#include "service_utilities.h"
+#include "services.h"
 
 #include <FreeRTOS.h>
+#include <task.h>
 #include <csp/csp.h>
+#include <stdint.h>
 
+#include "service_utilities.h"
 #include "system.h"
+
 
 extern Service_Queues_t service_queues;  // Implemented by the host platform
 
@@ -68,4 +72,28 @@ void service_response_task(void *param) {
   }
 
   return;
+}
+
+/**
+ * @brief
+ * 		Start the response_queue, and response task
+ * @details
+ * 		intitializes the FreeRTOS queue and task
+ * @param void
+ * @return SAT_returnState
+ * 		success or failure
+ */
+SAT_returnState start_service_response() {
+
+  if (!(service_queues.response_queue =
+            xQueueCreate((unsigned portBASE_TYPE)RESPONSE_QUEUE_LEN,
+                         (unsigned portBASE_TYPE)CSP_PKT_QUEUE_SIZE))) {
+    return SATR_ERROR;
+  }
+
+  if (xTaskCreate((TaskFunction_t)service_response_task, "RESPONSE SERVER",
+                   2048, NULL, 1, NULL) != pdPASS) {
+    return SATR_ERROR;
+  }
+  return SATR_OK;
 }

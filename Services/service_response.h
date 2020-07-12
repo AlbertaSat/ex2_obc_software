@@ -15,6 +15,8 @@
 #ifndef SERVICE_RESPONSE_H
 #define SERVICE_RESPONSE_H
 
-void service_response_task(void *param);
+#include "services.h"
+
+SAT_returnState start_service_response();
 
 #endif /* SERVICE_RESPONSE_H */

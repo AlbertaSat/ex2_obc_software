@@ -42,11 +42,12 @@ unsigned int sent_count = 0;
  * 		not used
  */
 static void housekeeping_app_route(void *parameters) {
-  csp_packet_t packet;
+  csp_packet_t *packet;
   for (;;) {
     if (xQueueReceive(service_queues.hk_app_queue, &packet,
                       NORMAL_TICKS_TO_WAIT) == pdPASS) {
-      hk_service_app(&packet);
+      hk_service_app(packet);
+      csp_buffer_free(packet);
     }
   }
 
@@ -62,11 +63,12 @@ static void housekeeping_app_route(void *parameters) {
  * 		not used
  */
 static void time_management_app_route(void *parameters) {
-  csp_packet_t packet;
+  csp_packet_t *packet;
   for (;;) {
     if (xQueueReceive(service_queues.time_management_app_queue, &packet,
                       NORMAL_TICKS_TO_WAIT) == pdPASS) {
-      time_management_app(&packet);
+      time_management_app(packet);
+      csp_buffer_free(packet);
     }
   }
 
