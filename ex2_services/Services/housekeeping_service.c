@@ -19,6 +19,7 @@
 #include "housekeeping_service.h"
 
 #include <FreeRTOS.h>
+#include <csp/csp.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -33,8 +34,8 @@ extern Service_Queues_t service_queues;
 unsigned int count = 0;
 
 SAT_returnState hk_service_app(csp_packet_t *pkt) {
-  uint8_t ser_subtype = (uint8_t)pkt->data[0];
-  ex2_log("Test HK Service 2\n");
+  uint8_t ser_subtype = (uint8_t)pkt->data[SUBSERVICE_BYTE];
+
   switch (ser_subtype) {
     case HK_PARAMETERS_REPORT:
       if (tc_hk_param_rep() != SATR_OK) {

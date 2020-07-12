@@ -64,6 +64,7 @@ void service_server(void *parameters) {
                                  NORMAL_TICKS_TO_WAIT);
           if (err != pdPASS) {
             ex2_log("FAILED TO QUEUE MESSAGE");
+            csp_buffer_free(packet);
           }
           break;
 
@@ -72,6 +73,7 @@ void service_server(void *parameters) {
                                  (void *) &packet, NORMAL_TICKS_TO_WAIT);
           if (err != pdPASS) {
             ex2_log("FAILED TO QUEUE MESSAGE");
+            csp_buffer_free(packet);
           }
           break;
 

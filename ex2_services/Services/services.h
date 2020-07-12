@@ -24,6 +24,8 @@
 
 /* PACKETS */
 #define TM_TC_BUFF_SIZE 256
+#define SUBSERVICE_BYTE 0
+#define DATA_BYTE 1
 
 /* SERVICES */
 #define MAX_APP_ID 32     // number of CSP nodes (5-bits)
@@ -64,7 +66,10 @@ typedef enum { TM_HK_PARAMETERS_REPORT = 0 } Housekeeping_Subtype;
 #define TC_FUNCTION_MANAGEMENT_SERVICE 11
 
 #define TC_TIME_MANAGEMENT_SERVICE 12
-typedef enum { SET_TIME = 0 } Time_Management_Subtype;
+typedef enum {
+  SET_TIME = 0,
+  GET_TIME
+} Time_Management_Subtype;
 
 #define TM_HK_PARAMETERS_REPORT 0
 

@@ -16,6 +16,7 @@
  * @author upSat, Andrew Rooney
  * @date 2020-06-06
  */
+ #include <csp/csp.h>
 
 #include "service_utilities.h"
 
@@ -31,6 +32,14 @@ void ex2_log(const char *format, ...) {
   va_end(arg);
   fflush(stdout);
   return;
+}
+
+void copy_packet_header(csp_packet_t *packet) {
+  // copy header data to return to sender
+  packet->id.dst = packet->id.src;
+  packet->id.dport = packet->id.sport;
+  packet->id.src = packet->id.dst;
+  packet->id.sport = packet->id.dport;
 }
 
 /* The following functions convert integer types from one representation to
