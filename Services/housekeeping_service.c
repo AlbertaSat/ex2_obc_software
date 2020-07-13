@@ -13,7 +13,7 @@
  */
 /**
  * @file housekeeping_service.c
- * @author Haoran Qi, Andrew Rooney
+ * @author Haoran Qi, Andrew Rooney, Yuan Wang
  * @date 2020-07-07
  */
 #include "housekeeping_service.h"

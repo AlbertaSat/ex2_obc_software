@@ -54,6 +54,7 @@ SAT_returnState time_management_app(csp_packet_t *packet) {
       printf("Set Time: %u\n", (uint32_t)temp_time.unix_timestamp);
 
       HAL_sys_setTime(temp_time.unix_timestamp);
+      csp_buffer_free(packet); // TODO: send success report?
       break;
 
     case GET_TIME:
