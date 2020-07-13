@@ -52,11 +52,16 @@ static inline SAT_returnState init_zmq();
 int main(int argc, char **argv) {
   ex2_log("-- starting command demo --\n");
   TC_TM_app_id my_address = DEMO_APP_ID;
+  csp_debug_level_t debug_level = CSP_INFO;
 
   /* Start platform-implemented service handlers & their queues */
   if (start_service_handlers() != SATR_OK) {
     ex2_log("COULD NOT START TELECOMMAND HANDLER\n");
     return -1;
+  }
+
+  for (csp_debug_level_t i = 0; i <= CSP_LOCK; ++i) {
+    csp_debug_set_level(i, (i <= debug_level) ? true : false);
   }
 
   /* Init CSP with address and default settings */
@@ -70,9 +75,18 @@ int main(int argc, char **argv) {
   }
   ex2_log("Running at %d\n", my_address);
   /* Set default route and start router & server */
-  csp_route_start_task(500, 0);
+  csp_route_start_task(1024, 0);
   init_zmq();
 
+  printf("Connection table\r\n");
+  csp_conn_print_table();
+
+  printf("Interfaces\r\n");
+  csp_route_print_interfaces();
+
+  printf("Route table\r\n");
+  csp_route_print_table();
+ 
   /* Start service server, and response server */
   if (start_service_server() != SATR_OK ||
       start_service_response() != SATR_OK) {

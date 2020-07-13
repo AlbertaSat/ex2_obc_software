@@ -39,18 +39,18 @@ extern Service_Queues_t service_queues;
  */
 void service_server(void *parameters) {
   csp_socket_t *sock;
-  csp_conn_t *conn;
 
   /* Create socket and listen for incoming connections */
   sock = csp_socket(CSP_SO_NONE);
   csp_bind(sock, CSP_ANY);
-  csp_listen(sock, 5);
+  csp_listen(sock, 10);
   portBASE_TYPE err;
 
   /* Super loop */
   ex2_log("Starting CSP server\n");
   for (;;) {
     /* Process incoming packet */
+    csp_conn_t *conn;
     if ((conn = csp_accept(sock, 10000)) == NULL) {
       /* timeout */
       continue;
@@ -99,7 +99,7 @@ void service_server(void *parameters) {
  * 		success or failure
  */
 SAT_returnState start_service_server(void) {
-  if (xTaskCreate((TaskFunction_t)service_server, "SERVER THREAD", 2048, NULL,
+  if (xTaskCreate((TaskFunction_t)service_server, "SERVER THREAD", 1024, NULL,
                   1, NULL) != pdPASS) {
     return SATR_ERROR;
   }
