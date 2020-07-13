@@ -34,7 +34,16 @@ void ex2_log(const char *format, ...) {
   return;
 }
 
-void copy_packet_header(csp_packet_t *packet) {
+/**
+ * @brief
+ * 		Copy elements from the packet header to return it to the sender
+ * @details
+ * 		copies elements from the CSP header but swap source/destination
+ * @param csp_packet_t *packet
+ *    Packet to swap source/destination
+ * @return void
+ */
+void return_packet_header(csp_packet_t *packet) {
   // copy header data to return to sender
   packet->id.dst = packet->id.src;
   packet->id.dport = packet->id.sport;
