@@ -30,16 +30,19 @@
 #include "services.h"
 #include "system.h"
 
+static uint8_t SID_byte = 2;
 extern Service_Queues_t service_queues;
-unsigned int count = 0;
+
+static SAT_returnState hk_parameter_report(csp_packet_t *packet);
 
 SAT_returnState hk_service_app(csp_packet_t *packet) {
   uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
 
   switch (ser_subtype) {
     case HK_PARAMETERS_REPORT:
-      if (hk_parameter_report() != SATR_OK) {
+      if (hk_parameter_report(packet) != SATR_OK) {
         csp_log_info("HK_REPORT_PARAMETERS TASK FINISHED");
+        return SATR_ERROR;
       }
       break;
 
@@ -52,75 +55,15 @@ SAT_returnState hk_service_app(csp_packet_t *packet) {
 }
 
 
-SAT_returnState hk_parameter_report() {
-  // execute #25 subtask: parameter report, collecting data from platform
-  csp_packet_t *packet = hk_param_rep();
+static SAT_returnState hk_parameter_report(csp_packet_t *packet) {
 
-  if (packet == NULL) {
-    csp_log_info(
-        "HOUSEKEEPING SERVICE REPORT: DATA COLLECTING "
-        "FAILED") return SATR_ERROR;
-  }
+   HAL_hk_report(packet->data[SID_byte], packet->data + SID_byte + 1);
 
-  if (xQueueSendToBack(service_queues.response_queue, packet,
-                       NORMAL_TICKS_TO_WAIT) != pdPASS) {
+  return_packet_header(packet);
+
+  if (queue_response(packet) != SATR_OK) {
     return SATR_ERROR;
   }
 
   return SATR_OK;
 }
-
-/*
- *Below are the elder version of hk service, may not be processed very
- *soothfully
- */
-
-// SAT_returnState hk_service_app(csp_packet_t *packet) {
-//   uint8_t ser_subtype = (uint8_t)packet->data[0];
-//   switch (ser_subtype) {
-//     case HK_PARAMETERS_REPORT:
-// 	    if((tc_hk_para_rep(packet, NORMAL_TICKS_TO_WAIT)) == SATR_OK){
-// 	    		csp_log_info("HK_REPORT_PARAMETERS TASK FINISHED");
-// 		}
-// 	      		csp_buffer_free(packet);
-// 	      		ground_response_task();
-// 	      		break;
-
-//     default:
-//     	csp_log_error("HK SERVICE NOT FOUND SUBTASK");
-//     	csp_buffer_free(packet);
-//     	break;
-// 	}
-// 	return SATR_OK;
-// }
-
-// csp_packet_t* hk_para_rep(){
-// 		csp_packet_t *packet = csp_buffer_get(100);
-// 		if (packet == NULL) {
-// 			/* Could not get buffer element */
-// 			csp_log_error("Failed to get CSP buffer");
-// 			csp_buffer_free(packet);
-// 			return NULL;
-// 		}
-// 		snex2_log((char *) packet->data[1], csp_buffer_data_size(), "HK
-// Data Sample -- EPS CRRENT: 23mA", ++count);
-// 		/*tranfer the task from TC to TM*/
-// 		packet->data[0] = TM_HK_PARAMETERS_REPORT;
-// 		packet->length = (strlen((char *) packet->data) + 1);
-
-// 		return packet;
-// }
-
-// SAT_returnState tc_hk_para_rep(csp_packet_t *packet, uint32_t timeout){
-// 		/*execute #25 subtask: parameter report, collecting data from
-// platform*/ 		packet = hk_para_rep(); 		if(packet->data == NULL){
-// 			csp_log_info("HOUSEKEEPING SERVICE REPORT: DATA COLLECTING
-// FAILED") 				return SATR_ERROR;
-// 			}
-// 			if(xQueueSendToBack(response_queue, &packet, timeout) ==
-// pdPASS){ 				csp_log_info("HOUSEKEEPING SERVICE REPORT: SENT PACKET BACK TO
-// QUEUE, ID: %d\n", packet->id); 			}else{ 				csp_log_error("HOUSEKEEPING SERVICE
-// REPORT: ERROR. THE QUEUE WAS FULL, ID: %d\n", packet->id); 				return SATR_ERROR;
-// 			}
-// 		return SATR_OK;
-// }
