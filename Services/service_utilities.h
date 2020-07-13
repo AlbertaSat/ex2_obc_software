@@ -15,6 +15,7 @@
 #ifndef SERVICE_UTILITIES_H
 #define SERVICE_UTILITIES_H
 
+#include <csp/csp.h>
 #include <stdint.h>
 
 #include "services.h"

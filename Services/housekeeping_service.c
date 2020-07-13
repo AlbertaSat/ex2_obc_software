@@ -54,10 +54,8 @@ SAT_returnState hk_service_app(csp_packet_t *packet) {
   return SATR_OK;
 }
 
-
 static SAT_returnState hk_parameter_report(csp_packet_t *packet) {
-
-   HAL_hk_report(packet->data[SID_byte], packet->data + SID_byte + 1);
+  HAL_hk_report(packet->data[SID_byte], packet->data + SID_byte + 1);
 
   return_packet_header(packet);
 

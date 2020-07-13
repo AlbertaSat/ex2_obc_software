@@ -31,7 +31,7 @@
 
 #include "service_response.h"
 #include "services.h"
-#include "system.h" // platform definitions
+#include "system.h"  // platform definitions
 
 /**
  * The main function must:
@@ -74,7 +74,8 @@ int main(int argc, char **argv) {
   init_zmq();
 
   /* Start service server, and response server */
-  if (start_service_server() != SATR_OK || start_service_response() != SATR_OK) {
+  if (start_service_server() != SATR_OK ||
+      start_service_response() != SATR_OK) {
     ex2_log("Initialization error\n");
     return -1;
   }
@@ -82,7 +83,8 @@ int main(int argc, char **argv) {
   /* Start FreeRTOS! */
   vTaskStartScheduler();
 
-  for (;;);
+  for (;;)
+    ;
 
   return 0;
 }
