@@ -56,12 +56,12 @@ SAT_returnState time_management_app(csp_packet_t *packet) {
       }
       printf("Set Time: %u\n", (uint32_t) temp_time.unix_timestamp);
 
-      set_time_UTC(temp_time);
+      HAL_sys_setTime(temp_time.unix_timestamp);
       break;
 
     case GET_TIME:
-      get_time_UTC(&temp_time);
-      copy_packet_header(packet); // get packet ready to return
+      HAL_sys_getTime(&temp_time->unix_timestamp);
+      return_packet_header(packet); // get packet ready to return
       packet->data[DATA_BYTE] = temp_time.unix_timestamp;
       cnv32_8(temp_time.unix_timestamp, packet->data + DATA_BYTE);
       if (queue_response(packet) != SATR_OK) {
@@ -75,25 +75,3 @@ SAT_returnState time_management_app(csp_packet_t *packet) {
   }
   return SATR_OK;
 }
-
-/**
- * @brief
- * 		Set UTC time
- * @details
- * 		Makes a call the the platform implementation of the time
- * handlers
- * @param struct time_utc utc
- *    a valid UTC timestamp to set the RTC to
- */
-static inline void set_time_UTC(struct time_utc utc) { HAL_sys_setTime(utc.unix_timestamp); }
-
-/**
- * @brief
- * 		Get UTC time
- * @details
- * 		Makes a call the the platform implementation of the time
- * handlers
- * @param struct time_utc utc
- *    a valid UTC timestamp to set the RTC to
- */
-static inline void get_time_UTC(struct time_utc *utc) { HAL_sys_getTime(&utc->unix_timestamp); }
