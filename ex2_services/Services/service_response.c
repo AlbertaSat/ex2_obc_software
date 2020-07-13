@@ -17,26 +17,25 @@
  * @date 2020-06-06
  */
 #include "service_response.h"
-#include "services.h"
 
 #include <FreeRTOS.h>
-#include <task.h>
 #include <csp/csp.h>
 #include <stdint.h>
+#include <task.h>
 
 #include "service_utilities.h"
+#include "services.h"
 #include "system.h"
-
 
 extern Service_Queues_t service_queues;  // Implemented by the host platform
 
 /**
  * @brief
- * 		Wait on a queue of responses to be sent to other CSP nodes (usually
- * the ground)
+ * 		Wait on a queue of responses to be sent to other CSP nodes
+ * (usually the ground)
  * @details
- * 		CSP client server will wake when data is in the queue for downlink
- * (telemetery)
+ * 		CSP client server will wake when data is in the queue for
+ * downlink (telemetery)
  * @param void * param
  * 		Not used
  * @return
@@ -51,7 +50,7 @@ void service_response_task(void *param) {
     if (xQueueReceive(service_queues.response_queue, &packet,
                       NORMAL_TICKS_TO_WAIT) == pdPASS) {
       cnv8_32(&packet->data[DATA_BYTE], &in);
-      printf("Set to %u\n", (uint32_t) in);
+      printf("Set to %u\n", (uint32_t)in);
       csp_buffer_free(packet);
     }
 
@@ -78,7 +77,8 @@ void service_response_task(void *param) {
 }
 
 SAT_returnState queue_response(csp_packet_t *packet) {
-  if (xQueueSendToBack(service_queues.response_queue, (void *) &packet, NORMAL_TICKS_TO_WAIT) != pdPASS) {
+  if (xQueueSendToBack(service_queues.response_queue, (void *)&packet,
+                       NORMAL_TICKS_TO_WAIT) != pdPASS) {
     return SATR_ERROR;
   }
   return SATR_OK;
@@ -94,7 +94,6 @@ SAT_returnState queue_response(csp_packet_t *packet) {
  * 		success or failure
  */
 SAT_returnState start_service_response() {
-
   if (!(service_queues.response_queue =
             xQueueCreate((unsigned portBASE_TYPE)RESPONSE_QUEUE_LEN,
                          (unsigned portBASE_TYPE)CSP_PKT_QUEUE_SIZE))) {
@@ -102,7 +101,7 @@ SAT_returnState start_service_response() {
   }
 
   if (xTaskCreate((TaskFunction_t)service_response_task, "RESPONSE SERVER",
-                   2048, NULL, 1, NULL) != pdPASS) {
+                  2048, NULL, 1, NULL) != pdPASS) {
     return SATR_ERROR;
   }
   return SATR_OK;

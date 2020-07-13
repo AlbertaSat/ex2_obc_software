@@ -23,8 +23,8 @@
 #include <csp/csp.h>
 #include <stdio.h>
 
-#include "service_utilities.h"
 #include "service_response.h"
+#include "service_utilities.h"
 #include "system.h"
 
 /**
@@ -51,14 +51,14 @@ SAT_returnState time_management_app(csp_packet_t *packet) {
         ex2_log("Bad timestamp format\n");
         return SATR_ERROR;
       }
-      printf("Set Time: %u\n", (uint32_t) temp_time.unix_timestamp);
+      printf("Set Time: %u\n", (uint32_t)temp_time.unix_timestamp);
 
       HAL_sys_setTime(temp_time.unix_timestamp);
       break;
 
     case GET_TIME:
-      HAL_RTC_GetTime(&temp_time.unix_timestamp);
-      return_packet_header(packet); // get packet ready to return
+      HAL_sys_getTime(&temp_time.unix_timestamp);
+      return_packet_header(packet);  // get packet ready to return
       packet->data[DATA_BYTE] = temp_time.unix_timestamp;
       cnv32_8(temp_time.unix_timestamp, packet->data + DATA_BYTE);
       if (queue_response(packet) != SATR_OK) {

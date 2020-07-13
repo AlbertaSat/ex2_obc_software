@@ -20,8 +20,8 @@
 #include "services.h"
 
 #include <FreeRTOS.h>
-#include <task.h>
 #include <csp/csp.h>
+#include <task.h>
 
 #include "service_utilities.h"
 #include "system.h"
@@ -60,7 +60,7 @@ void service_server(void *parameters) {
     while ((packet = csp_read(conn, 50)) != NULL) {
       switch (csp_conn_dport(conn)) {
         case TC_HOUSEKEEPING_SERVICE:
-          err = xQueueSendToBack(service_queues.hk_app_queue, (void *) &packet,
+          err = xQueueSendToBack(service_queues.hk_app_queue, (void *)&packet,
                                  NORMAL_TICKS_TO_WAIT);
           if (err != pdPASS) {
             ex2_log("FAILED TO QUEUE MESSAGE");
@@ -70,7 +70,7 @@ void service_server(void *parameters) {
 
         case TC_TIME_MANAGEMENT_SERVICE:
           err = xQueueSendToBack(service_queues.time_management_app_queue,
-                                 (void *) &packet, NORMAL_TICKS_TO_WAIT);
+                                 (void *)&packet, NORMAL_TICKS_TO_WAIT);
           if (err != pdPASS) {
             ex2_log("FAILED TO QUEUE MESSAGE");
             csp_buffer_free(packet);
@@ -99,8 +99,8 @@ void service_server(void *parameters) {
  * 		success or failure
  */
 SAT_returnState start_service_server(void) {
-  if (xTaskCreate((TaskFunction_t)service_server, "SERVER THREAD", 2048, NULL, 1,
-                    NULL) != pdPASS) {
+  if (xTaskCreate((TaskFunction_t)service_server, "SERVER THREAD", 2048, NULL,
+                  1, NULL) != pdPASS) {
     return SATR_ERROR;
   }
   return SATR_OK;
