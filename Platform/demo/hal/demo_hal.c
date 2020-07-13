@@ -16,11 +16,27 @@
  * @author Andrew Rooney
  * @date 2020-06-06
  */
+#include <stddef.h>
 
 #include "demo_hal.h"
+#include "services.h"
 #include "hal.h"
 
+#define BATTERY_1 0
+#define BATTERY_2 1
+#define TEMP 2
+
 uint32_t current_time;
+
+/* some of the different structures provided by this platform */
+typedef struct {
+  float current, voltage, temperature;
+} HK_battery;
+
+typedef struct {
+  float temperature;
+} HK_temperature;
+
 
 /**
  * These functions are WIP stubs to a non-existent RTC
@@ -32,4 +48,21 @@ void HAL_sys_setTime(uint32_t unix_timestamp) {
 
 void HAL_sys_getTime(uint32_t *unix_timestamp) {
   HAL_RTC_GetTime(unix_timestamp);
+}
+
+SAT_returnState HAL_hk_report(uint8_t sid, void *output) {
+  switch (sid) {
+    case BATTERY_1:;
+      HK_battery battery1 = *(HK_battery*) output;
+      HAL_get_current_1(&battery1.current);
+      HAL_get_voltage_1(&battery1.voltage);
+      HAL_get_temperature(&battery1.temperature);
+      return SATR_OK;
+    case BATTERY_2:
+      return SATR_OK;
+    case TEMP:
+      return SATR_OK;
+    default:
+      return SATR_OK;
+  }
 }

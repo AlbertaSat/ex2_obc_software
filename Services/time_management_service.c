@@ -27,9 +27,6 @@
 #include "service_response.h"
 #include "system.h"
 
-static inline void get_time_UTC(struct time_utc *utc);
-static inline void set_time_UTC(struct time_utc *utc);
-
 /**
  * @brief
  * 		Handle incoming csp_packet_t
@@ -60,7 +57,7 @@ SAT_returnState time_management_app(csp_packet_t *packet) {
       break;
 
     case GET_TIME:
-      HAL_sys_getTime(&temp_time->unix_timestamp);
+      HAL_RTC_GetTime(&temp_time.unix_timestamp);
       return_packet_header(packet); // get packet ready to return
       packet->data[DATA_BYTE] = temp_time.unix_timestamp;
       cnv32_8(temp_time.unix_timestamp, packet->data + DATA_BYTE);
