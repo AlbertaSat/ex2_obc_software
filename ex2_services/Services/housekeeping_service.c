@@ -33,22 +33,14 @@
 extern Service_Queues_t service_queues;
 unsigned int count = 0;
 
-SAT_returnState hk_service_app(csp_packet_t *pkt) {
-  uint8_t ser_subtype = (uint8_t)pkt->data[SUBSERVICE_BYTE];
+SAT_returnState hk_service_app(csp_packet_t *packet) {
+  uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
 
   switch (ser_subtype) {
     case HK_PARAMETERS_REPORT:
-      if (tc_hk_param_rep() != SATR_OK) {
+      if (hk_parameter_report() != SATR_OK) {
         csp_log_info("HK_REPORT_PARAMETERS TASK FINISHED");
       }
-      // ex2_log("Ground Station Task Checkout\n");
-      // if (pkt->data[0] ==
-      //     TM_HK_PARAMETERS_REPORT) {  // determine if needed
-      //                                 // to send back to ground
-      //   ex2_log("Enter Loop\n");
-      //   ground_response_task(pkt);
-      //   ex2_log("Loop Finished\n");
-      // }
       break;
 
     default:
@@ -59,26 +51,8 @@ SAT_returnState hk_service_app(csp_packet_t *pkt) {
   return SATR_OK;
 }
 
-/* NB: Basically hk_para_rep will be wrriten in the hardware/platform file.*/
 
-csp_packet_t *hk_param_rep() {
-  csp_packet_t *packet = csp_buffer_get(100);
-  if (packet == NULL) {
-    /* Could not get buffer element */
-    ex2_log("Failed to get CSP buffer");
-    csp_buffer_free(packet);
-    return NULL;
-  }
-  packet->data[1] = 16;
-  ++count;
-  // tranfer the task from TC to TM for enabling ground response task
-  packet->data[0] = (char)TM_HK_PARAMETERS_REPORT;
-  packet->length = (strlen((char *)packet->data) + 1);
-
-  return packet;
-}
-
-SAT_returnState tc_hk_param_rep() {
+SAT_returnState hk_parameter_report() {
   // execute #25 subtask: parameter report, collecting data from platform
   csp_packet_t *packet = hk_param_rep();
 
@@ -101,20 +75,20 @@ SAT_returnState tc_hk_param_rep() {
  *soothfully
  */
 
-// SAT_returnState hk_service_app(csp_packet_t *pkt) {
-//   uint8_t ser_subtype = (uint8_t)pkt->data[0];
+// SAT_returnState hk_service_app(csp_packet_t *packet) {
+//   uint8_t ser_subtype = (uint8_t)packet->data[0];
 //   switch (ser_subtype) {
 //     case HK_PARAMETERS_REPORT:
-// 	    if((tc_hk_para_rep(pkt, NORMAL_TICKS_TO_WAIT)) == SATR_OK){
+// 	    if((tc_hk_para_rep(packet, NORMAL_TICKS_TO_WAIT)) == SATR_OK){
 // 	    		csp_log_info("HK_REPORT_PARAMETERS TASK FINISHED");
 // 		}
-// 	      		csp_buffer_free(pkt);
+// 	      		csp_buffer_free(packet);
 // 	      		ground_response_task();
 // 	      		break;
 
 //     default:
 //     	csp_log_error("HK SERVICE NOT FOUND SUBTASK");
-//     	csp_buffer_free(pkt);
+//     	csp_buffer_free(packet);
 //     	break;
 // 	}
 // 	return SATR_OK;
