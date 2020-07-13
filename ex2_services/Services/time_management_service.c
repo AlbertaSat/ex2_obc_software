@@ -28,7 +28,7 @@
 #include "system.h"
 
 static inline void get_time_UTC(struct time_utc *utc);
-static inline void set_time_UTC(struct time_utc *utc);
+static inline void set_time_UTC(struct time_utc utc);
 
 /**
  * @brief
@@ -61,7 +61,7 @@ SAT_returnState time_management_app(csp_packet_t *packet) {
 
     case GET_TIME:
       get_time_UTC(&temp_time);
-      copy_packet_header(packet); // get packet ready to return
+      return_packet_header(packet); // get packet ready to return
       packet->data[DATA_BYTE] = temp_time.unix_timestamp;
       cnv32_8(temp_time.unix_timestamp, packet->data + DATA_BYTE);
       if (queue_response(packet) != SATR_OK) {
