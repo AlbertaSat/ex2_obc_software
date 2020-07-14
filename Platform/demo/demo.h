@@ -14,26 +14,37 @@
 
 #ifndef DEMO_H
 #define DEMO_H
+
 #include <FreeRTOS.h>
 #include <csp/csp.h>
 
 #include "queue.h"
 #include "services.h"
 
-#define TM_TC_BUFF_SIZE 256
+// gcc Src/*.c Src/demo/*.c -c -I Inc/ -I ../upsat-ecss-services/services/
+// -I Src/ -I Src/demo -I ../ex2_on_board_computer/Source/include/ -I
+// ../ex2_on_board_computer/Project/ -I ../ex2_on_board_computer/libcsp/include/
+// -I ../ex2_on_board_computer/Source/portable/GCC/POSIX/ -I
+// ../ex2_on_board_computer/libcsp/build/include/ -m32 -lpthread -std=c99 -lrt
+// && ar -rsc client_server.a *.o^C
+
+extern unsigned int sent_count;
+
 #define NORMAL_TICKS_TO_WAIT 1
 #define NORMAL_SERVICE_PRIO 5
-#define NORMAL_QUEUE_LEN 3
-#define NORMAL_QUEUE_SIZE 256
+#define SERVICE_QUEUE_LEN 3
+#define RESPONSE_QUEUE_LEN 3
+#define CSP_PKT_QUEUE_SIZE sizeof(csp_packet_t*)
 
 // Define all the services that the module implements
+// Defined here are the services implemented by this platform
 typedef struct {
-  xQueueHandle verification_app_queue;
-  xQueueHandle hk_app_queue;
-  xQueueHandle test_app_queue;
-  xQueueHandle time_management_app_queue;
-} service_queues_t;
+  xQueueHandle response_queue,  // Each platform must define a response queue
+      hk_app_queue, time_management_app_queue;
+} Service_Queues_t;
 
 SAT_returnState start_service_handlers();
 
-#endif /* DEMO_H */
+SAT_returnState ground_response_task();
+
+#endif

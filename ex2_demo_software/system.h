@@ -12,23 +12,18 @@
  * GNU General Public License for more details.
  */
 
-#ifndef TIME_MANAGEMENT_H
-#define TIME_MANAGEMENT_H
+/**
+ * This header file is unique to the system being implemented. It just includes
+ * system specific headers, and defines system parameters.
+ */
 
-#include <csp/csp.h>
-#include <stdint.h>
+#ifndef SYSTEM_H
+#define SYSTEM_H
 
-#include "services.h"
+#include "demo.h"
+#include "demo_hal.h"
 
-#define MIN_YEAR 1577836800  // 2020-01-01
-#define MAX_YEAR 1893456000  // 2030-01-01
-
-#define TIMESTAMP_ISOK(x) (x > MIN_YEAR && x < MAX_YEAR) ? 1 : 0
-
-struct time_utc {
-  uint32_t unix_timestamp;
-};
-
-SAT_returnState time_management_app(csp_packet_t *pck);
-
-#endif /* TIME_MANAGEMENT_H */
+#define SYSTEM_APP_ID _DEMO_APP_ID_
+#define USE_LOCALHOST  // Define for local development, add other options when
+                       // available
+#endif                 /* SYSTEM_H */
