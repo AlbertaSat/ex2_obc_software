@@ -12,17 +12,22 @@
  * GNU General Public License for more details.
  */
 
-/**
- * This header file is unique to the system being implemented. It just includes
- * system specific headers, and defines system parameters.
- */
+#ifndef HAL_H
+#define HAL_H
+#include <stdint.h>
 
-#ifndef SYSTEM_H
-#define SYSTEM_H
+void HAL_RTC_SetTime(uint32_t unix_timestamp);
 
-#include "demo.h"
+void HAL_RTC_GetTime(uint32_t *unix_timestamp);
 
-#define SYSTEM_APP_ID _DEMO_APP_ID_
-#define USE_LOCALHOST  // Define for local development, add other options when
-                       // available
-#endif                 /* SYSTEM_H */
+void HAL_get_temperature(float *temp);
+
+void HAL_get_current_1(float *current);
+
+void HAL_get_current_2(float *current);
+
+void HAL_get_voltage_1(float *voltage);
+
+void HAL_get_voltage_2(float *voltage);
+
+#endif

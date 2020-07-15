@@ -31,24 +31,28 @@
 
 #include "service_response.h"
 #include "services.h"
-#include "system.h"
+#include "system.h"  // platform definitions
 
-// #ifndef CSP_HAVE_LIBZMQ
-// #define CSP_HAVE_LIBZMQ 1
-// #endif
+/**
+ * The main function must:
+ *  - Define the Service_Queues_t service_queues;
+ *  - Start the services handlers
+ *  - Initialize CSP and the desired interface
+ *  - Start the service server, and response server
+ *  - Start all platform specific tasks, structures
+ *  - Start the FreeRTOS sceduler
+ */
 
 /*Create service queues*/
 Service_Queues_t service_queues;
-/* A response queue to ground station for all service*/
-xQueueHandle response_queue;
 
-void server_loop(void *parameters);
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
 static inline SAT_returnState init_zmq();
 
 int main(int argc, char **argv) {
   ex2_log("-- starting command demo --\n");
   TC_TM_app_id my_address = DEMO_APP_ID;
+  csp_debug_level_t debug_level = CSP_INFO;
 
   /* Start platform-implemented service handlers & their queues */
   if (start_service_handlers() != SATR_OK) {
@@ -56,12 +60,9 @@ int main(int argc, char **argv) {
     return -1;
   }
 
-  if (!(service_queues.response_queue =
-            xQueueCreate((unsigned portBASE_TYPE)RESPONSE_QUEUE_LEN,
-                         (unsigned portBASE_TYPE)CSP_PKT_QUEUE_SIZE))) {
-    ex2_log("FAILED TO CREATE RESPONSE QUEUE");
-    return -1;
-  };
+  for (csp_debug_level_t i = 0; i <= CSP_LOCK; ++i) {
+    csp_debug_set_level(i, (i <= debug_level) ? true : false);
+  }
 
   /* Init CSP with address and default settings */
   csp_conf_t csp_conf;
@@ -74,22 +75,22 @@ int main(int argc, char **argv) {
   }
   ex2_log("Running at %d\n", my_address);
   /* Set default route and start router & server */
-  // csp_route_set(CSP_DEFAULT_ROUTE, &this_interface, CSP_NODE_MAC);
-  csp_route_start_task(500, 0);
-
-#ifdef USE_LOCALHOST
+  csp_route_start_task(1024, 0);
   init_zmq();
-#else
-// implement other interfaces perhaps..
-#endif
 
-  if (!(xTaskCreate((TaskFunction_t)server_loop, "SERVER THREAD", 2048, NULL, 1,
-                    NULL)) != pdPASS) {
-    return -1;
-  }
+  printf("Connection table\r\n");
+  csp_conn_print_table();
 
-  if (!xTaskCreate((TaskFunction_t)service_response_task, "RESPONSE SERVER",
-                   2048, NULL, 1, NULL) != pdPASS) {
+  printf("Interfaces\r\n");
+  csp_route_print_interfaces();
+
+  printf("Route table\r\n");
+  csp_route_print_table();
+ 
+  /* Start service server, and response server */
+  if (start_service_server() != SATR_OK ||
+      start_service_response() != SATR_OK) {
+    ex2_log("Initialization error\n");
     return -1;
   }
 
@@ -123,65 +124,4 @@ static inline SAT_returnState init_zmq() {
 
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName) {
   ex2_log("error line: %lu in file: %s", ulLine, pcFileName);
-}
-
-/**
- * @brief
- * 		main CSP server loop
- * @details
- * 		send incoming CSP packets to the appropriate service queues,
- * otherwise pass it to the CSP service handler
- * @param void *parameters
- * 		not used
- */
-void server_loop(void *parameters) {
-  csp_socket_t *sock;
-  csp_conn_t *conn;
-
-  /* Create socket and listen for incoming connections */
-  sock = csp_socket(CSP_SO_NONE);
-  csp_bind(sock, CSP_ANY);
-  csp_listen(sock, 5);
-  portBASE_TYPE err;
-
-  /* Super loop */
-  ex2_log("Starting CSP server\n");
-  for (;;) {
-    /* Process incoming packet */
-    if ((conn = csp_accept(sock, 10000)) == NULL) {
-      /* timeout */
-      continue;
-    }
-
-    csp_packet_t *packet;
-    while ((packet = csp_read(conn, 50)) != NULL) {
-      switch (csp_conn_dport(conn)) {
-        case TC_HOUSEKEEPING_SERVICE:
-          err = xQueueSendToBack(service_queues.hk_app_queue, packet,
-                                 NORMAL_TICKS_TO_WAIT);
-          if (err != pdPASS) {
-            ex2_log("FAILED TO QUEUE MESSAGE");
-          }
-          csp_buffer_free(packet);
-          break;
-
-        case TC_TIME_MANAGEMENT_SERVICE:
-          err = xQueueSendToBack(service_queues.time_management_app_queue,
-                                 packet, NORMAL_TICKS_TO_WAIT);
-          if (err != pdPASS) {
-            ex2_log("FAILED TO QUEUE MESSAGE");
-          }
-          csp_buffer_free(packet);
-          break;
-
-        default:
-          /* let CSP respond to requests */
-          csp_service_handler(conn, packet);
-          break;
-      }
-    }
-    csp_close(conn);
-  }
-
-  return;
 }

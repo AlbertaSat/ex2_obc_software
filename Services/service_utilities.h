@@ -15,11 +15,14 @@
 #ifndef SERVICE_UTILITIES_H
 #define SERVICE_UTILITIES_H
 
+#include <csp/csp.h>
 #include <stdint.h>
 
 #include "services.h"
 
 void ex2_log(const char *format, ...);
+
+void return_packet_header(csp_packet_t *packet);
 
 void cnv32_8(const uint32_t from, uint8_t *to);
 

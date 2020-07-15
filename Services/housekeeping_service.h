@@ -2,6 +2,7 @@
 #define HOUSEKEEPING_SERVICE_H
 
 #include <csp/csp.h>
+
 #include "services.h"
 
 /* Housekeeping service address & port*/
@@ -16,9 +17,8 @@ extern unsigned int count;
 
 // extern CSP_DEFINE_TASK(hk_app);
 SAT_returnState hk_service_app(csp_packet_t* pkt);
-SAT_returnState tc_hk_param_rep();
-// SAT_returnState tm_hk_para_rep(uint32_t timeout);
-csp_packet_t* hk_param_rep(void);
+
+static SAT_returnState hk_parameter_report(csp_packet_t* packet);
 
 /*hk data sample*/
 typedef enum {

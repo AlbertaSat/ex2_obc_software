@@ -30,8 +30,6 @@
 #include "time_management_service.h"
 
 extern Service_Queues_t service_queues;
-/*create a variable to record # of packets sent to ground*/
-unsigned int sent_count = 0;
 
 /**
  * @brief
@@ -42,11 +40,11 @@ unsigned int sent_count = 0;
  * 		not used
  */
 static void housekeeping_app_route(void *parameters) {
-  csp_packet_t packet;
+  csp_packet_t *packet;
   for (;;) {
     if (xQueueReceive(service_queues.hk_app_queue, &packet,
                       NORMAL_TICKS_TO_WAIT) == pdPASS) {
-      hk_service_app(&packet);
+      hk_service_app(packet);
     }
   }
 
@@ -62,11 +60,13 @@ static void housekeeping_app_route(void *parameters) {
  * 		not used
  */
 static void time_management_app_route(void *parameters) {
-  csp_packet_t packet;
+  csp_packet_t *packet;
   for (;;) {
     if (xQueueReceive(service_queues.time_management_app_queue, &packet,
                       NORMAL_TICKS_TO_WAIT) == pdPASS) {
-      time_management_app(&packet);
+      if (time_management_app(packet) != SATR_OK) {
+        csp_buffer_free(packet);
+      }
     }
   }
 
@@ -89,28 +89,30 @@ SAT_returnState start_service_handlers() {
   if (!(service_queues.time_management_app_queue =
             xQueueCreate((unsigned portBASE_TYPE)SERVICE_QUEUE_LEN,
                          (unsigned portBASE_TYPE)CSP_PKT_QUEUE_SIZE))) {
-    ex2_log("FAILED TO CREATE time_management_app_queue");
+    ex2_log("FAILED TO CREATE time_management_app_queue\n");
     return SATR_ERROR;
   };
 
   if (!(service_queues.hk_app_queue =
             xQueueCreate((unsigned portBASE_TYPE)SERVICE_QUEUE_LEN,
                          (unsigned portBASE_TYPE)CSP_PKT_QUEUE_SIZE))) {
-    ex2_log("FAILED TO CREATE hk_app_queue");
+    ex2_log("FAILED TO CREATE hk_app_queue\n");
     return SATR_ERROR;
   };
 
-  if (!(xTaskCreate((TaskFunction_t)housekeeping_app_route,
-                    "housekeeping_app_route", 2048, NULL, NORMAL_SERVICE_PRIO,
-                    NULL)) == pdPASS) {
+  if (xTaskCreate((TaskFunction_t)housekeeping_app_route,
+                  "housekeeping_app_route", 300, NULL, NORMAL_SERVICE_PRIO,
+                  NULL) != pdPASS) {
+    ex2_log("FAILED TO CREATE TASK housekeeping_app_route\n");
     return SATR_ERROR;
   };
 
-  if (!(xTaskCreate((TaskFunction_t)time_management_app_route,
-                    "time_management_app", 2048, NULL, NORMAL_SERVICE_PRIO,
-                    NULL)) != pdPASS) {
+  if (xTaskCreate((TaskFunction_t)time_management_app_route,
+                  "time_management_app_route", 300, NULL, NORMAL_SERVICE_PRIO,
+                  NULL) != pdPASS) {
+    ex2_log("FAILED TO CREATE TASK time_management_app_route\n");
     return SATR_ERROR;
   }
-
+  ex2_log("Service handlers started\n");
   return SATR_OK;
 }
