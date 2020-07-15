@@ -47,10 +47,11 @@ SAT_returnState time_management_app(csp_packet_t *pkt) {
   struct time_utc temp_time;
 
   switch (ser_subtype) {
-    case TM_TIME_SET_IN_UTC:
+    case SET_TIME:
       printf("SET TIME\n");
       cnv8_32(&pkt->data[1], &temp_time.unix_timestamp);
       if (!TIMESTAMP_ISOK(temp_time.unix_timestamp)) {
+        ex2_log("it's %d\n", temp_time.unix_timestamp);
         printf("Bad timestamp format\n");
         return SATR_ERROR;
       }
@@ -61,7 +62,7 @@ SAT_returnState time_management_app(csp_packet_t *pkt) {
 
     default:
       printf("No such subservice\n");
-      break;
+      return SATR_PKT_ILLEGAL_SUBSERVICE;
   }
   return SATR_OK;
 }

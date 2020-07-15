@@ -19,9 +19,13 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include "subsystems_ids.h"
-#include "system.h"
 
+#include "subsystems_ids.h"
+
+/* PACKETS */
+#define TM_TC_BUFF_SIZE 256
+
+/* SERVICES */
 #define MAX_APP_ID 32     // number of CSP nodes (5-bits)
 #define MAX_SERVICES 64   // number of CSP ports (6-bits)
 #define MAX_SUBTYPES 256  // an 8-bit integer
@@ -38,23 +42,31 @@ typedef enum {
 
 typedef enum {
   SATR_PKT_ILLEGAL_APPID = 0,
-  SATR_OK = 1,
-  SATR_ERROR = 2,
+  SATR_PKT_ILLEGAL_SUBSERVICE,
+  SATR_OK,
+  SATR_ERROR,
+  SATR_RETURN_FROM_TASK,
+  SATR_BUFFER_ERR,
   /*LAST*/
-  SATR_LAST = 56
+  SATR_LAST
 } SAT_returnState;
 
-/* services types
- * Note: ports 0-7 are reserved by CSP
+/* services types & subtypes
+ * Note: ports 0-7 are RESERVED by CSP. Don't use them.
  */
 #define TC_VERIFICATION_SERVICE 8
-#define TC_HOUSEKEEPING_SERVICE 9
-#define TC_EVENT_SERVICE 10
-#define TC_FUNCTION_MANAGEMENT_SERVICE 11
-#define TC_TIME_MANAGEMENT_SERVICE 12
 
-/* Subservice types */
-#define TM_TIME_SET_IN_UTC 0
+#define TC_HOUSEKEEPING_SERVICE 9
+typedef enum { TM_HK_PARAMETERS_REPORT = 0 } Housekeeping_Subtype;
+
+#define TC_EVENT_SERVICE 10
+
+#define TC_FUNCTION_MANAGEMENT_SERVICE 11
+
+#define TC_TIME_MANAGEMENT_SERVICE 12
+typedef enum { SET_TIME = 0 } Time_Management_Subtype;
+
+#define TM_HK_PARAMETERS_REPORT 0
 
 /* Utility definitions */
 union _cnv {

@@ -13,7 +13,7 @@
  */
 /**
  * @file main.c
- * @author Andrew Rooney
+ * @author Andrew Rooney, Haoran Qi
  * @date 2020-06-06
  */
 
@@ -21,6 +21,7 @@
 #include <csp/csp.h>
 #include <csp/interfaces/csp_if_zmqhub.h>
 #include <fcntl.h>
+#include <service_utilities.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,24 +29,39 @@
 #include <task.h>
 #include <unistd.h>
 
-#include "demo.h"
+#include "service_response.h"
 #include "services.h"
 #include "system.h"
 
-service_queues_t service_queues;
+// #ifndef CSP_HAVE_LIBZMQ
+// #define CSP_HAVE_LIBZMQ 1
+// #endif
+
+/*Create service queues*/
+Service_Queues_t service_queues;
+/* A response queue to ground station for all service*/
+xQueueHandle response_queue;
 
 void server_loop(void *parameters);
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
-SAT_returnState init_zmq();
+static inline SAT_returnState init_zmq();
 
 int main(int argc, char **argv) {
-  fprintf(stdout, "-- starting command demo --");
+  ex2_log("-- starting command demo --\n");
   TC_TM_app_id my_address = DEMO_APP_ID;
 
+  /* Start platform-implemented service handlers & their queues */
   if (start_service_handlers() != SATR_OK) {
-    printf("COULD NOT START TELECOMMAND HANDLER");
+    ex2_log("COULD NOT START TELECOMMAND HANDLER\n");
     return -1;
   }
+
+  if (!(service_queues.response_queue =
+            xQueueCreate((unsigned portBASE_TYPE)RESPONSE_QUEUE_LEN,
+                         (unsigned portBASE_TYPE)CSP_PKT_QUEUE_SIZE))) {
+    ex2_log("FAILED TO CREATE RESPONSE QUEUE");
+    return -1;
+  };
 
   /* Init CSP with address and default settings */
   csp_conf_t csp_conf;
@@ -53,28 +69,35 @@ int main(int argc, char **argv) {
   csp_conf.address = my_address;
   int error = csp_init(&csp_conf);
   if (error != CSP_ERR_NONE) {
-    printf("csp_init() failed, error: %d", error);
+    ex2_log("csp_init() failed, error: %d\n", error);
     return -1;
   }
-  printf("Running at %d\n", my_address);
+  ex2_log("Running at %d\n", my_address);
   /* Set default route and start router & server */
   // csp_route_set(CSP_DEFAULT_ROUTE, &this_interface, CSP_NODE_MAC);
   csp_route_start_task(500, 0);
 
 #ifdef USE_LOCALHOST
   init_zmq();
-// csp_iface_t this_interface = csp_if_fifo;
 #else
-// implement other interfaces
+// implement other interfaces perhaps..
 #endif
 
-  xTaskCreate((TaskFunction_t)server_loop, "SERVER THREAD", 2048, NULL, 1,
-              NULL);
+  if (!(xTaskCreate((TaskFunction_t)server_loop, "SERVER THREAD", 2048, NULL, 1,
+                    NULL)) != pdPASS) {
+    return -1;
+  }
 
+  if (!xTaskCreate((TaskFunction_t)service_response_task, "RESPONSE SERVER",
+                   2048, NULL, 1, NULL) != pdPASS) {
+    return -1;
+  }
+
+  /* Start FreeRTOS! */
   vTaskStartScheduler();
 
-  for (;;) {
-  }
+  for (;;)
+    ;
 
   return 0;
 }
@@ -86,12 +109,12 @@ int main(int argc, char **argv) {
  * 		start the localhost zmq server and add it to the default route
  * with no VIA address
  */
-SAT_returnState init_zmq() {
+static inline SAT_returnState init_zmq() {
   csp_iface_t *default_iface = NULL;
   int error =
       csp_zmqhub_init(csp_get_address(), "localhost", 0, &default_iface);
   if (error != CSP_ERR_NONE) {
-    printf("failed to add ZMQ interface [%s], error: %d", "localhost", error);
+    ex2_log("failed to add ZMQ interface [%s], error: %d", "localhost", error);
     return SATR_ERROR;
   }
   csp_rtable_set(CSP_DEFAULT_ROUTE, 0, default_iface, CSP_NO_VIA_ADDRESS);
@@ -99,7 +122,7 @@ SAT_returnState init_zmq() {
 }
 
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName) {
-  printf("error line: %lu in file: %s", ulLine, pcFileName);
+  ex2_log("error line: %lu in file: %s", ulLine, pcFileName);
 }
 
 /**
@@ -114,7 +137,6 @@ void vAssertCalled(unsigned long ulLine, const char *const pcFileName) {
 void server_loop(void *parameters) {
   csp_socket_t *sock;
   csp_conn_t *conn;
-  csp_packet_t *packet;
 
   /* Create socket and listen for incoming connections */
   sock = csp_socket(CSP_SO_NONE);
@@ -123,19 +145,31 @@ void server_loop(void *parameters) {
   portBASE_TYPE err;
 
   /* Super loop */
+  ex2_log("Starting CSP server\n");
   for (;;) {
     /* Process incoming packet */
     if ((conn = csp_accept(sock, 10000)) == NULL) {
       /* timeout */
       continue;
     }
+
+    csp_packet_t *packet;
     while ((packet = csp_read(conn, 50)) != NULL) {
       switch (csp_conn_dport(conn)) {
+        case TC_HOUSEKEEPING_SERVICE:
+          err = xQueueSendToBack(service_queues.hk_app_queue, packet,
+                                 NORMAL_TICKS_TO_WAIT);
+          if (err != pdPASS) {
+            ex2_log("FAILED TO QUEUE MESSAGE");
+          }
+          csp_buffer_free(packet);
+          break;
+
         case TC_TIME_MANAGEMENT_SERVICE:
           err = xQueueSendToBack(service_queues.time_management_app_queue,
                                  packet, NORMAL_TICKS_TO_WAIT);
           if (err != pdPASS) {
-            printf("FAILED TO QUEUE MESSAGE");
+            ex2_log("FAILED TO QUEUE MESSAGE");
           }
           csp_buffer_free(packet);
           break;
@@ -148,4 +182,6 @@ void server_loop(void *parameters) {
     }
     csp_close(conn);
   }
+
+  return;
 }
