@@ -56,18 +56,19 @@ SAT_returnState hk_service_app(csp_packet_t *packet) {
 
 static SAT_returnState hk_parameter_report(csp_packet_t *packet) {
   if(HAL_hk_report(packet->data[SID_byte], packet->data + SID_byte + 1) != SATR_OK) {
-    ex2_log("Failed to collecting report data, err src: %d\n", packet->data[SID_byte]);
+    ex2_log("Failed to collecting report data, err src: %u\n", packet->data[SID_byte]);
   }
   
   switch(packet->data[SID_byte]){
     case 0: 
-            ex2_log("BATT 1 CURRENT: %f\n", *(float *)(packet->data + SID_byte + 1));
-            ex2_log("BATT 1 VOLTAGE: %f\n", *(float *)(packet->data + SID_byte + 5));
-            ex2_log("BATT 1 TEMPRATURE: %f\n", *(float *)(packet->data + SID_byte + 9));
+            printf("BATT 1 CURRENT: %f\n", *(float *)(packet->data + SID_byte + 1));
+            printf("BATT 1 VOLTAGE: %f\n", *(float *)(packet->data + SID_byte + 5));
+            printf("BATT 1 TEMPRATURE: %f\n", *(float *)(packet->data + SID_byte + 9));
+            printf("SID: %u\n", packet->data[SID_byte]);
             break;
     
     default:
-            ex2_log("No data found\n");
+            printf("No data found\n");
   }
 
   return_packet_header(packet);
