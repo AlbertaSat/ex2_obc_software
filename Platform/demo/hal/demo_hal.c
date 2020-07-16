@@ -58,8 +58,6 @@ SAT_returnState HAL_hk_report(uint8_t sid, void *output) {
       // HAL_get_voltage_1(&battery1.voltage);
       // HAL_get_temperature(&battery1.temperature);
       HK_battery *battery1 = (HK_battery *)output;
-      printf("Battery ADDR: %p\n", battery1);
-      printf("Packet ADDR: %p\n\n", output);
       HAL_get_current_1(&(*battery1).current);
       HAL_get_voltage_1(&(*battery1).voltage);
       HAL_get_temperature(&(*battery1).temperature);
