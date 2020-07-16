@@ -53,10 +53,14 @@ void HAL_sys_getTime(uint32_t *unix_timestamp) {
 SAT_returnState HAL_hk_report(uint8_t sid, void *output) {
   switch (sid) {
     case BATTERY_1:;
-      HK_battery battery1 = *(HK_battery *)output;
-      HAL_get_current_1(&battery1.current);
-      HAL_get_voltage_1(&battery1.voltage);
-      HAL_get_temperature(&battery1.temperature);
+      // HK_battery battery1 = *(HK_battery *)output;
+      // HAL_get_current_1(&battery1.current);
+      // HAL_get_voltage_1(&battery1.voltage);
+      // HAL_get_temperature(&battery1.temperature);
+      HK_battery *battery1 = (HK_battery *)output;
+      HAL_get_current_1(&(*battery1).current);
+      HAL_get_voltage_1(&(*battery1).voltage);
+      HAL_get_temperature(&(*battery1).temperature);
       return SATR_OK;
 
     case BATTERY_2:
