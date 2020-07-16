@@ -49,6 +49,10 @@ void service_response_task(void *param) {
     /* To get conn from the response queue */
     if (xQueueReceive(service_queues.response_queue, &packet,
                       NORMAL_TICKS_TO_WAIT) == pdPASS) {
+      /* For some reason, if we directly print packet->data[DATA_BYTE],
+         it will be set to arg we sent.
+      */
+      //printf("Set to %u\n",packet->data[DATA_BYTE]);
       cnv8_32(&packet->data[DATA_BYTE], &in);
       printf("Set to %u\n", (uint32_t)in);
       csp_buffer_free(packet);
