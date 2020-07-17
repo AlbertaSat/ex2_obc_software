@@ -11,25 +11,13 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-/**
- * @file demo_hal.c
- * @author Andrew Rooney
- * @date 2020-06-06
- */
 
-#include "demo_hal.h"
-#include "hal.h"
+#ifndef HAL_H
+#define HAL_H
+#include <stdint.h>
 
-uint32_t current_time;
+void HAL_RTC_SetTime(uint32_t unix_timestamp);
 
-/**
- * These functions are WIP stubs to a non-existent RTC
- */
+void HAL_RTC_GetTime(uint32_t *unix_timestamp);
 
-void HAL_sys_setTime(uint32_t unix_timestamp) {
-  HAL_RTC_SetTime(unix_timestamp);
-}
-
-void HAL_sys_getTime(uint32_t *unix_timestamp) {
-  HAL_RTC_GetTime(unix_timestamp);
-}
+#endif

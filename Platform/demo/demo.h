@@ -34,7 +34,7 @@ extern unsigned int sent_count;
 #define NORMAL_SERVICE_PRIO 5
 #define SERVICE_QUEUE_LEN 3
 #define RESPONSE_QUEUE_LEN 3
-#define CSP_PKT_QUEUE_SIZE 128
+#define CSP_PKT_QUEUE_SIZE sizeof(csp_packet_t*)
 
 // Define all the services that the module implements
 // Defined here are the services implemented by this platform

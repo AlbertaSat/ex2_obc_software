@@ -17,12 +17,16 @@
  * @date 2020-06-06
  */
 #include "service_response.h"
-#include "service_utilities.h"
+#include "services.h"
 
 #include <FreeRTOS.h>
+#include <task.h>
 #include <csp/csp.h>
+#include <stdint.h>
 
+#include "service_utilities.h"
 #include "system.h"
+
 
 extern Service_Queues_t service_queues;  // Implemented by the host platform
 
@@ -40,12 +44,15 @@ extern Service_Queues_t service_queues;  // Implemented by the host platform
  */
 void service_response_task(void *param) {
   TC_TM_app_id my_address = SYSTEM_APP_ID;
-  csp_packet_t packet;
+  csp_packet_t *packet;
+  uint32_t in;
   for (;;) {
     /* To get conn from the response queue */
     if (xQueueReceive(service_queues.response_queue, &packet,
                       NORMAL_TICKS_TO_WAIT) == pdPASS) {
-      ex2_log("%d", packet.data[0]);
+      cnv8_32(&packet->data[DATA_BYTE], &in);
+      printf("Set to %u\n", (uint32_t) in);
+      csp_buffer_free(packet);
     }
 
     // if (conn == NULL) {
@@ -68,4 +75,35 @@ void service_response_task(void *param) {
   }
 
   return;
+}
+
+SAT_returnState queue_response(csp_packet_t *packet) {
+  if (xQueueSendToBack(service_queues.response_queue, (void *) &packet, NORMAL_TICKS_TO_WAIT) != pdPASS) {
+    return SATR_ERROR;
+  }
+  return SATR_OK;
+}
+
+/**
+ * @brief
+ * 		Start the response_queue, and response task
+ * @details
+ * 		intitializes the FreeRTOS queue and task
+ * @param void
+ * @return SAT_returnState
+ * 		success or failure
+ */
+SAT_returnState start_service_response() {
+
+  if (!(service_queues.response_queue =
+            xQueueCreate((unsigned portBASE_TYPE)RESPONSE_QUEUE_LEN,
+                         (unsigned portBASE_TYPE)CSP_PKT_QUEUE_SIZE))) {
+    return SATR_ERROR;
+  }
+
+  if (xTaskCreate((TaskFunction_t)service_response_task, "RESPONSE SERVER",
+                   2048, NULL, 1, NULL) != pdPASS) {
+    return SATR_ERROR;
+  }
+  return SATR_OK;
 }

@@ -16,6 +16,7 @@
  * @author upSat, Andrew Rooney
  * @date 2020-06-06
  */
+ #include <csp/csp.h>
 
 #include "service_utilities.h"
 
@@ -27,9 +28,27 @@
 void ex2_log(const char *format, ...) {
   va_list arg;
   va_start(arg, format);
-  fprintf(stdout, format, arg, 0);
+  printf(format, arg, 0);
   va_end(arg);
+  fflush(stdout);
   return;
+}
+
+/**
+ * @brief
+ * 		Copy elements from the packet header to return it to the sender
+ * @details
+ * 		copies elements from the CSP header but swap source/destination
+ * @param csp_packet_t *packet
+ *    Packet to swap source/destination
+ * @return void
+ */
+void return_packet_header(csp_packet_t *packet) {
+  // copy header data to return to sender
+  packet->id.dst = packet->id.src;
+  packet->id.dport = packet->id.sport;
+  packet->id.src = packet->id.dst;
+  packet->id.sport = packet->id.dport;
 }
 
 /* The following functions convert integer types from one representation to
