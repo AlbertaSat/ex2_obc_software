@@ -24,11 +24,11 @@
 #include <stdio.h>
 
 #include "service_utilities.h"
+#include "service_response.h"
+#include "system.h"
 
-/* Include the appropriate HAL files */
-#if (SYSTEM_APP_ID == DEMO_APP_ID_)
-#include "demo_hal.h"
-#endif
+static inline void get_time_UTC(struct time_utc *utc);
+static inline void set_time_UTC(struct time_utc utc);
 
 /**
  * @brief
@@ -36,28 +36,37 @@
  * @details
  * 		Takes a csp packet destined for the time_management service, and
  * Will handle the packet based on it's subservice type.
- * @param csp_packet_t *pkt
+ * @param csp_packet_t *packet
  *    Incoming CSP packet - we can be sure that this packet is valid and
  *    destined for this service.
  * @return SAT_returnState
  * 		success report
  */
-SAT_returnState time_management_app(csp_packet_t *pkt) {
-  uint8_t ser_subtype = (uint8_t)pkt->data[0];
+SAT_returnState time_management_app(csp_packet_t *packet) {
+  uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
   struct time_utc temp_time;
 
   switch (ser_subtype) {
     case SET_TIME:
       ex2_log("SET TIME\n");
-      cnv8_32(&pkt->data[1], &temp_time.unix_timestamp);
+      cnv8_32(&packet->data[DATA_BYTE], &temp_time.unix_timestamp);
       if (!TIMESTAMP_ISOK(temp_time.unix_timestamp)) {
-        ex2_log("it's %d\n", temp_time.unix_timestamp);
         ex2_log("Bad timestamp format\n");
         return SATR_ERROR;
       }
-      ex2_log("Set Time: %d\n", temp_time.unix_timestamp);
-      fflush(stdout);
+      printf("Set Time: %u\n", (uint32_t) temp_time.unix_timestamp);
+
       set_time_UTC(temp_time);
+      break;
+
+    case GET_TIME:
+      get_time_UTC(&temp_time);
+      return_packet_header(packet); // get packet ready to return
+      packet->data[DATA_BYTE] = temp_time.unix_timestamp;
+      cnv32_8(temp_time.unix_timestamp, packet->data + DATA_BYTE);
+      if (queue_response(packet) != SATR_OK) {
+        return SATR_ERROR;
+      }
       break;
 
     default:
@@ -76,4 +85,15 @@ SAT_returnState time_management_app(csp_packet_t *pkt) {
  * @param struct time_utc utc
  *    a valid UTC timestamp to set the RTC to
  */
-void set_time_UTC(struct time_utc utc) { HAL_sys_setTime(utc.unix_timestamp); }
+static inline void set_time_UTC(struct time_utc utc) { HAL_sys_setTime(utc.unix_timestamp); }
+
+/**
+ * @brief
+ * 		Get UTC time
+ * @details
+ * 		Makes a call the the platform implementation of the time
+ * handlers
+ * @param struct time_utc utc
+ *    a valid UTC timestamp to set the RTC to
+ */
+static inline void get_time_UTC(struct time_utc *utc) { HAL_sys_getTime(&utc->unix_timestamp); }
