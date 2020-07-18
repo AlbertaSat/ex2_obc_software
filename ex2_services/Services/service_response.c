@@ -50,7 +50,7 @@ void service_response_task(void *param) {
     if (xQueueReceive(service_queues.response_queue, &packet,
                       NORMAL_TICKS_TO_WAIT) == pdPASS) {
       cnv8_32(&packet->data[DATA_BYTE], &in);
-      printf("Set to %u\n", (uint32_t)in);
+      printf("SERVICE_RESPONSE_TASK Set to %u\n", (uint32_t)in);
       csp_buffer_free(packet);
     }
 
