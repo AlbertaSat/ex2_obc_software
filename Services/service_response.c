@@ -32,48 +32,51 @@ extern Service_Queues_t service_queues;  // Implemented by the host platform
 /**
  * @brief
  * 		Wait on a queue of responses to be sent to other CSP nodes
- * (usually the ground)
+ *              (usually the ground)
  * @details
  * 		CSP client server will wake when data is in the queue for
- * downlink (telemetery)
+ *              downlink (telemetery)
  * @param void * param
  * 		Not used
  * @return
- * 		should not return
+ * 		A SAT_returnState depending on whether we were successful
+ *              in connecting. Not typically used for anything.
  */
-void service_response_task(void *param) {
+SAT_returnState service_response_task(void *param) {
   TC_TM_app_id my_address = SYSTEM_APP_ID;
   csp_packet_t *packet;
   uint32_t in;
   for (;;) {
-    /* To get conn from the response queue */
+
     if (xQueueReceive(service_queues.response_queue, &packet,
                       NORMAL_TICKS_TO_WAIT) == pdPASS) {
       cnv8_32(&packet->data[DATA_BYTE], &in);
       printf("SERVICE_RESPONSE_TASK Set to %u\n", (uint32_t)in);
-      csp_buffer_free(packet);
-    }
+    
+      // csp_connect(priority, destination address, dest. port, timeout(ms), options);
+      csp_conn_t *conn = csp_connect(CSP_PRIO_NORM, 6, 25, 1000, CSP_O_NONE);
 
-    // if (conn == NULL) {
-    //   /* Could not get buffer element */
-    //   csp_log_error("Failed to get CSP CONNECTION");
-    //   return SATR_ERROR;
-    // }
-    //
-    // /*  Send packet to ground */
-    // if (!csp_send(conn, packet, 1000)) {
-    //   /* Send failed */
-    //   csp_log_error("Send failed");
-    //   csp_buffer_free(packet);
-    // }
-    //
-    // /*  Close connection */
-    // sent_count++;
-    // csp_log_info("#%d PACKET HAS BEEN SENT TO GROUND\n", sent_count);
-    // csp_close(conn);
+      if (conn == NULL) {
+	csp_log_error("Failed to get CSP CONNECTION");
+	return SATR_ERROR;
+      }
+   
+      /* Send packet to ground */
+      if (!csp_send(conn, packet, 1000)) { 
+	csp_log_error("Send failed");
+	csp_buffer_free(packet);
+      }
+    
+      /* Close connection */
+      csp_log_info("Packet sent to ground.\n");
+      csp_close(conn);
+    }
   }
 
-  return;
+  csp_buffer_free(packet);
+  csp_log_info("Packet buffer freed.\n");
+  
+  return SATR_OK;
 }
 
 SAT_returnState queue_response(csp_packet_t *packet) {
