@@ -42,8 +42,8 @@ RUN git submodule update
 
 # build CSP
 WORKDIR /home/SatelliteSim/libcsp
-RUN git fetch origin
-RUN git checkout upstream
+#RUN git fetch origin
+#RUN git checkout upstream
 RUN python3 waf configure --with-os=posix --enable-rdp --enable-hmac --enable-xtea --with-loglevel=debug --enable-debug-timestamp --enable-python3-bindings --with-driver-usart=linux --enable-if-zmqhub --enable-examples
 RUN python3 waf build
 
