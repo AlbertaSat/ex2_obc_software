@@ -64,17 +64,15 @@ static SAT_returnState hk_parameter_report(csp_packet_t *packet) {
       printf("BATT 1 CURRENT: %f\n", *(float *)(packet->data + SID_byte + 1));
       printf("BATT 1 VOLTAGE: %f\n", *(float *)(packet->data + SID_byte + 5));
       printf("BATT 1 TEMPRATURE: %f\n", *(float *)(packet->data + SID_byte + 9));
-      printf("SID: %u\n", packet->data[SID_byte]);
       break;
     
     default:
       printf("No data found\n");
   }
 
-  packet->length = (strlen((char *) packet->data) + 1); /* include the 0 termination */
-
+  packet->length = (sizeof((char *) packet->data) + 1); /* include the 0 termination */
+  
   if (packet->length > csp_buffer_data_size()) {
-    printf("Packet data length: %u\n", packet->length);
 		return CSP_ERR_NOMEM;
 	}
 
