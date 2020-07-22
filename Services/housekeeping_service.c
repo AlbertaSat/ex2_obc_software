@@ -73,7 +73,8 @@ static SAT_returnState hk_parameter_report(csp_packet_t *packet) {
 
   packet->length = (strlen((char *) packet->data) + 1); /* include the 0 termination */
 
-  if ((packet->length > csp_buffer_data_size()) {
+  if (packet->length > csp_buffer_data_size()) {
+    printf("Packet data length: %u\n", packet->length);
 		return CSP_ERR_NOMEM;
 	}
 
