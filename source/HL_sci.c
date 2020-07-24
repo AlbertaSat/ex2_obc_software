@@ -89,7 +89,7 @@ void sciInit(void)
     sciREG1->GCR1 =  (uint32)((uint32)1U << 25U)  /* enable transmit */
                   | (uint32)((uint32)1U << 24U)  /* enable receive */
                   | (uint32)((uint32)1U << 5U)   /* internal clock (device has no clock pin) */
-                  | (uint32)((uint32)(2U-1U) << 4U)  /* number of stop bits */
+                  | (uint32)((uint32)(1U-1U) << 4U)  /* number of stop bits */
                   | (uint32)((uint32)0U << 3U)  /* even parity, otherwise odd */
                   | (uint32)((uint32)0U << 2U)  /* enable parity */
                   | (uint32)((uint32)1U << 1U);  /* asynchronous timing mode */
@@ -213,7 +213,7 @@ void sciInit(void)
     sciREG2->SETINT = (uint32)((uint32)0U << 26U)  /* Framing error */
                    | (uint32)((uint32)0U << 25U)  /* Overrun error */
                    | (uint32)((uint32)0U << 24U)  /* Parity error */
-                   | (uint32)((uint32)0U << 9U)  /* Receive */
+                   | (uint32)((uint32)1U << 9U)  /* Receive */
                    | (uint32)((uint32)0U << 1U)  /* Wakeup */
                    | (uint32)((uint32)0U << 0U);  /* Break detect */
 
@@ -242,7 +242,7 @@ void sciInit(void)
     sciREG3->GCR1 =  (uint32)((uint32)1U << 25U)  /* enable transmit */
                   | (uint32)((uint32)1U << 24U)  /* enable receive */
                   | (uint32)((uint32)1U << 5U)   /* internal clock (device has no clock pin) */
-                  | (uint32)((uint32)(2U-1U) << 4U)  /* number of stop bits */
+                  | (uint32)((uint32)(1U-1U) << 4U)  /* number of stop bits */
                   | (uint32)((uint32)0U << 3U)  /* even parity, otherwise odd */
                   | (uint32)((uint32)0U << 2U)  /* enable parity */
                   | (uint32)((uint32)1U << 1U);  /* asynchronous timing mode */
@@ -290,7 +290,7 @@ void sciInit(void)
     sciREG3->SETINT = (uint32)((uint32)0U << 26U)  /* Framing error */
                    | (uint32)((uint32)0U << 25U)  /* Overrun error */
                    | (uint32)((uint32)0U << 24U)  /* Parity error */
-                   | (uint32)((uint32)0U << 9U)  /* Receive */
+                   | (uint32)((uint32)1U << 9U)  /* Receive */
                    | (uint32)((uint32)0U << 1U)  /* Wakeup */
                    | (uint32)((uint32)0U << 0U);  /* Break detect */
 
@@ -318,7 +318,7 @@ void sciInit(void)
     sciREG4->GCR1 =  (uint32)((uint32)1U << 25U)  /* enable transmit */
                   | (uint32)((uint32)1U << 24U)  /* enable receive */
                   | (uint32)((uint32)1U << 5U)   /* internal clock (device has no clock pin) */
-                  | (uint32)((uint32)(2U-1U) << 4U)  /* number of stop bits */
+                  | (uint32)((uint32)(1U-1U) << 4U)  /* number of stop bits */
                   | (uint32)((uint32)0U << 3U)  /* even parity, otherwise odd */
                   | (uint32)((uint32)0U << 2U)  /* enable parity */
                   | (uint32)((uint32)1U << 1U);  /* asynchronous timing mode */
@@ -1139,6 +1139,82 @@ void lin1HighLevelInterrupt(void)
 }
 
 
+
+/* SourceId : SCI_SourceId_026 */
+/* DesignId : SCI_DesignId_017 */
+/* Requirements : HL_CONQ_SCI_SR20, HL_CONQ_SCI_SR21 */
+/** @fn void sci3HighLevelInterrupt(void)
+*   @brief  Level 0 Interrupt for SCI3
+*/
+#pragma CODE_STATE(sci3HighLevelInterrupt, 32)
+#pragma INTERRUPT(sci3HighLevelInterrupt, IRQ)
+void sci3HighLevelInterrupt(void)
+{
+    uint32 vec = sciREG3->INTVECT0;
+	uint8 byte;
+/* USER CODE BEGIN (37) */
+/* USER CODE END */
+
+    switch (vec)
+    {
+    case 1U:
+        sciNotification(sciREG3, (uint32)SCI_WAKE_INT);
+        break;
+    case 3U:
+        sciNotification(sciREG3, (uint32)SCI_PE_INT);
+        break;
+    case 6U:
+        sciNotification(sciREG3, (uint32)SCI_FE_INT);
+        break;
+    case 7U:
+        sciNotification(sciREG3, (uint32)SCI_BREAK_INT);
+        break;
+    case 9U:
+        sciNotification(sciREG3, (uint32)SCI_OE_INT);
+        break;
+
+    case 11U:
+        /* receive */
+        byte = (uint8)(sciREG3->RD & 0x000000FFU);
+
+            if (g_sciTransfer_t[2U].rx_length > 0U)
+            {
+                *g_sciTransfer_t[2U].rx_data = byte;
+                g_sciTransfer_t[2U].rx_data++;
+                g_sciTransfer_t[2U].rx_length--;
+                if (g_sciTransfer_t[2U].rx_length == 0U)
+                {
+                    sciNotification(sciREG3, (uint32)SCI_RX_INT);
+                }
+            }
+        
+        break;
+
+    case 12U:
+        /* transmit */
+		/*SAFETYMCUSW 30 S MR:12.2,12.3 <APPROVED> "Used for data count in Transmit/Receive polling and Interrupt mode" */
+		--g_sciTransfer_t[2U].tx_length;
+        if (g_sciTransfer_t[2U].tx_length > 0U)
+        {
+			uint8 txdata = *g_sciTransfer_t[2U].tx_data;
+            sciREG3->TD = (uint32)txdata;
+            g_sciTransfer_t[2U].tx_data++;
+        }
+        else
+        {
+            sciREG3->CLEARINT = (uint32)SCI_TX_INT;
+            sciNotification(sciREG3, (uint32)SCI_TX_INT);
+        }
+        break;
+
+    default:
+        /* phantom interrupt, clear flags and return */
+        sciREG3->FLR = sciREG3->SETINTLVL & 0x07000303U;
+         break;
+    }
+/* USER CODE BEGIN (38) */
+/* USER CODE END */
+}
 
 
 

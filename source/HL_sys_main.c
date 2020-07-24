@@ -162,7 +162,7 @@ static unsigned int server_received = 0;
 /* Server task - handles requests from clients */
 void task_server(void* params) {
 
-    csp_log_info("Server task started");
+//    csp_log_info("Server task started");
 
     /* Create socket with no specific socket options, e.g. accepts CRC32, HMAC, XTEA, etc. if enabled during compilation */
     csp_socket_t *sock = csp_socket(CSP_SO_NONE);
@@ -273,7 +273,7 @@ void task_client (void * params) {
 int main(int argc, char * argv[]) {
 
     uint8_t address = 1;
-    csp_debug_level_t debug_level = CSP_INFO;
+    csp_debug_level_t debug_level = CSP_ERROR;
 
     const char * rtable = NULL;
     int opt;
@@ -293,16 +293,16 @@ int main(int argc, char * argv[]) {
     }
 
     /* Start router task with 10000 bytes of stack (priority is only supported on FreeRTOS) */
-    csp_route_start_task(500, 0);
+    csp_route_start_task(500, 1);
 
     /* Add interface(s) */
     csp_iface_t * default_iface = NULL;
 
     // TODO: make a client/server example with 2 boards
-    error = can_init(&default_iface);
-    if (error != CSP_ERR_NONE) {
-        exit(1);
-    }
+//    error = can_init(&default_iface);
+//    if (error != CSP_ERR_NONE) {
+//        exit(1);
+//    }
 
     csp_usart_conf_t conf = {
                 .device = "yo",
@@ -319,14 +319,14 @@ int main(int argc, char * argv[]) {
     /* Start server thread */
     if ((server_address == 255) || (default_iface == NULL)) {
         /* no interfaces specified -> run server & client via loopback */
-        xTaskCreate(task_server, "SERVER", 1000, NULL, 0, NULL);
+        xTaskCreate(task_server, "SERVER", 1000, NULL, 1, NULL);
 
     }
 
     /* Start client thread */
     if ((server_address != 255) ||  /* server address specified, I must be client */
         (default_iface == NULL)) {  /* no interfaces specified -> run server & client via loopback */
-        xTaskCreate(task_client, "CLIENT", 1000, NULL, 0, NULL);
+        xTaskCreate(task_client, "CLIENT", 1000, NULL, 1, NULL);
     }
     vTaskStartScheduler();
     /* Wait for execution to end (ctrl+c) */
@@ -339,12 +339,15 @@ int main(int argc, char * argv[]) {
 //#include "FreeRTOS.h"
 //#include "os_semphr.h"
 //#include "stdio.h"
+//#include "HL_sci.h"
+//#include "HL_sys_common.h"
+//#include "HL_system.h"
 //
 //typedef struct {
 //    uint8_t len;
 //    uint8_t data[100];
 //} kiss_packet;
-//
+//static unsigned char command;
 //kiss_packet packet;
 //xSemaphoreHandle sciInturruptSem;
 //
@@ -357,9 +360,9 @@ int main(int argc, char * argv[]) {
 //}
 //
 //void sciNotification(sciBASE_t *sci, unsigned flags) {
-//    portBASE_TYPE higherTask = pdFALSE;
-//    xSemaphoreGiveFromISR(sciInturruptSem, &higherTask);
-//    sciReceive(sci, 1, packet.data);
+//    sciSend(sciREG1, 1, (unsigned char *)&command);
+//    sciSend(sci, 1, (unsigned char *)&command);
+//    sciReceive(sci, 1,(unsigned char *) &command);
 //}
 //
 //void esmGroup1Notification(int but) {
@@ -374,10 +377,8 @@ int main(int argc, char * argv[]) {
 //
 //    _enable_IRQ();
 //    sciInit();
-//    sciReceive(sciREG1, 1, packet.data);
-//    vSemaphoreCreateBinary(sciInturruptSem);
-//    xTaskCreate(sendTask, "send task", 500, NULL, 0, NULL);
-//    vTaskStartScheduler();
-//    while(1);
+//    sciSend(sciREG3, 21, (unsigned char *)"please press a key!\r\n");
+//    sciReceive(sciREG3, 1, &command);
+//    for(;;);
 //    return 1;
 //}

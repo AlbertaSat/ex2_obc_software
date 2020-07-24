@@ -96,6 +96,7 @@ extern void lin1HighLevelInterrupt(void);
 extern void can1HighLevelInterrupt(void);
 extern void vPortYeildWithinAPI(void);
 extern void can2HighLevelInterrupt(void);
+extern void sci3HighLevelInterrupt(void);
 
 /* USER CODE BEGIN (3) */
 /* USER CODE END */
@@ -327,7 +328,7 @@ typedef struct vim_config_reg
                                     |(uint32)((uint32)0U << 30U)\
                                     |(uint32)((uint32)0U << 31U))
                         
-#define VIM_REQMASKSET2_CONFIGVALUE ((uint32)((uint32)0U << 0U)\
+#define VIM_REQMASKSET2_CONFIGVALUE ((uint32)((uint32)1U << 0U)\
                                     |(uint32)((uint32)0U << 1U)\
                                     |(uint32)((uint32)0U << 2U)\
                                     |(uint32)((uint32)0U << 3U)\
