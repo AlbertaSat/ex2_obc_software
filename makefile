@@ -1,5 +1,3 @@
-#RUN gcc *.c Platform/demo/*.c Platform/demo/hal/*.c Services/*.c -c -I . -I Platform/demo -I Platform/hal -I Services/ -I ../upsat-ecss-services/services/ -I ../SatelliteSim/Source/include/ -I ../SatelliteSim/Project/ -I ../SatelliteSim/libcsp/include/ -I ../SatelliteSim/Source/portable/GCC/POSIX/ -I ../SatelliteSim/libcsp/build/include/ -lpthread -std=c99 -lrt && ar -rsc client_server.a *.o
-
 PROJDIR = $(CURDIR)/../../
 #---------------------------FOR FREE RTOS INTEGRATION---------------------------
 #path to source includes
@@ -50,7 +48,6 @@ CWARNS += -Wunused-function
 CWARNS += -Wunused-label
 #CWARNS += -Wunused-parameter
 CWARNS += -Wno-unused-parameter
-
 CWARNS += -Wunused-value
 CWARNS += -Wunused-variable
 CWARNS += -Wmissing-prototypes
@@ -58,6 +55,7 @@ CWARNS += -Wmissing-prototypes
 #---------------------------Libs---------------------------
 LINKFLAGS = 
 LIBS = -pthread
+#for building independent of sat sim, archive files:
 #STATIC_FILES += $(PROJDIR)/libcsp/build/libcsp.a
 #STATIC_FILES += $(PROJDIR)/FreeRtos
 
