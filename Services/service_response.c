@@ -51,10 +51,11 @@ SAT_returnState service_response_task(void *param) {
     if (xQueueReceive(service_queues.response_queue, &packet,
                       NORMAL_TICKS_TO_WAIT) == pdPASS) {
       cnv8_32(&packet->data[DATA_BYTE], &in);
-      printf("SERVICE_RESPONSE_TASK Set to %u\n", (uint32_t)in);
+      csp_log_info("SERVICE_RESPONSE_TASK Set to %u\n", (uint32_t)in);
     
       // csp_connect(priority, destination address, dest. port, timeout(ms), options);
-      csp_conn_t *conn = csp_connect(CSP_PRIO_NORM, 6, 25, 1000, CSP_O_NONE);
+      // TODO: use the variable for the dport instead (2 is for GET_TIME specifically)
+      csp_conn_t *conn = csp_connect(CSP_PRIO_NORM, GND_APP_ID, 2, 1000, CSP_O_NONE);
 
       if (conn == NULL) {
 	csp_log_error("Failed to get CSP CONNECTION");
