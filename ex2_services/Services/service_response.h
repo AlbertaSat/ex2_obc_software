@@ -16,6 +16,7 @@
 #define SERVICE_RESPONSE_H
 
 #include <csp/csp.h>
+
 #include "services.h"
 
 SAT_returnState queue_response(csp_packet_t *packet);

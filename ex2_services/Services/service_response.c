@@ -17,26 +17,25 @@
  * @date 2020-06-06
  */
 #include "service_response.h"
-#include "services.h"
 
 #include <FreeRTOS.h>
-#include <task.h>
 #include <csp/csp.h>
 #include <stdint.h>
+#include <task.h>
 
 #include "service_utilities.h"
+#include "services.h"
 #include "system.h"
-
 
 extern Service_Queues_t service_queues;  // Implemented by the host platform
 
 /**
  * @brief
- * 		Wait on a queue of responses to be sent to other CSP nodes (usually
- * the ground)
+ * 		Wait on a queue of responses to be sent to other CSP nodes
+ * (usually the ground)
  * @details
- * 		CSP client server will wake when data is in the queue for downlink
- * (telemetery)
+ * 		CSP client server will wake when data is in the queue for
+ * downlink (telemetery)
  * @param void * param
  * 		Not used
  * @return
@@ -50,11 +49,22 @@ void service_response_task(void *param) {
     /* To get conn from the response queue */
     if (xQueueReceive(service_queues.response_queue, &packet,
                       NORMAL_TICKS_TO_WAIT) == pdPASS) {
-      cnv8_32(&packet->data[DATA_BYTE], &in);
-      printf("Set to %u\n", (uint32_t) in);
+      /* For some reason, if we directly print packet->data[DATA_BYTE],
+         it will be set to arg we sent.
+      */
+      printf("Set to %u\n",packet->data[DATA_BYTE]);
+      //cnv8_32(&packet->data[DATA_BYTE], &in);
+      //printf("Set to %u\n", (uint32_t)in);
+      
+      int res = csp_sendto(CSP_PRIO_NORM, packet->id.dst, packet->id.dport, packet->id.src, CSP_O_NONE, packet, 1000);
+      if (res != CSP_ERR_NONE) {
+        printf("Packet Sent back failed\n");
+      }else{
+        printf("Sent OK\n");
+      }
       csp_buffer_free(packet);
     }
-
+    
     // if (conn == NULL) {
     //   /* Could not get buffer element */
     //   csp_log_error("Failed to get CSP CONNECTION");
@@ -78,7 +88,8 @@ void service_response_task(void *param) {
 }
 
 SAT_returnState queue_response(csp_packet_t *packet) {
-  if (xQueueSendToBack(service_queues.response_queue, (void *) &packet, NORMAL_TICKS_TO_WAIT) != pdPASS) {
+  if (xQueueSendToBack(service_queues.response_queue, (void *)&packet,
+                       NORMAL_TICKS_TO_WAIT) != pdPASS) {
     return SATR_ERROR;
   }
   return SATR_OK;
@@ -94,7 +105,6 @@ SAT_returnState queue_response(csp_packet_t *packet) {
  * 		success or failure
  */
 SAT_returnState start_service_response() {
-
   if (!(service_queues.response_queue =
             xQueueCreate((unsigned portBASE_TYPE)RESPONSE_QUEUE_LEN,
                          (unsigned portBASE_TYPE)CSP_PKT_QUEUE_SIZE))) {

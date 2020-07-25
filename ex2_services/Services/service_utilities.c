@@ -16,8 +16,6 @@
  * @author upSat, Andrew Rooney
  * @date 2020-06-06
  */
- #include <csp/csp.h>
-
 #include "service_utilities.h"
 
 #include <stdarg.h>
