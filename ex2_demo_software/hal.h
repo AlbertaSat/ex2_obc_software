@@ -20,4 +20,14 @@ void HAL_RTC_SetTime(uint32_t unix_timestamp);
 
 void HAL_RTC_GetTime(uint32_t *unix_timestamp);
 
+void HAL_get_temperature(float *temp);
+
+void HAL_get_current_1(float *current);
+
+void HAL_get_current_2(float *current);
+
+void HAL_get_voltage_1(float *voltage);
+
+void HAL_get_voltage_2(float *voltage);
+
 #endif

@@ -15,9 +15,12 @@
 #ifndef DEMO_HAL_H
 #define DEMO_HAL_H
 
-#include "inttypes.h"
+#include <inttypes.h>
+
+#include "services.h"
 
 void HAL_sys_getTime(uint32_t *unix_timestamp);
 void HAL_sys_setTime(uint32_t unix_timestamp);
+SAT_returnState HAL_hk_report(uint8_t sid, void *output);
 
 #endif /* DEMO_HAL_H */

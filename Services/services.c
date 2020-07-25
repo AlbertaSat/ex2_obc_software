@@ -20,8 +20,8 @@
 #include "services.h"
 
 #include <FreeRTOS.h>
-#include <task.h>
 #include <csp/csp.h>
+#include <task.h>
 
 #include "service_utilities.h"
 #include "system.h"
@@ -39,18 +39,18 @@ extern Service_Queues_t service_queues;
  */
 void service_server(void *parameters) {
   csp_socket_t *sock;
-  csp_conn_t *conn;
 
   /* Create socket and listen for incoming connections */
   sock = csp_socket(CSP_SO_NONE);
   csp_bind(sock, CSP_ANY);
-  csp_listen(sock, 5);
+  csp_listen(sock, 10);
   portBASE_TYPE err;
 
   /* Super loop */
   ex2_log("Starting CSP server\n");
   for (;;) {
     /* Process incoming packet */
+    csp_conn_t *conn;
     if ((conn = csp_accept(sock, 10000)) == NULL) {
       /* timeout */
       continue;
@@ -60,7 +60,7 @@ void service_server(void *parameters) {
     while ((packet = csp_read(conn, 50)) != NULL) {
       switch (csp_conn_dport(conn)) {
         case TC_HOUSEKEEPING_SERVICE:
-          err = xQueueSendToBack(service_queues.hk_app_queue, (void *) &packet,
+          err = xQueueSendToBack(service_queues.hk_app_queue, (void *)&packet,
                                  NORMAL_TICKS_TO_WAIT);
           if (err != pdPASS) {
             ex2_log("FAILED TO QUEUE MESSAGE");
@@ -70,7 +70,7 @@ void service_server(void *parameters) {
 
         case TC_TIME_MANAGEMENT_SERVICE:
           err = xQueueSendToBack(service_queues.time_management_app_queue,
-                                 (void *) &packet, NORMAL_TICKS_TO_WAIT);
+                                 (void *)&packet, NORMAL_TICKS_TO_WAIT);
           if (err != pdPASS) {
             ex2_log("FAILED TO QUEUE MESSAGE");
             csp_buffer_free(packet);
