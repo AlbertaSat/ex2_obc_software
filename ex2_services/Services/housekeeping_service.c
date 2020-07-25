@@ -30,7 +30,7 @@
 #include "services.h"
 #include "system.h"
 
-static uint8_t SID_byte = 2;
+static uint8_t SID_byte = 1;
 extern Service_Queues_t service_queues;
 
 static SAT_returnState hk_parameter_report(csp_packet_t *packet);
@@ -55,7 +55,11 @@ SAT_returnState hk_service_app(csp_packet_t *packet) {
 }
 
 static SAT_returnState hk_parameter_report(csp_packet_t *packet) {
-  HAL_hk_report(packet->data[SID_byte], packet->data + SID_byte + 1);
+  if(HAL_hk_report(packet->data[SID_byte], packet->data + SID_byte + 1) != SATR_OK) {
+    ex2_log("Failed to collecting report data, err src: %u\n", packet->data[SID_byte]);
+  }
+
+  packet->length = (sizeof((char *) packet->data) + 1); /* include the 0 termination */
 
   return_packet_header(packet);
 
