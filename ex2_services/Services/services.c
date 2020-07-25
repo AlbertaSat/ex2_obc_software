@@ -99,8 +99,8 @@ void service_server(void *parameters) {
  * 		success or failure
  */
 SAT_returnState start_service_server(void) {
-  if (xTaskCreate((TaskFunction_t)service_server, "SERVER THREAD", 1024, NULL,
-                  1, NULL) != pdPASS) {
+  if (xTaskCreate((TaskFunction_t)service_server, "SERVER THREAD", 500, NULL, 1,
+                    NULL) != pdPASS) {
     return SATR_ERROR;
   }
   return SATR_OK;
