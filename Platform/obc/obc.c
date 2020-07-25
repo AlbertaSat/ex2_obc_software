@@ -17,9 +17,8 @@
  * @date 2020-06-06
  */
 
-#include "demo.h"
-
 #include <FreeRTOS.h>
+#include <obc/obc.h>
 #include <stdio.h>
 
 #include "housekeeping_service.h"

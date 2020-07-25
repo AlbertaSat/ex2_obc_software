@@ -11,21 +11,25 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-
 /**
- * This header file is unique to the system being implemented. It just includes
- * system specific headers, and defines system parameters.
+ * @file demo_hal.c
+ * @author Andrew Rooney
+ * @date 2020-06-06
  */
 
-#ifndef SYSTEM_H
-#define SYSTEM_H
+#include <obc/hal/obc_hal.h>
+#include "hal.h"
 
-#include "demo.h"
-#include "demo_hal.h"
+uint32_t current_time;
 
-#define SYSTEM_APP_ID _DEMO_APP_ID_
-#define USE_LOCALHOST  // Define for local development, add other options when
-                       // available
-int main(int argc, char **argv);
+/**
+ * These functions are WIP stubs to a non-existent RTC
+ */
 
-#endif                 /* SYSTEM_H */
+void HAL_sys_setTime(uint32_t unix_timestamp) {
+  HAL_RTC_SetTime(unix_timestamp);
+}
+
+void HAL_sys_getTime(uint32_t *unix_timestamp) {
+  HAL_RTC_GetTime(unix_timestamp);
+}
