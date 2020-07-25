@@ -102,7 +102,7 @@ SAT_returnState start_service_response() {
   }
 
   if (xTaskCreate((TaskFunction_t)service_response_task, "RESPONSE SERVER",
-                   2048, NULL, 1, NULL) != pdPASS) {
+                   500, NULL, 1, NULL) != pdPASS) {
     return SATR_ERROR;
   }
   return SATR_OK;
