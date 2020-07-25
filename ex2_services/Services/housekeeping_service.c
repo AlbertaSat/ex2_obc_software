@@ -58,23 +58,8 @@ static SAT_returnState hk_parameter_report(csp_packet_t *packet) {
   if(HAL_hk_report(packet->data[SID_byte], packet->data + SID_byte + 1) != SATR_OK) {
     ex2_log("Failed to collecting report data, err src: %u\n", packet->data[SID_byte]);
   }
-  
-  switch(packet->data[SID_byte]){
-    case 0: 
-      printf("BATT 1 CURRENT: %f\n", *(float *)(packet->data + SID_byte + 1));
-      printf("BATT 1 VOLTAGE: %f\n", *(float *)(packet->data + SID_byte + 5));
-      printf("BATT 1 TEMPRATURE: %f\n", *(float *)(packet->data + SID_byte + 9));
-      break;
-    
-    default:
-      printf("No data found\n");
-  }
 
   packet->length = (sizeof((char *) packet->data) + 1); /* include the 0 termination */
-  
-  if (packet->length > csp_buffer_data_size()) {
-		return CSP_ERR_NOMEM;
-	}
 
   return_packet_header(packet);
 
