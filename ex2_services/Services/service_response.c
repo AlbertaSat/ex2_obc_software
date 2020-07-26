@@ -59,8 +59,6 @@ void service_response_task(void *param) {
       int res = csp_sendto(CSP_PRIO_NORM, packet->id.dst, packet->id.dport, packet->id.src, CSP_O_NONE, packet, 1000);
       if (res != CSP_ERR_NONE) {
         printf("Packet Sent back failed\n");
-      }else{
-        printf("Sent OK\n");
       }
       csp_buffer_free(packet);
     }
