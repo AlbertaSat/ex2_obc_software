@@ -55,7 +55,9 @@ SAT_returnState service_response_task(void *param) {
     
       // csp_connect(priority, destination address, dest. port, timeout(ms), options);
       // TODO: use the variable for the dport instead (2 is for GET_TIME specifically)
-      csp_conn_t *conn = csp_connect(CSP_PRIO_NORM, GND_APP_ID, 2, 1000, CSP_O_NONE);
+      uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
+      csp_log_info("ser_subtype %u\n", (uint32_t)ser_subtype);
+      csp_conn_t *conn = csp_connect(CSP_PRIO_NORM, GND_APP_ID, ser_subtype, 1000, CSP_O_NONE);
 
       if (conn == NULL) {
 	csp_log_error("Failed to get CSP CONNECTION");

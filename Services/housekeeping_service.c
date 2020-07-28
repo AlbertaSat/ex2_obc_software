@@ -39,7 +39,7 @@ SAT_returnState hk_service_app(csp_packet_t *packet) {
   uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
 
   switch (ser_subtype) {
-    case HK_PARAMETERS_REPORT:
+    case TM_HK_PARAMETERS_REPORT:
       if (hk_parameter_report(packet) != SATR_OK) {
         csp_log_info("HK_REPORT_PARAMETERS TASK FINISHED");
         return SATR_ERROR;
