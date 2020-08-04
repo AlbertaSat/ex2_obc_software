@@ -17,8 +17,9 @@
  * @date 2020-06-06
  */
 
+#include "demo.h"
+
 #include <FreeRTOS.h>
-#include <obc/obc.h>
 #include <stdio.h>
 
 #include "housekeeping_service.h"
@@ -32,11 +33,11 @@ extern Service_Queues_t service_queues;
 
 /**
  * @brief
- * 		FreeRTOS task wakes up to service housekeeping request
+ *      FreeRTOS task wakes up to service housekeeping request
  * @details
- * 		Will pass the incoming packet to the application code
+ *      Will pass the incoming packet to the application code
  * @param void *param
- * 		not used
+ *      not used
  */
 static void housekeeping_app_route(void *parameters) {
   csp_packet_t *packet;
@@ -52,11 +53,11 @@ static void housekeeping_app_route(void *parameters) {
 
 /**
  * @brief
- * 		FreeRTOS task wakes up to service time_management request
+ *      FreeRTOS task wakes up to service time_management request
  * @details
- * 		Will pass the incoming packet to the application code
+ *      Will pass the incoming packet to the application code
  * @param void *param
- * 		not used
+ *      not used
  */
 static void time_management_app_route(void *parameters) {
   csp_packet_t *packet;
@@ -74,12 +75,12 @@ static void time_management_app_route(void *parameters) {
 
 /**
  * @brief
- * 		Initialize service handling tasks, and queues
+ *      Initialize service handling tasks, and queues
  * @details
- * 		Starts the FreeRTOS queueues and the tasks that wait on them for
+ *      Starts the FreeRTOS queueues and the tasks that wait on them for
  * incoming CSP
  * @return SAT_returnState
- * 		success report
+ *      success report
  */
 SAT_returnState start_service_handlers() {
   /**
@@ -100,15 +101,15 @@ SAT_returnState start_service_handlers() {
   };
 
   if (xTaskCreate((TaskFunction_t)housekeeping_app_route,
-                    "housekeeping_app_route", 500, NULL, NORMAL_SERVICE_PRIO,
-                    NULL) != pdPASS) {
+                  "housekeeping_app_route", 300, NULL, NORMAL_SERVICE_PRIO,
+                  NULL) != pdPASS) {
     ex2_log("FAILED TO CREATE TASK housekeeping_app_route\n");
     return SATR_ERROR;
   };
 
   if (xTaskCreate((TaskFunction_t)time_management_app_route,
-                    "time_management_app_route", 500, NULL, NORMAL_SERVICE_PRIO,
-                    NULL) != pdPASS) {
+                  "time_management_app_route", 300, NULL, NORMAL_SERVICE_PRIO,
+                  NULL) != pdPASS) {
     ex2_log("FAILED TO CREATE TASK time_management_app_route\n");
     return SATR_ERROR;
   }
