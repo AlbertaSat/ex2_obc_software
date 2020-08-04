@@ -52,15 +52,17 @@ void service_response_task(void *param) {
       /* For some reason, if we directly print packet->data[DATA_BYTE],
          it will be set to arg we sent.
       */
-      printf("Set to %u\n",packet->data[DATA_BYTE]);
+//      printf("Set to %u\n",packet->data[DATA_BYTE]);
       //cnv8_32(&packet->data[DATA_BYTE], &in);
       //printf("Set to %u\n", (uint32_t)in);
       
       int res = csp_sendto(CSP_PRIO_NORM, packet->id.dst, packet->id.dport, packet->id.src, CSP_O_NONE, packet, 1000);
       if (res != CSP_ERR_NONE) {
-        printf("Packet Sent back failed\n");
+        csp_buffer_free(packet);
+        ex2_log("Packet Sent back failed\n");
+      }else{
+        ex2_log("Sent OK\n");
       }
-      csp_buffer_free(packet);
     }
     
     // if (conn == NULL) {
