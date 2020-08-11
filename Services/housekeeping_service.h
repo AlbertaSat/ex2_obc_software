@@ -22,14 +22,10 @@ static SAT_returnState hk_parameter_report(csp_packet_t* packet);
 
 /*hk data sample*/
 typedef enum {
-  EPS_CURRENT_VAL,
-  EPS_CURRENT_STATE,
-  EPS_VOLTAGE_VAL,
-  EPS_VOLTAGE_STATE,
-  EPS_TEMPERATURE_VAL,
-  EPS_TEMPERATURE_STATE,
-  EPS_ALERT,
-  EPS_SIZE
-} data_sample;
+  EPS,
+  ADCS,
+  OBC,
+  COMMS
+} hardware;
 
 #endif /* HOUSEKEEPING_SERVICE_H */

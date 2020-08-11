@@ -12,20 +12,15 @@
  * GNU General Public License for more details.
  */
 
-/**
- * This header file is unique to the system being implemented. It just includes
- * system specific headers, and defines system parameters.
- */
+#ifndef DEMO_HAL_H
+#define DEMO_HAL_H
 
-#ifndef SYSTEM_H
-#define SYSTEM_H
+#include <inttypes.h>
 
-#include "demo.h"
-#include "demo_hal.h"
+#include "services.h"
 
-#define SYSTEM_APP_ID _DEMO_APP_ID_
-#define USE_LOCALHOST  // Define for local development, add other options when
-                       // available
-int main(int argc, char **argv);
+void HAL_sys_getTime(uint32_t *unix_timestamp);
+void HAL_sys_setTime(uint32_t unix_timestamp);
+SAT_returnState HAL_hk_report(uint8_t sid, void *output);
 
-#endif                 /* SYSTEM_H */
+#endif /* DEMO_HAL_H */

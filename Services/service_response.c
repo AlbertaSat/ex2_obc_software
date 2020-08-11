@@ -57,6 +57,7 @@ SAT_returnState service_response_task(void *param) {
       uint8_t dest_port = (uint8_t) packet->data[SUBSERVICE_BYTE]; // The desination subservice
       csp_log_info("Sending to service %u and subservice %u", (uint32_t) dest_addr, (uint32_t) dest_port);
 
+      // Connect with a connectionfull method
       // csp_connect(priority, desination address, dest. port, timeout (ms), options);
       csp_conn_t *conn = csp_connect(CSP_PRIO_NORM, dest_addr, dest_port, 1000, CSP_O_NONE);
       
@@ -65,15 +66,26 @@ SAT_returnState service_response_task(void *param) {
 	return SATR_ERROR;
       }
    
-      /* Send packet to ground */
+      // Send packet to ground
       if (!csp_send(conn, packet, 1000)) { 
 	csp_log_error("Send failed");
 	csp_buffer_free(packet);
       }
     
-      /* Close connection */
+      // Close connection
       csp_log_info("Packet sent to ground.");
       csp_close(conn);
+
+      // Alternatively, a connectionless method can be used instead
+      /*
+      int res = csp_sendto(CSP_PRIO_NORM, packet->id.dst, packet->id.dport, packet->id.src, CSP_O_NONE, packet, 1000);
+      if (res != CSP_ERR_NONE) {
+        csp_buffer_free(packet);
+        ex2_log("Packet Sent back failed\n");
+      } else {
+        ex2_log("Sent OK\n");
+      }
+      */
     }
   }
 
@@ -108,7 +120,7 @@ SAT_returnState start_service_response() {
   }
 
   if (xTaskCreate((TaskFunction_t)service_response_task, "RESPONSE SERVER",
-                  1024, NULL, 1, NULL) != pdPASS) {
+                   500, NULL, 1, NULL) != pdPASS) {
     return SATR_ERROR;
   }
   return SATR_OK;
