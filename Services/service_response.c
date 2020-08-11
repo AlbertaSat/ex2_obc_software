@@ -13,7 +13,7 @@
  */
 /**
  * @file service_reponse.c
- * @author Haoran Qi, Andrew Rooney
+ * @author Haoran Qi, Andrew Rooney, Hugh Bagan
  * @date 2020-06-06
  */
 #include "service_response.h"
@@ -45,20 +45,21 @@ extern Service_Queues_t service_queues;  // Implemented by the host platform
 SAT_returnState service_response_task(void *param) {
   TC_TM_app_id my_address = SYSTEM_APP_ID;
   csp_packet_t *packet;
-  uint32_t in;
+  uint32_t data;
   for (;;) {
 
     if (xQueueReceive(service_queues.response_queue, &packet,
                       NORMAL_TICKS_TO_WAIT) == pdPASS) {
-      cnv8_32(&packet->data[DATA_BYTE], &in);
-      csp_log_info("SERVICE_RESPONSE_TASK Set to %u\n", (uint32_t)in);
-    
-      // csp_connect(priority, destination address, dest. port, timeout(ms), options);
-      // TODO: use the variable for the dport instead (2 is for GET_TIME specifically)
-      uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
-      csp_log_info("ser_subtype %u\n", (uint32_t)ser_subtype);
-      csp_conn_t *conn = csp_connect(CSP_PRIO_NORM, GND_APP_ID, ser_subtype, 1000, CSP_O_NONE);
+      cnv8_32(&packet->data[DATA_BYTE], &data);
+      printf("Packet data before sending: %u\n", (uint32_t) data);
+      
+      uint8_t dest_addr = GND_APP_ID; // Change this as needed!
+      uint8_t dest_port = (uint8_t) packet->data[SUBSERVICE_BYTE]; // The desination subservice
+      csp_log_info("Sending to service %u and subservice %u", (uint32_t) dest_addr, (uint32_t) dest_port);
 
+      // csp_connect(priority, desination address, dest. port, timeout (ms), options);
+      csp_conn_t *conn = csp_connect(CSP_PRIO_NORM, dest_addr, dest_port, 1000, CSP_O_NONE);
+      
       if (conn == NULL) {
 	csp_log_error("Failed to get CSP CONNECTION");
 	return SATR_ERROR;
@@ -71,13 +72,13 @@ SAT_returnState service_response_task(void *param) {
       }
     
       /* Close connection */
-      csp_log_info("Packet sent to ground.\n");
+      csp_log_info("Packet sent to ground.");
       csp_close(conn);
     }
   }
 
   csp_buffer_free(packet);
-  csp_log_info("Packet buffer freed.\n");
+  csp_log_info("Packet buffer freed.");
   
   return SATR_OK;
 }
