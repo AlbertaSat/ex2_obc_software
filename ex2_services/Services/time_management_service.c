@@ -31,11 +31,11 @@
  * @brief
  * 		Handle incoming csp_packet_t
  * @details
- * 		Takes a csp packet destined for the time_management service, and
- * Will handle the packet based on it's subservice type.
+ * 		Takes a csp packet destined for the time_management service, 
+ *              and will handle the packet based on it's subservice type.
  * @param csp_packet_t *packet
- *    Incoming CSP packet - we can be sure that this packet is valid and
- *    destined for this service.
+ *              Incoming CSP packet - we can be sure that this packet is 
+ *              valid and destined for this service.
  * @return SAT_returnState
  * 		success report
  */
@@ -45,10 +45,9 @@ SAT_returnState time_management_app(csp_packet_t *packet) {
 
   switch (ser_subtype) {
     case SET_TIME:
-      ex2_log("SET TIME\n");
       cnv8_32(&packet->data[DATA_BYTE], &temp_time.unix_timestamp);
       if (!TIMESTAMP_ISOK(temp_time.unix_timestamp)) {
-        ex2_log("Bad timestamp format\n");
+        printf("Bad timestamp format\n");
         return SATR_ERROR;
       }
       printf("Set Time: %u\n", (uint32_t)temp_time.unix_timestamp);
@@ -59,9 +58,12 @@ SAT_returnState time_management_app(csp_packet_t *packet) {
 
     case GET_TIME:
       HAL_sys_getTime(&temp_time.unix_timestamp);
-      return_packet_header(packet);  // get packet ready to return
-      packet->data[DATA_BYTE] = temp_time.unix_timestamp;
-      cnv32_8(temp_time.unix_timestamp, packet->data + DATA_BYTE);
+      printf("Get Time: %u\n", temp_time.unix_timestamp);
+
+      packet->data[DATA_BYTE] = (uint32_t) temp_time.unix_timestamp;
+      
+      return_packet_header(packet); // get packet ready to return
+      cnv32_8(temp_time.unix_timestamp, &packet->data[DATA_BYTE]); 
       if (queue_response(packet) != SATR_OK) {
         return SATR_ERROR;
       }
