@@ -19,7 +19,6 @@
 
 #include "services.h"
 
-SAT_returnState service_response_task(void *param);
 SAT_returnState queue_response(csp_packet_t *packet);
 SAT_returnState start_service_response();
 
