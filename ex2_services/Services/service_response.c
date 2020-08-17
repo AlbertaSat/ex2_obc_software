@@ -66,13 +66,13 @@ void service_response_task(void *param) {
       csp_log_info("Sending to service %u and subservice %u", (uint32_t) packet->id.dst, (uint32_t) packet->id.dport);
       
       if (conn == NULL) {
-	csp_log_error("Failed to get CSP CONNECTION");
+        csp_log_error("Failed to get CSP CONNECTION");
       }
    
       // Send packet to ground
       if (!csp_send(conn, packet, 1000)) { 
-	csp_log_error("Send failed");
-	csp_buffer_free(packet);
+        csp_log_error("Send failed");
+        csp_buffer_free(packet);
       }
     
       // Close connection
