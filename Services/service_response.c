@@ -42,7 +42,7 @@ extern Service_Queues_t service_queues;  // Implemented by the host platform
  * 		A SAT_returnState depending on whether we were successful
  *              in connecting. Not typically used for anything.
  */
-SAT_returnState service_response_task(void *param) {
+void service_response_task(void *param) {
   TC_TM_app_id my_address = SYSTEM_APP_ID;
   csp_packet_t *packet;
   uint32_t data;
@@ -53,17 +53,20 @@ SAT_returnState service_response_task(void *param) {
       cnv8_32(&packet->data[DATA_BYTE], &data);
       printf("Packet data before sending: %u\n", (uint32_t) data);
       
-      uint8_t dest_addr = GND_APP_ID; // Change this as needed!
-      uint8_t dest_port = (uint8_t) packet->data[SUBSERVICE_BYTE]; // The desination subservice
-      csp_log_info("Sending to service %u and subservice %u", (uint32_t) dest_addr, (uint32_t) dest_port);
+      // Connect with a connectionfull method.
+      // We're assuming that packet responses should be returned to sender.
+      csp_conn_t *conn = csp_connect(
+          CSP_PRIO_NORM, // priority
+          packet->id.dst, // destination address
+          packet->id.dport, // destination port
+          1000, // timeout (ms)
+          CSP_O_NONE // options
+      );
 
-      // Connect with a connectionfull method
-      // csp_connect(priority, desination address, dest. port, timeout (ms), options);
-      csp_conn_t *conn = csp_connect(CSP_PRIO_NORM, dest_addr, dest_port, 1000, CSP_O_NONE);
+      csp_log_info("Sending to service %u and subservice %u", (uint32_t) packet->id.dst, (uint32_t) packet->id.dport);
       
       if (conn == NULL) {
 	csp_log_error("Failed to get CSP CONNECTION");
-	return SATR_ERROR;
       }
    
       // Send packet to ground
@@ -75,24 +78,8 @@ SAT_returnState service_response_task(void *param) {
       // Close connection
       csp_log_info("Packet sent to ground.");
       csp_close(conn);
-
-      // Alternatively, a connectionless method can be used instead
-      /*
-      int res = csp_sendto(CSP_PRIO_NORM, packet->id.dst, packet->id.dport, packet->id.src, CSP_O_NONE, packet, 1000);
-      if (res != CSP_ERR_NONE) {
-        csp_buffer_free(packet);
-        ex2_log("Packet Sent back failed\n");
-      } else {
-        ex2_log("Sent OK\n");
-      }
-      */
     }
   }
-
-  csp_buffer_free(packet);
-  csp_log_info("Packet buffer freed.");
-  
-  return SATR_OK;
 }
 
 SAT_returnState queue_response(csp_packet_t *packet) {
