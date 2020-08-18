@@ -24,6 +24,8 @@ void ex2_log(const char *format, ...);
 
 void return_packet_header(csp_packet_t *packet);
 
+void set_packet_length(csp_packet_t *packet, uint16_t length);
+
 void cnv32_8(const uint32_t from, uint8_t *to);
 
 void cnv16_8(const uint16_t from, uint8_t *to);
