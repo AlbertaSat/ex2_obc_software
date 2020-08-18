@@ -50,10 +50,8 @@ void service_response_task(void *param) {
 
     if (xQueueReceive(service_queues.response_queue, &packet,
                       NORMAL_TICKS_TO_WAIT) == pdPASS) {
-      cnv8_32(&packet->data[DATA_BYTE], &data);
-      printf("Packet data before sending: %u\n", (uint32_t) data);
       
-      // Connect with a connectionfull method.
+      // Connect with a connection-oriented method.
       // We're assuming that packet responses should be returned to sender.
       csp_conn_t *conn = csp_connect(
           CSP_PRIO_NORM, // priority
@@ -62,8 +60,6 @@ void service_response_task(void *param) {
           1000, // timeout (ms)
           CSP_O_NONE // options
       );
-
-      csp_log_info("Sending to service %u and subservice %u", (uint32_t) packet->id.dst, (uint32_t) packet->id.dport);
       
       if (conn == NULL) {
         csp_log_error("Failed to get CSP CONNECTION");
@@ -71,12 +67,10 @@ void service_response_task(void *param) {
    
       // Send packet to ground
       if (!csp_send(conn, packet, 1000)) { 
-        csp_log_error("Send failed");
         csp_buffer_free(packet);
       }
     
       // Close connection
-      csp_log_info("Packet sent to ground.");
       csp_close(conn);
     }
   }
