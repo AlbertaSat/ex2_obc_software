@@ -49,6 +49,21 @@ void return_packet_header(csp_packet_t *packet) {
   packet->id.sport = packet->id.dport;
 }
 
+/**
+ * @brief
+ *      Set the size of the CSP packet
+ * @details
+ *      Sets length feild of the CSP packet
+ * @param csp_packet_t *packet
+ *    Packet to set length feild
+ * @param uint16_t length
+ *    Length of the packet data
+ * @return void
+ */
+void set_packet_length(csp_packet_t *packet, uint16_t length) {
+  packet->length = length;
+}
+
 /* The following functions convert integer types from one representation to
  * another. Implementation from
  * https://gitlab.com/librespacefoundation/upsat/upsat-ecss-services
