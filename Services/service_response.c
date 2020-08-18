@@ -13,7 +13,7 @@
  */
 /**
  * @file service_reponse.c
- * @author Haoran Qi, Andrew Rooney
+ * @author Haoran Qi, Andrew Rooney, Hugh Bagan
  * @date 2020-06-06
  */
 #include "service_response.h"
@@ -32,59 +32,54 @@ extern Service_Queues_t service_queues;  // Implemented by the host platform
 /**
  * @brief
  * 		Wait on a queue of responses to be sent to other CSP nodes
- * (usually the ground)
+ *              (usually the ground)
  * @details
  * 		CSP client server will wake when data is in the queue for
- * downlink (telemetery)
+ *              downlink (telemetery)
  * @param void * param
  * 		Not used
  * @return
- * 		should not return
+ * 		A SAT_returnState depending on whether we were successful
+ *              in connecting. Not typically used for anything.
  */
 void service_response_task(void *param) {
   TC_TM_app_id my_address = SYSTEM_APP_ID;
   csp_packet_t *packet;
-  uint32_t in;
+  uint32_t data;
   for (;;) {
-    /* To get conn from the response queue */
+
     if (xQueueReceive(service_queues.response_queue, &packet,
                       NORMAL_TICKS_TO_WAIT) == pdPASS) {
-      /* For some reason, if we directly print packet->data[DATA_BYTE],
-         it will be set to arg we sent.
-      */
-//      printf("Set to %u\n",packet->data[DATA_BYTE]);
-      //cnv8_32(&packet->data[DATA_BYTE], &in);
-      //printf("Set to %u\n", (uint32_t)in);
+      cnv8_32(&packet->data[DATA_BYTE], &data);
+      printf("Packet data before sending: %u\n", (uint32_t) data);
       
-      int res = csp_sendto(CSP_PRIO_NORM, packet->id.dst, packet->id.dport, packet->id.src, CSP_O_NONE, packet, 1000);
-      if (res != CSP_ERR_NONE) {
-        csp_buffer_free(packet);
-        ex2_log("Packet Sent back failed\n");
-      }else{
-        ex2_log("Sent OK\n");
-      }
-    }
-    
-    // if (conn == NULL) {
-    //   /* Could not get buffer element */
-    //   csp_log_error("Failed to get CSP CONNECTION");
-    //   return SATR_ERROR;
-    // }
-    //
-    // /*  Send packet to ground */
-    // if (!csp_send(conn, packet, 1000)) {
-    //   /* Send failed */
-    //   csp_log_error("Send failed");
-    //   csp_buffer_free(packet);
-    // }
-    //
-    // /*  Close connection */
-    // sent_count++;
-    // csp_log_info("#%d PACKET HAS BEEN SENT TO GROUND\n", sent_count);
-    // csp_close(conn);
-  }
+      // Connect with a connectionfull method.
+      // We're assuming that packet responses should be returned to sender.
+      csp_conn_t *conn = csp_connect(
+          CSP_PRIO_NORM, // priority
+          packet->id.dst, // destination address
+          packet->id.dport, // destination port
+          1000, // timeout (ms)
+          CSP_O_NONE // options
+      );
 
-  return;
+      csp_log_info("Sending to service %u and subservice %u", (uint32_t) packet->id.dst, (uint32_t) packet->id.dport);
+      
+      if (conn == NULL) {
+        csp_log_error("Failed to get CSP CONNECTION");
+      }
+   
+      // Send packet to ground
+      if (!csp_send(conn, packet, 1000)) { 
+        csp_log_error("Send failed");
+        csp_buffer_free(packet);
+      }
+    
+      // Close connection
+      csp_log_info("Packet sent to ground.");
+      csp_close(conn);
+    }
+  }
 }
 
 SAT_returnState queue_response(csp_packet_t *packet) {
