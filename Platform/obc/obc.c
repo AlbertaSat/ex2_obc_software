@@ -33,11 +33,11 @@ extern Service_Queues_t service_queues;
 
 /**
  * @brief
- * 		FreeRTOS task wakes up to service housekeeping request
+ *      FreeRTOS task wakes up to service housekeeping request
  * @details
- * 		Will pass the incoming packet to the application code
+ *      Will pass the incoming packet to the application code
  * @param void *param
- * 		not used
+ *      not used
  */
 static void housekeeping_app_route(void *parameters) {
   csp_packet_t *packet;
@@ -53,11 +53,11 @@ static void housekeeping_app_route(void *parameters) {
 
 /**
  * @brief
- * 		FreeRTOS task wakes up to service time_management request
+ *      FreeRTOS task wakes up to service time_management request
  * @details
- * 		Will pass the incoming packet to the application code
+ *      Will pass the incoming packet to the application code
  * @param void *param
- * 		not used
+ *      not used
  */
 static void time_management_app_route(void *parameters) {
   csp_packet_t *packet;
@@ -75,12 +75,12 @@ static void time_management_app_route(void *parameters) {
 
 /**
  * @brief
- * 		Initialize service handling tasks, and queues
+ *      Initialize service handling tasks, and queues
  * @details
- * 		Starts the FreeRTOS queueues and the tasks that wait on them for
+ *      Starts the FreeRTOS queueues and the tasks that wait on them for
  * incoming CSP
  * @return SAT_returnState
- * 		success report
+ *      success report
  */
 SAT_returnState start_service_handlers() {
   /**

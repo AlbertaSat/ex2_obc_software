@@ -23,56 +23,55 @@
 #include <csp/csp.h>
 #include <stdio.h>
 
+#include "service_response.h"
 #include "service_utilities.h"
-
-/* Include the appropriate HAL files */
-#if (SYSTEM_APP_ID == DEMO_APP_ID_)
-#include "demo_hal.h"
-#endif
+#include "system.h"
 
 /**
  * @brief
  * 		Handle incoming csp_packet_t
  * @details
- * 		Takes a csp packet destined for the time_management service, and
- * Will handle the packet based on it's subservice type.
- * @param csp_packet_t *pkt
- *    Incoming CSP packet - we can be sure that this packet is valid and
- *    destined for this service.
+ * 		Takes a csp packet destined for the time_management service, 
+ *              and will handle the packet based on it's subservice type.
+ * @param csp_packet_t *packet
+ *              Incoming CSP packet - we can be sure that this packet is 
+ *              valid and destined for this service.
  * @return SAT_returnState
  * 		success report
  */
-SAT_returnState time_management_app(csp_packet_t *pkt) {
-  uint8_t ser_subtype = (uint8_t)pkt->data[0];
+SAT_returnState time_management_app(csp_packet_t *packet) {
+  uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
   struct time_utc temp_time;
 
   switch (ser_subtype) {
-    case TM_TIME_SET_IN_UTC:
-      printf("SET TIME\n");
-      cnv8_32(&pkt->data[1], &temp_time.unix_timestamp);
+    case SET_TIME:
+      cnv8_32(&packet->data[DATA_BYTE], &temp_time.unix_timestamp);
       if (!TIMESTAMP_ISOK(temp_time.unix_timestamp)) {
         printf("Bad timestamp format\n");
         return SATR_ERROR;
       }
-      printf("Set Time: %d\n", temp_time.unix_timestamp);
-      fflush(stdout);
-      set_time_UTC(temp_time);
+      printf("Set Time: %u\n", (uint32_t)temp_time.unix_timestamp);
+
+      HAL_sys_setTime(temp_time.unix_timestamp);
+      csp_buffer_free(packet); // TODO: send success report?
+      break;
+
+    case GET_TIME:
+      HAL_sys_getTime(&temp_time.unix_timestamp);
+      printf("Get Time: %u\n", temp_time.unix_timestamp);
+
+      packet->data[DATA_BYTE] = (uint32_t) temp_time.unix_timestamp;
+      
+      return_packet_header(packet); // get packet ready to return
+      cnv32_8(temp_time.unix_timestamp, &packet->data[DATA_BYTE]); 
+      if (queue_response(packet) != SATR_OK) {
+        return SATR_ERROR;
+      }
       break;
 
     default:
-      printf("No such subservice\n");
-      break;
+      ex2_log("No such subservice\n");
+      return SATR_PKT_ILLEGAL_SUBSERVICE;
   }
   return SATR_OK;
 }
-
-/**
- * @brief
- * 		Set UTC time
- * @details
- * 		Makes a call the the platform implementation of the time
- * handlers
- * @param struct time_utc utc
- *    a valid UTC timestamp to set the RTC to
- */
-void set_time_UTC(struct time_utc utc) { HAL_sys_setTime(utc.unix_timestamp); }

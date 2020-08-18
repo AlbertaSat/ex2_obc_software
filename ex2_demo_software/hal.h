@@ -12,11 +12,22 @@
  * GNU General Public License for more details.
  */
 
-#ifndef SYSTEM_H
-#define SYSTEM_H
+#ifndef HAL_H
+#define HAL_H
+#include <stdint.h>
 
-#define SYSTEM_APP_ID _DEMO_APP_ID_
-#define USE_LOCALHOST  // Define for local development, add other options when
-                       // available
+void HAL_RTC_SetTime(uint32_t unix_timestamp);
 
-#endif /* SYSTEM_H */
+void HAL_RTC_GetTime(uint32_t *unix_timestamp);
+
+void HAL_get_temperature(float *temp);
+
+void HAL_get_current_1(float *current);
+
+void HAL_get_current_2(float *current);
+
+void HAL_get_voltage_1(float *voltage);
+
+void HAL_get_voltage_2(float *voltage);
+
+#endif

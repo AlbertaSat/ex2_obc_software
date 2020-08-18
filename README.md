@@ -8,14 +8,14 @@ This repo will include hardware agnostic/generic implementations of the ECSS ser
 In the root directory of this project, run:
 
 ```
-docker build --tag satellite_sim:latest .
+sudo docker build --tag satellite_sim:latest .
 ```
 To build the Docker image. This will take a few minutes (up to ~20 minutes): grab a coffee and chill ☕️. *This will need to be redone after every change to the code*, but subsequset builds are MUCH faster.
 
 Now run:
 
 ```
-docker run --rm -it --network=host satellite_sim:latest
+sudo docker run --rm -it --network=host satellite_sim:latest
 ```
 To begin the image. This will start the zmq proxy and run the satelliteSim with this project in it.
 

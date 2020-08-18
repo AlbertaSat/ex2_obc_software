@@ -54,9 +54,9 @@ void HAL_sys_getTime(uint32_t *unix_timestamp) {
 SAT_returnState HAL_hk_report(uint8_t sid, void *output) {
   switch (sid) {
     case BATTERY_1:
-     if ( sizeof(HK_battery) > (csp_buffer_data_size() - 2)) {
-		    return CSP_ERR_NOMEM;
-    	};
+      if ((sizeof((char *) output) + 1) > csp_buffer_data_size()) {
+            return CSP_ERR_NOMEM;
+        };
       HK_battery *battery1 = (HK_battery *)output;
       HAL_get_current_1(&(*battery1).current);
       HAL_get_voltage_1(&(*battery1).voltage);

@@ -50,7 +50,7 @@ RUN python3 waf build
 # build this codebase
 WORKDIR /home/ex2_command_handling_demo
 COPY . .
-RUN gcc *.c Platform/demo/*.c Platform/demo/hal/*.c Services/*.c -c -I . -I Platform/demo -I Platform/hal -I Services/ -I ../upsat-ecss-services/services/ -I ../SatelliteSim/Source/include/ -I ../SatelliteSim/Project/ -I ../SatelliteSim/libcsp/include/ -I ../SatelliteSim/Source/portable/GCC/POSIX/ -I ../SatelliteSim/libcsp/build/include/ -lpthread -std=c99 -lrt && ar -rsc client_server.a *.o
+RUN gcc ex2_demo_software/*.c Platform/demo/*.c Platform/demo/hal/*.c Services/*.c -c -I . -I ex2_demo_software/ -I Platform/demo -I Platform/demo/hal -I Services/ -I ../upsat-ecss-services/services/ -I ../SatelliteSim/Source/include/ -I ../SatelliteSim/Project/ -I ../SatelliteSim/libcsp/include/ -I ../SatelliteSim/Source/portable/GCC/POSIX/ -I ../SatelliteSim/libcsp/build/include/ -lpthread -std=c99 -lrt && ar -rsc client_server.a *.o
 
 WORKDIR /home/SatelliteSim
 RUN make clean && make all
