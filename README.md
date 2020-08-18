@@ -23,8 +23,8 @@ To begin the image. This will start the zmq proxy and run the satelliteSim with 
 
 ## File structure
 
-![file structure](./docs/file_layout.png)
+![file structure](./Docs/file_layout.png)
 
 ## Design structure
 
-![design layout](./docs/design_layout.png)
+![design layout](./Docs/design_layout.png)
