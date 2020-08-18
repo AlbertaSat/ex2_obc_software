@@ -21,6 +21,7 @@
 
 #include <FreeRTOS.h>
 #include <csp/csp.h>
+#include <csp/csp_endian.h>
 #include <stdio.h>
 
 #include "service_response.h"
@@ -46,11 +47,10 @@ SAT_returnState time_management_app(csp_packet_t *packet) {
   switch (ser_subtype) {
     case SET_TIME:
       cnv8_32(&packet->data[DATA_BYTE], &temp_time.unix_timestamp);
+      temp_time.unix_timestamp = csp_ntoh32(temp_time.unix_timestamp);
       if (!TIMESTAMP_ISOK(temp_time.unix_timestamp)) {
-        printf("Bad timestamp format\n");
         return SATR_ERROR;
       }
-      printf("Set Time: %u\n", (uint32_t)temp_time.unix_timestamp);
 
       HAL_sys_setTime(temp_time.unix_timestamp);
       csp_buffer_free(packet); // TODO: send success report?
@@ -58,12 +58,11 @@ SAT_returnState time_management_app(csp_packet_t *packet) {
 
     case GET_TIME:
       HAL_sys_getTime(&temp_time.unix_timestamp);
-      printf("Get Time: %u\n", temp_time.unix_timestamp);
-
-      packet->data[DATA_BYTE] = (uint32_t) temp_time.unix_timestamp;
-      
+      temp_time.unix_timestamp = csp_hton32(temp_time.unix_timestamp);
+      memcpy(&packet->data[DATA_BYTE], &temp_time.unix_timestamp, sizeof(uint32_t));
       return_packet_header(packet); // get packet ready to return
-      cnv32_8(temp_time.unix_timestamp, &packet->data[DATA_BYTE]); 
+      set_packet_length(packet, sizeof(uint32_t) + 1); // plus one for sub-service
+
       if (queue_response(packet) != SATR_OK) {
         return SATR_ERROR;
       }
