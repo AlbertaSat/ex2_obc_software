@@ -16,13 +16,16 @@
  * @author Andrew Rooney
  * @date 2020-06-06
  */
-#include "demo_hal.h"
+#include "obc_hal.h"
 
 #include <stddef.h>
+#include <FreeRTOS.h>
 #include <csp/csp.h>
+#include <TempSensor.h>
 
 #include "hal.h"
 #include "services.h"
+#include "queue.h"
 
 #define BATTERY_1 0
 #define BATTERY_2 1
@@ -55,7 +58,7 @@ SAT_returnState HAL_hk_report(uint8_t sid, void *output) {
   switch (sid) {
     case BATTERY_1:
       if ((sizeof((char *) output) + 1) > csp_buffer_data_size()) {
-            return CSP_ERR_NOMEM;
+            return SATR_BUFFER_ERR;
         };
       HK_battery *battery1 = (HK_battery *)output;
       HAL_get_current_1(&(*battery1).current);
@@ -67,6 +70,19 @@ SAT_returnState HAL_hk_report(uint8_t sid, void *output) {
       return SATR_OK;
 
     case TEMP:
+        if ((sizeof((char *) output) + 1) > csp_buffer_data_size()) {
+                    return SATR_BUFFER_ERR;
+                };
+        /*Get packet from temp queue*/
+        csp_packet_t *packet;
+        for(;;){
+            if (xQueueReceive(equipment_queues.temp_sensor_queue, &packet,
+                              NORMAL_TICKS_TO_WAIT) == pdPASS) {
+                output = packet->data;
+                csp_buffer_free(packet);
+                break;
+            }
+          }
       return SATR_OK;
 
     default:
