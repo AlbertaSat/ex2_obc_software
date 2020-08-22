@@ -2,8 +2,6 @@
 # Automatically-generated file. Do not edit!
 ################################################################################
 
-SHELL = cmd.exe
-
 # Add inputs and outputs from these tool invocations to the build variables 
 CMD_SRCS += \
 ../source/HL_sys_link.cmd 
@@ -160,104 +158,104 @@ ASM_DEPS += \
 ./source/os_portasm.d 
 
 OBJS__QUOTED += \
-"source\HL_adc.obj" \
-"source\HL_can.obj" \
-"source\HL_crc.obj" \
-"source\HL_dcc.obj" \
-"source\HL_ecap.obj" \
-"source\HL_emac.obj" \
-"source\HL_emif.obj" \
-"source\HL_epc.obj" \
-"source\HL_eqep.obj" \
-"source\HL_errata.obj" \
-"source\HL_errata_SSWF021_45.obj" \
-"source\HL_esm.obj" \
-"source\HL_etpwm.obj" \
-"source\HL_gio.obj" \
-"source\HL_het.obj" \
-"source\HL_i2c.obj" \
-"source\HL_mdio.obj" \
-"source\HL_mibspi.obj" \
-"source\HL_nmpu.obj" \
-"source\HL_notification.obj" \
-"source\HL_phy_dp83640.obj" \
-"source\HL_phy_tlk111.obj" \
-"source\HL_pinmux.obj" \
-"source\HL_pom.obj" \
-"source\HL_sci.obj" \
-"source\HL_sys_core.obj" \
-"source\HL_sys_dma.obj" \
-"source\HL_sys_intvecs.obj" \
-"source\HL_sys_main.obj" \
-"source\HL_sys_mpu.obj" \
-"source\HL_sys_pcr.obj" \
-"source\HL_sys_phantom.obj" \
-"source\HL_sys_pmm.obj" \
-"source\HL_sys_pmu.obj" \
-"source\HL_sys_startup.obj" \
-"source\HL_sys_vim.obj" \
-"source\HL_system.obj" \
-"source\os_croutine.obj" \
-"source\os_event_groups.obj" \
-"source\os_heap.obj" \
-"source\os_list.obj" \
-"source\os_mpu_wrappers.obj" \
-"source\os_port.obj" \
-"source\os_portasm.obj" \
-"source\os_queue.obj" \
-"source\os_tasks.obj" \
-"source\os_timer.obj" 
+"source/HL_adc.obj" \
+"source/HL_can.obj" \
+"source/HL_crc.obj" \
+"source/HL_dcc.obj" \
+"source/HL_ecap.obj" \
+"source/HL_emac.obj" \
+"source/HL_emif.obj" \
+"source/HL_epc.obj" \
+"source/HL_eqep.obj" \
+"source/HL_errata.obj" \
+"source/HL_errata_SSWF021_45.obj" \
+"source/HL_esm.obj" \
+"source/HL_etpwm.obj" \
+"source/HL_gio.obj" \
+"source/HL_het.obj" \
+"source/HL_i2c.obj" \
+"source/HL_mdio.obj" \
+"source/HL_mibspi.obj" \
+"source/HL_nmpu.obj" \
+"source/HL_notification.obj" \
+"source/HL_phy_dp83640.obj" \
+"source/HL_phy_tlk111.obj" \
+"source/HL_pinmux.obj" \
+"source/HL_pom.obj" \
+"source/HL_sci.obj" \
+"source/HL_sys_core.obj" \
+"source/HL_sys_dma.obj" \
+"source/HL_sys_intvecs.obj" \
+"source/HL_sys_main.obj" \
+"source/HL_sys_mpu.obj" \
+"source/HL_sys_pcr.obj" \
+"source/HL_sys_phantom.obj" \
+"source/HL_sys_pmm.obj" \
+"source/HL_sys_pmu.obj" \
+"source/HL_sys_startup.obj" \
+"source/HL_sys_vim.obj" \
+"source/HL_system.obj" \
+"source/os_croutine.obj" \
+"source/os_event_groups.obj" \
+"source/os_heap.obj" \
+"source/os_list.obj" \
+"source/os_mpu_wrappers.obj" \
+"source/os_port.obj" \
+"source/os_portasm.obj" \
+"source/os_queue.obj" \
+"source/os_tasks.obj" \
+"source/os_timer.obj" 
 
 C_DEPS__QUOTED += \
-"source\HL_adc.d" \
-"source\HL_can.d" \
-"source\HL_crc.d" \
-"source\HL_dcc.d" \
-"source\HL_ecap.d" \
-"source\HL_emac.d" \
-"source\HL_emif.d" \
-"source\HL_epc.d" \
-"source\HL_eqep.d" \
-"source\HL_errata.d" \
-"source\HL_errata_SSWF021_45.d" \
-"source\HL_esm.d" \
-"source\HL_etpwm.d" \
-"source\HL_gio.d" \
-"source\HL_het.d" \
-"source\HL_i2c.d" \
-"source\HL_mdio.d" \
-"source\HL_mibspi.d" \
-"source\HL_nmpu.d" \
-"source\HL_notification.d" \
-"source\HL_phy_dp83640.d" \
-"source\HL_phy_tlk111.d" \
-"source\HL_pinmux.d" \
-"source\HL_pom.d" \
-"source\HL_sci.d" \
-"source\HL_sys_dma.d" \
-"source\HL_sys_main.d" \
-"source\HL_sys_pcr.d" \
-"source\HL_sys_phantom.d" \
-"source\HL_sys_pmm.d" \
-"source\HL_sys_startup.d" \
-"source\HL_sys_vim.d" \
-"source\HL_system.d" \
-"source\os_croutine.d" \
-"source\os_event_groups.d" \
-"source\os_heap.d" \
-"source\os_list.d" \
-"source\os_mpu_wrappers.d" \
-"source\os_port.d" \
-"source\os_queue.d" \
-"source\os_tasks.d" \
-"source\os_timer.d" 
+"source/HL_adc.d" \
+"source/HL_can.d" \
+"source/HL_crc.d" \
+"source/HL_dcc.d" \
+"source/HL_ecap.d" \
+"source/HL_emac.d" \
+"source/HL_emif.d" \
+"source/HL_epc.d" \
+"source/HL_eqep.d" \
+"source/HL_errata.d" \
+"source/HL_errata_SSWF021_45.d" \
+"source/HL_esm.d" \
+"source/HL_etpwm.d" \
+"source/HL_gio.d" \
+"source/HL_het.d" \
+"source/HL_i2c.d" \
+"source/HL_mdio.d" \
+"source/HL_mibspi.d" \
+"source/HL_nmpu.d" \
+"source/HL_notification.d" \
+"source/HL_phy_dp83640.d" \
+"source/HL_phy_tlk111.d" \
+"source/HL_pinmux.d" \
+"source/HL_pom.d" \
+"source/HL_sci.d" \
+"source/HL_sys_dma.d" \
+"source/HL_sys_main.d" \
+"source/HL_sys_pcr.d" \
+"source/HL_sys_phantom.d" \
+"source/HL_sys_pmm.d" \
+"source/HL_sys_startup.d" \
+"source/HL_sys_vim.d" \
+"source/HL_system.d" \
+"source/os_croutine.d" \
+"source/os_event_groups.d" \
+"source/os_heap.d" \
+"source/os_list.d" \
+"source/os_mpu_wrappers.d" \
+"source/os_port.d" \
+"source/os_queue.d" \
+"source/os_tasks.d" \
+"source/os_timer.d" 
 
 ASM_DEPS__QUOTED += \
-"source\HL_sys_core.d" \
-"source\HL_sys_intvecs.d" \
-"source\HL_sys_mpu.d" \
-"source\HL_sys_pmu.d" \
-"source\os_portasm.d" 
+"source/HL_sys_core.d" \
+"source/HL_sys_intvecs.d" \
+"source/HL_sys_mpu.d" \
+"source/HL_sys_pmu.d" \
+"source/os_portasm.d" 
 
 C_SRCS__QUOTED += \
 "../source/HL_adc.c" \

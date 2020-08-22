@@ -26,6 +26,7 @@
 #include <string.h>
 #include <task.h>
 #include <csp/drivers/usart.h>
+#include <TempSensor.h>
 
 #include "service_response.h"
 #include "services.h"
@@ -43,6 +44,7 @@
 
 /*Create service queues*/
 Service_Queues_t service_queues;
+Equipment_Queues_t equipment_queues;
 
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
 static inline SAT_returnState init_interface();
@@ -73,7 +75,7 @@ int ex2_main(int argc, char **argv) {
   init_interface();
 
   /* Start service server, and response server */
-  if (start_service_server() != SATR_OK || start_service_response() != SATR_OK) {
+  if (start_service_server() != SATR_OK || start_service_response() != SATR_OK || start_detection_server() != SATR_OK) {
     ex2_log("Initialization error\n");
     return -1;
   }

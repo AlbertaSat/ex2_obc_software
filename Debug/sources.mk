@@ -112,6 +112,7 @@ PDE_DEPS__QUOTED :=
 # Every subdirectory with source files must be described here
 SUBDIRS := \
 ex2_obc_software \
+ex2_obc_temp_software \
 ex2_services/Platform/obc/hal \
 ex2_services/Platform/obc \
 ex2_services/Services \

@@ -1,6 +1,8 @@
 eclipse.preferences.version=1
 encoding//Debug/ex2_obc_software/subdir_rules.mk=UTF-8
 encoding//Debug/ex2_obc_software/subdir_vars.mk=UTF-8
+encoding//Debug/ex2_obc_temp_software/subdir_rules.mk=UTF-8
+encoding//Debug/ex2_obc_temp_software/subdir_vars.mk=UTF-8
 encoding//Debug/ex2_services/Platform/demo/hal/subdir_rules.mk=UTF-8
 encoding//Debug/ex2_services/Platform/demo/hal/subdir_vars.mk=UTF-8
 encoding//Debug/ex2_services/Platform/demo/subdir_rules.mk=UTF-8
