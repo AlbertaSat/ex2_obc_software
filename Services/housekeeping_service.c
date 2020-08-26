@@ -60,7 +60,6 @@ static SAT_returnState hk_parameter_report(csp_packet_t *packet) {
 
   packet->length = (sizeof((char *) packet->data) + 1); /* include the 0 termination */
 
-  return_packet_header(packet);
 
   if (queue_response(packet) != SATR_OK) {
     return SATR_ERROR;
