@@ -88,9 +88,9 @@ int ex2_main(int argc, char **argv) {
 
 /**
  * @brief
- * 		initialize zmq interface, and configure the routing table
+ *      initialize zmq interface, and configure the routing table
  * @details
- * 		start the localhost zmq server and add it to the default route
+ *      start the localhost zmq server and add it to the default route
  * with no VIA address
  */
 static inline SAT_returnState init_interface() {

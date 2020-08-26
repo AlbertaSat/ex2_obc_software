@@ -140,7 +140,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="ex2_services/Platform/demo|ex2_services/ex2_demo_software|ex2_services/libcsp|libcsp/src/drivers/usart/usart_linux.c|libcsp/src/drivers/usart/usart_windows.c|libcsp/src/drivers/can/can_socketcan.c|libcsp/src/rtable/csp_rtable_cidr.c|libcsp/src/interfaces/csp_if_zmqhub.c|libcsp/src/bindings|libcsp/src/arch/windows|libcsp/src/arch/posix|libcsp/src/arch/macosx|libcsp/examples" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="ex2_services/ex2_demo_software|ex2_services/Platform/demo|libcsp/src/drivers/usart/usart_linux.c|libcsp/src/drivers/usart/usart_windows.c|libcsp/src/drivers/can/can_socketcan.c|libcsp/src/rtable/csp_rtable_cidr.c|libcsp/src/interfaces/csp_if_zmqhub.c|libcsp/src/bindings|libcsp/src/arch/windows|libcsp/src/arch/posix|libcsp/src/arch/macosx|libcsp/examples" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
