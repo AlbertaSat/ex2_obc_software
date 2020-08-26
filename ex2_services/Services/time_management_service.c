@@ -60,7 +60,6 @@ SAT_returnState time_management_app(csp_packet_t *packet) {
       HAL_sys_getTime(&temp_time.unix_timestamp);
       temp_time.unix_timestamp = csp_hton32(temp_time.unix_timestamp);
       memcpy(&packet->data[DATA_BYTE], &temp_time.unix_timestamp, sizeof(uint32_t));
-      return_packet_header(packet); // get packet ready to return
       set_packet_length(packet, sizeof(uint32_t) + 1); // plus one for sub-service
 
       if (queue_response(packet) != SATR_OK) {
