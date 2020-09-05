@@ -55,7 +55,7 @@ void service_response_task(void *param) {
       // We're assuming that packet responses should be returned to sender.
       csp_conn_t *conn = csp_connect(
           CSP_PRIO_NORM, // priority
-          packet->id.dst, // destination address
+          packet->id.src, // destination address
           packet->id.dport, // destination port
           1000, // timeout (ms)
           CSP_O_NONE // options
