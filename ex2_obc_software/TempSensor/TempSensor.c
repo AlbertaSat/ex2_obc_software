@@ -34,7 +34,7 @@
  *
  */
 
-#include <TempSensor.h>
+#include <TempSensor/TempSensor.h>
 #include "HL_sys_common.h"
 #include "HL_adc.h"
 #include "HL_pinmux.h"

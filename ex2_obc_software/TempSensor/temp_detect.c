@@ -48,7 +48,8 @@
 /* Include Files */
 #include <FreeRTOS.h>
 #include <csp/csp.h>
-#include <TempSensor.h>
+#include <TempSensor/TempSensor.h>
+#include <system.h>
 #include "HL_sys_common.h"
 
 /* USER CODE BEGIN (1) */
@@ -67,8 +68,11 @@
 
 /* USER CODE BEGIN (2) */
 #define MAX_JUNCTION_TEMP 150    // Check datasheet for absolute maximum junction temperature
+
+extern Equipment_Mutex_t equipment_mutex;
+
 unsigned int ErrorCode;
-static float MaxTemp=0, CurrentTemp=0;
+static float MaxTemp, CurrentTemp;
 /* USER CODE END */
 
 void demo_get_temp(void)
@@ -76,7 +80,6 @@ void demo_get_temp(void)
 /* USER CODE BEGIN (3) */
     float JunctionTemp, AverageTemp;
     unsigned int i;
-    csp_packet_t *temp_pkt;
 
     /*  ADC group 1 was set to 500ns discharge and 1us sample time using HalCoGen */
     /*      these values are not the default values                               */
@@ -104,31 +107,28 @@ void demo_get_temp(void)
             }
             else
             {
-                // Assumes ADC reference voltage is 3.30V so no scaling is required
-                JunctionTemp = JunctionTemp - 273.15;  // Convert from Kelvin to Celcius
-                CurrentTemp = JunctionTemp;            // Saving in static to make it easy to watch
-                if(JunctionTemp > MAX_JUNCTION_TEMP)
+                xSemaphoreTake(equipment_mutex.temp_sensor, portMAX_DELAY);
                 {
-                    // Do four readings to be sure this was not just noise on the ADC voltage
-                    AverageTemp = 0.0;
-                    for(i = 0; i < 4; i++)
-                        AverageTemp += thermistor_read();
-                    JunctionTemp = (AverageTemp / 4.0) - 273.15;
+                    // Assumes ADC reference voltage is 3.30V so no scaling is required
+                    JunctionTemp = JunctionTemp - 273.15;  // Convert from Kelvin to Celcius
+                    CurrentTemp = JunctionTemp;            // Saving in static to make it easy to watch
                     if(JunctionTemp > MAX_JUNCTION_TEMP)
                     {
-                        // Put warning "junction temperature too high" routine here
-                        ErrorCode = 3;
-                        return;
+                        // Do four readings to be sure this was not just noise on the ADC voltage
+                        AverageTemp = 0.0;
+                        for(i = 0; i < 4; i++)
+                            AverageTemp += thermistor_read();
+                        JunctionTemp = (AverageTemp / 4.0) - 273.15;
+                        if(JunctionTemp > MAX_JUNCTION_TEMP)
+                        {
+                            // Put warning "junction temperature too high" routine here
+                            ErrorCode = 3;
+                            return;
+                        }
                     }
-                }
-                if(JunctionTemp > MaxTemp)
-                    MaxTemp = JunctionTemp;
-                temp_pkt->data[2] = JunctionTemp;//Problem is how to translate the data type here.
-                /*Send the value back to temperature queue*/
-                if (xQueueOverwrite(equipment_queues.temp_sensor_queue, (void *)&temp_pkt) != pdPASS) {
-                    return;
-                  }
-                csp_buffer_free(temp_pkt);//it seems that this command can be removed
+                    if(JunctionTemp > MaxTemp)
+                        MaxTemp = JunctionTemp;
+                } xSemaphoreGive(equipment_mutex.temp_sensor);
             }
         }
     }
@@ -137,6 +137,16 @@ void demo_get_temp(void)
 }
 
 /* USER CODE BEGIN (4) */
+
+float HAL_get_temp_data() {
+    float ret;
+    xSemaphoreTake(equipment_mutex.temp_sensor, portMAX_DELAY);
+    {
+        CurrentTemp = 12.32;
+        ret = CurrentTemp;
+    } xSemaphoreGive(equipment_mutex.temp_sensor);
+    return ret;
+}
 
 /* USER CODE END */
 

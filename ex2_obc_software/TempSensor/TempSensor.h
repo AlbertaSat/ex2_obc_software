@@ -57,16 +57,7 @@
 extern float thermistor_read(void);
 extern bool thermistor_calibration(void);
 extern void demo_get_temp(void);
-extern SAT_returnState start_detection_server();
-
-
-#define EQUIPMENT_QUEUE_LEN 3
-
-typedef struct
-{
-    xQueueHandle temp_sensor_queue;
-} Equipment_Queues_t;
-
-extern Equipment_Queues_t equipment_queues;
+float HAL_get_temp_data(void);
+SAT_returnState start_detection_server();
 
 #endif

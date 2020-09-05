@@ -20,11 +20,17 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
+#include <semphr.h>
 #include "obc.h"
 #include "hal/obc_hal.h"
 
 #define SYSTEM_APP_ID _OBC_APP_ID_
 
 int ex2_main(int argc, char **argv);
+
+typedef struct
+{
+    SemaphoreHandle_t temp_sensor;
+} Equipment_Mutex_t;
 
 #endif                 /* SYSTEM_H */

@@ -26,8 +26,7 @@
 #include <string.h>
 #include <task.h>
 #include <csp/drivers/usart.h>
-#include <TempSensor.h>
-
+#include <TempSensor/TempSensor.h>
 #include "service_response.h"
 #include "services.h"
 #include "system.h" // platform definitions
@@ -44,7 +43,9 @@
 
 /*Create service queues*/
 Service_Queues_t service_queues;
-Equipment_Queues_t equipment_queues;
+
+/* Create handler mutexes */
+Equipment_Mutex_t equipment_mutex;
 
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
 static inline SAT_returnState init_interface();
