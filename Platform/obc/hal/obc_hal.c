@@ -21,8 +21,7 @@
 #include <stddef.h>
 #include <FreeRTOS.h>
 #include <csp/csp.h>
-#include <TempSensor.h>
-
+#include <TempSensor/TempSensor.h>
 #include "hal.h"
 #include "services.h"
 #include "queue.h"
@@ -54,7 +53,7 @@ void HAL_sys_getTime(uint32_t *unix_timestamp) {
   HAL_RTC_GetTime(unix_timestamp);
 }
 
-SAT_returnState HAL_hk_report(uint8_t sid, void *output) {
+size_t HAL_hk_report(uint8_t sid, void *output) {
   switch (sid) {
     case BATTERY_1:
       if ((sizeof((char *) output) + 1) > csp_buffer_data_size()) {
@@ -64,28 +63,22 @@ SAT_returnState HAL_hk_report(uint8_t sid, void *output) {
       HAL_get_current_1(&(*battery1).current);
       HAL_get_voltage_1(&(*battery1).voltage);
       HAL_get_temperature(&(*battery1).temperature);
-      return SATR_OK;
+      return sizeof(HK_battery);
 
     case BATTERY_2:
-      return SATR_OK;
+      return sizeof(HK_battery);
 
     case TEMP:
         if ((sizeof((char *) output) + 1) > csp_buffer_data_size()) {
                     return SATR_BUFFER_ERR;
                 };
         /*Get packet from temp queue*/
-        csp_packet_t *packet;
-        for(;;){
-            if (xQueueReceive(equipment_queues.temp_sensor_queue, &packet,
-                              NORMAL_TICKS_TO_WAIT) == pdPASS) {
-                output = packet->data;
-                csp_buffer_free(packet);
-                break;
-            }
-          }
-      return SATR_OK;
+        HK_temperature *temp = (HK_temperature *)output;
+        HAL_get_temp_data(&temp->temperature);
+        temp_time.unix_timestamp = csp_hton32(temp->temperature);
+      return sizeof(HK_temperature);
 
     default:
-      return SATR_OK;
+      return 0;
   }
 }
