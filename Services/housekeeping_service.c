@@ -40,13 +40,12 @@ SAT_returnState hk_service_app(csp_packet_t *packet) {
   switch (ser_subtype) {
     case TM_HK_PARAMETERS_REPORT:
       if (hk_parameter_report(packet) != SATR_OK) {
-        csp_log_info("HK_REPORT_PARAMETERS TASK FINISHED");
+        ex2_log("HK_REPORT_PARAMETERS failed");
         return SATR_ERROR;
       }
       break;
-
     default:
-      csp_log_error("HK SERVICE NOT FOUND SUBTASK");
+      ex2_log("HK SERVICE NOT FOUND SUBTASK");
       return SATR_PKT_ILLEGAL_SUBSERVICE;
   }
 
@@ -54,11 +53,9 @@ SAT_returnState hk_service_app(csp_packet_t *packet) {
 }
 
 static SAT_returnState hk_parameter_report(csp_packet_t *packet) {
-  size_t size = HAL_hk_report(packet->data[SID_byte], packet->data + SID_byte + 1)
+  size_t size = HAL_hk_report(packet->data[SID_byte], packet->data + SID_byte + 1);
 
-  packet->length = size + 1; /* include the 0 termination */
-
-
+  set_packet_length(packet, size + 2); // plus one for sub-service + SID
 
   if (queue_response(packet) != SATR_OK) {
     return SATR_ERROR;

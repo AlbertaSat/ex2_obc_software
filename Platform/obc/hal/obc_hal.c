@@ -21,6 +21,7 @@
 #include <stddef.h>
 #include <FreeRTOS.h>
 #include <csp/csp.h>
+#include <csp/csp_endian.h>
 #include <TempSensor/TempSensor.h>
 #include "hal.h"
 #include "services.h"
@@ -33,11 +34,11 @@
 uint32_t current_time;
 
 /* some of the different structures provided by this platform */
-typedef struct {
+typedef struct __attribute__((packed)) {
   float current, voltage, temperature;
 } HK_battery;
 
-typedef struct {
+typedef struct __attribute__((packed)) {
   float temperature;
 } HK_temperature;
 
@@ -56,9 +57,10 @@ void HAL_sys_getTime(uint32_t *unix_timestamp) {
 size_t HAL_hk_report(uint8_t sid, void *output) {
   switch (sid) {
     case BATTERY_1:
-      if ((sizeof((char *) output) + 1) > csp_buffer_data_size()) {
-            return SATR_BUFFER_ERR;
-        };
+      if (sizeof(HK_battery) > csp_buffer_data_size() - 2) {
+          // struct won't fit.. Don't try
+          return 0;
+      };
       HK_battery *battery1 = (HK_battery *)output;
       HAL_get_current_1(&(*battery1).current);
       HAL_get_voltage_1(&(*battery1).voltage);
@@ -69,13 +71,12 @@ size_t HAL_hk_report(uint8_t sid, void *output) {
       return sizeof(HK_battery);
 
     case TEMP:
-        if ((sizeof((char *) output) + 1) > csp_buffer_data_size()) {
-                    return SATR_BUFFER_ERR;
-                };
+        if (sizeof(HK_temperature) > csp_buffer_data_size() - 2) {
+            return 0;
+        };
         /*Get packet from temp queue*/
         HK_temperature *temp = (HK_temperature *)output;
-        HAL_get_temp_data(&temp->temperature);
-        temp_time.unix_timestamp = csp_hton32(temp->temperature);
+        temp->temperature = csp_htonflt(HAL_get_temp_data());
       return sizeof(HK_temperature);
 
     default:

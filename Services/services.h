@@ -25,7 +25,8 @@
 /* PACKETS */
 #define TM_TC_BUFF_SIZE 256
 #define SUBSERVICE_BYTE 0
-#define DATA_BYTE 1
+#define STATUS_BYTE 1
+#define DATA_BYTE 2
 
 /* SERVICES */
 #define MAX_APP_ID 32     // number of CSP nodes (5-bits)
