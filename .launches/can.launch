@@ -8,7 +8,7 @@
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_PROJECT.TMS570LC43xx.ccxml.Texas Instruments XDS110 USB Debug Probe_0/CortexR5" value="can"/>
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_TARGET_CONFIG" value="${target_config_active_default:can}"/>
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.MRU_PROGRAM.TMS570LC43xx.ccxml.Texas Instruments XDS100v2 USB Debug Probe/CortexR5" value="C:\Users\Andrew\Code\my_workspace\can\Debug\can.out"/>
-<stringAttribute key="com.ti.ccstudio.debug.debugModel.MRU_PROGRAM.TMS570LC43xx.ccxml.Texas Instruments XDS110 USB Debug Probe_0/CortexR5" value="/home/alexqi/Ex2_Code/ex2_obc_software/Debug/can.out"/>
+<stringAttribute key="com.ti.ccstudio.debug.debugModel.MRU_PROGRAM.TMS570LC43xx.ccxml.Texas Instruments XDS110 USB Debug Probe_0/CortexR5" value="C:\Users\Andrew\Code\my_workspace\can\Debug\can.out"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
 <listEntry value="/can"/>
 </listAttribute>

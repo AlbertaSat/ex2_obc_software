@@ -92,11 +92,16 @@ typedef enum systemInterrupt
 extern void esmHighInterrupt(void);
 extern void phantomInterrupt(void);
 extern void vPortPreemptiveTick(void);
+extern void mibspi1HighLevelInterrupt(void);
 extern void lin1HighLevelInterrupt(void);
-extern void can1HighLevelInterrupt(void);
 extern void vPortYeildWithinAPI(void);
-extern void can2HighLevelInterrupt(void);
+extern void mibspi1LowLevelInterrupt(void);
+extern void mibspi5HighLevelInterrupt(void);
+extern void mibspi5LowLevelInterrupt(void);
 extern void sci3HighLevelInterrupt(void);
+extern void lin2HighLevelInterrupt(void);
+extern void sci4HighLevelInterrupt(void);
+extern void sci4LowLevelInterrupt(void);
 
 /* USER CODE BEGIN (3) */
 /* USER CODE END */
@@ -274,11 +279,11 @@ typedef struct vim_config_reg
                                     |(uint32)((uint32)0U << 9U)\
                                     |(uint32)((uint32)0U << 10U)\
                                     |(uint32)((uint32)0U << 11U)\
-                                    |(uint32)((uint32)0U << 12U)\
+                                    |(uint32)((uint32)1U << 12U)\
                                     |(uint32)((uint32)1U << 13U)\
                                     |(uint32)((uint32)0U << 14U)\
                                     |(uint32)((uint32)0U << 15U)\
-                                    |(uint32)((uint32)1U << 16U)\
+                                    |(uint32)((uint32)0U << 16U)\
                                     |(uint32)((uint32)0U << 17U)\
                                     |(uint32)((uint32)0U << 18U)\
                                     |(uint32)((uint32)0U << 19U)\
@@ -288,7 +293,7 @@ typedef struct vim_config_reg
                                     |(uint32)((uint32)0U << 23U)\
                                     |(uint32)((uint32)0U << 24U)\
                                     |(uint32)((uint32)0U << 25U)\
-                                    |(uint32)((uint32)0U << 26U)\
+                                    |(uint32)((uint32)1U << 26U)\
                                     |(uint32)((uint32)0U << 27U)\
                                     |(uint32)((uint32)0U << 28U)\
                                     |(uint32)((uint32)0U << 29U)\
@@ -298,7 +303,7 @@ typedef struct vim_config_reg
 #define VIM_REQMASKSET1_CONFIGVALUE ((uint32)((uint32)0U << 0U)\
                                     |(uint32)((uint32)0U << 1U)\
                                     |(uint32)((uint32)0U << 2U)\
-                                    |(uint32)((uint32)1U << 3U)\
+                                    |(uint32)((uint32)0U << 3U)\
                                     |(uint32)((uint32)0U << 4U)\
                                     |(uint32)((uint32)0U << 5U)\
                                     |(uint32)((uint32)0U << 6U)\
@@ -316,10 +321,10 @@ typedef struct vim_config_reg
                                     |(uint32)((uint32)0U << 18U)\
                                     |(uint32)((uint32)0U << 19U)\
                                     |(uint32)((uint32)0U << 20U)\
-                                    |(uint32)((uint32)0U << 21U)\
+                                    |(uint32)((uint32)1U << 21U)\
                                     |(uint32)((uint32)0U << 22U)\
                                     |(uint32)((uint32)0U << 23U)\
-                                    |(uint32)((uint32)0U << 24U)\
+                                    |(uint32)((uint32)1U << 24U)\
                                     |(uint32)((uint32)0U << 25U)\
                                     |(uint32)((uint32)0U << 26U)\
                                     |(uint32)((uint32)0U << 27U)\
@@ -380,11 +385,11 @@ typedef struct vim_config_reg
                                     |(uint32)((uint32)0U << 16U)\
                                     |(uint32)((uint32)0U << 17U)\
                                     |(uint32)((uint32)0U << 18U)\
-                                    |(uint32)((uint32)0U << 19U)\
-                                    |(uint32)((uint32)0U << 20U)\
+                                    |(uint32)((uint32)1U << 19U)\
+                                    |(uint32)((uint32)1U << 20U)\
                                     |(uint32)((uint32)0U << 21U)\
                                     |(uint32)((uint32)0U << 22U)\
-                                    |(uint32)((uint32)0U << 23U)\
+                                    |(uint32)((uint32)1U << 23U)\
                                     |(uint32)((uint32)0U << 24U)\
                                     |(uint32)((uint32)0U << 25U)\
                                     |(uint32)((uint32)0U << 26U)\

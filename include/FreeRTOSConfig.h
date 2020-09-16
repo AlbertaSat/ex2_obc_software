@@ -100,8 +100,8 @@
 #define configCPU_CLOCK_HZ			  ( ( unsigned portLONG ) 75000000 ) /* Timer clock. */
 #define configTICK_RATE_HZ			  ( ( TickType_t ) 1000 )
 #define configMAX_PRIORITIES		  ( 5 )
-#define configMINIMAL_STACK_SIZE	  ( ( unsigned portSHORT ) 128 )
-#define configTOTAL_HEAP_SIZE		  ( ( size_t ) 80000 )
+#define configMINIMAL_STACK_SIZE	  ( ( unsigned portSHORT ) 32000 )
+#define configTOTAL_HEAP_SIZE		  ( ( size_t ) 262144 )
 #define configMAX_TASK_NAME_LEN		  ( 16 )
 #define configIDLE_SHOULD_YIELD		  1
 #define configGENERATE_RUN_TIME_STATS 0
@@ -125,7 +125,7 @@
 
 /* Mutexes */
 #define configUSE_MUTEXES               1
-#define configUSE_RECURSIVE_MUTEXES     0
+#define configUSE_RECURSIVE_MUTEXES     1
 
 /* Semaphores */
 #define configUSE_COUNTING_SEMAPHORES   1

@@ -115,7 +115,7 @@ typedef struct sci_config_reg
 /* Configuration registers initial value for SCI1*/
 #define SCI1_GCR0_CONFIGVALUE       0x00000001U   
 #define SCI1_GCR1_CONFIGVALUE       ((uint32)((uint32)1U << 5U) \
-                                   |(uint32)((uint32)(1U-1U) << 4U) \
+                                   |(uint32)((uint32)(2U-1U) << 4U) \
                                    |(uint32)((uint32)0U << 3U) \
                                    |(uint32)((uint32)0U << 2U) \
                                    |(uint32)((uint32)1U << 1U) \
@@ -140,7 +140,7 @@ typedef struct sci_config_reg
 #define SCI1_FORMAT_CONFIGVALUE     (8U - 1U)
 #define SCI1_BRS_CONFIGVALUE        (487U)
 #define SCI1_PIO0_CONFIGVALUE       ((uint32)((uint32)1U << 2U ) | (uint32)((uint32)1U << 1U))
-#define SCI1_PIO1_CONFIGVALUE       ((uint32)((uint32)0U << 2U ) | (uint32)((uint32)0U << 1U))
+#define SCI1_PIO1_CONFIGVALUE       ((uint32)((uint32)1U << 2U ) | (uint32)((uint32)0U << 1U))
 #define SCI1_PIO6_CONFIGVALUE       ((uint32)((uint32)0U << 2U ) | (uint32)((uint32)0U << 1U))
 #define SCI1_PIO7_CONFIGVALUE       ((uint32)((uint32)0U << 2U ) | (uint32)((uint32)0U << 1U))
 #define SCI1_PIO8_CONFIGVALUE       ((uint32)((uint32)1U << 2U ) | (uint32)((uint32)1U << 1U))
@@ -175,7 +175,7 @@ typedef struct sci_config_reg
 #define SCI2_FORMAT_CONFIGVALUE     (8U - 1U)
 #define SCI2_BRS_CONFIGVALUE        (487U)
 #define SCI2_PIO0_CONFIGVALUE       ((uint32)((uint32)1U << 2U ) | (uint32)((uint32)1U << 1U))
-#define SCI2_PIO1_CONFIGVALUE       ((uint32)((uint32)0U << 2U ) | (uint32)((uint32)0U << 1U))
+#define SCI2_PIO1_CONFIGVALUE       ((uint32)((uint32)1U << 2U ) | (uint32)((uint32)0U << 1U))
 #define SCI2_PIO6_CONFIGVALUE       ((uint32)((uint32)0U << 2U ) | (uint32)((uint32)0U << 1U))
 #define SCI2_PIO7_CONFIGVALUE       ((uint32)((uint32)0U << 2U ) | (uint32)((uint32)0U << 1U))
 #define SCI2_PIO8_CONFIGVALUE       ((uint32)((uint32)1U << 2U ) | (uint32)((uint32)1U << 1U))
@@ -185,7 +185,7 @@ typedef struct sci_config_reg
 /* Configuration registers initial value for SCI3*/
 #define SCI3_GCR0_CONFIGVALUE       0x00000001U   
 #define SCI3_GCR1_CONFIGVALUE       ((uint32)((uint32)1U << 5U) \
-                                   |(uint32)((uint32)(1U-1U) << 4U) \
+                                   |(uint32)((uint32)(2U-1U) << 4U) \
                                    |(uint32)((uint32)0U << 3U) \
                                    |(uint32)((uint32)0U << 2U) \
                                    |(uint32)((uint32)1U << 1U) \
@@ -210,7 +210,7 @@ typedef struct sci_config_reg
 #define SCI3_FORMAT_CONFIGVALUE     (8U - 1U)
 #define SCI3_BRS_CONFIGVALUE        (487U)
 #define SCI3_PIO0_CONFIGVALUE       ((uint32)((uint32)1U << 2U ) | (uint32)((uint32)1U << 1U))
-#define SCI3_PIO1_CONFIGVALUE       ((uint32)((uint32)0U << 2U ) | (uint32)((uint32)0U << 1U))
+#define SCI3_PIO1_CONFIGVALUE       ((uint32)((uint32)1U << 2U ) | (uint32)((uint32)0U << 1U))
 #define SCI3_PIO6_CONFIGVALUE       ((uint32)((uint32)0U << 2U ) | (uint32)((uint32)0U << 1U))
 #define SCI3_PIO7_CONFIGVALUE       ((uint32)((uint32)0U << 2U ) | (uint32)((uint32)0U << 1U))
 #define SCI3_PIO8_CONFIGVALUE       ((uint32)((uint32)1U << 2U ) | (uint32)((uint32)1U << 1U))
@@ -220,7 +220,7 @@ typedef struct sci_config_reg
 /* Configuration registers initial value for SCI4*/
 #define SCI4_GCR0_CONFIGVALUE       0x00000001U   
 #define SCI4_GCR1_CONFIGVALUE       ((uint32)((uint32)1U << 5U) \
-                                   |(uint32)((uint32)(1U-1U) << 4U) \
+                                   |(uint32)((uint32)(2U-1U) << 4U) \
                                    |(uint32)((uint32)0U << 3U) \
                                    |(uint32)((uint32)0U << 2U) \
                                    |(uint32)((uint32)1U << 1U) \
@@ -238,14 +238,14 @@ typedef struct sci_config_reg
 #define SCI4_SETINT_CONFIGVALUE     ((uint32)((uint32)0U << 26U) \
                                    |(uint32)((uint32)0U << 25U) \
                                    |(uint32)((uint32)0U << 24U) \
-                                   |(uint32)((uint32)0U << 9U) \
+                                   |(uint32)((uint32)1U << 9U) \
                                    |(uint32)((uint32)0U << 1U) \
                                    |(uint32)((uint32)0U << 0U))
                                    
 #define SCI4_FORMAT_CONFIGVALUE     (8U - 1U)
 #define SCI4_BRS_CONFIGVALUE        (487U)
 #define SCI4_PIO0_CONFIGVALUE       ((uint32)((uint32)1U << 2U ) | (uint32)((uint32)1U << 1U))
-#define SCI4_PIO1_CONFIGVALUE       ((uint32)((uint32)0U << 2U ) | (uint32)((uint32)0U << 1U))
+#define SCI4_PIO1_CONFIGVALUE       ((uint32)((uint32)1U << 2U ) | (uint32)((uint32)0U << 1U))
 #define SCI4_PIO6_CONFIGVALUE       ((uint32)((uint32)0U << 2U ) | (uint32)((uint32)0U << 1U))
 #define SCI4_PIO7_CONFIGVALUE       ((uint32)((uint32)0U << 2U ) | (uint32)((uint32)0U << 1U))
 #define SCI4_PIO8_CONFIGVALUE       ((uint32)((uint32)1U << 2U ) | (uint32)((uint32)1U << 1U))

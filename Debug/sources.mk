@@ -111,8 +111,10 @@ PDE_DEPS__QUOTED :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
+Project/FileTests \
+Project/host \
+ex2_obc_software/TempSensor \
 ex2_obc_software \
-ex2_obc_temp_software \
 ex2_services/Platform/obc/hal \
 ex2_services/Platform/obc \
 ex2_services/Services \
@@ -125,5 +127,15 @@ libcsp/src/drivers/usart \
 libcsp/src/interfaces \
 libcsp/src/rtable \
 libcsp/src/transport \
+reliance_edge/core/driver \
+reliance_edge/fse \
+reliance_edge/os/freertos/services \
+reliance_edge/posix \
+reliance_edge/tests/posix \
+reliance_edge/tests/util \
+reliance_edge/tools \
+reliance_edge/tools/imgbld \
+reliance_edge/util \
 source \
+source/athena_drivers \
 

@@ -138,11 +138,11 @@ typedef struct emif_config_reg
 								
 #define EMIF_SDCR_CONFIGVALUE    ((uint32)((uint32)1U << 31U) \
                                 | (uint32)((uint32)1U << 14U) \
-                                | (uint32)((uint32)0U << 9U) \
-								| (uint32)((uint32)0U << 4U) \
-                                | (uint32)((uint32)elements_256))
+                                | (uint32)((uint32)2U << 9U) \
+								| (uint32)((uint32)2U << 4U) \
+                                | (uint32)((uint32)elements_1024))
 								
-#define EMIF_SDRCR_CONFIGVALUE   0U
+#define EMIF_SDRCR_CONFIGVALUE   8191U
 
 #define EMIF_CE2CFG_CONFIGVALUE  ((uint32)((uint32)0U << 31U) \
                                 | (uint32)((uint32)0U << 30U) \
@@ -179,16 +179,16 @@ typedef struct emif_config_reg
 								
 #define EMIF_CE5CFG_CONFIGVALUE   0x3FFFFFFDU
 								
-#define EMIF_SDTIMR_CONFIGVALUE  ((uint32)((uint32)0U << 27U) \
-                                | (uint32)((uint32)0U << 24U) \
-                                | (uint32)((uint32)0U << 20U) \
-                                | (uint32)((uint32)0U << 16U) \
-                                | (uint32)((uint32)0U << 12U) \
-                                | (uint32)((uint32)0U << 8U) \
-                                | (uint32)((uint32)0U << 4U) \
+#define EMIF_SDTIMR_CONFIGVALUE  ((uint32)((uint32)4U << 27U) \
+                                | (uint32)((uint32)1U << 24U) \
+                                | (uint32)((uint32)1U << 20U) \
+                                | (uint32)((uint32)1U << 16U) \
+                                | (uint32)((uint32)3U << 12U) \
+                                | (uint32)((uint32)4U << 8U) \
+                                | (uint32)((uint32)1U << 4U) \
 								| 0x00000000U)
 
-#define EMIF_SDSRETR_CONFIGVALUE  0U
+#define EMIF_SDSRETR_CONFIGVALUE  5U
 #define EMIF_INTMSK_CONFIGVALUE   0x00000000U
 #define EMIF_PMCR_CONFIGVALUE     (0xFC000000U \
                                 | (uint32)((uint32)0U << 2U) \

@@ -27,6 +27,12 @@
 #include <task.h>
 #include <csp/drivers/usart.h>
 #include <TempSensor/TempSensor.h>
+#include "board_io_tests.h"
+#include <redfs.h>
+#include <redposix.h>
+#include <redfse.h>
+#include <redconf.h>
+#include <redvolume.h>
 #include "service_response.h"
 #include "services.h"
 #include "system.h" // platform definitions
@@ -52,6 +58,31 @@ static inline SAT_returnState init_interface();
 
 
 int ex2_main(int argc, char **argv) {
+  int32_t iErr;
+
+  InitIO();
+
+  const char *pszVolume0 = gaRedVolConf[0].pszPathPrefix;
+  iErr = red_init();
+
+  if (iErr == -1)
+  {
+    exit(red_errno);
+  }
+
+  iErr = red_format(pszVolume0);
+  if (iErr == -1)
+  {
+    exit(red_errno);
+  }
+
+  iErr = red_mount(pszVolume0);
+
+  if (iErr == -1)
+  {
+    exit(red_errno);
+  }
+
   ex2_log("-- starting command demo --\n");
   TC_TM_app_id my_address = SYSTEM_APP_ID;
 
