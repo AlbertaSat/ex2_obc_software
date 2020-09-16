@@ -26,7 +26,13 @@
 #include <string.h>
 #include <task.h>
 #include <csp/drivers/usart.h>
-
+#include <TempSensor/TempSensor.h>
+#include "board_io_tests.h"
+#include <redfs.h>
+#include <redposix.h>
+#include <redfse.h>
+#include <redconf.h>
+#include <redvolume.h>
 #include "service_response.h"
 #include "services.h"
 #include "system.h" // platform definitions
@@ -44,11 +50,39 @@
 /*Create service queues*/
 Service_Queues_t service_queues;
 
+/* Create handler mutexes */
+Equipment_Mutex_t equipment_mutex;
+
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
 static inline SAT_returnState init_interface();
 
 
 int ex2_main(int argc, char **argv) {
+  int32_t iErr;
+
+  InitIO();
+
+  const char *pszVolume0 = gaRedVolConf[0].pszPathPrefix;
+  iErr = red_init();
+
+  if (iErr == -1)
+  {
+    exit(red_errno);
+  }
+
+  iErr = red_format(pszVolume0);
+  if (iErr == -1)
+  {
+    exit(red_errno);
+  }
+
+  iErr = red_mount(pszVolume0);
+
+  if (iErr == -1)
+  {
+    exit(red_errno);
+  }
+
   ex2_log("-- starting command demo --\n");
   TC_TM_app_id my_address = SYSTEM_APP_ID;
 
@@ -73,7 +107,7 @@ int ex2_main(int argc, char **argv) {
   init_interface();
 
   /* Start service server, and response server */
-  if (start_service_server() != SATR_OK || start_service_response() != SATR_OK) {
+  if (start_service_server() != SATR_OK || start_service_response() != SATR_OK || start_detection_server() != SATR_OK) {
     ex2_log("Initialization error\n");
     return -1;
   }
@@ -88,9 +122,9 @@ int ex2_main(int argc, char **argv) {
 
 /**
  * @brief
- *      initialize zmq interface, and configure the routing table
+ * 		initialize zmq interface, and configure the routing table
  * @details
- *      start the localhost zmq server and add it to the default route
+ * 		start the localhost zmq server and add it to the default route
  * with no VIA address
  */
 static inline SAT_returnState init_interface() {

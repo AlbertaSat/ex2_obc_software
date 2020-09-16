@@ -33,7 +33,6 @@ C_SRCS += \
 ../source/HL_het.c \
 ../source/HL_i2c.c \
 ../source/HL_mdio.c \
-../source/HL_mibspi.c \
 ../source/HL_nmpu.c \
 ../source/HL_notification.c \
 ../source/HL_phy_dp83640.c \
@@ -41,6 +40,7 @@ C_SRCS += \
 ../source/HL_pinmux.c \
 ../source/HL_pom.c \
 ../source/HL_sci.c \
+../source/HL_spi.c \
 ../source/HL_sys_dma.c \
 ../source/HL_sys_main.c \
 ../source/HL_sys_pcr.c \
@@ -49,6 +49,8 @@ C_SRCS += \
 ../source/HL_sys_startup.c \
 ../source/HL_sys_vim.c \
 ../source/HL_system.c \
+../source/main_blinky.c \
+../source/mmc-hercules.c \
 ../source/os_croutine.c \
 ../source/os_event_groups.c \
 ../source/os_heap.c \
@@ -77,7 +79,6 @@ C_DEPS += \
 ./source/HL_het.d \
 ./source/HL_i2c.d \
 ./source/HL_mdio.d \
-./source/HL_mibspi.d \
 ./source/HL_nmpu.d \
 ./source/HL_notification.d \
 ./source/HL_phy_dp83640.d \
@@ -85,6 +86,7 @@ C_DEPS += \
 ./source/HL_pinmux.d \
 ./source/HL_pom.d \
 ./source/HL_sci.d \
+./source/HL_spi.d \
 ./source/HL_sys_dma.d \
 ./source/HL_sys_main.d \
 ./source/HL_sys_pcr.d \
@@ -93,6 +95,8 @@ C_DEPS += \
 ./source/HL_sys_startup.d \
 ./source/HL_sys_vim.d \
 ./source/HL_system.d \
+./source/main_blinky.d \
+./source/mmc-hercules.d \
 ./source/os_croutine.d \
 ./source/os_event_groups.d \
 ./source/os_heap.d \
@@ -121,7 +125,6 @@ OBJS += \
 ./source/HL_het.obj \
 ./source/HL_i2c.obj \
 ./source/HL_mdio.obj \
-./source/HL_mibspi.obj \
 ./source/HL_nmpu.obj \
 ./source/HL_notification.obj \
 ./source/HL_phy_dp83640.obj \
@@ -129,6 +132,7 @@ OBJS += \
 ./source/HL_pinmux.obj \
 ./source/HL_pom.obj \
 ./source/HL_sci.obj \
+./source/HL_spi.obj \
 ./source/HL_sys_core.obj \
 ./source/HL_sys_dma.obj \
 ./source/HL_sys_intvecs.obj \
@@ -141,6 +145,8 @@ OBJS += \
 ./source/HL_sys_startup.obj \
 ./source/HL_sys_vim.obj \
 ./source/HL_system.obj \
+./source/main_blinky.obj \
+./source/mmc-hercules.obj \
 ./source/os_croutine.obj \
 ./source/os_event_groups.obj \
 ./source/os_heap.obj \
@@ -177,7 +183,6 @@ OBJS__QUOTED += \
 "source\HL_het.obj" \
 "source\HL_i2c.obj" \
 "source\HL_mdio.obj" \
-"source\HL_mibspi.obj" \
 "source\HL_nmpu.obj" \
 "source\HL_notification.obj" \
 "source\HL_phy_dp83640.obj" \
@@ -185,6 +190,7 @@ OBJS__QUOTED += \
 "source\HL_pinmux.obj" \
 "source\HL_pom.obj" \
 "source\HL_sci.obj" \
+"source\HL_spi.obj" \
 "source\HL_sys_core.obj" \
 "source\HL_sys_dma.obj" \
 "source\HL_sys_intvecs.obj" \
@@ -197,6 +203,8 @@ OBJS__QUOTED += \
 "source\HL_sys_startup.obj" \
 "source\HL_sys_vim.obj" \
 "source\HL_system.obj" \
+"source\main_blinky.obj" \
+"source\mmc-hercules.obj" \
 "source\os_croutine.obj" \
 "source\os_event_groups.obj" \
 "source\os_heap.obj" \
@@ -226,7 +234,6 @@ C_DEPS__QUOTED += \
 "source\HL_het.d" \
 "source\HL_i2c.d" \
 "source\HL_mdio.d" \
-"source\HL_mibspi.d" \
 "source\HL_nmpu.d" \
 "source\HL_notification.d" \
 "source\HL_phy_dp83640.d" \
@@ -234,6 +241,7 @@ C_DEPS__QUOTED += \
 "source\HL_pinmux.d" \
 "source\HL_pom.d" \
 "source\HL_sci.d" \
+"source\HL_spi.d" \
 "source\HL_sys_dma.d" \
 "source\HL_sys_main.d" \
 "source\HL_sys_pcr.d" \
@@ -242,6 +250,8 @@ C_DEPS__QUOTED += \
 "source\HL_sys_startup.d" \
 "source\HL_sys_vim.d" \
 "source\HL_system.d" \
+"source\main_blinky.d" \
+"source\mmc-hercules.d" \
 "source\os_croutine.d" \
 "source\os_event_groups.d" \
 "source\os_heap.d" \
@@ -277,7 +287,6 @@ C_SRCS__QUOTED += \
 "../source/HL_het.c" \
 "../source/HL_i2c.c" \
 "../source/HL_mdio.c" \
-"../source/HL_mibspi.c" \
 "../source/HL_nmpu.c" \
 "../source/HL_notification.c" \
 "../source/HL_phy_dp83640.c" \
@@ -285,6 +294,7 @@ C_SRCS__QUOTED += \
 "../source/HL_pinmux.c" \
 "../source/HL_pom.c" \
 "../source/HL_sci.c" \
+"../source/HL_spi.c" \
 "../source/HL_sys_dma.c" \
 "../source/HL_sys_main.c" \
 "../source/HL_sys_pcr.c" \
@@ -293,6 +303,8 @@ C_SRCS__QUOTED += \
 "../source/HL_sys_startup.c" \
 "../source/HL_sys_vim.c" \
 "../source/HL_system.c" \
+"../source/main_blinky.c" \
+"../source/mmc-hercules.c" \
 "../source/os_croutine.c" \
 "../source/os_event_groups.c" \
 "../source/os_heap.c" \

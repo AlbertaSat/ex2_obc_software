@@ -81,11 +81,11 @@ static const t_isrFuncPTR s_vim_init[128U] =
     &phantomInterrupt,          /* Channel 9   */
     &phantomInterrupt,          /* Channel 10  */
     &phantomInterrupt,          /* Channel 11  */
-    &phantomInterrupt,          /* Channel 12  */
+    &mibspi1HighLevelInterrupt,       /* Channel 12  */
     &lin1HighLevelInterrupt,       /* Channel 13  */
     &phantomInterrupt,          /* Channel 14  */
     &phantomInterrupt,          /* Channel 15  */
-    &can1HighLevelInterrupt,       /* Channel 16  */
+    &phantomInterrupt,          /* Channel 16  */
     &phantomInterrupt,          /* Channel 17  */
     &phantomInterrupt,          /* Channel 18  */
     &phantomInterrupt,          /* Channel 19  */
@@ -95,7 +95,7 @@ static const t_isrFuncPTR s_vim_init[128U] =
     &phantomInterrupt,          /* Channel 23  */
     &phantomInterrupt,          /* Channel 24  */
     &phantomInterrupt,          /* Channel 25  */
-    &phantomInterrupt,          /* Channel 26  */
+    &mibspi1LowLevelInterrupt,       /* Channel 26  */
     &phantomInterrupt,          /* Channel 27  */
     &phantomInterrupt,          /* Channel 28  */
     &phantomInterrupt,          /* Channel 29  */
@@ -104,7 +104,7 @@ static const t_isrFuncPTR s_vim_init[128U] =
     &phantomInterrupt,          /* Channel 32  */
     &phantomInterrupt,          /* Channel 33  */
     &phantomInterrupt,          /* Channel 34  */
-    &can2HighLevelInterrupt,       /* Channel 35  */
+    &phantomInterrupt,          /* Channel 35  */
     &phantomInterrupt,          /* Channel 36  */
     &phantomInterrupt,          /* Channel 37  */
     &phantomInterrupt,          /* Channel 38  */
@@ -114,7 +114,7 @@ static const t_isrFuncPTR s_vim_init[128U] =
     &phantomInterrupt,          /* Channel 42  */
     &phantomInterrupt,          /* Channel 43  */
     &phantomInterrupt,          /* Channel 44  */
-    &can3HighLevelInterrupt,       /* Channel 45  */
+    &phantomInterrupt,          /* Channel 45  */
     &phantomInterrupt,          /* Channel 46  */
     &phantomInterrupt,          /* Channel 47  */
     &phantomInterrupt,          /* Channel 48  */
@@ -122,10 +122,10 @@ static const t_isrFuncPTR s_vim_init[128U] =
     &phantomInterrupt,          /* Channel 50  */
     &phantomInterrupt,          /* Channel 51  */
     &phantomInterrupt,          /* Channel 52  */
-    &phantomInterrupt,          /* Channel 53  */
+    &mibspi5HighLevelInterrupt,       /* Channel 53  */
     &phantomInterrupt,          /* Channel 54  */
     &phantomInterrupt,          /* Channel 55  */
-    &phantomInterrupt,          /* Channel 56  */
+    &mibspi5LowLevelInterrupt,       /* Channel 56  */
     &phantomInterrupt,          /* Channel 57  */
     &phantomInterrupt,          /* Channel 58  */
     &phantomInterrupt,          /* Channel 59  */
@@ -182,13 +182,13 @@ static const t_isrFuncPTR s_vim_init[128U] =
     &phantomInterrupt,          /* Channel 110 */
     &phantomInterrupt,          /* Channel 111 */
     &phantomInterrupt,          /* Channel 112 */
-    &can4HighLevelInterrupt,      /* Channel 113 */
+    &phantomInterrupt,          /* Channel 113 */
     &phantomInterrupt,          /* Channel 114 */
-    &phantomInterrupt,          /* Channel 115 */
-    &phantomInterrupt,          /* Channel 116 */
+    &lin2HighLevelInterrupt,      /* Channel 115 */
+    &sci4HighLevelInterrupt,      /* Channel 116 */
     &phantomInterrupt,          /* Channel 117 */
     &phantomInterrupt,          /* Channel 118 */
-    &phantomInterrupt,          /* Channel 119 */
+    &sci4LowLevelInterrupt,      /* Channel 119 */
     &phantomInterrupt,          /* Channel 120 */
     &phantomInterrupt,          /* Channel 121 */
     &phantomInterrupt,          /* Channel 122 */
@@ -376,11 +376,11 @@ void vimInit(void)
                         | (uint32)((uint32)0U << 9U)
                         | (uint32)((uint32)0U << 10U)
                         | (uint32)((uint32)0U << 11U)
-                        | (uint32)((uint32)0U << 12U)
+                        | (uint32)((uint32)1U << 12U)
                         | (uint32)((uint32)1U << 13U)
                         | (uint32)((uint32)0U << 14U)
                         | (uint32)((uint32)0U << 15U)
-                        | (uint32)((uint32)1U << 16U)
+                        | (uint32)((uint32)0U << 16U)
                         | (uint32)((uint32)0U << 17U)
                         | (uint32)((uint32)0U << 18U)
                         | (uint32)((uint32)0U << 19U)
@@ -390,7 +390,7 @@ void vimInit(void)
                         | (uint32)((uint32)0U << 23U)
                         | (uint32)((uint32)0U << 24U)
                         | (uint32)((uint32)0U << 25U)
-                        | (uint32)((uint32)0U << 26U)
+                        | (uint32)((uint32)1U << 26U)
                         | (uint32)((uint32)0U << 27U)
                         | (uint32)((uint32)0U << 28U)
                         | (uint32)((uint32)0U << 29U)
@@ -400,7 +400,7 @@ void vimInit(void)
     vimREG->REQMASKSET1 = (uint32)((uint32)0U << 0U)
                         | (uint32)((uint32)0U << 1U)
                         | (uint32)((uint32)0U << 2U)
-                        | (uint32)((uint32)1U << 3U)
+                        | (uint32)((uint32)0U << 3U)
                         | (uint32)((uint32)0U << 4U)
                         | (uint32)((uint32)0U << 5U)
                         | (uint32)((uint32)0U << 6U)
@@ -410,7 +410,7 @@ void vimInit(void)
                         | (uint32)((uint32)0U << 10U)
                         | (uint32)((uint32)0U << 11U)
                         | (uint32)((uint32)0U << 12U)
-                        | (uint32)((uint32)1U << 13U)
+                        | (uint32)((uint32)0U << 13U)
                         | (uint32)((uint32)0U << 14U)
                         | (uint32)((uint32)0U << 15U)
                         | (uint32)((uint32)0U << 16U)
@@ -418,10 +418,10 @@ void vimInit(void)
                         | (uint32)((uint32)0U << 18U)
                         | (uint32)((uint32)0U << 19U)
                         | (uint32)((uint32)0U << 20U)
-                        | (uint32)((uint32)0U << 21U)
+                        | (uint32)((uint32)1U << 21U)
                         | (uint32)((uint32)0U << 22U)
                         | (uint32)((uint32)0U << 23U)
-                        | (uint32)((uint32)0U << 24U)
+                        | (uint32)((uint32)1U << 24U)
                         | (uint32)((uint32)0U << 25U)
                         | (uint32)((uint32)0U << 26U)
                         | (uint32)((uint32)0U << 27U)
@@ -480,13 +480,13 @@ void vimInit(void)
                         | (uint32)((uint32)0U << 14U)
                         | (uint32)((uint32)0U << 15U)
                         | (uint32)((uint32)0U << 16U)
-                        | (uint32)((uint32)1U << 17U)
+                        | (uint32)((uint32)0U << 17U)
                         | (uint32)((uint32)0U << 18U)
-                        | (uint32)((uint32)0U << 19U)
-                        | (uint32)((uint32)0U << 20U)
+                        | (uint32)((uint32)1U << 19U)
+                        | (uint32)((uint32)1U << 20U)
                         | (uint32)((uint32)0U << 21U)
                         | (uint32)((uint32)0U << 22U)
-                        | (uint32)((uint32)0U << 23U)
+                        | (uint32)((uint32)1U << 23U)
                         | (uint32)((uint32)0U << 24U)
                         | (uint32)((uint32)0U << 25U)
                         | (uint32)((uint32)0U << 26U)

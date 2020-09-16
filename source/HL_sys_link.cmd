@@ -58,9 +58,10 @@ MEMORY
     FLASH1  (RX) : origin=0x00200000 length=0x00200000
     STACKS  (RW) : origin=0x08000000 length=0x00000800
     KRAM    (RW) : origin=0x08000800 length=0x00000800
-    RAM     (RW) : origin=(0x08000800+0x00000800) length=(0x0007F800 - 0x00000800)
+    RAM     (RW) : origin=(0x08000800+0x00000800) length=(0x0007f800 - 0x00000800)
     
 /* USER CODE BEGIN (2) */
+	SDRAM  (RWX) : origin=0x80000000 length=0x07FFFFFF//experimental
 /* USER CODE END */
 }
 
@@ -87,6 +88,9 @@ SECTIONS
     .data         : {} > RAM    
 
 /* USER CODE BEGIN (4) */
+ 	.blinky_section :  RUN = SDRAM, LOAD = FLASH0 | FLASH1
+		   LOAD_START(BlinkyLoadStart), LOAD_END(BlinkyLoadEnd),  LOAD_SIZE(BlinkySize),
+		   RUN_START(BlinkyStartAddr ), RUN_END(BlinkyEndAddr )
 /* USER CODE END */
 }
 

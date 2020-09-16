@@ -72,124 +72,9 @@ void emif_SDRAMInit(void)
 }
 
 
-/** @fn void emif_ASYNC1Init(void)
-*   @brief Initializes the emif Driver for ASYNC memories
-*
-*   This function initializes the emif driver for Asynchronous memories like Nor and Nand Flashes,Asynchronous RAM.
-*/
-/* SourceId : EMIF_SourceId_002 */
-/* DesignId : EMIF_DesignId_002 */
-/* Requirements : HL_CONQ_EMIF_SR3 */
-void emif_ASYNC1Init(void)
-{
-/* USER CODE BEGIN (4) */
-/* USER CODE END */
-    emifREG->CE2CFG = 0x00000000U;
-    emifREG->CE2CFG = (uint32)((uint32)0U << 31U)|
-                      (uint32)((uint32)0U << 30U)|
-                      (uint32)((uint32)15U << 26U)|
-                      (uint32)((uint32)63U << 20U)|
-                      (uint32)((uint32)7U << 17U)|
-                      (uint32)((uint32)15U << 13U)|
-                      (uint32)((uint32)63U << 7U)|
-                      (uint32)((uint32)7U << 4U)|
-                      (uint32)((uint32)0U << 2U)|
-                      (uint32)((uint32)emif_8_bit_port);
-
-    emifREG->AWCC   = (emifREG->AWCC & 0xC0FF0000U)|
-                      (uint32)((uint32)emif_pin_high << 29U)|
-                      (uint32)((uint32)emif_pin_low << 28U)|
-                      (uint32)((uint32)emif_wait_pin0 << 16U)|
-                      (uint32)((uint32)0U);
-
-    emifREG->PMCR   = (emifREG->PMCR & 0xFFFFFF00U)|
-                      (uint32)((uint32)0U << 2U)|
-                      (uint32)((uint32)emif_4_words << 1U)|
-                      (uint32)((uint32)0U);
-/* USER CODE BEGIN (5) */
-/* USER CODE END */
-}
-
-/** @fn void emif_ASYNC2Init(void)
-*   @brief Initializes the emif Driver for ASYNC memories
-*
-*   This function initializes the emif driver for Asynchronous memories like Nor and Nand Flashes,Asynchronous RAM.
-*/
-/* SourceId : EMIF_SourceId_003 */
-/* DesignId : EMIF_DesignId_002 */
-/* Requirements : HL_CONQ_EMIF_SR4 */
-void emif_ASYNC2Init(void)
-{
-/* USER CODE BEGIN (6) */
-/* USER CODE END */
-
-    emifREG->CE3CFG = 0x00000000U;
-    emifREG->CE3CFG = (uint32)((uint32)0U << 31U)|
-                      (uint32)((uint32)0U << 30U)|
-                      (uint32)((uint32)15U << 26U)|
-                      (uint32)((uint32)63U << 20U)|
-                      (uint32)((uint32)7U << 17U)|
-                      (uint32)((uint32)15U << 13U)|
-                      (uint32)((uint32)63U << 7U)|
-                      (uint32)((uint32)7U << 4U)|
-                      (uint32)((uint32)0U << 2U)|
-                      (uint32)((uint32)emif_8_bit_port);
-
-    emifREG->AWCC   = (emifREG->AWCC & 0xC0FF0000U)|
-                      (uint32)((uint32)emif_pin_high << 29U)|
-                      (uint32)((uint32)emif_pin_low << 28U)|
-                      (uint32)((uint32)emif_wait_pin0 << 18U)|
-                      (uint32)((uint32)0U);
-
-    emifREG->PMCR   = (emifREG->PMCR & 0xFFFF00FFU)|
-                      (uint32)((uint32)0U << 10U)|
-                      (uint32)((uint32)emif_4_words << 9U)|
-                      (uint32)((uint32)0U << 8U);
-/* USER CODE BEGIN (7) */
-/* USER CODE END */
-
-}
 
 
-/** @fn void emif_ASYNC3Init(void)
-*   @brief Initializes the emif Driver for ASYNC memories
-*
-*   This function initializes the emif driver for Asynchronous memories like Nor and Nand Flashes,Asynchronous RAM.
-*/
-/* SourceId : EMIF_SourceId_004 */
-/* DesignId : EMIF_DesignId_002 */
-/* Requirements : HL_CONQ_EMIF_SR5 */
-void emif_ASYNC3Init(void)
-{
-/* USER CODE BEGIN (8) */
-/* USER CODE END */
 
-    emifREG->CE4CFG = 0x00000000U;
-    emifREG->CE4CFG = (uint32)((uint32)0U << 31U)|
-                      (uint32)((uint32)0U << 30U)|
-                      (uint32)((uint32)15U << 26U)|
-                      (uint32)((uint32)63U << 20U)|
-                      (uint32)((uint32)7U << 17U)|
-                      (uint32)((uint32)15U << 13U)|
-                      (uint32)((uint32)63U << 7U)|
-                      (uint32)((uint32)7U << 4U)|
-                      (uint32)((uint32)0U << 2U)|
-                      (uint32)((uint32)emif_8_bit_port);
-
-    emifREG->AWCC   = (emifREG->AWCC & 0xC0FF0000U)|
-                      (uint32)((uint32)emif_pin_high << 29U)|
-                      (uint32)((uint32)emif_pin_low << 28U)|
-                      (uint32)((uint32)emif_wait_pin0 << 20U)|
-                      (uint32)((uint32)0U);
-
-    emifREG->PMCR   = (emifREG->PMCR & 0xFF00FFFFU) |
-                      (uint32)((uint32)0U << 18U)|
-                      (uint32)((uint32)emif_4_words << 17U)|
-                      (uint32)((uint32)0U << 16U);
-
-/* USER CODE BEGIN (9) */
-/* USER CODE END */
-}
 
 /* USER CODE BEGIN (10) */
 /* USER CODE END */
@@ -268,19 +153,19 @@ void emif_SDRAM_StartupInit(void)
 	/* Procedure B Step 1:  EMIF Clock Frequency is assumed to be configured in the startup */
 
 	/* Procedure B  Step 2:  Program SDTIMR and SDSRETR to satisfy requirements of SDRAM Device */
-	emifREG->SDTIMR  = (uint32)((uint32)0U << 27U)|
-					   (uint32)((uint32)0U << 24U)|
+	emifREG->SDTIMR  = (uint32)((uint32)4U << 27U)|
+					   (uint32)((uint32)1U << 24U)|
 					   (uint32)((uint32)0U << 23U)|
-					   (uint32)((uint32)0U << 20U)|
+					   (uint32)((uint32)1U << 20U)|
 					   (uint32)((uint32)0U << 19U)|
-					   (uint32)((uint32)0U << 16U)|
-					   (uint32)((uint32)0U << 12U)|
-					   (uint32)((uint32)0U << 8U)|
+					   (uint32)((uint32)1U << 16U)|
+					   (uint32)((uint32)3U << 12U)|
+					   (uint32)((uint32)4U << 8U)|
 					   (uint32)((uint32)0U << 7U)|
-					   (uint32)((uint32)0U << 4U)|
+					   (uint32)((uint32)1U << 4U)|
 					   (uint32)((uint32)0U << 3U);
 
-	emifREG->SDSRETR = (uint32)0U;
+	emifREG->SDSRETR = (uint32)5U;
 
 	/* Procedure B  Step 3:  Program the RR Field of SDRCR to provide 200us of initialization time */
 	emifREG->SDRCR   = 1605U;
@@ -295,10 +180,10 @@ void emif_SDRAM_StartupInit(void)
 	*/
 	emifREG->SDCR   = (uint32)((uint32)0U << 31U)|
 					  (uint32)((uint32)1U << 14U)|
-					  (uint32)((uint32)0U << 9U)|
+					  (uint32)((uint32)2U << 9U)|
 					  (uint32)((uint32)1U << 8U)|
-					  (uint32)((uint32)0U << 4U)|
-					  (uint32)((uint32)elements_256);
+					  (uint32)((uint32)2U << 4U)|
+					  (uint32)((uint32)elements_1024);
 
 	/* Procedure B  Step 5:  Read of SDRAM memory location causes processor to wait until SDRAM Initialization completes */
 	buffer           = *PTR;
@@ -306,7 +191,7 @@ void emif_SDRAM_StartupInit(void)
 	buffer           = buffer;
 
 	/* Procedure B  Step 6:  Program the RR field to the default Refresh Interval of the SDRAM*/
-	emifREG->SDRCR   = 0U;
+	emifREG->SDRCR   = 8191U;
 
 	/* Place the EMIF in Self Refresh Mode For Clock Change          */
 	/* Must only write to the upper byte of the SDCR to avoid        */
