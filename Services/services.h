@@ -25,7 +25,9 @@
 /* PACKETS */
 #define TM_TC_BUFF_SIZE 256
 #define SUBSERVICE_BYTE 0
-#define DATA_BYTE 1
+#define STATUS_BYTE 1
+#define IN_DATA_BYTE 1
+#define OUT_DATA_BYTE 2
 
 /* SERVICES */
 #define MAX_APP_ID 32     // number of CSP nodes (5-bits)
@@ -56,19 +58,16 @@ typedef enum {
 /* services types & subtypes
  * Note: ports 0-7 are RESERVED by CSP. Don't use them.
  */
-#define TC_VERIFICATION_SERVICE 8
 
+// TIME MANAGEMENT SERVICE
+#define TC_TIME_MANAGEMENT_SERVICE 8
+typedef enum { GET_TIME = 0, SET_TIME = 1 } Time_Management_Subtype; // shared with EPS!
+
+
+// HOUSEKEEPING SERVICE
 #define TC_HOUSEKEEPING_SERVICE 9
 typedef enum { TM_HK_PARAMETERS_REPORT = 0 } Housekeeping_Subtype;
 
-#define TC_EVENT_SERVICE 10
-
-#define TC_FUNCTION_MANAGEMENT_SERVICE 11
-
-#define TC_TIME_MANAGEMENT_SERVICE 12
-typedef enum { SET_TIME = 1, GET_TIME = 2 } Time_Management_Subtype;
-
-#define TM_HK_PARAMETERS_REPORT 0
 
 /* Utility definitions */
 union _cnv {

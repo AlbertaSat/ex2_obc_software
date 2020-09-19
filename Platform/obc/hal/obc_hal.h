@@ -19,8 +19,9 @@
 
 #include "services.h"
 
+#define NORMAL_TICKS_TO_WAIT 1
 void HAL_sys_getTime(uint32_t *unix_timestamp);
 void HAL_sys_setTime(uint32_t unix_timestamp);
-SAT_returnState HAL_hk_report(uint8_t sid, void *output);
+size_t HAL_hk_report(uint8_t sid, void *output);
 
 #endif /* DEMO_HAL_H */
