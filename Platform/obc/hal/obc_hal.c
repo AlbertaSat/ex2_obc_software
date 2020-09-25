@@ -13,7 +13,7 @@
  */
 /**
  * @file demo_hal.c
- * @author Andrew Rooney
+ * @author Andrew Rooney, Haoran Qi
  * @date 2020-06-06
  */
 #include "obc_hal.h"
