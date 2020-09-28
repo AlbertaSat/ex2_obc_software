@@ -47,29 +47,26 @@ void service_response_task(void *param) {
   csp_packet_t *packet;
   uint32_t data;
   for (;;) {
-
     if (xQueueReceive(service_queues.response_queue, &packet,
                       NORMAL_TICKS_TO_WAIT) == pdPASS) {
-      
       // Connect with a connection-oriented method.
       // We're assuming that packet responses should be returned to sender.
-      csp_conn_t *conn = csp_connect(
-          CSP_PRIO_NORM, // priority
-          packet->id.src, // destination address
-          packet->id.dport, // destination port
-          1000, // timeout (ms)
-          CSP_O_NONE // options
+      csp_conn_t *conn = csp_connect(CSP_PRIO_NORM,     // priority
+                                     packet->id.src,    // destination address
+                                     packet->id.dport,  // destination port
+                                     1000,              // timeout (ms)
+                                     CSP_O_NONE         // options
       );
-      
+
       if (conn == NULL) {
         csp_log_error("Failed to get CSP CONNECTION");
       }
-   
+
       // Send packet to ground
-      if (!csp_send(conn, packet, 1000)) { 
+      if (!csp_send(conn, packet, 1000)) {
         csp_buffer_free(packet);
       }
-    
+
       // Close connection
       csp_close(conn);
     }
@@ -100,8 +97,8 @@ SAT_returnState start_service_response() {
     return SATR_ERROR;
   }
 
-  if (xTaskCreate((TaskFunction_t)service_response_task, "RESPONSE SERVER",
-                   500, NULL, 1, NULL) != pdPASS) {
+  if (xTaskCreate((TaskFunction_t)service_response_task, "RESPONSE SERVER", 500,
+                  NULL, 1, NULL) != pdPASS) {
     return SATR_ERROR;
   }
   return SATR_OK;
