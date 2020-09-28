@@ -45,7 +45,7 @@ static void housekeeping_app_route(void *parameters) {
     if (xQueueReceive(service_queues.hk_app_queue, &packet,
                       NORMAL_TICKS_TO_WAIT) == pdPASS) {
       if (hk_service_app(packet) != SATR_OK) {
-          csp_buffer_free(packet);
+        csp_buffer_free(packet);
       }
     }
   }

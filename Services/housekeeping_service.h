@@ -21,11 +21,6 @@ SAT_returnState hk_service_app(csp_packet_t* pkt);
 static SAT_returnState hk_parameter_report(csp_packet_t* packet);
 
 /*hk data sample*/
-typedef enum {
-  EPS,
-  ADCS,
-  OBC,
-  COMMS
-} hardware;
+typedef enum { EPS, ADCS, OBC, COMMS } hardware;
 
 #endif /* HOUSEKEEPING_SERVICE_H */

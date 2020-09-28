@@ -61,13 +61,14 @@ typedef enum {
 
 // TIME MANAGEMENT SERVICE
 #define TC_TIME_MANAGEMENT_SERVICE 8
-typedef enum { GET_TIME = 0, SET_TIME = 1 } Time_Management_Subtype; // shared with EPS!
-
+typedef enum {
+  GET_TIME = 0,
+  SET_TIME = 1
+} Time_Management_Subtype;  // shared with EPS!
 
 // HOUSEKEEPING SERVICE
 #define TC_HOUSEKEEPING_SERVICE 9
 typedef enum { TM_HK_PARAMETERS_REPORT = 0 } Housekeeping_Subtype;
-
 
 /* Utility definitions */
 union _cnv {
