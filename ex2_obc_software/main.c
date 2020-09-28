@@ -18,24 +18,25 @@
  */
 
 #include <FreeRTOS.h>
+#include <TempSensor/TempSensor.h>
 #include <csp/csp.h>
+#include <csp/drivers/usart.h>
+#include <redconf.h>
+#include <redfs.h>
+#include <redfse.h>
+#include <redposix.h>
+#include <redvolume.h>
 #include <service_utilities.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <task.h>
-#include <csp/drivers/usart.h>
-#include <TempSensor/TempSensor.h>
+
 #include "board_io_tests.h"
-#include <redfs.h>
-#include <redposix.h>
-#include <redfse.h>
-#include <redconf.h>
-#include <redvolume.h>
 #include "service_response.h"
 #include "services.h"
-#include "system.h" // platform definitions
+#include "system.h"  // platform definitions
 
 /**
  * The main function must:
@@ -56,7 +57,6 @@ Equipment_Mutex_t equipment_mutex;
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
 static inline SAT_returnState init_interface();
 
-
 int ex2_main(int argc, char **argv) {
   int32_t iErr;
 
@@ -65,21 +65,18 @@ int ex2_main(int argc, char **argv) {
   const char *pszVolume0 = gaRedVolConf[0].pszPathPrefix;
   iErr = red_init();
 
-  if (iErr == -1)
-  {
+  if (iErr == -1) {
     exit(red_errno);
   }
 
   iErr = red_format(pszVolume0);
-  if (iErr == -1)
-  {
+  if (iErr == -1) {
     exit(red_errno);
   }
 
   iErr = red_mount(pszVolume0);
 
-  if (iErr == -1)
-  {
+  if (iErr == -1) {
     exit(red_errno);
   }
 
@@ -107,7 +104,9 @@ int ex2_main(int argc, char **argv) {
   init_interface();
 
   /* Start service server, and response server */
-  if (start_service_server() != SATR_OK || start_service_response() != SATR_OK || start_detection_server() != SATR_OK) {
+  if (start_service_server() != SATR_OK ||
+      start_service_response() != SATR_OK ||
+      start_detection_server() != SATR_OK) {
     ex2_log("Initialization error\n");
     return -1;
   }
@@ -115,7 +114,8 @@ int ex2_main(int argc, char **argv) {
   /* Start FreeRTOS! */
   vTaskStartScheduler();
 
-  for (;;);
+  for (;;)
+    ;
 
   return 0;
 }
@@ -129,15 +129,15 @@ int ex2_main(int argc, char **argv) {
  */
 static inline SAT_returnState init_interface() {
   csp_iface_t *default_iface = NULL;
-  csp_usart_conf_t conf = {
-              .device = "yo",
-              .baudrate = 9600, /* supported on all platforms */
-              .databits = 8,
-              .stopbits = 2,
-              .paritysetting = 0,
-              .checkparity = 0};
-  int error = csp_usart_open_and_add_kiss_interface(&conf, CSP_IF_KISS_DEFAULT_NAME,  &default_iface);
-  if(error != CSP_ERR_NONE) {
+  csp_usart_conf_t conf = {.device = "yo",
+                           .baudrate = 9600, /* supported on all platforms */
+                           .databits = 8,
+                           .stopbits = 2,
+                           .paritysetting = 0,
+                           .checkparity = 0};
+  int error = csp_usart_open_and_add_kiss_interface(
+      &conf, CSP_IF_KISS_DEFAULT_NAME, &default_iface);
+  if (error != CSP_ERR_NONE) {
     return SATR_ERROR;
   }
   csp_rtable_set(CSP_DEFAULT_ROUTE, 0, default_iface, CSP_NO_VIA_ADDRESS);

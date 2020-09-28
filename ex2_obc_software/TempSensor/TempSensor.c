@@ -35,9 +35,10 @@
  */
 
 #include <TempSensor/TempSensor.h>
-#include "HL_sys_common.h"
+
 #include "HL_adc.h"
 #include "HL_pinmux.h"
+#include "HL_sys_common.h"
 
 /*
  * HALCoGen Setup
@@ -52,7 +53,8 @@
  *
  *		Select the target <TMS570LC43xx/RM48x>
  *
- *		Uncheck default file location and point to the HALCoGen project path
+ *		Uncheck default file location and point to the HALCoGen project
+ *path
  *
  *		Use the same project name as the HALCoGen project.
  *
@@ -69,174 +71,170 @@
  */
 /* Thermistor */
 #ifndef __little_endian__
-#define __little_endian__  0
+#define __little_endian__ 0
 #endif
 
 #if __little_endian__
-	typedef struct OTP_temperature_calibration_data
-	{
-		uint16_t Temperature;
-		uint16_t AdcValue;
-	} OTP_temperature_calibration_data_t;
+typedef struct OTP_temperature_calibration_data {
+  uint16_t Temperature;
+  uint16_t AdcValue;
+} OTP_temperature_calibration_data_t;
 #else
-	typedef struct OTP_temperature_calibration_data
-	{
-		uint16_t AdcValue;
-		uint16_t Temperature;
-	} OTP_temperature_calibration_data_t;
+typedef struct OTP_temperature_calibration_data {
+  uint16_t AdcValue;
+  uint16_t Temperature;
+} OTP_temperature_calibration_data_t;
 #endif
 
-#define THERMISTOR_CAL_DATA		0xF0080310 /* OTP Temperature Sensor Data Location */
+#define THERMISTOR_CAL_DATA \
+  0xF0080310 /* OTP Temperature Sensor Data Location */
 
-typedef struct Thermistor_Calibration
-{
-    float slope;
-    float offset;
-    float rsquared;
+typedef struct Thermistor_Calibration {
+  float slope;
+  float offset;
+  float rsquared;
 } Thermistor_CAL_t;
 
-
 static Thermistor_CAL_t Thermistor_Fit = {0.0, 0.0, 0.0};
-
 
 /*************************************************************/
 /**** Start of Temp Sensor functions                       ***/
 /*************************************************************/
 
 /** @fn float thermistor_read(void)
-*   @brief read on-chip thermistor 3
-*   @note This will return the temperature of thermistor 3 in Kelvin
-*
-*   This requires adcInit() to be called before to setup ADC2.
-*
-*   This function will modify the Pin Muxing and ADC2 to read the thermistor,
-*   care has been taken to restore modified configurations however the user is
-*   responsible for verifying both the Pin Muxing and ADC are configured
-*   as desired.
-*
-*   The returned temperature will need to be scaled by the reference voltage difference
-*   Calibration values are taken at nominal voltage 3.30V.
-*
-*   Kelvin = ReturnValue * (VccADrefHi - VccADrefLow)/3.30V
-*	Celsius = Kelvin - 273.15;
-*	Fahrenheit = (Kelvin - 273.15) * 1.8 + 32;
-*
-*/
-float thermistor_read()
-{	unsigned int value, pinmux_restore, GxSEL_restore;
-	float JunctionTempK;
-	adcBASE_t *adcreg;
+ *   @brief read on-chip thermistor 3
+ *   @note This will return the temperature of thermistor 3 in Kelvin
+ *
+ *   This requires adcInit() to be called before to setup ADC2.
+ *
+ *   This function will modify the Pin Muxing and ADC2 to read the thermistor,
+ *   care has been taken to restore modified configurations however the user is
+ *   responsible for verifying both the Pin Muxing and ADC are configured
+ *   as desired.
+ *
+ *   The returned temperature will need to be scaled by the reference voltage
+ *difference Calibration values are taken at nominal voltage 3.30V.
+ *
+ *   Kelvin = ReturnValue * (VccADrefHi - VccADrefLow)/3.30V
+ *	Celsius = Kelvin - 273.15;
+ *	Fahrenheit = (Kelvin - 273.15) * 1.8 + 32;
+ *
+ */
+float thermistor_read() {
+  unsigned int value, pinmux_restore, GxSEL_restore;
+  float JunctionTempK;
+  adcBASE_t *adcreg;
 
-	/* Select the ADC */
-	adcreg = adcREG2;
+  /* Select the ADC */
+  adcreg = adcREG2;
 
-	if(adcreg->G1SR != 0x00000008 )
-		return (-1.0); // Group 1 is being used
+  if (adcreg->G1SR != 0x00000008) return (-1.0);  // Group 1 is being used
 
-	/* Check that we have valid calibration data */
-	if(Thermistor_Fit.rsquared == 0.0)
-		return (-2.0); //Calibration data missing, must run thermistor_calibration() first
+  /* Check that we have valid calibration data */
+  if (Thermistor_Fit.rsquared == 0.0)
+    return (-2.0);  // Calibration data missing, must run
+                    // thermistor_calibration() first
 
-	/* Enable Temperature Sensors in Pin Muxing */
+  /* Enable Temperature Sensors in Pin Muxing */
 
-	/* Enable Pin Muxing */
-	pinMuxReg->KICKER0 = 0x83E70B13U;
-	pinMuxReg->KICKER1 = 0x95A4F1E0U;
+  /* Enable Pin Muxing */
+  pinMuxReg->KICKER0 = 0x83E70B13U;
+  pinMuxReg->KICKER1 = 0x95A4F1E0U;
 
-	/* Enable Temp Sensor */
-	pinMuxReg->PINMUX[174] &= 0xFEFFFFFF;
+  /* Enable Temp Sensor */
+  pinMuxReg->PINMUX[174] &= 0xFEFFFFFF;
 
-	/* Connect Sensor 3 - Temperature sensor 3's output is connected to AD2IN[30] */
-	pinmux_restore = pinMuxReg->PINMUX[174];
-	pinMuxReg->PINMUX[174] = (pinMuxReg->PINMUX[174] & 0xfffffffe) | 0x00000002;
+  /* Connect Sensor 3 - Temperature sensor 3's output is connected to AD2IN[30]
+   */
+  pinmux_restore = pinMuxReg->PINMUX[174];
+  pinMuxReg->PINMUX[174] = (pinMuxReg->PINMUX[174] & 0xfffffffe) | 0x00000002;
 
-	/* Start Converting, Choose Channel */
-	GxSEL_restore = adcreg->GxSEL[1U]; // Save the original value in the channel select register
-	adcreg->GxSEL[1U] = 0x40000000;
+  /* Start Converting, Choose Channel */
+  GxSEL_restore = adcreg->GxSEL[1U];  // Save the original value in the channel
+                                      // select register
+  adcreg->GxSEL[1U] = 0x40000000;
 
-	/* Poll for end of Conversion */
-	while(!(adcreg->G1SR & 1));
+  /* Poll for end of Conversion */
+  while (!(adcreg->G1SR & 1))
+    ;
 
-	/* Read adc value */
-	value = adcreg->GxBUF[1U].BUF0;
+  /* Read adc value */
+  value = adcreg->GxBUF[1U].BUF0;
 
-	/* Disable Temperature Sensor */
-	pinMuxReg->PINMUX[174] |= 0x01000000;
+  /* Disable Temperature Sensor */
+  pinMuxReg->PINMUX[174] |= 0x01000000;
 
-	/* Restore Sensor 3 Pin Muxing */
-	pinMuxReg->PINMUX[174] = pinmux_restore;
+  /* Restore Sensor 3 Pin Muxing */
+  pinMuxReg->PINMUX[174] = pinmux_restore;
 
-	/* Disable Pin Muxing */
-	pinMuxReg->KICKER0 = 0x00000000U;
-	pinMuxReg->KICKER1 = 0x00000000U;
+  /* Disable Pin Muxing */
+  pinMuxReg->KICKER0 = 0x00000000U;
+  pinMuxReg->KICKER1 = 0x00000000U;
 
-	/* Restore Channel Select Register */
-	adcreg->GxSEL[1U] = GxSEL_restore;
+  /* Restore Channel Select Register */
+  adcreg->GxSEL[1U] = GxSEL_restore;
 
-	/* Convert ADC value into floating point temp Kelvin */
-	JunctionTempK = (((float)value) - Thermistor_Fit.offset) *
-			Thermistor_Fit.slope;
+  /* Convert ADC value into floating point temp Kelvin */
+  JunctionTempK =
+      (((float)value) - Thermistor_Fit.offset) * Thermistor_Fit.slope;
 
-	return JunctionTempK;
-} // thermistor_read
-
+  return JunctionTempK;
+}  // thermistor_read
 
 /** @fn void thermistor_calibration(void)
-*   @brief Load the thermister calibration information
-*   @note
-*/
-bool thermistor_calibration(void)
-{
-	OTP_temperature_calibration_data_t *OTPdataptr;
-	int i, cal_data_count=0;
-	float slope,offset,sumtemp=0,sumconv=0,sumtempxconv=0,sumtempxtemp=0;
-	float cal_adc_code_array[4],avgconv,cal_temperature_array[4],yx=0.0,ya=0.0,ym,yn;
+ *   @brief Load the thermister calibration information
+ *   @note
+ */
+bool thermistor_calibration(void) {
+  OTP_temperature_calibration_data_t *OTPdataptr;
+  int i, cal_data_count = 0;
+  float slope, offset, sumtemp = 0, sumconv = 0, sumtempxconv = 0,
+                       sumtempxtemp = 0;
+  float cal_adc_code_array[4], avgconv, cal_temperature_array[4],
+      yx = 0.0, ya = 0.0, ym, yn;
 
-	/* Create pointer to temp sensor 3 calibration data */
-	OTPdataptr = (OTP_temperature_calibration_data_t *)(THERMISTOR_CAL_DATA + (2 * 0x10));
+  /* Create pointer to temp sensor 3 calibration data */
+  OTPdataptr =
+      (OTP_temperature_calibration_data_t *)(THERMISTOR_CAL_DATA + (2 * 0x10));
 
-	/* Check for valid calibration data */
-	/* Valid codes are 0 to 0xFFF, valid temperatures are 0 to 400 kelvin */
-	for(i = 0; i  < 4; i++)
-	{
+  /* Check for valid calibration data */
+  /* Valid codes are 0 to 0xFFF, valid temperatures are 0 to 400 kelvin */
+  for (i = 0; i < 4; i++) {
+    /* Calculate Slope and Offset for the 4 possible value pairs */
+    if ((OTPdataptr[i].AdcValue < 0xFFF) && (OTPdataptr[i].Temperature < 401)) {
+      /* Load valid calibration information */
+      cal_temperature_array[i] = (float)(OTPdataptr[i].Temperature);
+      cal_adc_code_array[i] = (float)OTPdataptr[i].AdcValue;
+      sumtemp += cal_temperature_array[i];
+      sumconv += cal_adc_code_array[i];
+      sumtempxconv += cal_temperature_array[i] * cal_adc_code_array[i];
+      sumtempxtemp += cal_temperature_array[i] * cal_temperature_array[i];
+      cal_data_count++;
+    }
+  }
 
-		/* Calculate Slope and Offset for the 4 possible value pairs */
-		if((OTPdataptr[i].AdcValue   < 0xFFF) && (OTPdataptr[i].Temperature < 401))
-		{
-			/* Load valid calibration information */
-			cal_temperature_array[i] = (float)(OTPdataptr[i].Temperature);
-			cal_adc_code_array[i] = (float)OTPdataptr[i].AdcValue;
-			sumtemp += cal_temperature_array[i];
-			sumconv += cal_adc_code_array[i];
-			sumtempxconv += cal_temperature_array[i] * cal_adc_code_array[i];
-			sumtempxtemp += cal_temperature_array[i] * cal_temperature_array[i];
-			cal_data_count++;
-		}
-	}
+  /* Calculate slope and Offset for the 4 possible value pairs */
+  if (cal_data_count < 2)
+    return FALSE;
+  else {
+    slope = (sumtempxtemp * cal_data_count - sumtemp * sumtemp) /
+            (sumtempxconv * cal_data_count - sumtemp * sumconv);
+    offset = (sumconv - sumtemp / slope) / cal_data_count;
+    Thermistor_Fit.slope = slope;
+    Thermistor_Fit.offset = offset;
+    avgconv = sumconv / cal_data_count;
+  }
 
-	/* Calculate slope and Offset for the 4 possible value pairs */
-	if(cal_data_count < 2)
-		return FALSE;
-	else
-	{
-		slope = (sumtempxtemp * cal_data_count - sumtemp * sumtemp) /
-				(sumtempxconv * cal_data_count - sumtemp * sumconv);
-		offset = (sumconv - sumtemp / slope) / cal_data_count;
-		Thermistor_Fit.slope = slope;
-		Thermistor_Fit.offset = offset;
-		avgconv = sumconv / cal_data_count;
-	}
+  /* Calculate R-Squared Value */
+  for (i = 0; i < cal_data_count; i++) {
+    yn =
+        (((cal_temperature_array[i] / slope) + offset) - cal_adc_code_array[i]);
+    yx = yx + (yn * yn);
+    ym = (avgconv - cal_adc_code_array[i]);
+    ya = ya + (ym * ym);
+  }
+  Thermistor_Fit.rsquared = 1.0 - (yx / ya);
 
-	/* Calculate R-Squared Value */
-	for(i = 0; i < cal_data_count; i++)
-	{
-		yn = (((cal_temperature_array[i] / slope) + offset) - cal_adc_code_array[i]);
-		yx = yx + (yn * yn);
-		ym = (avgconv - cal_adc_code_array[i]);
-		ya = ya + (ym * ym);
-	}
-	Thermistor_Fit.rsquared = 1.0 - (yx / ya);
+  return TRUE;
 
-	return TRUE;
-
-} // thermistor_calibrate
+}  // thermistor_calibrate

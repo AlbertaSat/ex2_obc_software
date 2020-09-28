@@ -47,9 +47,8 @@
 #include <FreeRTOS.h>
 #include <stdbool.h>
 
-#include "services.h"
 #include "queue.h"
-
+#include "services.h"
 
 #ifndef __TEMPSENSOR_H__
 #define __TEMPSENSOR_H__

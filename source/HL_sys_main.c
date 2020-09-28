@@ -50,6 +50,8 @@
 #include "HL_sys_common.h"
 
 /* USER CODE BEGIN (1) */
+#include <FreeRTOS.h>
+#include "system.h"
 /* USER CODE END */
 
 /** @fn void main(void)
@@ -69,7 +71,7 @@ uint32 	emacPhyAddress	=	1U;
 int main(void)
 {
 /* USER CODE BEGIN (3) */
-    ex2_main();
+    ex2_main(NULL, NULL);
     for (;;);
     return -1;
 /* USER CODE END */

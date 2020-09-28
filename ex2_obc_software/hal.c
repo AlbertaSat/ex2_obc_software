@@ -1,4 +1,5 @@
 #include "hal.h"
+
 #include <stdio.h>
 #include <time.h>
 
@@ -26,4 +27,3 @@ void HAL_get_current_2(float *current) { *current = (float)5.03; }
 void HAL_get_voltage_1(float *voltage) { *voltage = (float)2.10; }
 
 void HAL_get_voltage_2(float *voltage) { *voltage = (float)1.45; }
-

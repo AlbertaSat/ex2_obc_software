@@ -4,11 +4,11 @@
  *  Created on: Aug 19, 2020
  *      Author: alexqi
  */
-#include "obc.h"
-
 #include <FreeRTOS.h>
-#include <stdio.h>
 #include <TempSensor/TempSensor.h>
+#include <stdio.h>
+
+#include "obc.h"
 #include "service_utilities.h"
 #include "services.h"
 #include "system.h"
@@ -25,17 +25,13 @@ SAT_returnState start_detection_server() {
     return SATR_ERROR;
   };
 
-
-//  if (xTaskCreate((TaskFunction_t)demo_get_temp,
-//                  "demo_get_temp", 500, NULL, NORMAL_SERVICE_PRIO,
-//                  NULL) != pdPASS) {
-//    ex2_log("FAILED TO CREATE TASK temp_detection\n");
-//    return SATR_ERROR;
-//  };
+  //  if (xTaskCreate((TaskFunction_t)demo_get_temp,
+  //                  "demo_get_temp", 500, NULL, NORMAL_SERVICE_PRIO,
+  //                  NULL) != pdPASS) {
+  //    ex2_log("FAILED TO CREATE TASK temp_detection\n");
+  //    return SATR_ERROR;
+  //  };
 
   ex2_log("Detection process started\n");
   return SATR_OK;
 }
-
-
-
