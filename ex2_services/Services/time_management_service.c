@@ -32,10 +32,10 @@
  * @brief
  * 		Handle incoming csp_packet_t
  * @details
- * 		Takes a csp packet destined for the time_management service, 
+ * 		Takes a csp packet destined for the time_management service,
  *              and will handle the packet based on it's subservice type.
  * @param csp_packet_t *packet
- *              Incoming CSP packet - we can be sure that this packet is 
+ *              Incoming CSP packet - we can be sure that this packet is
  *              valid and destined for this service.
  * @return SAT_returnState
  * 		success report
@@ -59,7 +59,7 @@ SAT_returnState time_management_app(csp_packet_t *packet) {
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       }
 
-      set_packet_length(packet, sizeof(int8_t) + 1); // +1 for subservice
+      set_packet_length(packet, sizeof(int8_t) + 1);  // +1 for subservice
 
       if (queue_response(packet) != SATR_OK) {
         return SATR_ERROR;
@@ -74,10 +74,13 @@ SAT_returnState time_management_app(csp_packet_t *packet) {
       temp_time.unix_timestamp = csp_hton32(temp_time.unix_timestamp);
       // step3: copy data & status byte into packet
       status = 0;
-      memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t)); // 0 for success
-      memcpy(&packet->data[OUT_DATA_BYTE], &temp_time.unix_timestamp, sizeof(uint32_t));
+      memcpy(&packet->data[STATUS_BYTE], &status,
+             sizeof(int8_t));  // 0 for success
+      memcpy(&packet->data[OUT_DATA_BYTE], &temp_time.unix_timestamp,
+             sizeof(uint32_t));
       // Step 4: set packet length
-      set_packet_length(packet, sizeof(int8_t) + sizeof(uint32_t) + 1); // plus one for sub-service
+      set_packet_length(packet, sizeof(int8_t) + sizeof(uint32_t) +
+                                    1);  // plus one for sub-service
       // Step 5: return packet
       if (queue_response(packet) != SATR_OK) {
         return SATR_ERROR;

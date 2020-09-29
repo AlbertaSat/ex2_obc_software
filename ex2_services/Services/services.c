@@ -24,7 +24,12 @@
 #include <task.h>
 
 #include "service_utilities.h"
-#include "system.h"
+
+#if SYSTEM_APP_ID == _DEMO_APP_ID_
+#include "ex2_demo_software/system.h"
+#elif SYSTEM_APP_ID == _OBC_APP_ID_
+#include "ex2_obc_software/system.h"
+#endif
 
 extern Service_Queues_t service_queues;
 
@@ -108,8 +113,8 @@ void service_server(void *parameters) {
  * 		success or failure
  */
 SAT_returnState start_service_server(void) {
-  if (xTaskCreate((TaskFunction_t)service_server, "SERVER THREAD", 500, NULL, configMAX_PRIORITIES - 1,
-                    NULL) != pdPASS) {
+  if (xTaskCreate((TaskFunction_t)service_server, "SERVER THREAD", 500, NULL,
+                  configMAX_PRIORITIES - 1, NULL) != pdPASS) {
     return SATR_ERROR;
   }
   return SATR_OK;
