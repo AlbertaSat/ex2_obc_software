@@ -83,3 +83,8 @@ size_t HAL_hk_report(uint8_t sid, void *output) {
       return 0;
   }
 }
+
+void HAL_comm_getTemp(uint32_t *sensor_temperature){
+    //
+    HAL_get_temperature(*sensor_temperature);
+}
