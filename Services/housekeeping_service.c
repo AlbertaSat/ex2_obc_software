@@ -27,7 +27,12 @@
 #include "service_response.h"
 #include "service_utilities.h"
 #include "services.h"
-#include "system.h"
+
+#if SYSTEM_APP_ID == _DEMO_APP_ID_
+#include "ex2_demo_software/system.h"
+#elif SYSTEM_APP_ID == _OBC_APP_ID_
+#include "ex2_obc_software/system.h"
+#endif
 
 static uint8_t SID_byte = 1;
 extern Service_Queues_t service_queues;

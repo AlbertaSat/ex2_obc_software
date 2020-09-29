@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
 
   printf("Route table\r\n");
   csp_route_print_table();
- 
+
   /* Start service server, and response server */
   if (start_service_server() != SATR_OK ||
       start_service_response() != SATR_OK) {

@@ -28,4 +28,4 @@
                        // available
 int main(int argc, char **argv);
 
-#endif                 /* SYSTEM_H */
+#endif /* SYSTEM_H */
