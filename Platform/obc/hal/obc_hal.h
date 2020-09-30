@@ -23,5 +23,6 @@
 void HAL_sys_getTime(uint32_t *unix_timestamp);
 void HAL_sys_setTime(uint32_t unix_timestamp);
 size_t HAL_hk_report(uint8_t sid, void *output);
+void HAL_comm_getTemp(uint32_t *sensor_temperature);
 
 #endif /* DEMO_HAL_H */

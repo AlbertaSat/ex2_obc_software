@@ -27,16 +27,16 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
   switch (ser_subtype) {
     case GET_TEMP:
 
-        // Step 1: get the data
-        HAL_comm_getTemp(&temp_temp.sensor_temperature);
-        // Step 2: convert to network order
-        temp_temp.sensor_temperature = csp_hton32(temp_temp.sensor_temperature);
-        // step3: copy data & status byte into packet
-        status = 0;
-        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t)); // 0 for success
-        memcpy(&packet->data[OUT_DATA_BYTE], &temp_temp.sensor_temperature, sizeof(uint32_t));
+      // Step 1: get the data
+      HAL_comm_getTemp(&temp_temp.sensor_temperature);
+      // Step 2: convert to network order
+      temp_temp.sensor_temperature = csp_hton32(temp_temp.sensor_temperature);
+      // step3: copy data & status byte into packet
+      status = 0;
+      memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t)); // 0 for success
+      memcpy(&packet->data[OUT_DATA_BYTE], &temp_temp.sensor_temperature, sizeof(uint32_t));
 
-      set_packet_length(packet, sizeof(int8_t) + 1); // +1 for subservice
+      set_packet_length(packet, sizeof(int8_t) + sizeof(uint32_t) + 1); // +1 for subservice
 
       if (queue_response(packet) != SATR_OK) {
         return SATR_ERROR;
