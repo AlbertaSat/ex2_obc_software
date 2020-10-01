@@ -19,6 +19,19 @@
 
 #include "communication_service.h"
 
+/**
+ * @brief
+ *      Takes a CSP packet and switches based on the subservice command
+ * @details
+ *      Reads/Writes data from communication EHs as subservices
+ * @attention
+ *      More subservices are to be added.
+ * @param *packet
+ *      The CSP packet
+ * @return SAT_returnState
+ *      Success or failure
+ */
+
 SAT_returnState communication_service_app(csp_packet_t *packet) {
   uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
   int8_t status;
