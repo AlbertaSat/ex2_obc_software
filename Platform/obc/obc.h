@@ -40,7 +40,7 @@ extern unsigned int sent_count;
 // Defined here are the services implemented by this platform
 typedef struct {
   xQueueHandle response_queue,  // Each platform must define a response queue
-      hk_app_queue, time_management_app_queue;
+      hk_app_queue, time_management_app_queue, communication_app_queue;
 } Service_Queues_t;
 
 SAT_returnState start_service_handlers();

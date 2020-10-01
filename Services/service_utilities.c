@@ -36,9 +36,9 @@ void ex2_log(const char *format, ...) {
  * @brief
  *      Set the size of the CSP packet
  * @details
- *      Sets length feild of the CSP packet
+ *      Sets length field of the CSP packet
  * @param csp_packet_t *packet
- *    Packet to set length feild
+ *    Packet to set length field
  * @param uint16_t length
  *    Length of the packet data
  * @return void

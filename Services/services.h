@@ -70,6 +70,10 @@ typedef enum {
 #define TC_HOUSEKEEPING_SERVICE 9
 typedef enum { TM_HK_PARAMETERS_REPORT = 0 } Housekeeping_Subtype;
 
+// COMMUNICATION SERVICE
+#define TC_COMMUNICATION_SERVICE 10
+typedef enum { GET_TEMP = 0 } Communication_Subtype;
+
 /* Utility definitions */
 union _cnv {
   double cnvD;

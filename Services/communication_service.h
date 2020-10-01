@@ -12,17 +12,23 @@
  * GNU General Public License for more details.
  */
 
-#ifndef DEMO_HAL_H
-#define DEMO_HAL_H
+#ifndef COMMUNICATION_SERVICE_H
+#define COMMUNICATION_SERVICE_H
 
-#include <inttypes.h>
+#include <FreeRTOS.h>
+#include <csp/csp.h>
+#include <csp/csp_endian.h>
+#include <stdio.h>
 
 #include "services.h"
+#include "service_response.h"
+#include "service_utilities.h"
+#include "system.h"
 
-#define NORMAL_TICKS_TO_WAIT 1
-void HAL_sys_getTime(uint32_t *unix_timestamp);
-void HAL_sys_setTime(uint32_t unix_timestamp);
-size_t HAL_hk_report(uint8_t sid, void *output);
-void HAL_comm_getTemp(uint32_t *sensor_temperature);
+struct temp_utc {
+  uint32_t sensor_temperature;
+};
 
-#endif /* DEMO_HAL_H */
+SAT_returnState communication_service_app(csp_packet_t* pkt);
+
+#endif /* COMMUNICATION_SERVICE_H_ */
