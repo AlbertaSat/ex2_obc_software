@@ -82,6 +82,15 @@ void service_server(void *parameters) {
           }
           break;
 
+        case TC_COMMUNICATION_SERVICE:
+          err = xQueueSendToBack(service_queues.communication_app_queue,
+                                 (void *)&packet, NORMAL_TICKS_TO_WAIT);
+          if (err != pdPASS) {
+            ex2_log("FAILED TO QUEUE MESSAGE");
+            csp_buffer_free(packet);
+          }
+          break;
+
         default:
           /* let CSP respond to requests */
           csp_service_handler(conn, packet);
