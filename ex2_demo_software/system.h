@@ -23,7 +23,10 @@
 #include "demo.h"
 #include "demo_hal.h"
 
+#ifndef SYSTEM_APP_ID
 #define SYSTEM_APP_ID _DEMO_APP_ID_
+#endif
+
 #define USE_LOCALHOST  // Define for local development, add other options when
                        // available
 int main(int argc, char **argv);
