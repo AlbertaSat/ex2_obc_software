@@ -24,12 +24,7 @@
 #include <task.h>
 
 #include "service_utilities.h"
-
-#if SYSTEM_APP_ID == _DEMO_APP_ID_
-#include "ex2_demo_software/system.h"
-#elif SYSTEM_APP_ID == _OBC_APP_ID_
-#include "ex2_obc_software/system.h"
-#endif
+#include "system_header.h"
 
 extern Service_Queues_t service_queues;
 
