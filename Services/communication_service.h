@@ -31,7 +31,7 @@ struct temp_utc {
 
 struct Sband_config {
   uint32_t S_freq;
-  uint32_t S_PApower;
+  uint32_t S_paPower;
 };
 
 struct Sband_PowerAmplifier {

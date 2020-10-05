@@ -84,10 +84,10 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
 
     case GET_CONTROL:
       HAL_S_getControl(&S_PA.PA_status);
-      S_PA.PA_stauts = csp_hton32(S_PA.PA_stauts);
+      S_PA.PA_status = csp_hton32(S_PA.PA_status);
       status = 0;
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-      memcpy(&packet->data[OUT_DATA_BYTE], &S_PA.PA_stauts, sizeof(uint32_t));///WIP
+      memcpy(&packet->data[OUT_DATA_BYTE], &S_PA.PA_status, sizeof(uint32_t));///WIP
       set_packet_length(packet, sizeof(int8_t) + sizeof(uint32_t) + 1);
       if (queue_response(packet) != SATR_OK) {
         return SATR_ERROR;
