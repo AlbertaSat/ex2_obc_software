@@ -72,7 +72,16 @@ typedef enum { TM_HK_PARAMETERS_REPORT = 0 } Housekeeping_Subtype;
 
 // COMMUNICATION SERVICE
 #define TC_COMMUNICATION_SERVICE 10
-typedef enum { GET_TEMP = 0 } Communication_Subtype;
+typedef enum {
+    GET_TEMP = 0,
+    GET_FREQ = 1,
+    GET_CONTROL = 2,
+    GET_ENCODER = 3,
+    GET_PApower = 4,
+    GET_HK = 5,
+    GET_FULL_STATUS = 6,
+
+} Communication_Subtype;
 
 /* Utility definitions */
 union _cnv {
