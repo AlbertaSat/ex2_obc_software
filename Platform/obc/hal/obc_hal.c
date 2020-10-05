@@ -84,10 +84,4 @@ size_t HAL_hk_report(uint8_t sid, void *output) {
   }
 }
 
-/* This is a test to see if the data is sent back successfully.
- * Once decided on how, the real hal connected to equipment handler
- * will be implemented */
-void HAL_comm_getTemp(uint32_t *sensor_temperature){
-    *sensor_temperature = 18;
-    //HAL_get_temperature(sensor_temperature);
-}
+

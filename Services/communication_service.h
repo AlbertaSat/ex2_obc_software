@@ -29,6 +29,16 @@ struct temp_utc {
   uint32_t sensor_temperature;
 };
 
+struct Sband_config {
+  uint32_t S_freq;
+  uint32_t S_PApower;
+};
+
+struct Sband_PowerAmplifier {
+    uint32_t PA_status;
+    uint32_t PA_mode;
+};
+
 SAT_returnState communication_service_app(csp_packet_t* pkt);
 
 #endif /* COMMUNICATION_SERVICE_H_ */

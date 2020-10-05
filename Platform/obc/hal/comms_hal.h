@@ -12,16 +12,17 @@
  * GNU General Public License for more details.
  */
 
-#ifndef DEMO_HAL_H
-#define DEMO_HAL_H
+#ifndef COMMS_HAL_H
+#define COMMS_HAL_H
 
 #include <inttypes.h>
-
+#include <csp/csp.h>
 #include "services.h"
 
-#define NORMAL_TICKS_TO_WAIT 1
-void HAL_sys_getTime(uint32_t *unix_timestamp);
-void HAL_sys_setTime(uint32_t unix_timestamp);
-size_t HAL_hk_report(uint8_t sid, void *output);
 
-#endif /* DEMO_HAL_H */
+void HAL_comm_getTemp(uint32_t *sensor_temperature);
+void HAL_S_getFreq (uint32_t *S_freq);
+void HAL_S_getpaPower (uint32_t *S_paPower);
+
+
+#endif /* COMMS_HAL_H */
