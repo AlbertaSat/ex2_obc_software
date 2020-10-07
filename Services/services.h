@@ -28,6 +28,7 @@
 #define STATUS_BYTE 1
 #define IN_DATA_BYTE 1
 #define OUT_DATA_BYTE 2
+#define OUT_DATA_BYTE2 5 // 6 worked! why though? 32 bits?
 
 /* SERVICES */
 #define MAX_APP_ID 32     // number of CSP nodes (5-bits)
@@ -80,7 +81,10 @@ typedef enum {
     GET_PApower = 4,
     GET_HK = 5,
     GET_FULL_STATUS = 6,
-
+    SET_FREQ = 11,
+    SET_CONTROL = 12,
+    SET_ENCODER = 13,
+    SET_PApower = 14
 } Communication_Subtype;
 
 /* Utility definitions */

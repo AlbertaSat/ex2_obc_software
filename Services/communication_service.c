@@ -35,9 +35,14 @@
 SAT_returnState communication_service_app(csp_packet_t *packet) {
   uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
   int8_t status;
+  /* Comment for PR:
+   * Perhaps initial value assignment should occur here if we want to
+   * call getX after setX command.
+   */
   struct temp_utc temp_temp;
   struct Sband_config S_config;
   struct Sband_PowerAmplifier S_PA;
+  struct Sband_Encoder S_enc;
 
   switch (ser_subtype) {
     case GET_TEMP:
@@ -70,6 +75,42 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       }
       break;
 
+    case GET_CONTROL:
+      HAL_S_getControl (&S_PA.PA_status, &S_PA.PA_mode);
+      S_PA.PA_status = csp_hton32(S_PA.PA_status);
+      S_PA.PA_mode = csp_hton32(S_PA.PA_mode);
+      status = 0;
+      memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+      memcpy(&packet->data[OUT_DATA_BYTE], &S_PA.PA_status, sizeof(uint32_t));
+      memcpy(&packet->data[OUT_DATA_BYTE + sizeof(uint32_t)], &S_PA.PA_mode, sizeof(uint32_t));
+      set_packet_length(packet, sizeof(int8_t) + sizeof(uint32_t) + sizeof(uint32_t) + 1);
+
+      if (queue_response(packet) != SATR_OK) {
+        return SATR_ERROR;
+      }
+      break;
+
+    case GET_ENCODER:
+      HAL_S_getEncoder(&S_enc.Enc_scrambler, &S_enc.Enc_filter, &S_enc.Enc_modulation, &S_enc.Enc_rate);
+      S_enc.Enc_scrambler = csp_hton32(S_enc.Enc_scrambler);
+      S_enc.Enc_filter = csp_hton32(S_enc.Enc_filter);
+      S_enc.Enc_modulation = csp_hton32(S_enc.Enc_modulation);
+      S_enc.Enc_rate = csp_hton32(S_enc.Enc_rate);
+      status = 0;
+
+      memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+      memcpy(&packet->data[OUT_DATA_BYTE], &S_enc.Enc_scrambler, sizeof(int8_t));
+      memcpy(&packet->data[OUT_DATA_BYTE + sizeof(int8_t)], &S_enc.Enc_filter, sizeof(int8_t));
+      memcpy(&packet->data[OUT_DATA_BYTE + 2*sizeof(int8_t)], &S_enc.Enc_modulation, sizeof(int8_t));
+      memcpy(&packet->data[OUT_DATA_BYTE + 3*sizeof(int8_t)], &S_enc.Enc_rate, sizeof(int8_t));
+
+      set_packet_length(packet, sizeof(int8_t) + 4*sizeof(int8_t) + 1);
+
+      if (queue_response(packet) != SATR_OK) {
+        return SATR_ERROR;
+      }
+      break;
+
     case GET_PApower:
       HAL_S_getpaPower(&S_config.S_paPower);
       S_config.S_paPower = csp_hton32(S_config.S_paPower);
@@ -82,17 +123,8 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       }
       break;
 
-    case GET_CONTROL:
-      HAL_S_getControl(&S_PA.PA_status);
-      S_PA.PA_status = csp_hton32(S_PA.PA_status);
-      status = 0;
-      memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-      memcpy(&packet->data[OUT_DATA_BYTE], &S_PA.PA_status, sizeof(uint32_t));///WIP
-      set_packet_length(packet, sizeof(int8_t) + sizeof(uint32_t) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
-      break;
+ //   case SET_FREQ:
+
 
 
     default:

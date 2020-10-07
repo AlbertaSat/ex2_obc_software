@@ -32,7 +32,7 @@
         #error Cannot include proper header due to SYSTEM_APP_ID being defined as an unimplemented value
     #endif
 #else
-   // #error SYSTEM_APP_ID is undefined
+    #error SYSTEM_APP_ID is undefined
 #endif
 
 #endif

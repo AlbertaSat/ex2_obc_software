@@ -34,9 +34,16 @@ struct Sband_config {
   uint32_t S_paPower;
 };
 
-struct Sband_PowerAmplifier {
+struct Sband_PowerAmplifier {//must be uint8_t
     uint32_t PA_status;
     uint32_t PA_mode;
+};
+
+struct Sband_Encoder{
+    uint8_t Enc_scrambler;
+    uint8_t Enc_filter;
+    uint8_t Enc_modulation;
+    uint8_t Enc_rate;
 };
 
 SAT_returnState communication_service_app(csp_packet_t* pkt);

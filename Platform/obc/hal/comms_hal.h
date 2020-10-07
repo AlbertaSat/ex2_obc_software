@@ -23,6 +23,8 @@
 void HAL_comm_getTemp(uint32_t *sensor_temperature);
 void HAL_S_getFreq (uint32_t *S_freq);
 void HAL_S_getpaPower (uint32_t *S_paPower);
+void HAL_S_getControl (uint32_t *S_paStatus, uint32_t *S_paMode);
+void HAL_S_getEncoder (uint8_t *S_enc_scrambler, uint8_t * S_enc_filter, uint8_t * S_enc_mod, uint8_t * S_enc_rate);
 
 
 #endif /* COMMS_HAL_H */
