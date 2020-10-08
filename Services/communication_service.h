@@ -46,6 +46,24 @@ struct Sband_Encoder{
     uint8_t Enc_rate;
 };
 
+struct Sband_Firmware{
+    float Version;
+};
+
+struct Sband_Status{
+    uint8_t PWRGD;
+    uint8_t TXL;
+};
+
+struct Sband_buffer{
+    int transmit;
+};
+
+/*Valid values*/
+#define MIN_FREQ = 2200;
+#define MAX_FREQ = 2290;
+
 SAT_returnState communication_service_app(csp_packet_t* pkt);
+//int WRITEDATA_ISOK(int val, int subservice);
 
 #endif /* COMMUNICATION_SERVICE_H_ */

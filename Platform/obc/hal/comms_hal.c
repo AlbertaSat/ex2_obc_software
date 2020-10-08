@@ -46,12 +46,13 @@ void HAL_comm_getTemp(uint32_t *sensor_temperature) {
  * SAT_returnState in communication_service_app?
  * 2- Like RTC we can check if the value is stored after the
  * set functions (change the get functions).
- * But there is no point when eventually * Stubbed will be 0.
+ * But there is no point when eventually Stubbed will be 0.
+ * 3- Do we need comments for each function?
  */
 
-void HAL_S_getFreq (uint32_t *S_freq) {
+void HAL_S_getFreq (uint32_t *S_freq) { //should be replaced with float
   #ifdef Stubbed
-    *S_freq = 2210;
+    *S_freq = 2210.5;
   #else
     STX_getFrequency(*S_freq);
   #endif
@@ -84,3 +85,35 @@ void HAL_S_getEncoder (uint8_t *S_enc_scrambler, uint8_t * S_enc_filter, uint8_t
     STX_getEncoder(uint8_t * S_enc_scrambler, uint8_t * S_enc_filter, uint8_t * S_enc_mod, uint8_t * S_enc_rate);
   #endif
 }
+
+void HAL_S_getFirmwareV (float *S_Firmware_Version){
+  #ifdef Stubbed
+    *S_Firmware_Version = 7.14;
+  #else
+    STX_getFirmwareV (*S_Firmware_Version);
+  #endif
+}
+
+void HAL_S_getStatus (uint8_t * S_PWRGD, uint8_t *S_TXL){
+  #ifdef Stubbed
+    *S_PWRGD = 1;
+    *S_TXL = 1;
+  #else
+    STX_getStatus(*S_paStatus, *S_paMode);
+  #endif
+}
+
+void HAL_S_getTR (int *transmit){
+  #ifdef Stubbed
+    *transmit = 1;
+  #else
+    STX_getTR(*transmit);
+  #endif
+}
+
+/*
+void HAL_S_setFreq (uint32_t S_freq){
+#ifdef Stubbed
+    S_freq =
+}
+*/

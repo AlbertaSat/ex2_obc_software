@@ -25,6 +25,9 @@ void HAL_S_getFreq (uint32_t *S_freq);
 void HAL_S_getpaPower (uint32_t *S_paPower);
 void HAL_S_getControl (uint32_t *S_paStatus, uint32_t *S_paMode);
 void HAL_S_getEncoder (uint8_t *S_enc_scrambler, uint8_t * S_enc_filter, uint8_t * S_enc_mod, uint8_t * S_enc_rate);
+void HAL_S_getFirmwareV (float *S_Firmware_Version);
+void HAL_S_getStatus (uint8_t * S_PWRGD, uint8_t *S_TXL);
+void HAL_S_getTR (int *transmit);
 
 
 #endif /* COMMS_HAL_H */
