@@ -73,18 +73,25 @@ typedef enum { TM_HK_PARAMETERS_REPORT = 0 } Housekeeping_Subtype;
 
 // COMMUNICATION SERVICE
 #define TC_COMMUNICATION_SERVICE 10
+/*comment for PR: 0-7 ready (not all tested).
+Not sure if 8 & 15 should be a service.*/
 typedef enum {
     GET_TEMP = 0,
     GET_FREQ = 1,
     GET_CONTROL = 2,
     GET_ENCODER = 3,
     GET_PApower = 4,
-    GET_HK = 5,
-    GET_FULL_STATUS = 6,
+    GET_FirmwareV = 5,
+    GET_STATUS = 6,
+    GET_TR = 7,
+    GET_Buffer = 8,
+    GET_HK = 9,
+    GET_FULL_STATUS = 10,
     SET_FREQ = 11,
     SET_CONTROL = 12,
     SET_ENCODER = 13,
-    SET_PApower = 14
+    SET_PApower = 14,
+    SOFT_RESET = 15,
 } Communication_Subtype;
 
 /* Utility definitions */

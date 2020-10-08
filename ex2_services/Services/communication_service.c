@@ -35,14 +35,20 @@
 SAT_returnState communication_service_app(csp_packet_t *packet) {
   uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
   int8_t status;
+
   /* Comment for PR:
-   * Perhaps initial value assignment should occur here if we want to
+   * 1- Perhaps initial value assignment should occur here if we want to
    * call getX after setX command.
+   * 2- Also I think I'll merge most of these structs.
+   * 3- Steps 2-5 in each case can be replaced by a single function.
    */
   struct temp_utc temp_temp;
   struct Sband_config S_config;
   struct Sband_PowerAmplifier S_PA;
   struct Sband_Encoder S_enc;
+  struct Sband_Firmware S_Firmware;
+  struct Sband_Status S_status;
+  struct Sband_buffer S_buffer;
 
   switch (ser_subtype) {
     case GET_TEMP:
@@ -123,9 +129,63 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       }
       break;
 
- //   case SET_FREQ:
+    case GET_FirmwareV:
+        HAL_S_getFirmwareV(&S_Firmware.Version);
+        S_Firmware.Version = csp_hton32(S_Firmware.Version);// check if 32 is correct/necessary
+        status = 0;
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        memcpy(&packet->data[OUT_DATA_BYTE], &S_Firmware.Version, sizeof(float));
+        set_packet_length(packet, sizeof(int8_t) + sizeof(float) + 1);
+        if (queue_response(packet) != SATR_OK) {
+          return SATR_ERROR;
+        }
+        break;
+
+    case GET_STATUS:
+      HAL_S_getStatus (&S_status.PWRGD, &S_status.TXL);
+      S_status.PWRGD = csp_hton32(S_status.PWRGD);
+      S_status.TXL = csp_hton32(S_status.TXL);
+      status = 0;
+      memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+      memcpy(&packet->data[OUT_DATA_BYTE], &S_status.PWRGD, sizeof(uint8_t));
+      memcpy(&packet->data[OUT_DATA_BYTE + sizeof(uint8_t)], &S_status.TXL, sizeof(uint8_t));
+      set_packet_length(packet, sizeof(int8_t) + 2*sizeof(uint8_t) + 1);
+
+      if (queue_response(packet) != SATR_OK) {
+        return SATR_ERROR;
+      }
+      break;
+
+    case GET_TR:
+        HAL_S_getTR(&S_buffer.transmit);
+        S_buffer.transmit = csp_hton32(S_buffer.transmit);
+        // what to do for int?
+        status = 0;
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        memcpy(&packet->data[OUT_DATA_BYTE], &S_buffer.transmit, sizeof(int));
+        set_packet_length(packet, sizeof(int8_t) + sizeof(int) + 1);
+        if (queue_response(packet) != SATR_OK) {
+          return SATR_ERROR;
+        }
+        break;
 
 
+/*    case SET_FREQ:
+      cnv8_32(&packet->data[IN_DATA_BYTE],&S_config.S_freq); //check what happens if skipped
+      S_config.S_freq = csp_ntoh32(S_config.S_freq);
+
+      if (!WRITEDATA_ISOK(S_config.S_freq, ser_subtype)){
+          status = -1;
+      } else {
+          HAL_S_setFreq(S_config.S_freq);
+          status = 0;
+      }
+      memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+      if (queue_response(packet) != SATR_OK) {
+        return SATR_ERROR;
+      }
+      break;
+*/
 
     default:
       ex2_log("No such subservice\n"); // Is it doing anything?
@@ -133,3 +193,23 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
   }
   return SATR_OK;
 }
+
+/* Not sure why it's not working.
+int WRITEDATA_ISOK(int val, int subservice){//replace int to binary
+  switch (subservice) {
+    case SET_FREQ:
+        /* Could be more complete (including incremental steps)*//*
+      return ((val > MIN_FREQ) && (val < MAX_FREQ)) ? 1 : 0;
+      /*{ // can be simplified.
+          return 1;
+      } else {
+          return 0;
+      }
+      break;*//*
+
+    default:
+      return 0;
+  }
+  return 0;
+}
+*/
