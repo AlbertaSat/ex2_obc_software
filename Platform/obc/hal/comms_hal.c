@@ -18,96 +18,124 @@
  */
 
 /*Once the hardware is connected, toggle this Macro*/
-#define Stubbed = 1;
+//#define Stubbed = 1;
 
 #include "obc_hal.h"
 #include "comms_hal.h"
-#include <stddef.h>
-#include <FreeRTOS.h>
-#include <csp/csp.h>
-#include <csp/csp_endian.h>
-#include <TempSensor/TempSensor.h>
 #include "hal.h"
 #include "services.h"
 #include "queue.h"
 
 
-/* This function is kept for test purposes. Will be deleted */
-void HAL_comm_getTemp(uint32_t *sensor_temperature) {
-  #ifdef Stubbed
-    *sensor_temperature = 18;
-  #else
-    HAL_get_temperature(sensor_temperature);
-  #endif
-}
 
 /*Comments for the PR reviewer:
- * 1- STX functions return value. Should we use them for the
- * SAT_returnState in communication_service_app?
  * 2- Like RTC we can check if the value is stored after the
  * set functions (change the get functions).
  * But there is no point when eventually Stubbed will be 0.
  * 3- Do we need comments for each function?
  */
 
-void HAL_S_getFreq (uint32_t *S_freq) { //should be replaced with float
-  #ifdef Stubbed
-    *S_freq = 2210.5;
+STX_return HAL_S_getFreq (float *S_freq) {
+  #ifdef SBAND_IS_STUBBED
+    *S_freq = (float)2210.5;
+    return IS_STUBBED;
   #else
-    STX_getFrequency(*S_freq);
+    return STX_getFrequency(*S_freq);
   #endif
 };
 
-void HAL_S_getpaPower (uint32_t *S_paPower) {
-  #ifdef Stubbed
-    *S_paPower = 2;
+STX_return HAL_S_getControl (Sband_PowerAmplifier *S_PA) {
+  #ifdef SBAND_IS_STUBBED
+    S_PA->status = 1;
+    S_PA->mode = 3;
+    return IS_STUBBED;
   #else
-    STX_getPaPower(*S_paPower);
+    return STX_getControl(&S_PA->status, &S_PA->mode);
   #endif
 };
 
-void HAL_S_getControl (uint32_t *S_paStatus, uint32_t *S_paMode) { //must be uint8-t
-  #ifdef Stubbed
-    *S_paStatus = 1;
-    *S_paMode = 3;
+STX_return HAL_S_getEncoder (Sband_Encoder *S_Enc){
+  #ifdef SBAND_IS_STUBBED
+    S_Enc->scrambler = 1;
+    S_Enc->filter = 6;
+    S_Enc->modulation = 5;
+    S_Enc->rate = 4;
+    return IS_STUBBED;
   #else
-    STX_getControl(*S_paStatus, *S_paMode);
+    return STX_getEncoder&S_Enc->scrambler, &S_Enc->filter, &S_Enc->filter, &S_Enc->filter);
+  #endif
+}
+
+STX_return HAL_S_getPAPower (uint32_t *S_PA_Power) {
+  #ifdef SBAND_IS_STUBBED
+    *S_PA_Power = 2;
+    return IS_STUBBED;
+  #else
+    return STX_getPaPower(*S_paPower);
   #endif
 };
 
-void HAL_S_getEncoder (uint8_t *S_enc_scrambler, uint8_t * S_enc_filter, uint8_t * S_enc_mod, uint8_t * S_enc_rate){
-  #ifdef Stubbed
-    *S_enc_scrambler = 0;
-    *S_enc_filter = 0;
-    *S_enc_mod = 0;
-    *S_enc_rate = 0;
+
+STX_return HAL_S_getStatus (Sband_Status *S_status){
+  #ifdef SBAND_IS_STUBBED
+    S_status->PWRGD = 1;
+    S_status->TXL = 1;
+    return IS_STUBBED;
   #else
-    STX_getEncoder(uint8_t * S_enc_scrambler, uint8_t * S_enc_filter, uint8_t * S_enc_mod, uint8_t * S_enc_rate);
+    return STX_getStatus(&S_status->PWRGD, &S_status->PWRGD);
   #endif
 }
 
-void HAL_S_getFirmwareV (float *S_Firmware_Version){
-  #ifdef Stubbed
-    *S_Firmware_Version = 7.14;
+STX_return HAL_S_getTR (Sband_TR *S_transmit){
+  #ifdef SBAND_IS_STUBBED
+    S_transmit->transmit = 1;
+    return IS_STUBBED;
   #else
-    STX_getFirmwareV (*S_Firmware_Version);
+    return STX_getTR(&S_transmit->transmit);
   #endif
 }
 
-void HAL_S_getStatus (uint8_t * S_PWRGD, uint8_t *S_TXL){
-  #ifdef Stubbed
-    *S_PWRGD = 1;
-    *S_TXL = 1;
+STX_return HAL_S_getHK (Sband_Housekeeping *S_hk) {
+  #ifdef SBAND_IS_STUBBED
+    S_hk->Output_Power = 26;
+    S_hk->PA_Temp = 27.3;
+    S_hk->Top_Temp = -2.8;
+    S_hk->Bottom_Temp = 11.7;
+    S_hk->Bat_Current = 95;
+    S_hk->Bat_Voltage = 7.2;
+    S_hk->PA_Current = 0.48;
+    S_hk->PA_Voltage = 5.1;
+    return IS_STUBBED;
   #else
-    STX_getStatus(*S_paStatus, *S_paMode);
+    return STX_getHK(*S_hk);
   #endif
 }
 
-void HAL_S_getTR (int *transmit){
-  #ifdef Stubbed
-    *transmit = 1;
+/* The switch operation might be better implemented here than in EH */
+STX_return HAL_S_getBuffer (int quantity, Sband_Buffer *S_buffer) {
+    /* Although there is no writing data, we can call a function like them*/
+  #ifdef SBAND_IS_STUBBED
+    S_buffer->pointer[quantity] = quantity;
+    return IS_STUBBED;
   #else
-    STX_getTR(*transmit);
+    return STX_getBuffer(quantity, &S_buffer->pointer[quantity])
+  #endif
+}
+
+STX_return HAL_S_softResetFPGA (void) {
+  #ifdef SBAND_IS_STUBBED
+    return IS_STUBBED;
+  #else
+    return STX_softResetFPGA(void);
+  #endif
+}
+
+STX_return HAL_S_getFS (float * S_firmware_Version) {
+  #ifdef SBAND_IS_STUBBED
+    *S_firmware_Version = 7.14;
+    return IS_STUBBED;
+  #else
+    return STX_getFirmwareV( *S_firmware_Version);
   #endif
 }
 

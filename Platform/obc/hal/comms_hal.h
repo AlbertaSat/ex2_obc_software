@@ -18,16 +18,38 @@
 #include <inttypes.h>
 #include <csp/csp.h>
 #include "services.h"
+#include "communication_service.h"
+
+/* Should optimize this*/
+#ifdef SBAND_IS_STUBBED
+  typedef enum{
+    FUNC_PASS  = 0,
+    BAD_READ   = 1,
+    BAD_WRITE  = 1,
+    BAD_PARAM  = 2,
+    IS_STUBBED = 0,
+  } STX_return;
+#else
+  #include "sTransmitter.h"
+#endif
+
+typedef enum {
+    COUNT = 0,
+    UNDERRUN,
+    OVERRUN,
+} Buffer_Quantity;
 
 
-void HAL_comm_getTemp(uint32_t *sensor_temperature);
-void HAL_S_getFreq (uint32_t *S_freq);
-void HAL_S_getpaPower (uint32_t *S_paPower);
-void HAL_S_getControl (uint32_t *S_paStatus, uint32_t *S_paMode);
-void HAL_S_getEncoder (uint8_t *S_enc_scrambler, uint8_t * S_enc_filter, uint8_t * S_enc_mod, uint8_t * S_enc_rate);
-void HAL_S_getFirmwareV (float *S_Firmware_Version);
-void HAL_S_getStatus (uint8_t * S_PWRGD, uint8_t *S_TXL);
-void HAL_S_getTR (int *transmit);
+STX_return HAL_S_getFreq (float *S_freq);
+STX_return HAL_S_getPAPower (uint32_t *S_PA_power);
+STX_return HAL_S_getControl (Sband_PowerAmplifier *S_PA);
+STX_return HAL_S_getEncoder (Sband_Encoder *S_Enc);
+STX_return HAL_S_getStatus (Sband_Status *S_status);
+STX_return HAL_S_getTR (Sband_TR *S_transmit);
+STX_return HAL_S_getHK (Sband_Housekeeping *S_hk);
+STX_return HAL_S_getBuffer (int quantity, Sband_Buffer *S_buffer);
+STX_return HAL_S_softResetFPGA (void);
+STX_return HAL_S_getFS (float * S_firmware_Version);
 
 
 #endif /* COMMS_HAL_H */
