@@ -30,11 +30,6 @@ struct temp_utc {
 };
 
 typedef struct __attribute__((packed)) {
-  float freq;
-  uint32_t PA_Power;
-} Sband_config;
-
-typedef struct __attribute__((packed)) {//must be uint8_t
     uint8_t status;
     uint8_t mode;
 } Sband_PowerAmplifier;
@@ -45,6 +40,13 @@ typedef struct __attribute__((packed)) {
     uint8_t modulation;
     uint8_t rate;
 } Sband_Encoder;
+
+typedef struct __attribute__((packed)) {
+  float freq;
+  uint8_t PA_Power;
+  Sband_PowerAmplifier PA;
+  Sband_Encoder enc;
+} Sband_config;
 
 typedef struct __attribute__((packed)) {
     uint8_t PWRGD;
