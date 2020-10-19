@@ -41,7 +41,7 @@ typedef enum {
 
 
 STX_return HAL_S_getFreq (float *S_freq);
-STX_return HAL_S_getPAPower (uint32_t *S_PA_power);
+STX_return HAL_S_getPAPower (uint8_t *S_PA_power);
 STX_return HAL_S_getControl (Sband_PowerAmplifier *S_PA);
 STX_return HAL_S_getEncoder (Sband_Encoder *S_Enc);
 STX_return HAL_S_getStatus (Sband_Status *S_status);
@@ -49,7 +49,10 @@ STX_return HAL_S_getTR (Sband_TR *S_transmit);
 STX_return HAL_S_getHK (Sband_Housekeeping *S_hk);
 STX_return HAL_S_getBuffer (int quantity, Sband_Buffer *S_buffer);
 STX_return HAL_S_softResetFPGA (void);
-STX_return HAL_S_getFS (float * S_firmware_Version);
-
+STX_return HAL_S_getFV (float * S_firmware_Version);
+STX_return HAL_S_setFreq (float S_freq_new);
+STX_return HAL_S_setPAPower (uint8_t S_PA_Power_new);
+STX_return HAL_S_setControl (Sband_PowerAmplifier S_PA_new);
+STX_return HAL_S_setEncoder (Sband_Encoder S_enc_new);
 
 #endif /* COMMS_HAL_H */

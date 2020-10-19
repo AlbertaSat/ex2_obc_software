@@ -26,18 +26,13 @@
 #include "services.h"
 #include "queue.h"
 
+//for storing the set data
+static Sband_config S_config_reg ;
 
-
-/*Comments for the PR reviewer:
- * 2- Like RTC we can check if the value is stored after the
- * set functions (change the get functions).
- * But there is no point when eventually Stubbed will be 0.
- * 3- Do we need comments for each function?
- */
-
-STX_return HAL_S_getFreq (float *S_freq) {
+STX_return HAL_S_getFreq (float * S_freq) {
   #ifdef SBAND_IS_STUBBED
-    *S_freq = (float)2210.5;
+    *S_freq = S_config_reg.freq;
+    //S_freq = (float)2210.5;//must change
     return IS_STUBBED;
   #else
     return STX_getFrequency(*S_freq);
@@ -46,8 +41,9 @@ STX_return HAL_S_getFreq (float *S_freq) {
 
 STX_return HAL_S_getControl (Sband_PowerAmplifier *S_PA) {
   #ifdef SBAND_IS_STUBBED
-    S_PA->status = 1;
-    S_PA->mode = 3;
+    *S_PA = S_config_reg.PA;
+    //S_PA->status = 1;
+    //S_PA->mode = 3;
     return IS_STUBBED;
   #else
     return STX_getControl(&S_PA->status, &S_PA->mode);
@@ -56,22 +52,24 @@ STX_return HAL_S_getControl (Sband_PowerAmplifier *S_PA) {
 
 STX_return HAL_S_getEncoder (Sband_Encoder *S_Enc){
   #ifdef SBAND_IS_STUBBED
-    S_Enc->scrambler = 1;
-    S_Enc->filter = 6;
-    S_Enc->modulation = 5;
-    S_Enc->rate = 4;
+    //S_Enc->scrambler = 1;
+    //S_Enc->filter = 6;
+    //S_Enc->modulation = 5;
+    //S_Enc->rate = 4;
+    *S_Enc = S_config_reg.enc;
     return IS_STUBBED;
   #else
-    return STX_getEncoder&S_Enc->scrambler, &S_Enc->filter, &S_Enc->filter, &S_Enc->filter);
+    return STX_getEncoder(&S_Enc->scrambler, &S_Enc->filter, &S_Enc->modulation, &S_Enc->rate);
   #endif
 }
 
-STX_return HAL_S_getPAPower (uint32_t *S_PA_Power) {
+STX_return HAL_S_getPAPower (uint8_t * S_PA_Power) {
   #ifdef SBAND_IS_STUBBED
-    *S_PA_Power = 2;
+    *S_PA_Power = S_config_reg.PA_Power;
+    //*S_PA_Power = 2;
     return IS_STUBBED;
   #else
-    return STX_getPaPower(*S_paPower);
+    return STX_getPaPower(*S_PA_Power);
   #endif
 };
 
@@ -130,7 +128,7 @@ STX_return HAL_S_softResetFPGA (void) {
   #endif
 }
 
-STX_return HAL_S_getFS (float * S_firmware_Version) {
+STX_return HAL_S_getFV (float * S_firmware_Version) {
   #ifdef SBAND_IS_STUBBED
     *S_firmware_Version = 7.14;
     return IS_STUBBED;
@@ -139,9 +137,38 @@ STX_return HAL_S_getFS (float * S_firmware_Version) {
   #endif
 }
 
-/*
-void HAL_S_setFreq (uint32_t S_freq){
-#ifdef Stubbed
-    S_freq =
+STX_return HAL_S_setFreq (float S_freq_new) {
+  #ifdef SBAND_IS_STUBBED
+    S_config_reg.freq = S_freq_new;
+    return IS_STUBBED;
+  #else
+    return STX_setFreq(S_freq_new);
+  #endif
 }
-*/
+
+STX_return HAL_S_setPAPower (uint8_t S_PA_Power_new) {
+  #ifdef SBAND_IS_STUBBED
+    S_config_reg.PA_Power = S_PA_Power_new;
+    return IS_STUBBED;
+  #else
+    return STX_setPaPower(S_PA_Power_new);
+  #endif
+}
+
+STX_return HAL_S_setControl (Sband_PowerAmplifier S_PA_new){
+  #ifdef SBAND_IS_STUBBED
+    S_config_reg.PA = S_PA_new;
+    return IS_STUBBED;
+  #else
+    return STX_setControl(&S_PA_new->status, &S_PA_new->mode);
+  #endif
+}
+
+STX_return HAL_S_setEncoder (Sband_Encoder S_enc_new){
+  #ifdef SBAND_IS_STUBBED
+    S_config_reg.enc = S_enc_new;
+    return IS_STUBBED;
+  #else
+    return STX_setEncoder(&S_enc_new->scrambler, &S_enc_new->filter, &S_enc_new->modulation, &S_enc_new->rate);
+  #endif
+}
