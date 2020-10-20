@@ -48,10 +48,13 @@ RUN python3 waf configure --with-os=posix --enable-rdp --enable-hmac --enable-xt
 RUN python3 waf build
 
 # build this codebase
+WORKDIR /datavolume1
+RUN mkfifo ground_to_sat sat_to_ground
 WORKDIR /home/ex2_command_handling_demo
 COPY . .
+
 RUN gcc ex2_demo_software/*.c Platform/demo/*.c Platform/demo/hal/*.c Services/*.c -c -D SYSTEM_APP_ID=_DEMO_APP_ID_ -I . -I ex2_demo_software/ -I Platform/demo -I Platform/demo/hal -I Services/ -I ../upsat-ecss-services/services/ -I ../SatelliteSim/Source/include/ -I ../SatelliteSim/Project/ -I ../SatelliteSim/libcsp/include/ -I ../SatelliteSim/Source/portable/GCC/POSIX/ -I ../SatelliteSim/libcsp/build/include/ -lpthread -std=c99 -lrt && ar -rsc client_server.a *.o
 
 WORKDIR /home/SatelliteSim
 RUN make clean && make all
-CMD ./libcsp/build/zmqproxy & ./SatelliteSim
+CMD ./libcsp/build/zmqproxy & ls / & ./SatelliteSim
