@@ -42,6 +42,14 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
 
   int SID;
 
+  //UHF_Settings U_settings;
+  UHF_Status U_stat;
+  UHF_Config U_config;
+  uint8_t U_I2C_add;
+  uint8_t U_restore;
+  uint8_t U_is_secure;
+
+
   switch (ser_subtype) {
 
     case GET_FREQ:
@@ -255,9 +263,8 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
 
       case SET_FREQ:
           cnv8_F(&packet->data[IN_DATA_BYTE], &S_config.freq);
-          //S_config.freq = (float) packet->data[IN_DATA_BYTE];
           S_config.freq = csp_ntohflt(S_config.freq);
-          status = HAL_S_setFreq(S_config.freq);
+          status = HAL_S_setFreq(&S_config.freq);
           memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
           set_packet_length(packet, sizeof(int8_t) +  1);
           if (queue_response(packet) != SATR_OK) {
@@ -308,24 +315,27 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
           break;
 
       case SET_CONFIG:
-          cnv8_F(&packet->data[IN_DATA_BYTE], &S_config.freq);
-          S_config.freq = csp_ntohflt(S_config.freq);
-          S_config.PA_Power = (uint8_t)packet->data[IN_DATA_BYTE + 4];//plus 4 because float takes 4B
+          // Currently frequency can't be set here.
+          //cnv8_F(&packet->data[IN_DATA_BYTE], &S_config.freq);
+          //S_config.freq = csp_ntohflt(S_config.freq);
+          S_config.PA_Power = (uint8_t)packet->data[IN_DATA_BYTE];//plus 4 because float takes 4B
           S_config.PA_Power = csp_ntoh32((uint32_t)S_config.PA_Power);
-          S_config.PA.status = (uint8_t)packet->data[IN_DATA_BYTE + 5];
-          S_config.PA.mode = (uint8_t)packet->data[IN_DATA_BYTE + 6];
+          S_config.PA.status = (uint8_t)packet->data[IN_DATA_BYTE + 1];
+          S_config.PA.mode = (uint8_t)packet->data[IN_DATA_BYTE + 2];
           S_config.PA.status = csp_ntoh32((uint32_t)S_config.PA.status);
           S_config.PA.mode = csp_ntoh32((uint32_t)S_config.PA.mode);
-          S_config.enc.scrambler = (uint8_t)packet->data[IN_DATA_BYTE + 7];
-          S_config.enc.filter = (uint8_t)packet->data[IN_DATA_BYTE + 8];
-          S_config.enc.modulation = (uint8_t)packet->data[IN_DATA_BYTE + 9];
-          S_config.enc.rate = (uint8_t)packet->data[IN_DATA_BYTE + 10];
+          S_config.enc.scrambler = (uint8_t)packet->data[IN_DATA_BYTE + 3];
+          S_config.enc.filter = (uint8_t)packet->data[IN_DATA_BYTE + 4];
+          S_config.enc.modulation = (uint8_t)packet->data[IN_DATA_BYTE + 5];
+          S_config.enc.rate = (uint8_t)packet->data[IN_DATA_BYTE + 6];
           S_config.enc.scrambler = csp_ntoh32((uint32_t)S_config.enc.scrambler);
           S_config.enc.filter = csp_ntoh32((uint32_t)S_config.enc.filter);
           S_config.enc.modulation = csp_ntoh32((uint32_t)S_config.enc.modulation);
           S_config.enc.rate = csp_ntoh32((uint32_t)S_config.enc.rate);
-          status = HAL_S_setFreq (S_config.freq) + HAL_S_setPAPower(S_config.PA_Power) +
-                   HAL_S_setControl (S_config.PA) + HAL_S_setEncoder(S_config.enc);
+          status = //HAL_S_setFreq (&S_config.freq) +
+                  HAL_S_setPAPower(S_config.PA_Power) +
+                  HAL_S_setControl (S_config.PA) +
+                  HAL_S_setEncoder(S_config.enc);
           memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
           set_packet_length(packet, sizeof(int8_t) +  1);
           if (queue_response(packet) != SATR_OK) {
