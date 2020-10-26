@@ -48,8 +48,8 @@ RUN python3 waf configure --with-os=posix --enable-rdp --enable-hmac --enable-xt
 RUN python3 waf build
 
 # build this codebase
-WORKDIR /datavolume1
-RUN mkfifo ground_to_sat sat_to_ground
+# WORKDIR /datavolume1
+# RUN mkfifo ground_to_sat sat_to_ground
 WORKDIR /home/ex2_command_handling_demo
 COPY . .
 
@@ -57,4 +57,4 @@ RUN gcc ex2_demo_software/*.c Platform/demo/*.c Platform/demo/hal/*.c Services/*
 
 WORKDIR /home/SatelliteSim
 RUN make clean && make all
-CMD ./SatelliteSim
+CMD mkfifo /datavolume1/ground_to_sat & mkfifo /datavolume1/sat_to_ground & ./SatelliteSim
