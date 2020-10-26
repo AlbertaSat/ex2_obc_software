@@ -31,7 +31,7 @@
 extern unsigned int sent_count;
 
 #define NORMAL_TICKS_TO_WAIT 1
-#define NORMAL_SERVICE_PRIO 5
+#define NORMAL_SERVICE_PRIO configMAX_PRIORITIES - 1
 #define SERVICE_QUEUE_LEN 3
 #define RESPONSE_QUEUE_LEN 3
 #define CSP_PKT_QUEUE_SIZE sizeof(csp_packet_t*)

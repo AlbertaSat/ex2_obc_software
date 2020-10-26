@@ -77,6 +77,7 @@ void fifo_rx(void * parameters) {
         csp_qfifo_write(buf, &csp_if_fifo, NULL);
         buf = csp_buffer_get(BUF_SIZE);
       }
+      vTaskDelay(500);
     }
     return NULL;
 }
@@ -128,7 +129,7 @@ int main(int argc, char **argv) {
       return -1;
   }
   xTaskCreate((TaskFunction_t)fifo_rx, "fifo rx", 128, NULL,
-                  configMAX_PRIORITIES, NULL);
+                  configMAX_PRIORITIES - 1, NULL);
   ex2_log("Running at %d\n", my_address);
   /* Set default route and start router & server */
   csp_route_set(CSP_DEFAULT_ROUTE, &csp_if_fifo, CSP_NODE_MAC);
