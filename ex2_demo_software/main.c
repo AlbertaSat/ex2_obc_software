@@ -53,7 +53,7 @@ pthread_t rx_thread;
 int rx_channel, tx_channel;
 #define BUF_SIZE    250
 
-int csp_fifo_tx(csp_iface_t *ifc, csp_packet_t *packet, uint32_t timeout);
+int csp_fifo_tx(const csp_route_t * ifroute, csp_packet_t *packet);
 
 csp_iface_t csp_if_fifo = {
     .name = "fifo",
@@ -61,7 +61,7 @@ csp_iface_t csp_if_fifo = {
     .mtu = BUF_SIZE,
 };
 
-int csp_fifo_tx(csp_iface_t *ifc, csp_packet_t *packet, uint32_t timeout) {
+int csp_fifo_tx(const csp_route_t * ifroute, csp_packet_t *packet) {
     /* Write packet to fifo */
     if (write(tx_channel, &packet->length, packet->length + sizeof(uint32_t) + sizeof(uint16_t)) < 0)
         printf("Failed to write frame\r\n");
@@ -73,7 +73,8 @@ void * fifo_rx(void * parameters) {
     csp_packet_t *buf = csp_buffer_get(BUF_SIZE);
     /* Wait for packet on fifo */
     while (read(rx_channel, &buf->length, BUF_SIZE) > 0) {
-        buf = csp_buffer_get(BUF_SIZE);
+      csp_qfifo_write(buf, &csp_if_fifo, NULL);
+      buf = csp_buffer_get(BUF_SIZE);
     }
 
     return NULL;
@@ -128,10 +129,10 @@ int main(int argc, char **argv) {
   pthread_create(&rx_thread, NULL, fifo_rx, NULL);
   ex2_log("Running at %d\n", my_address);
   /* Set default route and start router & server */
+  csp_route_set(CSP_DEFAULT_ROUTE, &csp_if_fifo, CSP_NODE_MAC);
+
   csp_route_start_task(1024, 0);
-  csp_iflist_add(&csp_if_fifo);
-  csp_rtable_set(16, 0, &csp_if_fifo, CSP_NO_VIA_ADDRESS);
-  csp_route_set(16, &csp_if_fifo, CSP_NODE_MAC);
+  // csp_route_set(16, &csp_if_fifo, CSP_NODE_MAC);
 
 
   printf("Connection table\r\n");

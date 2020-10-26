@@ -57,4 +57,4 @@ RUN gcc ex2_demo_software/*.c Platform/demo/*.c Platform/demo/hal/*.c Services/*
 
 WORKDIR /home/SatelliteSim
 RUN make clean && make all
-CMD ./libcsp/build/zmqproxy & ls / & ./SatelliteSim
+CMD ./SatelliteSim
