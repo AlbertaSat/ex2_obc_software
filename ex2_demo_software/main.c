@@ -69,14 +69,15 @@ int csp_fifo_tx(const csp_route_t * ifroute, csp_packet_t *packet) {
     return CSP_ERR_NONE;
 }
 
-void * fifo_rx(void * parameters) {
+void fifo_rx(void * parameters) {
     csp_packet_t *buf = csp_buffer_get(BUF_SIZE);
     /* Wait for packet on fifo */
-    while (read(rx_channel, &buf->length, BUF_SIZE) > 0) {
-      csp_qfifo_write(buf, &csp_if_fifo, NULL);
-      buf = csp_buffer_get(BUF_SIZE);
+    for (;;) {
+      while (read(rx_channel, &buf->length, BUF_SIZE) > 0) {
+        csp_qfifo_write(buf, &csp_if_fifo, NULL);
+        buf = csp_buffer_get(BUF_SIZE);
+      }
     }
-
     return NULL;
 }
 /** FIFO INTERFACE ENDS **/
@@ -126,12 +127,13 @@ int main(int argc, char **argv) {
       printf("Failed to open RX channel\r\n");
       return -1;
   }
-  pthread_create(&rx_thread, NULL, fifo_rx, NULL);
+  xTaskCreate((TaskFunction_t)fifo_rx, "fifo rx", 128, NULL,
+                  configMAX_PRIORITIES, NULL);
   ex2_log("Running at %d\n", my_address);
   /* Set default route and start router & server */
   csp_route_set(CSP_DEFAULT_ROUTE, &csp_if_fifo, CSP_NODE_MAC);
 
-  csp_route_start_task(1024, 0);
+  csp_route_start_task(0, 0);
   // csp_route_set(16, &csp_if_fifo, CSP_NODE_MAC);
 
 
