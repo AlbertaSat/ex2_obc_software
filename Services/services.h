@@ -91,7 +91,33 @@ typedef enum {
     SET_PA_POWER = 14,
     GET_CONFIG = 15,
     SET_CONFIG = 16
-} Communication_Subtype;
+} Sband_Subtype;
+
+typedef enum {
+    UHF_SET_STAT_CONTROL = 20,
+    UHF_SET_FREQ,
+    UHF_SET_PIPE_TIMEOUT,
+    UHF_SET_BEACON_T,
+    UHF_SET_AUDIO_T,
+    UHF_SET_PARAMS, //Merge last 5
+    UHF_RESTORE_DEFAULT,
+    UHF_LOW_PWR,
+    UHF_SET_DEST,
+    UHF_SET_SRC,
+    UHF_SET_MORSE,
+    UHF_SET_MIDI,
+    UHF_SET_BEACON_MSG,
+    UHF_SET_I2C,
+    UHF_WRITE_FRAM,
+    UHF_SECURE,
+    UHF_GET_FULL_STAT, // 0-244,249,250,255
+    UHF_GET_CONFIG, // 245-248,251,253
+    /*UHF_GET_DEST,
+    UHF_GET_SRC,
+    UHF_GET_MORSE,
+    UHF_GET_MIDI,*/
+    UHF_NEW_CMD,
+} UHF_Subtype;
 
 /* Utility definitions */
 union _cnv {

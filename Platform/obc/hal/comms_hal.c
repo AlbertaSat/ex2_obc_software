@@ -27,12 +27,12 @@
 #include "queue.h"
 
 //for storing the set data
-static Sband_config S_config_reg ;
+static Sband_config S_config_reg;
 
 STX_return HAL_S_getFreq (float * S_freq) {
   #ifdef SBAND_IS_STUBBED
     *S_freq = S_config_reg.freq;
-    //S_freq = (float)2210.5;//must change
+    //*S_freq = (float)2210.5;     //still working fine
     return IS_STUBBED;
   #else
     return STX_getFrequency(*S_freq);
@@ -137,9 +137,9 @@ STX_return HAL_S_getFV (float * S_firmware_Version) {
   #endif
 }
 
-STX_return HAL_S_setFreq (float S_freq_new) {
+STX_return HAL_S_setFreq (float  S_freq_new) {
   #ifdef SBAND_IS_STUBBED
-    S_config_reg.freq = S_freq_new;
+    S_config_reg.freq =  S_freq_new;
     return IS_STUBBED;
   #else
     return STX_setFreq(S_freq_new);
