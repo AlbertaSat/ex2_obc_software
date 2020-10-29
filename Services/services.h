@@ -110,13 +110,13 @@ typedef enum {
     UHF_SET_I2C,
     UHF_WRITE_FRAM,
     UHF_SECURE,
-    UHF_GET_FULL_STAT, // 0-244,249,250,255
-    UHF_GET_CONFIG, // 245-248,251,253
-    /*UHF_GET_DEST,
-    UHF_GET_SRC,
+    UHF_GET_FULL_STAT, // 0-244,249,250
+    UHF_GET_CALL_SIGN, // 245-246
     UHF_GET_MORSE,
-    UHF_GET_MIDI,*/
-    UHF_NEW_CMD,
+    UHF_GET_MIDI,
+    UHF_GET_BEACON_MSG,
+    UHF_GET_FRAM,
+    //UHF_NEW_CMD, //not in here
 } UHF_Subtype;
 
 /* Utility definitions */

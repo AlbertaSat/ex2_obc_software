@@ -28,20 +28,20 @@
   #include "uTransceiver.h"
 #endif
 
-UHF_return HAL_UHF_setStatus (uint8_t * U_stat_ctrl);
-UHF_return HAL_UHF_setFreq (uint32_t * U_freq);
-UHF_return HAL_UHF_setPIPEt (uint16_t * U_PIPE_t);
-UHF_return HAL_UHF_setBeaconT (uint16_t * U_beacon_t);
-UHF_return HAL_UHF_setAudioT (uint16_t * U_audio_t);
+UHF_return HAL_UHF_setStatus (uint8_t U_stat_ctrl);
+UHF_return HAL_UHF_setFreq (uint32_t U_freq);
+UHF_return HAL_UHF_setPIPEt (uint16_t U_PIPE_t);
+UHF_return HAL_UHF_setBeaconT (uint16_t U_beacon_t);
+UHF_return HAL_UHF_setAudioT (uint16_t U_audio_t);
 UHF_return HAL_UHF_restore (uint8_t * U_restore);
 UHF_return HAL_UHF_lowPwr (uint8_t * U_low_pwr);
-UHF_return HAL_UHF_setDestination (UHF_configStruct * U_dest);
-UHF_return HAL_UHF_setSource (UHF_configStruct * U_src);
-UHF_return HAL_UHF_setMorse (UHF_configStruct * U_morse);
-UHF_return HAL_UHF_setMIDI (UHF_configStruct * U_MIDI);
-UHF_return HAL_UHF_setBeaconMsg (UHF_configStruct * U_beacon_msg);
-UHF_return HAL_UHF_setI2C (uint8_t * U_I2C_add);
-UHF_return HAL_UHF_setFRAM (UHF_framStruct * U_FRAM);
+UHF_return HAL_UHF_setDestination (UHF_configStruct U_dest);
+UHF_return HAL_UHF_setSource (UHF_configStruct U_src);
+UHF_return HAL_UHF_setMorse (UHF_configStruct U_morse);
+UHF_return HAL_UHF_setMIDI (UHF_configStruct U_MIDI);
+UHF_return HAL_UHF_setBeaconMsg (UHF_configStruct U_beacon_msg);
+UHF_return HAL_UHF_setI2C (uint8_t U_I2C_add);
+UHF_return HAL_UHF_setFRAM (UHF_framStruct U_FRAM);
 UHF_return HAL_UHF_secure (uint8_t * U_secure);
 
 UHF_return HAL_UHF_getStatus (uint8_t * U_stat_ctrl);
@@ -64,7 +64,7 @@ UHF_return HAL_UHF_getPayload (uint16_t * U_payload_size);
 UHF_return HAL_UHF_getBeaconMsg (UHF_configStruct * U_beacon_msg);
 UHF_return HAL_UHF_getFRAM (UHF_framStruct * U_FRAM);
 UHF_return HAL_UHF_getSecureKey (uint32_t * U_secure);
-UHF_return HAL_UHF_sendCmd (uint8_t format, uint8_t s_address, uint8_t len, uint8_t * data, uint8_t n_read_bytes);
+//UHF_return HAL_UHF_sendCmd (uint8_t format, uint8_t s_address, uint8_t len, uint8_t * data, uint8_t n_read_bytes);
 
 
 #endif /* UHF_HAL_H */
