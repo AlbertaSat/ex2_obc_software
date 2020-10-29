@@ -107,11 +107,13 @@ typedef struct __attribute__((packed)) {
     uint32_t secure_key;
 } UHF_Status;
 
-/*typedef struct __attribute__((packed)) {
-    uint8_t restore_default;
-    uint8_t low_pwr;
-    uint8_t secure;
-} UHF_Confirm;*/
+typedef struct __attribute__((packed)) {
+    uint8_t confirm;
+} UHF_Confirm;
+
+typedef struct __attribute__((packed)) {
+    uint8_t add;
+} UHF_Address;
 
 typedef struct {//from uTransceiver.h
   uint8_t len;
@@ -119,18 +121,20 @@ typedef struct {//from uTransceiver.h
 } UHF_configStruct;
 
 typedef struct {//from uTransceiver.h
-  uint32_t add;
+  uint32_t add;//address
   uint8_t data[16];
 } UHF_framStruct;
 
 typedef struct __attribute__((packed)) {
     UHF_configStruct dest;
     UHF_configStruct src;
+} UHF_Call_Sign;
+
+typedef struct __attribute__((packed)) {
     UHF_configStruct morse;
     UHF_configStruct MIDI;
-    UHF_configStruct beacon_msg;
-    UHF_framStruct FRAM;
-} UHF_Config;
+    UHF_configStruct message;
+} UHF_Beacon;
 
 
 /*Valid values*/
