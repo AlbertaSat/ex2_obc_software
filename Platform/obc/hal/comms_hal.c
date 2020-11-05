@@ -137,7 +137,7 @@ STX_return HAL_S_getFV (float * S_firmware_Version) {
   #endif
 }
 
-STX_return HAL_S_setFreq (float  S_freq_new) {
+STX_return HAL_S_setFreq (float S_freq_new) {
   #ifdef SBAND_IS_STUBBED
     S_config_reg.freq =  S_freq_new;
     return IS_STUBBED;

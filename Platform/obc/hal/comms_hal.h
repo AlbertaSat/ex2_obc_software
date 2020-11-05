@@ -33,17 +33,6 @@
   #include "sTransmitter.h"
 #endif
 
-
-   //* Should define a united return enum
-#ifdef SBAND_IS_STUBBED
-  typedef enum{
-      IS_STUBBED_U = 0, //optimize
-  } UHF_return;
-#else
-  #include "uTransceiver.h"
-#endif
-
-
 typedef enum {
     COUNT = 0,
     UNDERRUN,
@@ -61,7 +50,7 @@ STX_return HAL_S_getHK (Sband_Housekeeping *S_hk);
 STX_return HAL_S_getBuffer (int quantity, Sband_Buffer *S_buffer);
 STX_return HAL_S_softResetFPGA (void);
 STX_return HAL_S_getFV (float * S_firmware_Version);
-STX_return HAL_S_setFreq (float  S_freq_new);
+STX_return HAL_S_setFreq (float S_freq_new);
 STX_return HAL_S_setPAPower (uint8_t S_PA_Power_new);
 STX_return HAL_S_setControl (Sband_PowerAmplifier S_PA_new);
 STX_return HAL_S_setEncoder (Sband_Encoder S_enc_new);

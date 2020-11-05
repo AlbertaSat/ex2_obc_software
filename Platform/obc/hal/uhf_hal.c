@@ -17,28 +17,26 @@
  * @date 2020-10-26
  */
 
-//#include "obc_hal.h"
+
 #include "uhf_hal.h"
 #include "hal.h"
 #include "services.h"
 #include "queue.h"
 #include <stdio.h>
+#include <string.h>
 
 static UHF_Status U_status_reg;//initialize the values
 static UHF_Call_Sign U_call_reg;
 static UHF_Beacon U_beacon_reg;
 static UHF_framStruct U_FRAM_reg;
 
-/* Don't need them because no get function
- * static UHF_Confirm U_restore;
- * static UHF_Confirm U_secure;*/
 
-UHF_return HAL_UHF_setStatus (uint8_t U_stat_ctrl){
-    memcpy(U_status_reg.set.status_ctrl, U_stat_ctrl, 12);
+UHF_return HAL_UHF_setStatus (uint8_t * U_stat_ctrl){
+    memcpy(&U_status_reg.status_ctrl, U_stat_ctrl, 12);
     #ifdef UHF_IS_STUBBED
         return IS_STUBBED_U;
     #else
-        return UHF_genericWrite(0, * U_status_reg.set.status_ctrl);
+        return UHF_genericWrite(0, &U_status_reg.status_ctrl);
     #endif
 }
 
@@ -78,9 +76,9 @@ UHF_return HAL_UHF_setAudioT (uint16_t U_audio_t){
     #endif
 }
 
-UHF_return HAL_UHF_restore (uint8_t * U_restore){
+UHF_return HAL_UHF_restore (UHF_Confirm * U_restore){
     #ifdef UHF_IS_STUBBED
-        * U_restore = 0;
+        U_restore->confirm = 5;
         return IS_STUBBED_U;
     #else
         return UHF_genericWrite(9, &U_restore);//doublecheck
@@ -88,8 +86,9 @@ UHF_return HAL_UHF_restore (uint8_t * U_restore){
 }
 
 UHF_return HAL_UHF_lowPwr (uint8_t * U_low_pwr){
-    * U_low_pwr = &U_status_reg.low_pwr_stat;
+    *U_low_pwr = U_status_reg.low_pwr_stat;
     #ifdef UHF_IS_STUBBED
+        *U_low_pwr = 5;
         return IS_STUBBED_U;
     #else
         return UHF_genericWrite(244, &U_status_reg.low_pwr_stat);
@@ -145,7 +144,7 @@ UHF_return HAL_UHF_setI2C (uint8_t U_I2C_add){
     #ifdef UHF_IS_STUBBED
         return IS_STUBBED_U;
     #else
-        return UHF_genericWrite(252, U_I2C_add);
+        return UHF_genericWrite(252, U_I2C_add);//doublecheck
     #endif
 }
 
@@ -158,9 +157,9 @@ UHF_return HAL_UHF_setFRAM (UHF_framStruct U_FRAM){
     #endif
 }
 
-UHF_return HAL_UHF_secure (uint8_t * U_secure){
+UHF_return HAL_UHF_secure (UHF_Confirm * U_secure){
     #ifdef UHF_IS_STUBBED
-        * U_secure = 0;
+        U_secure->confirm = 0;
         return IS_STUBBED_U;
     #else
         return UHF_genericWrite(255, &U_secure);//doublecheck
@@ -169,7 +168,7 @@ UHF_return HAL_UHF_secure (uint8_t * U_secure){
 
 UHF_return HAL_UHF_getStatus (uint8_t * U_stat_ctrl){
     #ifdef UHF_IS_STUBBED
-        memcpy(U_stat_ctrl,U_status_reg.set.status_ctrl,12);
+        memcpy(U_stat_ctrl,&U_status_reg.status_ctrl,12);
         return IS_STUBBED_U;
     #else
         return UHF_genericRead(0, &U_stat_ctrl);

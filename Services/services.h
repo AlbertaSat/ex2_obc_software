@@ -99,7 +99,7 @@ typedef enum {
     UHF_SET_PIPE_TIMEOUT,
     UHF_SET_BEACON_T,
     UHF_SET_AUDIO_T,
-    UHF_SET_PARAMS, //Merge last 5
+    UHF_SET_PARAMS, //Merge last 4
     UHF_RESTORE_DEFAULT,
     UHF_LOW_PWR,
     UHF_SET_DEST,
