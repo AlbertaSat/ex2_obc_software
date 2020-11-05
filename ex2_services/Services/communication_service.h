@@ -21,9 +21,7 @@
 #include <stdio.h>
 
 #include "services.h"
-#include "service_response.h"
-#include "service_utilities.h"
-#include "system.h"
+
 
 #define MAX_W_CMDLEN 120 //from uTransceiver.h
 #define STAT_WORD_LEN 12
@@ -45,7 +43,6 @@ typedef struct __attribute__((packed)) {
 } Sband_Encoder;
 
 typedef struct __attribute__((packed)) {
-//typedef struct {
   float freq;
   uint8_t PA_Power;
   Sband_PowerAmplifier PA;
@@ -87,7 +84,6 @@ typedef struct __attribute__((packed)) {
 
 
 typedef struct __attribute__((packed)) {
-    uint8_t status_ctrl[12];
     uint32_t freq;
     uint16_t PIPE_t;
     uint16_t beacon_t;
@@ -95,6 +91,7 @@ typedef struct __attribute__((packed)) {
 } UHF_Settings;
 
 typedef struct __attribute__((packed)) {
+    uint8_t status_ctrl[12];
     UHF_Settings set;
     uint32_t uptime;
     uint32_t pckts_out;
