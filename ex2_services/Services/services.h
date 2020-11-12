@@ -74,23 +74,23 @@ typedef enum { TM_HK_PARAMETERS_REPORT = 0 } Housekeeping_Subtype;
 // COMMUNICATION SERVICE
 #define TC_COMMUNICATION_SERVICE 10
 typedef enum {
-    GET_TEMP = 0,
-    GET_FREQ = 1,
-    GET_CONTROL = 2,
-    GET_ENCODER = 3,
-    GET_PA_POWER = 4,
-    GET_STATUS = 5,
-    GET_TR = 6,
-    GET_BUFFER = 7,
-    GET_HK = 8,
-    SOFT_RESET = 9,
-    GET_FULL_STATUS = 10,
-    SET_FREQ = 11,
-    SET_CONTROL = 12,
-    SET_ENCODER = 13,
-    SET_PA_POWER = 14,
-    GET_CONFIG = 15,
-    SET_CONFIG = 16
+    S_GET_TEMP = 0,
+    S_GET_FREQ = 1,
+    S_GET_CONTROL = 2,
+    S_GET_ENCODER = 3,
+    S_GET_PA_POWER = 4,
+    S_GET_STATUS = 5,
+    S_GET_TR = 6,
+    S_GET_BUFFER = 7,
+    S_GET_HK = 8,
+    S_SOFT_RESET = 9,
+    S_GET_FULL_STATUS = 10,
+    S_SET_FREQ = 11,
+    S_SET_CONTROL = 12,
+    S_SET_ENCODER = 13,
+    S_SET_PA_POWER = 14,
+    S_GET_CONFIG = 15,
+    S_SET_CONFIG = 16
 } Sband_Subtype;
 
 typedef enum {
