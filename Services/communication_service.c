@@ -25,7 +25,7 @@
 #include "uhf_hal.h"
 
 static uint8_t SID_byte = 1;
-static Sband_config S_config;//In two different situations, globalization has resolved issues in set_freq
+static Sband_config S_config; //In two different situations, globalization has resolved issues in set_freq
 Sband_Full_Status S_FS; // FS: Full Status
 
 UHF_Status U_stat;
@@ -35,7 +35,6 @@ UHF_Address U_I2C_add;
 UHF_Confirm U_restore;
 UHF_Confirm U_is_secure;
 UHF_Call_Sign U_callsign;
-
 
 /**
  * @brief
@@ -50,142 +49,167 @@ UHF_Call_Sign U_callsign;
  *      Success or failure
  */
 
-SAT_returnState communication_service_app(csp_packet_t *packet) {
-  uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
-  int8_t status;
-  int SID, i;
-  uint8_t uhf_struct_len;
+SAT_returnState communication_service_app(csp_packet_t *packet)
+{
+    uint8_t ser_subtype = (uint8_t) packet->data[SUBSERVICE_BYTE];
+    int8_t status;
+    int SID, i;
+    uint8_t uhf_struct_len;
 
-  switch (ser_subtype) {
+    switch (ser_subtype)
+    {
 
     case S_GET_FREQ:
         // Step 1: get the data
-        status = HAL_S_getFreq (&S_config.freq);
+        status = HAL_S_getFreq(&S_config.freq);
         // Step 2: Check the size before proceeding
-        if (sizeof(S_config.freq) + 1 > csp_buffer_data_size()) { // plus one for subservice
-          return SATR_ERROR;
+        if (sizeof(S_config.freq) + 1 > csp_buffer_data_size())
+        { // plus one for subservice
+            return SATR_ERROR;
         }
         // Step 3: convert to network order
         S_config.freq = csp_htonflt(S_config.freq);
         // step 4: copy data & status byte into packet
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-        memcpy(&packet->data[OUT_DATA_BYTE], &S_config.freq, sizeof(S_config.freq));
+        memcpy(&packet->data[OUT_DATA_BYTE], &S_config.freq,
+               sizeof(S_config.freq));
         // Step 5: set packet length
         set_packet_length(packet, sizeof(int8_t) + sizeof(S_config.freq) + 1);
         // Step 6: return packet
-        if (queue_response(packet) != SATR_OK) {
-          return SATR_ERROR;
+        if (queue_response(packet) != SATR_OK)
+        {
+            return SATR_ERROR;
         }
         break;
 
     case S_GET_CONTROL:
-      status = HAL_S_getControl (&S_config.PA);
-      if (sizeof(S_config.PA) + 1 > csp_buffer_data_size()) {
-        return SATR_ERROR;
-      }
-      // csp_hton function can not accept structures.
-      S_config.PA.status = csp_hton32((uint32_t)S_config.PA.status);
-      S_config.PA.mode = csp_hton32((uint32_t)S_config.PA.mode);
-      memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-      memcpy(&packet->data[OUT_DATA_BYTE], &S_config.PA, sizeof(S_config.PA));
-      set_packet_length(packet, sizeof(int8_t) + sizeof(S_config.PA) + 1);
+        status = HAL_S_getControl(&S_config.PA);
+        if (sizeof(S_config.PA) + 1 > csp_buffer_data_size())
+        {
+            return SATR_ERROR;
+        }
+        // csp_hton function can not accept structures.
+        S_config.PA.status = csp_hton32((uint32_t) S_config.PA.status);
+        S_config.PA.mode = csp_hton32((uint32_t) S_config.PA.mode);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        memcpy(&packet->data[OUT_DATA_BYTE], &S_config.PA, sizeof(S_config.PA));
+        set_packet_length(packet, sizeof(int8_t) + sizeof(S_config.PA) + 1);
 
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
-      break;
+        if (queue_response(packet) != SATR_OK)
+        {
+            return SATR_ERROR;
+        }
+        break;
 
     case S_GET_ENCODER:
-      status = HAL_S_getEncoder(&S_config.enc);
-      if (sizeof(S_config.enc) + 1 > csp_buffer_data_size()) {
-        return SATR_ERROR;
-      }
-      S_config.enc.scrambler = csp_hton32((uint32_t)S_config.enc.scrambler);
-      S_config.enc.filter = csp_hton32((uint32_t)S_config.enc.filter);
-      S_config.enc.modulation = csp_hton32((uint32_t)S_config.enc.modulation);
-      S_config.enc.rate = csp_hton32((uint32_t)S_config.enc.rate);
+        status = HAL_S_getEncoder(&S_config.enc);
+        if (sizeof(S_config.enc) + 1 > csp_buffer_data_size())
+        {
+            return SATR_ERROR;
+        }
+        S_config.enc.scrambler = csp_hton32((uint32_t) S_config.enc.scrambler);
+        S_config.enc.filter = csp_hton32((uint32_t) S_config.enc.filter);
+        S_config.enc.modulation = csp_hton32(
+                (uint32_t) S_config.enc.modulation);
+        S_config.enc.rate = csp_hton32((uint32_t) S_config.enc.rate);
 
-      memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-      memcpy(&packet->data[OUT_DATA_BYTE], &S_config.enc, sizeof(S_config.enc));
-      set_packet_length(packet, sizeof(int8_t) + sizeof(S_config.enc) + 1);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        memcpy(&packet->data[OUT_DATA_BYTE], &S_config.enc,
+               sizeof(S_config.enc));
+        set_packet_length(packet, sizeof(int8_t) + sizeof(S_config.enc) + 1);
 
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
-      break;
+        if (queue_response(packet) != SATR_OK)
+        {
+            return SATR_ERROR;
+        }
+        break;
 
     case S_GET_PA_POWER:
-      status = HAL_S_getPAPower(&S_config.PA_Power);
-      if (sizeof(S_config.PA_Power) + 1 > csp_buffer_data_size()) {
-        return SATR_ERROR;
-      }
-      S_config.PA_Power = csp_hton32((uint32_t)S_config.PA_Power);
-      memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-      memcpy(&packet->data[OUT_DATA_BYTE], &S_config.PA_Power, sizeof(S_config.PA_Power));
-      set_packet_length(packet, sizeof(int8_t) + sizeof(uint32_t) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
-      break;
+        status = HAL_S_getPAPower(&S_config.PA_Power);
+        if (sizeof(S_config.PA_Power) + 1 > csp_buffer_data_size())
+        {
+            return SATR_ERROR;
+        }
+        S_config.PA_Power = csp_hton32((uint32_t) S_config.PA_Power);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        memcpy(&packet->data[OUT_DATA_BYTE], &S_config.PA_Power,
+               sizeof(S_config.PA_Power));
+        set_packet_length(packet, sizeof(int8_t) + sizeof(uint32_t) + 1);
+        if (queue_response(packet) != SATR_OK)
+        {
+            return SATR_ERROR;
+        }
+        break;
 
     case S_GET_CONFIG:
-      status = HAL_S_getFreq (&S_config.freq) + HAL_S_getPAPower(&S_config.PA_Power) +
-               HAL_S_getControl (&S_config.PA) + HAL_S_getEncoder(&S_config.enc);
+        status = HAL_S_getFreq(&S_config.freq)
+                + HAL_S_getPAPower(&S_config.PA_Power)
+                + HAL_S_getControl(&S_config.PA)
+                + HAL_S_getEncoder(&S_config.enc);
 
-      if (sizeof(S_config) + 1 > csp_buffer_data_size()) {
-        return SATR_ERROR;
-      }
-      S_config.freq = csp_htonflt(S_config.freq);
-      S_config.PA_Power = csp_hton32((uint32_t)S_config.PA_Power);
-      S_config.PA.status = csp_hton32((uint32_t)S_config.PA.status);
-      S_config.PA.mode = csp_hton32((uint32_t)S_config.PA.mode);
-      S_config.enc.scrambler = csp_hton32((uint32_t)S_config.enc.scrambler);
-      S_config.enc.filter = csp_hton32((uint32_t)S_config.enc.filter);
-      S_config.enc.modulation = csp_hton32((uint32_t)S_config.enc.modulation);
-      S_config.enc.rate = csp_hton32((uint32_t)S_config.enc.rate);
+        if (sizeof(S_config) + 1 > csp_buffer_data_size())
+        {
+            return SATR_ERROR;
+        }
+        S_config.freq = csp_htonflt(S_config.freq);
+        S_config.PA_Power = csp_hton32((uint32_t) S_config.PA_Power);
+        S_config.PA.status = csp_hton32((uint32_t) S_config.PA.status);
+        S_config.PA.mode = csp_hton32((uint32_t) S_config.PA.mode);
+        S_config.enc.scrambler = csp_hton32((uint32_t) S_config.enc.scrambler);
+        S_config.enc.filter = csp_hton32((uint32_t) S_config.enc.filter);
+        S_config.enc.modulation = csp_hton32(
+                (uint32_t) S_config.enc.modulation);
+        S_config.enc.rate = csp_hton32((uint32_t) S_config.enc.rate);
 
-      memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-      memcpy(&packet->data[OUT_DATA_BYTE], &S_config, sizeof(S_config));
-      set_packet_length(packet, sizeof(int8_t) + sizeof(S_config) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
-      break;
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        memcpy(&packet->data[OUT_DATA_BYTE], &S_config, sizeof(S_config));
+        set_packet_length(packet, sizeof(int8_t) + sizeof(S_config) + 1);
+        if (queue_response(packet) != SATR_OK)
+        {
+            return SATR_ERROR;
+        }
+        break;
 
     case S_GET_STATUS:
-      status = HAL_S_getStatus (&S_FS.status);
-      if (sizeof(S_FS.status) + 1 > csp_buffer_data_size()) {
-        return SATR_ERROR;
-      }
-      S_FS.status.PWRGD = csp_hton32((uint32_t)S_FS.status.PWRGD);
-      S_FS.status.TXL = csp_hton32((uint32_t)S_FS.status.TXL);
-      memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-      memcpy(&packet->data[OUT_DATA_BYTE], &S_FS.status, sizeof(S_FS.status));
-      set_packet_length(packet, sizeof(int8_t) + sizeof(S_FS.status) + 1);
+        status = HAL_S_getStatus(&S_FS.status);
+        if (sizeof(S_FS.status) + 1 > csp_buffer_data_size())
+        {
+            return SATR_ERROR;
+        }
+        S_FS.status.PWRGD = csp_hton32((uint32_t) S_FS.status.PWRGD);
+        S_FS.status.TXL = csp_hton32((uint32_t) S_FS.status.TXL);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        memcpy(&packet->data[OUT_DATA_BYTE], &S_FS.status, sizeof(S_FS.status));
+        set_packet_length(packet, sizeof(int8_t) + sizeof(S_FS.status) + 1);
 
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
-      break;
+        if (queue_response(packet) != SATR_OK)
+        {
+            return SATR_ERROR;
+        }
+        break;
 
     case S_GET_TR:
         status = HAL_S_getTR(&S_FS.transmit);
-        if (sizeof(S_FS.transmit) + 1 > csp_buffer_data_size()) {
-          return SATR_ERROR;
+        if (sizeof(S_FS.transmit) + 1 > csp_buffer_data_size())
+        {
+            return SATR_ERROR;
         }
-        S_FS.transmit.transmit = csp_hton32((uint32_t)S_FS.transmit.transmit);
+        S_FS.transmit.transmit = csp_hton32((uint32_t) S_FS.transmit.transmit);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-        memcpy(&packet->data[OUT_DATA_BYTE], &S_FS.transmit, sizeof(S_FS.transmit));
+        memcpy(&packet->data[OUT_DATA_BYTE], &S_FS.transmit,
+               sizeof(S_FS.transmit));
         set_packet_length(packet, sizeof(int8_t) + sizeof(S_FS.transmit) + 1);
-        if (queue_response(packet) != SATR_OK) {
-          return SATR_ERROR;
+        if (queue_response(packet) != SATR_OK)
+        {
+            return SATR_ERROR;
         }
         break;
 
     case S_GET_HK:
-        status = HAL_S_getHK (&S_FS.HK);
-        if (sizeof(S_FS.HK) + 1 > csp_buffer_data_size()) {
-          return SATR_ERROR;
+        status = HAL_S_getHK(&S_FS.HK);
+        if (sizeof(S_FS.HK) + 1 > csp_buffer_data_size())
+        {
+            return SATR_ERROR;
         }
         S_FS.HK.Output_Power = csp_htonflt(S_FS.HK.Output_Power);
         S_FS.HK.PA_Temp = csp_htonflt(S_FS.HK.PA_Temp);
@@ -200,160 +224,179 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         memcpy(&packet->data[OUT_DATA_BYTE], &S_FS.HK, sizeof(S_FS.HK));
         set_packet_length(packet, sizeof(int8_t) + sizeof(S_FS.HK) + 1);
 
-        if (queue_response(packet) != SATR_OK) {
-          return SATR_ERROR;
+        if (queue_response(packet) != SATR_OK)
+        {
+            return SATR_ERROR;
         }
         break;
 
     case S_GET_BUFFER:
-      SID = packet->data[SID_byte];
-      if (SID<0 || SID > 2){
-          return SATR_PKT_ILLEGAL_SUBSERVICE;
-      } else {
-          status = HAL_S_getBuffer(SID, &S_FS.buffer);
-          if (sizeof(S_FS.buffer) + 1 > csp_buffer_data_size()) {
-              return SATR_ERROR;
-          }
-          S_FS.buffer.pointer[SID] = csp_hton16(S_FS.buffer.pointer[SID]);
-          memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-          memcpy(&packet->data[OUT_DATA_BYTE], &S_FS.buffer.pointer[SID], sizeof(S_FS.buffer.pointer[SID]));
-          set_packet_length(packet, sizeof(int8_t) + sizeof(S_FS.buffer.pointer[SID]) + 1);
-          if (queue_response(packet) != SATR_OK) {
-              return SATR_ERROR;
-          }
-      }
-      break;
+        SID = packet->data[SID_byte];
+        if (SID < 0 || SID > 2)
+        {
+            return SATR_PKT_ILLEGAL_SUBSERVICE;
+        }
+        else
+        {
+            status = HAL_S_getBuffer(SID, &S_FS.buffer);
+            if (sizeof(S_FS.buffer) + 1 > csp_buffer_data_size())
+            {
+                return SATR_ERROR;
+            }
+            S_FS.buffer.pointer[SID] = csp_hton16(S_FS.buffer.pointer[SID]);
+            memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+            memcpy(&packet->data[OUT_DATA_BYTE], &S_FS.buffer.pointer[SID],
+                   sizeof(S_FS.buffer.pointer[SID]));
+            set_packet_length(
+                    packet,
+                    sizeof(int8_t) + sizeof(S_FS.buffer.pointer[SID]) + 1);
+            if (queue_response(packet) != SATR_OK)
+            {
+                return SATR_ERROR;
+            }
+        }
+        break;
 
     case S_SOFT_RESET:
-      status = HAL_S_softResetFPGA();
-      memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-      set_packet_length(packet, sizeof(int8_t) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
-      break;
+        status = HAL_S_softResetFPGA();
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        set_packet_length(packet, sizeof(int8_t) + 1);
+        if (queue_response(packet) != SATR_OK)
+        {
+            return SATR_ERROR;
+        }
+        break;
 
     case S_GET_FULL_STATUS:
-      status = HAL_S_getStatus (&S_FS.status) + HAL_S_getTR(&S_FS.transmit) + HAL_S_getHK(&S_FS.HK);
-      status += HAL_S_getFV(&S_FS.Firmware_Version);
-      for (i=0 ; i<=2 ; i++){
-          status += HAL_S_getBuffer(i,&S_FS.buffer);
-      }
-      if (sizeof(S_FS) + 1 > csp_buffer_data_size()) {
-        return SATR_ERROR;
-      }
-      S_FS.status.PWRGD = csp_hton32((uint32_t)S_FS.status.PWRGD);
-      S_FS.status.TXL = csp_hton32((uint32_t)S_FS.status.TXL);
-      S_FS.transmit.transmit = csp_hton32((uint32_t)S_FS.transmit.transmit);
-      S_FS.HK.Output_Power = csp_htonflt(S_FS.HK.Output_Power);
-      S_FS.HK.PA_Temp = csp_htonflt(S_FS.HK.PA_Temp);
-      S_FS.HK.Top_Temp = csp_htonflt(S_FS.HK.Top_Temp);
-      S_FS.HK.Bottom_Temp = csp_htonflt(S_FS.HK.Bottom_Temp);
-      S_FS.HK.Bat_Current = csp_htonflt(S_FS.HK.Bat_Current);
-      S_FS.HK.Bat_Voltage = csp_htonflt(S_FS.HK.Bat_Voltage);
-      S_FS.HK.PA_Current = csp_htonflt(S_FS.HK.PA_Current);
-      S_FS.HK.PA_Voltage = csp_htonflt(S_FS.HK.PA_Voltage);
-      for (i=0 ; i<=2 ; i++){
-          S_FS.buffer.pointer[i] = csp_hton16(S_FS.buffer.pointer[i]);
-      }
-      S_FS.Firmware_Version = csp_htonflt(S_FS.Firmware_Version);
-
-      memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-      memcpy(&packet->data[OUT_DATA_BYTE], &S_FS, sizeof(S_FS));
-      set_packet_length(packet, sizeof(int8_t) + sizeof(S_FS) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
-      break;
-
-      case S_SET_FREQ:
-          cnv8_F(&packet->data[IN_DATA_BYTE], &S_config.freq);
-          S_config.freq = csp_ntohflt(S_config.freq);
-          status = HAL_S_setFreq(S_config.freq);
-          memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-          set_packet_length(packet, sizeof(int8_t) +  1);
-          if (queue_response(packet) != SATR_OK) {
+        status = HAL_S_getStatus(&S_FS.status) + HAL_S_getTR(&S_FS.transmit)
+                + HAL_S_getHK(&S_FS.HK);
+        status += HAL_S_getFV(&S_FS.Firmware_Version);
+        for (i = 0; i <= 2; i++)
+        {
+            status += HAL_S_getBuffer(i, &S_FS.buffer);
+        }
+        if (sizeof(S_FS) + 1 > csp_buffer_data_size())
+        {
             return SATR_ERROR;
-          }
-          break;
+        }
+        S_FS.status.PWRGD = csp_hton32((uint32_t) S_FS.status.PWRGD);
+        S_FS.status.TXL = csp_hton32((uint32_t) S_FS.status.TXL);
+        S_FS.transmit.transmit = csp_hton32((uint32_t) S_FS.transmit.transmit);
+        S_FS.HK.Output_Power = csp_htonflt(S_FS.HK.Output_Power);
+        S_FS.HK.PA_Temp = csp_htonflt(S_FS.HK.PA_Temp);
+        S_FS.HK.Top_Temp = csp_htonflt(S_FS.HK.Top_Temp);
+        S_FS.HK.Bottom_Temp = csp_htonflt(S_FS.HK.Bottom_Temp);
+        S_FS.HK.Bat_Current = csp_htonflt(S_FS.HK.Bat_Current);
+        S_FS.HK.Bat_Voltage = csp_htonflt(S_FS.HK.Bat_Voltage);
+        S_FS.HK.PA_Current = csp_htonflt(S_FS.HK.PA_Current);
+        S_FS.HK.PA_Voltage = csp_htonflt(S_FS.HK.PA_Voltage);
+        for (i = 0; i <= 2; i++)
+        {
+            S_FS.buffer.pointer[i] = csp_hton16(S_FS.buffer.pointer[i]);
+        }
+        S_FS.Firmware_Version = csp_htonflt(S_FS.Firmware_Version);
 
-
-      case S_SET_PA_POWER:
-          S_config.PA_Power = (uint8_t)packet->data[IN_DATA_BYTE];
-          S_config.PA_Power = csp_ntoh32((uint32_t)S_config.PA_Power);
-          status = HAL_S_setPAPower(S_config.PA_Power);
-          memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-          set_packet_length(packet, sizeof(int8_t) + 1);
-          if (queue_response(packet) != SATR_OK) {
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        memcpy(&packet->data[OUT_DATA_BYTE], &S_FS, sizeof(S_FS));
+        set_packet_length(packet, sizeof(int8_t) + sizeof(S_FS) + 1);
+        if (queue_response(packet) != SATR_OK)
+        {
             return SATR_ERROR;
-          }
-          break;
+        }
+        break;
 
-      case S_SET_CONTROL:
-          S_config.PA.status = (uint8_t)packet->data[IN_DATA_BYTE];
-          S_config.PA.mode = (uint8_t)packet->data[IN_DATA_BYTE + 1];
-          S_config.PA.status = csp_ntoh32((uint32_t)S_config.PA.status);
-          S_config.PA.mode = csp_ntoh32((uint32_t)S_config.PA.mode);
-          status = HAL_S_setControl(S_config.PA);
-          memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-          set_packet_length(packet, sizeof(int8_t) +  1);
-          if (queue_response(packet) != SATR_OK) {
+    case S_SET_FREQ:
+        cnv8_F(&packet->data[IN_DATA_BYTE], &S_config.freq);
+        S_config.freq = csp_ntohflt(S_config.freq);
+        status = HAL_S_setFreq(S_config.freq);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        set_packet_length(packet, sizeof(int8_t) + 1);
+        if (queue_response(packet) != SATR_OK)
+        {
             return SATR_ERROR;
-          }
-          break;
+        }
+        break;
 
-      case S_SET_ENCODER:
-          S_config.enc.scrambler = (uint8_t)packet->data[IN_DATA_BYTE];
-          S_config.enc.filter = (uint8_t)packet->data[IN_DATA_BYTE + 1];
-          S_config.enc.modulation = (uint8_t)packet->data[IN_DATA_BYTE + 2];
-          S_config.enc.rate = (uint8_t)packet->data[IN_DATA_BYTE + 3];
-          S_config.enc.scrambler = csp_ntoh32((uint32_t)S_config.enc.scrambler);
-          S_config.enc.filter = csp_ntoh32((uint32_t)S_config.enc.filter);
-          S_config.enc.modulation = csp_ntoh32((uint32_t)S_config.enc.modulation);
-          S_config.enc.rate = csp_ntoh32((uint32_t)S_config.enc.rate);
-          status = HAL_S_setEncoder(S_config.enc);
-          memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-          set_packet_length(packet, sizeof(int8_t) +  1);
-          if (queue_response(packet) != SATR_OK) {
+    case S_SET_PA_POWER:
+        S_config.PA_Power = (uint8_t) packet->data[IN_DATA_BYTE];
+        S_config.PA_Power = csp_ntoh32((uint32_t) S_config.PA_Power);
+        status = HAL_S_setPAPower(S_config.PA_Power);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        set_packet_length(packet, sizeof(int8_t) + 1);
+        if (queue_response(packet) != SATR_OK)
+        {
             return SATR_ERROR;
-          }
-          break;
+        }
+        break;
 
-      case S_SET_CONFIG:
-          cnv8_F(&packet->data[IN_DATA_BYTE], &S_config.freq);
-          S_config.freq = csp_ntohflt(S_config.freq);
-          S_config.PA_Power = (uint8_t)packet->data[IN_DATA_BYTE];//plus 4 because float takes 4B
-          S_config.PA_Power = csp_ntoh32((uint32_t)S_config.PA_Power);
-          S_config.PA.status = (uint8_t)packet->data[IN_DATA_BYTE + 1];
-          S_config.PA.mode = (uint8_t)packet->data[IN_DATA_BYTE + 2];
-          S_config.PA.status = csp_ntoh32((uint32_t)S_config.PA.status);
-          S_config.PA.mode = csp_ntoh32((uint32_t)S_config.PA.mode);
-          S_config.enc.scrambler = (uint8_t)packet->data[IN_DATA_BYTE + 3];
-          S_config.enc.filter = (uint8_t)packet->data[IN_DATA_BYTE + 4];
-          S_config.enc.modulation = (uint8_t)packet->data[IN_DATA_BYTE + 5];
-          S_config.enc.rate = (uint8_t)packet->data[IN_DATA_BYTE + 6];
-          S_config.enc.scrambler = csp_ntoh32((uint32_t)S_config.enc.scrambler);
-          S_config.enc.filter = csp_ntoh32((uint32_t)S_config.enc.filter);
-          S_config.enc.modulation = csp_ntoh32((uint32_t)S_config.enc.modulation);
-          S_config.enc.rate = csp_ntoh32((uint32_t)S_config.enc.rate);
-          status = HAL_S_setFreq (S_config.freq) +
-                  HAL_S_setPAPower(S_config.PA_Power) +
-                  HAL_S_setControl (S_config.PA) +
-                  HAL_S_setEncoder(S_config.enc);
-          memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-          set_packet_length(packet, sizeof(int8_t) +  1);
-          if (queue_response(packet) != SATR_OK) {
+    case S_SET_CONTROL:
+        S_config.PA.status = (uint8_t) packet->data[IN_DATA_BYTE];
+        S_config.PA.mode = (uint8_t) packet->data[IN_DATA_BYTE + 1];
+        S_config.PA.status = csp_ntoh32((uint32_t) S_config.PA.status);
+        S_config.PA.mode = csp_ntoh32((uint32_t) S_config.PA.mode);
+        status = HAL_S_setControl(S_config.PA);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        set_packet_length(packet, sizeof(int8_t) + 1);
+        if (queue_response(packet) != SATR_OK)
+        {
             return SATR_ERROR;
-          }
-          break;
+        }
+        break;
 
+    case S_SET_ENCODER:
+        S_config.enc.scrambler = (uint8_t) packet->data[IN_DATA_BYTE];
+        S_config.enc.filter = (uint8_t) packet->data[IN_DATA_BYTE + 1];
+        S_config.enc.modulation = (uint8_t) packet->data[IN_DATA_BYTE + 2];
+        S_config.enc.rate = (uint8_t) packet->data[IN_DATA_BYTE + 3];
+        S_config.enc.scrambler = csp_ntoh32((uint32_t) S_config.enc.scrambler);
+        S_config.enc.filter = csp_ntoh32((uint32_t) S_config.enc.filter);
+        S_config.enc.modulation = csp_ntoh32(
+                (uint32_t) S_config.enc.modulation);
+        S_config.enc.rate = csp_ntoh32((uint32_t) S_config.enc.rate);
+        status = HAL_S_setEncoder(S_config.enc);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        set_packet_length(packet, sizeof(int8_t) + 1);
+        if (queue_response(packet) != SATR_OK)
+        {
+            return SATR_ERROR;
+        }
+        break;
+
+    case S_SET_CONFIG:
+        cnv8_F(&packet->data[IN_DATA_BYTE], &S_config.freq);
+        S_config.freq = csp_ntohflt(S_config.freq);
+        S_config.PA_Power = (uint8_t) packet->data[IN_DATA_BYTE]; //plus 4 because float takes 4B
+        S_config.PA_Power = csp_ntoh32((uint32_t) S_config.PA_Power);
+        S_config.PA.status = (uint8_t) packet->data[IN_DATA_BYTE + 1];
+        S_config.PA.mode = (uint8_t) packet->data[IN_DATA_BYTE + 2];
+        S_config.PA.status = csp_ntoh32((uint32_t) S_config.PA.status);
+        S_config.PA.mode = csp_ntoh32((uint32_t) S_config.PA.mode);
+        S_config.enc.scrambler = (uint8_t) packet->data[IN_DATA_BYTE + 3];
+        S_config.enc.filter = (uint8_t) packet->data[IN_DATA_BYTE + 4];
+        S_config.enc.modulation = (uint8_t) packet->data[IN_DATA_BYTE + 5];
+        S_config.enc.rate = (uint8_t) packet->data[IN_DATA_BYTE + 6];
+        S_config.enc.scrambler = csp_ntoh32((uint32_t) S_config.enc.scrambler);
+        S_config.enc.filter = csp_ntoh32((uint32_t) S_config.enc.filter);
+        S_config.enc.modulation = csp_ntoh32(
+                (uint32_t) S_config.enc.modulation);
+        S_config.enc.rate = csp_ntoh32((uint32_t) S_config.enc.rate);
+        status = HAL_S_setFreq(S_config.freq)
+                + HAL_S_setPAPower(S_config.PA_Power)
+                + HAL_S_setControl(S_config.PA)
+                + HAL_S_setEncoder(S_config.enc);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        set_packet_length(packet, sizeof(int8_t) + 1);
+        if (queue_response(packet) != SATR_OK)
+        {
+            return SATR_ERROR;
+        }
+        break;
 
         // UHF Subservices
     case UHF_SET_STAT_CONTROL:
         for (i = 0; i < STAT_WORD_LEN; i++)
         {
-            U_stat.status_ctrl[i] =
-                    (uint8_t) packet->data[IN_DATA_BYTE + i];
+            U_stat.status_ctrl[i] = (uint8_t) packet->data[IN_DATA_BYTE + i];
             U_stat.status_ctrl[i] = csp_ntoh32(
                     (uint32_t) U_stat.status_ctrl[i]);
         }
@@ -417,16 +460,13 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
     case UHF_SET_PARAMS:
         cnv8_32(&packet->data[IN_DATA_BYTE], &U_stat.set.freq);
         U_stat.set.freq = csp_ntoh32(U_stat.set.freq);
-        cnv8_16LE(&packet->data[IN_DATA_BYTE + 4],
-                &U_stat.set.PIPE_t);
+        cnv8_16LE(&packet->data[IN_DATA_BYTE + 4], &U_stat.set.PIPE_t);
         U_stat.set.PIPE_t = csp_ntoh16(U_stat.set.PIPE_t);
-        cnv8_16LE(&packet->data[IN_DATA_BYTE + 6],
-                &U_stat.set.beacon_t);
+        cnv8_16LE(&packet->data[IN_DATA_BYTE + 6], &U_stat.set.beacon_t);
         U_stat.set.beacon_t = csp_ntoh16(U_stat.set.beacon_t);
-        cnv8_16LE(&packet->data[IN_DATA_BYTE + 8],
-                &U_stat.set.audio_t);
+        cnv8_16LE(&packet->data[IN_DATA_BYTE + 8], &U_stat.set.audio_t);
         U_stat.set.audio_t = csp_ntoh16(U_stat.set.audio_t);
-        status =  HAL_UHF_setFreq(U_stat.set.freq)
+        status = HAL_UHF_setFreq(U_stat.set.freq)
                 + HAL_UHF_setPIPEt(U_stat.set.PIPE_t)
                 + HAL_UHF_setBeaconT(U_stat.set.beacon_t)
                 + HAL_UHF_setAudioT(U_stat.set.audio_t);
@@ -462,7 +502,8 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         memcpy(&packet->data[OUT_DATA_BYTE], &U_stat.low_pwr_stat,
                sizeof(U_stat.low_pwr_stat));
-        set_packet_length(packet, sizeof(int8_t) + sizeof(U_stat.low_pwr_stat) + 1);
+        set_packet_length(packet,
+                          sizeof(int8_t) + sizeof(U_stat.low_pwr_stat) + 1);
         if (queue_response(packet) != SATR_OK)
         {
             return SATR_ERROR;
@@ -474,12 +515,12 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         uhf_struct_len = 6;
         U_callsign.dest.len = uhf_struct_len;
         for (i = 0; i < uhf_struct_len; i++)
-                {
-                    U_callsign.dest.message[i] =
-                            (uint8_t) packet->data[IN_DATA_BYTE + 3 + 4*i];
-                    U_callsign.dest.message[i] = csp_ntoh32(
-                            (uint32_t) U_callsign.dest.message[i]);
-                }
+        {
+            U_callsign.dest.message[i] = (uint8_t) packet->data[IN_DATA_BYTE + 3
+                    + 4 * i];
+            U_callsign.dest.message[i] = csp_ntoh32(
+                    (uint32_t) U_callsign.dest.message[i]);
+        }
         status = HAL_UHF_setDestination(U_callsign.dest);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         set_packet_length(packet, sizeof(int8_t) + 1);
@@ -494,12 +535,12 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         uhf_struct_len = 6;
         U_callsign.src.len = uhf_struct_len;
         for (i = 0; i < uhf_struct_len; i++)
-                {
-                    U_callsign.src.message[i] =
-                            (uint8_t) packet->data[IN_DATA_BYTE + 3 + 4*i];
-                    U_callsign.src.message[i] = csp_ntoh32(
-                            (uint32_t) U_callsign.src.message[i]);
-                }
+        {
+            U_callsign.src.message[i] = (uint8_t) packet->data[IN_DATA_BYTE + 3
+                    + 4 * i];
+            U_callsign.src.message[i] = csp_ntoh32(
+                    (uint32_t) U_callsign.src.message[i]);
+        }
         status = HAL_UHF_setSource(U_callsign.src);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         set_packet_length(packet, sizeof(int8_t) + 1);
@@ -514,12 +555,12 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         uhf_struct_len = 36;
         U_beacon.morse.len = uhf_struct_len;
         for (i = 0; i < uhf_struct_len; i++)
-                {
-                    U_beacon.morse.message[i] =
-                            (uint8_t) packet->data[IN_DATA_BYTE + 3 + 4*i];
-                    U_beacon.morse.message[i] = csp_ntoh32(
-                            (uint32_t) U_beacon.morse.message[i]);
-                }
+        {
+            U_beacon.morse.message[i] = (uint8_t) packet->data[IN_DATA_BYTE + 3
+                    + 4 * i];
+            U_beacon.morse.message[i] = csp_ntoh32(
+                    (uint32_t) U_beacon.morse.message[i]);
+        }
         status = HAL_UHF_setMorse(U_beacon.morse);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         set_packet_length(packet, sizeof(int8_t) + 1);
@@ -534,12 +575,12 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         uhf_struct_len = 36;
         U_beacon.MIDI.len = uhf_struct_len;
         for (i = 0; i < uhf_struct_len; i++)
-                {
-                    U_beacon.MIDI.message[i] =
-                            (uint8_t) packet->data[IN_DATA_BYTE + 3 + 4*i];
-                    U_beacon.MIDI.message[i] = csp_ntoh32(
-                            (uint32_t) U_beacon.MIDI.message[i]);
-                }
+        {
+            U_beacon.MIDI.message[i] = (uint8_t) packet->data[IN_DATA_BYTE + 3
+                    + 4 * i];
+            U_beacon.MIDI.message[i] = csp_ntoh32(
+                    (uint32_t) U_beacon.MIDI.message[i]);
+        }
         status = HAL_UHF_setMIDI(U_beacon.MIDI);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         set_packet_length(packet, sizeof(int8_t) + 1);
@@ -555,8 +596,8 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         U_beacon.message.len = uhf_struct_len;
         for (i = 0; i < uhf_struct_len; i++)
         {
-            U_beacon.message.message[i] =
-                    (uint8_t) packet->data[IN_DATA_BYTE + 4 + 4*i];
+            U_beacon.message.message[i] = (uint8_t) packet->data[IN_DATA_BYTE
+                    + 4 + 4 * i];
             U_beacon.message.message[i] = csp_ntoh32(
                     (uint32_t) U_beacon.message.message[i]);
         }
@@ -587,9 +628,8 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         for (i = 0; i < 16; i++)
         {
             U_FRAM.data[i] =
-                            (uint8_t) packet->data[IN_DATA_BYTE + 4 + 3 + 4*i];//4 for address
-            U_FRAM.data[i] = csp_ntoh32(
-                            (uint32_t) U_FRAM.data[i]);
+                    (uint8_t) packet->data[IN_DATA_BYTE + 4 + 3 + 4 * i]; //4 for address
+            U_FRAM.data[i] = csp_ntoh32((uint32_t) U_FRAM.data[i]);
         }
         status = HAL_UHF_setFRAM(U_FRAM);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -616,7 +656,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         break;
 
     case UHF_GET_FULL_STAT:
-        status =  HAL_UHF_getStatus(&U_stat.status_ctrl)
+        status = HAL_UHF_getStatus(&U_stat.status_ctrl)
                 + HAL_UHF_getFreq(&U_stat.set.freq)
                 + HAL_UHF_getUptime(&U_stat.uptime)
                 + HAL_UHF_getPcktsOut(&U_stat.pckts_out)
@@ -664,7 +704,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         break;
 
     case UHF_GET_CALL_SIGN:
-        status =  HAL_UHF_getDestination(&U_callsign.dest)
+        status = HAL_UHF_getDestination(&U_callsign.dest)
                 + HAL_UHF_getSource(&U_callsign.src);
 
         uhf_struct_len = 6;
@@ -672,22 +712,23 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         //uhf_struct_len = U_callsign.src.len;
         uint8_t dst[24]; //size of unicode char = 4
         uint8_t src[24];
-        memset(dst,0,24); // Using {0} not recommended, gives warnings and possible errors.
-        memset(src,0,24);
+        memset(dst, 0, 24); // Using {0} not recommended, gives warnings and possible errors.
+        memset(src, 0, 24);
         if (sizeof(dst) + sizeof(src) + 1 > csp_buffer_data_size())
-                {
-                    return SATR_ERROR;
-                }
+        {
+            return SATR_ERROR;
+        }
         for (i = 0; i < uhf_struct_len; i++)
-                {
-                    dst[3+4*i] = csp_hton32((uint32_t) U_callsign.dest.message[i]);
-                    src[3+4*i] = csp_hton32((uint32_t) U_callsign.src.message[i]);
-                }
+        {
+            dst[3 + 4 * i] = csp_hton32((uint32_t) U_callsign.dest.message[i]);
+            src[3 + 4 * i] = csp_hton32((uint32_t) U_callsign.src.message[i]);
+        }
 
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         memcpy(&packet->data[OUT_DATA_BYTE], &dst, sizeof(dst));
         memcpy(&packet->data[OUT_DATA_BYTE + sizeof(dst)], &src, sizeof(src));
-        set_packet_length(packet, sizeof(int8_t) + sizeof(dst) + sizeof(src)  + 1);
+        set_packet_length(packet,
+                          sizeof(int8_t) + sizeof(dst) + sizeof(src) + 1);
         if (queue_response(packet) != SATR_OK)
         {
             return SATR_ERROR;
@@ -700,16 +741,15 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         uhf_struct_len = 36;
         //uhf_struct_len = U_beacon.morse.len;
         uint8_t mrs[144]; //size of unicode char = 4
-        memset(mrs,0,144);
+        memset(mrs, 0, 144);
         if (sizeof(mrs) + 1 > csp_buffer_data_size())
-                {
-                    return SATR_ERROR;
-                }
+        {
+            return SATR_ERROR;
+        }
         for (i = 0; i < uhf_struct_len; i++)
-                {
-                    mrs[3+4*i] = csp_hton32(
-                            (uint32_t) U_beacon.morse.message[i]);
-                }
+        {
+            mrs[3 + 4 * i] = csp_hton32((uint32_t) U_beacon.morse.message[i]);
+        }
 
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         memcpy(&packet->data[OUT_DATA_BYTE], &mrs, sizeof(mrs));
@@ -726,16 +766,15 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         uhf_struct_len = 36;
         //uhf_struct_len = U_beacon.midi.len;
         uint8_t midi[144]; //size of unicode char = 4
-        memset(midi,0,144);
+        memset(midi, 0, 144);
         if (sizeof(midi) + 1 > csp_buffer_data_size())
         {
             return SATR_ERROR;
         }
         for (i = 0; i < uhf_struct_len; i++)
-                {
-                    midi[3+4*i] = csp_hton32(
-                            (uint32_t) U_beacon.MIDI.message[i]);
-                }
+        {
+            midi[3 + 4 * i] = csp_hton32((uint32_t) U_beacon.MIDI.message[i]);
+        }
 
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         memcpy(&packet->data[OUT_DATA_BYTE], &midi, sizeof(midi));
@@ -746,7 +785,6 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         }
         break;
 
-
     case UHF_GET_BEACON_MSG:
         status = HAL_UHF_getBeaconMsg(&U_beacon.message);
         //uhf_struct_len = U_beacon.message.len;//can't be variable unless GS is modified.
@@ -754,14 +792,14 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         //uint8_t beacon[4*MAX_W_CMDLEN];//too much for buffer size
         uhf_struct_len = 36;
         uint8_t beacon[144];
-        memset(beacon,0,144);
-        if (4*uhf_struct_len + 1 > csp_buffer_data_size())
-                {
-                    return SATR_ERROR;
-                }
+        memset(beacon, 0, 144);
+        if (4 * uhf_struct_len + 1 > csp_buffer_data_size())
+        {
+            return SATR_ERROR;
+        }
         for (i = 0; i < uhf_struct_len; i++)
         {
-            beacon[3+4*i] = csp_hton32(
+            beacon[3 + 4 * i] = csp_hton32(
                     (uint32_t) U_beacon.message.message[i]);
         }
 
@@ -776,15 +814,15 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
 
     case UHF_GET_FRAM: //doesn't need address?
         status = HAL_UHF_getFRAM(&U_FRAM);
-        uint8_t fram[64];//4*16
-        memset(fram,0,64);
+        uint8_t fram[64]; //4*16
+        memset(fram, 0, 64);
         if (sizeof(fram) + 1 > csp_buffer_data_size())
         {
             return SATR_ERROR;
         }
         for (i = 0; i < 16; i++)
         {
-            fram[3+4*i] = csp_hton32((uint32_t) U_FRAM.data[i]);
+            fram[3 + 4 * i] = csp_hton32((uint32_t) U_FRAM.data[i]);
         }
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         memcpy(&packet->data[OUT_DATA_BYTE], &fram, sizeof(fram));
@@ -796,10 +834,9 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         break;
 
     default:
-      ex2_log("No such subservice\n");
-      return SATR_PKT_ILLEGAL_SUBSERVICE;
-  }
-  return SATR_OK;
+        ex2_log("No such subservice\n");
+        return SATR_PKT_ILLEGAL_SUBSERVICE;
+    }
+    return SATR_OK;
 }
-
 
