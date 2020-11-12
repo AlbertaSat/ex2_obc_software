@@ -53,17 +53,12 @@ UHF_Call_Sign U_callsign;
 SAT_returnState communication_service_app(csp_packet_t *packet) {
   uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
   int8_t status;
-
-  //Sband_config S_config;
-
   int SID, i;
-
   uint8_t uhf_struct_len;
-
 
   switch (ser_subtype) {
 
-    case GET_FREQ:
+    case S_GET_FREQ:
         // Step 1: get the data
         status = HAL_S_getFreq (&S_config.freq);
         // Step 2: Check the size before proceeding
@@ -83,7 +78,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         }
         break;
 
-    case GET_CONTROL:
+    case S_GET_CONTROL:
       status = HAL_S_getControl (&S_config.PA);
       if (sizeof(S_config.PA) + 1 > csp_buffer_data_size()) {
         return SATR_ERROR;
@@ -100,7 +95,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       }
       break;
 
-    case GET_ENCODER:
+    case S_GET_ENCODER:
       status = HAL_S_getEncoder(&S_config.enc);
       if (sizeof(S_config.enc) + 1 > csp_buffer_data_size()) {
         return SATR_ERROR;
@@ -119,7 +114,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       }
       break;
 
-    case GET_PA_POWER:
+    case S_GET_PA_POWER:
       status = HAL_S_getPAPower(&S_config.PA_Power);
       if (sizeof(S_config.PA_Power) + 1 > csp_buffer_data_size()) {
         return SATR_ERROR;
@@ -133,7 +128,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       }
       break;
 
-    case GET_CONFIG:
+    case S_GET_CONFIG:
       status = HAL_S_getFreq (&S_config.freq) + HAL_S_getPAPower(&S_config.PA_Power) +
                HAL_S_getControl (&S_config.PA) + HAL_S_getEncoder(&S_config.enc);
 
@@ -157,7 +152,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       }
       break;
 
-    case GET_STATUS:
+    case S_GET_STATUS:
       status = HAL_S_getStatus (&S_FS.status);
       if (sizeof(S_FS.status) + 1 > csp_buffer_data_size()) {
         return SATR_ERROR;
@@ -173,7 +168,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       }
       break;
 
-    case GET_TR:
+    case S_GET_TR:
         status = HAL_S_getTR(&S_FS.transmit);
         if (sizeof(S_FS.transmit) + 1 > csp_buffer_data_size()) {
           return SATR_ERROR;
@@ -187,7 +182,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         }
         break;
 
-    case GET_HK:
+    case S_GET_HK:
         status = HAL_S_getHK (&S_FS.HK);
         if (sizeof(S_FS.HK) + 1 > csp_buffer_data_size()) {
           return SATR_ERROR;
@@ -210,7 +205,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         }
         break;
 
-    case GET_BUFFER:
+    case S_GET_BUFFER:
       SID = packet->data[SID_byte];
       if (SID<0 || SID > 2){
           return SATR_PKT_ILLEGAL_SUBSERVICE;
@@ -229,7 +224,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       }
       break;
 
-    case SOFT_RESET:
+    case S_SOFT_RESET:
       status = HAL_S_softResetFPGA();
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       set_packet_length(packet, sizeof(int8_t) + 1);
@@ -238,7 +233,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       }
       break;
 
-    case GET_FULL_STATUS:
+    case S_GET_FULL_STATUS:
       status = HAL_S_getStatus (&S_FS.status) + HAL_S_getTR(&S_FS.transmit) + HAL_S_getHK(&S_FS.HK);
       status += HAL_S_getFV(&S_FS.Firmware_Version);
       for (i=0 ; i<=2 ; i++){
@@ -271,7 +266,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       }
       break;
 
-      case SET_FREQ:
+      case S_SET_FREQ:
           cnv8_F(&packet->data[IN_DATA_BYTE], &S_config.freq);
           S_config.freq = csp_ntohflt(S_config.freq);
           status = HAL_S_setFreq(S_config.freq);
@@ -283,7 +278,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
           break;
 
 
-      case SET_PA_POWER:
+      case S_SET_PA_POWER:
           S_config.PA_Power = (uint8_t)packet->data[IN_DATA_BYTE];
           S_config.PA_Power = csp_ntoh32((uint32_t)S_config.PA_Power);
           status = HAL_S_setPAPower(S_config.PA_Power);
@@ -294,7 +289,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
           }
           break;
 
-      case SET_CONTROL:
+      case S_SET_CONTROL:
           S_config.PA.status = (uint8_t)packet->data[IN_DATA_BYTE];
           S_config.PA.mode = (uint8_t)packet->data[IN_DATA_BYTE + 1];
           S_config.PA.status = csp_ntoh32((uint32_t)S_config.PA.status);
@@ -307,7 +302,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
           }
           break;
 
-      case SET_ENCODER:
+      case S_SET_ENCODER:
           S_config.enc.scrambler = (uint8_t)packet->data[IN_DATA_BYTE];
           S_config.enc.filter = (uint8_t)packet->data[IN_DATA_BYTE + 1];
           S_config.enc.modulation = (uint8_t)packet->data[IN_DATA_BYTE + 2];
@@ -324,10 +319,9 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
           }
           break;
 
-      case SET_CONFIG:
-          // Currently frequency can't be set here.
-          //cnv8_F(&packet->data[IN_DATA_BYTE], &S_config.freq);
-          //S_config.freq = csp_ntohflt(S_config.freq);
+      case S_SET_CONFIG:
+          cnv8_F(&packet->data[IN_DATA_BYTE], &S_config.freq);
+          S_config.freq = csp_ntohflt(S_config.freq);
           S_config.PA_Power = (uint8_t)packet->data[IN_DATA_BYTE];//plus 4 because float takes 4B
           S_config.PA_Power = csp_ntoh32((uint32_t)S_config.PA_Power);
           S_config.PA.status = (uint8_t)packet->data[IN_DATA_BYTE + 1];
@@ -342,7 +336,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
           S_config.enc.filter = csp_ntoh32((uint32_t)S_config.enc.filter);
           S_config.enc.modulation = csp_ntoh32((uint32_t)S_config.enc.modulation);
           S_config.enc.rate = csp_ntoh32((uint32_t)S_config.enc.rate);
-          status = //HAL_S_setFreq (&S_config.freq) +
+          status = HAL_S_setFreq (S_config.freq) +
                   HAL_S_setPAPower(S_config.PA_Power) +
                   HAL_S_setControl (S_config.PA) +
                   HAL_S_setEncoder(S_config.enc);
@@ -356,7 +350,6 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
 
         // UHF Subservices
     case UHF_SET_STAT_CONTROL:
-        // might be able to do it without for.
         for (i = 0; i < STAT_WORD_LEN; i++)
         {
             U_stat.status_ctrl[i] =
@@ -386,12 +379,10 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         break;
 
     case UHF_SET_PIPE_TIMEOUT:
-        //SID = (uint8_t) packet->data[IN_DATA_BYTE+1];
         cnv8_16LE(&packet->data[IN_DATA_BYTE], &U_stat.set.PIPE_t);
         U_stat.set.PIPE_t = csp_ntoh16(U_stat.set.PIPE_t);
         status = HAL_UHF_setPIPEt(U_stat.set.PIPE_t);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-        //memcpy(&packet->data[STATUS_BYTE], &SID, sizeof(int8_t));
         set_packet_length(packet, sizeof(int8_t) + 1);
         if (queue_response(packet) != SATR_OK)
         {
@@ -463,7 +454,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         break;
 
     case UHF_LOW_PWR:
-        status = HAL_UHF_lowPwr(&U_stat.low_pwr_stat); //should it be static and in the header?
+        status = HAL_UHF_lowPwr(&U_stat.low_pwr_stat);
         if (sizeof(U_stat.low_pwr_stat) + 1 > csp_buffer_data_size())
         {
             return SATR_ERROR;
@@ -480,9 +471,8 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
 
     case UHF_SET_DEST:
         //uhf_struct_len = (uint8_t) packet->data[IN_DATA_BYTE]; //If using this, add +1 in the loop
-        uhf_struct_len = 6;//should be 6
+        uhf_struct_len = 6;
         U_callsign.dest.len = uhf_struct_len;
-        //memcpy(&packet->data[IN_DATA_BYTE],U_callsign.dest.message,uhf_struct_len);
         for (i = 0; i < uhf_struct_len; i++)
                 {
                     U_callsign.dest.message[i] =
@@ -759,11 +749,12 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
 
     case UHF_GET_BEACON_MSG:
         status = HAL_UHF_getBeaconMsg(&U_beacon.message);
-
-        uhf_struct_len = U_beacon.message.len;
-        //uint8_t beacon[4*uhf_struct_len]={0};
-        uint8_t beacon[4*MAX_W_CMDLEN];//tto much for buffer size
-        memset(beacon,0,4*MAX_W_CMDLEN);
+        //uhf_struct_len = U_beacon.message.len;//can't be variable unless GS is modified.
+        //uint8_t beacon[4*uhf_struct_len];
+        //uint8_t beacon[4*MAX_W_CMDLEN];//too much for buffer size
+        uhf_struct_len = 36;
+        uint8_t beacon[144];
+        memset(beacon,0,144);
         if (4*uhf_struct_len + 1 > csp_buffer_data_size())
                 {
                     return SATR_ERROR;
@@ -775,8 +766,8 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         }
 
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-        memcpy(&packet->data[OUT_DATA_BYTE], &beacon, 4*uhf_struct_len);
-        set_packet_length(packet, sizeof(int8_t) + 4*uhf_struct_len + 1);
+        memcpy(&packet->data[OUT_DATA_BYTE], &beacon, sizeof(beacon));
+        set_packet_length(packet, sizeof(int8_t) + sizeof(beacon) + 1);
         if (queue_response(packet) != SATR_OK)
         {
             return SATR_ERROR;
