@@ -21,187 +21,188 @@
  * When TRX connected, the stubbed blocks can be used for TRX = off situation.
  */
 
-
-#include "obc_hal.h"
 #include "comms_hal.h"
-#include "hal.h"
-#include "services.h"
-#include "queue.h"
 
-//For storing the set data
+#include "hal.h"
+#include "obc_hal.h"
+#include "queue.h"
+#include "services.h"
+
+// For storing the set data
 static Sband_config S_config_reg;
 static Sband_Full_Status S_FS;
 STX_return status;
 
-STX_return HAL_S_getFreq (float * S_freq) {
-  #ifndef SBAND_IS_STUBBED
-    status = STX_getFrequency(&S_config_reg.freq);
-  #else
-    //*S_freq = (float)2210.5;
-    status = IS_STUBBED;
-  #endif
-    *S_freq = S_config_reg.freq;
-    return status;
+STX_return HAL_S_getFreq(float *S_freq) {
+#ifndef SBAND_IS_STUBBED
+  status = STX_getFrequency(&S_config_reg.freq);
+#else
+  //*S_freq = (float)2210.5;
+  status = IS_STUBBED;
+#endif
+  *S_freq = S_config_reg.freq;
+  return status;
 };
 
-STX_return HAL_S_getControl (Sband_PowerAmplifier *S_PA) {
-  #ifndef SBAND_IS_STUBBED
-    status = STX_getControl(&S_config_reg.PA.status , &S_config_reg.PA.mode);
-  #else
-    //S_PA->status = 1;
-    //S_PA->mode = 3;
-    status = IS_STUBBED;
-  #endif
-    *S_PA = S_config_reg.PA;
-    return status;
+STX_return HAL_S_getControl(Sband_PowerAmplifier *S_PA) {
+#ifndef SBAND_IS_STUBBED
+  status = STX_getControl(&S_config_reg.PA.status, &S_config_reg.PA.mode);
+#else
+  // S_PA->status = 1;
+  // S_PA->mode = 3;
+  status = IS_STUBBED;
+#endif
+  *S_PA = S_config_reg.PA;
+  return status;
 };
 
-STX_return HAL_S_getEncoder (Sband_Encoder *S_Enc){
-  #ifndef SBAND_IS_STUBBED
-    status = STX_getEncoder(&S_config_reg.enc.scrambler, &S_config_reg.enc.filter, &S_config_reg.enc.modulation, &S_config_reg.enc.rate);
-  #else
-    //S_Enc->scrambler = 1;
-    //S_Enc->filter = 6;
-    //S_Enc->modulation = 5;
-    //S_Enc->rate = 4;
-    status = IS_STUBBED;
-  #endif
-    *S_Enc = S_config_reg.enc;
-    return status;
+STX_return HAL_S_getEncoder(Sband_Encoder *S_Enc) {
+#ifndef SBAND_IS_STUBBED
+  status = STX_getEncoder(&S_config_reg.enc.scrambler, &S_config_reg.enc.filter,
+                          &S_config_reg.enc.modulation, &S_config_reg.enc.rate);
+#else
+  // S_Enc->scrambler = 1;
+  // S_Enc->filter = 6;
+  // S_Enc->modulation = 5;
+  // S_Enc->rate = 4;
+  status = IS_STUBBED;
+#endif
+  *S_Enc = S_config_reg.enc;
+  return status;
 }
 
-STX_return HAL_S_getPAPower (uint8_t * S_PA_Power) {
-  #ifndef SBAND_IS_STUBBED
-    status = STX_getPaPower(&S_config_reg.PA_Power);
-  #else
-    //*S_PA_Power = 2;
-    status = IS_STUBBED;
-  #endif
-    *S_PA_Power = S_config_reg.PA_Power;
-    return status;
+STX_return HAL_S_getPAPower(uint8_t *S_PA_Power) {
+#ifndef SBAND_IS_STUBBED
+  status = STX_getPaPower(&S_config_reg.PA_Power);
+#else
+  //*S_PA_Power = 2;
+  status = IS_STUBBED;
+#endif
+  *S_PA_Power = S_config_reg.PA_Power;
+  return status;
 };
 
-
-STX_return HAL_S_getStatus (Sband_Status *S_status){
-  #ifndef SBAND_IS_STUBBED
-    status = STX_getStatus(&S_FS.status.PWRGD, &S_FS.status.PWRGD);
-  #else
-    S_FS.status.PWRGD = 1;
-    //S_status->PWRGD = 1;
-    S_FS.status.TXL = 1;
-    //S_status->TXL = 1;
-    status = IS_STUBBED;
-  #endif
-    *S_status = S_FS.status;
-    return status;
+STX_return HAL_S_getStatus(Sband_Status *S_status) {
+#ifndef SBAND_IS_STUBBED
+  status = STX_getStatus(&S_FS.status.PWRGD, &S_FS.status.PWRGD);
+#else
+  S_FS.status.PWRGD = 1;
+  // S_status->PWRGD = 1;
+  S_FS.status.TXL = 1;
+  // S_status->TXL = 1;
+  status = IS_STUBBED;
+#endif
+  *S_status = S_FS.status;
+  return status;
 }
 
-STX_return HAL_S_getTR (Sband_TR *S_transmit){
-  #ifndef SBAND_IS_STUBBED
-    status = STX_getTR(&S_FS.transmit.transmit);
-  #else
-    S_FS.transmit.transmit = 1;
-    //S_transmit->transmit = 1;
-    status = IS_STUBBED;
-  #endif
-    *S_transmit = S_FS.transmit;
-    return status;
+STX_return HAL_S_getTR(Sband_TR *S_transmit) {
+#ifndef SBAND_IS_STUBBED
+  status = STX_getTR(&S_FS.transmit.transmit);
+#else
+  S_FS.transmit.transmit = 1;
+  // S_transmit->transmit = 1;
+  status = IS_STUBBED;
+#endif
+  *S_transmit = S_FS.transmit;
+  return status;
 }
 
-STX_return HAL_S_getHK (Sband_Housekeeping *S_hk) {
-  #ifndef SBAND_IS_STUBBED
-    status = STX_getHK(&S_FS.HK);
-  #else
-    S_FS.HK.Output_Power = 26;
-    S_FS.HK.PA_Temp = 27.3;
-    S_FS.HK.Top_Temp = -2.8;
-    S_FS.HK.Bottom_Temp = 11.7;
-    S_FS.HK.Bat_Current = 95;
-    S_FS.HK.Bat_Voltage = 7.2;
-    S_FS.HK.PA_Current = 0.48;
-    S_FS.HK.PA_Voltage = 5.1;
-    /*
-    S_hk->Output_Power = 26;
-    S_hk->PA_Temp = 27.3;
-    S_hk->Top_Temp = -2.8;
-    S_hk->Bottom_Temp = 11.7;
-    S_hk->Bat_Current = 95;
-    S_hk->Bat_Voltage = 7.2;
-    S_hk->PA_Current = 0.48;
-    S_hk->PA_Voltage = 5.1;
-    */
-    status = IS_STUBBED;
-  #endif
-    *S_hk = S_FS.HK;
-    return status;
+STX_return HAL_S_getHK(Sband_Housekeeping *S_hk) {
+#ifndef SBAND_IS_STUBBED
+  status = STX_getHK(&S_FS.HK);
+#else
+  S_FS.HK.Output_Power = 26;
+  S_FS.HK.PA_Temp = 27.3;
+  S_FS.HK.Top_Temp = -2.8;
+  S_FS.HK.Bottom_Temp = 11.7;
+  S_FS.HK.Bat_Current = 95;
+  S_FS.HK.Bat_Voltage = 7.2;
+  S_FS.HK.PA_Current = 0.48;
+  S_FS.HK.PA_Voltage = 5.1;
+  /*
+  S_hk->Output_Power = 26;
+  S_hk->PA_Temp = 27.3;
+  S_hk->Top_Temp = -2.8;
+  S_hk->Bottom_Temp = 11.7;
+  S_hk->Bat_Current = 95;
+  S_hk->Bat_Voltage = 7.2;
+  S_hk->PA_Current = 0.48;
+  S_hk->PA_Voltage = 5.1;
+  */
+  status = IS_STUBBED;
+#endif
+  *S_hk = S_FS.HK;
+  return status;
 }
 
 /* The switch operation might be better implemented here than in EH */
-STX_return HAL_S_getBuffer (int quantity, Sband_Buffer *S_buffer) {
-    /* Although there is no writing data, we can call a function like them*/
-  #ifndef SBAND_IS_STUBBED
-    status = STX_getBuffer(quantity, &S_FS.buffer.pointer[quantity]);
-  #else
-    S_FS.buffer.pointer[quantity] = quantity;
-    //S_buffer->pointer[quantity] = quantity;
-    status = IS_STUBBED;
-  #endif
-    *S_buffer = S_FS.buffer;
-    return status;
+STX_return HAL_S_getBuffer(int quantity, Sband_Buffer *S_buffer) {
+  /* Although there is no writing data, we can call a function like them*/
+#ifndef SBAND_IS_STUBBED
+  status = STX_getBuffer(quantity, &S_FS.buffer.pointer[quantity]);
+#else
+  S_FS.buffer.pointer[quantity] = quantity;
+  // S_buffer->pointer[quantity] = quantity;
+  status = IS_STUBBED;
+#endif
+  *S_buffer = S_FS.buffer;
+  return status;
 }
 
-STX_return HAL_S_softResetFPGA (void) {
-  #ifdef SBAND_IS_STUBBED
-    return IS_STUBBED;
-  #else
-    return STX_softResetFPGA(void);
-  #endif
+STX_return HAL_S_softResetFPGA(void) {
+#ifdef SBAND_IS_STUBBED
+  return IS_STUBBED;
+#else
+  return STX_softResetFPGA(void);
+#endif
 }
 
-STX_return HAL_S_getFV (float * S_firmware_Version) {
-  #ifndef SBAND_IS_STUBBED
-    status = STX_getFirmwareV(&S_FS.Firmware_Version);
-  #else
-    S_FS.Firmware_Version = 7.14;
-    //*S_firmware_Version = 7.14;
-    status = IS_STUBBED;
-  #endif
-    *S_firmware_Version = S_FS.Firmware_Version;
-    return status;
+STX_return HAL_S_getFV(float *S_firmware_Version) {
+#ifndef SBAND_IS_STUBBED
+  status = STX_getFirmwareV(&S_FS.Firmware_Version);
+#else
+  S_FS.Firmware_Version = 7.14;
+  //*S_firmware_Version = 7.14;
+  status = IS_STUBBED;
+#endif
+  *S_firmware_Version = S_FS.Firmware_Version;
+  return status;
 }
 
-STX_return HAL_S_setFreq (float S_freq_new) {
-    S_config_reg.freq =  S_freq_new;
-  #ifdef SBAND_IS_STUBBED
-    return IS_STUBBED;
-  #else
-    return STX_setFreq(S_config_reg.freq);
-  #endif
+STX_return HAL_S_setFreq(float S_freq_new) {
+  S_config_reg.freq = S_freq_new;
+#ifdef SBAND_IS_STUBBED
+  return IS_STUBBED;
+#else
+  return STX_setFreq(S_config_reg.freq);
+#endif
 }
 
-STX_return HAL_S_setPAPower (uint8_t S_PA_Power_new) {
-    S_config_reg.PA_Power = S_PA_Power_new;
-    #ifdef SBAND_IS_STUBBED
-    return IS_STUBBED;
-  #else
-    return STX_setPaPower(S_config_reg.PA_Power);
-  #endif
+STX_return HAL_S_setPAPower(uint8_t S_PA_Power_new) {
+  S_config_reg.PA_Power = S_PA_Power_new;
+#ifdef SBAND_IS_STUBBED
+  return IS_STUBBED;
+#else
+  return STX_setPaPower(S_config_reg.PA_Power);
+#endif
 }
 
-STX_return HAL_S_setControl (Sband_PowerAmplifier S_PA_new){
+STX_return HAL_S_setControl(Sband_PowerAmplifier S_PA_new) {
   S_config_reg.PA = S_PA_new;
-  #ifdef SBAND_IS_STUBBED
-    return IS_STUBBED;
-  #else
-    return STX_setControl(S_config_reg.PA.status, S_config_reg.PA.mode);
-  #endif
+#ifdef SBAND_IS_STUBBED
+  return IS_STUBBED;
+#else
+  return STX_setControl(S_config_reg.PA.status, S_config_reg.PA.mode);
+#endif
 }
 
-STX_return HAL_S_setEncoder (Sband_Encoder S_enc_new){
-    S_config_reg.enc = S_enc_new;
-    #ifdef SBAND_IS_STUBBED
-    return IS_STUBBED;
-  #else
-    return STX_setEncoder(S_config_reg.enc.scrambler, S_config_reg.enc.filter, S_config_reg.enc.modulation, S_config_reg.enc.rate);
-  #endif
+STX_return HAL_S_setEncoder(Sband_Encoder S_enc_new) {
+  S_config_reg.enc = S_enc_new;
+#ifdef SBAND_IS_STUBBED
+  return IS_STUBBED;
+#else
+  return STX_setEncoder(S_config_reg.enc.scrambler, S_config_reg.enc.filter,
+                        S_config_reg.enc.modulation, S_config_reg.enc.rate);
+#endif
 }

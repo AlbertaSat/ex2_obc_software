@@ -22,8 +22,7 @@
 
 #include "services.h"
 
-
-#define MAX_W_CMDLEN 120 //from uTransceiver.h
+#define MAX_W_CMDLEN 120  // from uTransceiver.h
 #define STAT_WORD_LEN 12
 
 struct temp_utc {
@@ -31,15 +30,15 @@ struct temp_utc {
 };
 
 typedef struct __attribute__((packed)) {
-    uint8_t status;
-    uint8_t mode;
+  uint8_t status;
+  uint8_t mode;
 } Sband_PowerAmplifier;
 
 typedef struct __attribute__((packed)) {
-    uint8_t scrambler;
-    uint8_t filter;
-    uint8_t modulation;
-    uint8_t rate;
+  uint8_t scrambler;
+  uint8_t filter;
+  uint8_t modulation;
+  uint8_t rate;
 } Sband_Encoder;
 
 typedef struct __attribute__((packed)) {
@@ -50,14 +49,13 @@ typedef struct __attribute__((packed)) {
 } Sband_config;
 
 typedef struct __attribute__((packed)) {
-    uint8_t PWRGD;
-    uint8_t TXL;
+  uint8_t PWRGD;
+  uint8_t TXL;
 } Sband_Status;
 
 typedef struct __attribute__((packed)) {
-    int transmit;
+  int transmit;
 } Sband_TR;
-
 
 typedef struct __attribute__((packed)) {
   float Output_Power;
@@ -68,71 +66,69 @@ typedef struct __attribute__((packed)) {
   float Bat_Voltage;
   float PA_Current;
   float PA_Voltage;
-} Sband_Housekeeping; //might be better if called from sTransmiter.h?
+} Sband_Housekeeping;  // might be better if called from sTransmiter.h?
 
 typedef struct __attribute__((packed)) {
   uint16_t pointer[3];
 } Sband_Buffer;
 
 typedef struct __attribute__((packed)) {
-    Sband_Status status;
-    Sband_TR transmit;
-    Sband_Buffer buffer;
-    Sband_Housekeeping HK;
-    float Firmware_Version;
+  Sband_Status status;
+  Sband_TR transmit;
+  Sband_Buffer buffer;
+  Sband_Housekeeping HK;
+  float Firmware_Version;
 } Sband_Full_Status;
 
-
 typedef struct __attribute__((packed)) {
-    uint32_t freq;
-    uint16_t PIPE_t;
-    uint16_t beacon_t;
-    uint16_t audio_t;
+  uint32_t freq;
+  uint16_t PIPE_t;
+  uint16_t beacon_t;
+  uint16_t audio_t;
 } UHF_Settings;
 
 typedef struct __attribute__((packed)) {
-    uint8_t status_ctrl[12];
-    UHF_Settings set;
-    uint32_t uptime;
-    uint32_t pckts_out;
-    uint32_t pckts_in;
-    uint32_t pckts_in_crc16;
-    float temperature;
-    uint8_t low_pwr_stat;
-    uint8_t firmware_ver;
-    uint16_t payload_size;
-    uint32_t secure_key;
+  uint8_t status_ctrl[12];
+  UHF_Settings set;
+  uint32_t uptime;
+  uint32_t pckts_out;
+  uint32_t pckts_in;
+  uint32_t pckts_in_crc16;
+  float temperature;
+  uint8_t low_pwr_stat;
+  uint8_t firmware_ver;
+  uint16_t payload_size;
+  uint32_t secure_key;
 } UHF_Status;
 
 typedef struct __attribute__((packed)) {
-    uint8_t confirm;
+  uint8_t confirm;
 } UHF_Confirm;
 
 typedef struct __attribute__((packed)) {
-    uint8_t add;
+  uint8_t add;
 } UHF_Address;
 
-typedef struct {//from uTransceiver.h
+typedef struct {  // from uTransceiver.h
   uint8_t len;
   uint8_t message[MAX_W_CMDLEN];
 } UHF_configStruct;
 
-typedef struct {//from uTransceiver.h
-  uint32_t add;//address
+typedef struct {  // from uTransceiver.h
+  uint32_t add;   // address
   uint8_t data[16];
 } UHF_framStruct;
 
 typedef struct __attribute__((packed)) {
-    UHF_configStruct dest;
-    UHF_configStruct src;
+  UHF_configStruct dest;
+  UHF_configStruct src;
 } UHF_Call_Sign;
 
 typedef struct __attribute__((packed)) {
-    UHF_configStruct morse;
-    UHF_configStruct MIDI;
-    UHF_configStruct message;
+  UHF_configStruct morse;
+  UHF_configStruct MIDI;
+  UHF_configStruct message;
 } UHF_Beacon;
-
 
 /*Valid values*/
 #define MIN_FREQ = 2200;
