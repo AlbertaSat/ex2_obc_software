@@ -19,24 +19,25 @@
 
 #include "communication_service.h"
 
+#include <FreeRTOS.h>
+#include <csp/csp.h>
+#include <csp/csp_endian.h>
+
 #include "comms_hal.h"
 #include "service_response.h"
 #include "service_utilities.h"
+#include "services.h"
 #include "system.h"
 #include "uhf_hal.h"
 
-static uint8_t SID_byte = 1;
+#define CHAR_LEN 4  // Numpy unicode string character length
+#define CALLSIGN_LEN 6
+#define BEACON_MSG_LEN_MAX 36
+#define FRAM_SIZE 16
+#define SID_byte 1
+
 static Sband_config S_config;  // In two different situations, globalization has
                                // resolved issues in set_freq
-Sband_Full_Status S_FS;        // FS: Full Status
-
-UHF_Status U_stat;
-UHF_Beacon U_beacon;
-UHF_framStruct U_FRAM;
-UHF_Address U_I2C_add;
-UHF_Confirm U_restore;
-UHF_Confirm U_is_secure;
-UHF_Call_Sign U_callsign;
 
 /**
  * @brief
@@ -44,7 +45,7 @@ UHF_Call_Sign U_callsign;
  * @details
  *      Reads/Writes data from communication EHs as subservices
  * @attention
- *      More subservices are to be added.
+ *      Some subservices return the aggregation of error status of multiple HALs
  * @param *packet
  *      The CSP packet
  * @return SAT_returnState
@@ -53,9 +54,21 @@ UHF_Call_Sign U_callsign;
 
 SAT_returnState communication_service_app(csp_packet_t *packet) {
   uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
-  int8_t status;
-  int SID, i;
+  int8_t status;  // Status of HAL functions success
   uint8_t uhf_struct_len;
+  int i;    // For indexing in multiple loops
+  int SID;  // The identifier in the packet
+
+  // Sband_config S_config;
+  Sband_Full_Status S_FS;  // FS: Full Status
+
+  UHF_Status U_stat;
+  UHF_Beacon U_beacon;
+  UHF_framStruct U_FRAM;
+  UHF_Address U_I2C_add;
+  UHF_Confirm U_restore;
+  UHF_Confirm U_is_secure;
+  UHF_Call_Sign U_callsign;
 
   switch (ser_subtype) {
     case S_GET_FREQ:
@@ -330,16 +343,17 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       cnv8_F(&packet->data[IN_DATA_BYTE], &S_config.freq);
       S_config.freq = csp_ntohflt(S_config.freq);
       S_config.PA_Power =
-          (uint8_t)packet->data[IN_DATA_BYTE];  // plus 4 because float takes 4B
+          (uint8_t)
+              packet->data[IN_DATA_BYTE + 4];  // plus 4 because float takes 4B
       S_config.PA_Power = csp_ntoh32((uint32_t)S_config.PA_Power);
-      S_config.PA.status = (uint8_t)packet->data[IN_DATA_BYTE + 1];
-      S_config.PA.mode = (uint8_t)packet->data[IN_DATA_BYTE + 2];
+      S_config.PA.status = (uint8_t)packet->data[IN_DATA_BYTE + 5];
+      S_config.PA.mode = (uint8_t)packet->data[IN_DATA_BYTE + 6];
       S_config.PA.status = csp_ntoh32((uint32_t)S_config.PA.status);
       S_config.PA.mode = csp_ntoh32((uint32_t)S_config.PA.mode);
-      S_config.enc.scrambler = (uint8_t)packet->data[IN_DATA_BYTE + 3];
-      S_config.enc.filter = (uint8_t)packet->data[IN_DATA_BYTE + 4];
-      S_config.enc.modulation = (uint8_t)packet->data[IN_DATA_BYTE + 5];
-      S_config.enc.rate = (uint8_t)packet->data[IN_DATA_BYTE + 6];
+      S_config.enc.scrambler = (uint8_t)packet->data[IN_DATA_BYTE + 7];
+      S_config.enc.filter = (uint8_t)packet->data[IN_DATA_BYTE + 8];
+      S_config.enc.modulation = (uint8_t)packet->data[IN_DATA_BYTE + 9];
+      S_config.enc.rate = (uint8_t)packet->data[IN_DATA_BYTE + 10];
       S_config.enc.scrambler = csp_ntoh32((uint32_t)S_config.enc.scrambler);
       S_config.enc.filter = csp_ntoh32((uint32_t)S_config.enc.filter);
       S_config.enc.modulation = csp_ntoh32((uint32_t)S_config.enc.modulation);
@@ -354,7 +368,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       }
       break;
 
-      // UHF Subservices
+      /* UHF Subservices */
     case UHF_SET_STAT_CONTROL:
       for (i = 0; i < STAT_WORD_LEN; i++) {
         U_stat.status_ctrl[i] = (uint8_t)packet->data[IN_DATA_BYTE + i];
@@ -380,9 +394,9 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       break;
 
     case UHF_SET_PIPE_TIMEOUT:
-      cnv8_16LE(&packet->data[IN_DATA_BYTE], &U_stat.set.PIPE_t);
-      U_stat.set.PIPE_t = csp_ntoh16(U_stat.set.PIPE_t);
-      status = HAL_UHF_setPIPEt(U_stat.set.PIPE_t);
+      cnv8_16LE(&packet->data[IN_DATA_BYTE], &U_stat.set.pipe_t);
+      U_stat.set.pipe_t = csp_ntoh16(U_stat.set.pipe_t);
+      status = HAL_UHF_setPipeT(U_stat.set.pipe_t);
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       set_packet_length(packet, sizeof(int8_t) + 1);
       if (queue_response(packet) != SATR_OK) {
@@ -415,14 +429,14 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
     case UHF_SET_PARAMS:
       cnv8_32(&packet->data[IN_DATA_BYTE], &U_stat.set.freq);
       U_stat.set.freq = csp_ntoh32(U_stat.set.freq);
-      cnv8_16LE(&packet->data[IN_DATA_BYTE + 4], &U_stat.set.PIPE_t);
-      U_stat.set.PIPE_t = csp_ntoh16(U_stat.set.PIPE_t);
+      cnv8_16LE(&packet->data[IN_DATA_BYTE + 4], &U_stat.set.pipe_t);
+      U_stat.set.pipe_t = csp_ntoh16(U_stat.set.pipe_t);
       cnv8_16LE(&packet->data[IN_DATA_BYTE + 6], &U_stat.set.beacon_t);
       U_stat.set.beacon_t = csp_ntoh16(U_stat.set.beacon_t);
       cnv8_16LE(&packet->data[IN_DATA_BYTE + 8], &U_stat.set.audio_t);
       U_stat.set.audio_t = csp_ntoh16(U_stat.set.audio_t);
       status = HAL_UHF_setFreq(U_stat.set.freq) +
-               HAL_UHF_setPIPEt(U_stat.set.PIPE_t) +
+               HAL_UHF_setPipeT(U_stat.set.pipe_t) +
                HAL_UHF_setBeaconT(U_stat.set.beacon_t) +
                HAL_UHF_setAudioT(U_stat.set.audio_t);
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -461,13 +475,11 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       break;
 
     case UHF_SET_DEST:
-      // uhf_struct_len = (uint8_t) packet->data[IN_DATA_BYTE]; //If using this,
-      // add +1 in the loop
-      uhf_struct_len = 6;
+      uhf_struct_len = CALLSIGN_LEN;
       U_callsign.dest.len = uhf_struct_len;
       for (i = 0; i < uhf_struct_len; i++) {
         U_callsign.dest.message[i] =
-            (uint8_t)packet->data[IN_DATA_BYTE + 3 + 4 * i];
+            (uint8_t)packet->data[IN_DATA_BYTE + (CHAR_LEN - 1) + CHAR_LEN * i];
         U_callsign.dest.message[i] =
             csp_ntoh32((uint32_t)U_callsign.dest.message[i]);
       }
@@ -480,13 +492,11 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       break;
 
     case UHF_SET_SRC:
-      // uhf_struct_len = (uint8_t) packet->data[IN_DATA_BYTE]; //If using this,
-      // add +1 in the loop
-      uhf_struct_len = 6;
+      uhf_struct_len = CALLSIGN_LEN;
       U_callsign.src.len = uhf_struct_len;
       for (i = 0; i < uhf_struct_len; i++) {
         U_callsign.src.message[i] =
-            (uint8_t)packet->data[IN_DATA_BYTE + 3 + 4 * i];
+            (uint8_t)packet->data[IN_DATA_BYTE + (CHAR_LEN - 1) + CHAR_LEN * i];
         U_callsign.src.message[i] =
             csp_ntoh32((uint32_t)U_callsign.src.message[i]);
       }
@@ -499,12 +509,11 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       break;
 
     case UHF_SET_MORSE:
-      // uhf_struct_len = (uint8_t) packet->data[IN_DATA_BYTE]; //+1
-      uhf_struct_len = 36;
+      uhf_struct_len = BEACON_MSG_LEN_MAX;
       U_beacon.morse.len = uhf_struct_len;
       for (i = 0; i < uhf_struct_len; i++) {
         U_beacon.morse.message[i] =
-            (uint8_t)packet->data[IN_DATA_BYTE + 3 + 4 * i];
+            (uint8_t)packet->data[IN_DATA_BYTE + (CHAR_LEN - 1) + CHAR_LEN * i];
         U_beacon.morse.message[i] =
             csp_ntoh32((uint32_t)U_beacon.morse.message[i]);
       }
@@ -517,12 +526,11 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       break;
 
     case UHF_SET_MIDI:
-      // uhf_struct_len = (uint8_t) packet->data[IN_DATA_BYTE]; //+1
-      uhf_struct_len = 36;
+      uhf_struct_len = BEACON_MSG_LEN_MAX;
       U_beacon.MIDI.len = uhf_struct_len;
       for (i = 0; i < uhf_struct_len; i++) {
         U_beacon.MIDI.message[i] =
-            (uint8_t)packet->data[IN_DATA_BYTE + 3 + 4 * i];
+            (uint8_t)packet->data[IN_DATA_BYTE + (CHAR_LEN - 1) + CHAR_LEN * i];
         U_beacon.MIDI.message[i] =
             csp_ntoh32((uint32_t)U_beacon.MIDI.message[i]);
       }
@@ -535,12 +543,14 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       break;
 
     case UHF_SET_BEACON_MSG:
-      uhf_struct_len = (uint8_t)packet->data[IN_DATA_BYTE];
-      // uhf_struct_len = 36;
+      // uhf_struct_len = (uint8_t)packet->data[IN_DATA_BYTE]; Could be used if
+      // GS did not require specified length for unicode strings.
+      uhf_struct_len = BEACON_MSG_LEN_MAX;
       U_beacon.message.len = uhf_struct_len;
-      for (i = 0; i < uhf_struct_len; i++) {
+      for (i = 0; i < BEACON_MSG_LEN_MAX; i++) {
         U_beacon.message.message[i] =
-            (uint8_t)packet->data[IN_DATA_BYTE + 4 + 4 * i];
+            (uint8_t)
+                packet->data[IN_DATA_BYTE + 1 + (CHAR_LEN - 1) + CHAR_LEN * i];
         U_beacon.message.message[i] =
             csp_ntoh32((uint32_t)U_beacon.message.message[i]);
       }
@@ -553,9 +563,9 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       break;
 
     case UHF_SET_I2C:
-      U_I2C_add.add = (uint8_t)packet->data[IN_DATA_BYTE];
-      U_I2C_add.add = csp_ntoh32((uint32_t)U_I2C_add.add);
-      status = HAL_UHF_setI2C(U_I2C_add.add);
+      U_I2C_add.addr = (uint8_t)packet->data[IN_DATA_BYTE];
+      U_I2C_add.addr = csp_ntoh32((uint32_t)U_I2C_add.addr);
+      status = HAL_UHF_setI2C(U_I2C_add.addr);
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       set_packet_length(packet, sizeof(int8_t) + 1);
       if (queue_response(packet) != SATR_OK) {
@@ -564,12 +574,11 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       break;
 
     case UHF_WRITE_FRAM:
-      cnv8_32(&packet->data[IN_DATA_BYTE], &U_FRAM.add);
-
-      for (i = 0; i < 16; i++) {
+      cnv8_32(&packet->data[IN_DATA_BYTE], &U_FRAM.addr);
+      for (i = 0; i < FRAM_SIZE; i++) {
         U_FRAM.data[i] =
-            (uint8_t)
-                packet->data[IN_DATA_BYTE + 4 + 3 + 4 * i];  // 4 for address
+            (uint8_t)packet->data[IN_DATA_BYTE + sizeof(U_FRAM.addr) +
+                                  (CHAR_LEN - 1) + CHAR_LEN * i];
         U_FRAM.data[i] = csp_ntoh32((uint32_t)U_FRAM.data[i]);
       }
       status = HAL_UHF_setFRAM(U_FRAM);
@@ -600,7 +609,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
                HAL_UHF_getPcktsOut(&U_stat.pckts_out) +
                HAL_UHF_getPcktsIn(&U_stat.pckts_in) +
                HAL_UHF_getPcktsInCRC16(&U_stat.pckts_in_crc16) +
-               HAL_UHF_getPIPEt(&U_stat.set.PIPE_t) +
+               HAL_UHF_getPipeT(&U_stat.set.pipe_t) +
                HAL_UHF_getBeaconT(&U_stat.set.beacon_t) +
                HAL_UHF_getAudioT(&U_stat.set.audio_t) +
                HAL_UHF_getTemp(&U_stat.temperature) +
@@ -620,7 +629,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       U_stat.pckts_out = csp_hton32(U_stat.pckts_out);
       U_stat.pckts_in = csp_hton32(U_stat.pckts_in);
       U_stat.pckts_in_crc16 = csp_hton32(U_stat.pckts_in_crc16);
-      U_stat.set.PIPE_t = csp_hton16(U_stat.set.PIPE_t);
+      U_stat.set.pipe_t = csp_hton16(U_stat.set.pipe_t);
       U_stat.set.beacon_t = csp_hton16(U_stat.set.beacon_t);
       U_stat.set.audio_t = csp_hton16(U_stat.set.audio_t);
       U_stat.temperature = csp_htonflt(U_stat.temperature);
@@ -640,21 +649,19 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
     case UHF_GET_CALL_SIGN:
       status = HAL_UHF_getDestination(&U_callsign.dest) +
                HAL_UHF_getSource(&U_callsign.src);
-
-      uhf_struct_len = 6;
-      // uhf_struct_len = U_callsign.dest.len; //if different, use this and
-      // separate loops uhf_struct_len = U_callsign.src.len;
-      uint8_t dst[24];  // size of unicode char = 4
-      uint8_t src[24];
-      memset(dst, 0, 24);  // Using {0} not recommended, gives warnings and
-                           // possible errors.
-      memset(src, 0, 24);
+      uhf_struct_len = CALLSIGN_LEN;
+      uint8_t dst[CALLSIGN_LEN * CHAR_LEN];
+      memset(dst, 0, CALLSIGN_LEN * CHAR_LEN);
+      uint8_t src[CALLSIGN_LEN * CHAR_LEN];
+      memset(src, 0, CALLSIGN_LEN * CHAR_LEN);
       if (sizeof(dst) + sizeof(src) + 1 > csp_buffer_data_size()) {
         return SATR_ERROR;
       }
       for (i = 0; i < uhf_struct_len; i++) {
-        dst[3 + 4 * i] = csp_hton32((uint32_t)U_callsign.dest.message[i]);
-        src[3 + 4 * i] = csp_hton32((uint32_t)U_callsign.src.message[i]);
+        dst[(CHAR_LEN - 1) + CHAR_LEN * i] =
+            csp_hton32((uint32_t)U_callsign.dest.message[i]);
+        src[(CHAR_LEN - 1) + CHAR_LEN * i] =
+            csp_hton32((uint32_t)U_callsign.src.message[i]);
       }
 
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -668,16 +675,15 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
 
     case UHF_GET_MORSE:
       status = HAL_UHF_getMorse(&U_beacon.morse);
-
-      uhf_struct_len = 36;
-      // uhf_struct_len = U_beacon.morse.len;
-      uint8_t mrs[144];  // size of unicode char = 4
-      memset(mrs, 0, 144);
+      uhf_struct_len = U_beacon.morse.len;
+      uint8_t mrs[BEACON_MSG_LEN_MAX * CHAR_LEN];
+      memset(mrs, 0, BEACON_MSG_LEN_MAX * CHAR_LEN);
       if (sizeof(mrs) + 1 > csp_buffer_data_size()) {
         return SATR_ERROR;
       }
       for (i = 0; i < uhf_struct_len; i++) {
-        mrs[3 + 4 * i] = csp_hton32((uint32_t)U_beacon.morse.message[i]);
+        mrs[(CHAR_LEN - 1) + CHAR_LEN * i] =
+            csp_hton32((uint32_t)U_beacon.morse.message[i]);
       }
 
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -690,16 +696,15 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
 
     case UHF_GET_MIDI:
       status = HAL_UHF_getMIDI(&U_beacon.MIDI);
-
-      uhf_struct_len = 36;
-      // uhf_struct_len = U_beacon.midi.len;
-      uint8_t midi[144];  // size of unicode char = 4
-      memset(midi, 0, 144);
+      uhf_struct_len = U_beacon.MIDI.len;
+      uint8_t midi[BEACON_MSG_LEN_MAX * CHAR_LEN];
+      memset(midi, 0, BEACON_MSG_LEN_MAX * CHAR_LEN);
       if (sizeof(midi) + 1 > csp_buffer_data_size()) {
         return SATR_ERROR;
       }
       for (i = 0; i < uhf_struct_len; i++) {
-        midi[3 + 4 * i] = csp_hton32((uint32_t)U_beacon.MIDI.message[i]);
+        midi[(CHAR_LEN - 1) + CHAR_LEN * i] =
+            csp_hton32((uint32_t)U_beacon.MIDI.message[i]);
       }
 
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -712,17 +717,16 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
 
     case UHF_GET_BEACON_MSG:
       status = HAL_UHF_getBeaconMsg(&U_beacon.message);
-      // uhf_struct_len = U_beacon.message.len;//can't be variable unless GS is
-      // modified. uint8_t beacon[4*uhf_struct_len]; uint8_t
-      // beacon[4*MAX_W_CMDLEN];//too much for buffer size
-      uhf_struct_len = 36;
-      uint8_t beacon[144];
-      memset(beacon, 0, 144);
-      if (4 * uhf_struct_len + 1 > csp_buffer_data_size()) {
+      uhf_struct_len = U_beacon.message.len;
+      // Switch BEACON_MSG_LEN_MAX to MAX_W_CMDLEN after packet configuration
+      uint8_t beacon[BEACON_MSG_LEN_MAX * CHAR_LEN];
+      memset(beacon, 0, BEACON_MSG_LEN_MAX * CHAR_LEN);
+      if (sizeof(beacon) + 1 > csp_buffer_data_size()) {
         return SATR_ERROR;
       }
       for (i = 0; i < uhf_struct_len; i++) {
-        beacon[3 + 4 * i] = csp_hton32((uint32_t)U_beacon.message.message[i]);
+        beacon[(CHAR_LEN - 1) + CHAR_LEN * i] =
+            csp_hton32((uint32_t)U_beacon.message.message[i]);
       }
 
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -735,13 +739,14 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
 
     case UHF_GET_FRAM:  // doesn't need address?
       status = HAL_UHF_getFRAM(&U_FRAM);
-      uint8_t fram[64];  // 4*16
-      memset(fram, 0, 64);
+      uint8_t fram[FRAM_SIZE * CHAR_LEN];
+      memset(fram, 0, FRAM_SIZE * CHAR_LEN);
       if (sizeof(fram) + 1 > csp_buffer_data_size()) {
         return SATR_ERROR;
       }
-      for (i = 0; i < 16; i++) {
-        fram[3 + 4 * i] = csp_hton32((uint32_t)U_FRAM.data[i]);
+      for (i = 0; i < FRAM_SIZE; i++) {
+        fram[(CHAR_LEN - 1) + CHAR_LEN * i] =
+            csp_hton32((uint32_t)U_FRAM.data[i]);
       }
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       memcpy(&packet->data[OUT_DATA_BYTE], &fram, sizeof(fram));
