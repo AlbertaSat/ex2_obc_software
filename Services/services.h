@@ -28,7 +28,6 @@
 #define STATUS_BYTE 1
 #define IN_DATA_BYTE 1
 #define OUT_DATA_BYTE 2
-#define OUT_DATA_BYTE2 5  // 6 worked! why though? 32 bits?
 
 /* SERVICES */
 #define MAX_APP_ID 32     // number of CSP nodes (5-bits)
@@ -116,7 +115,6 @@ typedef enum {
   UHF_GET_MIDI,
   UHF_GET_BEACON_MSG,
   UHF_GET_FRAM,
-  // UHF_NEW_CMD, //not in here
 } UHF_Subtype;
 
 /* Utility definitions */
