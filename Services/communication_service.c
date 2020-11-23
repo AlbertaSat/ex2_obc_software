@@ -23,12 +23,12 @@
 #include <csp/csp.h>
 #include <csp/csp_endian.h>
 
-#include "comms_hal.h"
+#include "hal/comms_hal.h"
 #include "service_response.h"
 #include "service_utilities.h"
 #include "services.h"
 #include "system.h"
-#include "uhf_hal.h"
+#include "hal/uhf_hal.h"
 
 #define CHAR_LEN 4  // Numpy unicode string character length
 #define CALLSIGN_LEN 6
@@ -38,6 +38,63 @@
 
 static Sband_config S_config;  // In two different situations, globalization has
                                // resolved issues in set_freq
+
+SAT_returnState communication_service_app(csp_packet_t *packet);
+
+/**
+ * @brief
+ *      FreeRTOS communication server task
+ * @details
+ *      Accepts incoming communication service packets and executes the application
+ * @param void* param
+ * @return None
+ */
+void communication_service(void * param) {
+    csp_socket_t *sock;
+    sock = csp_socket(CSP_SO_RDPREQ);
+    csp_bind(sock, TC_COMMUNICATION_SERVICE);
+    csp_listen(sock, SERVICE_BACKLOG_LEN);
+
+    for(;;) {
+        csp_conn_t *conn;
+        csp_packet_t *packet;
+        if ((conn = csp_accept(sock, 1000)) == NULL) {
+          /* timeout */
+          continue;
+        }
+        while ((packet = csp_read(conn, 50)) != NULL) {
+          if (communication_service_app(packet) != SATR_OK) {
+            // something went wrong, this shouldn't happen
+            csp_buffer_free(packet);
+          } else {
+            csp_send(conn, packet, 50);
+          }
+        }
+        csp_close(conn);
+    }
+}
+
+/**
+ * @brief
+ *      Start the communication server task
+ * @details
+ *      Starts the FreeRTOS task responsible for accepting incoming
+ *      communication service requests
+ * @param None
+ * @return SAT_returnState
+ *      success report
+ */
+SAT_returnState start_communication_service(void) {
+  if (xTaskCreate((TaskFunction_t)communication_service,
+                  "communication_service", 300, NULL, NORMAL_SERVICE_PRIO,
+                  NULL) != pdPASS) {
+    ex2_log("FAILED TO CREATE TASK start_communication_service\n");
+    return SATR_ERROR;
+  }
+  ex2_log("Service handlers started\n");
+  return SATR_OK;
+}
+
 
 /**
  * @brief
@@ -87,10 +144,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
              sizeof(S_config.freq));
       // Step 5: set packet length
       set_packet_length(packet, sizeof(int8_t) + sizeof(S_config.freq) + 1);
-      // Step 6: return packet
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
     case S_GET_CONTROL:
@@ -105,9 +159,6 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       memcpy(&packet->data[OUT_DATA_BYTE], &S_config.PA, sizeof(S_config.PA));
       set_packet_length(packet, sizeof(int8_t) + sizeof(S_config.PA) + 1);
 
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
       break;
 
     case S_GET_ENCODER:
@@ -124,9 +175,6 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       memcpy(&packet->data[OUT_DATA_BYTE], &S_config.enc, sizeof(S_config.enc));
       set_packet_length(packet, sizeof(int8_t) + sizeof(S_config.enc) + 1);
 
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
       break;
 
     case S_GET_PA_POWER:
@@ -139,9 +187,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       memcpy(&packet->data[OUT_DATA_BYTE], &S_config.PA_Power,
              sizeof(S_config.PA_Power));
       set_packet_length(packet, sizeof(int8_t) + sizeof(uint32_t) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
     case S_GET_CONFIG:
@@ -164,9 +210,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       memcpy(&packet->data[OUT_DATA_BYTE], &S_config, sizeof(S_config));
       set_packet_length(packet, sizeof(int8_t) + sizeof(S_config) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
     case S_GET_STATUS:
@@ -180,9 +224,6 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       memcpy(&packet->data[OUT_DATA_BYTE], &S_FS.status, sizeof(S_FS.status));
       set_packet_length(packet, sizeof(int8_t) + sizeof(S_FS.status) + 1);
 
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
       break;
 
     case S_GET_TR:
@@ -195,9 +236,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       memcpy(&packet->data[OUT_DATA_BYTE], &S_FS.transmit,
              sizeof(S_FS.transmit));
       set_packet_length(packet, sizeof(int8_t) + sizeof(S_FS.transmit) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
     case S_GET_HK:
@@ -218,9 +257,6 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       memcpy(&packet->data[OUT_DATA_BYTE], &S_FS.HK, sizeof(S_FS.HK));
       set_packet_length(packet, sizeof(int8_t) + sizeof(S_FS.HK) + 1);
 
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
       break;
 
     case S_GET_BUFFER:
@@ -238,9 +274,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
                sizeof(S_FS.buffer.pointer[SID]));
         set_packet_length(
             packet, sizeof(int8_t) + sizeof(S_FS.buffer.pointer[SID]) + 1);
-        if (queue_response(packet) != SATR_OK) {
-          return SATR_ERROR;
-        }
+
       }
       break;
 
@@ -248,9 +282,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       status = HAL_S_softResetFPGA();
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       set_packet_length(packet, sizeof(int8_t) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
     case S_GET_FULL_STATUS:
@@ -282,9 +314,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       memcpy(&packet->data[OUT_DATA_BYTE], &S_FS, sizeof(S_FS));
       set_packet_length(packet, sizeof(int8_t) + sizeof(S_FS) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
     case S_SET_FREQ:
@@ -293,9 +323,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       status = HAL_S_setFreq(S_config.freq);
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       set_packet_length(packet, sizeof(int8_t) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
     case S_SET_PA_POWER:
@@ -304,9 +332,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       status = HAL_S_setPAPower(S_config.PA_Power);
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       set_packet_length(packet, sizeof(int8_t) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
     case S_SET_CONTROL:
@@ -317,9 +343,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       status = HAL_S_setControl(S_config.PA);
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       set_packet_length(packet, sizeof(int8_t) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
     case S_SET_ENCODER:
@@ -334,9 +358,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       status = HAL_S_setEncoder(S_config.enc);
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       set_packet_length(packet, sizeof(int8_t) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
     case S_SET_CONFIG:
@@ -363,9 +385,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
                HAL_S_setControl(S_config.PA) + HAL_S_setEncoder(S_config.enc);
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       set_packet_length(packet, sizeof(int8_t) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
       /* UHF Subservices */
@@ -377,9 +397,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       status = HAL_UHF_setStatus(&U_stat.status_ctrl);
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       set_packet_length(packet, sizeof(int8_t) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
     case UHF_SET_FREQ:
@@ -388,9 +406,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       status = HAL_UHF_setFreq(U_stat.set.freq);
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       set_packet_length(packet, sizeof(int8_t) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
     case UHF_SET_PIPE_TIMEOUT:
@@ -399,9 +415,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       status = HAL_UHF_setPipeT(U_stat.set.pipe_t);
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       set_packet_length(packet, sizeof(int8_t) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
     case UHF_SET_BEACON_T:
@@ -410,9 +424,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       status = HAL_UHF_setBeaconT(U_stat.set.beacon_t);
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       set_packet_length(packet, sizeof(int8_t) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
     case UHF_SET_AUDIO_T:
@@ -421,9 +433,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       status = HAL_UHF_setAudioT(U_stat.set.audio_t);
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       set_packet_length(packet, sizeof(int8_t) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
     case UHF_SET_PARAMS:
@@ -441,9 +451,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
                HAL_UHF_setAudioT(U_stat.set.audio_t);
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       set_packet_length(packet, sizeof(int8_t) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
     case UHF_RESTORE_DEFAULT:
@@ -454,9 +462,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       memcpy(&packet->data[OUT_DATA_BYTE], &U_restore, sizeof(U_restore));
       set_packet_length(packet, sizeof(int8_t) + sizeof(U_restore) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
     case UHF_LOW_PWR:
@@ -469,9 +475,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
              sizeof(U_stat.low_pwr_stat));
       set_packet_length(packet,
                         sizeof(int8_t) + sizeof(U_stat.low_pwr_stat) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
     case UHF_SET_DEST:
@@ -486,9 +490,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       status = HAL_UHF_setDestination(U_callsign.dest);
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       set_packet_length(packet, sizeof(int8_t) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
     case UHF_SET_SRC:
@@ -503,9 +505,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       status = HAL_UHF_setSource(U_callsign.src);
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       set_packet_length(packet, sizeof(int8_t) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
     case UHF_SET_MORSE:
@@ -520,9 +520,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       status = HAL_UHF_setMorse(U_beacon.morse);
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       set_packet_length(packet, sizeof(int8_t) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
     case UHF_SET_MIDI:
@@ -537,9 +535,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       status = HAL_UHF_setMIDI(U_beacon.MIDI);
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       set_packet_length(packet, sizeof(int8_t) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
     case UHF_SET_BEACON_MSG:
@@ -557,9 +553,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       status = HAL_UHF_setBeaconMsg(U_beacon.message);
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       set_packet_length(packet, sizeof(int8_t) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
     case UHF_SET_I2C:
@@ -568,9 +562,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       status = HAL_UHF_setI2C(U_I2C_add.addr);
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       set_packet_length(packet, sizeof(int8_t) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
     case UHF_WRITE_FRAM:
@@ -584,9 +576,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       status = HAL_UHF_setFRAM(U_FRAM);
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       set_packet_length(packet, sizeof(int8_t) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
     case UHF_SECURE:
@@ -597,9 +587,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       memcpy(&packet->data[OUT_DATA_BYTE], &U_is_secure, sizeof(U_is_secure));
       set_packet_length(packet, sizeof(int8_t) + sizeof(U_is_secure) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
     case UHF_GET_FULL_STAT:
@@ -641,9 +629,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       memcpy(&packet->data[OUT_DATA_BYTE], &U_stat, sizeof(U_stat));
       set_packet_length(packet, sizeof(int8_t) + sizeof(U_stat) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
     case UHF_GET_CALL_SIGN:
@@ -668,9 +654,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       memcpy(&packet->data[OUT_DATA_BYTE], &dst, sizeof(dst));
       memcpy(&packet->data[OUT_DATA_BYTE + sizeof(dst)], &src, sizeof(src));
       set_packet_length(packet, sizeof(int8_t) + sizeof(dst) + sizeof(src) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
     case UHF_GET_MORSE:
@@ -689,9 +673,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       memcpy(&packet->data[OUT_DATA_BYTE], &mrs, sizeof(mrs));
       set_packet_length(packet, sizeof(int8_t) + sizeof(mrs) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
     case UHF_GET_MIDI:
@@ -710,9 +692,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       memcpy(&packet->data[OUT_DATA_BYTE], &midi, sizeof(midi));
       set_packet_length(packet, sizeof(int8_t) + sizeof(midi) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
     case UHF_GET_BEACON_MSG:
@@ -732,9 +712,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       memcpy(&packet->data[OUT_DATA_BYTE], &beacon, sizeof(beacon));
       set_packet_length(packet, sizeof(int8_t) + sizeof(beacon) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
     case UHF_GET_FRAM:  // doesn't need address?
@@ -751,9 +729,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       memcpy(&packet->data[OUT_DATA_BYTE], &fram, sizeof(fram));
       set_packet_length(packet, sizeof(int8_t) + sizeof(fram) + 1);
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
+
       break;
 
     default:

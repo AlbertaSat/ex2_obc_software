@@ -43,8 +43,7 @@
  *  - Start the FreeRTOS sceduler
  */
 
-/*Create service queues*/
-Service_Queues_t service_queues;
+
 
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
 static inline SAT_returnState init_zmq();
@@ -54,11 +53,6 @@ int main(int argc, char **argv) {
   TC_TM_app_id my_address = DEMO_APP_ID;
   csp_debug_level_t debug_level = CSP_INFO;
 
-  /* Start platform-implemented service handlers & their queues */
-  if (start_service_handlers() != SATR_OK) {
-    ex2_log("COULD NOT START TELECOMMAND HANDLER\n");
-    return -1;
-  }
 
   for (csp_debug_level_t i = 0; i <= CSP_LOCK; ++i) {
     csp_debug_set_level(i, (i <= debug_level) ? true : false);
@@ -88,8 +82,7 @@ int main(int argc, char **argv) {
   csp_route_print_table();
 
   /* Start service server, and response server */
-  if (start_service_server() != SATR_OK ||
-      start_service_response() != SATR_OK) {
+  if (start_service_server() != SATR_OK) {
     ex2_log("Initialization error\n");
     return -1;
   }

@@ -23,85 +23,74 @@
 #include <csp/csp.h>
 #include <task.h>
 
+#include "communication_service.h"
+#include "housekeeping_service.h"
+#include "time_management_service.h"
 #include "service_utilities.h"
 #include "system_header.h"
 
-extern Service_Queues_t service_queues;
+void csp_server(void *parameters);
 
 /**
  * @brief
- * 		main CSP server loop
+ *      Start the services server, and response task
+ * @details
+ *      intitializes the FreeRTOS queue and task
+ * @param void
+ * @return SAT_returnState
+ *      success or failure
+ */
+SAT_returnState start_service_server(void) {
+  if (xTaskCreate((TaskFunction_t)csp_server, "csp_server THREAD", 256, NULL,
+                  NORMAL_SERVICE_PRIO, NULL) != pdPASS) {
+    return SATR_ERROR;
+  }
+  if (start_communication_service() != SATR_OK ||
+          start_time_management_service() != SATR_OK ||
+          start_housekeeping_service() != SATR_OK) {
+    return SATR_ERROR;
+  }
+  return SATR_OK;
+}
+
+/**
+ * @brief
+ * 		CSP server loop to services pings, and such
  * @details
  * 		send incoming CSP packets to the appropriate service queues,
  * otherwise pass it to the CSP service handler
  * @param void *parameters
  * 		not used
  */
-void service_server(void *parameters) {
+void csp_server(void *parameters) {
   csp_socket_t *sock;
 
   /* Create socket and listen for incoming connections */
-  sock = csp_socket(CSP_SO_RDPREQ);
-  csp_bind(sock, CSP_ANY);
-  csp_listen(sock, 10);
-  portBASE_TYPE err;
+  sock = csp_socket(CSP_SO_NONE);
+  csp_bind(sock, CSP_CMP);
+  csp_bind(sock, CSP_PING);
+  csp_bind(sock, CSP_PS);
+  csp_bind(sock, CSP_MEMFREE);
+  csp_bind(sock, CSP_REBOOT);
+  csp_bind(sock, CSP_BUF_FREE);
+  csp_bind(sock, CSP_UPTIME);
 
-  /* Super loop */
-  ex2_log("Starting CSP server\n");
+  csp_listen(sock, SERVICE_BACKLOG_LEN);
+
   for (;;) {
     /* Process incoming packet */
     csp_conn_t *conn;
-    if ((conn = csp_accept(sock, 10000)) == NULL) {
+    csp_packet_t *packet;
+    if ((conn = csp_accept(sock, 1000)) == NULL) {
       /* timeout */
       continue;
     }
 
-    csp_packet_t *packet;
     while ((packet = csp_read(conn, 50)) != NULL) {
-      switch (csp_conn_dport(conn)) {
-        case TC_HOUSEKEEPING_SERVICE:
-          err = xQueueSendToBack(service_queues.hk_app_queue, (void *)&packet,
-                                 NORMAL_TICKS_TO_WAIT);
-          if (err != pdPASS) {
-            ex2_log("FAILED TO QUEUE MESSAGE");
-            csp_buffer_free(packet);
-          }
-          break;
-
-        case TC_COMMUNICATION_SERVICE:
-          err = xQueueSendToBack(service_queues.communication_app_queue,
-                                 (void *)&packet, NORMAL_TICKS_TO_WAIT);
-          if (err != pdPASS) {
-            ex2_log("FAILED TO QUEUE MESSAGE");
-            csp_buffer_free(packet);
-          }
-          break;
-
-        default:
-          /* let CSP respond to requests */
-          csp_service_handler(conn, packet);
-          break;
-      }
+      csp_service_handler(conn, packet);
     }
     csp_close(conn);
   }
 
   return;
-}
-
-/**
- * @brief
- * 		Start the services server, and response task
- * @details
- * 		intitializes the FreeRTOS queue and task
- * @param void
- * @return SAT_returnState
- * 		success or failure
- */
-SAT_returnState start_service_server(void) {
-  if (xTaskCreate((TaskFunction_t)service_server, "SERVER THREAD", 500, NULL,
-                  configMAX_PRIORITIES - 1, NULL) != pdPASS) {
-    return SATR_ERROR;
-  }
-  return SATR_OK;
 }

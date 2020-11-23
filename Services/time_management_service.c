@@ -32,11 +32,19 @@
 
 SAT_returnState time_management_app(csp_packet_t *packet);
 
+/**
+ * @brief
+ *      FreeRTOS time management server task
+ * @details
+ *      Accepts incoming time management service packets and executes the application
+ * @param void* param
+ * @return None
+ */
 void time_management_service(void * param) {
     csp_socket_t *sock;
-    sock = csp_socket(CSP_SO_RDPREQ);
+    sock = csp_socket(CSP_SO_RDPREQ); // require RDP connection
     csp_bind(sock, TC_TIME_MANAGEMENT_SERVICE);
-    csp_listen(sock, 10);
+    csp_listen(sock, SERVICE_BACKLOG_LEN);
 
     for(;;) {
         csp_conn_t *conn;
@@ -57,6 +65,16 @@ void time_management_service(void * param) {
     }
 }
 
+/**
+ * @brief
+ *      Start the time management server task
+ * @details
+ *      Starts the FreeRTOS task responsible for accepting incoming
+ *      time management packets
+ * @param None
+ * @return SAT_returnState
+ *      success report
+ */
 SAT_returnState start_time_management_service(void) {
   if (xTaskCreate((TaskFunction_t)time_management_service,
                   "time_management_service", 300, NULL, NORMAL_SERVICE_PRIO,
