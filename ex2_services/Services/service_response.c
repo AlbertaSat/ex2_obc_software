@@ -55,7 +55,7 @@ void service_response_task(void *param) {
                                      packet->id.src,    // destination address
                                      packet->id.dport,  // destination port
                                      1000,              // timeout (ms)
-                                     CSP_O_NONE         // options
+                                     CSP_O_RDP         // options
       );
 
       if (conn == NULL) {

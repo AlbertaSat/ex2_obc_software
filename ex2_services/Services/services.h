@@ -28,7 +28,7 @@
 #define STATUS_BYTE 1
 #define IN_DATA_BYTE 1
 #define OUT_DATA_BYTE 2
-#define OUT_DATA_BYTE2 5 // 6 worked! why though? 32 bits?
+#define OUT_DATA_BYTE2 5  // 6 worked! why though? 32 bits?
 
 /* SERVICES */
 #define MAX_APP_ID 32     // number of CSP nodes (5-bits)
@@ -74,23 +74,23 @@ typedef enum { TM_HK_PARAMETERS_REPORT = 0 } Housekeeping_Subtype;
 // COMMUNICATION SERVICE
 #define TC_COMMUNICATION_SERVICE 10
 typedef enum {
-    GET_TEMP = 0,
-    GET_FREQ = 1,
-    GET_CONTROL = 2,
-    GET_ENCODER = 3,
-    GET_PA_POWER = 4,
-    GET_STATUS = 5,
-    GET_TR = 6,
-    GET_BUFFER = 7,
-    GET_HK = 8,
-    SOFT_RESET = 9,
-    GET_FULL_STATUS = 10,
-    SET_FREQ = 11,
-    SET_CONTROL = 12,
-    SET_ENCODER = 13,
-    SET_PA_POWER = 14,
-    GET_CONFIG = 15,
-    SET_CONFIG = 16
+  GET_TEMP = 0,
+  GET_FREQ = 1,
+  GET_CONTROL = 2,
+  GET_ENCODER = 3,
+  GET_PA_POWER = 4,
+  GET_STATUS = 5,
+  GET_TR = 6,
+  GET_BUFFER = 7,
+  GET_HK = 8,
+  SOFT_RESET = 9,
+  GET_FULL_STATUS = 10,
+  SET_FREQ = 11,
+  SET_CONTROL = 12,
+  SET_ENCODER = 13,
+  SET_PA_POWER = 14,
+  GET_CONFIG = 15,
+  SET_CONFIG = 16
 } Communication_Subtype;
 
 /* Utility definitions */
