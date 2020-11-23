@@ -20,13 +20,53 @@
 #include "time_management_service.h"
 
 #include <FreeRTOS.h>
+#include <task.h>
 #include <csp/csp.h>
 #include <csp/csp_endian.h>
 #include <stdio.h>
 
 #include "service_response.h"
 #include "service_utilities.h"
+#include "services.h"
 #include "system.h"
+
+SAT_returnState time_management_app(csp_packet_t *packet);
+
+void time_management_service(void * param) {
+    csp_socket_t *sock;
+    sock = csp_socket(CSP_SO_RDPREQ);
+    csp_bind(sock, TC_TIME_MANAGEMENT_SERVICE);
+    csp_listen(sock, 10);
+
+    for(;;) {
+        csp_conn_t *conn;
+        csp_packet_t *packet;
+        if ((conn = csp_accept(sock, 1000)) == NULL) {
+          /* timeout */
+          continue;
+        }
+        while ((packet = csp_read(conn, 50)) != NULL) {
+          if (time_management_app(packet) != SATR_OK) {
+            // something went wrong, this shouldn't happen
+            csp_buffer_free(packet);
+          } else {
+            csp_send(conn, packet, 50);
+          }
+        }
+        csp_close(conn);
+    }
+}
+
+SAT_returnState start_time_management_service(void) {
+  if (xTaskCreate((TaskFunction_t)time_management_service,
+                  "time_management_service", 300, NULL, NORMAL_SERVICE_PRIO,
+                  NULL) != pdPASS) {
+    ex2_log("FAILED TO CREATE TASK time_management_service\n");
+    return SATR_ERROR;
+  }
+  ex2_log("Service handlers started\n");
+  return SATR_OK;
+}
 
 /**
  * @brief
@@ -61,10 +101,6 @@ SAT_returnState time_management_app(csp_packet_t *packet) {
 
       set_packet_length(packet, sizeof(int8_t) + 1);  // +1 for subservice
 
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
-
       break;
 
     case GET_TIME:
@@ -81,10 +117,6 @@ SAT_returnState time_management_app(csp_packet_t *packet) {
       // Step 4: set packet length
       set_packet_length(packet, sizeof(int8_t) + sizeof(uint32_t) +
                                     1);  // plus one for sub-service
-      // Step 5: return packet
-      if (queue_response(packet) != SATR_OK) {
-        return SATR_ERROR;
-      }
       break;
 
     default:

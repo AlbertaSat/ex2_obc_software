@@ -41,7 +41,7 @@ void service_server(void *parameters) {
   csp_socket_t *sock;
 
   /* Create socket and listen for incoming connections */
-  sock = csp_socket(CSP_SO_NONE);
+  sock = csp_socket(CSP_SO_RDPREQ);
   csp_bind(sock, CSP_ANY);
   csp_listen(sock, 10);
   portBASE_TYPE err;
@@ -62,15 +62,6 @@ void service_server(void *parameters) {
         case TC_HOUSEKEEPING_SERVICE:
           err = xQueueSendToBack(service_queues.hk_app_queue, (void *)&packet,
                                  NORMAL_TICKS_TO_WAIT);
-          if (err != pdPASS) {
-            ex2_log("FAILED TO QUEUE MESSAGE");
-            csp_buffer_free(packet);
-          }
-          break;
-
-        case TC_TIME_MANAGEMENT_SERVICE:
-          err = xQueueSendToBack(service_queues.time_management_app_queue,
-                                 (void *)&packet, NORMAL_TICKS_TO_WAIT);
           if (err != pdPASS) {
             ex2_log("FAILED TO QUEUE MESSAGE");
             csp_buffer_free(packet);

@@ -29,6 +29,8 @@ struct time_utc {
   uint32_t unix_timestamp;
 };
 
-SAT_returnState time_management_app(csp_packet_t *pck);
+SAT_returnState start_time_management_service(void);
+
+SAT_returnState time_management_app(csp_packet_t *packet);
 
 #endif /* TIME_MANAGEMENT_H */

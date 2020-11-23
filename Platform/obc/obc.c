@@ -97,7 +97,7 @@ static void communication_app_route(void *parameters) {
 
   return;
 }
-
+#include <time.h>
 /**
  * @brief
  *      Initialize service handling tasks, and queues
@@ -111,13 +111,7 @@ SAT_returnState start_service_handlers() {
   /**
    * Create the queues & tasks for each service implemented by this module
    */
-  if (!(service_queues.time_management_app_queue =
-            xQueueCreate((unsigned portBASE_TYPE)SERVICE_QUEUE_LEN,
-                         (unsigned portBASE_TYPE)CSP_PKT_QUEUE_SIZE))) {
-    ex2_log("FAILED TO CREATE time_management_app_queue\n");
-    return SATR_ERROR;
-  };
-
+  start_time_management_service();
   if (!(service_queues.hk_app_queue =
             xQueueCreate((unsigned portBASE_TYPE)SERVICE_QUEUE_LEN,
                          (unsigned portBASE_TYPE)CSP_PKT_QUEUE_SIZE))) {
@@ -146,12 +140,6 @@ SAT_returnState start_service_handlers() {
     return SATR_ERROR;
   };
 
-  if (xTaskCreate((TaskFunction_t)time_management_app_route,
-                  "time_management_app_route", 300, NULL, NORMAL_SERVICE_PRIO,
-                  NULL) != pdPASS) {
-    ex2_log("FAILED TO CREATE TASK time_management_app_route\n");
-    return SATR_ERROR;
-  }
   ex2_log("Service handlers started\n");
   return SATR_OK;
 }
