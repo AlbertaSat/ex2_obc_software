@@ -53,9 +53,10 @@ SAT_returnState hk_service_app(csp_packet_t *packet) {
 }
 
 static SAT_returnState hk_parameter_report(csp_packet_t *packet) {
-  size_t size = HAL_hk_report(packet->data[SID_byte], packet->data + SID_byte + 1);
+  size_t size =
+      HAL_hk_report(packet->data[SID_byte], packet->data + SID_byte + 1);
 
-  set_packet_length(packet, size + 2); // plus one for sub-service + SID
+  set_packet_length(packet, size + 2);  // plus one for sub-service + SID
 
   if (queue_response(packet) != SATR_OK) {
     return SATR_ERROR;
