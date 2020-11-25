@@ -21,13 +21,10 @@
 #include <stdio.h>
 
 #include "services.h"
-#include "service_response.h"
-#include "service_utilities.h"
-#include "system.h"
 
-struct temp_utc {
-  uint32_t sensor_temperature;
-};
+/*Valid values*/
+#define MIN_FREQ = 2200
+#define MAX_FREQ = 2290
 
 SAT_returnState communication_service_app(csp_packet_t* pkt);
 
