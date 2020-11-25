@@ -28,4 +28,6 @@
 
 SAT_returnState communication_service_app(csp_packet_t* pkt);
 
+SAT_returnState start_communication_service(void);
+
 #endif /* COMMUNICATION_SERVICE_H_ */
