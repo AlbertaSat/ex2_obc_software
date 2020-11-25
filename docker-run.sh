@@ -1,2 +1,2 @@
 #!/bin/bash
-sudo docker run --rm -it --network=host satellite_sim:latest
+sudo docker run --rm -it --name=satellite-sim -v DockerVolume1:/datavolume1 satellite_sim:latest

@@ -30,6 +30,7 @@
 #include "system_header.h"
 
 void csp_server(void *parameters);
+SAT_returnState start_service_server(void);
 
 /**
  * @brief
