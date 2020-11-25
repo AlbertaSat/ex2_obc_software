@@ -15,16 +15,23 @@ INCLUDE += -I$(PROJDIR)/libcsp/build/include
 INCLUDE += -I$(PROJDIR)/libcsp/src
 #-------------------------------------------------------------------------------
 #---------------------------------File Names------------------------------------
-CFILES += $(CURDIR)/Platform/demo/hal/demo_hal.c 
-CFILES += $(CURDIR)/Platform/demo/demo.c
-CFILES += $(CURDIR)/Services/service_utilities.c
-CFILES += $(CURDIR)/Services/time_management_service.c
+CFILES += $(CURDIR)/Platform/demo/hal/*.c 
+CFILES += $(CURDIR)/Platform/demo/*.c
+CFILES += $(CURDIR)/Services/*.c
+CFILES += $(CURDIR)/ex2_demo_software/*.c
+
 #-------------------------------------------------------------------------------
 #---------------------------------Include Dirs----------------------------------
 INCLUDE += -I$(CURDIR)
 INCLUDE += -I$(CURDIR)/Platform/demo
 INCLUDE += -I$(CURDIR)/Platform/demo/hal
 INCLUDE += -I$(CURDIR)/Services
+INCLUDE += -I$(CURDIR)/ex2_demo_software
+INCLUDE += -I$(CURDIR)/../SatelliteSim/Source/include
+INCLUDE += -I$(CURDIR)/../SatelliteSim/Project
+INCLUDE += -I$(CURDIR)/../SatelliteSim/libcsp/include
+INCLUDE += -I$(CURDIR)/../SatelliteSim/Source/portable/GCC/POSIX
+INCLUDE += -I$(CURDIR)/../SatelliteSim/libcsp/build/include/
 #-------------------------------------------------------------------------------
 
 #entrypoint
@@ -85,7 +92,7 @@ all: $(MAIN)
 $(MAIN): $(OBJS_FILES) $(STATIC_FILES)
 
 lib:  $(OBJS_FILES)
-	ar -rsc servies.a $(OBJS_FILES)
+	ar -rsc client_server.a $(OBJS_FILES)
 
 clean: 
 	rm -f *.o $(MAIN)

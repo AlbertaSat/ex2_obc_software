@@ -54,6 +54,7 @@ int rx_channel, tx_channel;
 #define BUF_SIZE    250
 
 int csp_fifo_tx(const csp_route_t * ifroute, csp_packet_t *packet);
+void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
 
 csp_iface_t csp_if_fifo = {
     .name = "fifo",
@@ -83,7 +84,7 @@ void fifo_rx(void * parameters) {
 }
 /** FIFO INTERFACE ENDS **/
 
-void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
+
 static inline SAT_returnState init_zmq();
 
 int main(int argc, char **argv) {
