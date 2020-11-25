@@ -1,4 +1,4 @@
-PROJDIR = $(CURDIR)/../../
+PROJDIR = $(CURDIR)/../SatelliteSim
 #---------------------------FOR FREE RTOS INTEGRATION---------------------------
 #path to source includes
 INCLUDE += -I$(PROJDIR)/Source/include
@@ -15,18 +15,20 @@ INCLUDE += -I$(PROJDIR)/libcsp/build/include
 INCLUDE += -I$(PROJDIR)/libcsp/src
 #-------------------------------------------------------------------------------
 #---------------------------------File Names------------------------------------
-CFILES += $(CURDIR)/Platform/demo/hal/*.c 
-CFILES += $(CURDIR)/Platform/demo/*.c
 CFILES += $(CURDIR)/Services/*.c
 CFILES += $(CURDIR)/ex2_demo_software/*.c
+CFILES += $(CURDIR)/Platform/demo/hal/*.c 
+
+
 
 #-------------------------------------------------------------------------------
 #---------------------------------Include Dirs----------------------------------
-INCLUDE += -I$(CURDIR)
+INCLUDE += -I$(CURDIR)/
+INCLUDE += -I$(CURDIR)/ex2_demo_software
+
 INCLUDE += -I$(CURDIR)/Platform/demo
 INCLUDE += -I$(CURDIR)/Platform/demo/hal
 INCLUDE += -I$(CURDIR)/Services
-INCLUDE += -I$(CURDIR)/ex2_demo_software
 INCLUDE += -I$(CURDIR)/../SatelliteSim/Source/include
 INCLUDE += -I$(CURDIR)/../SatelliteSim/Project
 INCLUDE += -I$(CURDIR)/../SatelliteSim/libcsp/include
@@ -61,7 +63,7 @@ CWARNS += -Wmissing-prototypes
 
 #---------------------------Libs---------------------------
 LINKFLAGS = 
-LIBS = -pthread
+LIBS = -pthread -rc
 #for building independent of sat sim, archive files:
 #STATIC_FILES += $(PROJDIR)/libcsp/build/libcsp.a
 #STATIC_FILES += $(PROJDIR)/FreeRtos
@@ -73,13 +75,13 @@ CC = gcc
 #CFLAGS += -m32
 CFLAGS += -m64
 
-CFLAGS += -g -UUSE_STDIO -D__GCC_POSIX__=1
-CFLAGS += -pthread
-CFLAGS += -DDEBUG=1
+CFLAGS += -g -DSYSTEM_APP_ID=_DEMO_APP_ID_ -DSBAND_IS_STUBBED=true -DUHF_IS_STUBBED
+CFLAGS += -lpthread -lrc -std=c99
+# CFLAGS += -DDEBUG=1
 
 # MAX_NUMBER_OF_TASKS = max pthreads used in the POSIX port. 
 # Default value is 64 (_POSIX_THREAD_THREADS_MAX), the minimum number required by POSIX.
-CFLAGS += -DMAX_NUMBER_OF_TASKS=300
+# CFLAGS += -DMAX_NUMBER_OF_TASKS=300
 CFLAGS += $(INCLUDE) $(CWARNS)
 
 #---------------------------Build---------------------------

@@ -20,6 +20,7 @@
 /*
  * When TRX connected, the stubbed blocks can be used for TRX = off situation.
  */
+#include <FreeRTOS.h>
 
 #include "uhf_hal.h"
 #include "services.h"

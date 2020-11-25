@@ -29,9 +29,10 @@
 #include <task.h>
 #include <unistd.h>
 
-#include "service_response.h"
 #include "services.h"
 #include "system.h"  // platform definitions
+#include "time_management_service.h"
+#include "communication_service.h"
 #include <fcntl.h>
 
 #include <pthread.h>
@@ -142,8 +143,9 @@ int main(int argc, char **argv) {
   printf("Route table\r\n");
   csp_route_print_table();
 
-  /* Start service server, and response server */
-  if (start_service_server() != SATR_OK) {
+  /* START ALL SERVICES YOU WANT TO TEST HERE */
+  if (start_time_management_service() != SATR_OK ||
+    start_communication_service() != SATR_OK) {
     ex2_log("Initialization error\n");
     return -1;
   }
