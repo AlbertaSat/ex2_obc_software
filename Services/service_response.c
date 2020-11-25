@@ -23,11 +23,12 @@
 #include <stdint.h>
 #include <task.h>
 
+#include "queue.h"
 #include "service_utilities.h"
 #include "services.h"
 #include "system_header.h"
 
-extern Service_Queues_t service_queues;  // Implemented by the host platform
+xQueueHandle response_queue;
 
 /**
  * @brief
@@ -47,7 +48,7 @@ void service_response_task(void *param) {
   csp_packet_t *packet;
   uint32_t data;
   for (;;) {
-    if (xQueueReceive(service_queues.response_queue, &packet,
+    if (xQueueReceive(response_queue, &packet,
                       NORMAL_TICKS_TO_WAIT) == pdPASS) {
       // Connect with a connection-oriented method.
       // We're assuming that packet responses should be returned to sender.
@@ -55,7 +56,7 @@ void service_response_task(void *param) {
                                      packet->id.src,    // destination address
                                      packet->id.dport,  // destination port
                                      1000,              // timeout (ms)
-                                     CSP_O_NONE         // options
+                                     CSP_O_RDP         // options
       );
 
       if (conn == NULL) {
@@ -74,7 +75,7 @@ void service_response_task(void *param) {
 }
 
 SAT_returnState queue_response(csp_packet_t *packet) {
-  if (xQueueSendToBack(service_queues.response_queue, (void *)&packet,
+  if (xQueueSendToBack(response_queue, (void *)&packet,
                        NORMAL_TICKS_TO_WAIT) != pdPASS) {
     return SATR_ERROR;
   }
@@ -91,7 +92,7 @@ SAT_returnState queue_response(csp_packet_t *packet) {
  * 		success or failure
  */
 SAT_returnState start_service_response() {
-  if (!(service_queues.response_queue =
+  if (!(response_queue =
             xQueueCreate((unsigned portBASE_TYPE)RESPONSE_QUEUE_LEN,
                          (unsigned portBASE_TYPE)CSP_PKT_QUEUE_SIZE))) {
     return SATR_ERROR;

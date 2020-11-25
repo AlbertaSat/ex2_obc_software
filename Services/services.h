@@ -33,6 +33,7 @@
 #define MAX_APP_ID 32     // number of CSP nodes (5-bits)
 #define MAX_SERVICES 64   // number of CSP ports (6-bits)
 #define MAX_SUBTYPES 256  // an 8-bit integer
+#define SERVICE_BACKLOG_LEN 3
 
 typedef enum {
   OBC_APP_ID = _OBC_APP_ID_,
