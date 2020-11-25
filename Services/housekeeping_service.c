@@ -27,10 +27,67 @@
 #include "service_response.h"
 #include "service_utilities.h"
 #include "services.h"
+#include "task.h"
 #include "system_header.h"
 
 static uint8_t SID_byte = 1;
-extern Service_Queues_t service_queues;
+
+SAT_returnState start_housekeeping_service(void);
+
+/**
+ * @brief
+ *      FreeRTOS housekeeping server task
+ * @details
+ *      Accepts incoming housekeeping service packets and executes the application
+ * @param void* param
+ * @return None
+ */
+void housekeeping_service(void * param) {
+    csp_socket_t *sock;
+    sock = csp_socket(CSP_SO_RDPREQ);
+    csp_bind(sock, TC_HOUSEKEEPING_SERVICE);
+    csp_listen(sock, SERVICE_BACKLOG_LEN);
+
+    for(;;) {
+        csp_conn_t *conn;
+        csp_packet_t *packet;
+        if ((conn = csp_accept(sock, 1000)) == NULL) {
+          /* timeout */
+          continue;
+        }
+        while ((packet = csp_read(conn, 50)) != NULL) {
+          if (hk_service_app(packet) != SATR_OK) {
+            // something went wrong, this shouldn't happen
+            csp_buffer_free(packet);
+          } else {
+            csp_send(conn, packet, 50);
+          }
+        }
+        csp_close(conn);
+    }
+}
+
+/**
+ * @brief
+ *      Start the housekeeping server task
+ * @details
+ *      Starts the FreeRTOS task responsible for accepting incoming
+ *      housekeeping service requests
+ * @param None
+ * @return SAT_returnState
+ *      success report
+ */
+SAT_returnState start_housekeeping_service(void) {
+  if (xTaskCreate((TaskFunction_t)housekeeping_service,
+                  "start_housekeeping_service", 300, NULL, NORMAL_SERVICE_PRIO,
+                  NULL) != pdPASS) {
+    ex2_log("FAILED TO CREATE TASK start_housekeeping_service\n");
+    return SATR_ERROR;
+  }
+  ex2_log("Service handlers started\n");
+  return SATR_OK;
+}
+
 
 static SAT_returnState hk_parameter_report(csp_packet_t *packet);
 
@@ -57,10 +114,6 @@ static SAT_returnState hk_parameter_report(csp_packet_t *packet) {
       HAL_hk_report(packet->data[SID_byte], packet->data + SID_byte + 1);
 
   set_packet_length(packet, size + 2);  // plus one for sub-service + SID
-
-  if (queue_response(packet) != SATR_OK) {
-    return SATR_ERROR;
-  }
 
   return SATR_OK;
 }
