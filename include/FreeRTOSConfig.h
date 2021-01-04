@@ -160,9 +160,13 @@
 
 
 /* debug ASSERT */
-#define configASSERT( x ) if( ( x ) == pdFALSE ) { taskDISABLE_INTERRUPTS(); for( ;; ); }
+void vAssertCalled(unsigned long ulLine, const char * pcFile);
+#define configASSERT( x ) if( ( x ) == 0 ) vAssertCalled( __LINE__, __FILE__);
 
 /* USER CODE BEGIN (5) */
+void vAssertCalled(unsigned long ulLine, const char * pcFile);
+#define configASSERT( x ) if( ( x ) == 0 ) vAssertCalled( __LINE__, __FILE__);
+
 /* USER CODE END */
 
 #endif /* FREERTOS_CONFIG_H */
