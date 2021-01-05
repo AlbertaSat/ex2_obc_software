@@ -36,6 +36,7 @@
 #include "board_io_tests.h"
 #include "service_response.h"
 #include "services.h"
+#include "system_stats.h"
 #include "system.h"  // platform definitions
 
 /**
@@ -48,9 +49,6 @@
  *  - Start the FreeRTOS scheduler
  */
 
-/*Create service queues*/
-Service_Queues_t service_queues;
-
 /* Create handler mutexes */
 Equipment_Mutex_t equipment_mutex;
 
@@ -62,32 +60,26 @@ int ex2_main(int argc, char **argv) {
 
   InitIO();
 
-  const char *pszVolume0 = gaRedVolConf[0].pszPathPrefix;
-  iErr = red_init();
-
-  if (iErr == -1) {
-    exit(red_errno);
-  }
-
-  iErr = red_format(pszVolume0);
-  if (iErr == -1) {
-    exit(red_errno);
-  }
-
-  iErr = red_mount(pszVolume0);
-
-  if (iErr == -1) {
-    exit(red_errno);
-  }
+//  const char *pszVolume0 = gaRedVolConf[0].pszPathPrefix;
+//  iErr = red_init();
+//
+//  if (iErr == -1) {
+//    exit(red_errno);
+//  }
+//
+//  iErr = red_format(pszVolume0);
+//  if (iErr == -1) {
+//    exit(red_errno);
+//  }
+//
+//  iErr = red_mount(pszVolume0);
+//
+//  if (iErr == -1) {
+//    exit(red_errno);
+//  }
 
   ex2_log("-- starting command demo --\n");
   TC_TM_app_id my_address = SYSTEM_APP_ID;
-
-  /* Start platform-implemented service handlers & their queues */
-  if (start_service_handlers() != SATR_OK) {
-    ex2_log("COULD NOT START TELECOMMAND HANDLER\n");
-    return -1;
-  }
 
   /* Init CSP with address and default settings */
   csp_conf_t csp_conf;
@@ -100,13 +92,13 @@ int ex2_main(int argc, char **argv) {
   }
   ex2_log("Running at %d\n", my_address);
   /* Set default route and start router & server */
-  csp_route_start_task(500, 0);
+  csp_route_start_task(1000, 0);
   init_interface();
 
   /* Start service server, and response server */
   if (start_service_server() != SATR_OK ||
-      start_service_response() != SATR_OK ||
-      start_detection_server() != SATR_OK) {
+      start_detection_server() != SATR_OK ||
+      start_task_stats() != SATR_OK) {
     ex2_log("Initialization error\n");
     return -1;
   }
@@ -144,6 +136,42 @@ static inline SAT_returnState init_interface() {
   return SATR_OK;
 }
 
-void vAssertCalled(unsigned long ulLine, const char *const pcFileName) {
-  ex2_log("error line: %lu in file: %s", ulLine, pcFileName);
+void vAssertCalled( unsigned long ulLine, const char * const pcFileName )
+{
+    /* Called if an assertion passed to configASSERT() fails.  See
+    http://www.freertos.org/a00110.html#configASSERT for more information. */
+
+    /* Parameters are not used. */
+    ( void ) ulLine;
+    ( void ) pcFileName;
+
+    ex2_log( "ASSERT! Line %d, file %s\r\n", ulLine, pcFileName);
+}
+
+static void prvSaveTraceFile( void )
+{
+    // TODO: implement this with relianceEdge
+}
+
+void initializeProfiler()
+{
+    /* Enable PMU Cycle Counter for Profiling */
+    RAISE_PRIVILEGE;
+    _pmuInit_();
+    _pmuEnableCountersGlobal_();
+    _pmuResetCycleCounter_();
+    _pmuStartCounters_(pmuCYCLE_COUNTER);
+    RESET_PRIVILEGE;
+}
+
+uint32 getProfilerTimerCount()
+{
+    RAISE_PRIVILEGE;
+    return _pmuGetCycleCount_();
+    portRESET_PRIVILEGE( xRunningPrivileged );
+    RESET_PRIVILEGE;
+}
+
+void vApplicationStackOverflowHook( TaskHandle_t xTask, char *pcTaskName ) {
+    for(;;);
 }

@@ -273,7 +273,7 @@ extern "C" {
 #endif
 
 #ifndef configASSERT
-    #define configASSERT( ( x ) ) if( ( x ) == 0 ) vAssertCalled( __LINE__, __FILE__ )
+	#define configASSERT( x )
 	#define configASSERT_DEFINED 0
 #else
 	#define configASSERT_DEFINED 1
@@ -733,7 +733,7 @@ extern "C" {
 #endif
 
 #ifndef configUSE_STATS_FORMATTING_FUNCTIONS
-	#define configUSE_STATS_FORMATTING_FUNCTIONS 1
+	#define configUSE_STATS_FORMATTING_FUNCTIONS 0
 #endif
 
 #ifndef portASSERT_IF_INTERRUPT_PRIORITY_INVALID
