@@ -49,7 +49,7 @@ void time_management_service(void * param) {
     for(;;) {
         csp_conn_t *conn;
         csp_packet_t *packet;
-        if ((conn = csp_accept(sock, 1000)) == NULL) {
+        if ((conn = csp_accept(sock, CSP_MAX_TIMEOUT)) == NULL) {
           /* timeout */
           continue;
         }
@@ -58,7 +58,9 @@ void time_management_service(void * param) {
             // something went wrong, this shouldn't happen
             csp_buffer_free(packet);
           } else {
-            csp_send(conn, packet, 50);
+              if (!csp_send(conn, packet, 50)) {
+                  csp_buffer_free(packet);
+              }
           }
         }
         csp_close(conn);
