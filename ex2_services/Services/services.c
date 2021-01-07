@@ -82,7 +82,7 @@ void csp_server(void *parameters) {
     /* Process incoming packet */
     csp_conn_t *conn;
     csp_packet_t *packet;
-    if ((conn = csp_accept(sock, 1000)) == NULL) {
+    if ((conn = csp_accept(sock, CSP_MAX_TIMEOUT)) == NULL) {
       /* timeout */
       continue;
     }
