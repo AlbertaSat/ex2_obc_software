@@ -100,14 +100,15 @@
 #define configCPU_CLOCK_HZ			  ( ( unsigned portLONG ) 75000000 ) /* Timer clock. */
 #define configTICK_RATE_HZ			  ( ( TickType_t ) 1000 )
 #define configMAX_PRIORITIES		  ( 5 )
-#define configMINIMAL_STACK_SIZE	  ( ( unsigned portSHORT ) 32000 )
+#define configMINIMAL_STACK_SIZE	  ( ( unsigned portSHORT ) 128 )
 #define configTOTAL_HEAP_SIZE		  ( ( size_t ) 262144 )
 #define configMAX_TASK_NAME_LEN		  ( 16 )
 #define configIDLE_SHOULD_YIELD		  1
-#define configGENERATE_RUN_TIME_STATS 0
-#define configUSE_MALLOC_FAILED_HOOK  0
+#define configGENERATE_RUN_TIME_STATS 1
+#define configUSE_MALLOC_FAILED_HOOK  1
 
 /* USER CODE BEGIN (1) */
+#define configUSE_STATS_FORMATTING_FUNCTIONS 1
 /* USER CODE END */
 
 #define configSUPPORT_STATIC_ALLOCATION			0
@@ -118,6 +119,7 @@
 
 /* USER CODE BEGIN (2) */
 /* USER CODE END */
+#define configCHECK_FOR_STACK_OVERFLOW 2
 
 /* Co-routine definitions. */
 #define configUSE_CO_ROUTINES 		    0
@@ -131,10 +133,10 @@
 #define configUSE_COUNTING_SEMAPHORES   1
 
 /* Timers */
-#define configUSE_TIMERS                0
+#define configUSE_TIMERS                1
 #define configTIMER_TASK_PRIORITY		( 0 )
 #define configTIMER_QUEUE_LENGTH		0
-#define configTIMER_TASK_STACK_DEPTH	( 0 )
+#define configTIMER_TASK_STACK_DEPTH	( 128 )
 
 /* USER CODE BEGIN (3) */
 /* USER CODE END */
@@ -163,6 +165,20 @@
 #define configASSERT( x ) if( ( x ) == pdFALSE ) { taskDISABLE_INTERRUPTS(); for( ;; ); }
 
 /* USER CODE BEGIN (5) */
+void vAssertCalled(unsigned long ulLine, const char * pcFile);
+#define configASSERT( x ) if( ( x ) == 0 ) vAssertCalled( __LINE__, __FILE__);
+
+#include "HL_sys_pmu.h"
+#include "os_portmacro.h"
+
+#pragma SWI_ALIAS(prvRaisePrivilege, 1);
+extern BaseType_t prvRaisePrivilege( void );
+#define RAISE_PRIVILEGE BaseType_t xRunningPrivileged = prvRaisePrivilege ()
+#define RESET_PRIVILEGE if( xRunningPrivileged == 0 ) portSWITCH_TO_USER_MODE()
+#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() initializeProfiler()
+#define portGET_RUN_TIME_COUNTER_VALUE() getProfilerTimerCount()
+
+
 /* USER CODE END */
 
 #endif /* FREERTOS_CONFIG_H */

@@ -111,13 +111,13 @@ PDE_DEPS__QUOTED :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
-Project/FileTests \
 Project/host \
 ex2_obc_software/TempSensor \
 ex2_obc_software \
-ex2_services/Platform/obc/hal \
 ex2_services/Platform/obc \
+ex2_services/Platform/obc/hal \
 ex2_services/Services \
+ex2_system_tasks \
 libcsp/src/arch \
 libcsp/src/arch/freertos \
 libcsp/src/crypto \
