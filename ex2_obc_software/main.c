@@ -39,6 +39,9 @@
 #include "system_stats.h"
 #include "system.h"  // platform definitions
 
+#include "HL_sci.h"
+#include "HL_sys_common.h"
+
 /**
  * The main function must:
  *  - Define the Service_Queues_t service_queues;
@@ -167,11 +170,24 @@ void initializeProfiler()
 uint32 getProfilerTimerCount()
 {
     RAISE_PRIVILEGE;
-    return _pmuGetCycleCount_();
+    return _pmuGetCycleCount_() / GCLK_FREQ;
     portRESET_PRIVILEGE( xRunningPrivileged );
     RESET_PRIVILEGE;
 }
 
 void vApplicationStackOverflowHook( TaskHandle_t xTask, char *pcTaskName ) {
     for(;;);
+}
+
+void vApplicationMallocFailedHook( void ) {
+    for(;;);
+}
+
+void SciSendBuf( char *buf, uint32_t bufSize )
+{
+    while ( bufSize > 0 && *buf != '\0' ) {
+        sciSend(sciREG4, 1, *buf);
+        buf++;
+        bufSize--;
+    }
 }

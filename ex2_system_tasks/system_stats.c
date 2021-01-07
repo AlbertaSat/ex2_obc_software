@@ -27,8 +27,9 @@
 #include "system.h"
 
 void task_stats(void * param) {
+    const TickType_t xDelay = 10000 / portTICK_PERIOD_MS;
     for(;;) {
-        vTaskDelay(10000);
+        vTaskDelay(xDelay);
         char buf[1024];
         vTaskGetRunTimeStats(buf);
 //        fprintf(stderr, "%s\n", buf);
