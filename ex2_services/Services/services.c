@@ -46,6 +46,7 @@ SAT_returnState start_service_server(void) {
                   NORMAL_SERVICE_PRIO, NULL) != pdPASS) {
     return SATR_ERROR;
   }
+
   if (start_communication_service() != SATR_OK ||
           start_time_management_service() != SATR_OK ||
           start_housekeeping_service() != SATR_OK) {
