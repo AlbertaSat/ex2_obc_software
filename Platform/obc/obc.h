@@ -20,6 +20,7 @@
 
 #include "queue.h"
 #include "services.h"
+#include "system.h"
 
 // gcc Src/*.c Src/demo/*.c -c -I Inc/ -I ../upsat-ecss-services/services/
 // -I Src/ -I Src/demo -I ../ex2_on_board_computer/Source/include/ -I
@@ -31,7 +32,6 @@
 extern unsigned int sent_count;
 
 #define NORMAL_TICKS_TO_WAIT 1
-#define NORMAL_SERVICE_PRIO 1
 #define SERVICE_QUEUE_LEN 3
 #define RESPONSE_QUEUE_LEN 3
 #define CSP_PKT_QUEUE_SIZE sizeof(csp_packet_t*)

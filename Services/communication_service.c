@@ -50,30 +50,29 @@ SAT_returnState communication_service_app(csp_packet_t *packet);
  * @return None
  */
 void communication_service(void * param) {
-    csp_socket_t *sock;
-    sock = csp_socket(CSP_SO_RDPREQ);
-    csp_bind(sock, TC_COMMUNICATION_SERVICE);
-    csp_listen(sock, SERVICE_BACKLOG_LEN);
+  csp_socket_t *sock;
+  sock = csp_socket(CSP_SO_RDPREQ);
+  csp_bind(sock, TC_COMMUNICATION_SERVICE);
+  csp_listen(sock, SERVICE_BACKLOG_LEN);
 
-    for(;;) {
-        csp_conn_t *conn;
-        csp_packet_t *packet;
-        if ((conn = csp_accept(sock, CSP_MAX_TIMEOUT)) == NULL) {
-          /* timeout */
-          continue;
-        }
-        while ((packet = csp_read(conn, 50)) != NULL) {
-          if (communication_service_app(packet) != SATR_OK) {
-            // something went wrong, this shouldn't happen
-            csp_buffer_free(packet);
-          } else {
-            if (!csp_send(conn, packet, 50)) {
-                csp_buffer_free(packet);
-            }
-          }
-        }
-        csp_close(conn);
+  for(;;) {
+    csp_conn_t *conn;
+    csp_packet_t *packet;
+    if ((conn = csp_accept(sock, CSP_MAX_TIMEOUT)) == NULL) {
+      continue;
     }
+    while ((packet = csp_read(conn, 50)) != NULL) {
+      if (communication_service_app(packet) != SATR_OK) {
+        // something went wrong in the service
+        csp_buffer_free(packet);
+      } else {
+        if (!csp_send(conn, packet, 50)) {
+          csp_buffer_free(packet);
+        }
+      }
+    }
+    csp_close(conn);
+  }
 }
 
 /**
