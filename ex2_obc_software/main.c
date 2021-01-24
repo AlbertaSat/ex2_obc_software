@@ -21,6 +21,8 @@
 #include <TempSensor/TempSensor.h>
 #include <csp/csp.h>
 #include <csp/drivers/usart.h>
+#include <csp/interfaces/csp_if_can.h>
+#include <csp/drivers/can.h>
 #include <redconf.h>
 #include <redfs.h>
 #include <redfse.h>
@@ -38,6 +40,8 @@
 #include "services.h"
 #include "system_stats.h"
 #include "system.h"  // platform definitions
+#include "subsystems_ids.h"
+#include "eps.h"
 
 #include "HL_sci.h"
 #include "HL_sys_common.h"
@@ -82,7 +86,7 @@ int ex2_main(int argc, char **argv) {
 //  }
 
   ex2_log("-- starting command demo --\n");
-  TC_TM_app_id my_address = SYSTEM_APP_ID;
+  TC_TM_app_id my_address = OBC_APP_ID;
 
   /* Init CSP with address and default settings */
   csp_conf_t csp_conf;
@@ -123,21 +127,32 @@ int ex2_main(int argc, char **argv) {
  * with no VIA address
  */
 static inline SAT_returnState init_interface() {
-  csp_iface_t *default_iface = NULL;
-  csp_usart_conf_t conf = {.device = "yo",
+  csp_iface_t *uart_iface = NULL;
+  csp_iface_t *can_iface = NULL;
+  csp_usart_conf_t conf = {.device = "UART",
                            .baudrate = 9600, /* supported on all platforms */
                            .databits = 8,
                            .stopbits = 2,
                            .paritysetting = 0,
                            .checkparity = 0};
-  int error = csp_usart_open_and_add_kiss_interface(
-      &conf, CSP_IF_KISS_DEFAULT_NAME, &default_iface);
+
+  int error = csp_can_open_and_add_interface("CAN", &can_iface);
   if (error != CSP_ERR_NONE) {
     return SATR_ERROR;
   }
-  csp_rtable_set(CSP_DEFAULT_ROUTE, 0, default_iface, CSP_NO_VIA_ADDRESS);
+
+  error = csp_usart_open_and_add_kiss_interface(
+      &conf, CSP_IF_KISS_DEFAULT_NAME, &uart_iface);
+  if (error != CSP_ERR_NONE) {
+    return SATR_ERROR;
+  }
+
+
+  csp_rtable_load("16 KISS, 1 CAN");
+
   return SATR_OK;
 }
+
 
 void vAssertCalled( unsigned long ulLine, const char * const pcFileName )
 {

@@ -38,7 +38,7 @@ void task_stats(void * param) {
 
 SAT_returnState start_task_stats(void) {
   if (xTaskCreate((TaskFunction_t)task_stats,
-                  "task_stats", 2048, NULL, NORMAL_SERVICE_PRIO,
+                  "task_stats", 512, NULL, NORMAL_SERVICE_PRIO,
                   NULL) != pdPASS) {
     ex2_log("FAILED TO CREATE TASK start_communication_service\n");
     return SATR_ERROR;

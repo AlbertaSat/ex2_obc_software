@@ -26,6 +26,8 @@
 #include "obc.h"
 
 #define SYSTEM_APP_ID _OBC_APP_ID_
+#define EPS_GATEKEEPER_PRIO     1
+#define NORMAL_SERVICE_PRIO     1
 
 int ex2_main(int argc, char **argv);
 void SciSendBuf( char *buf, uint32_t bufSize );

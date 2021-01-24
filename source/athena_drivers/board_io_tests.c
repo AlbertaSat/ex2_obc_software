@@ -492,6 +492,7 @@ void CANTxTest(canBASE_t * regset, uint8_t msgbox){
 uint8_t CANRxTest(canBASE_t * regset, uint8_t msgbox){
 
     uint8_t data[8] = {0};
+    uint32 sz;
     int i = 0;
     int j = 0;
     int pings = 0;
@@ -501,7 +502,7 @@ uint8_t CANRxTest(canBASE_t * regset, uint8_t msgbox){
         for(j=0;j<8;j++){
             data[j] = 0;
         }
-        canGetData(regset, msgbox, data);
+        canGetData(regset, msgbox, data, &sz);
         for(j=0;j<8;j++){
             if(data[j] == 53){
                 pings++;
