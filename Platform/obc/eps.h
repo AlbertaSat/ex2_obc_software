@@ -20,7 +20,7 @@
 
 QueueHandle_t eps_gatekeeper_q;
 
-SAT_returnState start_eps_gatekeeper(void);
+typedef struct eps_t eps_t;
 
 typedef struct __attribute__((packed)) {
     uint32_t magicWord;
@@ -88,5 +88,8 @@ enum eps_mode {
     normal = 2,
     full = 3
 };
+
+SAT_returnState eps_refresh_instantaneous_telemetry();
+eps_instantaneous_telemetry_t get_eps_instantaneous_telemetry();
 
 #endif /* EX2_SERVICES_PLATFORM_OBC_EPS_H_ */

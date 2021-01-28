@@ -26,26 +26,76 @@
 #include <FreeRTOS.h>
 #include <task.h>
 #include <csp/csp.h>
+#include <csp/csp_endian.h>
 
 #include "eps.h"
 #include "system.h"
 
-SAT_returnState eps_get_instantaneous_telemetery(eps_instantaneous_telemetry_t *telembuf) {
-    uint8_t cmd = 0;
-    if (telembuf == NULL) {
-        return SATR_ERROR;
-    }
+static inline void prv_instantaneous_telemetry_letoh (eps_instantaneous_telemetry_t *telembuf);
+static inline void prv_set_instantaneous_telemetry (eps_instantaneous_telemetry_t telembuf);
+static inline void prv_get_lock(eps_t *eps);
+static inline void prv_give_lock(eps_t *eps);
+static eps_t* prv_get_eps();
+
+struct eps_t {
+    eps_instantaneous_telemetry_t *hk_telemetery;
+    SemaphoreHandle_t *eps_lock;
+};
+
+static eps_t prvEps;
+
+SAT_returnState eps_refresh_instantaneous_telemetry() {
+    uint8_t cmd = 0; // 'subservice' command
+    eps_instantaneous_telemetry_t telembuf;
+
     csp_transaction_w_opts(CSP_PRIO_LOW, (TC_TM_app_id) EPS_APP_ID,
                            EPS_INSTANTANEOUS_TELEMETRY, EPS_REQUEST_TIMEOUT,
-                           &cmd, sizeof(cmd), telembuf, sizeof(eps_instantaneous_telemetry_t),
+                           &cmd, sizeof(cmd), &telembuf, sizeof(eps_instantaneous_telemetry_t),
                            CSP_O_CRC32);
     // data is little endian, must convert to host order
     // refer to the NanoAvionics datasheet for details
-    instantaneous_telemetry_letoh(telembuf);
+    prv_instantaneous_telemetry_letoh(&telembuf);
+    prv_set_instantaneous_telemetry(telembuf);
     return SATR_OK;
 }
 
-static inline void instantaneous_telemetry_letoh (eps_instantaneous_telemetry_t *telembuf) {
+eps_instantaneous_telemetry_t get_eps_instantaneous_telemetry() {
+    eps_instantaneous_telemetry_t telembuf;
+    eps_t *eps;
+    eps = prv_get_eps();
+    prv_get_lock(eps);
+    telembuf = *(eps->hk_telemetery);
+    prv_give_lock(eps);
+    return telembuf;
+}
+
+static eps_t* prv_get_eps() {
+    if (!prvEps.eps_lock) {
+        *prvEps.eps_lock = xSemaphoreCreateMutex();
+    }
+    configASSERT(prvEps.eps_lock);
+    return &prvEps;
+}
+
+static inline void prv_get_lock(eps_t *eps) {
+    configASSERT(eps->eps_lock);
+    xSemaphoreTake(eps->eps_lock, portMAX_DELAY);
+}
+
+static inline void prv_give_lock(eps_t *eps) {
+    configASSERT(eps->eps_lock);
+    xSemaphoreGive(eps->eps_lock);
+}
+
+static inline void prv_set_instantaneous_telemetry (eps_instantaneous_telemetry_t telembuf) {
+    eps_t *eps = prv_get_eps();
+    prv_get_lock(eps);
+    *(eps->hk_telemetery) = telembuf;
+    prv_give_lock(eps);
+    return;
+}
+
+static inline void prv_instantaneous_telemetry_letoh (eps_instantaneous_telemetry_t *telembuf) {
     uint8_t i;
     for (i = 0; i < 2; i++) {
         telembuf->AOcurOutput[i] = csp_letoh16(telembuf->AOcurOutput[i]);
