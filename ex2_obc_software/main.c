@@ -23,6 +23,7 @@
 #include <csp/drivers/usart.h>
 #include <csp/interfaces/csp_if_can.h>
 #include <csp/drivers/can.h>
+#include <ex2_system/system_stats.h>
 #include <redconf.h>
 #include <redfs.h>
 #include <redfse.h>
@@ -38,11 +39,12 @@
 #include "board_io_tests.h"
 #include "service_response.h"
 #include "services.h"
-#include "system_stats.h"
 #include "system.h"  // platform definitions
 #include "subsystems_ids.h"
 #include "eps.h"
-
+#include "mocks/mock_eps.h"
+#include "ex2_system/housekeeping_task.h"
+#include "csp/drivers/can.h"
 #include "HL_sci.h"
 #include "HL_sys_common.h"
 
@@ -66,7 +68,7 @@ int ex2_main(int argc, char **argv) {
   int32_t iErr;
 
   InitIO();
-
+//  gioToggleBit(gioPORTA, 0U);
 //  const char *pszVolume0 = gaRedVolConf[0].pszPathPrefix;
 //  iErr = red_init();
 //
@@ -86,7 +88,7 @@ int ex2_main(int argc, char **argv) {
 //  }
 
   ex2_log("-- starting command demo --\n");
-  TC_TM_app_id my_address = OBC_APP_ID;
+  TC_TM_app_id my_address = EPS_APP_ID;
 
   /* Init CSP with address and default settings */
   csp_conf_t csp_conf;
@@ -99,7 +101,7 @@ int ex2_main(int argc, char **argv) {
   }
   ex2_log("Running at %d\n", my_address);
   /* Set default route and start router & server */
-  csp_route_start_task(1000, 0);
+  csp_route_start_task(1000, 2);
   init_interface();
 
   /* Start service server, and response server */
@@ -109,6 +111,8 @@ int ex2_main(int argc, char **argv) {
     ex2_log("Initialization error\n");
     return -1;
   }
+  start_eps_mock();
+//  start_housekeeping_daemon();
 
   /* Start FreeRTOS! */
   vTaskStartScheduler();
@@ -148,7 +152,7 @@ static inline SAT_returnState init_interface() {
   }
 
 
-  csp_rtable_load("16 KISS, 1 CAN");
+  csp_rtable_load("1 CAN, 16 CAN 1");
 
   return SATR_OK;
 }
@@ -164,6 +168,7 @@ void vAssertCalled( unsigned long ulLine, const char * const pcFileName )
     ( void ) pcFileName;
 
     ex2_log( "ASSERT! Line %d, file %s\r\n", ulLine, pcFileName);
+    for(;;);
 }
 
 static void prvSaveTraceFile( void )

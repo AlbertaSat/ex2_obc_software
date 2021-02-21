@@ -17,11 +17,10 @@
  * @date 2020-09-25
  */
 
-#include "system_stats.h"
-
 #include <FreeRTOS.h>
 #include "task.h"
 #include <csp/csp.h>
+#include <ex2_system/system_stats.h>
 
 #include "services.h"
 #include "system.h"

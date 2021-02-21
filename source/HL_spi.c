@@ -502,10 +502,10 @@ void spiInit(void)
     /** - SPI3 Port direction */
     spiREG3->PC1  =   (uint32)((uint32)0U << 0U)  /* SCS[0] */
                     | (uint32)((uint32)0U << 1U)  /* SCS[1] */
-                    | (uint32)((uint32)0U << 2U)  /* SCS[2] */
-                    | (uint32)((uint32)0U << 3U)  /* SCS[3] */
-                    | (uint32)((uint32)0U << 4U)  /* SCS[4] */
-                    | (uint32)((uint32)0U << 5U)  /* SCS[5] */
+                    | (uint32)((uint32)1U << 2U)  /* SCS[2] */
+                    | (uint32)((uint32)1U << 3U)  /* SCS[3] */
+                    | (uint32)((uint32)1U << 4U)  /* SCS[4] */
+                    | (uint32)((uint32)1U << 5U)  /* SCS[5] */
                     | (uint32)((uint32)0U << 8U)  /* ENA */
                     | (uint32)((uint32)1U << 9U)  /* CLK */
                     | (uint32)((uint32)1U << 10U)  /* SIMO */

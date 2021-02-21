@@ -516,9 +516,9 @@ void canInit(void)
     */
     canREG1->BTR = (uint32)((uint32)0U << 16U) |
                    (uint32)((uint32)(4U - 1U) << 12U) |
-                   (uint32)((uint32)((6U + 4U) - 1U) << 8U) |
+                   (uint32)((uint32)((3U + 4U) - 1U) << 8U) |
                    (uint32)((uint32)(4U - 1U) << 6U) |
-                   (uint32)9U;
+                   (uint32)24U;
 
 
 
@@ -1451,34 +1451,34 @@ uint32 canGetData(canBASE_t *node, uint32 messageBox, uint8 * const data, uint32
     else
     {
     /** - Wait until IF2 is ready for use */
-	/*SAFETYMCUSW 28 D MR:NA <APPROVED> "Potentially infinite loop found - Hardware Status check for execution sequence" */
+    /*SAFETYMCUSW 28 D MR:NA <APPROVED> "Potentially infinite loop found - Hardware Status check for execution sequence" */
     while ((node->IF2STAT & 0x80U) ==0x80U)
     { 
     } /* Wait */
 
-		/** - Configure IF2 for
-		*     - Message direction - Read
-		*     - Data Read
-		*     - Clears NewDat bit in the message object.
-		*/	
-		node->IF2CMD = 0x17U;
-		
+        /** - Configure IF2 for
+        *     - Message direction - Read
+        *     - Data Read
+        *     - Clears NewDat bit in the message object.
+        */
+        node->IF2CMD = 0x17U;
+
     /** - Copy data into IF2 */
-	/*SAFETYMCUSW 93 S MR: 6.1,6.2,10.1,10.2,10.3,10.4 <APPROVED> "LDRA Tool issue" */
+    /*SAFETYMCUSW 93 S MR: 6.1,6.2,10.1,10.2,10.3,10.4 <APPROVED> "LDRA Tool issue" */
     node->IF2NO = (uint8) messageBox;
 
     /** - Wait until data are copied into IF2 */
-	/*SAFETYMCUSW 28 D MR:NA <APPROVED> "Potentially infinite loop found - Hardware Status check for execution sequence" */
+    /*SAFETYMCUSW 28 D MR:NA <APPROVED> "Potentially infinite loop found - Hardware Status check for execution sequence" */
     while ((node->IF2STAT & 0x80U) ==0x80U)
     { 
     } /* Wait */
 
     /** - Get number of received bytes */
     size = node->IF2MCTL & 0xFU;
-		if(size > 0x8U)
-		{
-			size = 0x8U;
-		}
+        if(size > 0x8U)
+        {
+            size = 0x8U;
+        }
     /** - Copy RX data into destination buffer */
     for (i = 0U; i < size; i++)
     {
@@ -1563,7 +1563,7 @@ uint32 canGetID(canBASE_t *node, uint32 messageBox)
     } /* Wait */
 
     /* Read Message Box ID from Arbitration register. */
-    msgBoxID = (node->IF2ARB & 0x1FFFFFFFU);
+    msgBoxID = (node->IF2ARB & 0xFFFFFFFFU);
 
     return msgBoxID;
 
@@ -1612,7 +1612,7 @@ void canUpdateID(canBASE_t *node, uint32 messageBox, uint32 msgBoxArbitVal)
 	node->IF2CMD = 0xA0U;
 	/* Copy passed value into the arbitration register. */
 	node->IF2ARB &= 0x80000000U;
-	node->IF2ARB |= (msgBoxArbitVal & 0x7FFFFFFFU);
+	node->IF2ARB |= (msgBoxArbitVal & 0xFFFFFFFFU);
 
     /** - Update message box number. */
 	/*SAFETYMCUSW 93 S MR: 6.1,6.2,10.1,10.2,10.3,10.4 <APPROVED> "LDRA Tool issue" */

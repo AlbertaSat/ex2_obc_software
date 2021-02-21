@@ -31,7 +31,7 @@ void InitIO(void){
     //The following sets the proper direction for all GPIO
     gioSetDirection(hetPORT2, 0xFFFFFFEA);
     gioSetDirection(hetPORT1, 0x9CFF6BEF);
-    gioSetDirection(gioPORTA, 0xFFFFFF6F);
+//    gioSetDirection(gioPORTA, 0xFFFFFF6F);
     gioSetDirection(gioPORTB, 0xFFFFFFFF);
 
     gioSetBit(hetPORT2, 12, 1);//solar panel power - enable

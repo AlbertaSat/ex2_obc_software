@@ -51,6 +51,7 @@
 
 /* USER CODE BEGIN (1) */
 #include <FreeRTOS.h>
+
 #include "system.h"
 #include "HL_sys_vim.h"
 #include "HL_system.h"
