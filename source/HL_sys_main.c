@@ -52,6 +52,9 @@
 /* USER CODE BEGIN (1) */
 #include <FreeRTOS.h>
 #include "system.h"
+#include "HL_sys_vim.h"
+#include "HL_system.h"
+#include "HL_esm.h"
 /* USER CODE END */
 
 /** @fn void main(void)
@@ -63,6 +66,14 @@
 */
 
 /* USER CODE BEGIN (2) */
+#pragma CODE_STATE(_prefetch, 32)
+#pragma INTERRUPT(_c_int00, PABT)
+
+#pragma CODE_STATE(_dabort, 32)
+#pragma INTERRUPT(_c_int00, DABT)
+
+#pragma CODE_STATE(_undef, 32)
+#pragma INTERRUPT(_c_int00, UDEF)
 /* USER CODE END */
 
 uint8	emacAddress[6U] = 	{0xFFU, 0xFFU, 0xFFU, 0xFFU, 0xFFU, 0xFFU};
@@ -81,4 +92,27 @@ int main(void)
 
 
 /* USER CODE BEGIN (4) */
+
+// TODO: log reset in these isr
+
+void _prefetch(void)
+{
+    //software reset
+    systemREG1->SYSECR = (0x10) << 14;
+    while(1);
+}
+
+void _dabort(void)
+{
+    //software reset
+    systemREG1->SYSECR = (0x10) << 14;
+    while(1);
+}
+
+void _undef(void)
+{
+    //software reset
+    systemREG1->SYSECR = (0x10) << 14;
+    while(1);
+}
 /* USER CODE END */

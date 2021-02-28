@@ -28,6 +28,7 @@
 #define SYSTEM_APP_ID _OBC_APP_ID_
 
 int ex2_main(int argc, char **argv);
+void SciSendBuf( char *buf, uint32_t bufSize );
 
 typedef struct {
   SemaphoreHandle_t temp_sensor;

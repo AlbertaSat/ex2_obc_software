@@ -223,6 +223,11 @@ void _c_int00(void)
         case SW_RESET:
 		
 /* USER CODE BEGIN (20) */
+            _coreEnableEventBusExport_();
+            systemInit();
+            _coreEnableIrqVicOffset_();
+            vimInit();
+            esmInit();
 /* USER CODE END */
         break;
     
