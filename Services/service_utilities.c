@@ -18,17 +18,20 @@
  */
 #include "service_utilities.h"
 
+#include "printf.h"
 #include <stdarg.h>
 #include <stdio.h>
+#include <string.h>
+#include "HL_sci.h"
 
 #include "time_management_service.h"
 
 void ex2_log(const char *format, ...) {
-  //  va_list arg;
-  //  va_start(arg, format);
-  //  printf(format, arg, 0);
-  //  va_end(arg);
-  //  fflush(stdout);
+    va_list arg;
+    va_start(arg, format);
+    vprintf(format, arg);
+    va_end(arg);
+    //fflush(stdout);
   return;
 }
 
