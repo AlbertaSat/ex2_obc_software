@@ -16,19 +16,17 @@
  * @author Haoran Qi, Andrew Rooney, Yuan Wang
  * @date 2020-07-07
  */
-#include "housekeeping_service.h"
+#include "housekeeping/housekeeping_service.h"
 
 #include <FreeRTOS.h>
+#include <os_task.h>
 #include <csp/csp.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "service_response.h"
-#include "service_utilities.h"
+#include "util/service_utilities.h"
 #include "services.h"
-#include "task.h"
-#include "system_header.h"
 
 static uint8_t SID_byte = 1;
 

@@ -17,18 +17,17 @@
  * @date 2020-06-06
  */
 
-#include "time_management_service.h"
-
 #include <FreeRTOS.h>
-#include <task.h>
+#include <os_task.h>
+
 #include <csp/csp.h>
 #include <csp/csp_endian.h>
+#include <main/system.h>
 #include <stdio.h>
 
-#include "service_response.h"
-#include "service_utilities.h"
+#include "time_management/time_management_service.h"
+#include "util/service_utilities.h"
 #include "services.h"
-#include "system.h"
 
 SAT_returnState time_management_app(csp_packet_t *packet);
 

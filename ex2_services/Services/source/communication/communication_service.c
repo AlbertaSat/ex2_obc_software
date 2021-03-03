@@ -17,18 +17,17 @@
  * @date 2020-09-25
  */
 
-#include "communication_service.h"
+#include "communication/communication_service.h"
 
 #include <FreeRTOS.h>
 #include <csp/csp.h>
 #include <csp/csp_endian.h>
+#include <main/system.h>
 
-#include "hal/comms_hal.h"
-#include "service_response.h"
-#include "service_utilities.h"
+#include "sband.h"
+#include "util/service_utilities.h"
 #include "services.h"
-#include "system.h"
-#include "hal/uhf_hal.h"
+#include "uhf_hal.h"
 
 #define CHAR_LEN 4  // Numpy unicode string character length
 #define CALLSIGN_LEN 6

@@ -21,6 +21,7 @@
 #include <string.h>
 
 #include "subsystems_ids.h"
+#include "main/system.h"
 
 /* PACKETS */
 #define TM_TC_BUFF_SIZE 256
@@ -35,6 +36,11 @@
 #define MAX_SUBTYPES 256  // an 8-bit integer
 #define SERVICE_BACKLOG_LEN 3
 
+#define NORMAL_TICKS_TO_WAIT 1
+#define SERVICE_QUEUE_LEN 3
+#define RESPONSE_QUEUE_LEN 3
+#define CSP_PKT_QUEUE_SIZE sizeof(csp_packet_t*)
+
 typedef enum {
   OBC_APP_ID = _OBC_APP_ID_,
   EPS_APP_ID = _EPS_APP_ID_,
@@ -44,79 +50,6 @@ typedef enum {
   DEMO_APP_ID = _DEMO_APP_ID_,
   LAST_APP_ID = _LAST_APP_ID_
 } TC_TM_app_id;
-
-typedef enum {
-  SATR_PKT_ILLEGAL_APPID = 0,
-  SATR_PKT_ILLEGAL_SUBSERVICE,
-  SATR_OK,
-  SATR_ERROR,
-  SATR_RETURN_FROM_TASK,
-  SATR_BUFFER_ERR,
-  /*LAST*/
-  SATR_LAST
-} SAT_returnState;
-
-/* services types & subtypes
- * Note: ports 0-7 are RESERVED by CSP. Don't use them.
- */
-
-// TIME MANAGEMENT SERVICE
-#define TC_TIME_MANAGEMENT_SERVICE 8
-typedef enum {
-  GET_TIME = 0,
-  SET_TIME = 1
-} Time_Management_Subtype;  // shared with EPS!
-
-// HOUSEKEEPING SERVICE
-#define TC_HOUSEKEEPING_SERVICE 9
-typedef enum { TM_HK_PARAMETERS_REPORT = 0 } Housekeeping_Subtype;
-
-// COMMUNICATION SERVICE
-#define TC_COMMUNICATION_SERVICE 10
-typedef enum {
-  S_GET_TEMP = 0,
-  S_GET_FREQ = 1,
-  S_GET_CONTROL = 2,
-  S_GET_ENCODER = 3,
-  S_GET_PA_POWER = 4,
-  S_GET_STATUS = 5,
-  S_GET_TR = 6,
-  S_GET_BUFFER = 7,
-  S_GET_HK = 8,
-  S_SOFT_RESET = 9,
-  S_GET_FULL_STATUS = 10,
-  S_SET_FREQ = 11,
-  S_SET_CONTROL = 12,
-  S_SET_ENCODER = 13,
-  S_SET_PA_POWER = 14,
-  S_GET_CONFIG = 15,
-  S_SET_CONFIG = 16
-} Sband_Subtype;
-
-typedef enum {
-  UHF_SET_STAT_CONTROL = 20,
-  UHF_SET_FREQ,
-  UHF_SET_PIPE_TIMEOUT,
-  UHF_SET_BEACON_T,
-  UHF_SET_AUDIO_T,
-  UHF_SET_PARAMS,  // Merge last 4
-  UHF_RESTORE_DEFAULT,
-  UHF_LOW_PWR,
-  UHF_SET_DEST,
-  UHF_SET_SRC,
-  UHF_SET_MORSE,
-  UHF_SET_MIDI,
-  UHF_SET_BEACON_MSG,
-  UHF_SET_I2C,
-  UHF_WRITE_FRAM,
-  UHF_SECURE,
-  UHF_GET_FULL_STAT,  // 0-244,249,250
-  UHF_GET_CALL_SIGN,  // 245-246
-  UHF_GET_MORSE,
-  UHF_GET_MIDI,
-  UHF_GET_BEACON_MSG,
-  UHF_GET_FRAM,
-} UHF_Subtype;
 
 /* Utility definitions */
 union _cnv {
