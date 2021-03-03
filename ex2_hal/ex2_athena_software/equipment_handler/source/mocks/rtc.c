@@ -1,4 +1,4 @@
-#include "hal.h"
+#include "mocks/rtc.h"
 
 #include <stdio.h>
 #include <time.h>

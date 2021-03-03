@@ -17,7 +17,7 @@
  * @date Feb. 19, 2021
  */
 #include <FreeRTOS.h>
-#include <task.h>
+#include <os_task.h>
 
 #include "eps.h"
 

@@ -1020,7 +1020,7 @@ typedef struct can_config_reg
 
 void   canInit(void);
 uint32 canTransmit(canBASE_t *node, uint32 messageBox, const uint8 * data);
-uint32 canGetData(canBASE_t *node, uint32 messageBox, uint8 * const data, uint32 * rx);
+uint32 canGetData(canBASE_t *node, uint32 messageBox, uint8 * const data);
 uint32 canGetID(canBASE_t *node, uint32 messageBox);
 void canUpdateID(canBASE_t *node, uint32 messageBox, uint32 msgBoxArbitVal);
 uint32 canSendRemoteFrame(canBASE_t *node, uint32 messageBox);
@@ -1092,6 +1092,7 @@ void canStatusChangeNotification(canBASE_t *node, uint32 notification);
 void canMessageNotification(canBASE_t *node, uint32 messageBox);
 
 /* USER CODE BEGIN (2) */
+uint32 canGetDataAndSize(canBASE_t *node, uint32 messageBox, uint8 * const data, uint32 * rx);
 /* USER CODE END */
 
 /**@}*/

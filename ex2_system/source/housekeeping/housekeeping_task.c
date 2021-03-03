@@ -18,15 +18,15 @@
  */
 
 #include <FreeRTOS.h>
-#include <queue.h>
+#include <os_queue.h>
 #include <os_semphr.h>
-#include <task.h>
+#include <os_task.h>
 
 #include "eps.h"
 
 static void * housekeeping_daemon(void *pvParameters) {
     TickType_t hk_delay = pdMS_TO_TICKS(1000);
-    for (; ; ) {
+    for ( ;; ) {
         // TODO periodically construct a HK element (data from each subsystem) to save to the SD card
         eps_refresh_instantaneous_telemetry();
         eps_instantaneous_telemetry_t eps = get_eps_instantaneous_telemetry();

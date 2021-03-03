@@ -18,32 +18,29 @@
  */
 
 #include <FreeRTOS.h>
-#include <TempSensor/TempSensor.h>
 #include <csp/csp.h>
 #include <csp/drivers/usart.h>
 #include <csp/interfaces/csp_if_can.h>
 #include <csp/drivers/can.h>
-#include <ex2_system/system_stats.h>
+#include <performance_monitor/system_stats.h>
+#include <main/system.h>  // platform definitions
 #include <redconf.h>
 #include <redfs.h>
 #include <redfse.h>
 #include <redposix.h>
 #include <redvolume.h>
-#include <service_utilities.h>
+#include <util/service_utilities.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <task.h>
+#include <os_task.h>
 
 #include "board_io_tests.h"
-#include "service_response.h"
 #include "services.h"
-#include "system.h"  // platform definitions
 #include "subsystems_ids.h"
 #include "eps.h"
 #include "mocks/mock_eps.h"
-#include "ex2_system/housekeeping_task.h"
 #include "csp/drivers/can.h"
 #include "HL_sci.h"
 #include "HL_sys_common.h"
@@ -58,34 +55,33 @@
  *  - Start the FreeRTOS scheduler
  */
 
-/* Create handler mutexes */
-Equipment_Mutex_t equipment_mutex;
-
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
 static inline SAT_returnState init_interface();
 
 int ex2_main(int argc, char **argv) {
   int32_t iErr;
 
+  _enable_IRQ_interrupt_();
   InitIO();
-//  gioToggleBit(gioPORTA, 0U);
-//  const char *pszVolume0 = gaRedVolConf[0].pszPathPrefix;
-//  iErr = red_init();
-//
-//  if (iErr == -1) {
-//    exit(red_errno);
-//  }
-//
-//  iErr = red_format(pszVolume0);
-//  if (iErr == -1) {
-//    exit(red_errno);
-//  }
-//
-//  iErr = red_mount(pszVolume0);
-//
-//  if (iErr == -1) {
-//    exit(red_errno);
-//  }
+
+  gioToggleBit(gioPORTA, 0U);
+  const char *pszVolume0 = gaRedVolConf[0].pszPathPrefix;
+  iErr = red_init();
+
+  if (iErr == -1) {
+    exit(red_errno);
+  }
+
+  iErr = red_format(pszVolume0);
+  if (iErr == -1) {
+    exit(red_errno);
+  }
+
+  iErr = red_mount(pszVolume0);
+
+  if (iErr == -1) {
+    exit(red_errno);
+  }
 
   ex2_log("-- starting command demo --\n");
   TC_TM_app_id my_address = EPS_APP_ID;
@@ -106,7 +102,6 @@ int ex2_main(int argc, char **argv) {
 
   /* Start service server, and response server */
   if (start_service_server() != SATR_OK ||
-      start_detection_server() != SATR_OK ||
       start_task_stats() != SATR_OK) {
     ex2_log("Initialization error\n");
     return -1;
@@ -117,10 +112,7 @@ int ex2_main(int argc, char **argv) {
   /* Start FreeRTOS! */
   vTaskStartScheduler();
 
-  for (;;)
-    ;
-
-  return 0;
+  for (;;);
 }
 
 /**

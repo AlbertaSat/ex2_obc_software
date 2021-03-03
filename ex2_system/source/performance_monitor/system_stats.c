@@ -16,14 +16,14 @@
  * @author Andrew Rooney
  * @date 2020-09-25
  */
+#include "performance_monitor/system_stats.h"
 
 #include <FreeRTOS.h>
-#include "task.h"
+#include <os_task.h>
 #include <csp/csp.h>
-#include <ex2_system/system_stats.h>
+#include <main/system.h>
 
 #include "services.h"
-#include "system.h"
 
 void task_stats(void * param) {
     const TickType_t xDelay = 10000 / portTICK_PERIOD_MS;

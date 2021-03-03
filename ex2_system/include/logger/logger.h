@@ -15,7 +15,9 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
-#include <HL_hal_stdtypes.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 
 typedef struct circular_buf_t circular_buf_t;
 typedef circular_buf_t* cbuf_handle_t;
@@ -44,10 +46,10 @@ int circular_buf_put2(cbuf_handle_t cbuf, uint8_t data);
 int circular_buf_get(cbuf_handle_t cbuf, uint8_t * data);
 
 /// Returns true if the buffer is empty
-boolean circular_buf_empty(cbuf_handle_t cbuf);
+bool circular_buf_empty(cbuf_handle_t cbuf);
 
 /// Returns true if the buffer is full
-boolean circular_buf_full(cbuf_handle_t cbuf);
+bool circular_buf_full(cbuf_handle_t cbuf);
 
 /// Returns the maximum capacity of the buffer
 size_t circular_buf_capacity(cbuf_handle_t cbuf);

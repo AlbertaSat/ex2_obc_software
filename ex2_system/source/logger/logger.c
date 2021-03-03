@@ -4,6 +4,7 @@
  *  Created on: Jan. 26, 2021
  *      Author: Andrew
  */
+#include "logger/logger.h"
 
 #include <stdio.h>
 #include <inttypes.h>
@@ -11,8 +12,6 @@
 #include <assert.h>
 #include <HL_hal_stdtypes.h>
 #include <FreeRTOS.h>
-
-#include "logger.h"
 
 struct circular_buf_t {
     uint8_t * buffer;

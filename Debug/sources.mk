@@ -111,14 +111,22 @@ PDE_DEPS__QUOTED :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
-Project/host \
-ex2_obc_software/TempSensor \
-ex2_obc_software \
-ex2_services/Platform/obc \
-ex2_services/Platform/obc/hal \
-ex2_services/Platform/obc/mocks \
-ex2_services/Services \
-ex2_system \
+ex2_hal/ex2_athena_software/equipment_handler/source \
+ex2_hal/ex2_athena_software/equipment_handler/source/mocks \
+ex2_hal/ex2_eps_software/hardware_interface/source \
+ex2_hal/ex2_eps_software/hardware_interface/source/mocks \
+ex2_hal/ex2_sband_software/hardware_interface/source \
+ex2_hal/ex2_uhf_software/hardware_interface/source \
+ex2_services/Services/source/communication \
+ex2_services/Services/source/housekeeping \
+ex2_services/Services/source/response \
+ex2_services/Services/source \
+ex2_services/Services/source/time_management \
+ex2_services/Services/source/util \
+ex2_system/source/housekeeping \
+ex2_system/source/logger \
+ex2_system/source/performance_monitor \
+ex2_system/source/system_state \
 libcsp/src/arch \
 libcsp/src/arch/freertos \
 libcsp/src/crypto \
@@ -128,8 +136,10 @@ libcsp/src/drivers/usart \
 libcsp/src/interfaces \
 libcsp/src/rtable \
 libcsp/src/transport \
+main \
 reliance_edge/core/driver \
 reliance_edge/fse \
+reliance_edge/include \
 reliance_edge/os/freertos/services \
 reliance_edge/posix \
 reliance_edge/tests/posix \
@@ -138,5 +148,4 @@ reliance_edge/tools \
 reliance_edge/tools/imgbld \
 reliance_edge/util \
 source \
-source/athena_drivers \
 

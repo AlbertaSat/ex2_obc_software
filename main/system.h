@@ -20,20 +20,22 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
-#include <semphr.h>
-
-#include "hal/obc_hal.h"
-#include "obc.h"
-
 #define SYSTEM_APP_ID _OBC_APP_ID_
 #define EPS_GATEKEEPER_PRIO     1
 #define NORMAL_SERVICE_PRIO     1
 
+typedef enum {
+  SATR_PKT_ILLEGAL_APPID = 0,
+  SATR_PKT_ILLEGAL_SUBSERVICE,
+  SATR_OK,
+  SATR_ERROR,
+  SATR_RETURN_FROM_TASK,
+  SATR_BUFFER_ERR,
+  /*LAST*/
+  SATR_LAST
+} SAT_returnState;
+
 int ex2_main(int argc, char **argv);
 void SciSendBuf( char *buf, uint32_t bufSize );
-
-typedef struct {
-  SemaphoreHandle_t temp_sensor;
-} Equipment_Mutex_t;
 
 #endif /* SYSTEM_H */

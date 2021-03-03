@@ -31,7 +31,7 @@ void InitIO(void){
     //The following sets the proper direction for all GPIO
     gioSetDirection(hetPORT2, 0xFFFFFFEA);
     gioSetDirection(hetPORT1, 0x9CFF6BEF);
-//    gioSetDirection(gioPORTA, 0xFFFFFF6F);
+    gioSetDirection(gioPORTA, 0xFFFFFF6F);
     gioSetDirection(gioPORTB, 0xFFFFFFFF);
 
     gioSetBit(hetPORT2, 12, 1);//solar panel power - enable
@@ -492,7 +492,6 @@ void CANTxTest(canBASE_t * regset, uint8_t msgbox){
 uint8_t CANRxTest(canBASE_t * regset, uint8_t msgbox){
 
     uint8_t data[8] = {0};
-    uint32 sz;
     int i = 0;
     int j = 0;
     int pings = 0;
@@ -502,7 +501,7 @@ uint8_t CANRxTest(canBASE_t * regset, uint8_t msgbox){
         for(j=0;j<8;j++){
             data[j] = 0;
         }
-        canGetData(regset, msgbox, data, &sz);
+        canGetData(regset, msgbox, data);
         for(j=0;j<8;j++){
             if(data[j] == 53){
                 pings++;
