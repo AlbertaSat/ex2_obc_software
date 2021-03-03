@@ -13,7 +13,9 @@
 #define HK_PR_ERR -1
 #define HK_PR_OK 0
 
-extern unsigned int count;
+// HOUSEKEEPING SERVICE
+#define TC_HOUSEKEEPING_SERVICE 9
+typedef enum { TM_HK_PARAMETERS_REPORT = 0 } Housekeeping_Subtype;
 
 SAT_returnState hk_service_app(csp_packet_t* pkt);
 SAT_returnState start_housekeeping_service(void);

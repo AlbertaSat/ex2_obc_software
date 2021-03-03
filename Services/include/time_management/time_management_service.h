@@ -12,16 +12,29 @@
  * GNU General Public License for more details.
  */
 
-#ifndef DEMO_HAL_H
-#define DEMO_HAL_H
+#ifndef TIME_MANAGEMENT_H
+#define TIME_MANAGEMENT_H
 
-#include <inttypes.h>
+#include <stdint.h>
 
 #include "services.h"
 
-#define NORMAL_TICKS_TO_WAIT 1
-void HAL_sys_getTime(uint32_t *unix_timestamp);
-void HAL_sys_setTime(uint32_t unix_timestamp);
-size_t HAL_hk_report(uint8_t sid, void *output);
+#define MIN_YEAR 1577836800  // 2020-01-01
+#define MAX_YEAR 1893456000  // 2030-01-01
 
-#endif /* DEMO_HAL_H */
+#define TIMESTAMP_ISOK(x) (x > MIN_YEAR && x < MAX_YEAR) ? 1 : 0
+
+// TIME MANAGEMENT SERVICE
+#define TC_TIME_MANAGEMENT_SERVICE 8
+typedef enum {
+  GET_TIME = 0,
+  SET_TIME = 1
+} Time_Management_Subtype;  // shared with EPS!
+
+struct time_utc {
+  uint32_t unix_timestamp;
+};
+
+SAT_returnState start_time_management_service(void);
+
+#endif /* TIME_MANAGEMENT_H */
