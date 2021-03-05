@@ -16,19 +16,17 @@
  * @author Haoran Qi, Andrew Rooney, Yuan Wang
  * @date 2020-07-07
  */
-#include "housekeeping_service.h"
+#include "housekeeping/housekeeping_service.h"
 
 #include <FreeRTOS.h>
+#include <os_task.h>
 #include <csp/csp.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "service_response.h"
-#include "service_utilities.h"
+#include "util/service_utilities.h"
 #include "services.h"
-#include "task.h"
-#include "system_header.h"
 
 static uint8_t SID_byte = 1;
 
@@ -51,7 +49,7 @@ void housekeeping_service(void * param) {
     for(;;) {
         csp_conn_t *conn;
         csp_packet_t *packet;
-        if ((conn = csp_accept(sock, 1000)) == NULL) {
+        if ((conn = csp_accept(sock, CSP_MAX_TIMEOUT)) == NULL) {
           /* timeout */
           continue;
         }
@@ -60,7 +58,9 @@ void housekeeping_service(void * param) {
             // something went wrong, this shouldn't happen
             csp_buffer_free(packet);
           } else {
-            csp_send(conn, packet, 50);
+              if (!csp_send(conn, packet, 50)) {
+                  csp_buffer_free(packet);
+              }
           }
         }
         csp_close(conn);
