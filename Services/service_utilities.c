@@ -150,7 +150,7 @@ uint16_t betole(uint16_t x) {
 #if (SYETEM_ENDIANESS == SYS_BIG_ENDIAN)
     return (x >> 8) | (num << 8);
 #else
-    return x
+    return x;
 #endif
 }
 
