@@ -16,15 +16,14 @@
  * @author Andrew Rooney
  * @date 2020-09-25
  */
-
-#include "system_stats.h"
+#include "performance_monitor/system_stats.h"
 
 #include <FreeRTOS.h>
-#include "task.h"
+#include <os_task.h>
 #include <csp/csp.h>
+#include <main/system.h>
 
 #include "services.h"
-#include "system.h"
 
 void task_stats(void * param) {
     const TickType_t xDelay = 10000 / portTICK_PERIOD_MS;
@@ -38,7 +37,7 @@ void task_stats(void * param) {
 
 SAT_returnState start_task_stats(void) {
   if (xTaskCreate((TaskFunction_t)task_stats,
-                  "task_stats", 2048, NULL, NORMAL_SERVICE_PRIO,
+                  "task_stats", 512, NULL, NORMAL_SERVICE_PRIO,
                   NULL) != pdPASS) {
     ex2_log("FAILED TO CREATE TASK start_communication_service\n");
     return SATR_ERROR;

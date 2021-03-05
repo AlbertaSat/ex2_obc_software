@@ -221,7 +221,7 @@ void gioInit(void)
     gioREG->FLG = 0xFFU;
 
     /** - enable interrupts */
-    gioREG->ENASET = (uint32)((uint32)1U << 0U)   /* Bit 0 */
+    gioREG->ENASET = (uint32)((uint32)0U << 0U)   /* Bit 0 */
                    | (uint32)((uint32)0U << 1U)   /* Bit 1 */
                    | (uint32)((uint32)0U << 2U)   /* Bit 2 */
                    | (uint32)((uint32)0U << 3U)   /* Bit 3 */

@@ -27,6 +27,9 @@ void SPI_Init (void);
  */
 BYTE SPI_RW (BYTE d);
 
+
+BYTE rcvr_spi (void);
+
 /**
     \brief Flush of SPI buffer.
  */
