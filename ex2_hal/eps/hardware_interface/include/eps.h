@@ -10,7 +10,6 @@
 
 #include <main/system.h>
 #include <os_queue.h>
-#include "services.h"
 
 /* Binary Commands to EPS */
 
@@ -18,6 +17,8 @@
 #define EPS_GATEKEEPER_LEN      5
 #define EPS_REQUEST_TIMEOUT 1000
 #define EPS_INSTANTANEOUS_TELEMETRY 20
+
+#define EPS_APP_ID 4
 
 QueueHandle_t eps_gatekeeper_q;
 

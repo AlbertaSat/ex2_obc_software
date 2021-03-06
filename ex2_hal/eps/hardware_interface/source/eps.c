@@ -52,10 +52,9 @@ SAT_returnState eps_refresh_instantaneous_telemetry() {
     eps_instantaneous_telemetry_t telembuf;
     int res = csp_ping(EPS_APP_ID, 10000, 100, CSP_O_NONE);
 
-    csp_transaction_w_opts(CSP_PRIO_LOW, (TC_TM_app_id) EPS_APP_ID,
-                           EPS_INSTANTANEOUS_TELEMETRY, 10000,
-                           &cmd, sizeof(cmd), &telembuf, sizeof(eps_instantaneous_telemetry_t),
-                           CSP_O_CRC32);
+    csp_transaction_w_opts(CSP_PRIO_LOW, EPS_APP_ID, EPS_INSTANTANEOUS_TELEMETRY,
+                           10000, &cmd, sizeof(cmd), &telembuf,
+                           sizeof(eps_instantaneous_telemetry_t), CSP_O_CRC32);
     // data is little endian, must convert to host order
     // refer to the NanoAvionics datasheet for details
 //    prv_instantaneous_telemetry_letoh(&telembuf);
