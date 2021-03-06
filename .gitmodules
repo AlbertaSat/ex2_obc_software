@@ -13,3 +13,6 @@
 [submodule "ex2_hal/ex2_uhf_software"]
 	path = ex2_hal/ex2_uhf_software
 	url = https://github.com/AlbertaSat/ex2_uhf_software.git
+[submodule "ex2_hal/ex2_athena_software"]
+	path = ex2_hal/ex2_athena_software
+	url = https://github.com/AlbertaSat/ex2_athena_software.git
