@@ -1,10 +1,21 @@
 /*
- * eps.h
+ * Copyright (C) 2021  University of Alberta
  *
- *  Created on: Dec. 28, 2020
- *      Author: Andrew
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
-
+/**
+ * @file eps.h
+ * @author Andrew Rooney
+ * @date 2020-12-28
+ */
 #ifndef EX2_SERVICES_PLATFORM_OBC_EPS_H_
 #define EX2_SERVICES_PLATFORM_OBC_EPS_H_
 
@@ -14,7 +25,6 @@
 /* Binary Commands to EPS */
 
 #define SET_TELEMETRY_PERIOD    255
-#define EPS_GATEKEEPER_LEN      5
 #define EPS_REQUEST_TIMEOUT 1000
 #define EPS_INSTANTANEOUS_TELEMETRY 20
 
