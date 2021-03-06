@@ -123,10 +123,14 @@ ex2_services/Services/source/response \
 ex2_services/Services/source \
 ex2_services/Services/source/time_management \
 ex2_services/Services/source/util \
+ex2_system/source/beacon \
+ex2_system/source/coordinate_management \
+ex2_system/source/diagnostic \
 ex2_system/source/housekeeping \
 ex2_system/source/logger \
 ex2_system/source/performance_monitor \
 ex2_system/source/system_state \
+ex2_system/source \
 libcsp/src/arch \
 libcsp/src/arch/freertos \
 libcsp/src/crypto \

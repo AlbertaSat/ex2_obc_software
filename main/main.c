@@ -44,6 +44,7 @@
 #include "csp/drivers/can.h"
 #include "HL_sci.h"
 #include "HL_sys_common.h"
+#include "system_tasks.h"
 
 /**
  * The main function must:
@@ -102,7 +103,7 @@ int ex2_main(int argc, char **argv) {
 
   /* Start service server, and response server */
   if (start_service_server() != SATR_OK ||
-      start_task_stats() != SATR_OK) {
+      start_system_tasks() != SATR_OK) {
     ex2_log("Initialization error\n");
     return -1;
   }
