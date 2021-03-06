@@ -20,9 +20,16 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
+#include <stdint.h>
+
 #define SYSTEM_APP_ID _OBC_APP_ID_
-#define EPS_GATEKEEPER_PRIO     1
-#define NORMAL_SERVICE_PRIO     1
+
+#define NORMAL_SERVICE_PRIO               1
+#define STATE_TASK_PRIO                   1
+#define HOUSEKEEPING_TASK_PRIO            1
+#define COORDINATE_MANAGEMENT_TASK_PRIO   1
+#define BEACON_TASK_PRIO                  1
+#define DIAGNOSTIC_TASK_PRIO              1
 
 typedef enum {
   SATR_PKT_ILLEGAL_APPID = 0,
@@ -36,6 +43,6 @@ typedef enum {
 } SAT_returnState;
 
 int ex2_main(int argc, char **argv);
-void SciSendBuf( char *buf, uint32_t bufSize );
+void SciSendBuf(char *buf, uint32_t bufSize);
 
 #endif /* SYSTEM_H */
