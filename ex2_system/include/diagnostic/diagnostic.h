@@ -12,15 +12,17 @@
  * GNU General Public License for more details.
  */
 /**
- * @file housekeeping_task.h
+ * @file diagnoistic.h
  * @author Andrew R. Rooney
  * @date Mar. 6, 2021
  */
-#ifndef EX2_SYSTEM_HOUSEKEEPING_TASK_H_
-#define EX2_SYSTEM_HOUSEKEEPING_TASK_H_
+
+#ifndef EX2_SYSTEM_INCLUDE_DIAGNOSTIC_DIAGNOSTIC_H_
+#define EX2_SYSTEM_INCLUDE_DIAGNOSTIC_DIAGNOSTIC_H_
 
 #include "main/system.h"
 
-SAT_returnState start_housekeeping_daemon(void);
+SAT_returnState start_diagnostic_daemon(void);
 
-#endif /* EX2_SYSTEM_HOUSEKEEPING_TASK_H_ */
+
+#endif /* EX2_SYSTEM_INCLUDE_DIAGNOSTIC_DIAGNOSTIC_H_ */

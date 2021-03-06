@@ -30,6 +30,7 @@
 #define COORDINATE_MANAGEMENT_TASK_PRIO   1
 #define BEACON_TASK_PRIO                  1
 #define DIAGNOSTIC_TASK_PRIO              1
+#define SYSTEM_STATS_TASK_PRIO            1
 
 typedef enum {
   SATR_PKT_ILLEGAL_APPID = 0,

@@ -12,10 +12,11 @@
  * GNU General Public License for more details.
  */
 /**
- * @file service_utilities.c
- * @author Andrew Rooney
+ * @file housekeeping_task.c
+ * @author Andrew R. Rooney
  * @date 2020-07-23
  */
+#include "housekeeping/housekeeping_task.h"
 
 #include <FreeRTOS.h>
 #include <os_queue.h>
@@ -24,6 +25,15 @@
 
 #include "eps.h"
 
+static void * housekeeping_daemon(void *pvParameters);
+SAT_returnState start_housekeeping_daemon(void);
+
+/**
+ * Housekeeping task. Query subsystem housekeeping and stores to file.
+ *
+ * @param pvParameters
+ *    task parameters (not used)
+ */
 static void * housekeeping_daemon(void *pvParameters) {
     TickType_t hk_delay = pdMS_TO_TICKS(1000);
     for ( ;; ) {
@@ -36,16 +46,19 @@ static void * housekeeping_daemon(void *pvParameters) {
     }
 }
 
+/**
+ * Start the housekeeping daemon
+ *
+ * @returns status
+ *   error report of task creation
+ */
 SAT_returnState start_housekeeping_daemon(void) {
     if (xTaskCreate((TaskFunction_t)housekeeping_daemon,
-                  "housekeeping_daemon", 2048, NULL, NORMAL_SERVICE_PRIO,
+                  "housekeeping_daemon", 2048, NULL, HOUSEKEEPING_TASK_PRIO,
                   NULL) != pdPASS) {
         ex2_log("FAILED TO CREATE TASK housekeeping_daemon\n");
         return SATR_ERROR;
     }
-    ex2_log("Service handlers started\n");
+    ex2_log("Housekeeping task started\n");
     return SATR_OK;
 }
-
-
-
