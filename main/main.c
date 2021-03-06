@@ -21,9 +21,7 @@
 #include <csp/csp.h>
 #include <csp/drivers/usart.h>
 #include <csp/interfaces/csp_if_can.h>
-#include <csp/drivers/can.h>
 #include <performance_monitor/system_stats.h>
-#include <main/system.h>  // platform definitions
 #include <redconf.h>
 #include <redfs.h>
 #include <redfse.h>
@@ -36,6 +34,7 @@
 #include <string.h>
 #include <os_task.h>
 
+#include "main/system.h"
 #include "board_io_tests.h"
 #include "services.h"
 #include "subsystems_ids.h"
@@ -56,15 +55,36 @@
  *  - Start the FreeRTOS scheduler
  */
 
+static void init_filesystem();
+static void init_csp();
+static inline SAT_returnState init_csp_interface();
+static void init_system_tasks();
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
-static inline SAT_returnState init_interface();
 
 int ex2_main(int argc, char **argv) {
-  int32_t iErr;
 
   _enable_IRQ_interrupt_();
   InitIO();
 
+  /* Initialization routine */
+  init_filesystem();
+  init_csp();
+  /* Start service server, and response server */
+  init_system_tasks();
+//  start_eps_mock();
+
+  /* Start FreeRTOS! */
+  vTaskStartScheduler();
+
+  for (;;);
+}
+
+
+/**
+ * Initialize reliance edge file system
+ */
+static void init_filesystem() {
+  int32_t iErr;
   gioToggleBit(gioPORTA, 0U);
   const char *pszVolume0 = gaRedVolConf[0].pszPathPrefix;
   iErr = red_init();
@@ -83,9 +103,13 @@ int ex2_main(int argc, char **argv) {
   if (iErr == -1) {
     exit(red_errno);
   }
+}
 
-  ex2_log("-- starting command demo --\n");
-  TC_TM_app_id my_address = EPS_APP_ID;
+/**
+ * Initialize CSP network
+ */
+static void init_csp() {
+  TC_TM_app_id my_address = OBC_APP_ID;
 
   /* Init CSP with address and default settings */
   csp_conf_t csp_conf;
@@ -94,36 +118,24 @@ int ex2_main(int argc, char **argv) {
   int error = csp_init(&csp_conf);
   if (error != CSP_ERR_NONE) {
     ex2_log("csp_init() failed, error: %d\n", error);
-    return -1;
+    exit(SATR_ERROR);
   }
   ex2_log("Running at %d\n", my_address);
   /* Set default route and start router & server */
   csp_route_start_task(1000, 2);
-  init_interface();
-
-  /* Start service server, and response server */
-  if (start_service_server() != SATR_OK ||
-      start_system_tasks() != SATR_OK) {
-    ex2_log("Initialization error\n");
-    return -1;
+  if (init_csp_interface() != SATR_OK) {
+    exit(SATR_ERROR);
   }
-  start_eps_mock();
-//  start_housekeeping_daemon();
-
-  /* Start FreeRTOS! */
-  vTaskStartScheduler();
-
-  for (;;);
+  return;
 }
 
 /**
- * @brief
- * 		initialize zmq interface, and configure the routing table
+ * Initialize CSP interfaces
  * @details
  * 		start the localhost zmq server and add it to the default route
  * with no VIA address
  */
-static inline SAT_returnState init_interface() {
+static inline SAT_returnState init_csp_interface() {
   csp_iface_t *uart_iface = NULL;
   csp_iface_t *can_iface = NULL;
   csp_usart_conf_t conf = {.device = "UART",
@@ -150,6 +162,14 @@ static inline SAT_returnState init_interface() {
   return SATR_OK;
 }
 
+static void init_system_tasks() {
+  if (start_service_server() != SATR_OK ||
+      start_system_tasks() != SATR_OK) {
+    ex2_log("Initialization error\n");
+    exit(SATR_ERROR);
+  }
+  return;
+}
 
 void vAssertCalled( unsigned long ulLine, const char * const pcFileName )
 {
