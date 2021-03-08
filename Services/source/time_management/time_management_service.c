@@ -17,18 +17,17 @@
  * @date 2020-06-06
  */
 
-#include "time_management_service.h"
-
 #include <FreeRTOS.h>
-#include <task.h>
+#include <os_task.h>
+
 #include <csp/csp.h>
 #include <csp/csp_endian.h>
+#include <main/system.h>
 #include <stdio.h>
 
-#include "service_response.h"
-#include "service_utilities.h"
+#include "time_management/time_management_service.h"
+#include "util/service_utilities.h"
 #include "services.h"
-#include "system.h"
 
 SAT_returnState time_management_app(csp_packet_t *packet);
 
@@ -49,7 +48,7 @@ void time_management_service(void * param) {
     for(;;) {
         csp_conn_t *conn;
         csp_packet_t *packet;
-        if ((conn = csp_accept(sock, 1000)) == NULL) {
+        if ((conn = csp_accept(sock, CSP_MAX_TIMEOUT)) == NULL) {
           /* timeout */
           continue;
         }
@@ -58,7 +57,9 @@ void time_management_service(void * param) {
             // something went wrong, this shouldn't happen
             csp_buffer_free(packet);
           } else {
-            csp_send(conn, packet, 50);
+              if (!csp_send(conn, packet, 50)) {
+                  csp_buffer_free(packet);
+              }
           }
         }
         csp_close(conn);

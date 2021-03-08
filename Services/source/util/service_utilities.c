@@ -16,15 +16,13 @@
  * @author upSat, Andrew Rooney
  * @date 2020-06-06
  */
-#include "service_utilities.h"
+#include "util/service_utilities.h"
 
 #include "printf.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 #include "HL_sci.h"
-
-#include "time_management_service.h"
 
 void ex2_log(const char *format, ...) {
     va_list arg;
