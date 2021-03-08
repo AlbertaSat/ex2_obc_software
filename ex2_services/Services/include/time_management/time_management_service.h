@@ -15,7 +15,6 @@
 #ifndef TIME_MANAGEMENT_H
 #define TIME_MANAGEMENT_H
 
-#include <csp/csp.h>
 #include <stdint.h>
 
 #include "services.h"
@@ -24,6 +23,13 @@
 #define MAX_YEAR 1893456000  // 2030-01-01
 
 #define TIMESTAMP_ISOK(x) (x > MIN_YEAR && x < MAX_YEAR) ? 1 : 0
+
+// TIME MANAGEMENT SERVICE
+#define TC_TIME_MANAGEMENT_SERVICE 8
+typedef enum {
+  GET_TIME = 0,
+  SET_TIME = 1
+} Time_Management_Subtype;  // shared with EPS!
 
 struct time_utc {
   uint32_t unix_timestamp;
