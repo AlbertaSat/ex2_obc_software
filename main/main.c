@@ -18,7 +18,6 @@
  */
 
 #include <FreeRTOS.h>
-#include <TempSensor/TempSensor.h>
 #include <csp/csp.h>
 #include <csp/drivers/usart.h>
 #include <csp/interfaces/csp_if_can.h>
@@ -37,7 +36,6 @@
 
 #include "main/system.h"
 #include "board_io_tests.h"
-#include "service_response.h"
 #include "services.h"
 #include "subsystems_ids.h"
 #include "eps.h"
@@ -62,10 +60,8 @@ static void init_csp();
 static inline SAT_returnState init_csp_interface();
 static void init_system_tasks();
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
-static inline SAT_returnState init_interface();
 
 int ex2_main(int argc, char **argv) {
-  int32_t iErr;
 
   _enable_IRQ_interrupt_();
   InitIO();
@@ -136,7 +132,7 @@ static void init_csp() {
 /**
  * Initialize CSP interfaces
  * @details
- * 		start the localhost zmq server and add it to the default route
+ *      start the localhost zmq server and add it to the default route
  * with no VIA address
  */
 static inline SAT_returnState init_csp_interface() {
