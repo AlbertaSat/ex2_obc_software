@@ -16,17 +16,16 @@
  * @author Haoran Qi, Andrew Rooney, Hugh Bagan
  * @date 2020-06-06
  */
-#include "service_response.h"
+#include "response/service_response.h"
 
 #include <FreeRTOS.h>
+#include <os_task.h>
+#include <os_queue.h>
 #include <csp/csp.h>
 #include <stdint.h>
-#include <task.h>
 
-#include "queue.h"
-#include "service_utilities.h"
+#include "util/service_utilities.h"
 #include "services.h"
-#include "system_header.h"
 
 xQueueHandle response_queue;
 
