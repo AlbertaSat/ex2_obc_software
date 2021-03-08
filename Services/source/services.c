@@ -20,14 +20,13 @@
 #include "services.h"
 
 #include <FreeRTOS.h>
+#include <os_task.h>
 #include <csp/csp.h>
-#include <task.h>
 
-#include "communication_service.h"
-#include "housekeeping_service.h"
-#include "time_management_service.h"
-#include "service_utilities.h"
-#include "system_header.h"
+#include "communication/communication_service.h"
+#include "housekeeping/housekeeping_service.h"
+#include "time_management/time_management_service.h"
+#include "util/service_utilities.h"
 
 void csp_server(void *parameters);
 SAT_returnState start_service_server(void);
@@ -46,6 +45,7 @@ SAT_returnState start_service_server(void) {
                   NORMAL_SERVICE_PRIO, NULL) != pdPASS) {
     return SATR_ERROR;
   }
+
   if (start_communication_service() != SATR_OK ||
           start_time_management_service() != SATR_OK ||
           start_housekeeping_service() != SATR_OK) {
@@ -68,13 +68,13 @@ void csp_server(void *parameters) {
 
   /* Create socket and listen for incoming connections */
   sock = csp_socket(CSP_SO_NONE);
-  csp_bind(sock, CSP_CMP);
+//  csp_bind(sock, CSP_CMP);
   csp_bind(sock, CSP_PING);
-  csp_bind(sock, CSP_PS);
-  csp_bind(sock, CSP_MEMFREE);
-  csp_bind(sock, CSP_REBOOT);
-  csp_bind(sock, CSP_BUF_FREE);
-  csp_bind(sock, CSP_UPTIME);
+//  csp_bind(sock, CSP_PS);
+//  csp_bind(sock, CSP_MEMFREE);
+//  csp_bind(sock, CSP_REBOOT);
+//  csp_bind(sock, CSP_BUF_FREE);
+//  csp_bind(sock, CSP_UPTIME);
 
   csp_listen(sock, SERVICE_BACKLOG_LEN);
 
@@ -82,7 +82,7 @@ void csp_server(void *parameters) {
     /* Process incoming packet */
     csp_conn_t *conn;
     csp_packet_t *packet;
-    if ((conn = csp_accept(sock, 1000)) == NULL) {
+    if ((conn = csp_accept(sock, CSP_MAX_TIMEOUT)) == NULL) {
       /* timeout */
       continue;
     }
