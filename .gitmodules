@@ -4,6 +4,18 @@
 [submodule "ex2_services"]
 	path = ex2_services
 	url = https://github.com/AlbertaSat/ex2_services.git
-[submodule "ex2_gps_software"]
-	path = ex2_gps_software
+[submodule "ex2_hal/ex2_gps_software"]
+	path = ex2_hal/ex2_gps_software
 	url = https://github.com/Taylorr82/ex2_gps_software
+[submodule "ex2_hal/ex2_eps_software"]
+	path = ex2_hal/ex2_eps_software
+	url = https://github.com/AlbertaSat/ex2_eps_software.git
+[submodule "ex2_hal/ex2_sband_software"]
+	path = ex2_hal/ex2_sband_software
+	url = https://github.com/AlbertaSat/ex2_sband_software.git
+[submodule "ex2_hal/ex2_uhf_software"]
+	path = ex2_hal/ex2_uhf_software
+	url = https://github.com/AlbertaSat/ex2_uhf_software.git
+[submodule "ex2_hal/ex2_athena_software"]
+	path = ex2_hal/ex2_athena_software
+	url = https://github.com/AlbertaSat/ex2_athena_software.git
