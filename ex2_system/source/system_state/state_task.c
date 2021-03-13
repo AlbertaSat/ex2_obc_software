@@ -34,10 +34,12 @@ SAT_returnState start_state_daemon();
  *  Task parameter (not used)
  */
 static void state_daemon(void *pvParam) {
+  TickType_t delay = pdMS_TO_TICKS(1000);
   for (;;) {
     /* TODO: Get the state from EPS system and make any required updates
      * to system operations.
      */
+    vTaskDelay(delay);
   }
 }
 

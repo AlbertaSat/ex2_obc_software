@@ -67,7 +67,7 @@ int ex2_main(int argc, char **argv) {
   InitIO();
 
   /* Initialization routine */
-  init_filesystem();
+//  init_filesystem();
   init_csp();
   /* Start service server, and response server */
   init_system_tasks();
@@ -157,7 +157,7 @@ static inline SAT_returnState init_csp_interface() {
   }
 
 
-  csp_rtable_load("1 CAN, 16 CAN 1");
+  csp_rtable_load("16 KISS");
 
   return SATR_OK;
 }
