@@ -9,9 +9,7 @@
 #define SKYTRAQ_GPS_DRIVER_H_
 
 #include <stdbool.h>
-#include "skyTraq_binary.h"
-
-
+#include "skytraq_binary.h"
 
 // gets most recent
 // returns true on successful altitude acquiring, false otherwise

@@ -1,5 +1,4 @@
-#include "sci.h"
-#include "skyTraq_binary.h"
+#include "HL_sci.h"
 #include "NMEAParser.h"
 #include <stdbool.h>
 #include "FreeRTOS.h"
@@ -8,63 +7,33 @@
 #include "os_task.h"
 #include "skytraq_gps_driver.h"
 
-#define SKYTRAQ_UART sciREG
-#define BUFSIZE 100
 
 bool GGA_ENABLED = false;
 bool GSA_ENABLED = false;
 bool GSV_ENABLED = false;
 bool RMC_ENABLED = false;
 
-enum current_sentence {
-    none,
-    binary,
-    nmea
-} line_type;
-
-#define ITEM_SIZE BUFSIZE
-#define QUEUE_LENGTH 2
-uint8_t inQueueStorage[ QUEUE_LENGTH * ITEM_SIZE ];
-static StaticQueue_t xStaticQueue;
-QueueHandle_t inQueue = NULL;
-
-char binary_message_buffer[BUFSIZE];
-int bin_buff_loc;
-
-uint8_t byte;
-
-bool sci_busy;
-
-int current_line_type = none;
-
-#define header_size 4
-#define footer_size 3
-
-// IMPORTANT: this function will delay for 30s due to cold start. This function is expected to run
-// on a cold boot of the OBC. Call TODO: IMPLEMENT NEEDED FUNCTION TO CALL instead to warm start the skytraq
+// IMPORTANT: This function is expected to run on a cold boot of the OBC
 bool gps_skytraq_driver_init() {
-    memset(binary_message_buffer, 0, BUFSIZE);
-    bin_buff_loc = 0;
-    //TODO: make this use xQueueCreateStatic
-    sci_busy = false;
-    inQueue = xQueueCreate(QUEUE_LENGTH, ITEM_SIZE);
-    if (inQueue == NULL) {
+    skytraq_binary_init();
+
+    ErrorCode gps_enable_all = gps_configure_message_types(false,false,false,true,1);
+    if (gps_enable_all != SUCCESS) {
         return false;
     }
-    ErrorCode restart = skytraq_restart_receiver(COLD_START, 2020, 2, 10, 11, 40, 0, 0, 0,2000);
+    vTaskDelay(500*portTICK_PERIOD_MS);
+
+    ErrorCode restart = skytraq_restart_receiver(HOT_START, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     if (restart != SUCCESS) {
         return false;
     }
-    vTaskDelay(30000/portTICK_PERIOD_MS);
+    vTaskDelay(500*portTICK_PERIOD_MS);
+
     ErrorCode powerMode = skytraq_configure_power_mode(POWERSAVE, UPDATE_TO_FLASH);
     if (powerMode != SUCCESS) {
         return false;
     }
-
-    ErrorCode gps_enable_all = gps_configure_message_types(true,true,true,true,1);
-    if (gps_enable_all != SUCCESS) {
-        return false;
-    }
+    vTaskDelay(500*portTICK_PERIOD_MS);
 
     //TODO: maybe implement a way to request CRC and compare it with a stored CRC?
     return true;

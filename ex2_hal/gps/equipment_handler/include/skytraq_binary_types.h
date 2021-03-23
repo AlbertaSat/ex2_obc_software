@@ -198,12 +198,6 @@ typedef enum skytraq_power_mode {
   POWERSAVE,
 } skytraq_power_mode;
 
-/*typedef enum position_pinning {
-  DEFAULT = 0,
-  ENABLE = 1,
-  DISABLE = 2,
-} position_pinning;
-*/
 typedef enum nmea_talker_IDs {
   GP = 0,
   GN = 1,
@@ -212,6 +206,6 @@ typedef enum nmea_talker_IDs {
 typedef enum enable_disable {
   DISABLE,
   ENABLE
-} enable_disable
+} enable_disable;
 
 #endif /* SKYTRAQ_BINARY_TYPES_H */
