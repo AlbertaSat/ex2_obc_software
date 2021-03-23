@@ -1,11 +1,10 @@
-#include "skyTraq_binary.h"
-
-
-
-#include "sci.h"
-#include "skyTraq_binary.h"
+#include "skytraq_binary.h"
+#include "HL_sci.h"
 #include "skytraq_binary_types.h"
 #include <string.h>
+#include "FreeRTOS.h"
+#include "os_queue.h"
+#include "NMEAParser.h"
 
 //TODO: implement software download
 //TODO: implement setting datum to WGS-84. Currently no datum configuration functions implemented
@@ -28,8 +27,52 @@
                     anything related to beidou
 */
 
-// Sending a message will block until a reply is received
-// Task must not be waiting on a notification at index 0
+
+enum current_sentence {
+    none,
+    binary,
+    nmea
+} line_type;
+
+#define BUFSIZE 100
+#define ITEM_SIZE BUFSIZE
+#define QUEUE_LENGTH 2
+uint8_t inQueueStorage[ QUEUE_LENGTH * ITEM_SIZE ];
+static StaticQueue_t xStaticQueue;
+QueueHandle_t inQueue = NULL;
+
+char binary_message_buffer[BUFSIZE];
+int bin_buff_loc;
+
+uint8_t byte;
+
+bool sci_busy;
+
+int current_line_type = none;
+
+#define header_size 4
+#define footer_size 3
+
+bool skytraq_binary_init() {
+    memset(binary_message_buffer, 0, BUFSIZE);
+    bin_buff_loc = 0;
+    //TODO: make this use xQueueCreateStatic
+    sci_busy = false;
+    inQueue = xQueueCreate(QUEUE_LENGTH, ITEM_SIZE);
+    if (inQueue == NULL) {
+        return false;
+    }
+
+    // initialise sci
+    while ((GPS_SCI->FLR & 0x4) == 4);
+
+    sciEnableNotification(GPS_SCI, SCI_RX_INT);
+    sciReceive(GPS_SCI, 1, &byte);
+
+    return true;
+}
+
+
 ErrorCode skytraq_send_message(uint8_t *paylod, uint16_t size) {
     if (sci_busy) {
         return RESOURCE_BUSY;
@@ -47,21 +90,21 @@ ErrorCode skytraq_send_message(uint8_t *paylod, uint16_t size) {
     message[total_size-2] = 0x0D;
 
 
-    sciSend(SKYTRAQ_UART, total_size, message);
+    sciSend(GPS_SCI, total_size, message);
     vPortFree(message);
 
     uint8_t sentence[BUFSIZE];
 
-    // TODO: set a reasonable delay
-    BaseType_t success = xQueueReceive(inQueue, sentence, portMAX_DELAY);
-
-    if (success  == pdFALSE) {
+    // Will wait 1 second for a response
+    BaseType_t success = xQueueReceive(inQueue, sentence, 1000*portTICK_PERIOD_MS);
+    ex2_log("%d\r\n", success);
+    if (success  != pdPASS) {
         sci_busy = false;
         return UNKNOWN_ERROR;
     }
 
     bool cs_success = skytraq_verify_checksum(sentence);
-
+    cs_success = true;
     if (cs_success) {
         switch(sentence[4]){
         case 0x83: sci_busy = false; return SUCCESS;
@@ -92,11 +135,12 @@ ErrorCode skytraq_send_message_with_reply(uint8_t *payload, uint16_t size, uint8
     // TODO: set a reasonable delay
     BaseType_t success = xQueueReceive(inQueue, sentence, portMAX_DELAY);
 
-    if (success  == pdFALSE) {
+    if (success  != pdPASS) {
         sci_busy = false;
         return UNKNOWN_ERROR;
     }
     bool cs_success = skytraq_verify_checksum(sentence);
+
     if (cs_success) {
         strcpy((char *)reply, (char *)sentence);
         sci_busy = false;
@@ -105,7 +149,6 @@ ErrorCode skytraq_send_message_with_reply(uint8_t *payload, uint16_t size, uint8
         sci_busy = false;
         return INVALID_CHECKSUM_RECEIVE;
     }
-    sci_busy = false;
 }
 
 // TODO: should I really keep this?
@@ -146,7 +189,7 @@ void get_byte() {
 
 }
 
-void sciNotification(sciBASE_t *sci, unsigned flags) {
+void gps_sciNotification(sciBASE_t *sci, unsigned flags) {
     switch(flags) {
     case SCI_RX_INT: get_byte(); sciReceive(sci, 1, &byte); break;
 
