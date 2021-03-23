@@ -201,8 +201,8 @@ void sciNotification(sciBASE_t *sci, uint32 flags)
 /* USER CODE BEGIN (32) */
     uint32_t int_reg = (uint32_t)sci;
     switch(int_reg) {
-    case (uint32_t)GPS_SCI: gps_sciNotification(sci, flags);
-    case (uint32_t)CSP_SCI: csp_sciNotification(sci, flags);
+    case (uint32_t)GPS_SCI: gps_sciNotification(sci, flags); break;
+    case (uint32_t)CSP_SCI: csp_sciNotification(sci, flags); break;
     }
 /* USER CODE END */
 }

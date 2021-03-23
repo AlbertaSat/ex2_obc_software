@@ -52,8 +52,8 @@ extern "C" {
 
 /* USER CODE BEGIN (0) */
 // These are expected to change. Set them to the appropriate registers for binary testing for now
-#define GPS_SCI sciREG2
-#define CSP_SCI sciREG3
+#define GPS_SCI sciREG3
+#define CSP_SCI sciREG2
 /* USER CODE END */
 
 /** @enum sciIntFlags
@@ -118,7 +118,7 @@ typedef struct sci_config_reg
 /* Configuration registers initial value for SCI1*/
 #define SCI1_GCR0_CONFIGVALUE       0x00000001U   
 #define SCI1_GCR1_CONFIGVALUE       ((uint32)((uint32)1U << 5U) \
-                                   |(uint32)((uint32)(2U-1U) << 4U) \
+                                   |(uint32)((uint32)(1U-1U) << 4U) \
                                    |(uint32)((uint32)0U << 3U) \
                                    |(uint32)((uint32)0U << 2U) \
                                    |(uint32)((uint32)1U << 1U) \
@@ -188,7 +188,7 @@ typedef struct sci_config_reg
 /* Configuration registers initial value for SCI3*/
 #define SCI3_GCR0_CONFIGVALUE       0x00000001U   
 #define SCI3_GCR1_CONFIGVALUE       ((uint32)((uint32)1U << 5U) \
-                                   |(uint32)((uint32)(2U-1U) << 4U) \
+                                   |(uint32)((uint32)(1U-1U) << 4U) \
                                    |(uint32)((uint32)0U << 3U) \
                                    |(uint32)((uint32)0U << 2U) \
                                    |(uint32)((uint32)1U << 1U) \
