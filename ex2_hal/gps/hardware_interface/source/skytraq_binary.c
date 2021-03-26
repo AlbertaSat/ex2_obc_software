@@ -56,6 +56,7 @@ int current_line_type = none;
 bool skytraq_binary_init() {
     memset(binary_message_buffer, 0, BUFSIZE);
     bin_buff_loc = 0;
+    NMEAParser_reset_all_values();
     //TODO: make this use xQueueCreateStatic
     sci_busy = false;
     inQueue = xQueueCreate(QUEUE_LENGTH, ITEM_SIZE);
@@ -97,7 +98,6 @@ ErrorCode skytraq_send_message(uint8_t *paylod, uint16_t size) {
 
     // Will wait 1 second for a response
     BaseType_t success = xQueueReceive(inQueue, sentence, 1000*portTICK_PERIOD_MS);
-    ex2_log("%d\r\n", success);
     if (success  != pdPASS) {
         sci_busy = false;
         return UNKNOWN_ERROR;
