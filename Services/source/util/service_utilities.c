@@ -23,14 +23,20 @@
 #include <stdio.h>
 #include <string.h>
 #include "HL_sci.h"
+#include "os_task.h"
+
+#define PRINT_BUF_LEN 64
 
 void ex2_log(const char *format, ...) {
+    char buffer[PRINT_BUF_LEN] = {0};
     va_list arg;
     va_start(arg, format);
-    vprintf(format, arg);
+    vsnprintf(buffer, PRINT_BUF_LEN, format, arg);
     va_end(arg);
-    //fflush(stdout);
-  return;
+
+    char *taskName = pcTaskGetName(NULL);
+    printf("[%s]: %s\r\n", taskName, buffer);
+    return;
 }
 
 /**
