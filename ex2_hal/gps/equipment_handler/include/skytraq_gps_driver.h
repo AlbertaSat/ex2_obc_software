@@ -10,6 +10,7 @@
 
 #include <stdbool.h>
 #include "skytraq_binary.h"
+#include "time_struct.h"
 
 // gets most recent
 // returns true on successful altitude acquiring, false otherwise
@@ -27,10 +28,13 @@ bool gps_get_position(int32_t *latitude_upper, int32_t *latitude_lower, int32_t 
 bool gps_get_visible_satellite_count(uint8_t *numsats);
 
 //utc time in hundreths of a second
-bool gps_get_utc_time(uint8_t *utc_hour, uint8_t *utc_minute, uint8_t *utc_second, uint16_t *utc_ms);
+bool gps_get_utc_time(time_t *utc_time);
+
+// utc date
+bool gps_get_date(date_t *utc_date);
 
 // time of GPS receiver. No idea what this actually gives
-bool gps_get_gps_time();
+bool gps_get_gps_time(char *reply);
 
 // speed in hundredths of kilometers per hour
 bool gps_get_speed(uint32_t *speed);
