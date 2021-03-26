@@ -37,9 +37,7 @@ enum current_sentence {
 #define BUFSIZE 100
 #define ITEM_SIZE BUFSIZE
 #define QUEUE_LENGTH 2
-uint8_t inQueueStorage[ QUEUE_LENGTH * ITEM_SIZE ];
-static StaticQueue_t xStaticQueue;
-QueueHandle_t inQueue = NULL;
+QueueHandle_t binary_queue = NULL;
 
 char binary_message_buffer[BUFSIZE];
 int bin_buff_loc;
@@ -56,11 +54,10 @@ int current_line_type = none;
 bool skytraq_binary_init() {
     memset(binary_message_buffer, 0, BUFSIZE);
     bin_buff_loc = 0;
-    NMEAParser_reset_all_values();
-    //TODO: make this use xQueueCreateStatic
     sci_busy = false;
-    inQueue = xQueueCreate(QUEUE_LENGTH, ITEM_SIZE);
-    if (inQueue == NULL) {
+    binary_queue = xQueueCreate(QUEUE_LENGTH, ITEM_SIZE);
+
+    if (binary_queue == NULL) {
         return false;
     }
 
@@ -97,7 +94,7 @@ ErrorCode skytraq_send_message(uint8_t *paylod, uint16_t size) {
     uint8_t sentence[BUFSIZE];
 
     // Will wait 1 second for a response
-    BaseType_t success = xQueueReceive(inQueue, sentence, 1000*portTICK_PERIOD_MS);
+    BaseType_t success = xQueueReceive(binary_queue, sentence, 1000*portTICK_PERIOD_MS);
     if (success  != pdPASS) {
         sci_busy = false;
         return UNKNOWN_ERROR;
@@ -133,7 +130,7 @@ ErrorCode skytraq_send_message_with_reply(uint8_t *payload, uint16_t size, uint8
     uint8_t sentence[BUFSIZE];
 
     // TODO: set a reasonable delay
-    BaseType_t success = xQueueReceive(inQueue, sentence, portMAX_DELAY);
+    BaseType_t success = xQueueReceive(binary_queue, sentence, portMAX_DELAY);
 
     if (success  != pdPASS) {
         sci_busy = false;
@@ -160,33 +157,26 @@ static inline increment_buffer(int *buf) {
 void get_byte() {
     uint8_t in = byte;
 
-    switch(current_line_type) {
-
-    case none:
+    if (current_line_type == none) {
         switch(in){
-        case '$': current_line_type = nmea; NMEAParser_encode(in); break; // this means NMEA decoding happens in the isr. Have to determine if this is a problem
-        case 0xA0: current_line_type = binary; binary_message_buffer[bin_buff_loc] = in; increment_buffer(&bin_buff_loc); break;
-        }; break;
-
-    case nmea: NMEAParser_encode(in); break;
-
-    case binary: binary_message_buffer[bin_buff_loc] = in; increment_buffer(&bin_buff_loc); break;
+        case '$': current_line_type = nmea; break;
+        case 0xA0: current_line_type = binary; break;
+        };
     }
 
+    binary_message_buffer[bin_buff_loc] = in; increment_buffer(&bin_buff_loc);
     if (in == '\n') {
         if (current_line_type == binary) {
-            current_line_type = none;
-            increment_buffer(&bin_buff_loc);
-            binary_message_buffer[bin_buff_loc] = '\0';
-            increment_buffer(&bin_buff_loc);
-            xQueueSendFromISR(inQueue, binary_message_buffer, NULL);
-            bin_buff_loc = 0;
-            memset(binary_message_buffer, 0, BUFSIZE);
-        } else {
-            current_line_type = none;
+            if (binary_queue != NULL)
+                xQueueSendFromISR(binary_queue, binary_message_buffer, NULL);
+        } else if (current_line_type == nmea) {
+            if (NMEA_queue != NULL)
+                xQueueSendFromISR(NMEA_queue, binary_message_buffer, NULL);
         }
+        bin_buff_loc = 0;
+        memset(binary_message_buffer, 0, BUFSIZE);
+        current_line_type = none;
     }
-
 }
 
 void gps_sciNotification(sciBASE_t *sci, unsigned flags) {

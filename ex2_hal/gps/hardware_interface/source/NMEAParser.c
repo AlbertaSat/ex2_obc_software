@@ -5,10 +5,10 @@
     Robert N. Taylor, December 2020
 */
 
+#include "FreeRTOS.h"
 #include "NMEAParser.h"
 #include "os_task.h"
 #include <string.h>
-#include "FreeRTOS.h"
 /*
  TODO: The library expresses some values a bit weirdly. for example, 11.4 knots in speed is expressed as 114
  I intend to change this to floating point values. Latitude/longitude will continue to be expressed in upper/lower
@@ -64,6 +64,12 @@ const static GPRMC_s GPRMC_invalid = {._time = GPS_INVALID_TIME,
                                       ._course = GPS_INVALID_COURSE,
                                       ._date = GPS_INVALID_DATE,
                                       ._logtime = (TickType_t)GPS_INVALID_FIX_TIME};
+
+bool init_NMEA() {
+    NMEAParser_reset_all_values();
+    NMEA_queue = xQueueCreate(NMEA_QUEUE_MAX_LEN, NMEA_QUEUE_ITEM_SIZE);
+}
+
 
 bool NMEAParser_get_GPGGA(GPGGA_s *output) {
     TickType_t tickCount = xTaskGetTickCount();
