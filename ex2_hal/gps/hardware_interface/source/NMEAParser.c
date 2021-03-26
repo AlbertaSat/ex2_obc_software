@@ -181,7 +181,9 @@ bool NMEAParser_encode(char c)
                 checksum ^= _sentence[_char_offset--];
             if (checksum == 0) // checksum is valid
             {
+                taskENTER_CRITICAL();
                 new_data = NMEAParser_decode_sentence();
+                taskEXIT_CRITICAL();
             }
             _char_offset = 0;
             _sentence[0] = 0;
@@ -194,7 +196,7 @@ bool NMEAParser_encode(char c)
 
 static bool NMEAParser_decode_sentence()
 {
-    TickType_t logtime = xTaskGetTickCountFromISR();
+    TickType_t logtime = xTaskGetTickCount();
 
     // determine sentence type
     int sentence_type;
