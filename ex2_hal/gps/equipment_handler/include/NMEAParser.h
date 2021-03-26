@@ -13,6 +13,7 @@
 
 #include "FreeRTOS.h"
 #include "NMEA_types.h"
+#include "os_queue.h"
 
 #define NMEA_GGA 0
 #define NMEA_GSA 1
@@ -26,8 +27,8 @@
 #define NMEASENTENCE_MAXLENGTH 120
 #define NMEASENTENCE_MAXTERMS 25
 
-#define GPS_AGE_INVALID_THRESHOLD 10000
-
+// Set sentences invalid after 10 seconds
+#define GPS_AGE_INVALID_THRESHOLD 10000*portTICK_RATE_MS
 
 enum {
     GPS_INVALID_DOP = 0xFFFF,           GPS_INVALID_ANGLE = 999999999,
@@ -38,7 +39,12 @@ enum {
     GPS_INVALID_COURSE = 0xFFFF
 };
 
+#define NMEA_QUEUE_ITEM_SIZE NMEASENTENCE_MAXLENGTH
+#define NMEA_QUEUE_MAX_LEN 2
 
+QueueHandle_t NMEA_queue;
+
+bool init_NMEA();
 
 static GPGGA_s GPGGA;
 static GPGSA_s GPGSA;
