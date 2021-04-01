@@ -12,6 +12,9 @@
 
 static char NMEA_buf[NMEASENTENCE_MAXLENGTH];
 
+/**
+ * @brief Starts NMEA decoding service
+ */
 void NMEA_service() {
     ex2_log("NMEA task started");
 
