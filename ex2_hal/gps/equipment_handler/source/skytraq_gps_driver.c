@@ -66,7 +66,7 @@ ErrorCode gps_configure_message_types(uint8_t GGA, uint8_t GSA, uint8_t GSV, uin
  * @return ErrorCode 
  */
 ErrorCode gps_disable_NMEA_output() {
-    return gps_configure_message_types(false,false,false,false, 0);
+    return gps_configure_message_types(0,0,0,0);
 }
 
 /**

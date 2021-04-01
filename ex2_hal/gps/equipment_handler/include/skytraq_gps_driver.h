@@ -17,7 +17,7 @@
 // @PARAM: updates int with altitude in centimeters
 bool gps_get_altitude(uint32_t *alt);
 
-ErrorCode gps_configure_message_types(bool GGA, bool GSA, bool GSV, bool RMC, uint8_t interval);
+ErrorCode gps_configure_message_types(uint8_t GGA, uint8_t GSA, uint8_t GSV, uint8_t RMC);
 ErrorCode gps_disable_NMEA_output();
 
 // gets most recent
