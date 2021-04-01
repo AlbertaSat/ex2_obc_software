@@ -1,8 +1,8 @@
 /*
  * skytraq_gps_driver.h
  *
- *  Created on: Feb. 10, 2021eb.m,,,jhn
- *      Author: robert
+ *  Created on: Feb. 10, 2021
+ *      Author: Robert Taylor
  */
 
 #ifndef SKYTRAQ_GPS_DRIVER_H_
