@@ -9,14 +9,13 @@
 #define SKYTRAQ_GPS_DRIVER_H_
 
 #include <stdbool.h>
-#include "skytraq_binary.h"
+#include "skytraq_binary_types.h"
 #include "time_struct.h"
 
 // gets most recent
 // returns true on successful altitude acquiring, false otherwise
 // @PARAM: updates int with altitude in centimeters
 bool gps_get_altitude(uint32_t *alt);
-
 
 ErrorCode gps_configure_message_types(bool GGA, bool GSA, bool GSV, bool RMC, uint8_t interval);
 ErrorCode gps_disable_NMEA_output();
@@ -38,6 +37,8 @@ bool gps_get_gps_time(char *reply);
 
 // speed in hundredths of kilometers per hour
 bool gps_get_speed(uint32_t *speed);
+
+bool gps_get_course(uint32_t *course);
 
 bool gps_skytraq_driver_init();
 

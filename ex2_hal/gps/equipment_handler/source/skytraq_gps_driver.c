@@ -12,11 +12,16 @@ bool GSA_ENABLED = false;
 bool GSV_ENABLED = false;
 bool RMC_ENABLED = false;
 
-// IMPORTANT: This function is expected to run on a cold boot of the OBC
+/**
+ * @brief Initialises all of the skytraq and driver
+ * 
+ * @return true success
+ * @return false failure
+ */
 bool gps_skytraq_driver_init() {
     skytraq_binary_init();
 
-    ErrorCode gps_enable_all = gps_configure_message_types(false,false,false,true,1);
+    ErrorCode gps_enable_all = gps_configure_message_types(2,0,0,3);
     if (gps_enable_all != SUCCESS) {
         return false;
     }
@@ -38,24 +43,41 @@ bool gps_skytraq_driver_init() {
     return true;
 }
 
-ErrorCode gps_configure_message_types(bool GGA, bool GSA, bool GSV, bool RMC, uint8_t interval) {
-    uint8_t GGA_int = GGA ? interval : 0;
-    uint8_t GSA_int = GSA ? interval : 0;
-    uint8_t GSV_int = GSV ? interval : 0;
-    uint8_t RMC_int = RMC ? interval : 0;
-    GGA_ENABLED = GGA;
-    GSA_ENABLED = GSA;
-    GSV_ENABLED = GSV;
-    RMC_ENABLED = RMC;
-    return skytraq_configure_nmea_output_rate(GGA_int, GSA_int, GSV_int, 0, RMC_int, 0,0, UPDATE_TO_FLASH);
+/**
+ * @brief Configure skytraq output messages
+ * 
+ * @param GGA GGA interval
+ * @param GSA GSA interval
+ * @param GSV GSV interval
+ * @param RMC RMC interval
+ * @return ErrorCode
+ */
+ErrorCode gps_configure_message_types(uint8_t GGA, uint8_t GSA, uint8_t GSV, uint8_t RMC) {
+    GGA_ENABLED = GGA ? true : false;
+    GSA_ENABLED = GSA ? true : false;
+    GSV_ENABLED = GSV ? true : false;
+    RMC_ENABLED = RMC ? true : false;
+    return skytraq_configure_nmea_output_rate(GGA, GSA, GSV, 0, RMC, 0,0, UPDATE_TO_FLASH);
 }
 
+/**
+ * @brief Disable all gps messages
+ * 
+ * @return ErrorCode 
+ */
 ErrorCode gps_disable_NMEA_output() {
     return gps_configure_message_types(false,false,false,false, 0);
 }
 
-
-// returns true if date overflows
+/**
+ * @brief takes time as NMEA integer and extracts it to a struct
+ * 
+ * @param _time Integer representing time
+ * @param correction Tick the data was acquired
+ * @param utc_time struct to put the time in
+ * @return true date overflowed to next date
+ * @return false date did not overflow
+ */
 bool extract_time(uint32_t _time, TickType_t correction, time_t *utc_time) {
     // _time is stored such that: hhmmssss
 
@@ -85,7 +107,13 @@ bool extract_time(uint32_t _time, TickType_t correction, time_t *utc_time) {
     }
     return false;
 }
-
+ /**
+  * @brief Extract date from NMEA integer in to date struct
+  * 
+  * @param date Integer to extract date from
+  * @param date_overflow True if date overflowed since data was collected
+  * @param utc_date Struct to store date in
+  */
 void extract_date(uint32_t date, bool date_overflow, date_t *utc_date) {
     utc_date->day = date / 10000;
     utc_date->month = date / 100 % 100;
@@ -135,6 +163,13 @@ void extract_date(uint32_t date, bool date_overflow, date_t *utc_date) {
     return;
 }
 
+/**
+ * @brief Get UTC time from latest NMEA packet containing time
+ * 
+ * @param utc_time Struct to store time
+ * @return true Time updated
+ * @return false Time unavailable
+ */
 bool gps_get_utc_time(time_t *utc_time) {
 
     // this will take GPRMC time if it is available, otherwise GPGGA
@@ -161,6 +196,13 @@ bool gps_get_utc_time(time_t *utc_time) {
     return false;
 }
 
+/**
+ * @brief Get UTC date from latest NMEA packet containing date
+ * 
+ * @param utc_time Struct to store time
+ * @return true Date updated
+ * @return false Date unavailable
+ */
 bool gps_get_date(date_t *utc_date) {
     // date is only present on gprmc
     time_t utc_time;
@@ -179,5 +221,125 @@ bool gps_get_date(date_t *utc_date) {
     return false;
 }
 
+/**
+ * @brief Gets latest altitude from GPS in centimeters
+ * 
+ * @param alt variable to store altitude
+ * @return true Success
+ * @return false Altitude unavailable
+ */
+bool gps_get_altitude(uint32_t *alt){
+    bool GGA = GGA_ENABLED;
+    GPGGA_s GGA_s;
+    if (GGA) {
+        bool GGA_valid = NMEAParser_get_GPGGA(&GGA_s);
+        if (GGA_valid) {
+            *alt = GGA_s._altitude;
+            return true;
+        }
+    }
+    return false;
+}
 
+/**
+ * @brief Gets latest position update from GPS in ten millionths of a degree
+ * 
+ * @param latitude_upper 
+ * @param latitude_lower 
+ * @param longitude_upper 
+ * @param longitude_lower 
+ * @return true Position available
+ * @return false Position unavailable
+ */
+bool gps_get_position(int32_t *latitude_upper, int32_t *latitude_lower, int32_t *longitude_upper, int32_t *longitude_lower) {
+    
+    // this will take GPRMC position if it is available, otherwise GPGGA
+    bool GGA = GGA_ENABLED;
+    bool RMC = RMC_ENABLED;
+    GPGGA_s GGA_s;
+    GPRMC_s RMC_s;
+
+    if (RMC) {
+        bool RMC_valid = NMEAParser_get_GPRMC(&RMC_s);
+        if (RMC_valid) {
+            *latitude_upper = RMC_s._latitude_upper;
+            *latitude_lower = RMC_s._latitude_lower;
+            *longitude_upper = RMC_s._longitude_upper;
+            *longitude_lower = RMC_s._longitude_lower;
+            return true;
+        }
+    }
+
+    if (GGA) {
+        bool GGA_valid = NMEAParser_get_GPGGA(&GGA_s);
+        if (GGA_valid) {
+            *latitude_upper = GGA_s._latitude_upper;
+            *latitude_lower = GGA_s._latitude_lower;
+            *longitude_upper = GGA_s._longitude_upper;
+            *longitude_lower = GGA_s._longitude_lower;
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * @brief Gets latest satellite in view count
+ * 
+ * @param numsats Variable to store number of satellites
+ * @return true Number available
+ * @return false Number unavailable
+ */
+bool gps_get_visible_satellite_count(uint8_t *numsats) {
+    bool GGA = GGA_ENABLED;
+    GPGGA_s GGA_s;
+    if (GGA) {
+        bool GGA_valid = NMEAParser_get_GPGGA(&GGA_s);
+        if (GGA_valid) {
+            *numsats = GGA_s._numsats;
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * @brief Gets latest speed from GPS in hundreths of KM/h
+ * 
+ * @param speed Variable to store speed
+ * @return true Speed available
+ * @return false Speed unavailable
+ */
+bool gps_get_speed(uint32_t *speed) {
+    bool RMC = RMC_ENABLED;
+    GPRMC_s RMC_s;
+    if (RMC) {
+        bool RMC_valid = NMEAParser_get_GPRMC(&RMC_s);
+        if (RMC_valid) {
+            *speed = RMC_s._speed;
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * @brief Gets latest course from GPS in hundredths of a degree
+ * 
+ * @param course 
+ * @return true 
+ * @return false 
+ */
+bool gps_get_course(uint32_t *course) {
+    bool RMC = RMC_ENABLED;
+    GPRMC_s RMC_s;
+    if (RMC) {
+        bool RMC_valid = NMEAParser_get_GPRMC(&RMC_s);
+        if (RMC_valid) {
+            *course = RMC_s._course;
+            return true;
+        }
+    }
+    return false;
+}
 
