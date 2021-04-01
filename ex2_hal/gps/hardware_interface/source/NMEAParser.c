@@ -9,17 +9,7 @@
 #include "NMEAParser.h"
 #include "os_task.h"
 #include <string.h>
-/*
- TODO: The library expresses some values a bit weirdly. for example, 11.4 knots in speed is expressed as 114
- I intend to change this to floating point values. Latitude/longitude will continue to be expressed in upper/lower
- NOTE: On specifically the arm cortex r4f, we are not allowed to use floating point registers in an ISR
- recommend instead to keep these as integers, and return floats at the getter level
 
- Values to change: speed, course
-
- Also, consider changing date and time to standard structs
-
-*/
 static int NMEAParser_termcmp(const char *str1, const char *str2);
 static int NMEAParser_hexToInt(char hex);
 static int32_t NMEAParser_parse_decimal(char *p);
@@ -65,12 +55,24 @@ const static GPRMC_s GPRMC_invalid = {._time = GPS_INVALID_TIME,
                                       ._date = GPS_INVALID_DATE,
                                       ._logtime = (TickType_t)GPS_INVALID_FIX_TIME};
 
+/**
+ * @brief sets initial memory values for NMEA
+ * 
+ * @return true success
+ * @return false failure
+ */
 bool init_NMEA() {
     NMEAParser_reset_all_values();
     NMEA_queue = xQueueCreate(NMEA_QUEUE_MAX_LEN, NMEA_QUEUE_ITEM_SIZE);
 }
 
-
+/**
+ * @brief gets latest incoming GPGGA packet
+ * 
+ * @param output struct * to store incoming packet
+ * @return true success
+ * @return false failure
+ */
 bool NMEAParser_get_GPGGA(GPGGA_s *output) {
     TickType_t tickCount = xTaskGetTickCount();
 
@@ -84,7 +86,13 @@ bool NMEAParser_get_GPGGA(GPGGA_s *output) {
     return false;
 
 }
-
+ /**
+  * @brief get latest GPGSA packet
+  * 
+  * @param output struct * to store incoming packet
+  * @return true success
+  * @return false failure 
+  */
 bool NMEAParser_get_GPGSA(GPGSA_s *output) {
     TickType_t tickCount = xTaskGetTickCount();
 
@@ -99,6 +107,13 @@ bool NMEAParser_get_GPGSA(GPGSA_s *output) {
     return false;
 }
 
+ /**
+  * @brief get GPGSV packet
+  * 
+  * @param output struct * to store incoming packet
+  * @return true success
+  * @return false failure 
+  */
 bool NMEAParser_get_GPGSV(GPGSV_s *output) {
     TickType_t tickCount = xTaskGetTickCount();
 
@@ -113,6 +128,13 @@ bool NMEAParser_get_GPGSV(GPGSV_s *output) {
     return false;
 }
 
+ /**
+  * @brief get GPRMC packet
+  * 
+  * @param output struct * to store incoming packet
+  * @return true success
+  * @return false failure 
+  */
 bool NMEAParser_get_GPRMC(GPRMC_s *output) {
     TickType_t tickCount = xTaskGetTickCount();
 
@@ -126,6 +148,10 @@ bool NMEAParser_get_GPRMC(GPRMC_s *output) {
     return false;
 }
 
+/**
+ * @brief reset all packet storage to invalid values
+ * 
+ */
 void NMEAParser_reset_all_values(void) {
     NMEAParser_clear_GPGSV();
     NMEAParser_clear_GPRMC();
@@ -133,33 +159,50 @@ void NMEAParser_reset_all_values(void) {
     NMEAParser_clear_GPGSA();
 }
 
+/**
+ * @brief reset GPGGA packet to invalid values
+ * 
+ */
 void NMEAParser_clear_GPGGA(void) {
     taskENTER_CRITICAL();
     memcpy(&GPGGA, &GPGGA_invalid, sizeof(GPGGA_s));
     taskEXIT_CRITICAL();
 }
 
+/**
+ * @brief reset GPGSA packet to invalid values
+ * 
+ */
 void NMEAParser_clear_GPGSA(void) {
     taskENTER_CRITICAL();
     memcpy(&GPGSA, &GPGSA_invalid, sizeof(GPGSA_s));
     taskEXIT_CRITICAL();
 }
 
+/**
+ * @brief reset GPGSV packet to invalid values
+ * 
+ */
 void NMEAParser_clear_GPGSV(void) {
     taskENTER_CRITICAL();
     memcpy(&GPGSV, &GPGSV_invalid, sizeof(GPGSV_s));
     taskEXIT_CRITICAL();
 }
 
+/**
+ * @brief reset GPRMC packet to invalid values
+ * 
+ */
 void NMEAParser_clear_GPRMC(void) {
     taskENTER_CRITICAL();
     memcpy(&GPRMC, &GPRMC_invalid, sizeof(GPRMC_s));
     taskEXIT_CRITICAL();
 }
 
-
-
-// this should be in the header but ceedling is a bitch
+/**
+ * @brief string names for each packet type
+ * 
+ */
 const char _GPGGA_TERM[7] = "$GPGGA";
 const char _GPGLL_TERM[7] = "$GPGLL";
 const char _GPGSA_TERM[7] = "$GPGSA";
@@ -168,6 +211,13 @@ const char _GPRMC_TERM[7] = "$GPRMC";
 const char _GPVTG_TERM[7] = "$GPVTG";
 const char _GPZDA_TERM[7] = "$GPZDA";
 
+/**
+ * @brief takes NMEA string one char at a time until \n
+ * 
+ * @param c character to register with decoder
+ * @return true data decoded
+ * @return false data failure
+ */
 bool NMEAParser_encode(char c)
 {
     bool new_data = false;
@@ -194,6 +244,12 @@ bool NMEAParser_encode(char c)
     return new_data;
 }
 
+/**
+ * @brief decodes sentence contained in glocal _sentence
+ * 
+ * @return true sentence was valid
+ * @return false sentence was invalid
+ */
 static bool NMEAParser_decode_sentence()
 {
     TickType_t logtime = xTaskGetTickCount();

@@ -5,15 +5,6 @@
 #include <stdbool.h>
 #include "skytraq_binary_types.h"
 
-typedef enum ErrorCode {
-    SUCCESS,
-    RESOURCE_BUSY,
-    MESSAGE_INVALID,
-    UNKNOWN_ERROR,
-    INVALID_CHECKSUM,
-    INVALID_CHECKSUM_RECEIVE
-} ErrorCode;
-
 bool skytraq_verify_checksum(uint8_t *message);
 
 uint8_t calc_checksum(uint8_t *message, uint16_t payload_length);

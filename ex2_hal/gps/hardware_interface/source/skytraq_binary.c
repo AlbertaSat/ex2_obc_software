@@ -7,7 +7,6 @@
 #include "NMEAParser.h"
 
 //TODO: implement software download
-//TODO: implement setting datum to WGS-84. Currently no datum configuration functions implemented
 //TODO: determine if CNR mask will need to be configured
 //TODO: determine if ephemeris needs to be uploaded manually
 //TODO: determine if (and which) almanacs need to be uploaded manually
@@ -51,6 +50,12 @@ int current_line_type = none;
 #define header_size 4
 #define footer_size 3
 
+/**
+ * @brief initialises important skytraq variables
+ * 
+ * @return true success
+ * @return false failure
+ */
 bool skytraq_binary_init() {
     memset(binary_message_buffer, 0, BUFSIZE);
     bin_buff_loc = 0;
@@ -70,7 +75,13 @@ bool skytraq_binary_init() {
     return true;
 }
 
-
+/**
+ * @brief Sends message to skytraq and waits for ACK or NACK
+ * 
+ * @param paylod pointer to data to send to skytraq. Contains only data unique to that message. I.E not the start symbol, end symbol, or checksum
+ * @param size size of the message to send, not including start symbol, checksum, or end symbol
+ * @return ErrorCode Error explaining why the failure occurred
+ */
 ErrorCode skytraq_send_message(uint8_t *paylod, uint16_t size) {
     if (sci_busy) {
         return RESOURCE_BUSY;
@@ -116,6 +127,14 @@ ErrorCode skytraq_send_message(uint8_t *paylod, uint16_t size) {
     return UNKNOWN_ERROR;
 }
 
+/**
+ * @brief Sends message to skytraq and waits for ACK or NACK, then waits for reply
+ * 
+ * @param paylod pointer to data to send to skytraq. Contains only data unique to that message. I.E not the start symbol, end symbol, or checksum
+ * @param size size of the message to send, not including start symbol, checksum, or end symbol
+ * @param reply Pointer to location to put the reply. Must be of correct size for the reply expected including all start/end symbols
+ * @return ErrorCode Error explaining why the failure occurred
+ */
 ErrorCode skytraq_send_message_with_reply(uint8_t *payload, uint16_t size, uint8_t *reply) {
     ErrorCode worked = skytraq_send_message(payload, size);
 
@@ -129,8 +148,8 @@ ErrorCode skytraq_send_message_with_reply(uint8_t *payload, uint16_t size, uint8
 
     uint8_t sentence[BUFSIZE];
 
-    // TODO: set a reasonable delay
-    BaseType_t success = xQueueReceive(binary_queue, sentence, portMAX_DELAY);
+    // will wait for 1 second for a reply
+    BaseType_t success = xQueueReceive(binary_queue, sentence, 1000*portTICK_PERIOD_MS);
 
     if (success  != pdPASS) {
         sci_busy = false;
@@ -153,7 +172,12 @@ static inline increment_buffer(int *buf) {
     *buf += 1;
 }
 
-// Interrupt Handler
+/**
+ * @brief interrupt handler for receiving byte from skytraq
+ * 
+ * Will send data to appropriate queue, be it binary queue for communication messages or NMEA task queue
+ * 
+ */
 void get_byte() {
     uint8_t in = byte;
 
@@ -179,6 +203,12 @@ void get_byte() {
     }
 }
 
+/**
+ * @brief HalCoGen sci notification. Calls get_byte()
+ * 
+ * @param sci sci port the interruput is from
+ * @param flags interrupt flags
+ */
 void gps_sciNotification(sciBASE_t *sci, unsigned flags) {
     switch(flags) {
     case SCI_RX_INT: get_byte(); sciReceive(sci, 1, &byte); break;
@@ -187,6 +217,13 @@ void gps_sciNotification(sciBASE_t *sci, unsigned flags) {
     }
 }
 
+/**
+ * @brief calculates checksum. Must take full message from start symbol to end of payload length
+ * 
+ * @param message message to calculate checksum on
+ * @param payload_length length to calculate checksum over
+ * @return uint8_t checksum
+ */
 uint8_t calc_checksum(uint8_t *message, uint16_t payload_length) {
     // skip first 4 bytes of message
     message += 4;
@@ -197,8 +234,13 @@ uint8_t calc_checksum(uint8_t *message, uint16_t payload_length) {
     }
     return checksum;
 }
-
-// message MUST include null terminating byte '\0'
+/**
+ * @brief Verifies checksum of full binary message
+ * message MUST include null terminating byte '\0'
+ * @param message message to checksum
+ * @return true checksum passed
+ * @return false checksum failed
+ */
 bool skytraq_verify_checksum(uint8_t *message) {
     int checksum_location = strlen((char *)message) - 3; // 3rd to last byte is checksum
     uint8_t expected = message[checksum_location];
