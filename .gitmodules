@@ -20,3 +20,7 @@
 	path = ex2_ftp
 	url = https://github.com/EvanGee/CCSDS_FileDeliveryProtocol.git
 	branch = ex2_ftp
+[submodule "ex2_ftp"]
+	path = ex2_ftp
+	url = https://github.com/EvanGee/CCSDS_FileDeliveryProtocol.git
+	branch = ex2_ftp
