@@ -44,6 +44,7 @@
 #include "HL_sci.h"
 #include "HL_sys_common.h"
 #include "system_tasks.h"
+#include "file_delivery_app.h"
 
 /**
  * The main function must:
@@ -67,11 +68,17 @@ int ex2_main(int argc, char **argv) {
   InitIO();
 
   /* Initialization routine */
-//  init_filesystem();
+  init_filesystem();
   init_csp();
   /* Start service server, and response server */
   init_system_tasks();
 //  start_eps_mock();
+
+  FTP app;
+  void *task_handler = create_ftp_task(OBC_APP_ID, &app);
+  if (task_handler == NULL) {
+      return -1;
+  }
 
   /* Start FreeRTOS! */
   vTaskStartScheduler();
@@ -157,7 +164,9 @@ static inline SAT_returnState init_csp_interface() {
   }
 
 
-  csp_rtable_load("16 KISS");
+  //csp_rtable_load("16 KISS");
+  csp_rtable_set(CSP_DEFAULT_ROUTE, 0, uart_iface, CSP_NO_VIA_ADDRESS);
+
 
   return SATR_OK;
 }
