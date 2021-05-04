@@ -80,9 +80,9 @@ bool skytraq_binary_init() {
  * 
  * @param paylod pointer to data to send to skytraq. Contains only data unique to that message. I.E not the start symbol, end symbol, or checksum
  * @param size size of the message to send, not including start symbol, checksum, or end symbol
- * @return ErrorCode Error explaining why the failure occurred
+ * @return GPS_RETURNSTATE Error explaining why the failure occurred
  */
-ErrorCode skytraq_send_message(uint8_t *paylod, uint16_t size) {
+GPS_RETURNSTATE skytraq_send_message(uint8_t *paylod, uint16_t size) {
     if (sci_busy) {
         return RESOURCE_BUSY;
     }
@@ -133,10 +133,10 @@ ErrorCode skytraq_send_message(uint8_t *paylod, uint16_t size) {
  * @param paylod pointer to data to send to skytraq. Contains only data unique to that message. I.E not the start symbol, end symbol, or checksum
  * @param size size of the message to send, not including start symbol, checksum, or end symbol
  * @param reply Pointer to location to put the reply. Must be of correct size for the reply expected including all start/end symbols
- * @return ErrorCode Error explaining why the failure occurred
+ * @return GPS_RETURNSTATE Error explaining why the failure occurred
  */
-ErrorCode skytraq_send_message_with_reply(uint8_t *payload, uint16_t size, uint8_t *reply) {
-    ErrorCode worked = skytraq_send_message(payload, size);
+GPS_RETURNSTATE skytraq_send_message_with_reply(uint8_t *payload, uint16_t size, uint8_t *reply) {
+    GPS_RETURNSTATE worked = skytraq_send_message(payload, size);
 
     if (worked != SUCCESS) {
         return worked;
@@ -252,7 +252,7 @@ bool skytraq_verify_checksum(uint8_t *message) {
     return false;
 }
 
-ErrorCode skytraq_restart_receiver(StartMode start_mode, uint16_t utc_year, uint8_t utc_month, uint8_t utc_day, uint8_t utc_hour, uint8_t utc_minute, uint8_t utc_second, int16_t latitude, int16_t longitude, int16_t altitude) {
+GPS_RETURNSTATE skytraq_restart_receiver(StartMode start_mode, uint16_t utc_year, uint8_t utc_month, uint8_t utc_day, uint8_t utc_hour, uint8_t utc_minute, uint8_t utc_second, int16_t latitude, int16_t longitude, int16_t altitude) {
         uint16_t length = 15;
         uint8_t payload[15];
         
@@ -271,7 +271,7 @@ ErrorCode skytraq_restart_receiver(StartMode start_mode, uint16_t utc_year, uint
         return skytraq_send_message(payload, length);
 }
 
-ErrorCode skytraq_query_software_version() {
+GPS_RETURNSTATE skytraq_query_software_version() {
     uint16_t length = 2;
     uint8_t payload[2];
     payload[0] = QUERY_SOFTWARE_VERSION;
@@ -280,7 +280,7 @@ ErrorCode skytraq_query_software_version() {
     return skytraq_send_message(payload, length);
 }
 
-ErrorCode skytraq_query_software_CRC(uint8_t *reply) {
+GPS_RETURNSTATE skytraq_query_software_CRC(uint8_t *reply) {
     uint16_t length = 2;
     uint8_t payload[2];
     payload[0] = QUERY_SOFTWARE_CRC;
@@ -289,7 +289,7 @@ ErrorCode skytraq_query_software_CRC(uint8_t *reply) {
     return skytraq_send_message_with_reply(payload, length, reply);
 }
 
-ErrorCode skytraq_restore_factory_defaults(void) {
+GPS_RETURNSTATE skytraq_restore_factory_defaults(void) {
     uint16_t length = 2;
     uint8_t payload[2];
     payload[0] = SET_FACTORY_DEFAULTS;
@@ -298,7 +298,7 @@ ErrorCode skytraq_restore_factory_defaults(void) {
     return skytraq_send_message(payload, length);
 }
 
-ErrorCode skytraq_configure_serial_port(skytraq_baud_rate rate, skytraq_update_attributes attribute) {
+GPS_RETURNSTATE skytraq_configure_serial_port(skytraq_baud_rate rate, skytraq_update_attributes attribute) {
     uint16_t length = 4;
     uint8_t payload[4];
 
@@ -311,7 +311,7 @@ ErrorCode skytraq_configure_serial_port(skytraq_baud_rate rate, skytraq_update_a
     
 }
 
-ErrorCode skytraq_configure_nmea_output_rate(uint8_t GGA_interval, uint8_t GSA_interval, uint8_t GSV_interval, uint8_t GLL_interval, uint8_t RMC_interval, uint8_t VTG_interval, uint8_t ZDA_interval, skytraq_update_attributes attribute) {
+GPS_RETURNSTATE skytraq_configure_nmea_output_rate(uint8_t GGA_interval, uint8_t GSA_interval, uint8_t GSV_interval, uint8_t GLL_interval, uint8_t RMC_interval, uint8_t VTG_interval, uint8_t ZDA_interval, skytraq_update_attributes attribute) {
     uint16_t length = 9;
     uint8_t payload[9];
     payload[0] = CONFIGURE_NMEA;
@@ -327,7 +327,7 @@ ErrorCode skytraq_configure_nmea_output_rate(uint8_t GGA_interval, uint8_t GSA_i
     return skytraq_send_message(payload, length);
 }
 
-ErrorCode configure_message_type(skytraq_message_type type, skytraq_update_attributes attribute) {
+GPS_RETURNSTATE configure_message_type(skytraq_message_type type, skytraq_update_attributes attribute) {
     uint16_t length = 3;
     uint8_t payload[3];
 
@@ -338,7 +338,7 @@ ErrorCode configure_message_type(skytraq_message_type type, skytraq_update_attri
     return skytraq_send_message(payload, length);
 }
 
-ErrorCode skytraq_configure_power_mode(skytraq_power_mode mode, skytraq_update_attributes attribute) {
+GPS_RETURNSTATE skytraq_configure_power_mode(skytraq_power_mode mode, skytraq_update_attributes attribute) {
     uint16_t length = 3;
     uint8_t payload[3];
 
@@ -349,7 +349,7 @@ ErrorCode skytraq_configure_power_mode(skytraq_power_mode mode, skytraq_update_a
     return skytraq_send_message(payload, length);
 }
 
-ErrorCode skytraq_get_gps_time(uint8_t *reply) {
+GPS_RETURNSTATE skytraq_get_gps_time(uint8_t *reply) {
     uint16_t length = 2;
     uint8_t payload[2];
 
@@ -359,7 +359,7 @@ ErrorCode skytraq_get_gps_time(uint8_t *reply) {
     return skytraq_send_message_with_reply(payload, length, reply);
 }
 
-ErrorCode skytraq_configure_utc_reference(enable_disable status, uint16_t utc_year, uint8_t utc_month, uint8_t utc_day, skytraq_update_attributes attribute) {
+GPS_RETURNSTATE skytraq_configure_utc_reference(enable_disable status, uint16_t utc_year, uint8_t utc_month, uint8_t utc_day, skytraq_update_attributes attribute) {
     uint16_t length = 8;
     uint8_t payload[8];
 

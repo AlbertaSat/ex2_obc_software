@@ -64,6 +64,10 @@ const static GPRMC_s GPRMC_invalid = {._time = GPS_INVALID_TIME,
 bool init_NMEA() {
     NMEAParser_reset_all_values();
     NMEA_queue = xQueueCreate(NMEA_QUEUE_MAX_LEN, NMEA_QUEUE_ITEM_SIZE);
+    if (NMEA_queue == NULL) {
+        return false;
+    }
+    return true;
 }
 
 /**
