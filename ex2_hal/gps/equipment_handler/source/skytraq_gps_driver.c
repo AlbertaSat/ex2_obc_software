@@ -27,6 +27,7 @@ bool gps_skytraq_driver_init() {
     }
     vTaskDelay(500*portTICK_PERIOD_MS);
 
+    // the manufacturer software restarts the gps with all 0's. Copied here
     ErrorCode restart = skytraq_restart_receiver(HOT_START, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     if (restart != SUCCESS) {
         return false;
