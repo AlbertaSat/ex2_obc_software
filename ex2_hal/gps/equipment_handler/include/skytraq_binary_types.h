@@ -208,13 +208,13 @@ typedef enum enable_disable {
   ENABLE
 } enable_disable;
 
-typedef enum ErrorCode {
+typedef enum GPS_RETURNSTATE {
     SUCCESS,
     RESOURCE_BUSY,
     MESSAGE_INVALID,
     UNKNOWN_ERROR,
     INVALID_CHECKSUM,
     INVALID_CHECKSUM_RECEIVE
-} ErrorCode;
+} GPS_RETURNSTATE;
 
 #endif /* SKYTRAQ_BINARY_TYPES_H */

@@ -21,20 +21,20 @@ bool RMC_ENABLED = false;
 bool gps_skytraq_driver_init() {
     skytraq_binary_init();
 
-    ErrorCode gps_enable_all = gps_configure_message_types(2,0,0,3);
+    GPS_RETURNSTATE gps_enable_all = gps_configure_message_types(2,0,0,3);
     if (gps_enable_all != SUCCESS) {
         return false;
     }
     vTaskDelay(500*portTICK_PERIOD_MS);
 
     // the manufacturer software restarts the gps with all 0's. Copied here
-    ErrorCode restart = skytraq_restart_receiver(HOT_START, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    GPS_RETURNSTATE restart = skytraq_restart_receiver(HOT_START, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     if (restart != SUCCESS) {
         return false;
     }
     vTaskDelay(500*portTICK_PERIOD_MS);
 
-    ErrorCode powerMode = skytraq_configure_power_mode(POWERSAVE, UPDATE_TO_FLASH);
+    GPS_RETURNSTATE powerMode = skytraq_configure_power_mode(POWERSAVE, UPDATE_TO_FLASH);
     if (powerMode != SUCCESS) {
         return false;
     }
@@ -51,9 +51,9 @@ bool gps_skytraq_driver_init() {
  * @param GSA GSA interval
  * @param GSV GSV interval
  * @param RMC RMC interval
- * @return ErrorCode
+ * @return GPS_RETURNSTATE
  */
-ErrorCode gps_configure_message_types(uint8_t GGA, uint8_t GSA, uint8_t GSV, uint8_t RMC) {
+GPS_RETURNSTATE gps_configure_message_types(uint8_t GGA, uint8_t GSA, uint8_t GSV, uint8_t RMC) {
     GGA_ENABLED = GGA ? true : false;
     GSA_ENABLED = GSA ? true : false;
     GSV_ENABLED = GSV ? true : false;
@@ -64,9 +64,9 @@ ErrorCode gps_configure_message_types(uint8_t GGA, uint8_t GSA, uint8_t GSV, uin
 /**
  * @brief Disable all gps messages
  * 
- * @return ErrorCode 
+ * @return GPS_RETURNSTATE 
  */
-ErrorCode gps_disable_NMEA_output() {
+GPS_RETURNSTATE gps_disable_NMEA_output() {
     return gps_configure_message_types(0,0,0,0);
 }
 
