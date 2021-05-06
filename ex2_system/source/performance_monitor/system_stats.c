@@ -38,7 +38,7 @@ static void system_stats_daemon(void * param) {
     vTaskDelay(xDelay);
     char buf[1024];
     vTaskGetRunTimeStats(buf);
-    fprintf(stderr, "%s\n", buf);
+//    fprintf(stderr, "%s\n", buf);
   }
 }
 

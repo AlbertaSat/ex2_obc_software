@@ -65,14 +65,11 @@ void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
 
 int ex2_main(int argc, char **argv) {
 
-  //InitIO();
   _enable_IRQ_interrupt_();
-
-  //gps_demo_task();
-  start_mock_rtc();
+  InitIO();
 
   /* Initialization routine */
-  //init_filesystem();
+//  init_filesystem();
   init_csp();
   /* Start service server, and response server */
   init_system_tasks();
@@ -137,7 +134,7 @@ static void init_csp() {
 /**
  * Initialize CSP interfaces
  * @details
- *      start the localhost zmq server and add it to the default route
+ * 		start the localhost zmq server and add it to the default route
  * with no VIA address
  */
 static inline SAT_returnState init_csp_interface() {
@@ -168,8 +165,8 @@ static inline SAT_returnState init_csp_interface() {
 }
 
 static void init_system_tasks() {
-  if (start_service_server() != SATR_OK /*||
-      start_system_tasks() != SATR_OK*/) {
+  if (start_service_server() != SATR_OK ||
+      start_system_tasks() != SATR_OK) {
     ex2_log("Initialization error\n");
     exit(SATR_ERROR);
   }
