@@ -8,12 +8,14 @@
 #ifndef TIME_STRUCT_H_
 #define TIME_STRUCT_H_
 
-typedef struct time_t {
+#include <stdint.h>
+
+typedef struct ex2_time_t {
     uint8_t hour;
     uint8_t minute;
     uint8_t second;
     uint16_t ms;
-} time_t;
+} ex2_time_t;
 
 typedef struct date_t {
     uint8_t day;
@@ -22,3 +24,4 @@ typedef struct date_t {
 } date_t;
 
 #endif /* TIME_STRUCT_H_ */
+
