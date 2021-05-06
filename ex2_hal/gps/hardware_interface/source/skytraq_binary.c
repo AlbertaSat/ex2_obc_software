@@ -5,6 +5,7 @@
 #include "FreeRTOS.h"
 #include "os_queue.h"
 #include "NMEAParser.h"
+#include "system.h"
 
 //TODO: implement software download
 //TODO: determine if CNR mask will need to be configured
