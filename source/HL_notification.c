@@ -67,6 +67,7 @@
 
 /* USER CODE BEGIN (0) */
 #include <stdint.h>
+#include "system.h"
 
 #pragma WEAK(gps_sciNotification)
 void gps_sciNotification(sciBASE_t *sci, unsigned flags);

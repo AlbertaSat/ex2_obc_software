@@ -119,10 +119,10 @@ static void init_csp() {
   csp_conf.address = my_address;
   int error = csp_init(&csp_conf);
   if (error != CSP_ERR_NONE) {
-    ex2_log("csp_init() failed, error: %d\n", error);
+    //ex2_log("csp_init() failed, error: %d\n", error);
     exit(SATR_ERROR);
   }
-  ex2_log("Running at %d\n", my_address);
+  //ex2_log("Running at %d\n", my_address);
   /* Set default route and start router & server */
   csp_route_start_task(1000, 2);
   if (init_csp_interface() != SATR_OK) {

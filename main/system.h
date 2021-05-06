@@ -34,6 +34,9 @@
 #define SYSTEM_STATS_TASK_PRIO            1
 #define MOCK_RTC_TASK_PRIO                configMAX_PRIORITIES-1
 
+#define GPS_SCI sciREG2
+#define CSP_SCI sciREG3
+
 typedef enum {
   SATR_PKT_ILLEGAL_APPID = 0,
   SATR_PKT_ILLEGAL_SUBSERVICE,
