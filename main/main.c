@@ -44,6 +44,8 @@
 #include "HL_sci.h"
 #include "HL_sys_common.h"
 #include "system_tasks.h"
+#include "gps_service.h"
+#include "mocks/rtc.h"
 
 /**
  * The main function must:
@@ -63,11 +65,14 @@ void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
 
 int ex2_main(int argc, char **argv) {
 
+  //InitIO();
   _enable_IRQ_interrupt_();
-  InitIO();
+
+  //gps_demo_task();
+  start_mock_rtc();
 
   /* Initialization routine */
-  init_filesystem();
+  //init_filesystem();
   init_csp();
   /* Start service server, and response server */
   init_system_tasks();
@@ -157,14 +162,14 @@ static inline SAT_returnState init_csp_interface() {
   }
 
 
-  csp_rtable_load("1 CAN, 16 CAN 1");
+  csp_rtable_load("16 KISS");
 
   return SATR_OK;
 }
 
 static void init_system_tasks() {
-  if (start_service_server() != SATR_OK ||
-      start_system_tasks() != SATR_OK) {
+  if (start_service_server() != SATR_OK /*||
+      start_system_tasks() != SATR_OK*/) {
     ex2_log("Initialization error\n");
     exit(SATR_ERROR);
   }

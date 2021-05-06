@@ -2015,20 +2015,20 @@ uint32 canIsMessageBoxValid(canBASE_t *node, uint32 messageBox)
 /* Requirements : HL_CONQ_CAN_SR10 */
 uint32 canGetLastError(canBASE_t *node)
 {
-    uint32 errorCode;
+    uint32 GPS_RETURNSTATE;
 
 /* USER CODE BEGIN (22) */
 /* USER CODE END */
 
     /** - Get last error code */
-    errorCode = node->ES & 7U;
+    GPS_RETURNSTATE = node->ES & 7U;
 
     /**   @note The function canInit has to be called before this function can be used. */
 
 /* USER CODE BEGIN (23) */
 /* USER CODE END */
 
-    return errorCode;
+    return GPS_RETURNSTATE;
 }
 
 

@@ -21,6 +21,7 @@
 #define SYSTEM_H
 
 #include <stdint.h>
+#include "FreeRTOS.h"
 
 #define SYSTEM_APP_ID _OBC_APP_ID_
 
@@ -31,6 +32,7 @@
 #define BEACON_TASK_PRIO                  1
 #define DIAGNOSTIC_TASK_PRIO              1
 #define SYSTEM_STATS_TASK_PRIO            1
+#define MOCK_RTC_TASK_PRIO                configMAX_PRIORITIES-1
 
 typedef enum {
   SATR_PKT_ILLEGAL_APPID = 0,

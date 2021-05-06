@@ -52,8 +52,8 @@ extern "C" {
 
 /* USER CODE BEGIN (0) */
 // These are expected to change. Set them to the appropriate registers for binary testing for now
-#define GPS_SCI sciREG3
-#define CSP_SCI sciREG2
+#define GPS_SCI sciREG2
+#define CSP_SCI sciREG3
 /* USER CODE END */
 
 /** @enum sciIntFlags
