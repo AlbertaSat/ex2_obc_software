@@ -79,7 +79,7 @@ GPS_RETURNSTATE gps_disable_NMEA_output() {
  * @return true date overflowed to next date
  * @return false date did not overflow
  */
-bool extract_time(uint32_t _time, TickType_t correction, time_t *utc_time) {
+bool extract_time(uint32_t _time, TickType_t correction, ex2_time_t *utc_time) {
     // _time is stored such that: hhmmssss
 
     int ms_since_logged = (xTaskGetTickCount()* portTICK_PERIOD_MS) - correction*portTICK_PERIOD_MS;
@@ -171,7 +171,7 @@ void extract_date(uint32_t date, bool date_overflow, date_t *utc_date) {
  * @return true Time updated
  * @return false Time unavailable
  */
-bool gps_get_utc_time(time_t *utc_time) {
+bool gps_get_utc_time(ex2_time_t *utc_time) {
 
     // this will take GPRMC time if it is available, otherwise GPGGA
     bool GGA = GGA_ENABLED;
@@ -206,7 +206,7 @@ bool gps_get_utc_time(time_t *utc_time) {
  */
 bool gps_get_date(date_t *utc_date) {
     // date is only present on gprmc
-    time_t utc_time;
+    ex2_time_t utc_time;
     bool RMC = RMC_ENABLED;
     GPRMC_s RMC_s;
 

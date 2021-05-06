@@ -11,8 +11,8 @@
 #define GPS_SYSTEM
 
 #include <stdbool.h>
+#include <time_struct.h>
 #include "skytraq_binary_types.h"
-#include "time_struct.h"
 
 bool gps_get_altitude(uint32_t *alt);
 
@@ -24,7 +24,7 @@ bool gps_get_position(int32_t *latitude_upper, int32_t *latitude_lower, int32_t 
 
 bool gps_get_visible_satellite_count(uint8_t *numsats);
 
-bool gps_get_utc_time(time_t *utc_time);
+bool gps_get_utc_time(ex2_time_t *utc_time);
 
 bool gps_get_date(date_t *utc_date);
 
