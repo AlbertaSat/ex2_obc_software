@@ -12,16 +12,19 @@
  * GNU General Public License for more details.
  */
 /**
- * @file system_tasks.h
- * @author Andrew
+ * @file leop.h
+ * @author Andrew R. Rooney
  * @date Mar. 6, 2021
  */
 
-#ifndef EX2_SYSTEM_INCLUDE_SYSTEM_TASKS_H_
-#define EX2_SYSTEM_INCLUDE_SYSTEM_TASKS_H_
+#ifndef MAIN_LEOP_H_
 
-#include "main/system.h"
+void init_leop(TickType_t wait_time);
 
-SAT_returnState start_system_tasks(void);
+#define MAIN_LEOP_H_
 
-#endif /* EX2_SYSTEM_INCLUDE_SYSTEM_TASKS_H_ */
+
+
+
+
+#endif /* MAIN_LEOP_H_ */
