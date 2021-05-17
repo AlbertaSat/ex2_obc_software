@@ -32,7 +32,7 @@ ATTENTION:
     e.g.
     char *string, struct {} dataSet;
 */
-typedef struct {
+typedef struct __attribute__((packed)){
   long temparray[6];                     //Athena temperature array
 } athena_housekeeping;
 
