@@ -20,6 +20,7 @@
 #ifndef EX2_SYSTEM_INCLUDE_SYSTEM_STATE_STATE_TASK_H_
 #define EX2_SYSTEM_INCLUDE_SYSTEM_STATE_STATE_TASK_H_
 
+#include <FreeRTOS.h>
 #include <stdbool.h>
 
 #include "eps.h"
@@ -34,6 +35,19 @@ enum SAT_state {
 
 /* It might be a good idea to replace it with SAT_returnState. */
 typedef enum { SYS_OFF = 0, SYS_ON = 1, SYS_NO_RESPONSE = -1 } SYS_returnState;
+
+typedef enum {
+  batHeater_id = 0,
+  EPS_id,
+  OBC_id,
+  UHF_id,
+  STX_id,
+  Iris_id,
+  DFGM_id,
+  ADCS_id,
+  number_of_systems,  // Do not assign values to the IDs for this to work. Just
+                      // move them up/down.
+} sm_sys_id;          // Local system ID for State Machine
 
 typedef struct __attribute__((packed)) {
   bool batHeater;

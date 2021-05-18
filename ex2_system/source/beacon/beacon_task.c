@@ -20,11 +20,19 @@
 #include <FreeRTOS.h>
 #include <os_task.h>
 
+#include "HL_gio.h"
+#include "HL_het.h"
 #include "beacon/beacon.h"
+#include "eps.h"
 #include "uhf.h"
+
+#define SCW_BCN_FLAG 5
+#define SCW_BCN_ON 1
 
 static void *beacon_daemon(void *pvParameters);
 SAT_returnState start_beacon_daemon(void);
+
+static TickType_t beacon_delay = pdMS_TO_TICKS(1000);
 
 /**
  * Construct and send out the system beacon at the required frequency.
@@ -33,7 +41,6 @@ SAT_returnState start_beacon_daemon(void);
  *    task parameters (not used)
  */
 static void *beacon_daemon(void *pvParameters) {
-  TickType_t delay = pdMS_TO_TICKS(1000);  // make this config.able
   for (;;) {
     int8_t uhf_status = -1;
     /* Constructing the system beacon content */
@@ -49,15 +56,19 @@ static void *beacon_daemon(void *pvParameters) {
     // by the operator or here through HAL_UHF_getBeaconT().
     uint8_t scw[SCW_LEN];
     uhf_status = HAL_UHF_getSCW(scw);
-    if (uhf_status == U_GOOD_CONFIG) {  // replace 0 with no error status
-      scw[5] = 1;
+    if (uhf_status == U_GOOD_CONFIG) {
+      scw[SCW_BCN_FLAG] = SCW_BCN_ON;
       uhf_status = HAL_UHF_setSCW(scw);
     }
-    if (uhf_status != 0) {  // If get or set scw fail
-                            // Change delay? reset TRX?
+    if (uhf_status != U_GOOD_CONFIG) {
+      if (eps_get_pwr_chnl(UHF_PWR_CHNL) == 1 &&
+          gioGetBit(UHF_GIO_PORT, UHF_GIO_PIN) == 1) {
+        printf("Beacon failed");
+      } else
+        printf("UHF is off.");
     }
 
-    vTaskDelay(delay);
+    vTaskDelay(beacon_delay);
   }
 }
 
@@ -68,8 +79,8 @@ static void *beacon_daemon(void *pvParameters) {
  *   error report of task creation
  */
 SAT_returnState start_beacon_daemon(void) {
-  if (xTaskCreate((TaskFunction_t)beacon_daemon, "coordinate_management_daemon",
-                  2048, NULL, BEACON_TASK_PRIO, NULL) != pdPASS) {
+  if (xTaskCreate((TaskFunction_t)beacon_daemon, "beacon_daemon", 2048, NULL,
+                  BEACON_TASK_PRIO, NULL) != pdPASS) {
     ex2_log("FAILED TO CREATE TASK coordinate_management_daemon\n");
     return SATR_ERROR;
   }
