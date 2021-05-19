@@ -48,6 +48,16 @@ typedef enum {
   SATR_LAST
 } SAT_returnState;
 
+/* Subsystems Pins & Ports */
+#define UHF_GIO_PORT    hetPORT2
+#define UHF_GIO_PIN     22
+// TODO: Numbers to be set
+#define UHF_PWR_CHNL    1
+#define STX_PWR_CHNL    1
+#define IRIS_PWR_CHNL   1
+#define DFGM_PWR_CHNL   1
+#define ADCS_PWR_CHNL   1
+
 int ex2_main(int argc, char **argv);
 void SciSendBuf(char *buf, uint32_t bufSize);
 
