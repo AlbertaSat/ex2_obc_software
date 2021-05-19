@@ -44,6 +44,9 @@
 #include "HL_sci.h"
 #include "HL_sys_common.h"
 #include "system_tasks.h"
+#include "gps_service.h"
+#include "mocks/rtc.h"
+#include "leop.h"
 
 /**
  * The main function must:
@@ -55,6 +58,8 @@
  *  - Start the FreeRTOS scheduler
  */
 
+#define LEOP_SEQUENCE_TIMER_MS 10000
+
 static void init_filesystem();
 static void init_csp();
 static inline SAT_returnState init_csp_interface();
@@ -62,21 +67,22 @@ static void init_system_tasks();
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
 
 int ex2_main(int argc, char **argv) {
+  const TickType_t leop_time_ms = pdMS_TO_TICKS(LEOP_SEQUENCE_TIMER_MS);
 
-  _enable_IRQ_interrupt_();
+  _enable_IRQ_interrupt_(); // enable inturrupts
   InitIO();
 
   /* Initialization routine */
 //  init_filesystem();
   init_csp();
   /* Start service server, and response server */
-  init_system_tasks();
+  init_leop(leop_time_ms);
 //  start_eps_mock();
 
   /* Start FreeRTOS! */
   vTaskStartScheduler();
 
-  for (;;);
+  for (;;); // Scheduler didn't start
 }
 
 
@@ -117,10 +123,10 @@ static void init_csp() {
   csp_conf.address = my_address;
   int error = csp_init(&csp_conf);
   if (error != CSP_ERR_NONE) {
-    ex2_log("csp_init() failed, error: %d\n", error);
+    //ex2_log("csp_init() failed, error: %d\n", error);
     exit(SATR_ERROR);
   }
-  ex2_log("Running at %d\n", my_address);
+  //ex2_log("Running at %d\n", my_address);
   /* Set default route and start router & server */
   csp_route_start_task(1000, 2);
   if (init_csp_interface() != SATR_OK) {
@@ -157,18 +163,9 @@ static inline SAT_returnState init_csp_interface() {
   }
 
 
-  csp_rtable_load("16 KISS");
+  csp_rtable_load("16 KISS, 4 CAN");
 
   return SATR_OK;
-}
-
-static void init_system_tasks() {
-  if (start_service_server() != SATR_OK ||
-      start_system_tasks() != SATR_OK) {
-    ex2_log("Initialization error\n");
-    exit(SATR_ERROR);
-  }
-  return;
 }
 
 void vAssertCalled( unsigned long ulLine, const char * const pcFileName )
