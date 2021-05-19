@@ -13,7 +13,7 @@
  */
 /**
  * @file time_management_service.c
- * @author Andrew Rooney
+ * @author Andrew Rooney, Robert Taylor
  * @date 2020-06-06
  */
 
@@ -24,12 +24,56 @@
 #include <csp/csp_endian.h>
 #include <main/system.h>
 #include <stdio.h>
-
 #include "time_management/time_management_service.h"
 #include "util/service_utilities.h"
 #include "services.h"
+#include "skytraq_gps_driver.h"
+#include "nmea_service.h"
+#include "time_struct.h"
+#include "mocks/rtc.h"
+
+#define GPS_TASK_SIZE 200
+#define NMEA_TASK_SIZE 100
+
+#define MIN_YEAR 1577836800  // 2020-01-01
+#define MAX_YEAR 1893456000  // 2030-01-01
 
 SAT_returnState time_management_app(csp_packet_t *packet);
+
+void RTC_discipline_service(void) {
+
+    ex2_log("GPS Task Started");
+
+    if (!gps_skytraq_driver_init()) {
+        ex2_log("failed to init skytraq\r\n");
+        vTaskDelete(NULL);
+    }
+
+    ex2_time_t utc_time;
+    date_t utc_date;
+
+    for (;;) {
+        vTaskDelay(1000);
+        if(!(gps_get_utc_time(&utc_time))){
+            ex2_log("Couldn't get gps time");
+            continue; // delay wait until gps signal acquired
+        }
+        mock_RTC_set_time(utc_time);
+        mock_RTC_set_date(utc_date);
+    }
+}
+
+SAT_returnState start_gps_services(TaskHandle_t *rtc_handle, TaskHandle_t *nmea_handle) {
+    if (xTaskCreate((TaskFunction_t)RTC_discipline_service, "RTC_service", GPS_TASK_SIZE, NULL, 3, rtc_handle) != pdPASS) {
+        return SATR_ERROR;
+    }
+
+    if (xTaskCreate((TaskFunction_t)NMEA_service, "NMEA_service", NMEA_TASK_SIZE, NULL, 4, nmea_handle) != pdPASS) {
+        return SATR_ERROR;
+    }
+
+    return SATR_OK;
+}
 
 /**
  * @brief
@@ -83,7 +127,11 @@ SAT_returnState start_time_management_service(void) {
     ex2_log("FAILED TO CREATE TASK time_management_service\n");
     return SATR_ERROR;
   }
-  ex2_log("Service handlers started\n");
+  TaskHandle_t _;
+  if (start_gps_services(&_, &_) != SATR_OK) {
+      return SATR_ERROR;
+  }
+
   return SATR_OK;
 }
 
@@ -102,18 +150,18 @@ SAT_returnState start_time_management_service(void) {
 SAT_returnState time_management_app(csp_packet_t *packet) {
   uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
   int8_t status;
-  struct time_utc temp_time;
+  uint32_t temp_time;
 
   switch (ser_subtype) {
     case SET_TIME:
-      cnv8_32(&packet->data[IN_DATA_BYTE], &temp_time.unix_timestamp);
-      temp_time.unix_timestamp = csp_ntoh32(temp_time.unix_timestamp);
+      cnv8_32(&packet->data[IN_DATA_BYTE], &temp_time);
+      temp_time = csp_ntoh32(temp_time);
 
-      if (!TIMESTAMP_ISOK(temp_time.unix_timestamp)) {
+      if (!TIMESTAMP_ISOK(temp_time)) {
         status = -1;
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       } else {
-        HAL_sys_setTime(temp_time.unix_timestamp);
+        mock_RTC_set_unix_time(temp_time);
         status = 0;
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       }
@@ -124,14 +172,14 @@ SAT_returnState time_management_app(csp_packet_t *packet) {
 
     case GET_TIME:
       // Step 1: get the data
-      HAL_sys_getTime(&temp_time.unix_timestamp);
+      mock_RTC_get_unix_time(&temp_time);
       // Step 2: convert to network order
-      temp_time.unix_timestamp = csp_hton32(temp_time.unix_timestamp);
+      temp_time = csp_hton32(temp_time);
       // step3: copy data & status byte into packet
       status = 0;
       memcpy(&packet->data[STATUS_BYTE], &status,
              sizeof(int8_t));  // 0 for success
-      memcpy(&packet->data[OUT_DATA_BYTE], &temp_time.unix_timestamp,
+      memcpy(&packet->data[OUT_DATA_BYTE], &temp_time,
              sizeof(uint32_t));
       // Step 4: set packet length
       set_packet_length(packet, sizeof(int8_t) + sizeof(uint32_t) +

@@ -26,7 +26,6 @@
 #define MIN_FREQ = 2200
 #define MAX_FREQ = 2290
 
-#define TC_COMMUNICATION_SERVICE 10
 typedef enum {
   S_GET_TEMP = 0,
   S_GET_FREQ = 1,
@@ -48,7 +47,7 @@ typedef enum {
 } Sband_Subtype;
 
 typedef enum {
-  UHF_SET_STAT_CONTROL = 20,
+  UHF_SET_SCW = 20,
   UHF_SET_FREQ,
   UHF_SET_PIPE_TIMEOUT,
   UHF_SET_BEACON_T,
@@ -70,6 +69,9 @@ typedef enum {
   UHF_GET_MIDI,
   UHF_GET_BEACON_MSG,
   UHF_GET_FRAM,
+  UHF_SET_PIPE,
+  UHF_SET_BCN,
+  UHF_SET_ECHO
 } UHF_Subtype;
 
 SAT_returnState communication_service_app(csp_packet_t* pkt);
