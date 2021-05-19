@@ -30,6 +30,7 @@
 #include <csp/csp_endian.h>
 #include <main/system.h>
 
+#include "services.h"
 #include "eps.h"
 
 void prv_instantaneous_telemetry_letoh (eps_instantaneous_telemetry_t *telembuf);
@@ -76,6 +77,14 @@ eps_instantaneous_telemetry_t get_eps_instantaneous_telemetry() {
 eps_mode_e get_eps_batt_mode() {
     eps_instantaneous_telemetry_t eps = get_eps_instantaneous_telemetry();
     return (eps_mode_e) eps.battMode;
+}
+
+int8_t eps_get_pwr_chnl(uint8_t pwr_chnl_port){
+
+}
+
+void eps_set_pwr_chnl(uint8_t pwr_chnl_port, bool bit){
+
 }
 
 /*------------------------------Private-------------------------------------*/
