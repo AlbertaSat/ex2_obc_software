@@ -34,8 +34,7 @@ void ex2_log(const char *format, ...) {
     vsnprintf(buffer, PRINT_BUF_LEN, format, arg);
     va_end(arg);
 
-    char *taskName = pcTaskGetName(NULL);
-    printf("[%s]: %s\r\n", taskName, buffer);
+    printf("%s\r\n", buffer);
     return;
 }
 
