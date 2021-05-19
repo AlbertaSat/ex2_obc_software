@@ -26,7 +26,6 @@
 #define MIN_FREQ = 2200
 #define MAX_FREQ = 2290
 
-#define TC_COMMUNICATION_SERVICE 10
 typedef enum {
   S_GET_TEMP = 0,
   S_GET_FREQ = 1,
