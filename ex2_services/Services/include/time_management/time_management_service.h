@@ -21,8 +21,7 @@
 
 #define TIMESTAMP_ISOK(x) (x > MIN_YEAR && x < MAX_YEAR) ? 1 : 0
 
-// TIME MANAGEMENT SERVICE
-#define TC_TIME_MANAGEMENT_SERVICE 8
+
 typedef enum {
   GET_TIME = 0,
   SET_TIME = 1
