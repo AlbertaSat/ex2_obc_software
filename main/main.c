@@ -47,6 +47,7 @@
 #include "gps_service.h"
 #include "mocks/rtc.h"
 #include "leop.h"
+#include "printf.h"
 
 /**
  * The main function must:
@@ -73,7 +74,7 @@ int ex2_main(int argc, char **argv) {
   InitIO();
 
   /* Initialization routine */
-//  init_filesystem();
+  init_filesystem();
   init_csp();
   /* Start service server, and response server */
   init_leop(leop_time_ms);
@@ -166,6 +167,15 @@ static inline SAT_returnState init_csp_interface() {
   csp_rtable_load("16 KISS");
 
   return SATR_OK;
+}
+
+static void init_system_tasks() {
+  if (start_service_server() != SATR_OK ||
+      start_system_tasks() != SATR_OK) {
+    ex2_log("Initialization error\n");
+    exit(SATR_ERROR);
+  }
+  return;
 }
 
 void vAssertCalled( unsigned long ulLine, const char * const pcFileName )

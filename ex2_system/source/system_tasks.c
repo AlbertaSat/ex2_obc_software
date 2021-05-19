@@ -25,6 +25,7 @@
 #include "housekeeping/housekeeping_task.h"
 #include "performance_monitor/system_stats.h"
 #include "system_state/state_task.h"
+#include "general.h"
 
 SAT_returnState start_system_tasks(void);
 
@@ -40,7 +41,8 @@ SAT_returnState start_system_tasks(void) {
       start_diagnostic_daemon() != SATR_OK ||
       start_housekeeping_daemon() != SATR_OK ||
       start_system_stats_daemon() != SATR_OK ||
-      start_state_daemon() != SATR_OK) {
+      start_state_daemon() != SATR_OK ||
+      start_general_service() != SATR_OK) {
     ex2_log("Error starting system tasks\r\n");
     return SATR_ERROR;
   }
