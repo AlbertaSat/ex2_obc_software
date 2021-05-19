@@ -44,7 +44,7 @@
 #include "HL_sci.h"
 #include "HL_sys_common.h"
 #include "system_tasks.h"
-#include "gps_service.h"
+//#include "gps_service.h"
 #include "mocks/rtc.h"
 #include "leop.h"
 
