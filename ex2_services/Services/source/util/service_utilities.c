@@ -18,16 +18,24 @@
  */
 #include "util/service_utilities.h"
 
+#include "printf.h"
 #include <stdarg.h>
 #include <stdio.h>
+#include <string.h>
+#include "HL_sci.h"
+#include "os_task.h"
+
+#define PRINT_BUF_LEN 64
 
 void ex2_log(const char *format, ...) {
-  //  va_list arg;
-  //  va_start(arg, format);
-  //  printf(format, arg, 0);
-  //  va_end(arg);
-  //  fflush(stdout);
-  return;
+    char buffer[PRINT_BUF_LEN] = {0};
+    va_list arg;
+    va_start(arg, format);
+    vsnprintf(buffer, PRINT_BUF_LEN, format, arg);
+    va_end(arg);
+
+    printf("%s\r\n", buffer);
+    return;
 }
 
 /**
