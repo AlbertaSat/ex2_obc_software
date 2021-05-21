@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015  University of Alberta
+ * Copyright (C) 2021  University of Alberta
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -11,22 +11,30 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+/*
+ * time_struct.h
+ *
+ *  Created on: Mar. 22, 2021
+ *      Author: Robert Taylor
+ */
 
-#ifndef TIME_MANAGEMENT_H
-#define TIME_MANAGEMENT_H
+#ifndef TIME_STRUCT_H_
+#define TIME_STRUCT_H_
 
 #include <stdint.h>
 
-#include "services.h"
+typedef struct ex2_time_t {
+    uint8_t hour;
+    uint8_t minute;
+    uint8_t second;
+    uint16_t ms;
+} ex2_time_t;
 
-#define TIMESTAMP_ISOK(x) (x > MIN_YEAR && x < MAX_YEAR) ? 1 : 0
+typedef struct date_t {
+    uint8_t day;
+    uint8_t month;
+    uint8_t year;
+} date_t;
 
+#endif /* TIME_STRUCT_H_ */
 
-typedef enum {
-  GET_TIME = 0,
-  SET_TIME = 1
-} Time_Management_Subtype;  // shared with EPS!
-
-SAT_returnState start_time_management_service(void);
-
-#endif /* TIME_MANAGEMENT_H */
