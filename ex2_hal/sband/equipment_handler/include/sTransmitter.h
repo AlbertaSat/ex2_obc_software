@@ -81,11 +81,6 @@ typedef struct {
   float paVoltage;
 } sBand_housekeeping;
 
-//* Simulated buffer functions
-STX_return add_vBuffer(int);
-STX_return transmit_vBuffer(int);
-void empty_vBuffer(void);
-
 //* Simulated register functions
 STX_return read_reg(uint8_t, uint8_t *);
 STX_return write_reg(uint8_t, uint8_t);

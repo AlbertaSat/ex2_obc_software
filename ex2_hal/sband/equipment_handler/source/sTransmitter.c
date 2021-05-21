@@ -19,136 +19,14 @@
  */
 
 #include "sTransmitter.h"
-#include "mock_i2c.h" //*
-#include "mock_spi.h" //*
 #include <stdint.h>
 #include <unistd.h> //*
 
-//* Simulated registers so that we can "store" values
-static uint8_t reg0 = 0, reg1 = 0, reg3 = 0, reg4 = 0, reg5 = 1;
-static uint8_t reg17 = 30, reg18 = 3, reg19 = 1, reg20 = 0;
-static uint8_t reg21 = 0, reg22 = 0, reg23 = 0, reg24 = 0;
-static uint8_t reg25 = 0, reg26 = 8, reg27 = 8, reg28 = 8;
-static uint8_t reg29 = 8, reg30 = 50, reg31 = 0, reg32 = 255;
-static uint8_t reg33 = 192, reg34 = 8, reg35 = 8, reg36 = 16;
-static uint8_t reg37 = 16, reg38 = 192, reg39 = 64, reg40 = 0, reg41 = 9;
-
 /**
  * @brief
- * 		Adds to the virtual Buffer
+ *              Function to read a register
  * @details
- * 		Does not store any data and should be replaced with spi function
- *eventually
- * @attention
- *		Will not exist eventually
- * @param n_bytes
- * 		The number of bytes to add to the buffer
- * @return STX_return
- * 		Success of the function defined in sTransmitter.h
- */
-STX_return add_vBuffer(int n_bytes)// Replace with spi_writeData eventually
-{
-	spi_writeData_Expect();
-	spi_writeData();
-
-	for(int j = 0; j < n_bytes; j++){
-
-		// Time Delay
-		// sleep(S_DATA_TIME);
-
-		// Overrun?
-		if(reg25 == 0 && reg24 == 80){
-			if(reg23 == 255){
-				reg22++;
-				reg23 = 0;
-			}else{
-				reg23++;
-			}
-			reg19 = 0;
-			continue;
-		}
-
-
-		if(reg25 == 255){
-			reg24++;
-			reg25 = 0;
-		}else{
-			reg25++;
-			uint16_t b_count = 0;
-			STX_getBuffer(S_BUFFER_COUNT, &b_count); // TR register update
-			if(b_count > 2560){reg19 = 0;}
-		}
-	}
-	return FUNC_PASS;
-}
-
-/**
- * @brief
- *              "Transmits" bytes = removes from the virtual Buffer
- * @details
- *              Does not delete any data
- * @attention
- *              Will not exist eventually. No such function will be needed since
- * data is removed through transmission
- * @param n_bytes
- *              The number of bytes to remove from the buffer
- * @return STX_return
- *              Success of the function defined in sTransmitter.h
- */
-STX_return transmit_vBuffer(int n_bytes) // No such function will actually need to be called
-{
-	for(int k = 0; k < n_bytes; k++){
-
-		// Time Delay
-		// sleep(S_DATA_TIME);
-		// Underrun?
-		if(reg25 == 0 && reg24 == 0){
-			if(reg21 == 255){
-				reg20++;
-				reg21 = 0;
-			}else{
-				reg21++;
-			}
-			reg19 = 1;
-			continue;
-		}
-
-		if(reg25 == 0){
-			reg25 = 255;
-			reg24--;
-		}else{
-			reg25--;
-
-			uint16_t b_count = 0;
-			STX_getBuffer(S_BUFFER_COUNT, &b_count);
-			if(b_count <= 2560){reg19 = 1;} // TR register update
-		}
-	}
-	return FUNC_PASS;
-}
-
-/**
- * @brief
- *              Empties the virtual Buffer
- * @details
- *              Resets simulated registers to 0
- * @attention
- *              Will not exist eventually
- *
- */
-void empty_vBuffer(void)
-{
-	reg25 = 0;
-	reg24 = 0;
-}
-
-/**
- * @brief
- *              Function to read a simulated register
- * @details
- *              Called in other functions (replace with i2c function eventually)
- * @attention
- *              Will not exist eventually
+ *              Called in other functions
  * @param address
  *              Register address as defined in the HSTXC User Manual
  * @param ptr
@@ -156,56 +34,17 @@ void empty_vBuffer(void)
  * @return STX_return
  *              Success of the function defined in sTransmitter.h
  */
-STX_return read_reg(uint8_t address, uint8_t * ptr)
+STX_return read_reg(uint8_t internal_address, uint8_t * ptr)
 {
-	uint8_t exp = 0x0; //*
-	switch (address){
-        case 0: exp = reg0; break;//*
-        case 1: exp = reg1; break;//*
-        case 3: exp = reg3; break;//*
-        case 4: exp = reg4; break;//*
-        case 5: exp = reg5; break;//*
-        case 17: exp = reg17; break;//*
-        case 18: exp = reg18; break;//*
-        case 19: exp = reg19; break;//*
-        case 20: exp = reg20; break;//*
-        case 21: exp = reg21; break;//*
-        case 22: exp = reg22; break;//*
-        case 23: exp = reg23; break;//*
-        case 24: exp = reg24; break;//*
-        case 25: exp = reg25; break;//*
-        case 26: exp = reg26; break;//*
-        case 27: exp = reg27; break;//*
-        case 28: exp = reg28; break;//*
-        case 29: exp = reg29; break;//*
-        case 30: exp = reg30; break;//*
-        case 31: exp = reg31; break;//*
-        case 32: exp = reg32; break;//*
-        case 33: exp = reg33; break;//*
-        case 34: exp = reg34; break;//*
-        case 35: exp = reg35; break;//*
-        case 36: exp = reg36; break;//*
-        case 37: exp = reg37; break;//*
-        case 38: exp = reg38; break;//*
-        case 39: exp = reg39; break;//*
-        case 40: exp = reg40; break;//*
-        case 41: exp = reg41; break;//*
-	default: return BAD_PARAM;//*
-	}
-	if(address != 0x18 && address != 0x19) printf("From register %d, read value %d\n", address, exp);//*
-	i2c_readRegister_ExpectAndReturn(address, exp);//*
-	*ptr = i2c_readRegister(address);
-	resetTest(); //* Clears ExpectAndReturn memory
+	i2c_sendCommand(1, *internal_address, ptr, 0x26);
 	return FUNC_PASS;
 }
 
 /**
  * @brief
- *              Function to write to a simulated register
+ *              Function to write to a register
  * @details
- *              Called in other functions (replace with i2c function eventually)
- * @attention
- *              Will not exist eventually
+ *              Called in other functions
  * @param address
  *              Register address as defined in the HSTXC User Manual
  * @param ptr
@@ -213,45 +52,10 @@ STX_return read_reg(uint8_t address, uint8_t * ptr)
  * @return STX_return
  *              Success of the function defined in sTransmitter.h
  */
-STX_return write_reg(uint8_t address, uint8_t val)
+STX_return write_reg(uint8_t internal_address, uint8_t val)
 {
-	i2c_writeRegister_Expect(address, val); //*
-	i2c_writeRegister(address, val);
-
-	switch (address){
-	case 0: reg0 = val; break;//*
-	case 1: reg1 = val; break;//*
-	case 3: reg3 = val; break;//*
-	case 4: reg4 = val; break;//*
-	case 5: reg5 = val; break;//*
-	case 17: reg17 = val; break;//*
-	case 18: reg18 = val; break;//*
-	case 19: reg19 = val; break;//*
-	case 20: reg20 = val; break;//*
-	case 21: reg21 = val; break;//*
-	case 22: reg22 = val; break;//*
-	case 23: reg23 = val; break;//*
-	case 24: reg24 = val; break;//*
-	case 25: reg25 = val; break;//*
-	case 26: reg26 = val; break;//*
-	case 27: reg27 = val; break;//*
-	case 28: reg28 = val; break;//*
-	case 29: reg29 = val; break;//*
-	case 30: reg30 = val; break;//*
-	case 31: reg31 = val; break;//*
-	case 32: reg32 = val; break;//*
-	case 33: reg33 = val; break;//*
-	case 34: reg34 = val; break;//*
-	case 35: reg35 = val; break;//*
-	case 36: reg36 = val; break;//*
-	case 37: reg37 = val; break;//*
-	case 38: reg38 = val; break;//*
-	case 39: reg39 = val; break;//*
-	case 40: reg40 = val; break;//*
-	case 41: reg41 = val; break;//*
-	default: return BAD_PARAM; //*
-	}
-	printf("To register %d, write value %d\n", address, val);//*
+    command[2] = {internal_address, val};
+	i2c_sendCommand(2, command, void, 0x26);
 	return FUNC_PASS;
 }
 
