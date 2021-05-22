@@ -56,11 +56,19 @@ static void *beacon_daemon(void *pvParameters) {
     // by the operator or here through HAL_UHF_getBeaconT().
     uint8_t scw[SCW_LEN];
     uhf_status = HAL_UHF_getSCW(scw);
+#ifndef UHF_IS_STUBBED
     if (uhf_status == U_GOOD_CONFIG) {
+#else
+    if (uhf_status == 0) {
+#endif
       scw[SCW_BCN_FLAG] = SCW_BCN_ON;
       uhf_status = HAL_UHF_setSCW(scw);
     }
+#ifndef UHF_IS_STUBBED
     if (uhf_status != U_GOOD_CONFIG) {
+#else
+    if (uhf_status != 0) {
+#endif
       if (eps_get_pwr_chnl(UHF_PWR_CHNL) == 1 &&
           gioGetBit(UHF_GIO_PORT, UHF_GIO_PIN) == 1) {
         printf("Beacon failed");
