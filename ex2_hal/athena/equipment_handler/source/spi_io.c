@@ -28,11 +28,19 @@ void SPI_Release (void) {
 }
 
 inline void SPI_CS_Low (void) {
+#ifdef IS_ATHENA
     gioSetPort(gioPORTA, 0); //CS LOW
+#else
+    gioSetBit(hetPORT1, 12, 0); //CS LOW
+#endif
 }
 
 inline void SPI_CS_High (void){
+#ifdef IS_ATHENA
     gioSetPort(gioPORTA, 1); //CS HIGH
+#else
+    gioSetBit(hetPORT1, 12, 1); //CS HIGH
+#endif
 }
 
 inline void SPI_Freq_High (void) {
