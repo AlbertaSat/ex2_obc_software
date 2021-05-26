@@ -27,7 +27,7 @@
 ATTENTION:
   Basic data types and fixed arrays allowed
     e.g.
-    int, uint16_t, char, float, char string[30]
+    uint16_t, char, float, char string[30]
   Structs and dynamic types not allowed. will break generic read/write to file system
     e.g.
     char *string, struct {} dataSet;
