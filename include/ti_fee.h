@@ -439,7 +439,7 @@ extern Std_ReturnType TI_Fee_Read(uint16 BlockNumber,
 extern Std_ReturnType TI_Fee_WriteAsync(uint16 BlockNumber, uint8* DataBufferPtr);
 extern void TI_Fee_MainFunction(void);
 extern TI_Fee_ErrorCodeType TI_FeeErrorCode(uint8 u8EEPIndex);
-extern void TI_Fee_ErrorRecovery(TI_Fee_ErrorCodeType GPS_RETURNSTATE, uint8 u8VirtualSector);
+extern void TI_Fee_ErrorRecovery(TI_Fee_ErrorCodeType ErrorCode, uint8 u8VirtualSector);
 extern TI_FeeJobResultType TI_Fee_GetJobResult(uint8 u8EEPIndex);
 extern void TI_Fee_SuspendResumeErase(TI_Fee_EraseCommandType Command);
 
