@@ -177,7 +177,7 @@ extern BaseType_t prvRaisePrivilege( void );
 #define RESET_PRIVILEGE if( xRunningPrivileged == 0 ) portSWITCH_TO_USER_MODE()
 #define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() initializeProfiler()
 #define portGET_RUN_TIME_COUNTER_VALUE() getProfilerTimerCount()
-
+#define configINCLUDE_APPLICATION_DEFINED_PRIVILEGED_FUNCTIONS 1
 
 /* USER CODE END */
 
