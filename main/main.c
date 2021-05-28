@@ -72,7 +72,7 @@ int ex2_main(int argc, char **argv) {
   InitIO();
 
   /* Initialization routine */
-  init_filesystem();
+//  init_filesystem();
   init_csp();
   /* Start service server, and response server */
   init_leop(leop_time_ms);
