@@ -44,7 +44,6 @@ void cnvD_8(const double from, uint8_t *to);
 
 void cnv8_D(uint8_t *from, double *to);
 
-uint16_t betole(uint16_t x);
 uint16_t htons(uint16_t x);
 uint16_t ntohs(uint16_t x);
 
