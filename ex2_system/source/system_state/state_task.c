@@ -18,7 +18,6 @@
  */
 #include "system_state/state_task.h"
 
-#include <FreeRTOS.h>
 #include <os_task.h>
 
 #include "HL_gio.h"
@@ -70,7 +69,9 @@ static void state_daemon(void *pvParam) {
         printf("Unexpected Satellite mode\n");
         break;
     }
+#ifndef EPS_IS_STUBBED
     change_systems_status(system_ctrl);
+#endif
     vTaskDelay(state_delay);
   }
 }
