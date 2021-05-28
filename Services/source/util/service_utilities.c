@@ -34,8 +34,7 @@ void ex2_log(const char *format, ...) {
     vsnprintf(buffer, PRINT_BUF_LEN, format, arg);
     va_end(arg);
 
-    char *taskName = pcTaskGetName(NULL);
-    printf("[%s]: %s\r\n", taskName, buffer);
+    printf("%s\r\n", buffer);
     return;
 }
 
@@ -148,14 +147,6 @@ void cnv8_D(uint8_t *from, double *to) {
   cnv.cnv8[1] = from[1];
   cnv.cnv8[0] = from[0];
   *to = cnv.cnvD;
-}
-
-uint16_t betole(uint16_t x) {
-#if (SYETEM_ENDIANESS == SYS_BIG_ENDIAN)
-    return (x >> 8) | (num << 8);
-#else
-    return x;
-#endif
 }
 
 uint16_t htons(uint16_t x) {

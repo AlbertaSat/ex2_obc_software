@@ -38,8 +38,18 @@
 #define MIN_YEAR 1577836800  // 2020-01-01
 #define MAX_YEAR 1893456000  // 2030-01-01
 
+#define DISCIPLINE_DELAY 10000 // every 10 seconds for testing purposes
+
 SAT_returnState time_management_app(csp_packet_t *packet);
 
+/**
+ * @brief
+ *      FreeRTOS service for disciplining RTC
+ * @details
+ *      Disicplines rtc by asking the gps subsystem for the time and writing that time to the rtc
+ * @param none
+ * @return none. use FreeRTOS task features to poll
+ */
 void RTC_discipline_service(void) {
 
     ex2_log("GPS Task Started");
@@ -53,7 +63,7 @@ void RTC_discipline_service(void) {
     date_t utc_date;
 
     for (;;) {
-        vTaskDelay(1000);
+        vTaskDelay(DISCIPLINE_DELAY);
         if(!(gps_get_utc_time(&utc_time))){
             ex2_log("Couldn't get gps time");
             continue; // delay wait until gps signal acquired
@@ -63,6 +73,16 @@ void RTC_discipline_service(void) {
     }
 }
 
+/**
+ * @brief
+ *      Start the gps service tasks
+ * @details
+ *      Starts the FreeRTOS tasks responsible for disciplining the RTC and for decoding incoming NMEA strings
+ * @param rtc_handle: TaskHandle_t* to store RTC discipline service handle as a return
+ * @param nmea_handle: TaskHandle_t* to store nmea decoding service handle as a return
+ * @return SAT_returnState
+ *      success report
+ */
 SAT_returnState start_gps_services(TaskHandle_t *rtc_handle, TaskHandle_t *nmea_handle) {
     if (xTaskCreate((TaskFunction_t)RTC_discipline_service, "RTC_service", GPS_TASK_SIZE, NULL, 3, rtc_handle) != pdPASS) {
         return SATR_ERROR;
