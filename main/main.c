@@ -157,7 +157,7 @@ static inline SAT_returnState init_csp_interface() {
   }
 
 
-  csp_rtable_load("16 KISS");
+  csp_rtable_load("16 KISS, 4 CAN");
 
   return SATR_OK;
 }
