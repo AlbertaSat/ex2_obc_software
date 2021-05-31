@@ -310,9 +310,6 @@ Result set_max_files(uint16_t new_max) {
  *      enum for SUCCESS or FAILURE
  */
 Result convert_hk_endianness(All_systems_housekeeping* hk){
-/*Any new fields in the hk structs should be added to this conversion function
-old fields that are depreciated should be removed from the conversion function*/
-
   /*hk_time_and_order*/
   hk->hk_timeorder.UNIXtimestamp = csp_hton32(hk->hk_timeorder.UNIXtimestamp);
   hk->hk_timeorder.dataPosition = csp_hton16(hk->hk_timeorder.dataPosition);
@@ -320,88 +317,17 @@ old fields that are depreciated should be removed from the conversion function*/
   //TODO:
   //hk->ADCS_hk.
   
-  uint8_t i;
   /*athena_housekeeping*/
-  for (i = 0; i < 6; i++) {
-    hk->Athena_hk.temparray[i] = (long)csp_shton32((int32_t)hk->Athena_hk.temparray[i]);
-  }
-
+  Athena_hk_convert_endianness(&hk->Athena_hk);
 
   /*eps_instantaneous_telemetry_t*/
-  //hk->EPS_hk.cmd
-  //hk->EPS_hk.status
-  hk->EPS_hk.vBatt = csp_hton16(hk->EPS_hk.vBatt);
-  hk->EPS_hk.curSolar = csp_hton16(hk->EPS_hk.curSolar);
-  hk->EPS_hk.curBattIn = csp_hton16(hk->EPS_hk.curBattIn);
-  hk->EPS_hk.curBattOut = csp_hton16(hk->EPS_hk.curBattOut);
-  hk->EPS_hk.reserved1 = csp_hton16(hk->EPS_hk.reserved1);
-  hk->EPS_hk.outputStatus = csp_hton16(hk->EPS_hk.outputStatus);
-  hk->EPS_hk.outputFaultStatus = csp_hton16(hk->EPS_hk.outputFaultStatus);
-  hk->EPS_hk.wdt_gs_time_left = csp_hton32(hk->EPS_hk.wdt_gs_time_left);
-  hk->EPS_hk.wdt_gs_counter = csp_hton32(hk->EPS_hk.wdt_gs_counter);
-  hk->EPS_hk.rstReason = csp_hton32(hk->EPS_hk.rstReason);
-  hk->EPS_hk.bootCnt = csp_hton32(hk->EPS_hk.bootCnt);
-  //hk->EPS_hk.battMode
-  //hk->EPS_hk.mpptMode
-  //hk->EPS_hk.batHeaterMode
-  //hk->EPS_hk.batHeaterState
-  hk->EPS_hk.reserved5 = csp_hton16(hk->EPS_hk.reserved5);
-  
-  for (i = 0; i < 2;  i++) {
-    hk->EPS_hk.AOcurOutput[i] = csp_hton16(hk->EPS_hk.AOcurOutput[i]);
-  }
-  for (i = 0; i < 4;  i++) {
-    hk->EPS_hk.mpptConverterVoltage[i] = csp_hton16(hk->EPS_hk.mpptConverterVoltage[i]);
-    hk->EPS_hk.OutputConverterVoltage[i] = csp_hton16(hk->EPS_hk.OutputConverterVoltage[i]);
-    //hk->EPS_hk.outputConverterState[i]
-    hk->EPS_hk.reserved4[i] = csp_hton16(hk->EPS_hk.reserved4[i]);
-  }
-  for (i = 0; i < 6;  i++) {
-    hk->EPS_hk.reserved2[i] = csp_hton16(hk->EPS_hk.reserved2[i]);
-  }
-  for (i = 0; i < 7;  i++) {
-    hk->EPS_hk.reserved3[i] = csp_hton16(hk->EPS_hk.reserved3[i]);
-  }
-  for (i = 0; i < 8;  i++) {
-    hk->EPS_hk.curSolarPanels[i] = csp_hton16(hk->EPS_hk.curSolarPanels[i]);
-  }
-  for (i = 0; i < 10; i++) {
-    hk->EPS_hk.curOutput[i] = csp_hton16(hk->EPS_hk.curOutput[i]);
-    hk->EPS_hk.outputOnDelta[i] = csp_hton16(hk->EPS_hk.outputOnDelta[i]);
-    hk->EPS_hk.outputOffDelta[i] = csp_hton16(hk->EPS_hk.outputOffDelta[i]);
-    hk->EPS_hk.outputFaultCnt[i] = csp_hton32(hk->EPS_hk.outputFaultCnt[i]);
-  }
-  for (i = 0; i < 12; i++) {
-    hk->EPS_hk.temp[i] = csp_hton16(hk->EPS_hk.temp[i]);
-  }
+  prv_instantaneous_telemetry_letoh(&hk->EPS_hk);
   
   /*UHF_housekeeping*/
-  //hk->UHF_hk.scw[i]
-  
-  hk->UHF_hk.freq = csp_hton32(hk->UHF_hk.freq);
-  hk->UHF_hk.pipe_t = csp_hton32(hk->UHF_hk.pipe_t);
-  hk->UHF_hk.beacon_t = csp_hton32(hk->UHF_hk.beacon_t);
-  hk->UHF_hk.audio_t = csp_hton32(hk->UHF_hk.audio_t);
-  hk->UHF_hk.uptime = csp_hton32(hk->UHF_hk.uptime);
-  hk->UHF_hk.pckts_out = csp_hton32(hk->UHF_hk.pckts_out);
-  hk->UHF_hk.pckts_in = csp_hton32(hk->UHF_hk.pckts_in);
-  hk->UHF_hk.pckts_in_crc16 = csp_hton32(hk->UHF_hk.pckts_in_crc16);
-  hk->UHF_hk.temperature = csp_htonflt(hk->UHF_hk.temperature);
-  //hk->UHF_hk.low_pwr_stat
-  hk->UHF_hk.payload_size = csp_hton16(hk->UHF_hk.payload_size);
-  hk->UHF_hk.secure_key = csp_hton32(hk->UHF_hk.secure_key);
+  UHF_convert_endianness(&hk->UHF_hk);
   
   /*Sband_Housekeeping*/
-  hk->S_band_hk.Output_Power = csp_htonflt(hk->S_band_hk.Output_Power);
-  hk->S_band_hk.PA_Temp = csp_htonflt(hk->S_band_hk.PA_Temp);
-  hk->S_band_hk.Top_Temp = csp_htonflt(hk->S_band_hk.Top_Temp);
-  hk->S_band_hk.Bottom_Temp = csp_htonflt(hk->S_band_hk.Bottom_Temp);
-  hk->S_band_hk.Bat_Current = csp_htonflt(hk->S_band_hk.Bat_Current);
-  hk->S_band_hk.Bat_Voltage = csp_htonflt(hk->S_band_hk.Bat_Voltage);
-  hk->S_band_hk.PA_Current = csp_htonflt(hk->S_band_hk.PA_Current);
-  hk->S_band_hk.PA_Voltage = csp_htonflt(hk->S_band_hk.PA_Voltage);
-  hk->S_band_hk.PA_Voltage = csp_htonflt(hk->S_band_hk.PA_Voltage);
-
+  HAL_S_hk_convert_endianness(&hk->S_band_hk);
 
   return SUCCESS;
 }
