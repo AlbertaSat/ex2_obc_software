@@ -18,6 +18,7 @@
  */
 
 #include "housekeeping_athena.h"
+#include <stdlib.h>
 
 /**
  * @brief
@@ -42,5 +43,13 @@ int Athena_getHK(athena_housekeeping* athena_hk) {
   if (temporary != 0) return_code = temporary;
 
   return return_code;
+}
+
+int Athena_hk_convert_endianness(athena_housekeeping* athena_hk) {
+  uint8_t i;
+  for (i = 0; i < 6; i++) {
+    athena_hk->temparray[i] = (long)csp_shton32((int32_t)athena_hk->temparray[i]);
+  }
+  return 0;
 }
 

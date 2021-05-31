@@ -20,6 +20,8 @@
 #ifndef HOUSEKEEPING_ATHENA_H
 #define HOUSEKEEPING_ATHENA_H
 
+#include <stdint.h>
+
 /*Add includes for other athena files to get hk data from*/
 #include "tempsense_athena.h"
 
@@ -37,5 +39,6 @@ typedef struct __attribute__((packed)){
 } athena_housekeeping;
 
 int Athena_getHK(athena_housekeeping* athena_hk);
+int Athena_hk_convert_endianness(athena_housekeeping* athena_hk);
 
 #endif
