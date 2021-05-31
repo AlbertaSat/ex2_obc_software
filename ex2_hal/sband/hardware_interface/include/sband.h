@@ -91,6 +91,7 @@ STX_return HAL_S_getEncoder(Sband_Encoder *S_Enc);
 STX_return HAL_S_getStatus(Sband_Status *S_status);
 STX_return HAL_S_getTR(Sband_TR *S_transmit);
 STX_return HAL_S_getHK(Sband_Housekeeping *S_hk);
+STX_return HAL_S_hk_convert_endianness(Sband_Housekeeping *S_hk);
 STX_return HAL_S_getBuffer(int quantity, Sband_Buffer *S_buffer);
 STX_return HAL_S_softResetFPGA(void);
 STX_return HAL_S_getFV(float *S_firmware_Version);
