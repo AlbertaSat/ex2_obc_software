@@ -21,6 +21,7 @@
 #define SYSTEM_H
 
 #include <stdint.h>
+#include "FreeRTOS.h"
 
 #define SYSTEM_APP_ID _OBC_APP_ID_
 
@@ -31,6 +32,10 @@
 #define BEACON_TASK_PRIO                  1
 #define DIAGNOSTIC_TASK_PRIO              1
 #define SYSTEM_STATS_TASK_PRIO            1
+#define MOCK_RTC_TASK_PRIO                configMAX_PRIORITIES-1
+
+#define GPS_SCI sciREG2
+#define CSP_SCI sciREG3
 
 typedef enum {
   SATR_PKT_ILLEGAL_APPID = 0,
@@ -42,6 +47,16 @@ typedef enum {
   /*LAST*/
   SATR_LAST
 } SAT_returnState;
+
+/* Subsystems Pins & Ports */
+#define UHF_GIO_PORT    hetPORT2
+#define UHF_GIO_PIN     22
+// TODO: Numbers to be set
+#define UHF_PWR_CHNL    1
+#define STX_PWR_CHNL    1
+#define IRIS_PWR_CHNL   1
+#define DFGM_PWR_CHNL   1
+#define ADCS_PWR_CHNL   1
 
 int ex2_main(int argc, char **argv);
 void SciSendBuf(char *buf, uint32_t bufSize);
