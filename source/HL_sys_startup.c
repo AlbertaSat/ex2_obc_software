@@ -63,9 +63,13 @@
 #include "HL_errata_SSWF021_45.h"
 
 /* USER CODE BEGIN (1) */
+extern unsigned int ramint_LoadSize;
+extern unsigned int ramint_LoadStart;
+extern unsigned int ramint_RunStart;
 /* USER CODE END */
 
 /* USER CODE BEGIN (2) */
+void load(char *load,char *start, unsigned int size);
 /* USER CODE END */
 
 /* External Functions */
@@ -257,6 +261,7 @@ void _c_int00(void)
         /* initialize global variable and constructors */
     __TI_auto_init();
 /* USER CODE BEGIN (26) */
+    load((char *)&ramint_LoadStart, (char *)&ramint_RunStart, (unsigned int)&ramint_LoadSize);
 /* USER CODE END */
     
         /* call the application */
@@ -276,6 +281,14 @@ void _c_int00(void)
 }
 
 /* USER CODE BEGIN (29) */
+void load(char *load,char *start, unsigned int size)
+{ do
+  {
+    *start = *load;
+    start++;
+    load++;
+  } while (--size);
+}
 /* USER CODE END */
 
 /** @fn void handlePLLLockFail(void)
