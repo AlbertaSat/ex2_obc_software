@@ -90,7 +90,7 @@ SAT_returnState start_housekeeping_service(void);
 /*This function called every interval to collect data periodically*/
 Result populate_and_store_hk_data(void);
 
-
+uint16_t get_file_id_from_timestamp(uint32_t timestamp);
 Result load_historic_hk_data(uint16_t file_num, All_systems_housekeeping* all_hk_data);
 Result set_max_files(uint16_t new_max);
 
