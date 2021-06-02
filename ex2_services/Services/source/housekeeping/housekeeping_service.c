@@ -42,7 +42,112 @@ char base_file[] = "tempHKdata"; //path may need to be changed
 char extension[] = ".TMP";
 uint16_t current_file = 1;  //Increments after file write. loops back at MAX_FILES
                             //1 indexed
+
+uint32_t *timestamps; //This is a dynamic array to handle file search by timestamp
+uint16_t hk_timestamp_array_size = 0; //NOT BYTES. stored as number of items. 1 indexed. 0 element unused
+
 SemaphoreHandle_t f_count_lock;
+
+/**
+ * @brief
+ *      gets the hk file id that holds a timestamp closest to that given
+ * @attention
+ *      Complex algorithm. should be thoroughly tested when possible
+ * @param timestamp
+ *      This is the time from which the file is desired
+ * @return uint16_t
+ *      File ID if found. 0 if no file found
+ */
+uint16_t get_file_id_from_timestamp(uint32_t timestamp) {
+  uint32_t threshold = 15; //How many seconds timestamps need to be within. Currently assumes 30 second hk intervals
+  //perform leftmost binary search
+  uint16_t left;
+  uint16_t right;
+  uint16_t middle;
+  if(timestamps == NULL) {
+    return 0;
+  }
+  if (timestamps[current_file] == 0) { //haven't made full loop of storage
+    if (current_file == 1) { //base case. no files written
+      return 0;
+    }
+    //not enough files written to use loop portion yet
+    left = 1;
+    right = current_file -1;
+  } else {
+    //These accomodate circular structure
+    left = current_file;
+    right = left + hk_timestamp_array_size - 1;
+  }
+
+  while (left < right) {
+    middle = (left + right) / 2;
+    if (timestamps[middle - (current_file - 1)] < timestamp) {
+      left = middle + 1;
+    } else {
+      right = middle;
+    }
+  }
+  uint16_t true_position = left - (current_file - 1);
+  if (true_position > 1) {
+    if (timestamp - timestamps[true_position - 1] <= threshold) { //check lower neighbour if exists
+      return true_position - 1;
+    }
+    if (true_position != hk_timestamp_array_size) { //check self if won't cause underflow
+      if (timestamps[true_position] - timestamp <= threshold) {
+        return true_position;
+      }
+    } else { //left must be max index
+      if (timestamp > timestamps[true_position] && 
+      timestamp - timestamps[true_position] <= threshold) { //edge case left is max index. bigger value than at max
+        return true_position;
+      } else if (timestamps[true_position] - timestamp <= threshold) { //edge case left is max index. smaller value than at max
+        return true_position;
+      }
+    }
+  } else { //left must be min index
+    if (timestamps[true_position] - timestamp <= threshold) { //edge case left is min index. smaller than min
+      return true_position;
+    }
+  }
+  return 0;
+
+
+}
+
+/**
+ * @brief
+ *      Handles malloc, realloc, and free for array holding hk timestamps
+ * @param num_items
+ *      This is how many items should have space malloced
+ * @return Result
+ *      FAILURE or SUCCESS
+ */
+Result dynamic_timestamp_array_handler(uint16_t num_items) {
+  if (num_items == 0) {
+    if (timestamps != NULL) {
+      free(timestamps);
+    }
+    hk_timestamp_array_size = 0;
+    return SUCCESS;
+  }
+  if (num_items != hk_timestamp_array_size) {
+    uint32_t *tmp = realloc(timestamps, sizeof(*timestamps * (num_items + 1))); //+1 to allow non-zero index room
+    if (!tmp) { 
+      return FAILURE;
+    }
+    timestamps = tmp;
+    uint16_t i = hk_timestamp_array_size + 1;
+    hk_timestamp_array_size = num_items;
+
+    for (i; i <= num_items; i++) {
+      timestamps[i] = 0;
+    }
+  }
+  return SUCCESS;
+}
+
+
 
 /**
  * @brief
@@ -167,6 +272,24 @@ int num_digits(int num) {
   return count;
 }
 
+static SemaphoreHandle_t prv_get_count_lock() {
+  if (!f_count_lock) {
+    f_count_lock = xSemaphoreCreateMutex();
+  }
+  configASSERT(f_count_lock);
+  return &f_count_lock;
+}
+
+static inline void prv_get_lock(SemaphoreHandle_t *lock) {
+  configASSERT(lock);
+  xSemaphoreTake(lock, portMAX_DELAY);
+}
+
+static inline void prv_give_lock(SemaphoreHandle_t *lock) {
+  configASSERT(lock);
+  xSemaphoreGive(lock);
+}
+
 /**
  * @brief
  *      Public. Performs all calls and operations to retrieve hk data and store it
@@ -184,7 +307,7 @@ Result populate_and_store_hk_data(void) {
   temp_hk_data.hk_timeorder.UNIXtimestamp = (uint32_t)time(NULL); //set creation time to now
   SemaphoreHandle_t lock = prv_get_count_lock();
 
-  prv_get_lock(lock);
+  prv_get_lock(lock); //lock
   configASSERT(lock);
   temp_hk_data.hk_timeorder.dataPosition = current_file;
 
@@ -204,12 +327,19 @@ Result populate_and_store_hk_data(void) {
     return FAILURE;
   }
 
+
+  if (dynamic_timestamp_array_handler(MAX_FILES)) {
+    timestamps[current_file] = temp_hk_data.hk_timeorder.UNIXtimestamp;
+  } else {
+    ex2_log("Warning, failed to malloc for secondary data structure\n");
+  }
+
   ++current_file;
 
   if(current_file > MAX_FILES) {
     current_file = 1;
   }
-  prv_give_lock(lock);
+  prv_give_lock(lock); //unlock
 
   free(filename); // No memory leaks here
   return SUCCESS;
@@ -254,7 +384,7 @@ Result load_historic_hk_data(uint16_t file_num, All_systems_housekeeping* all_hk
  *      If new_max is less than MAX_FILES, all historic housekeeping files will
  *      be destroyed immediately to prevent orphaned files and confusion of data
  *      order. The next file written to after this function will be file #1.
- *      If new_max is greater thatn MAX_FILES, the data flow will be unaffected.
+ *      If new_max is greater than MAX_FILES, the data flow will be unaffected.
  * @param new_max
  *      The new value to change the maximum value to  
  * @return
@@ -265,15 +395,17 @@ Result set_max_files(uint16_t new_max) {
   if (new_max < 1) return FAILURE;
 
   SemaphoreHandle_t lock = prv_get_count_lock();
-  prv_get_lock(lock);
+  prv_get_lock(lock); //lock
   configASSERT(lock);
+  
+  //adjust the array
 
   //ensure value set before cleanup
   uint16_t old_max = MAX_FILES;
   MAX_FILES = new_max;
   current_file = 1;
 
-  prv_give_lock(lock);
+  prv_give_lock(lock); //unlock
   
   if (old_max < new_max) return SUCCESS;
 
@@ -347,12 +479,16 @@ Result convert_hk_endianness(All_systems_housekeeping* hk){
  * @return
  *      enum for success or failure
  */
-Result fetch_historic_hk_and_transmit(csp_conn_t *conn, uint16_t limit, uint16_t before_id) {
+Result fetch_historic_hk_and_transmit(csp_conn_t *conn, uint16_t limit, uint16_t before_id, uint32_t before_time) {
   SemaphoreHandle_t lock = prv_get_count_lock();
   prv_get_lock(lock);
   configASSERT(lock);
   uint16_t locked_max = MAX_FILES;
   uint16_t locked_before_id = before_id;
+  uint32_t locked_before_time = before_time;
+  if (locked_before_time != 0){ //use timestamp if exists
+    locked_before_id = get_file_id_from_timestamp(locked_before_time);
+  }
   prv_give_lock(lock);
 
   //error check and accomodate user input
@@ -426,24 +562,6 @@ Result fetch_historic_hk_and_transmit(csp_conn_t *conn, uint16_t limit, uint16_t
   return SUCCESS;
 }
 
-static SemaphoreHandle_t prv_get_count_lock() {
-  if (!f_count_lock) {
-    f_count_lock = xSemaphoreCreateMutex();
-  }
-  configASSERT(f_count_lock);
-  return &f_count_lock;
-}
-
-static inline void prv_get_lock(SemaphoreHandle_t *lock) {
-  configASSERT(lock);
-  xSemaphoreTake(lock, portMAX_DELAY);
-}
-
-static inline void prv_give_lock(SemaphoreHandle_t *lock) {
-  configASSERT(lock);
-  xSemaphoreGive(lock);
-}
-
 /**
  * @brief
  *      Processes the incoming requests to decide what response is needed
@@ -460,6 +578,7 @@ SAT_returnState hk_service_app(csp_conn_t *conn, csp_packet_t *packet) {
   uint16_t new_max_files;
   uint16_t limit;
   uint16_t before_id;
+  uint32_t before_time;
 
   switch (ser_subtype) {
     case SET_MAX_FILES:
@@ -500,8 +619,9 @@ SAT_returnState hk_service_app(csp_conn_t *conn, csp_packet_t *packet) {
     case GET_HK:
       limit = (uint16_t)packet->data16[IN_DATA_BYTE];
       before_id = (uint16_t)packet->data16[IN_DATA_BYTE + 1];
+      before_time = (uint32_t)packet->data16[IN_DATA_BYTE + 2];
 
-      if (fetch_historic_hk_and_transmit(conn, limit, before_id) != SUCCESS) {
+      if (fetch_historic_hk_and_transmit(conn, limit, before_id, before_time) != SUCCESS) {
         return SATR_ERROR;
       }
       break;
