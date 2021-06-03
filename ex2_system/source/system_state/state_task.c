@@ -44,6 +44,7 @@ static void state_daemon(void *pvParam) {
     uint8_t system_ctrl =
         1;  // A control word deciding what systems must be working
     // LSB -> MSB: Battery heaters, EPS, OBC, UHF, S-band, Iris, DFGM, ADCS
+#ifndef EPS_IS_STUBBED
     eps_batt_mode = get_eps_batt_mode();
     SAT_state = eps2sat_mode_cnv(eps_batt_mode);
 
@@ -69,7 +70,7 @@ static void state_daemon(void *pvParam) {
         printf("Unexpected Satellite mode\n");
         break;
     }
-#ifndef EPS_IS_STUBBED
+
     change_systems_status(system_ctrl);
 #endif
     vTaskDelay(state_delay);
