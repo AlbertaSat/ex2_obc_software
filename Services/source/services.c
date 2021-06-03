@@ -27,6 +27,7 @@
 #include "housekeeping/housekeeping_service.h"
 #include "time_management/time_management_service.h"
 #include "util/service_utilities.h"
+#include "general.h"
 
 void csp_server(void *parameters);
 SAT_returnState start_service_server(void);
@@ -48,7 +49,8 @@ SAT_returnState start_service_server(void) {
 
   if (start_communication_service() != SATR_OK ||
           start_time_management_service() != SATR_OK ||
-          start_housekeeping_service() != SATR_OK) {
+          start_housekeeping_service() != SATR_OK||
+          start_general_service() != SATR_OK) {
     return SATR_ERROR;
   }
   return SATR_OK;
