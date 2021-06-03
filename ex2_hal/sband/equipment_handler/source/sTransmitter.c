@@ -20,7 +20,6 @@
 
 #include "sTransmitter.h"
 #include <stdint.h>
-#include <unistd.h> //*
 
 /**
  * @brief
@@ -36,7 +35,8 @@
  */
 STX_return read_reg(uint8_t internal_address, uint8_t * ptr)
 {
-	i2c_sendCommand(1, *internal_address, ptr, 0x26);
+    uint8_t read_address = internal_address;
+	i2c_sendCommand(1, &read_address, ptr, 0x24);
 	return FUNC_PASS;
 }
 
@@ -54,8 +54,9 @@ STX_return read_reg(uint8_t internal_address, uint8_t * ptr)
  */
 STX_return write_reg(uint8_t internal_address, uint8_t val)
 {
-    command[2] = {internal_address, val};
-	i2c_sendCommand(2, command, void, 0x26);
+    uint8_t command[2] = {internal_address, val};
+    uint8_t answer[10] = {0};
+	i2c_sendCommand(2, command, answer, 0x26);
 	return FUNC_PASS;
 }
 
@@ -487,7 +488,9 @@ STX_return STX_getHK(sBand_housekeeping* hkStruct) {
   uint16_t val = 0;
   int16_t temp = 0;
 
-  for (uint8_t address = 0x1A; address < 0x29; address = address + 2) {
+  uint8_t address = 0x1A;
+
+  for (address; address < 0x29; address = address + 2) {
     uint8_t val1 = 0, val2 = 0;
 
     if (read_reg(address, &val1) != FUNC_PASS) {

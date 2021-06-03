@@ -22,6 +22,7 @@
 #define STRANSMITTER_H
 
 #include <stdint.h>
+#include "i2c.h"
 #define S_DATA_TIME 0.000002
 
 // Transmitter modes
