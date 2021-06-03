@@ -13,7 +13,7 @@
  */
 /**
  * @file eps.c
- * @author Andrew Rooney
+ * @author Andrew Rooney, Dustin Wagner
  * @date 2020-12-28
  */
 
@@ -72,6 +72,77 @@ eps_instantaneous_telemetry_t get_eps_instantaneous_telemetry() {
     telembuf = eps->hk_telemetery;
     prv_give_lock(eps);
     return telembuf;
+}
+
+/**
+ * @brief
+ *      Electronic Power System get Housekeeping data
+ * @details
+ *      May replace get_eps_instantaneous_telemetry() if deemed a suitable 
+ *      replacement
+ * @param telembuf
+ *      pointer to struct
+ * 
+ * @return 
+ *      Will likely want to return at least a boolean for success
+ *      but currently no return 
+ * 
+ */
+void EPS_getHK(eps_instantaneous_telemetry_t* telembuf) {
+    eps_t *eps;
+    eps = prv_get_eps();
+    prv_get_lock(eps);
+    configASSERT(eps);
+
+    telembuf->cmd = eps->hk_telemetery.cmd;
+    telembuf->status = eps->hk_telemetery.status;
+    telembuf->vBatt = eps->hk_telemetery.vBatt;
+    telembuf->curSolar = eps->hk_telemetery.curSolar;
+    telembuf->curBattIn = eps->hk_telemetery.curBattIn;
+    telembuf->curBattOut = eps->hk_telemetery.curBattOut;
+    telembuf->reserved1 = eps->hk_telemetery.reserved1;
+    telembuf->outputStatus = eps->hk_telemetery.outputStatus;
+    telembuf->outputFaultStatus = eps->hk_telemetery.outputFaultStatus;
+    telembuf->wdt_gs_time_left = eps->hk_telemetery.wdt_gs_time_left;
+    telembuf->wdt_gs_counter = eps->hk_telemetery.wdt_gs_counter;
+    telembuf->rstReason = eps->hk_telemetery.rstReason;
+    telembuf->bootCnt = eps->hk_telemetery.bootCnt;
+    telembuf->battMode = eps->hk_telemetery.battMode;
+    telembuf->mpptMode = eps->hk_telemetery.mpptMode;
+    telembuf->batHeaterMode = eps->hk_telemetery.batHeaterMode;
+    telembuf->batHeaterState = eps->hk_telemetery.batHeaterState;
+    telembuf->reserved5 = eps->hk_telemetery.reserved5;
+
+    uint8_t i;
+    for (i = 0; i < 2;  i++) {
+        telembuf->AOcurOutput[i] = eps->hk_telemetery.AOcurOutput[i];
+    }
+    for (i = 0; i < 4;  i++) {
+        telembuf->mpptConverterVoltage[i] = eps->hk_telemetery.mpptConverterVoltage[i];
+        telembuf->OutputConverterVoltage[i] = eps->hk_telemetery.OutputConverterVoltage[i];
+        telembuf->outputConverterState[i] = eps->hk_telemetery.outputConverterState[i];
+        telembuf->reserved4[i] = eps->hk_telemetery.reserved4[i];
+    }
+    for (i = 0; i < 6;  i++) {
+        telembuf->reserved2[i] = eps->hk_telemetery.reserved2[i];
+    }
+    for (i = 0; i < 7;  i++) {
+        telembuf->reserved3[i] = eps->hk_telemetery.reserved3[i];
+    }
+    for (i = 0; i < 8;  i++) {
+        telembuf->curSolarPanels[i] = eps->hk_telemetery.curSolarPanels[i];
+    }
+    for (i = 0; i < 10; i++) {
+        telembuf->curOutput[i] = eps->hk_telemetery.curOutput[i];
+        telembuf->outputOnDelta[i] = eps->hk_telemetery.outputOnDelta[i];
+        telembuf->outputOffDelta[i] = eps->hk_telemetery.outputOffDelta[i];
+        telembuf->outputFaultCnt[i] = eps->hk_telemetery.outputFaultCnt[i];
+    }
+    for (i = 0; i < 12; i++) {
+        telembuf->temp[i] = eps->hk_telemetery.temp[i];
+    }
+
+    prv_give_lock(eps);
 }
 
 eps_mode_e get_eps_batt_mode() {

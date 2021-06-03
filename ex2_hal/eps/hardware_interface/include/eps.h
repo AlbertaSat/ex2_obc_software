@@ -13,7 +13,7 @@
  */
 /**
  * @file eps.h
- * @author Andrew Rooney
+ * @author Andrew Rooney, Dustin Wagner
  * @date 2020-12-28
  */
 #ifndef EX2_SERVICES_PLATFORM_OBC_EPS_H_
@@ -57,7 +57,7 @@ typedef struct __attribute__((packed)) {
 
 struct __attribute__((packed)) eps_instantaneous_telemetry {
     uint8_t cmd; //value 0
-    int8_t status; //0 –on success
+    int8_t status; //0 ï¿½on success
     uint16_t mpptConverterVoltage[4]; //mV
     uint16_t curSolarPanels[8]; //mA
     uint16_t vBatt; //mV
@@ -79,13 +79,13 @@ struct __attribute__((packed)) eps_instantaneous_telemetry {
     uint16_t reserved3[7]; //reserved for future use
     uint32_t wdt_gs_counter;
     uint16_t reserved4[4]; //reserved for future use
-    int16_t temp[12]; //0-3 –MPPT converter temp, 4-7 –output converter temp, 8 –on-board battery temp, 9 –11 –external battery pack temp
-    uint32_t rstReason; //0x04000000 –NRST_pin, 0x14000000 –Software, 0x0C800000 –Power_on, 0x24000000 –IWDG
+    int16_t temp[12]; //0-3 ï¿½MPPT converter temp, 4-7 ï¿½output converter temp, 8 ï¿½on-board battery temp, 9 ï¿½11 ï¿½external battery pack temp
+    uint32_t rstReason; //0x04000000 ï¿½NRST_pin, 0x14000000 ï¿½Software, 0x0C800000 ï¿½Power_on, 0x24000000 ï¿½IWDG
     uint32_t bootCnt;
-    uint8_t battMode; //0 –critical, 1 –safe, 2 –normal, 3 –full
-    uint8_t mpptMode; //0 –HW, 1 –manual, 2 –auto, 3 –auto with timeout
-    uint8_t batHeaterMode; //0 –manual, 1 –auto
-    uint8_t batHeaterState; //0 –off, 1 –on
+    uint8_t battMode; //0 ï¿½critical, 1 ï¿½safe, 2 ï¿½normal, 3 ï¿½full
+    uint8_t mpptMode; //0 ï¿½HW, 1 ï¿½manual, 2 ï¿½auto, 3 ï¿½auto with timeout
+    uint8_t batHeaterMode; //0 ï¿½manual, 1 ï¿½auto
+    uint8_t batHeaterState; //0 ï¿½off, 1 ï¿½on
     uint16_t reserved5; //reserved for future use
 
 };
@@ -102,6 +102,7 @@ typedef enum eps_mode eps_mode_e;
 
 SAT_returnState eps_refresh_instantaneous_telemetry();
 eps_instantaneous_telemetry_t get_eps_instantaneous_telemetry();
+void EPS_getHK(eps_instantaneous_telemetry_t* telembuf);
 eps_mode_e get_eps_batt_mode();
 void prv_instantaneous_telemetry_letoh (eps_instantaneous_telemetry_t *telembuf);
 // If changing the two functions below, update system tasks, too.
