@@ -25,7 +25,6 @@
 #include "housekeeping/housekeeping_task.h"
 #include "performance_monitor/system_stats.h"
 #include "system_state/state_task.h"
-#include "general.h"
 
 SAT_returnState start_system_tasks(void);
 
