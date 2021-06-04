@@ -161,8 +161,11 @@ static inline SAT_returnState init_csp_interface() {
     return SATR_ERROR;
   }
 
-
+#ifndef EPS_IS_STUBBED
   csp_rtable_load("16 KISS, 4 CAN");
+#else
+  csp_rtable_load("16 KISS");
+#endif
 
   return SATR_OK;
 }

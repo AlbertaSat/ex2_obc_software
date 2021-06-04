@@ -515,10 +515,10 @@ void canInit(void)
     *     - Setup baud rate prescaler
     */
     canREG1->BTR = (uint32)((uint32)0U << 16U) |
-                   (uint32)((uint32)(4U - 1U) << 12U) |
-                   (uint32)((uint32)((3U + 4U) - 1U) << 8U) |
+                   (uint32)((uint32)(6U - 1U) << 12U) |
+                   (uint32)((uint32)((2U + 6U) - 1U) << 8U) |
                    (uint32)((uint32)(4U - 1U) << 6U) |
-                   (uint32)24U;
+                   (uint32)4U;
 
 
 

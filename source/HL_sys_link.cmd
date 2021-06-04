@@ -91,14 +91,6 @@ SECTIONS
     FEE_TEXT_SECTION align(32) : {} > FLASH0 | FLASH1
     FEE_CONST_SECTION align(32): {} > FLASH0 | FLASH1
     FEE_DATA_SECTION : {} > RAM
-
-/* USER CODE BEGIN (4) */
- 	.blinky_section :  RUN = SDRAM, LOAD = FLASH0
-		   LOAD_START(BlinkyLoadStart), LOAD_END(BlinkyLoadEnd),  LOAD_SIZE(BlinkySize),
-		   RUN_START(BlinkyStartAddr ), RUN_END(BlinkyEndAddr )
-
-	.ramIntvecs : {} load=FLASH0, run=RAMINTVECS, palign=8, LOAD_START(ramint_LoadStart), SIZE(ramint_LoadSize), RUN_START(ramint_RunStart)
-/* USER CODE END */
 }
 
 /* USER CODE BEGIN (5) */
