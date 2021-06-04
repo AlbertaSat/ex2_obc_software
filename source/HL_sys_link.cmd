@@ -53,15 +53,13 @@
 
 MEMORY
 {
-    VECTORS (X)  : origin=0x00018000 length=0x00000024
-    KERNEL  (RX) : origin=0x00018024 length=0x00008000
-    FLASH0  (RX) : origin=0x00020024 length=0x00200000 - 0x00020020 - 0x4
+    VECTORS (X)  : origin=0x00000000 length=0x00000020
+    KERNEL  (RX) : origin=0x00000020 length=0x00008000 
+    FLASH0  (RX) : origin=0x00008020 length=0x001F7FE0
     FLASH1  (RX) : origin=0x00200000 length=0x00200000
     STACKS  (RW) : origin=0x08000000 length=0x00000800
     KRAM    (RW) : origin=0x08000800 length=0x00000800
-    RAM     (RW) : origin=(0x08000800+0x00000800) length=(0x0007f800 - 0x00000800 - 0x8)
-    RAMINTVECS (RWX) : origin=0x0807FFF8 length=0x08
-
+    RAM     (RW) : origin=(0x08000800+0x00000800) length=(0x0007f800 - 0x00000800)
     
 /* USER CODE BEGIN (2) */
 	SDRAM  (RWX) : origin=0x80000000 length=0x07FFFFFF//experimental
@@ -82,17 +80,16 @@ SECTIONS
     .cinit       align(32) : {} > KERNEL
     .pinit       align(32) : {} > KERNEL
     /* Rest of code to user mode flash region */
-    .text        align(32) : {} > FLASH0
-    .const       align(32) : {} > FLASH0
+    .text        align(32) : {} > FLASH0 | FLASH1
+    .const       align(32) : {} > FLASH0 | FLASH1
     /* FreeRTOS Kernel data in protected region of RAM */
     .kernelBSS    : {} > KRAM
     .kernelHEAP   : {} > RAM
     .bss          : {} > RAM
     .data         : {} > RAM    
     .sysmem       : {} > RAM
-
-    FEE_TEXT_SECTION align(32) : {} > FLASH0
-    FEE_CONST_SECTION align(32): {} > FLASH0
+    FEE_TEXT_SECTION align(32) : {} > FLASH0 | FLASH1
+    FEE_CONST_SECTION align(32): {} > FLASH0 | FLASH1
     FEE_DATA_SECTION : {} > RAM
 
 /* USER CODE BEGIN (4) */
@@ -167,4 +164,5 @@ SECTIONS
 	.ramIntvecs : {} load=FLASH0, run=RAMINTVECS, palign=8, LOAD_START(ramint_LoadStart), SIZE(ramint_LoadSize), RUN_START(ramint_RunStart)
 }
 /* USER CODE END */
+
 /*----------------------------------------------------------------------------*/
