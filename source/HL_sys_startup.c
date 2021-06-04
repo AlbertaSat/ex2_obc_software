@@ -237,6 +237,15 @@ void _c_int00(void)
     
         default:
 /* USER CODE BEGIN (21) */
+            if(rstSrc != POWERON_RESET)
+             {
+                 _memInit_();
+             }
+             _coreEnableEventBusExport_();
+             systemInit();
+             _coreEnableIrqVicOffset_();
+             vimInit();
+             esmInit();
 /* USER CODE END */
         break;
     }
