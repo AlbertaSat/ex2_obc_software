@@ -20,6 +20,8 @@
 #ifndef HOUSEKEEPING_ATHENA_H
 #define HOUSEKEEPING_ATHENA_H
 
+#include <stdint.h>
+
 /*Add includes for other athena files to get hk data from*/
 #include "tempsense_athena.h"
 
@@ -27,7 +29,7 @@
 ATTENTION:
   Basic data types and fixed arrays allowed
     e.g.
-    int, uint16_t, char, float, char string[30]
+    uint16_t, char, float, char string[30]
   Structs and dynamic types not allowed. will break generic read/write to file system
     e.g.
     char *string, struct {} dataSet;
@@ -37,5 +39,6 @@ typedef struct __attribute__((packed)){
 } athena_housekeeping;
 
 int Athena_getHK(athena_housekeeping* athena_hk);
+int Athena_hk_convert_endianness(athena_housekeeping* athena_hk);
 
 #endif
