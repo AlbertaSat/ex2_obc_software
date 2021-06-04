@@ -23,7 +23,7 @@
 #include <os_semphr.h>
 #include <os_task.h>
 
-#include "eps.h"
+#include "housekeeping_service.h"
 
 static void * housekeeping_daemon(void *pvParameters);
 SAT_returnState start_housekeeping_daemon(void);
@@ -36,12 +36,12 @@ SAT_returnState start_housekeeping_daemon(void);
  */
 static void * housekeeping_daemon(void *pvParameters) {
     TickType_t hk_delay = pdMS_TO_TICKS(1000);
+    uint32_t seconds_delay = 30;
     for ( ;; ) {
-        // TODO periodically construct a HK element (data from each subsystem) to save to the SD card
-        eps_refresh_instantaneous_telemetry();
-        eps_instantaneous_telemetry_t eps = get_eps_instantaneous_telemetry();
+        // Call housekeeping and have them collect and store data to SD card
+        populate_and_store_hk_data();
 
-        hk_delay = pdMS_TO_TICKS(3000);
+        hk_delay = pdMS_TO_TICKS(seconds_delay * 1000);
         vTaskDelay(hk_delay);
     }
 }
