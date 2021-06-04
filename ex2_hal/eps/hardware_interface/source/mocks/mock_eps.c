@@ -68,7 +68,6 @@ static SAT_returnState prv_fill_dummy_data(csp_packet_t *packet) {
                                                .curSolar = 10,
                                                .curBattIn = 10,
                                                .curBattOut = 10,
-                                               .reserved1 = 0,
                                                .curOutput = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
                                                .AOcurOutput = {1, 2},
                                                .OutputConverterVoltage = {1, 2, 3, 4},
@@ -78,19 +77,13 @@ static SAT_returnState prv_fill_dummy_data(csp_packet_t *packet) {
                                                .outputOnDelta = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
                                                .outputOffDelta = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
                                                .outputFaultCnt = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
-                                               .reserved2 = {1, 2, 3, 4, 5, 6},
                                                .wdt_gs_time_left = 10,
-                                               .reserved3 = {1, 2, 3, 4, 5, 6, 7},
                                                .wdt_gs_counter = 10,
-                                               .reserved4 = {1, 2, 3, 4},
-                                               .temp = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12},
-                                               .rstReason = 0x14000000,
                                                .bootCnt = 10,
                                                .battMode = 2,
                                                .mpptMode = 2,
                                                .batHeaterMode = 1,
                                                .batHeaterState = 1,
-                                               .reserved5 = 0
         };
 //        prv_instantaneous_telemetry_letoh(&telem);
         memcpy(&packet->data, &telem, sizeof(eps_instantaneous_telemetry_t));
