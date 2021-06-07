@@ -23,7 +23,9 @@
 #include <stdint.h>
 
 /*Add includes for other athena files to get hk data from*/
+#ifndef ATHENA_IS_STUBBED
 #include "tempsense_athena.h"
+#endif
 
 /*Add housekeeping fields to this struct to be included in hk reports
 ATTENTION:
