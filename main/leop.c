@@ -12,8 +12,20 @@
  * GNU General Public License for more details.
  */
 /**
+ * Here lives the LEOP sequence. This should be an implementation of the
+ * startup routines outlined in the Ex-Alta 2 Mission Operations Plan.
+ *
+ * Startup steps:
+ * - Housekeeping and DFGM data collection begins
+ * - Battery heaters turn on
+ * - UHF is commissioned (i.e. powered on)
+ * - OBC is powered on at T+30min
+ * - DFGM deploys at T+32min
+ * - UHF Antenna deploys at T+34min
+ * - The remaining steps are done by ground user. See MOP document.
+ *
  * @file leop.c
- * @author Andrew
+ * @author Andrew Rooney
  * @date Mar. 6, 2021
  */
 #include <FreeRTOS.h>
@@ -22,15 +34,21 @@
 
 #include "system_tasks.h"
 #include "services.h"
+#include "deployablescontrol.h"
+
+#define TWO_MINUTES pdMS_TO_TICKS(2 * 60 * 1000)
+#define TWENTY_SECONDS pdMS_TO_TICKS(20 * 1000)
 
 static TimerHandle_t leop_timer = NULL;
+
 
 void init_leop(TickType_t wait_time);
 static void leop_sequence_callback(TimerHandle_t pxTimer);
 
 /**
- * Register the LEOP callback after the given time period. This time
- * period must comply with the NanoRacks specs.
+ * This function has two responsibilities:
+ * 1) Do the LEOP routine items that are to start at time T+30min (i.e., when OBC is powered on).
+ * 2) Register the LEOP callback after the given time period. This time period must comply with the NanoRacks specs.
  *
  * @alert This must take 30 Minutes for the flight-software to
  *  comply with the NanoRacks LEOP requirements
@@ -38,9 +56,13 @@ static void leop_sequence_callback(TimerHandle_t pxTimer);
  * @param wait_time (milliseconds)
  *  time to wait before commissioning subsystems
  */
-void init_leop(TickType_t wait_time) {
+void init_leop(const TickType_t wait_time) {
+
+  // TODO: start housekeeping
+  // TODO: Ensure battery heaters are on
+
   leop_timer = xTimerCreate((const char *) "LEOP Timer",
-                            wait_time,
+                            TWO_MINUTES,
                             pdFALSE,
                             NULL,
                             leop_sequence_callback);
@@ -56,10 +78,47 @@ void init_leop(TickType_t wait_time) {
  * @param pxTimer
  *  timer handle (not used)
  */
-static void leop_sequence_callback(TimerHandle_t pxTimer) {
+static void leop_sequence_callback(const TimerHandle_t pxTimer) {
   /**
    * Commission hardware and start system.
    */
+
+  const int retries = 10, extraCheck = 2;
+  int i, passes;
+
+  passes = 0;
+  for (i = 0; i <= retries; i++) {
+    if (deploy(DFGM)) {
+      passes++;
+      if (passes == extraCheck) {
+        break;
+      }
+    } else {
+      if (i == retries) {
+        // TODO: Log error and reboot perhaps?
+      }
+    }
+    vTaskDelay(TWENTY_SECONDS);
+  }
+
+  vTaskDelay(TWO_MINUTES);
+
+  passes = 0;
+  for (i = 0; i <= retries; i++) {
+    if (deploy(UHF_P) && deploy(UHF_Z) && deploy(UHF_S) && deploy(UHF_N)) {
+      passes++;
+      if (passes == extraCheck) {
+        break;
+      }
+    } else {
+      if (i == retries) {
+        // TODO: Log error and reboot perhaps?
+      }
+    }
+    vTaskDelay(TWENTY_SECONDS);
+  }
+
+  // TODO: commission UHF
 
   /* start system tasks and service listeners */
   if (start_service_server() != SATR_OK ||
