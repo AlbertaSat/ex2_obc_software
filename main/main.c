@@ -47,6 +47,8 @@
 #include "mocks/rtc.h"
 #include "leop.h"
 
+#include "file_delivery_app.h"
+
 /**
  * The main function must:
  *  - Define the Service_Queues_t service_queues;
@@ -77,6 +79,12 @@ int ex2_main(int argc, char **argv) {
   /* Start service server, and response server */
   init_leop(leop_time_ms);
 //  start_eps_mock();
+
+  FTP app;
+  void *task_handler = create_ftp_task(OBC_APP_ID, &app);
+  if (task_handler == NULL) {
+      return -1;
+  }
 
   /* Start FreeRTOS! */
   vTaskStartScheduler();
