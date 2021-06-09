@@ -74,8 +74,6 @@ tab_swi  .word ram_swi
 
 ram_swi:
 	ldr pc, ram_tab_swi
-;-------------------------------------------------------------------------------
-; Table with the addresses of the exception handlers
+
 ram_tab_swi: .word vPortSWI
-;-------------------------------------------------------------------------------
 

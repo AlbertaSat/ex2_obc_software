@@ -147,7 +147,6 @@ void _c_int00(void)
 /* USER CODE BEGIN (8) */
 /* USER CODE END */
 
-
 /* USER CODE BEGIN (9) */
 /* USER CODE END */
 
@@ -171,7 +170,6 @@ void _c_int00(void)
 	
         /* Initialize System - Clock, Flash settings with Efuse self check */
         systemInit();
-
 /* USER CODE BEGIN (11) */
 /* USER CODE END */
 
