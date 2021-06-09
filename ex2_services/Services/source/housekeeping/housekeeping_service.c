@@ -142,7 +142,7 @@ Result dynamic_timestamp_array_handler(uint16_t num_items) {
       return FAILURE;
     }
     if (timestamps != NULL && hk_timestamp_array_size < num_items) { //check if growing because we delete everything if shrinking
-      memcpy(tmp, timestamps, sizeof(*timestamps * hk_timestamp_array_size));
+      memcpy(tmp, timestamps, sizeof(*timestamps) * hk_timestamp_array_size);
       vPortFree(timestamps);
     }
     timestamps = tmp;
