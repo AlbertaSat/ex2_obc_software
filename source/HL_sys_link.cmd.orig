@@ -38,6 +38,7 @@
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
 /* USER CODE BEGIN (0) */
+#ifdef DO_NOT_COMPILE
 /* USER CODE END */
 /*----------------------------------------------------------------------------*/
 /* Linker Settings                                                            */
@@ -90,22 +91,25 @@ SECTIONS
     FEE_TEXT_SECTION align(32) : {} > FLASH0 | FLASH1
     FEE_CONST_SECTION align(32): {} > FLASH0 | FLASH1
     FEE_DATA_SECTION : {} > RAM
+<<<<<<< Updated upstream
+=======
 
 /* USER CODE BEGIN (4) */
  	.blinky_section :  RUN = SDRAM, LOAD = FLASH0 | FLASH1
 		   LOAD_START(BlinkyLoadStart), LOAD_END(BlinkyLoadEnd),  LOAD_SIZE(BlinkySize),
 		   RUN_START(BlinkyStartAddr ), RUN_END(BlinkyEndAddr )
 /* USER CODE END */
+>>>>>>> Stashed changes
 }
 
 /* USER CODE BEGIN (5) */
+#endif
 /* USER CODE END */
 
 /*----------------------------------------------------------------------------*/
 /* Misc                                                                       */
 
 /* USER CODE BEGIN (6) */
-#ifdef DO_NOT_COMPILE
 /*----------------------------------------------------------------------------*/
 /* Linker Settings                                                            */
 
@@ -216,7 +220,6 @@ SECTIONS
 
 	.ramIntvecs align(32) : {} load=FLASH0, run=RAMINTVECS, LOAD_START(ramint_LoadStart), SIZE(ramint_LoadSize), RUN_START(ramint_RunStart)
 }
-#endif
 #endif
 /* USER CODE END */
 
