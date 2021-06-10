@@ -55,9 +55,27 @@
 resetEntry
         b   _c_int00
         b   _undef
-        b vPortSWI
+        ldr pc, tab_swi
         b   _prefetch
         b   _dabort
         b   phantomInterrupt
         ldr pc,[pc,#-0x1b0]
         ldr pc,[pc,#-0x1b0]
+
+    
+;-------------------------------------------------------------------------------
+; Table with the addresses of the vectors in the SRAM
+tab_swi  .word ram_swi
+;-------------------------------------------------------------------------------
+
+; Table in RAM
+	.sect ".ramIntvecs"
+	.retain ".ramIntvecs"
+	.arm
+
+    .ref vPortSWI
+
+ram_swi:
+	b vPortSWI
+	NOP
+

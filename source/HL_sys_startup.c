@@ -63,11 +63,9 @@
 #include "HL_errata_SSWF021_45.h"
 
 /* USER CODE BEGIN (1) */
-#ifdef BOOTLOADER_PRESENT
 extern unsigned int ramint_LoadSize;
 extern unsigned int ramint_LoadStart;
 extern unsigned int ramint_RunStart;
-#endif
 /* USER CODE END */
 
 /* USER CODE BEGIN (2) */
@@ -149,6 +147,7 @@ void _c_int00(void)
 /* USER CODE BEGIN (8) */
 /* USER CODE END */
 
+
 /* USER CODE BEGIN (9) */
 /* USER CODE END */
 
@@ -172,6 +171,7 @@ void _c_int00(void)
 	
         /* Initialize System - Clock, Flash settings with Efuse self check */
         systemInit();
+
 /* USER CODE BEGIN (11) */
 /* USER CODE END */
 
@@ -258,8 +258,6 @@ void _c_int00(void)
 /* USER CODE BEGIN (23) */
 /* USER CODE END */
 
-    _cacheEnable_();
-
 /* USER CODE BEGIN (24) */
 /* USER CODE END */
 
@@ -270,9 +268,7 @@ void _c_int00(void)
         /* initialize global variable and constructors */
     __TI_auto_init();
 /* USER CODE BEGIN (26) */
-#ifdef BOOTLOADER_PRESENT
     load((char *)&ramint_LoadStart, (char *)&ramint_RunStart, (unsigned int)&ramint_LoadSize);
-#endif
 /* USER CODE END */
     
         /* call the application */

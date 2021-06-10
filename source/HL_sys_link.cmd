@@ -45,6 +45,7 @@
 --retain="*(.intvecs)"
 
 /* USER CODE BEGIN (1) */
+#ifdef DO_NOT_COMPILE
 /* USER CODE END */
 
 /*----------------------------------------------------------------------------*/
@@ -99,13 +100,14 @@ SECTIONS
 }
 
 /* USER CODE BEGIN (5) */
+#endif
 /* USER CODE END */
 
 /*----------------------------------------------------------------------------*/
 /* Misc                                                                       */
 
 /* USER CODE BEGIN (6) */
-#ifdef DO_NOT_COMPILE
+
 /*----------------------------------------------------------------------------*/
 /* Linker Settings                                                            */
 
@@ -216,7 +218,6 @@ SECTIONS
 
 	.ramIntvecs align(32) : {} load=FLASH0, run=RAMINTVECS, LOAD_START(ramint_LoadStart), SIZE(ramint_LoadSize), RUN_START(ramint_RunStart)
 }
-#endif
 #endif
 /* USER CODE END */
 
