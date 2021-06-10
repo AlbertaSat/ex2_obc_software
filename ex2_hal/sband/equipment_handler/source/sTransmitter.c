@@ -21,6 +21,8 @@
 #include "sTransmitter.h"
 #include <stdint.h>
 
+
+
 /**
  * @brief
  *              Function to read a register
@@ -36,7 +38,7 @@
 STX_return read_reg(uint8_t internal_address, uint8_t * ptr)
 {
     uint8_t read_address = internal_address;
-	i2c_sendCommand(1, &read_address, ptr, 0x24);
+	i2c_sendCommand(MAX_SBAND_R_CMDLEN, &read_address, ptr, MAX_SBAND_R_ANSLEN, SBAND_I2C_ADD);
 	return FUNC_PASS;
 }
 
@@ -56,7 +58,7 @@ STX_return write_reg(uint8_t internal_address, uint8_t val)
 {
     uint8_t command[2] = {internal_address, val};
     uint8_t answer[10] = {0};
-	i2c_sendCommand(2, command, answer, 0x26);
+	i2c_sendCommand(MAX_SBAND_W_CMDLEN, command, answer, MAX_SBAND_W_ANSLEN, SBAND_I2C_ADD);
 	return FUNC_PASS;
 }
 

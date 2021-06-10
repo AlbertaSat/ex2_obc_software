@@ -23,7 +23,15 @@
 
 #include <stdint.h>
 #include "i2c.h"
-#define S_DATA_TIME 0.000002
+
+// S-band i2c address
+#define SBAND_I2C_ADD 0x26
+
+// Max Lenghts for S-band commands and responses
+#define MAX_SBAND_W_CMDLEN 2
+#define MAX_SBAND_W_ANSLEN 1
+#define MAX_SBAND_R_CMDLEN 1
+#define MAX_SBAND_R_ANSLEN 1
 
 // Transmitter modes
 #define S_CONF_MODE 0
