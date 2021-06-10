@@ -35,13 +35,12 @@
 #include "util/service_utilities.h"
 #include "services.h"
 
-static uint8_t SID_byte = 1;
 
 /*for housekeeping temporary file creation
   naming convention becomes base_file + current_file + extension
   e.g. tempHKdata134.TMP
 */
-uint16_t MAX_FILES = 5; //currently arbitrary number 500
+uint16_t MAX_FILES = 5; //testing value. will be set to approximately 20160 (7 days)
 char base_file[] = "VOL0:/tempHKdata"; //path may need to be changed
 char extension[] = ".TMP";
 uint16_t current_file = 1;  //Increments after file write. loops back at MAX_FILES
@@ -146,12 +145,12 @@ Result dynamic_timestamp_array_handler(uint16_t num_items) {
       vPortFree(timestamps);
     }
     timestamps = tmp;
-    uint16_t i = hk_timestamp_array_size + 1;
-    hk_timestamp_array_size = num_items;
 
-    for (i; i <= num_items; i++) { //ensure new entries are clean
+    uint16_t i;
+    for (i = (hk_timestamp_array_size + 1); i <= num_items; i++) { //ensure new entries are clean
       timestamps[i] = 0;
     }
+    hk_timestamp_array_size = num_items;
   }
   return SUCCESS;
 }
@@ -294,14 +293,6 @@ int num_digits(int num) {
     ++count;
   }
   return count;
-}
-
-static SemaphoreHandle_t prv_get_count_lock() {
-  if (f_count_lock == NULL) {
-    f_count_lock = xSemaphoreCreateMutex();
-  }
-  configASSERT(f_count_lock);
-  return &f_count_lock;
 }
 
 static inline void prv_get_lock(SemaphoreHandle_t *lock) {
