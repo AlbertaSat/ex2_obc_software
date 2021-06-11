@@ -23,11 +23,12 @@
 #define APPLICATION_DEFINED_PRIVILEGED_FUNCTIONS_H_
 
 #include "FreeRTOS.h"
+#include "HL_reg_system.h"
 #include "bl_eeprom.h"
 
 
 void reboot_system(char type) {
-    prvRaisePrivilege();
+    RAISE_PRIVILEGE;
     eeprom_init();
     switch(type) {
     case 'A':
@@ -49,6 +50,47 @@ void reboot_system(char type) {
     }
     eeprom_shutdown();
     systemREG1->SYSECR = (0x10) << 14;
+    RESET_PRIVILEGE;
 }
+
+bool init_eeprom() {
+    RAISE_PRIVILEGE;
+    bool success = eeprom_init();
+    RESET_PRIVILEGE;
+    return success;
+}
+
+void shutdown_eeprom() {
+    RAISE_PRIVILEGE;
+    eeprom_shutdown();
+    RESET_PRIVILEGE;
+}
+
+image_info priv_eeprom_get_app_info() {
+    RAISE_PRIVILEGE;
+    image_info app_info = eeprom_get_app_info();
+    RESET_PRIVILEGE;
+    return app_info;
+}
+
+image_info priv_eeprom_get_golden_info() {
+    RAISE_PRIVILEGE;
+    image_info app_info = eeprom_get_app_info();
+    RESET_PRIVILEGE;
+    return app_info;
+}
+
+void priv_eeprom_set_app_info(image_info app_info) {
+    RAISE_PRIVILEGE;
+    eeprom_set_app_info(app_info);
+    RESET_PRIVILEGE;
+}
+
+void priv_eeprom_set_golden_info(image_info app_info) {
+    RAISE_PRIVILEGE;
+    eeprom_set_golden_info(app_info);
+    RESET_PRIVILEGE;
+}
+
 
 #endif /* INCLUDE_APPLICATION_DEFINED_PRIVILEGED_FUNCTIONS_H_ */
