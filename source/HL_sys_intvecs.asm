@@ -76,6 +76,8 @@ tab_swi  .word ram_swi
     .ref vPortSWI
 
 ram_swi:
-	b vPortSWI
-	NOP
+	ldr pc, ram_tab_swi
+
+ram_tab_swi:
+	.word vPortSWI
 
