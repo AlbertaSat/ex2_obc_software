@@ -74,14 +74,15 @@ int ex2_main(int argc, char **argv) {
   InitIO();
 
   /* Initialization routine */
-  //init_filesystem();
+  init_filesystem();
   init_csp();
   /* Start service server, and response server */
   init_leop(leop_time_ms);
 //  start_eps_mock();
 
-  FTP app;
-  void *task_handler = create_ftp_task(OBC_APP_ID, &app);
+
+  FTP *app = calloc(1, sizeof(FTP));
+  void *task_handler = create_ftp_task(OBC_APP_ID, app);
   if (task_handler == NULL) {
       return -1;
   }
