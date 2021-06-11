@@ -70,10 +70,6 @@ void adc_write(uint8_t *buf, int size, uint8_t slave_addr) {
     i2cClearSCD(ADC_i2c_PORT);
 }
 
-void adc_request_from(uint16_t slave_addr) {
-
-}
-
 void adc_read(uint8_t *data, uint32_t length, uint8_t slave_addr) {
     i2cSetSlaveAdd(ADC_i2c_PORT, slave_addr);
     i2cSetDirection(i2cREG1, I2C_RECEIVER);
@@ -94,10 +90,6 @@ void adc_read(uint8_t *data, uint32_t length, uint8_t slave_addr) {
 
     /* Clear the Stop condition */
     i2cClearSCD(i2cREG1);
-
-}
-
-void adc_end_request() {
 
 }
 
