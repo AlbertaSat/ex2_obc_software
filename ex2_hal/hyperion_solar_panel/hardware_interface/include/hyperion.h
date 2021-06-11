@@ -12,9 +12,9 @@
  * GNU General Public License for more details.
  */
 /**
- * @file    hyperion.c
+ * @file    hyperion.h
  * @author  Trung Tran
- * @date    2020-06-04
+ * @date    2021-06-04
  */
 
 #ifndef EX2_HAL_EX2_HYPERION_SOLAR_PANEL_SOFTWARE_HARDWARE_INTERFACE_INCLUDE_HYPERION_H_
