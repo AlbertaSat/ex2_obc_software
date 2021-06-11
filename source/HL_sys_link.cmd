@@ -107,8 +107,6 @@ SECTIONS
 /* Misc                                                                       */
 
 /* USER CODE BEGIN (6) */
-#define GOLDEN_IMAGE
-#define BOOTLOADER_PRESENT
 /*----------------------------------------------------------------------------*/
 /* Linker Settings                                                            */
 
