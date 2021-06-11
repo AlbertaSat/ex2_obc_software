@@ -256,7 +256,10 @@ void _c_int00(void)
     _mpuInit_();
 	
 /* USER CODE BEGIN (23) */
+    load((char *)&ramint_LoadStart, (char *)&ramint_RunStart, (unsigned int)&ramint_LoadSize);
 /* USER CODE END */
+
+    _cacheEnable_();
 
 /* USER CODE BEGIN (24) */
 /* USER CODE END */
@@ -268,7 +271,6 @@ void _c_int00(void)
         /* initialize global variable and constructors */
     __TI_auto_init();
 /* USER CODE BEGIN (26) */
-    load((char *)&ramint_LoadStart, (char *)&ramint_RunStart, (unsigned int)&ramint_LoadSize);
 /* USER CODE END */
     
         /* call the application */
