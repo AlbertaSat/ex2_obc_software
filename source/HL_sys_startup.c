@@ -256,6 +256,7 @@ void _c_int00(void)
     _mpuInit_();
 	
 /* USER CODE BEGIN (23) */
+    _cacheDisable_();
     load((char *)&ramint_LoadStart, (char *)&ramint_RunStart, (unsigned int)&ramint_LoadSize);
 /* USER CODE END */
 
