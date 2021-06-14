@@ -170,3 +170,5 @@ SECTIONS
 
 	.ramIntvecs : {} load=FLASH, run=RAMINTVECS, palign=8, LOAD_START(ramint_LoadStart), SIZE(ramint_LoadSize), RUN_START(ramint_RunStart)
 }
+/* USER CODE END */
+
