@@ -28,25 +28,28 @@
 #include <string.h>
 #include <time.h>
 
+#include <semphr.h> //for semaphore lock
+
+#include <redposix.h> //include for file system 
+
 #include "util/service_utilities.h"
 #include "services.h"
 
-static uint8_t SID_byte = 1;
 
 /*for housekeeping temporary file creation
   naming convention becomes base_file + current_file + extension
   e.g. tempHKdata134.TMP
 */
-uint16_t MAX_FILES = 500; //currently arbitrary number
-char base_file[] = "tempHKdata"; //path may need to be changed
+uint16_t MAX_FILES = 5; //testing value. will be set to approximately 20160 (7 days)
+char base_file[] = "VOL0:/tempHKdata"; //path may need to be changed
 char extension[] = ".TMP";
 uint16_t current_file = 1;  //Increments after file write. loops back at MAX_FILES
                             //1 indexed
 
-uint32_t *timestamps; //This is a dynamic array to handle file search by timestamp
+uint32_t *timestamps = 0; //This is a dynamic array to handle file search by timestamp
 uint16_t hk_timestamp_array_size = 0; //NOT BYTES. stored as number of items. 1 indexed. 0 element unused
 
-SemaphoreHandle_t f_count_lock;
+SemaphoreHandle_t f_count_lock = NULL;
 
 /**
  * @brief
@@ -126,23 +129,28 @@ uint16_t get_file_id_from_timestamp(uint32_t timestamp) {
 Result dynamic_timestamp_array_handler(uint16_t num_items) {
   if (num_items == 0) {
     if (timestamps != NULL) {
-      free(timestamps);
+      vPortFree(timestamps);
     }
     hk_timestamp_array_size = 0;
     return SUCCESS;
   }
   if (num_items != hk_timestamp_array_size) {
-    uint32_t *tmp = realloc(timestamps, sizeof(*timestamps * (num_items + 1))); //+1 to allow non-zero index room
-    if (!tmp) { 
+    uint32_t size = sizeof(*timestamps) * (num_items +1); //+1 to allow non-zero index room
+    uint32_t *tmp = (uint32_t*)pvPortMalloc(size);
+    if (tmp == NULL) {
       return FAILURE;
     }
+    if (timestamps != NULL && hk_timestamp_array_size < num_items) { //check if growing because we delete everything if shrinking
+      memcpy(tmp, timestamps, sizeof(*timestamps) * hk_timestamp_array_size);
+      vPortFree(timestamps);
+    }
     timestamps = tmp;
-    uint16_t i = hk_timestamp_array_size + 1;
-    hk_timestamp_array_size = num_items;
 
-    for (i; i <= num_items; i++) {
+    uint16_t i;
+    for (i = (hk_timestamp_array_size + 1); i <= num_items; i++) { //ensure new entries are clean
       timestamps[i] = 0;
     }
+    hk_timestamp_array_size = num_items;
   }
   return SUCCESS;
 }
@@ -182,11 +190,16 @@ Result collect_hk_from_devices(All_systems_housekeeping* all_hk_data) {
  *      FILE_EXISTS or FILE_NOT_EXIST
  */
 Found_file exists(const char *filename){
-    FILE *file;
-    if((file = fopen(filename, "rb"))){ //open file to read binary
-        fclose(file);
-        return FILE_EXISTS;
+    int32_t file;
+    if (file = red_open(filename, RED_O_CREAT | RED_O_EXCL) == -1){ //open file to read binary
+        if (red_errno == RED_EEXIST) {
+          red_close(file);
+          return FILE_EXISTS;
+        }
+        
     }
+    red_close(file);
+    red_unlink(filename);
     return FILE_NOT_EXIST;
 }
 
@@ -204,25 +217,28 @@ Found_file exists(const char *filename){
  *      FAILURE or SUCCESS
  */
 Result write_hk_to_file(const char *filename, All_systems_housekeeping* all_hk_data) {
-  FILE *fout = fopen(filename, "wb"); //open or create file to write binary
-  if (fout == NULL) {
+  int32_t fout = red_open(filename, RED_O_CREAT | RED_O_RDWR); //open or create file to write binary
+  if (fout == -1) {
     ex2_log("Failed to open or create file to write: '%c'\n", filename);
     return FAILURE;
   }
+  red_errno = 0;
   /*The order of writes and subsequent reads must match*/
   //TODO:
-  //fwrite(&all_hk_data->ADCS_hk, sizeof(all_hk_data->ADCS_hk), 1, fout);
-  fwrite(&all_hk_data->hk_timeorder, sizeof(all_hk_data->hk_timeorder), 1, fout);
-  fwrite(&all_hk_data->Athena_hk, sizeof(all_hk_data->Athena_hk), 1, fout);
-  fwrite(&all_hk_data->EPS_hk, sizeof(all_hk_data->EPS_hk), 1, fout);
-  fwrite(&all_hk_data->UHF_hk, sizeof(all_hk_data->UHF_hk), 1, fout);
-  fwrite(&all_hk_data->S_band_hk, sizeof(all_hk_data->S_band_hk), 1, fout);
+  //red_write(fout, &all_hk_data->ADCS_hk, sizeof(all_hk_data->ADCS_hk));
+  red_write(fout, &all_hk_data->hk_timeorder, sizeof(all_hk_data->hk_timeorder));
+  red_write(fout, &all_hk_data->Athena_hk, sizeof(all_hk_data->Athena_hk));
+  red_write(fout, &all_hk_data->EPS_hk, sizeof(all_hk_data->EPS_hk));
+  red_write(fout, &all_hk_data->UHF_hk, sizeof(all_hk_data->UHF_hk));
+  red_write(fout, &all_hk_data->S_band_hk, sizeof(all_hk_data->S_band_hk));
+  
 
-  if(fwrite == 0) {
+  if(red_errno != 0) {
     ex2_log("Failed to write to file: '%c'\n", filename);
+    red_close(fout);
     return FAILURE;
   }
-  fclose(fout);
+  red_close(fout);
   return SUCCESS;
 }
 
@@ -240,24 +256,31 @@ Result write_hk_to_file(const char *filename, All_systems_housekeeping* all_hk_d
  *      FAILURE or SUCCESS
  */
 Result read_hk_from_file(const char *filename, All_systems_housekeeping* all_hk_data) {
-  if(!exists(filename)){
+  if(exists(filename) == FILE_NOT_EXIST){
     ex2_log("Attempted to read file that doesn't exist: '%c'\n", filename);
     return FAILURE;
   }
-  FILE *fin = fopen(filename, "rb"); //open file to read binary
-  if (fin == NULL) {
+  int32_t fin = red_open(filename, RED_O_RDONLY); //open file to read binary
+  if (fin == -1) {
     ex2_log("Failed to open file to read: '%c'\n", filename);
     return FAILURE;
   }
+  red_errno = 0;
   /*The order of writes and subsequent reads must match*/
   //TODO:
-  //fread(&all_hk_data->ADCS_hk, sizeof(all_hk_data->ADCS_hk), 1, fin);
-  fread(&all_hk_data->hk_timeorder, sizeof(all_hk_data->hk_timeorder), 1, fin);
-  fread(&all_hk_data->Athena_hk, sizeof(all_hk_data->Athena_hk), 1, fin);
-  fread(&all_hk_data->EPS_hk, sizeof(all_hk_data->EPS_hk), 1, fin);
-  fread(&all_hk_data->UHF_hk, sizeof(all_hk_data->UHF_hk), 1, fin);
-  fread(&all_hk_data->S_band_hk, sizeof(all_hk_data->S_band_hk), 1, fin);
+  //red_read(fin, &all_hk_data->ADCS_hk, sizeof(all_hk_data->ADCS_hk));
+  red_read(fin, &all_hk_data->hk_timeorder, sizeof(all_hk_data->hk_timeorder));
+  red_read(fin, &all_hk_data->Athena_hk, sizeof(all_hk_data->Athena_hk));
+  red_read(fin, &all_hk_data->EPS_hk, sizeof(all_hk_data->EPS_hk));
+  red_read(fin, &all_hk_data->UHF_hk, sizeof(all_hk_data->UHF_hk));
+  red_read(fin, &all_hk_data->S_band_hk, sizeof(all_hk_data->S_band_hk));
 
+  if(red_errno != 0) {
+    ex2_log("Failed to read: '%c'\n", filename);
+    red_close(fin);
+    return FAILURE;
+  }
+  red_close(fin);
   return SUCCESS;
 }
 
@@ -272,22 +295,16 @@ int num_digits(int num) {
   return count;
 }
 
-static SemaphoreHandle_t prv_get_count_lock() {
-  if (!f_count_lock) {
-    f_count_lock = xSemaphoreCreateMutex();
-  }
-  configASSERT(f_count_lock);
-  return &f_count_lock;
-}
-
 static inline void prv_get_lock(SemaphoreHandle_t *lock) {
-  configASSERT(lock);
-  xSemaphoreTake(lock, portMAX_DELAY);
+  if (*lock == NULL) {
+    *lock = xSemaphoreCreateMutex();
+  }
+  configASSERT(*lock);
+  xSemaphoreTake(*lock, portMAX_DELAY);
 }
 
 static inline void prv_give_lock(SemaphoreHandle_t *lock) {
-  configASSERT(lock);
-  xSemaphoreGive(lock);
+  xSemaphoreGive(*lock);
 }
 
 /**
@@ -298,50 +315,46 @@ static inline void prv_give_lock(SemaphoreHandle_t *lock) {
  */
 Result populate_and_store_hk_data(void) {
   All_systems_housekeeping temp_hk_data;
-
+  
   if(collect_hk_from_devices(&temp_hk_data) == FAILURE) {
     ex2_log("Error collecting hk data from peripherals\n");
   }
+  
 
   //Not sure if time works like a normal machine but can be changed
   temp_hk_data.hk_timeorder.UNIXtimestamp = (uint32_t)time(NULL); //set creation time to now
-  SemaphoreHandle_t lock = prv_get_count_lock();
-
-  prv_get_lock(lock); //lock
-  configASSERT(lock);
+  prv_get_lock(&f_count_lock); //lock
   temp_hk_data.hk_timeorder.dataPosition = current_file;
 
   uint16_t length = strlen(base_file) + num_digits(current_file) + 
   strlen(extension) + 1;
-  char * filename = malloc(length); // + 1 for NULL terminator
-
+  char * filename = pvPortMalloc(length); // + 1 for NULL terminator
   if(!filename) {
     ex2_log("Error, failed to malloc %hu bytes\n", length);
+    prv_give_lock(&f_count_lock); //unlock
     return FAILURE;
   }
   snprintf(filename, length, "%s%hu%s", base_file, current_file, extension);
-
-  if(!write_hk_to_file(filename, &temp_hk_data)) {
+  if(write_hk_to_file(filename, &temp_hk_data) != SUCCESS) {
     ex2_log("Housekeeping data lost\n");
-    free(filename); // No memory leaks here
+    vPortFree(filename); // No memory leaks here
+    prv_give_lock(&f_count_lock); //unlock
     return FAILURE;
   }
 
 
-  if (dynamic_timestamp_array_handler(MAX_FILES)) {
+  if (dynamic_timestamp_array_handler(MAX_FILES) == SUCCESS) {
     timestamps[current_file] = temp_hk_data.hk_timeorder.UNIXtimestamp;
   } else {
     ex2_log("Warning, failed to malloc for secondary data structure\n");
   }
-
   ++current_file;
 
   if(current_file > MAX_FILES) {
     current_file = 1;
   }
-  prv_give_lock(lock); //unlock
-
-  free(filename); // No memory leaks here
+  prv_give_lock(&f_count_lock); //unlock
+  vPortFree(filename); // No memory leaks here
   return SUCCESS;
 }
 
@@ -359,7 +372,7 @@ Result populate_and_store_hk_data(void) {
 Result load_historic_hk_data(uint16_t file_num, All_systems_housekeeping* all_hk_data) {
   uint16_t length = strlen(base_file) + num_digits(current_file) + 
   strlen(extension) + 1;
-  char * filename = malloc(length); // + 1 for NULL terminator
+  char * filename = pvPortMalloc(length); // + 1 for NULL terminator
 
   if(!filename) {
     ex2_log("Error, failed to malloc %hu bytes\n", length);
@@ -369,11 +382,11 @@ Result load_historic_hk_data(uint16_t file_num, All_systems_housekeeping* all_hk
 
   if(!read_hk_from_file(filename, all_hk_data)) {
     ex2_log("Housekeeping data could not be retrieved\n");
-    free(filename); // No memory leaks here
+    vPortFree(filename); // No memory leaks here
     return FAILURE;
   }
 
-  free(filename); // No memory leaks here
+  vPortFree(filename); // No memory leaks here
   return SUCCESS;
 }
 
@@ -394,9 +407,7 @@ Result set_max_files(uint16_t new_max) {
   //ensure number requested isn't garbage
   if (new_max < 1) return FAILURE;
 
-  SemaphoreHandle_t lock = prv_get_count_lock();
-  prv_get_lock(lock); //lock
-  configASSERT(lock);
+  prv_get_lock(&f_count_lock); //lock
   
   //adjust the array
 
@@ -405,30 +416,37 @@ Result set_max_files(uint16_t new_max) {
   MAX_FILES = new_max;
   current_file = 1;
 
-  prv_give_lock(lock); //unlock
+  prv_give_lock(&f_count_lock); //unlock
   
   if (old_max < new_max) return SUCCESS;
 
   //Cleanup files code if number of files has been reduced
   uint16_t length = strlen(base_file) + num_digits(old_max) + 
   strlen(extension) + 1;
-  char * filename = malloc(length); // + 1 for NULL terminator
+  char * filename = pvPortMalloc(length); // + 1 for NULL terminator
 
   if(!filename) {
     ex2_log("Error, failed to malloc %hu bytes\n", length);
     return FAILURE;
   }
+
+  if (dynamic_timestamp_array_handler(new_max) != SUCCESS){
+    vPortFree(filename);
+    return FAILURE;
+  }
+
   Result result = SUCCESS;
   uint16_t i = 0;
   for (i = 1; i <= old_max; i++) {
     snprintf(filename, length, "%s%hu%s", base_file, i, extension);
     if (exists(filename) == FILE_EXISTS) {
-      if (!remove(filename) && i > new_max){
+      if (!red_unlink(filename) && i > new_max){
         ex2_log("Error, file %s has been orphaned\n", filename);
         result = FAILURE;
       }
     }
   }
+  vPortFree(filename);
   return result;
 }
 
@@ -480,16 +498,15 @@ Result convert_hk_endianness(All_systems_housekeeping* hk){
  *      enum for success or failure
  */
 Result fetch_historic_hk_and_transmit(csp_conn_t *conn, uint16_t limit, uint16_t before_id, uint32_t before_time) {
-  SemaphoreHandle_t lock = prv_get_count_lock();
-  prv_get_lock(lock);
-  configASSERT(lock);
+  prv_get_lock(&f_count_lock);
+
   uint16_t locked_max = MAX_FILES;
   uint16_t locked_before_id = before_id;
   uint32_t locked_before_time = before_time;
   if (locked_before_time != 0){ //use timestamp if exists
     locked_before_id = get_file_id_from_timestamp(locked_before_time);
   }
-  prv_give_lock(lock);
+  prv_give_lock(&f_count_lock);
 
   //error check and accomodate user input
   if (locked_before_id == 0 || locked_before_id > locked_max) {
