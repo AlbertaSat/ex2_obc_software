@@ -27,10 +27,10 @@
 #include "bl_eeprom.h"
 
 
-void reboot_system(char type) {
+void reboot_system_(char reboot_type) {
     RAISE_PRIVILEGE;
     eeprom_init();
-    switch(type) {
+    switch(reboot_type) {
     case 'A':
         eeprom_set_boot_type('A');
         ex2_log("Rebooting Application");
@@ -53,40 +53,40 @@ void reboot_system(char type) {
     RESET_PRIVILEGE;
 }
 
-bool init_eeprom() {
+bool init_eeprom_() {
     RAISE_PRIVILEGE;
     bool success = eeprom_init();
     RESET_PRIVILEGE;
     return success;
 }
 
-void shutdown_eeprom() {
+void shutdown_eeprom_() {
     RAISE_PRIVILEGE;
     eeprom_shutdown();
     RESET_PRIVILEGE;
 }
 
-image_info priv_eeprom_get_app_info() {
+image_info priv_eeprom_get_app_info_() {
     RAISE_PRIVILEGE;
     image_info app_info = eeprom_get_app_info();
     RESET_PRIVILEGE;
     return app_info;
 }
 
-image_info priv_eeprom_get_golden_info() {
+image_info priv_eeprom_get_golden_info_() {
     RAISE_PRIVILEGE;
     image_info app_info = eeprom_get_golden_info();
     RESET_PRIVILEGE;
     return app_info;
 }
 
-void priv_eeprom_set_app_info(image_info app_info) {
+void priv_eeprom_set_app_info_(image_info app_info) {
     RAISE_PRIVILEGE;
     eeprom_set_app_info(app_info);
     RESET_PRIVILEGE;
 }
 
-void priv_eeprom_set_golden_info(image_info app_info) {
+void priv_eeprom_set_golden_info_(image_info app_info) {
     RAISE_PRIVILEGE;
     eeprom_set_golden_info(app_info);
     RESET_PRIVILEGE;
