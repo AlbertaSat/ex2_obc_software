@@ -28,7 +28,7 @@
 #include "general.h"
 #include "services.h"
 #include "util/service_utilities.h"
-#include "application_defined_privileged_functions.h"
+#include "privileged_functions.h"
 
 SAT_returnState general_app(csp_packet_t *packet);
 void general_service(void * param);
