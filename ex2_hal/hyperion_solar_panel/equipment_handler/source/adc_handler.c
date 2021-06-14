@@ -19,8 +19,6 @@
 
 #include <ex2_hal/ex2_hyperion_solar_panel_software/equipment_handler/include/adc_handler.h>
 #include <stdint.h>
-// #include <stdio.h>
-//#include "printf.h"
 
 /**
  * @brief
@@ -32,17 +30,11 @@
  */
 unsigned char adc_init(uint8_t slave_addr, uint8_t channel) {
     int delay;
-    // adc_set_command_reg(1<<7,0,0,1,0,1); // this is hardcoded
     adc_set_command_reg(slave_addr, channel, 0, 1, 1, 0, 1);
     for(delay=0;delay<10000000;delay++);
     uint8_t reg_sel = 1; // select read register
     adc_set_register_pointer(slave_addr, reg_sel);
     for(delay=0;delay<1000000;delay++);
-
-    // unsigned short data = 0;
-    // unsigned char ch = 0; // channel
-    // adc_get_raw(&data, &ch);
-    // printf("Data: %x, ch: %x\r\n", ch, data);
 
     return 1;
 }
@@ -175,8 +167,6 @@ void adc_set_register_pointer(uint8_t slave_addr, uint8_t reg_sel) {
 void adc_get_raw(uint8_t slave_addr, unsigned short *data, unsigned char *ch)
 {  
     unsigned char buffer[2] = {0,0};
-    //unsigned short buffer_H = 0;
-    //unsigned short buffer_L = 0;
 
     //i2c slave read
     adc_read(buffer, 2, slave_addr);
