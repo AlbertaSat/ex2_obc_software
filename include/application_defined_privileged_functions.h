@@ -75,7 +75,7 @@ image_info priv_eeprom_get_app_info() {
 
 image_info priv_eeprom_get_golden_info() {
     RAISE_PRIVILEGE;
-    image_info app_info = eeprom_get_app_info();
+    image_info app_info = eeprom_get_golden_info();
     RESET_PRIVILEGE;
     return app_info;
 }
