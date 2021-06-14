@@ -23,8 +23,8 @@
 
 
 typedef enum {
-  GET_TIME = 0,
-  SET_TIME = 1
+  GET_TIME = 10,
+  SET_TIME = 11
 } Time_Management_Subtype;  // shared with EPS!
 
 SAT_returnState start_time_management_service(void);
