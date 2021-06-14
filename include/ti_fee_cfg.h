@@ -210,7 +210,7 @@
 /* SourceId : HL_Fee_SourceId_35 */
 /* DesignId : HL_FEE_DesignId_5*/
 /* Requirements : HL_FEE_SR95  */
-#define TI_FEE_NUMBER_OF_BLOCKS                             1U
+#define TI_FEE_NUMBER_OF_BLOCKS                             3U
 
 /** @def TI_FEE_NUMBER_OF_UNCONFIGUREDBLOCKSTOCOPY
 *   @brief Alias name for Fee Number Of Unconfigured Blocks To Copy
@@ -231,7 +231,7 @@
 /** @def TI_FEE_TOTAL_BLOCKS_DATASETS
 *   @brief Alias name for total number of blocks and datasets
 */
-#define TI_FEE_TOTAL_BLOCKS_DATASETS                        1U
+#define TI_FEE_TOTAL_BLOCKS_DATASETS                        3U
 
 /** @def TI_FEE_GENERATE_DEVICEANDVIRTUALSECTORSTRUC
 *   @brief Alias name for Generate Device Specific Structure and Virtual sector Configuration Structure during runtime
