@@ -12,7 +12,7 @@
 #include "services.h"
 #include "redposix.h"
 #include "bl_eeprom.h"
-#include "ti_fee.h"
+#include "application_defined_privileged_functions.h"
 
 // returns the size of the buffer it managed to allocate
 uint32_t get_buffer(uint8_t *buf) {
@@ -26,20 +26,6 @@ uint32_t get_buffer(uint8_t *buf) {
         }
     }
     return 0;
-}
-
-bool prepare_eeprom() {
-    int delayCount = 0;
-    eeprom_init();
-    do {
-        TI_Fee_MainFunction();
-        delayCount++;
-        if (delayCount > 10000) { // timeout after trying this many times
-            ex2_log("\r\nTI FEE error\r\n");
-            return false;
-        }
-    } while (TI_Fee_GetStatus(0) != IDLE);
-    return true;
 }
 
 SAT_returnState updater_app(csp_packet_t *packet) {
@@ -59,7 +45,7 @@ SAT_returnState updater_app(csp_packet_t *packet) {
           if (!red_fstat(fp, &file_info)) {
               status = -1; break;
           }
-          if (!prepare_eeprom()) {
+          if (!init_eeprom()) {
               status = -1; break;
           }
           app_info = eeprom_get_app_info();
@@ -88,26 +74,46 @@ SAT_returnState updater_app(csp_packet_t *packet) {
           break;
 
       case GET_GOLDEN_INFO:
-          app_info = eeprom_get_app_info();
+          if (!init_eeprom()) {
+              status = -1; break;
+          }
+          app_info = priv_eeprom_get_golden_info();
           status = 0;
           memcpy(&packet->data[OUT_DATA_BYTE], &app_info,sizeof(app_info));
+          set_packet_length(packet, sizeof(int8_t)+sizeof(app_info) + 1);
           break;
 
       case GET_APP_INFO:
+          if (!init_eeprom()) {
+              status = -1; break;
+          }
+          app_info = priv_eeprom_get_app_info();
+          status = 0;
+          memcpy(&packet->data[OUT_DATA_BYTE], &app_info,sizeof(app_info));
+          set_packet_length(packet, sizeof(int8_t)+sizeof(app_info) + 1);
           break;
 
+
       case SET_GOLDEN_INFO:
+          memcpy(&packet->data[IN_DATA_BYTE], &app_info, sizeof(app_info));
+          priv_eeprom_set_golden_info(app_info);
+          set_packet_length(packet, sizeof(int8_t) + 1);
+          status = 0;
           break;
 
       case SET_APP_INFO:
+          memcpy(&packet->data[IN_DATA_BYTE], &app_info, sizeof(app_info));
+          priv_eeprom_set_app_info(app_info);
+          set_packet_length(packet, sizeof(int8_t) + 1);
+          status = 0;
           break;
 
       default:
         ex2_log("No such subservice\n");
-        eeprom_shutdown();
+        shutdown_eeprom();
         return SATR_PKT_ILLEGAL_SUBSERVICE;
     }
-    eeprom_shutdown();
+    shutdown_eeprom();
     memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
     return SATR_OK;
 }
