@@ -76,19 +76,6 @@
 #define AD7298_RES          4096
 
 
-// typedef struct adc_handler_t ADC_Handler;
-
-// struct adc_handler_t{
-//     //Current value of the ADC control register
-//     uint16_t  control_reg_val;   
-
-//     // SPI data register configuration 
-//     spiDAT1_t spi_dat_conf;
-
-//     // Select Panel
-//     enum panel_t panel;
-// };
-
 
 unsigned short control_reg_val;
 
@@ -123,8 +110,5 @@ void adc_get_all_raw(void);
 
 //convert all channels vin
 void adc_get_all_vin(void);
-
-// convert all channels with meanning
-//void adc_get_all_converted(int address, int config, unsigned short* data_vec, unsigned char* ch_vec, float* temp[], float* pd[], float* current, float* voltage);
 
 #endif
