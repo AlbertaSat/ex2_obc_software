@@ -31,18 +31,12 @@
  * 		The panel that we want to retrieve data from 
  * @param channel
  * 		voltage channel corresponding to that panel
- * @param temp
- * 		The temperature in celcius
- * @param pd
- *      
- * @param voltage
- *      The voltage in mV
- * @param current
- *      The current in mA
+ * @param param
+ * 		The value that corresponds to each panel and channel
  * @return
  * 		void
  */
-void hyperion_config_1_value(config_1_panel_t panel, config_1_channel_type_t channel, float* temp, float* pd, float* voltage, float* current) {
+void hyperion_config_1_value(config_1_panel_t panel, config_1_channel_type_t channel, float* param) {
     unsigned short data = 0;
     unsigned char ch = 0; // channel
     uint8_t slave_addr = 0;
@@ -80,49 +74,49 @@ void hyperion_config_1_value(config_1_panel_t panel, config_1_channel_type_t cha
     case CONFIG_1_CHANNEL_TEMP_1:
         adc_init(slave_addr, 1 << 7);
         adc_get_raw(slave_addr, &data, &ch);
-        *temp = adc_calculate_sensor_temp(&data, ADC_VREF);
+        *param = adc_calculate_sensor_temp(&data, ADC_VREF);
         break;
 
     case CONFIG_1_CHANNEL_TEMP_2:
         adc_init(slave_addr, 1 << 6);
         adc_get_raw(slave_addr, &data, &ch);
-        *temp = adc_calculate_sensor_temp(&data, ADC_VREF);
+        *param = adc_calculate_sensor_temp(&data, ADC_VREF);
         break;
 
     case CONFIG_1_CHANNEL_TEMP_3:
         adc_init(slave_addr, 1 << 5);
         adc_get_raw(slave_addr, &data, &ch);
-        *temp = adc_calculate_sensor_temp(&data, ADC_VREF);
+        *param = adc_calculate_sensor_temp(&data, ADC_VREF);
         break;
 
     case CONFIG_1_CHANNEL_PD_1:
         adc_init(slave_addr, 1 << 4);
         adc_get_raw(slave_addr, &data, &ch);
-        *pd = adc_calculate_sensor_pd(&data, ADC_VREF);
+        *param = adc_calculate_sensor_pd(&data, ADC_VREF);
         break;
 
     case CONFIG_1_CHANNEL_PD_2:
         adc_init(slave_addr, 1 << 3);
         adc_get_raw(slave_addr, &data, &ch);
-        *pd = adc_calculate_sensor_pd(&data, ADC_VREF);
+        *param = adc_calculate_sensor_pd(&data, ADC_VREF);
         break;
 
     case CONFIG_1_CHANNEL_PD_3:
         adc_init(slave_addr, 1 << 2);
         adc_get_raw(slave_addr, &data, &ch);
-        *pd = adc_calculate_sensor_pd(&data, ADC_VREF);
+        *param = adc_calculate_sensor_pd(&data, ADC_VREF);
         break;
 
     case CONFIG_1_CHANNEL_VOLT:
         adc_init(slave_addr, 1 << 1);
         adc_get_raw(slave_addr, &data, &ch);
-        *voltage = adc_calculate_sensor_voltage(&data, ADC_VREF);
+        *param = adc_calculate_sensor_voltage(&data, ADC_VREF);
         break;
 
     case CONFIG_1_CHANNEL_CURR:
         adc_init(slave_addr, 1 << 0);
         adc_get_raw(slave_addr, &data, &ch);
-        *current = adc_calculate_sensor_current(&data, ADC_VREF);
+        *param = adc_calculate_sensor_current(&data, ADC_VREF);
         break;
 
     default:
@@ -143,14 +137,12 @@ void hyperion_config_1_value(config_1_panel_t panel, config_1_channel_type_t cha
  * 		The panel that we want to retrieve data from 
  * @param channel
  * 		voltage channel corresponding to that panel
- * @param temp
- * 		The temperature in celcius
- * @param pd
- *      
+ * @param param
+ * 		The value that corresponds to each panel and channel
  * @return
  * 		void
  */
-void hyperion_config_2_value(config_2_panel_t panel, config_2_channel_type_t channel, float* temp, float* pd) {
+void hyperion_config_2_value(config_2_panel_t panel, config_2_channel_type_t channel, float* param) {
     unsigned short data = 0;
     unsigned char ch = 0; // channel
     uint8_t slave_addr = 0;
@@ -178,13 +170,13 @@ void hyperion_config_2_value(config_2_panel_t panel, config_2_channel_type_t cha
     case CONFIG_2_CHANNEL_TEMP_1:
         adc_init(slave_addr, 1 << 7);
         adc_get_raw(slave_addr, &data, &ch);
-        *temp = adc_calculate_sensor_temp(&data, ADC_VREF);
+        *param = adc_calculate_sensor_temp(&data, ADC_VREF);
         break;
 
     case CONFIG_2_CHANNEL_PD_1:
         adc_init(slave_addr, 1 << 6);
         adc_get_raw(slave_addr, &data, &ch);
-        *pd = adc_calculate_sensor_pd(&data, ADC_VREF);
+        *param = adc_calculate_sensor_pd(&data, ADC_VREF);
         break;
 
     default:
@@ -204,18 +196,12 @@ void hyperion_config_2_value(config_2_panel_t panel, config_2_channel_type_t cha
  * 		The panel that we want to retrieve data from 
  * @param channel
  * 		voltage channel corresponding to that panel
- * @param temp
- * 		The temperature in celcius
- * @param pd
- *      
- * @param voltage
- *      The voltage in mV
- * @param current
- *      The current in mA
+ * @param param
+ * 		The value that corresponds to each panel and channel
  * @return
  * 		void
  */
- void hyperion_config_3_value(config_3_panel_t panel, config_3_channel_type_t channel, float* temp, float* pd, float* voltage, float* current) {
+ void hyperion_config_3_value(config_3_panel_t panel, config_3_channel_type_t channel, float* param) {
     unsigned short data = 0;
     unsigned char ch = 0; // channel
     uint8_t slave_addr = 0;
@@ -251,37 +237,37 @@ void hyperion_config_2_value(config_2_panel_t panel, config_2_channel_type_t cha
     case CONFIG_3_CHANNEL_TEMP_1:
         adc_init(slave_addr, 1 << 7);
         adc_get_raw(slave_addr, &data, &ch);
-        *temp = adc_calculate_sensor_temp(&data, ADC_VREF);
+        *param = adc_calculate_sensor_temp(&data, ADC_VREF);
         break;
 
     case CONFIG_3_CHANNEL_TEMP_2:
         adc_init(slave_addr, 1 << 6);
         adc_get_raw(slave_addr, &data, &ch);
-        *temp = adc_calculate_sensor_temp(&data, ADC_VREF);
+        *param = adc_calculate_sensor_temp(&data, ADC_VREF);
         break;
 
     case CONFIG_3_CHANNEL_PD_1:
         adc_init(slave_addr, 1 << 5);
         adc_get_raw(slave_addr, &data, &ch);
-        *pd = adc_calculate_sensor_pd(&data, ADC_VREF);
+        *param = adc_calculate_sensor_pd(&data, ADC_VREF);
         break;
 
     case CONFIG_3_CHANNEL_PD_2:
         adc_init(slave_addr, 1 << 4);
         adc_get_raw(slave_addr, &data, &ch);
-        *pd = adc_calculate_sensor_pd(&data, ADC_VREF);
+        *param = adc_calculate_sensor_pd(&data, ADC_VREF);
         break;
 
     case CONFIG_3_CHANNEL_VOLT:
         adc_init(slave_addr, 1 << 3);
         adc_get_raw(slave_addr, &data, &ch);
-        *voltage = adc_calculate_sensor_voltage(&data, ADC_VREF);
+        *param = adc_calculate_sensor_voltage(&data, ADC_VREF);
         break;
 
     case CONFIG_3_CHANNEL_CURR:
         adc_init(slave_addr, 1 << 2);
         adc_get_raw(slave_addr, &data, &ch);
-        *current = adc_calculate_sensor_current(&data, ADC_VREF);
+        *param = adc_calculate_sensor_current(&data, ADC_VREF);
         break;
     
     default:
