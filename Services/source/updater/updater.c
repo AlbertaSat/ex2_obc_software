@@ -12,7 +12,7 @@
 #include "services.h"
 #include "redposix.h"
 #include "bl_eeprom.h"
-#include "application_defined_privileged_functions.h"
+#include "privileged_functions.h"
 
 // returns the size of the buffer it managed to allocate
 uint32_t get_buffer(uint8_t *buf) {
