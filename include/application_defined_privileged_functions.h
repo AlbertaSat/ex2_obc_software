@@ -27,7 +27,6 @@
 #include "bl_eeprom.h"
 #include "bl_flash.h"
 
-
 void reboot_system_(char reboot_type) {
     RAISE_PRIVILEGE;
     eeprom_init();
@@ -108,7 +107,5 @@ uint32_t priv_Fapi_BlockProgram_( uint32_t Bank, uint32_t Flash_Address, uint32_
     RESET_PRIVILEGE;
     return ret;
 }
-
-
 
 #endif /* INCLUDE_APPLICATION_DEFINED_PRIVILEGED_FUNCTIONS_H_ */
