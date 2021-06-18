@@ -25,6 +25,7 @@
 #include "FreeRTOS.h"
 #include "HL_reg_system.h"
 #include "bl_eeprom.h"
+#include "bl_flash.h"
 
 
 void reboot_system_(char reboot_type) {
@@ -91,6 +92,23 @@ void priv_eeprom_set_golden_info_(image_info app_info) {
     eeprom_set_golden_info(app_info);
     RESET_PRIVILEGE;
 }
+
+inline uint32_t priv_Fapi_BlockErase_(uint32_t ulAddr, uint32_t Size) {
+    RAISE_PRIVILEGE;
+    uint32_t ret;
+    ret = Fapi_BlockErase(ulAddr, Size);
+    RESET_PRIVILEGE;
+    return ret;
+}
+
+uint32_t priv_Fapi_BlockProgram_( uint32_t Bank, uint32_t Flash_Address, uint32_t Data_Address, uint32_t SizeInBytes){
+    RAISE_PRIVILEGE;
+    uint32_t ret;
+    ret = Fapi_BlockProgram(Bank, Flash_Address, Data_Address, SizeInBytes);
+    RESET_PRIVILEGE;
+    return ret;
+}
+
 
 
 #endif /* INCLUDE_APPLICATION_DEFINED_PRIVILEGED_FUNCTIONS_H_ */

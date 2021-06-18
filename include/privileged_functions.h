@@ -37,4 +37,6 @@ inline image_info priv_eeprom_get_app_info();
 inline image_info priv_eeprom_get_golden_info();
 inline void priv_eeprom_set_app_info(image_info app_info);
 inline void priv_eeprom_set_golden_info(image_info app_info);
+inline uint32_t priv_Fapi_BlockErase(uint32_t ulAddr, uint32_t Size);
+inline uint32_t priv_Fapi_BlockProgram( uint32_t Bank, uint32_t Flash_Address, uint32_t Data_Address, uint32_t SizeInBytes);
 #endif /* INCLUDE_PRIVILEGED_FUNCTIONS_H_ */
