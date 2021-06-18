@@ -1,7 +1,4 @@
 #include "updater/updater.h"
-#include "bl_eeprom.h"
-#include "bl_flash.h"
-
 #include <FreeRTOS.h>
 #include <os_task.h>
 
@@ -12,12 +9,13 @@
 #include "services.h"
 #include "redposix.h"
 #include "bl_eeprom.h"
+#include "bl_flash.h"
 #include "privileged_functions.h"
 
 // returns the size of the buffer it managed to allocate
 uint32_t get_buffer(uint8_t *buf) {
     buf = NULL;
-    uint32_t attempts[] = {2048, 1024, 512, 256, 128, 64, 32, 16, 8};
+    uint32_t attempts[] = {4096, 2048, 1024, 512, 256, 128, 64, 32, 16, 8};
     int i;
     for (i = 0; i < sizeof(attempts) / sizeof(uint32_t); i++) {
         buf = (uint8_t *)pvPortMalloc(attempts[i]);
@@ -32,39 +30,45 @@ SAT_returnState updater_app(csp_packet_t *packet) {
     uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
     int32_t fp;
     int8_t status;
-    uint8_t *buf = NULL;
+    uint8_t *buf = "Hello worldddddddd";
     image_info app_info;
 
     switch (ser_subtype) {
       case FLASH_UPDATE:
-          fp = red_open("application_image.bin", RED_O_RDONLY);
+          fp = red_open("/application_image.bin", RED_O_RDONLY);
           if (fp == -1) {
               status = -1; break;
           }
+          uint8_t test;
+          red_read(fp, &test, 1);
           REDSTAT file_info;
-          if (!red_fstat(fp, &file_info)) {
+          int res = red_fstat(fp, &file_info);
+          if (res == -1) {
+              int err = red_errno;
               status = -1; break;
           }
           if (!init_eeprom()) {
               status = -1; break;
           }
-          app_info = eeprom_get_app_info();
+
+          app_info = priv_eeprom_get_app_info();
           if (!BLInternalFlashStartAddrCheck(app_info.addr, (uint32_t)file_info.st_size)){
               status = -1; break;
           }
+
           uint8_t oReturnCheck = 0;
-          oReturnCheck = Fapi_BlockErase(app_info.addr, (uint32_t)file_info.st_size);
+          oReturnCheck = priv_Fapi_BlockErase(app_info.addr, (uint32_t)file_info.st_size);
           if (oReturnCheck) {
               status = -1; break;
           }
           uint32_t flash_destination = app_info.addr;
           uint32_t flash_size = get_buffer(buf); // returns the size
-          uint32_t bytes_read;
+          uint32_t bytes_read = 8;
           while((bytes_read = red_read(fp, buf, flash_size)) > 0) {
               if (bytes_read < flash_size) {
                   flash_size = bytes_read;
               }
-              oReturnCheck = Fapi_BlockProgram(1, flash_destination, (unsigned long)buf, flash_size);
+              oReturnCheck = priv_Fapi_BlockProgram(1, flash_destination, (unsigned long)buf, flash_size);
               if (oReturnCheck) {
                   status = -1; break;
               }
