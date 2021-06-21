@@ -25,6 +25,7 @@
 
 #include "sband.h"
 #include "services.h"
+#include <csp/csp_endian.h>
 
 // For storing the set data
 static Sband_config S_config_reg;
