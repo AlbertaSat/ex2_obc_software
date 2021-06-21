@@ -13,7 +13,7 @@
 
 const VOLCONF gaRedVolConf[REDCONF_VOLUME_COUNT] =
 {
-    { 512U, 4000U, 0U, false, 100U, 3U, "VOL0:" } //only formatting ~4000 sectors
+    { 512U, 3717120U, 0U, false, 10000U, 3U, "" } //SD card is 3717120U sectors according to fdisk
 
     //Sector size, number of sectors, sector offset, atomic sector write, inode (file and directory) count, number of block retries, path prefix for volume
 };
