@@ -329,6 +329,7 @@ SDRESULTS SD_Init(SD_DEV *dev)
         dev->cardtype = ct;
         dev->mount = TRUE;
         dev->last_sector = __SD_Sectors(dev) - 1;
+        dev->last_sector = 3717120;
 #ifdef SD_IO_DBG_COUNT
         dev->debug.read = 0;
         dev->debug.write = 0;
