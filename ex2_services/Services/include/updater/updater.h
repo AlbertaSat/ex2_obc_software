@@ -30,10 +30,11 @@ typedef enum {
     FLASH_UPDATE,
     GET_GOLDEN_INFO,
     GET_APP_INFO,
-    SET_GOLDEN_INFO,
-    SET_APP_INFO,
-    VERIFY_GOLDEN_IMAGE,
-    VERIFY_APPLICATION_IMAGE
+    SET_APP_ADDRESS,
+    SET_APP_CRC,
+    ERASE_APP,
+    VERIFY_APPLICATION_IMAGE,
+    VERIFY_GOLDEN_IMAGE
 } updater_subtype;  // shared with EPS!
 
 #endif /* UPDATER_H_ */

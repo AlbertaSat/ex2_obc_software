@@ -12,14 +12,16 @@
 #include "bl_flash.h"
 #include "privileged_functions.h"
 
+#define GOLDEN_IMAGE
+
 // returns the size of the buffer it managed to allocate
-uint32_t get_buffer(uint8_t *buf) {
-    buf = NULL;
+uint32_t get_buffer(void **buf) {
+    *buf = NULL;
     uint32_t attempts[] = {4096, 2048, 1024, 512, 256, 128, 64, 32, 16, 8};
     int i;
     for (i = 0; i < sizeof(attempts) / sizeof(uint32_t); i++) {
-        buf = (uint8_t *)pvPortMalloc(attempts[i]);
-        if (buf != NULL) {
+        *buf = pvPortMalloc(attempts[i]);
+        if (*buf != NULL) {
             return attempts[i];
         }
     }
@@ -30,27 +32,33 @@ SAT_returnState updater_app(csp_packet_t *packet) {
     uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
     int32_t fp;
     int8_t status;
-    uint8_t *buf = "Hello worldddddddd";
     image_info app_info;
+    uint32_t address;
+    uint16_t crc;
+    uint8_t *buf;
 
     switch (ser_subtype) {
       case FLASH_UPDATE:
-          fp = red_open("/application_image.bin", RED_O_RDONLY);
+#ifdef GOLDEN_IMAGE
+          fp = red_open("VOL0:/application_image.bin", RED_O_RDONLY);
           if (fp == -1) {
               status = -1; break;
           }
-          uint8_t test;
-          red_read(fp, &test, 1);
           REDSTAT file_info;
           int res = red_fstat(fp, &file_info);
           if (res == -1) {
               int err = red_errno;
               status = -1; break;
           }
-          if (!init_eeprom()) {
+          if (!init_eeprom_()) {
               status = -1; break;
           }
-
+          image_info inf = priv_eeprom_get_app_info();
+          inf.addr = 0x00200000;
+          inf.crc = 1234;
+          inf.size = 5678;
+          inf.exists = 9876;
+          priv_eeprom_set_app_info(inf);
           app_info = priv_eeprom_get_app_info();
           if (!BLInternalFlashStartAddrCheck(app_info.addr, (uint32_t)file_info.st_size)){
               status = -1; break;
@@ -62,19 +70,23 @@ SAT_returnState updater_app(csp_packet_t *packet) {
               status = -1; break;
           }
           uint32_t flash_destination = app_info.addr;
-          uint32_t flash_size = get_buffer(buf); // returns the size
-          uint32_t bytes_read = 8;
-          while((bytes_read = red_read(fp, buf, flash_size)) > 0) {
-              if (bytes_read < flash_size) {
-                  flash_size = bytes_read;
-              }
-              oReturnCheck = priv_Fapi_BlockProgram(1, flash_destination, (unsigned long)buf, flash_size);
-              if (oReturnCheck) {
-                  status = -1; break;
-              }
-              flash_destination += flash_size;
+          uint32_t flash_size = get_buffer(&buf); // returns the size
+          int32_t bytes_read;
+          bytes_read = red_read(fp, buf, flash_size);
+          if (bytes_read < flash_size) {
+              flash_size = bytes_read;
           }
+          oReturnCheck = priv_Fapi_BlockProgram(1, flash_destination, (unsigned long)buf, flash_size);
+          if (oReturnCheck) {
+              status = -1; break;
+          }
+          flash_destination += flash_size;
+
           status = 0;
+#else
+          ex2_log("FAILED Attempt to flash from non golden image");
+          status = -1;
+#endif
           break;
 
       case GET_GOLDEN_INFO:
@@ -97,17 +109,60 @@ SAT_returnState updater_app(csp_packet_t *packet) {
           set_packet_length(packet, sizeof(int8_t)+sizeof(app_info) + 1);
           break;
 
+      case SET_APP_ADDRESS:
+#ifdef GOLDEN_IMAGE
+          memcpy(&packet->data[IN_DATA_BYTE], &address, sizeof(address));
+          image_info app_info = priv_eeprom_get_app_info();
+          app_info.addr = address;
+          priv_eeprom_set_app_info(app_info);
+          set_packet_length(packet, sizeof(int8_t) + 1);
+          status = 0;
+#else
+          status = -1;
+          ex2_log("FAILED attempt to set application addr from non golden image");
+#endif
+          break;
 
-      case SET_GOLDEN_INFO:
-          memcpy(&packet->data[IN_DATA_BYTE], &app_info, sizeof(app_info));
-          priv_eeprom_set_golden_info(app_info);
+      case SET_APP_CRC:
+#ifdef GOLDEN_IMAGE
+          memcpy(&packet->data[IN_DATA_BYTE], &crc, sizeof(crc));
+          app_info = priv_eeprom_get_app_info();
+          app_info.crc = crc;
+          priv_eeprom_set_app_info(app_info);
+          set_packet_length(packet, sizeof(int8_t) + 1);
+          status = 0;
+#else
+          status = -1;
+          ex2_log("FAILED attempt to set application crc from non golden image");
+#endif
+          break;
+
+      case ERASE_APP:
+#ifdef GOLDEN_IMAGE
+          app_info = priv_eeprom_get_app_info();
+          app_info.exists = 0;
+          priv_eeprom_set_app_info(app_info);
+          status = 0;
+#else
+          status = -1;
+          ex2_log("FAILED attempt to erase application from non golden image");
+#endif
+          break;
+
+      case VERIFY_APPLICATION_IMAGE:
+          if (verify_application() != true) {
+              status = -1;
+              break;
+          }init_eeprom_
           set_packet_length(packet, sizeof(int8_t) + 1);
           status = 0;
           break;
 
-      case SET_APP_INFO:
-          memcpy(&packet->data[IN_DATA_BYTE], &app_info, sizeof(app_info));
-          priv_eeprom_set_app_info(app_info);
+      case VERIFY_GOLDEN_IMAGE:
+          if (verify_golden() != true) {
+              status = -1;
+              break;
+          }
           set_packet_length(packet, sizeof(int8_t) + 1);
           status = 0;
           break;
@@ -117,7 +172,11 @@ SAT_returnState updater_app(csp_packet_t *packet) {
         shutdown_eeprom();
         return SATR_PKT_ILLEGAL_SUBSERVICE;
     }
-    shutdown_eeprom();
+
+    if (status == -1) {
+        set_packet_length(packet, sizeof(int8_t) + 1);
+    }
+    shutdown_eeprom_();
     memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
     return SATR_OK;
 }
