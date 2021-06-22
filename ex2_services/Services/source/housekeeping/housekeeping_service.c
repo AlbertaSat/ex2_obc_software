@@ -414,7 +414,6 @@ static inline void prv_give_lock(SemaphoreHandle_t *lock) {
  *      enum for SUCCESS or FAILURE
  */
 Result populate_and_store_hk_data(void) {
-  printf("start hk time\n");
   All_systems_housekeeping temp_hk_data;
   
   /*
@@ -447,7 +446,6 @@ Result populate_and_store_hk_data(void) {
     prv_give_lock(&f_count_lock); //unlock
     return FAILURE;
   }
-  printf("file: %s\n", filename);
 
   if (dynamic_timestamp_array_handler(MAX_FILES) == SUCCESS) {
     timestamps[current_file] = temp_hk_data.hk_timeorder.UNIXtimestamp;
@@ -461,7 +459,6 @@ Result populate_and_store_hk_data(void) {
   }
   prv_give_lock(&f_count_lock); //unlock
   vPortFree(filename); // No memory leaks here
-  printf("end hk time\n");
   return SUCCESS;
 }
 
@@ -486,7 +483,6 @@ Result load_historic_hk_data(uint16_t file_num, All_systems_housekeeping* all_hk
     return FAILURE;
   }
   snprintf(filename, length, "%s%hu%s", base_file, file_num, extension);
-  printf("fetching file: %s\n", filename);
   if(read_hk_from_file(filename, all_hk_data) != SUCCESS) {
     ex2_log("Housekeeping data could not be retrieved\n");
     vPortFree(filename); // No memory leaks here
@@ -625,7 +621,6 @@ void hex_dump(char *stuff, int size){
  */
 Result fetch_historic_hk_and_transmit(csp_conn_t *conn, uint16_t limit, uint16_t before_id, uint32_t before_time) {
   prv_get_lock(&f_count_lock);
-  printf("limit: %u, before_id: %u, before_time: %u\n", limit, before_id, before_time);
   uint16_t locked_max = MAX_FILES;
   uint16_t locked_before_id = before_id;
   uint32_t locked_before_time = before_time;
@@ -701,7 +696,6 @@ Result fetch_historic_hk_and_transmit(csp_conn_t *conn, uint16_t limit, uint16_t
       csp_buffer_free(packet);
       return FAILURE;
     }
-    printf("sent hk report\n");
     limit--;
   }
   return SUCCESS;
@@ -763,9 +757,6 @@ SAT_returnState hk_service_app(csp_conn_t *conn, csp_packet_t *packet) {
       break;
 
     case GET_HK:
-      //limit = (uint16_t)packet->data[IN_DATA_BYTE];
-      //before_id = (uint16_t)packet->data[IN_DATA_BYTE + 2];
-      //before_time = (uint32_t)packet->data[IN_DATA_BYTE + 4];
       data16 = (uint16_t *)(packet->data + 1);
       limit = data16[0];
       before_id = data16[1];
@@ -812,16 +803,6 @@ void housekeeping_service(void * param) {
           continue;
         }
         while ((packet = csp_read(conn, 50)) != NULL) {
-          /*
-          if (hk_service_app(packet) != SATR_OK) {
-            // something went wrong, this shouldn't happen
-            csp_buffer_free(packet);
-          } else {
-              if (!csp_send(conn, packet, 50)) {
-                  csp_buffer_free(packet);
-              }
-          }
-          */
           if (hk_service_app(conn, packet) != SATR_OK) {
             ex2_log("Error responding to packet");
           }
