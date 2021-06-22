@@ -153,7 +153,7 @@ SAT_returnState updater_app(csp_packet_t *packet) {
           if (verify_application() != true) {
               status = -1;
               break;
-          }init_eeprom_
+          }
           set_packet_length(packet, sizeof(int8_t) + 1);
           status = 0;
           break;
