@@ -517,35 +517,36 @@ Result set_max_files(uint16_t new_max) {
   //ensure value set before cleanup
   uint16_t old_max = MAX_FILES;
   MAX_FILES = new_max;
-  current_file = 1;
-
+  
   prv_give_lock(&f_count_lock); //unlock
   
-  if (old_max < new_max) return SUCCESS;
+  if (old_max < new_max){
+    return SUCCESS;
+  }
 
+  current_file = 1;
   //Cleanup files code if number of files has been reduced
   uint16_t length = strlen(base_file) + num_digits(old_max) + 
   strlen(extension) + 1;
   char * filename = pvPortMalloc(length); // + 1 for NULL terminator
-
   if(!filename) {
     ex2_log("Error, failed to malloc %hu bytes\n", length);
     return FAILURE;
   }
-
   if (dynamic_timestamp_array_handler(new_max) != SUCCESS){
     vPortFree(filename);
     return FAILURE;
   }
-
   Result result = SUCCESS;
   uint16_t i = 0;
   for (i = 1; i <= old_max; i++) {
     snprintf(filename, length, "%s%hu%s", base_file, i, extension);
     if (exists(filename) == FILE_EXISTS) {
-      if (!red_unlink(filename) && i > new_max){
-        ex2_log("Error, file %s has been orphaned\n", filename);
-        result = FAILURE;
+      if (red_unlink(filename) == -1){
+        if (i > new_max) {
+          ex2_log("Error, file %s has been orphaned\n", filename);
+          result = FAILURE;
+        }
       }
     }
   }
