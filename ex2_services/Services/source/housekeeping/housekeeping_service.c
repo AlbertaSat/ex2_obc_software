@@ -32,6 +32,8 @@
 
 #include <redposix.h> //include for file system 
 
+#include "rtcmk.h" //to get time from RTC
+
 #include "util/service_utilities.h"
 #include "services.h"
 
@@ -40,8 +42,8 @@
   naming convention becomes base_file + current_file + extension
   e.g. tempHKdata134.TMP
 */
-uint16_t MAX_FILES = 5; //testing value. will be set to approximately 20160 (7 days)
-char base_file[] = "VOL0:/tempHKdata"; //path may need to be changed
+uint16_t MAX_FILES = 19; //testing value. will be set to approximately 20160 (7 days)
+char base_file[] = "tempHKdata"; //path may need to be changed
 char extension[] = ".TMP";
 uint16_t current_file = 1;  //Increments after file write. loops back at MAX_FILES
                             //1 indexed
@@ -64,9 +66,10 @@ SemaphoreHandle_t f_count_lock = NULL;
 uint16_t get_file_id_from_timestamp(uint32_t timestamp) {
   uint32_t threshold = 15; //How many seconds timestamps need to be within. Currently assumes 30 second hk intervals
   //perform leftmost binary search
-  uint16_t left;
-  uint16_t right;
-  uint16_t middle;
+  uint32_t left;
+  uint32_t right;
+  uint32_t middle;
+  uint32_t offset = 0;
   if(timestamps == NULL) {
     return 0;
   }
@@ -81,17 +84,18 @@ uint16_t get_file_id_from_timestamp(uint32_t timestamp) {
     //These accomodate circular structure
     left = current_file;
     right = left + hk_timestamp_array_size - 1;
+    offset = current_file - 1;
   }
 
   while (left < right) {
     middle = (left + right) / 2;
-    if (timestamps[middle - (current_file - 1)] < timestamp) {
+    if (timestamps[middle - offset] < timestamp) {
       left = middle + 1;
     } else {
       right = middle;
     }
   }
-  uint16_t true_position = left - (current_file - 1);
+  uint32_t true_position = left - offset;
   if (true_position > 1) {
     if (timestamp - timestamps[true_position - 1] <= threshold) { //check lower neighbour if exists
       return true_position - 1;
@@ -155,6 +159,104 @@ Result dynamic_timestamp_array_handler(uint16_t num_items) {
   return SUCCESS;
 }
 
+//temp function for testing. not for final project build
+int32_t temp = 0;
+uint32_t tempTime = 1000;
+Result mock_everyone(All_systems_housekeeping* all_hk_data) {
+  //universal temps
+  long tempLong = (long)temp;
+  uint8_t tempu8 = (uint8_t)temp;
+  int8_t temp8 = (int8_t)temp;
+  double tempDouble = (temp * 1.0);
+  uint16_t tempu16 = (uint16_t)temp;
+  uint32_t tempu32 = (uint32_t)temp; 
+  float tempFloat = (temp * 1.0);
+
+  //Packet meta
+  all_hk_data->hk_timeorder.UNIXtimestamp = tempTime;
+
+
+  //Athena
+  uint8_t i;
+  for (i = 0; i < 6; i++) {
+    all_hk_data->Athena_hk.temparray[i] = tempLong;
+  }
+
+  //EPS
+  all_hk_data->EPS_hk.cmd = tempu8;
+  all_hk_data->EPS_hk.status = temp8;
+  all_hk_data->EPS_hk.timestampInS = tempDouble;
+  all_hk_data->EPS_hk.uptimeInS = tempu32;
+  all_hk_data->EPS_hk.bootCnt = tempu32;
+  all_hk_data->EPS_hk.wdt_gs_time_left = tempu32;
+  all_hk_data->EPS_hk.wdt_gs_counter = tempu32;
+  all_hk_data->EPS_hk.vBatt = tempu16;
+  all_hk_data->EPS_hk.curSolar = tempu16;
+  all_hk_data->EPS_hk.curBattIn = tempu16;
+  all_hk_data->EPS_hk.curBattOut = tempu16;
+  all_hk_data->EPS_hk.outputConverterState = tempu8;
+  all_hk_data->EPS_hk.outputStatus = tempu32;
+  all_hk_data->EPS_hk.outputFaultStatus = tempu32;
+  all_hk_data->EPS_hk.protectedOutputAccessCnt = tempu16;
+  all_hk_data->EPS_hk.battMode = tempu8;
+  all_hk_data->EPS_hk.mpptMode = tempu8;
+  all_hk_data->EPS_hk.batHeaterMode = tempu8;
+  all_hk_data->EPS_hk.batHeaterState = tempu8;
+  all_hk_data->EPS_hk.PingWdt_toggles = tempu16;
+  all_hk_data->EPS_hk.PingWdt_turnOffs = tempu8;
+
+  for (i = 0; i < 2;  i++) {
+      all_hk_data->EPS_hk.AOcurOutput[i] = tempu16;
+  }
+  for (i = 0; i < 4;  i++) {
+      all_hk_data->EPS_hk.mpptConverterVoltage[i] = tempu16;
+  }
+  for (i = 0; i < 8;  i++) {
+      all_hk_data->EPS_hk.curSolarPanels[i] = tempu16;
+      all_hk_data->EPS_hk.OutputConverterVoltage[i] = tempu16;
+  }
+  for (i = 0; i < 18; i++) {
+      all_hk_data->EPS_hk.curOutput[i] = tempu16;
+      all_hk_data->EPS_hk.outputOnDelta[i] = tempu16;
+      all_hk_data->EPS_hk.outputOffDelta[i] = tempu16;
+      all_hk_data->EPS_hk.outputFaultCnt[i] = tempu8;
+  }
+  for (i = 0; i < 14; i++) {
+      all_hk_data->EPS_hk.temp[i] = temp8;
+  }
+
+  //UHF
+  all_hk_data->UHF_hk.freq = tempu32;
+  all_hk_data->UHF_hk.pipe_t = tempu32;
+  all_hk_data->UHF_hk.beacon_t = tempu32;
+  all_hk_data->UHF_hk.audio_t = tempu32;
+  all_hk_data->UHF_hk.uptime = tempu32;
+  all_hk_data->UHF_hk.pckts_out = tempu32;
+  all_hk_data->UHF_hk.pckts_in = tempu32;
+  all_hk_data->UHF_hk.pckts_in_crc16 = tempu32;
+  all_hk_data->UHF_hk.temperature = tempFloat;
+  all_hk_data->UHF_hk.low_pwr_stat = tempu8;
+  all_hk_data->UHF_hk.payload_size = tempu16;
+  all_hk_data->UHF_hk.secure_key = tempu32;
+
+  for (i = 0; i < SCW_LEN;  i++) {
+    all_hk_data->UHF_hk.scw[i] = tempu8;
+  }
+
+  //Sband
+  all_hk_data->S_band_hk.Output_Power = tempFloat;
+  all_hk_data->S_band_hk.PA_Temp = tempFloat;
+  all_hk_data->S_band_hk.Top_Temp = tempFloat;
+  all_hk_data->S_band_hk.Bottom_Temp = tempFloat;
+  all_hk_data->S_band_hk.Bat_Current = tempFloat;
+  all_hk_data->S_band_hk.Bat_Voltage = tempFloat;
+  all_hk_data->S_band_hk.PA_Current = tempFloat;
+  all_hk_data->S_band_hk.PA_Voltage = tempFloat;
+
+  temp++;
+  tempTime += 30;
+  return SUCCESS;
+}
 
 
 /**
@@ -191,15 +293,13 @@ Result collect_hk_from_devices(All_systems_housekeeping* all_hk_data) {
  */
 Found_file exists(const char *filename){
     int32_t file;
-    if (file = red_open(filename, RED_O_CREAT | RED_O_EXCL) == -1){ //open file to read binary
-        if (red_errno == RED_EEXIST) {
-          red_close(file);
-          return FILE_EXISTS;
-        }
-        
+    red_errno = 0;
+    file = red_open(filename, RED_O_CREAT | RED_O_EXCL | RED_O_RDWR); //attempt to create file
+    if (red_errno == RED_EEXIST){ //does file already exist?
+        return FILE_EXISTS;   
     }
-    red_close(file);
-    red_unlink(filename);
+    red_close(file); //didn't exist. was created. now close it
+    red_unlink(filename); //delete file. file creation would be a side affect
     return FILE_NOT_EXIST;
 }
 
@@ -269,7 +369,7 @@ Result read_hk_from_file(const char *filename, All_systems_housekeeping* all_hk_
   /*The order of writes and subsequent reads must match*/
   //TODO:
   //red_read(fin, &all_hk_data->ADCS_hk, sizeof(all_hk_data->ADCS_hk));
-  red_read(fin, &all_hk_data->hk_timeorder, sizeof(all_hk_data->hk_timeorder));
+  int32_t amount = red_read(fin, &all_hk_data->hk_timeorder, sizeof(all_hk_data->hk_timeorder));
   red_read(fin, &all_hk_data->Athena_hk, sizeof(all_hk_data->Athena_hk));
   red_read(fin, &all_hk_data->EPS_hk, sizeof(all_hk_data->EPS_hk));
   red_read(fin, &all_hk_data->UHF_hk, sizeof(all_hk_data->UHF_hk));
@@ -314,15 +414,20 @@ static inline void prv_give_lock(SemaphoreHandle_t *lock) {
  *      enum for SUCCESS or FAILURE
  */
 Result populate_and_store_hk_data(void) {
+  printf("start hk time\n");
   All_systems_housekeeping temp_hk_data;
   
+  /*
   if(collect_hk_from_devices(&temp_hk_data) == FAILURE) {
     ex2_log("Error collecting hk data from peripherals\n");
   }
-  
+  */
+  //TEMP mock hk
+  mock_everyone(&temp_hk_data); //not permanent
 
-  //Not sure if time works like a normal machine but can be changed
-  temp_hk_data.hk_timeorder.UNIXtimestamp = (uint32_t)time(NULL); //set creation time to now
+ 
+  //RTC_get_unix_time(&temp_hk_data.hk_timeorder.UNIXtimestamp);
+  
   prv_get_lock(&f_count_lock); //lock
   temp_hk_data.hk_timeorder.dataPosition = current_file;
 
@@ -334,6 +439,7 @@ Result populate_and_store_hk_data(void) {
     prv_give_lock(&f_count_lock); //unlock
     return FAILURE;
   }
+
   snprintf(filename, length, "%s%hu%s", base_file, current_file, extension);
   if(write_hk_to_file(filename, &temp_hk_data) != SUCCESS) {
     ex2_log("Housekeeping data lost\n");
@@ -341,7 +447,7 @@ Result populate_and_store_hk_data(void) {
     prv_give_lock(&f_count_lock); //unlock
     return FAILURE;
   }
-
+  printf("file: %s\n", filename);
 
   if (dynamic_timestamp_array_handler(MAX_FILES) == SUCCESS) {
     timestamps[current_file] = temp_hk_data.hk_timeorder.UNIXtimestamp;
@@ -355,6 +461,7 @@ Result populate_and_store_hk_data(void) {
   }
   prv_give_lock(&f_count_lock); //unlock
   vPortFree(filename); // No memory leaks here
+  printf("end hk time\n");
   return SUCCESS;
 }
 
@@ -370,7 +477,7 @@ Result populate_and_store_hk_data(void) {
  *      enum for SUCCESS or FAILURE
  */
 Result load_historic_hk_data(uint16_t file_num, All_systems_housekeeping* all_hk_data) {
-  uint16_t length = strlen(base_file) + num_digits(current_file) + 
+  uint16_t length = strlen(base_file) + num_digits(file_num) + 
   strlen(extension) + 1;
   char * filename = pvPortMalloc(length); // + 1 for NULL terminator
 
@@ -378,9 +485,9 @@ Result load_historic_hk_data(uint16_t file_num, All_systems_housekeeping* all_hk
     ex2_log("Error, failed to malloc %hu bytes\n", length);
     return FAILURE;
   }
-  snprintf(filename, length, "%s%hu%s", base_file, current_file, extension);
-
-  if(!read_hk_from_file(filename, all_hk_data)) {
+  snprintf(filename, length, "%s%hu%s", base_file, file_num, extension);
+  printf("fetching file: %s\n", filename);
+  if(read_hk_from_file(filename, all_hk_data) != SUCCESS) {
     ex2_log("Housekeeping data could not be retrieved\n");
     vPortFree(filename); // No memory leaks here
     return FAILURE;
@@ -482,6 +589,25 @@ Result convert_hk_endianness(All_systems_housekeeping* hk){
   return SUCCESS;
 }
 
+//for testing only. do hex dump
+//size is the number of bytes we want to print
+void hex_dump(char *stuff, int size){
+  uint32_t current_packet_index = 0;
+  printf("printing number of bytes: %u\n", size);
+    int j = 0;
+    for (j = 0; j < size; j += 1) {
+      if (stuff[current_packet_index] < 0x10) {
+        printf("0");
+      }
+      printf("%X ", stuff[current_packet_index]);
+      current_packet_index += 1; 
+      if (current_packet_index % 16 == 0) {
+        printf("\n");
+      }
+    }
+    printf("\n");
+}
+
 /**
  * @brief
  *      Paging function to retrieve sets of data so they can be transmitted
@@ -499,7 +625,7 @@ Result convert_hk_endianness(All_systems_housekeeping* hk){
  */
 Result fetch_historic_hk_and_transmit(csp_conn_t *conn, uint16_t limit, uint16_t before_id, uint32_t before_time) {
   prv_get_lock(&f_count_lock);
-
+  printf("limit: %u, before_id: %u, before_time: %u\n", limit, before_id, before_time);
   uint16_t locked_max = MAX_FILES;
   uint16_t locked_before_id = before_id;
   uint32_t locked_before_time = before_time;
@@ -519,7 +645,7 @@ Result fetch_historic_hk_and_transmit(csp_conn_t *conn, uint16_t limit, uint16_t
     ex2_log("Successfully did nothing O_o");
     return SUCCESS;
   }
-
+  All_systems_housekeeping all_hk_data = {0};
   //fetch each appropriate set of data from file
   while (limit > 0) {
     locked_before_id--;
@@ -527,55 +653,57 @@ Result fetch_historic_hk_and_transmit(csp_conn_t *conn, uint16_t limit, uint16_t
     if (locked_before_id == 0) {
       locked_before_id = locked_max;
     }
-    All_systems_housekeeping* all_hk_data = {0};
-    if (load_historic_hk_data(locked_before_id, all_hk_data) != SUCCESS) {
+    
+
+    if (load_historic_hk_data(locked_before_id, &all_hk_data) != SUCCESS) {
       return FAILURE;
     }
-    if (convert_hk_endianness(all_hk_data) != SUCCESS) {
+    if (convert_hk_endianness(&all_hk_data) != SUCCESS) {
       return FAILURE;
     }
     int8_t status = 0;
     
-    //needed_size is currently 354 bytes as of 2021/05/25
+    //needed_size is currently 353 bytes as of 2021/06/17
     //TODO:
     //sizeof(all_hk_data->ADCS_hk) +
-    uint16_t needed_size =  sizeof(all_hk_data->hk_timeorder) + //currently 6U
-                            sizeof(all_hk_data->Athena_hk) +    //currently 24U
-                            sizeof(all_hk_data->EPS_hk) +       //currently 236U
-                            sizeof(all_hk_data->UHF_hk) +       //currently 55U
-                            sizeof(all_hk_data->S_band_hk) +    //currently 32U
-                            1;
-      
-    csp_packet_t *packet = csp_buffer_get(needed_size);
+    uint16_t needed_size =  sizeof(all_hk_data.hk_timeorder) + //currently 6U
+                            sizeof(all_hk_data.Athena_hk) +    //currently 24U
+                            sizeof(all_hk_data.EPS_hk) +       //currently 236U
+                            sizeof(all_hk_data.UHF_hk) +       //currently 55U
+                            sizeof(all_hk_data.S_band_hk) +    //currently 32U
+                            2;
+
+    csp_packet_t *packet = csp_buffer_get((size_t)needed_size);
     uint8_t ser_subtype = GET_HK;
+
     memcpy(&packet->data[SUBSERVICE_BYTE], &ser_subtype, sizeof(int8_t));
+    memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
 
     uint16_t used_size = 0;
-    memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-    memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data->hk_timeorder, sizeof(all_hk_data->hk_timeorder));
-    used_size += sizeof(all_hk_data->hk_timeorder);
+    memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.hk_timeorder, sizeof(all_hk_data.hk_timeorder));
+    used_size += sizeof(all_hk_data.hk_timeorder);
     //TODO:
     //memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data->ADCS_hk, sizeof(all_hk_data->ADCS_hk));
     //used_size += sizeof(all_hk_data->ADCS_hk);
-    memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data->Athena_hk, sizeof(all_hk_data->Athena_hk));
-    used_size += sizeof(all_hk_data->Athena_hk);
-    memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data->EPS_hk, sizeof(all_hk_data->EPS_hk));
-    used_size += sizeof(all_hk_data->EPS_hk);
-    memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data->UHF_hk, sizeof(all_hk_data->UHF_hk));
-    used_size += sizeof(all_hk_data->UHF_hk);
-    memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data->S_band_hk, sizeof(all_hk_data->S_band_hk));
-    used_size += sizeof(all_hk_data->S_band_hk);
-    set_packet_length(packet, used_size + 1);
-    
+    memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.Athena_hk, sizeof(all_hk_data.Athena_hk));
+    used_size += sizeof(all_hk_data.Athena_hk);
+    memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.EPS_hk, sizeof(all_hk_data.EPS_hk));
+    used_size += sizeof(all_hk_data.EPS_hk);
+    memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.UHF_hk, sizeof(all_hk_data.UHF_hk));
+    used_size += sizeof(all_hk_data.UHF_hk);
+    memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.S_band_hk, sizeof(all_hk_data.S_band_hk));
+    used_size += sizeof(all_hk_data.S_band_hk);
+
+    set_packet_length(packet, used_size + 2);
+
     if (!csp_send(conn, packet, 50)) { //why are we all using magic number?
       ex2_log("Failed to send packet");
       csp_buffer_free(packet);
       return FAILURE;
     }
-    csp_buffer_free(packet);
+    printf("sent hk report\n");
     limit--;
   }
-
   return SUCCESS;
 }
 
@@ -593,6 +721,7 @@ SAT_returnState hk_service_app(csp_conn_t *conn, csp_packet_t *packet) {
   uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
   int8_t status;
   uint16_t new_max_files;
+  uint16_t * data16;
   uint16_t limit;
   uint16_t before_id;
   uint32_t before_time;
@@ -634,10 +763,15 @@ SAT_returnState hk_service_app(csp_conn_t *conn, csp_packet_t *packet) {
       break;
 
     case GET_HK:
-      limit = (uint16_t)packet->data16[IN_DATA_BYTE];
-      before_id = (uint16_t)packet->data16[IN_DATA_BYTE + 1];
-      before_time = (uint32_t)packet->data16[IN_DATA_BYTE + 2];
-
+      //limit = (uint16_t)packet->data[IN_DATA_BYTE];
+      //before_id = (uint16_t)packet->data[IN_DATA_BYTE + 2];
+      //before_time = (uint32_t)packet->data[IN_DATA_BYTE + 4];
+      data16 = (uint16_t *)(packet->data + 1);
+      limit = data16[0];
+      before_id = data16[1];
+      before_time = ((uint32_t *)data16)[1];
+      
+      csp_buffer_free(packet);
       if (fetch_historic_hk_and_transmit(conn, limit, before_id, before_time) != SUCCESS) {
         return SATR_ERROR;
       }
@@ -708,7 +842,7 @@ void housekeeping_service(void * param) {
  */
 SAT_returnState start_housekeeping_service(void) {
   if (xTaskCreate((TaskFunction_t)housekeeping_service,
-                  "start_housekeeping_service", 300, NULL, NORMAL_SERVICE_PRIO,
+                  "start_housekeeping_service", 400, NULL, NORMAL_SERVICE_PRIO,
                   NULL) != pdPASS) {
     ex2_log("FAILED TO CREATE TASK start_housekeeping_service\n");
     return SATR_ERROR;
@@ -716,34 +850,3 @@ SAT_returnState start_housekeeping_service(void) {
   ex2_log("Service handlers started\n");
   return SATR_OK;
 }
-
-/*
-static SAT_returnState hk_parameter_report(csp_packet_t *packet);
-
-SAT_returnState hk_service_app(csp_packet_t *packet) {
-  uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
-
-  switch (ser_subtype) {
-    case TM_HK_PARAMETERS_REPORT:
-      if (hk_parameter_report(packet) != SATR_OK) {
-        ex2_log("HK_REPORT_PARAMETERS failed");
-        return SATR_ERROR;
-      }
-      break;
-    default:
-      ex2_log("HK SERVICE NOT FOUND SUBTASK");
-      return SATR_PKT_ILLEGAL_SUBSERVICE;
-  }
-
-  return SATR_OK;
-}
-
-static SAT_returnState hk_parameter_report(csp_packet_t *packet) {
-  size_t size =
-      HAL_hk_report(packet->data[SID_byte], packet->data + SID_byte + 1);
-
-  set_packet_length(packet, size + 2);  // plus one for sub-service + SID
-
-  return SATR_OK;
-}
-*/
