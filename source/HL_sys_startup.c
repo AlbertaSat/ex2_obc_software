@@ -63,9 +63,13 @@
 #include "HL_errata_SSWF021_45.h"
 
 /* USER CODE BEGIN (1) */
+extern unsigned int ramint_LoadSize;
+extern unsigned int ramint_LoadStart;
+extern unsigned int ramint_RunStart;
 /* USER CODE END */
 
 /* USER CODE BEGIN (2) */
+void load(char *load,char *start, unsigned int size);
 /* USER CODE END */
 
 /* External Functions */
@@ -233,6 +237,15 @@ void _c_int00(void)
     
         default:
 /* USER CODE BEGIN (21) */
+            if(rstSrc != POWERON_RESET)
+             {
+                 _memInit_();
+             }
+             _coreEnableEventBusExport_();
+             systemInit();
+             _coreEnableIrqVicOffset_();
+             vimInit();
+             esmInit();
 /* USER CODE END */
         break;
     }
@@ -243,6 +256,8 @@ void _c_int00(void)
     _mpuInit_();
 	
 /* USER CODE BEGIN (23) */
+    _cacheDisable_();
+    load((char *)&ramint_LoadStart, (char *)&ramint_RunStart, (unsigned int)&ramint_LoadSize);
 /* USER CODE END */
 
     _cacheEnable_();
@@ -276,6 +291,14 @@ void _c_int00(void)
 }
 
 /* USER CODE BEGIN (29) */
+void load(char *load,char *start, unsigned int size)
+{ do
+  {
+    *start = *load;
+    start++;
+    load++;
+  } while (--size);
+}
 /* USER CODE END */
 
 /** @fn void handlePLLLockFail(void)
