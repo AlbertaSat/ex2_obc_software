@@ -113,6 +113,7 @@ SAT_returnState start_communication_service(void) {
 SAT_returnState communication_service_app(csp_packet_t *packet) {
   uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
   int8_t status;  // Status of HAL functions success
+  SAT_returnState return_state = SATR_OK; //Remains OK unless changed by default or if statements.
   uint8_t uhf_struct_len;
   int i;            // For indexing in multiple loops
   int SID;          // The identifier in the packet
@@ -137,7 +138,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       // Step 2: Check the size before proceeding
       if (sizeof(S_config->freq) + 1 >
           csp_buffer_data_size()) {  // plus one for subservice
-        return SATR_ERROR;
+        return_state = SATR_ERROR;
       }
       // Step 3: convert to network order
       S_config->freq = csp_htonflt(S_config->freq);
@@ -153,7 +154,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
     case S_GET_CONTROL:
       status = HAL_S_getControl(&S_config->PA);
       if (sizeof(S_config->PA) + 1 > csp_buffer_data_size()) {
-        return SATR_ERROR;
+        return_state = SATR_ERROR;
       }
       // csp_hton function can not accept structures.
       S_config->PA.status = csp_hton32((uint32_t)S_config->PA.status);
@@ -167,7 +168,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
     case S_GET_ENCODER:
       status = HAL_S_getEncoder(&S_config->enc);
       if (sizeof(S_config->enc) + 1 > csp_buffer_data_size()) {
-        return SATR_ERROR;
+        return_state = SATR_ERROR;
       }
       S_config->enc.scrambler = csp_hton32((uint32_t)S_config->enc.scrambler);
       S_config->enc.filter = csp_hton32((uint32_t)S_config->enc.filter);
@@ -184,7 +185,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
     case S_GET_PA_POWER:
       status = HAL_S_getPAPower(&S_config->PA_Power);
       if (sizeof(S_config->PA_Power) + 1 > csp_buffer_data_size()) {
-        return SATR_ERROR;
+        return_state = SATR_ERROR;
       }
       S_config->PA_Power = csp_hton32((uint32_t)S_config->PA_Power);
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -202,7 +203,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
                HAL_S_getEncoder(&S_config->enc);
 
       if (sizeof(*S_config) + 1 > csp_buffer_data_size()) {
-        return SATR_ERROR;
+        return_state = SATR_ERROR;
       }
       S_config->freq = csp_htonflt(S_config->freq);
       S_config->PA_Power = csp_hton32((uint32_t)S_config->PA_Power);
@@ -222,7 +223,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
     case S_GET_STATUS:
       status = HAL_S_getStatus(&S_FS->status);
       if (sizeof(S_FS->status) + 1 > csp_buffer_data_size()) {
-        return SATR_ERROR;
+        return_state = SATR_ERROR;
       }
       S_FS->status.PWRGD = csp_hton32((uint32_t)S_FS->status.PWRGD);
       S_FS->status.TXL = csp_hton32((uint32_t)S_FS->status.TXL);
@@ -235,7 +236,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
     case S_GET_TR:
       status = HAL_S_getTR(&S_FS->transmit);
       if (sizeof(S_FS->transmit) + 1 > csp_buffer_data_size()) {
-        return SATR_ERROR;
+        return_state = SATR_ERROR;
       }
       S_FS->transmit.transmit = csp_hton32((uint32_t)S_FS->transmit.transmit);
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -248,7 +249,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
     case S_GET_HK:
       status = HAL_S_getHK(&S_FS->HK);
       if (sizeof(S_FS->HK) + 1 > csp_buffer_data_size()) {
-        return SATR_ERROR;
+        return_state = SATR_ERROR;
       }
       S_FS->HK.Output_Power = csp_htonflt(S_FS->HK.Output_Power);
       S_FS->HK.PA_Temp = csp_htonflt(S_FS->HK.PA_Temp);
@@ -268,11 +269,11 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
     case S_GET_BUFFER:
       SID = packet->data[SID_byte];
       if (SID < 0 || SID > 2) {
-        return SATR_PKT_ILLEGAL_SUBSERVICE;
+        return_state = SATR_PKT_ILLEGAL_SUBSERVICE;
       } else {
         status = HAL_S_getBuffer(SID, &S_FS->buffer);
         if (sizeof(S_FS->buffer) + 1 > csp_buffer_data_size()) {
-          return SATR_ERROR;
+          return_state = SATR_ERROR;
         }
         S_FS->buffer.pointer[SID] = csp_hton16(S_FS->buffer.pointer[SID]);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -298,7 +299,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         status += HAL_S_getBuffer(i, &S_FS->buffer);
       }
       if (sizeof(*S_FS) + 1 > csp_buffer_data_size()) {
-        return SATR_ERROR;
+        return_state = SATR_ERROR;
       }
       S_FS->status.PWRGD = csp_hton32((uint32_t)S_FS->status.PWRGD);
       S_FS->status.TXL = csp_hton32((uint32_t)S_FS->status.TXL);
@@ -625,7 +626,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
                HAL_UHF_getSecureKey(&U_stat->secure_key);
 
       if (sizeof(*U_stat) + 1 > csp_buffer_data_size()) {
-        return SATR_ERROR;
+        return_state = SATR_ERROR;
       }
       for (i = 0; i < SCW_LEN; i++) {
         U_stat->scw[i] = csp_hton32((uint32_t)U_stat->scw[i]);
@@ -658,7 +659,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       uint8_t src[CALLSIGN_LEN * CHAR_LEN];
       memset(src, 0, CALLSIGN_LEN * CHAR_LEN);
       if (sizeof(dst) + sizeof(src) + 1 > csp_buffer_data_size()) {
-        return SATR_ERROR;
+        return_state = SATR_ERROR;
       }
       for (i = 0; i < uhf_struct_len; i++) {
         dst[(CHAR_LEN - 1) + CHAR_LEN * i] =
@@ -680,7 +681,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       uint8_t mrs[MORSE_BEACON_MSG_LEN_MAX * CHAR_LEN];
       memset(mrs, 0, MORSE_BEACON_MSG_LEN_MAX * CHAR_LEN);
       if (sizeof(mrs) + 1 > csp_buffer_data_size()) {
-        return SATR_ERROR;
+        return_state = SATR_ERROR;
       }
       for (i = 0; i < uhf_struct_len; i++) {
         mrs[(CHAR_LEN - 1) + CHAR_LEN * i] =
@@ -699,7 +700,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       uint8_t midi[BEACON_MSG_LEN_MAX * CHAR_LEN];
       memset(midi, 0, BEACON_MSG_LEN_MAX * CHAR_LEN);
       if (sizeof(midi) + 1 > csp_buffer_data_size()) {
-        return SATR_ERROR;
+        return_state = SATR_ERROR;
       }
       for (i = 0; i < uhf_struct_len; i++) {
         midi[(CHAR_LEN - 1) + CHAR_LEN * i] =
@@ -719,7 +720,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       uint8_t beacon[BEACON_MSG_LEN_MAX * CHAR_LEN];
       memset(beacon, 0, BEACON_MSG_LEN_MAX * CHAR_LEN);
       if (sizeof(beacon) + 1 > csp_buffer_data_size()) {
-        return SATR_ERROR;
+        return_state = SATR_ERROR;
       }
       for (i = 0; i < uhf_struct_len; i++) {
         beacon[(CHAR_LEN - 1) + CHAR_LEN * i] =
@@ -738,7 +739,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       uint8_t fram[FRAM_SIZE * CHAR_LEN];
       memset(fram, 0, FRAM_SIZE * CHAR_LEN);
       if (sizeof(fram) + 1 > csp_buffer_data_size()) {
-        return SATR_ERROR;
+        return_state = SATR_ERROR;
       }
       for (i = 0; i < FRAM_SIZE; i++) {
         fram[(CHAR_LEN - 1) + CHAR_LEN * i] =
@@ -752,7 +753,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
 
     default:
       ex2_log("No such subservice\n");
-      return SATR_PKT_ILLEGAL_SUBSERVICE;
+      return_state = SATR_PKT_ILLEGAL_SUBSERVICE;
   }
 
   vPortFree(S_config);
@@ -761,5 +762,5 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
   vPortFree(U_beacon);
   vPortFree(U_FRAM);
   vPortFree(U_callsign);
-  return SATR_OK;
+  return return_state;
 }

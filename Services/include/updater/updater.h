@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015  University of Alberta
+ * Copyright (C) 2021  University of Alberta
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -12,21 +12,28 @@
  * GNU General Public License for more details.
  */
 
-#ifndef TIME_MANAGEMENT_H
-#define TIME_MANAGEMENT_H
+/*
+ * updater.h
+ *
+ *  Created on: Jun. 4, 2021
+ *      Author: Robert Taylor
+ */
 
-#include <stdint.h>
+#ifndef UPDATER_H_
+#define UPDATER_H_
 
 #include "services.h"
 
-#define TIMESTAMP_ISOK(x) (x > MIN_YEAR && x < MAX_YEAR) ? 1 : 0
-
+SAT_returnState start_updater_service(void);
 
 typedef enum {
-  GET_TIME = 10,
-  SET_TIME = 11
-} Time_Management_Subtype;  // shared with EPS!
+    FLASH_UPDATE,
+    GET_GOLDEN_INFO,
+    GET_APP_INFO,
+    SET_GOLDEN_INFO,
+    SET_APP_INFO,
+    VERIFY_GOLDEN_IMAGE,
+    VERIFY_APPLICATION_IMAGE
+} updater_subtype;  // shared with EPS!
 
-SAT_returnState start_time_management_service(void);
-
-#endif /* TIME_MANAGEMENT_H */
+#endif /* UPDATER_H_ */
