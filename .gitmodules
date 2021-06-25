@@ -22,3 +22,6 @@
 [submodule "ex2_hal/ex2_hyperion_solar_panel_software"]
 	path = ex2_hal/ex2_hyperion_solar_panel_software
 	url = https://github.com/Taylorr82/ex2_hyperion_solar_panel_software
+[submodule "ex2_ftp"]
+	path = ex2_ftp
+	url = https://github.com/EvanGee/CCSDS_FileDeliveryProtocol.git

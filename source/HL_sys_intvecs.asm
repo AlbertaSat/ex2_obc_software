@@ -43,7 +43,7 @@
 
     .ref _c_int00
     .ref _undef
-    .ref vPortSWI
+    .ref ramSWI
     .ref _prefetch
     .ref _dabort
     .ref phantomInterrupt
@@ -55,7 +55,7 @@
 resetEntry
         b   _c_int00
         b   _undef
-        b   vPortSWI
+        b   ramSWI
         b   _prefetch
         b   _dabort
         b   phantomInterrupt
