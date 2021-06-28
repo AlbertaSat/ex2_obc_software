@@ -45,6 +45,7 @@
 --retain="*(.intvecs)"
 
 /* USER CODE BEGIN (1) */
+#ifdef DO_NOT_COMPILE
 /* USER CODE END */
 
 /*----------------------------------------------------------------------------*/
@@ -86,6 +87,10 @@ SECTIONS
     .kernelHEAP   : {} > RAM
     .bss          : {} > RAM
     .data         : {} > RAM    
+    .sysmem       : {} > RAM
+    FEE_TEXT_SECTION align(32) : {} > FLASH0 | FLASH1
+    FEE_CONST_SECTION align(32): {} > FLASH0 | FLASH1
+    FEE_DATA_SECTION : {} > RAM
 
 /* USER CODE BEGIN (4) */
  	.blinky_section :  RUN = SDRAM, LOAD = FLASH0 | FLASH1
@@ -95,12 +100,76 @@ SECTIONS
 }
 
 /* USER CODE BEGIN (5) */
+#endif
 /* USER CODE END */
 
 /*----------------------------------------------------------------------------*/
 /* Misc                                                                       */
 
 /* USER CODE BEGIN (6) */
+/*----------------------------------------------------------------------------*/
+/* Linker Settings                                                            */
+
+--retain="*(.intvecs)"
+
+
+/*----------------------------------------------------------------------------*/
+/* Memory Map                                                                 */
+MEMORY
+{
+	#ifdef GOLDEN_IMAGE && BOOTLOADER_PRESENT
+    VECTORS (X)  : origin=0x00018000 length=0x00000040
+    KERNEL  (RX) : origin=0x00018040 length=0x00008000
+    FLASH   (RX) : origin=end(KERNEL) length=0x00200000 - 0x8040
+
+    #elif defined(WORKING_IMAGE) && defined(BOOTLOADER_PRESENT)
+    VECTORS (X)  : origin=0x00200000 length=0x00000040
+    KERNEL  (RX) : origin=0x00200040 length=0x00008000
+    FLASH   (RX) : origin=end(KERNEL) length=0x00200000 - 0x8040
+
+    #else
+    VECTORS (X)      : origin=0x00000000 length=0x00000040
+    KERNEL  (RX)     : origin=end(VECTORS) length=0x00008000
+    FLASH   (RX)     : origin=end(KERNEL) length=0x00200000 - 0x40 - 0x8000
+    #endif
+
+    RAMINTVECS (RWX) : origin=0x08000000 length = 0x20
+    STACKS  (RW)     : origin=end(RAMINTVECS) length=0x00000800
+    KRAM    (RW)     : origin=end(STACKS) length=0x00000800
+    RAM     (RW)     : origin=end(KRAM)   length=0x0007f800 - 0x800 - 0x800 - 0x20
+	SDRAM  (RWX) : origin=0x80000000 length=0x07FFFFFF//experimental
+
+}
+
+/*----------------------------------------------------------------------------*/
+/* Section Configuration                                                      */
+SECTIONS
+{
+    .intvecs : {} > VECTORS
+    /* FreeRTOS Kernel in protected region of Flash */
+    .kernelTEXT  align(32) : {} > KERNEL
+    .cinit       align(32) : {} > KERNEL
+    .pinit       align(32) : {} > KERNEL
+    /* Rest of code to user mode flash region */
+    .text        align(32) : {} > FLASH
+    .const       align(32) : {} > FLASH
+    /* FreeRTOS Kernel data in protected region of RAM */
+    .kernelBSS    : {} > KRAM
+    .kernelHEAP   : {} > RAM
+    .bss          : {} > RAM
+    .data         : {} > RAM
+    .sysmem       : {} > RAM
+
+    FEE_TEXT_SECTION align(32) : {} > FLASH
+    FEE_CONST_SECTION align(32): {} > FLASH
+    FEE_DATA_SECTION : {} > RAM
+
+ 	.blinky_section :  RUN = SDRAM, LOAD = FLASH
+		   LOAD_START(BlinkyLoadStart), LOAD_END(BlinkyLoadEnd),  LOAD_SIZE(BlinkySize),
+		   RUN_START(BlinkyStartAddr ), RUN_END(BlinkyEndAddr )
+
+	.ramIntvecs : {} load=FLASH, run=RAMINTVECS, palign=8, LOAD_START(ramint_LoadStart), SIZE(ramint_LoadSize), RUN_START(ramint_RunStart)
+}
 /* USER CODE END */
 
 /*----------------------------------------------------------------------------*/
