@@ -208,7 +208,7 @@ void test_logger_daemon(void *pvParameters) {
  * @returns status
  *   error report of task creation
  */
-SAT_returnState start_logger_service(TaskHandle_t *handle) {
+SAT_returnState start_logger_daemon(TaskHandle_t *handle) {
     if (xTaskCreate((TaskFunction_t)logger_daemon,
                   "logger", 1000, 0, LOGGER_TASK_PRIO,
                   handle) != pdPASS) {
@@ -223,7 +223,7 @@ SAT_returnState start_logger_service(TaskHandle_t *handle) {
 /**
  * Kill the logger daemon gracefully
  */
-void kill_logger_service() {
+void kill_logger_daemon() {
     vTaskDelete(my_handle);
     stop_logger_fs();
     vQueueDelete(input_queue);
