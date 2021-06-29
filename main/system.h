@@ -23,6 +23,20 @@
 #include <stdint.h>
 #include "FreeRTOS.h"
 
+#define config_IS_ATHENA 0
+#define config_IS_FLATSAT 0
+
+#if config_IS_ATHENA == 1
+#define IS_ATHENA
+#endif
+
+#if config_IS_FLATSAT == 1
+    #ifndef IS_ATHENA
+    #error If config_IS_FLATSAT is set to 1 IS_ATHENA must be defined
+    #endif
+#define IS_FLATSAT
+#endif
+
 #define SYSTEM_APP_ID _OBC_APP_ID_
 
 #define NORMAL_SERVICE_PRIO               1
@@ -32,10 +46,21 @@
 #define BEACON_TASK_PRIO                  1
 #define DIAGNOSTIC_TASK_PRIO              1
 #define SYSTEM_STATS_TASK_PRIO            1
+#define LOGGER_TASK_PRIO                  2
 #define MOCK_RTC_TASK_PRIO                configMAX_PRIORITIES-1
 
 #define GPS_SCI sciREG2
 #define CSP_SCI sciREG3
+
+#ifndef IS_FLATSAT
+    #ifdef IS_ATHENA
+    #define PRINTF_SCI sciREG4
+    #else
+    #define PRINTF_SCI sciREG1
+    #endif
+#else
+#define PRINTF_SCI NULL
+#endif
 
 typedef enum {
   SATR_PKT_ILLEGAL_APPID = 0,
