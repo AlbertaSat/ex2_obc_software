@@ -369,7 +369,7 @@ Result read_hk_from_file(const char *filename, All_systems_housekeeping* all_hk_
   /*The order of writes and subsequent reads must match*/
   //TODO:
   //red_read(fin, &all_hk_data->ADCS_hk, sizeof(all_hk_data->ADCS_hk));
-  int32_t amount = red_read(fin, &all_hk_data->hk_timeorder, sizeof(all_hk_data->hk_timeorder));
+  red_read(fin, &all_hk_data->hk_timeorder, sizeof(all_hk_data->hk_timeorder));
   red_read(fin, &all_hk_data->Athena_hk, sizeof(all_hk_data->Athena_hk));
   red_read(fin, &all_hk_data->EPS_hk, sizeof(all_hk_data->EPS_hk));
   red_read(fin, &all_hk_data->UHF_hk, sizeof(all_hk_data->UHF_hk));
