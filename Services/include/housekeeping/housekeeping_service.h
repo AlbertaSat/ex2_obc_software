@@ -74,7 +74,7 @@ typedef struct __attribute__((packed)){
   uint16_t dataPosition;                  //Use to place datasets in chronological order
 } hk_time_and_order;
 
-typedef struct {
+typedef struct __attribute__((packed)){
   hk_time_and_order hk_timeorder;        //debugging time and file order
 
   //TODO:
