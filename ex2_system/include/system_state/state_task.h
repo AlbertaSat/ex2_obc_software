@@ -13,7 +13,7 @@
  */
 /**
  * @file state_task.h
- * @author Andrew R. Rooney
+ * @author Andrew R. Rooney, Arash Yazdani
  * @date Mar. 6, 2021
  */
 
@@ -26,50 +26,51 @@
 #include "eps.h"
 #include "main/system.h"
 
-enum SAT_state {
+#define BATTERY_HEATER_BIT_POS 0
+#define EPS_BIT_POS 1
+#define OBC_BIT_POS 2
+#define UHF_BIT_POS 3
+#define STX_BIT_POS 4
+#define IRIS_BIT_POS 5
+#define DFGM_BIT_POS 6
+#define ADCS_BIT_POS 7
+
+#define BATTERY_HEATER_MASK (1 << BATTERY_HEATER_BIT_POS)
+#define EPS_MASK (1 << EPS_BIT_POS)
+#define OBC_MASK (1 << OBC_BIT_POS)
+#define UHF_MASK (1 << UHF_BIT_POS)
+#define STX_MASK (1 << STX_BIT_POS)
+#define IRIS_MASK (1 << IRIS_BIT_POS)
+#define DFGM_MASK (1 << DFGM_BIT_POS)
+#define ADCS_MASK (1 << ADCS_BIT_POS)
+
+
+typedef enum {
   hw_critical_state = 0,  // EPS will shut OBC down prior to informing it
   critical_state = 1,     // EPS will shut OBC down prior to informing it
   safe_state = 2,
   operational_state = 3
-};
+} sat_state_e;
 
 /* It might be a good idea to replace it with SAT_returnState. */
-typedef enum { SYS_OFF = 0, SYS_ON = 1, SYS_NO_RESPONSE = -1 } SYS_returnState;
+typedef enum { SYS_OFF = 0, SYS_ON = 1, SYS_NO_RESPONSE = -1 } sys_returnstate_e;
 
-typedef enum {
-  batHeater_id = 0,
-  EPS_id,
-  OBC_id,
-  UHF_id,
-  STX_id,
-  Iris_id,
-  DFGM_id,
-  ADCS_id,
-  number_of_systems,  // Do not assign values to the IDs for this to work. Just
-                      // move them up/down.
-} sm_sys_id;          // Local system ID for State Machine
-
-typedef struct __attribute__((packed)) {
-  bool batHeater;
-  bool EPS;
-  bool OBC;
-  bool UHF;
-  bool STX;  // S-band Transmitter
-  bool Iris;
-  bool DFGM;
-  bool ADCS;
-} systems_status;
-
-typedef enum SAT_state SAT_state_e;
+typedef struct {
+  bool heater;
+  bool eps;
+  bool obc;
+  bool uhf;
+  bool stx;
+  bool iris;
+  bool dfgm;
+  bool adcs;
+} systems_status_t;
 
 SAT_returnState start_state_daemon();
-SAT_state_e eps2sat_mode_cnv(eps_mode_e batt_mode);
+sat_state_e eps2sat_mode_cnv(eps_mode_e batt_mode);
 
-void change_systems_status(uint8_t ctrl_word);
-SYS_returnState power_switch_uhf(bool *uhf_status);
-SYS_returnState power_switch_stx(bool *stx_status);
-SYS_returnState power_switch_iris(bool *iris_status);
-SYS_returnState power_switch_dfgm(bool *dfgm_status);
-SYS_returnState power_switch_adcs(bool *adcs_status);
+void change_systems_status(systems_status_t subsystem_target_state);
+void power_switch_uhf(const bool uhf_status);
+sys_returnstate_e power_switch_sys(const uint8_t channel, const bool target_state);
 
 #endif /* EX2_SYSTEM_INCLUDE_SYSTEM_STATE_STATE_TASK_H_ */
