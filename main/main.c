@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015  University of Alberta
+ * Copyright (C) 2021  University of Alberta
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -59,6 +59,9 @@
  *  - Start the FreeRTOS scheduler
  */
 
+#define DEV_RUN_TEST_SUITE 0
+#include "test_suites.h"
+
 #define LEOP_SEQUENCE_TIMER_MS 10000
 
 static void init_filesystem();
@@ -68,6 +71,12 @@ static void init_system_tasks();
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
 
 int ex2_main(int argc, char **argv) {
+#if DEV_RUN_TEST_SUITE == 1
+  run_test_suite();
+  for (;;);
+  return 1;
+#endif
+
   const TickType_t leop_time_ms = pdMS_TO_TICKS(LEOP_SEQUENCE_TIMER_MS);
 
   _enable_IRQ_interrupt_(); // enable inturrupts
