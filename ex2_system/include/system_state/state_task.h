@@ -26,24 +26,6 @@
 #include "eps.h"
 #include "main/system.h"
 
-#define BATTERY_HEATER_BIT_POS 0
-#define EPS_BIT_POS 1
-#define OBC_BIT_POS 2
-#define UHF_BIT_POS 3
-#define STX_BIT_POS 4
-#define IRIS_BIT_POS 5
-#define DFGM_BIT_POS 6
-#define ADCS_BIT_POS 7
-
-#define BATTERY_HEATER_MASK (1 << BATTERY_HEATER_BIT_POS)
-#define EPS_MASK (1 << EPS_BIT_POS)
-#define OBC_MASK (1 << OBC_BIT_POS)
-#define UHF_MASK (1 << UHF_BIT_POS)
-#define STX_MASK (1 << STX_BIT_POS)
-#define IRIS_MASK (1 << IRIS_BIT_POS)
-#define DFGM_MASK (1 << DFGM_BIT_POS)
-#define ADCS_MASK (1 << ADCS_BIT_POS)
-
 
 typedef enum {
   hw_critical_state = 0,  // EPS will shut OBC down prior to informing it
