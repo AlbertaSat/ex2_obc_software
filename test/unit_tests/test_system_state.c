@@ -18,11 +18,6 @@
 #pragma WEAK( power_switch_uhf )
 #pragma WEAK( start_state_daemon )
 
-#pragma WEAK( eps_get_pwr_chnl )
-
-typedef int8_t (*eps_get_pwr_chnl_ptr)(uint8_t pwr_chnl_port);
-
-int8_t eps_get_pwr_chnl_return_previous_state(uint8_t pwr_chnl_port);
 
 TEST_SETUP() {
 }
