@@ -63,7 +63,7 @@
 #define DEV_RUN_TEST_SUITE 0
 #include "test_suites.h"
 
-#define LEOP_SEQUENCE_TIMER_MS 10000
+#define LEOP_SEQUENCE_TIMER_MS 10
 
 static void init_filesystem();
 static void init_csp();
@@ -72,11 +72,6 @@ static void init_system_tasks();
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
 
 int ex2_main(int argc, char **argv) {
-#if DEV_RUN_TEST_SUITE == 1
-  run_test_suite();
-  for (;;);
-  return 1;
-#endif
 
   const TickType_t leop_time_ms = pdMS_TO_TICKS(LEOP_SEQUENCE_TIMER_MS);
 
@@ -84,8 +79,15 @@ int ex2_main(int argc, char **argv) {
   InitIO();
 
   /* Initialization routine */
-  //init_filesystem();
+  init_filesystem();
   init_csp();
+
+#if DEV_RUN_TEST_SUITE == 1
+  run_test_suite();
+  for (;;);
+  return 1;
+#endif
+
   /* Start service server, and response server */
   init_leop(leop_time_ms);
 //  start_eps_mock();

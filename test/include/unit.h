@@ -20,8 +20,9 @@
 #define UNIT_H_
 
 #include <stdio.h>
+#include "printf.h"
 
-#define UNIT_PRINT( msg, ... )  fprintf(stderr, msg, ##__VA_ARGS__ )
+#define UNIT_PRINT( msg, ... )  printf(msg, ##__VA_ARGS__ )
 
 extern volatile unsigned int unit_asserts_passed;
 extern volatile unsigned int delta_unit_asserts_passed;

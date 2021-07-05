@@ -39,6 +39,11 @@ static void leop_sequence_callback(TimerHandle_t pxTimer);
  *  time to wait before commissioning subsystems
  */
 void init_leop(TickType_t wait_time) {
+    if (start_service_server() != SATR_OK ||
+        start_system_tasks() != SATR_OK) {
+      ex2_log("Initialization error\n");
+  }
+    return;
   leop_timer = xTimerCreate((const char *) "LEOP Timer",
                             wait_time,
                             pdFALSE,

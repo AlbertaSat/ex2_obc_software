@@ -26,6 +26,8 @@
 
 #define STRING_MAX_LEN 201
 
+static const char logger_file[] = "VOL0:/syslog.log";
+
 void ex2_log(const char *format, ...);
 
 SAT_returnState start_logger_daemon(TaskHandle_t *handle);
@@ -35,6 +37,8 @@ void kill_logger_daemon();
 bool init_logger_fs();
 
 void stop_logger_fs();
+
+bool is_logger_fs_init();
 
 // to be called before scheduler is started
 void init_logger_queue();

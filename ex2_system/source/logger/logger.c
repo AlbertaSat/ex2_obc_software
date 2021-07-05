@@ -36,7 +36,6 @@ static bool fs_init; // true if filesystem initialized
 static xQueueHandle input_queue = NULL;
 static TaskHandle_t my_handle;
 
-const char logger_file[] = "VOL0:/syslog.log";
 uint32_t logger_file_handle = 0;
 
 static void test_logger_daemon(void *pvParameters);
@@ -176,7 +175,7 @@ static void logger_daemon(void *pvParameters) {
         ex2_log("Failed to initialize logger file");
     }
 
-    init_logger_queue();
+    input_queue = xQueueCreate(DEFAULT_INPUT_QUEUE_LEN, INPUT_QUEUE_ITEM_SIZE);
 
     for ( ;; ) {
         xQueueReceive(input_queue, buffer, portMAX_DELAY);
@@ -228,6 +227,10 @@ void kill_logger_daemon() {
     vTaskDelete(my_handle);
     stop_logger_fs();
     vQueueDelete(input_queue);
+}
+
+bool is_logger_fs_init() {
+    return fs_init;
 }
 
 /**
