@@ -84,11 +84,11 @@ void RTC_discipline_service(void) {
  *      success report
  */
 SAT_returnState start_gps_services(TaskHandle_t *rtc_handle, TaskHandle_t *nmea_handle) {
-    if (xTaskCreate((TaskFunction_t)RTC_discipline_service, "RTC_service", GPS_TASK_SIZE, NULL, 3, rtc_handle) != pdPASS) {
+    if (xTaskCreate((TaskFunction_t)RTC_discipline_service, "RTC_service", GPS_TASK_SIZE, NULL, 1, rtc_handle) != pdPASS) {
         return SATR_ERROR;
     }
 
-    if (xTaskCreate((TaskFunction_t)NMEA_service, "NMEA_service", NMEA_TASK_SIZE, NULL, 4, nmea_handle) != pdPASS) {
+    if (xTaskCreate((TaskFunction_t)NMEA_service, "NMEA_service", NMEA_TASK_SIZE, NULL, 1, nmea_handle) != pdPASS) {
         return SATR_ERROR;
     }
 
