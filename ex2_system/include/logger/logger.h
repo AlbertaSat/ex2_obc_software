@@ -36,4 +36,7 @@ bool init_logger_fs();
 
 void stop_logger_fs();
 
+// to be called before scheduler is started
+void init_logger_queue();
+
 #endif // LOGGER_H

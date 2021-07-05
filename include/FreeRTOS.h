@@ -225,7 +225,7 @@ extern "C" {
 #endif
 
 #ifndef configUSE_DAEMON_TASK_STARTUP_HOOK
-	#define configUSE_DAEMON_TASK_STARTUP_HOOK 0
+	#define configUSE_DAEMON_TASK_STARTUP_HOOK 1
 #endif
 
 #ifndef configUSE_APPLICATION_TASK_TAG

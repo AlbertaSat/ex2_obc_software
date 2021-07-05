@@ -176,7 +176,7 @@ static void logger_daemon(void *pvParameters) {
         ex2_log("Failed to initialize logger file");
     }
 
-    input_queue = xQueueCreate(DEFAULT_INPUT_QUEUE_LEN, INPUT_QUEUE_ITEM_SIZE);
+    init_logger_queue();
 
     for ( ;; ) {
         xQueueReceive(input_queue, buffer, portMAX_DELAY);
@@ -228,4 +228,13 @@ void kill_logger_daemon() {
     vTaskDelete(my_handle);
     stop_logger_fs();
     vQueueDelete(input_queue);
+}
+
+/**
+ * Initialize the queue if it has not been
+ */
+void init_logger_queue() {
+    if (input_queue == NULL) {
+        input_queue = xQueueCreate(DEFAULT_INPUT_QUEUE_LEN, INPUT_QUEUE_ITEM_SIZE);
+    }
 }
