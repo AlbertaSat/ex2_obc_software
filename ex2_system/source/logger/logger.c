@@ -27,10 +27,11 @@
 #include <string.h>
 #include <redposix.h>
 
-static bool fs_init; // true if filesystem initialized
-
 #define DEFAULT_INPUT_QUEUE_LEN 10
-#define INPUT_QUEUE_ITEM_SIZE PRINT_BUF_LEN +13
+#define TASK_NAME_SIZE 13
+#define INPUT_QUEUE_ITEM_SIZE PRINT_BUF_LEN + TASK_NAME_SIZE
+
+static bool fs_init; // true if filesystem initialized
 
 static xQueueHandle input_queue = NULL;
 static TaskHandle_t my_handle;
@@ -38,7 +39,7 @@ static TaskHandle_t my_handle;
 const char logger_file[] = "VOL0:/syslog.log";
 uint32_t logger_file_handle = 0;
 
-void test_logger_daemon(void *pvParameters);
+static void test_logger_daemon(void *pvParameters);
 
 /**
  * @brief
@@ -64,13 +65,13 @@ void ex2_log(const char *format, ...) {
         task_name = pcTaskGetName(NULL);
     }
 
-    char buffer[PRINT_BUF_LEN+13] = {0};
+    char buffer[PRINT_BUF_LEN + TASK_NAME_SIZE] = {0};
 
     va_list arg;
     va_start(arg, format);
-    vsnprintf(buffer+13, PRINT_BUF_LEN, format, arg);
+    vsnprintf(buffer + TASK_NAME_SIZE, PRINT_BUF_LEN, format, arg);
     va_end(arg);
-    snprintf(buffer, PRINT_BUF_LEN+13, "[%.10s]%s", task_name, buffer+13);
+    snprintf(buffer, PRINT_BUF_LEN + TASK_NAME_SIZE, "[%.10s]%s", task_name, buffer + TASK_NAME_SIZE);
 
     int string_len = strlen(buffer);
     if (buffer[string_len - 1] == '\n') {
@@ -131,10 +132,10 @@ bool init_logger_fs() {
     }
 
     int32_t fd = red_open(logger_file, RED_O_RDWR | RED_O_APPEND);
-    if (fd == -1) {
+    if (fd < 0) {
         int errno = red_errno;
         fd = red_open(logger_file, RED_O_CREAT | RED_O_RDWR);
-        if (fd == -1) {
+        if (fd < 0) {
             errno = red_errno;
             return false;
         }
