@@ -46,6 +46,7 @@
 #include "system_tasks.h"
 #include "mocks/rtc.h"
 #include "leop.h"
+#include "logger/logger.h"
 
 #include "file_delivery_app.h"
 
@@ -221,6 +222,10 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask, char *pcTaskName ) {
 
 void vApplicationMallocFailedHook( void ) {
     for(;;);
+}
+
+void vApplicationDaemonTaskStartupHook( void ) {
+    init_logger_queue();
 }
 
 void SciSendBuf( char *buf, uint32_t bufSize )
