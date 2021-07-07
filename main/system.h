@@ -48,6 +48,7 @@
 #define SYSTEM_STATS_TASK_PRIO            1
 #define LOGGER_TASK_PRIO                  2
 #define MOCK_RTC_TASK_PRIO                configMAX_PRIORITIES-1
+#define TASK_MANAGER_PRIO                 3
 
 #define GPS_SCI sciREG2
 #define CSP_SCI sciREG3
