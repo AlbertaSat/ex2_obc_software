@@ -3,27 +3,31 @@
 
 #include "adcs_handler.h"
 
-typedef struct __attribute__((packed))
-{
-    int16_t Estimated_Angular_Rate;
-    int16_t Estimated_Angular_Angle;
-    int16_t Sat_Position_ECI;
-    int16_t Sat_Velocity_ECI;
-    int16_t Sat_Position_LLH;
-    int16_t ECEF_Position;
-    int16_t Coarse_Sun_Vector;
-    int16_t Fine_Sun_Vector;
-    int16_t Nadir_Vector;
-    int16_t Wheel_Speed;
-    int16_t Mag_Field_Vector;
-    bool Comm_Status;
-    uint16_t Wheel_Currents;
-    uint16_t CubeSense_Current;
-    uint16_t CubeControl_Current;
-    uint16_t ADCS_Misc_Current;
-    int16_t ADCS_Temp;
-    int16_t Rate_Sensor_Temp;
-    bool ADCS_State;
+typedef struct __attribute__((packed)) {
+    xyz Estimated_Angular_Rate;
+    xyz Estimated_Angular_Angle;
+    xyz Sat_Position_ECI;
+    xyz Sat_Velocity_ECI;
+    xyz Sat_Position_LLH;
+    xyz ECEF_Position;
+    xyz Coarse_Sun_Vector;
+    xyz Fine_Sun_Vector;
+    xyz Nadir_Vector;
+    xyz Wheel_Speed;
+    xyz Mag_Field_Vector;
+    uint16_t Comm_Status;
+    float Wheel1_Current;
+    float Wheel2_Current;
+    float Wheel3_Current;
+    float CubeSense1_Current;
+    float CubeSense2_Current;
+    float CubeControl_Current3v3;
+    float CubeControl_Current5v0;
+    float CubeStar_Current;
+    float CubeStar_Temp;
+    float Magnetorquer_Current;
+    float MCU_Temp;
+    xyz16 Rate_Sensor_Temp;
 } ADCS_HouseKeeping;
 
 
@@ -74,8 +78,7 @@ ADCS_returnState HAL_ADCS_get_SRAM_latchup_count(uint16_t* sram1, uint16_t* sram
 ADCS_returnState HAL_ADCS_get_EDAC_err_count(uint16_t* single_sram,
                                          uint16_t* double_sram,
                                          uint16_t* multi_sram);
-ADCS_returnState HAL_ADCS_get_comms_stat(uint16_t* TC_num, uint16_t* TM_num,
-                                     uint8_t* flags_arr);
+ADCS_returnState HAL_ADCS_get_comms_stat(uint16_t* comm_status);
 
 // Common Config Msgs
 ADCS_returnState HAL_ADCS_set_cache_en_state(bool en_state);
@@ -130,6 +133,7 @@ ADCS_returnState HAL_ADCS_get_current_state(adcs_state* data);
 ADCS_returnState HAL_ADCS_get_jpg_cnv_progress(uint8_t* percentage, uint8_t* result,
                                            uint8_t* file_counter);
 ADCS_returnState HAL_ADCS_get_cubeACP_state(uint8_t* flags_arr);
+ADCS_returnState HAL_ADCS_get_sat_pos_LLH(xyz* target);
 ADCS_returnState HAL_ADCS_get_execution_times(uint16_t* adcs_update,
                                           uint16_t* sensor_comms,
                                           uint16_t* sgp4_propag,

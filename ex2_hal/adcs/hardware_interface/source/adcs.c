@@ -115,8 +115,14 @@ ADCS_returnState HAL_ADCS_get_EDAC_err_count(uint16_t* single_sram, uint16_t* do
     return ADCS_get_EDAC_err_count(&single_sram, &double_sram, &multi_sram);
 }
 
-ADCS_returnState HAL_ADCS_get_comms_stat(uint16_t* TC_num, uint16_t* TM_num, uint8_t* flags_arr) {
-    return ADCS_get_comms_stat(&TC_num, &TM_num, &flags_arr);
+ADCS_returnState HAL_ADCS_get_comms_stat(uint16_t* comm_status) {
+    ADCS_returnState return_state;
+    uint16_t TC_num = 0;
+    uint16_t TM_num = 0;
+    uint8_t flags_arr = 0;
+    return_state = ADCS_get_comms_stat(&comm_status, &TC_num, &TM_num, &flags_arr);
+
+    return return_state;
 }
 
 ADCS_returnState HAL_ADCS_set_cache_en_state(bool en_state) {
@@ -278,6 +284,10 @@ ADCS_returnState HAL_ADCS_get_execution_times(uint16_t* adcs_update,
 
 ADCS_returnState HAL_ADCS_get_ACP_loop_stat(uint16_t* time, uint8_t* execution_point) {
     return ADCS_get_ACP_loop_stat(&time, &execution_point);
+}
+
+ADCS_returnState HAL_ADCS_get_sat_pos_LLH(xyz* target) {
+    return ADCS_get_sat_pos_LLH(&target);
 }
 
 ADCS_returnState HAL_ADCS_get_img_save_progress(uint8_t* percentage, uint8_t* status) {
@@ -443,6 +453,51 @@ ADCS_returnState HAL_ADCS_get_full_config(adcs_config* config) {
 ADCS_returnState HAL_ADCS_getHK(ADCS_HouseKeeping* adcs_hk) {
     ADCS_returnState temp;
     ADCS_returnState return_state = 0;
+    adcs_state data;
+    adcs_measures mes;
+    adcs_pwr_temp pwr;
 
+    if (temp = HAL_ADCS_get_current_state(&data) != 0) {
+        return_state = temp;
+    } else {
+        adcs_hk->Estimated_Angular_Rate = data.est_angular_rate;
+        adcs_hk->Estimated_Angular_Angle = data.est_angular_rate;
+        adcs_hk->Sat_Position_ECI = data.ECI_pos;
+        adcs_hk->Sat_Velocity_ECI = data.ECI_vel;
+        adcs_hk->ECEF_Position = data.ecef_pos;
+    }
+    
+
+    if (temp = HAL_ADCS_get_measurements(&mes) != 0) {
+        return_state = temp;
+    } else {
+        adcs_hk->Coarse_Sun_Vector = mes.coarse_sun;
+        adcs_hk->Fine_Sun_Vector = mes.sun;
+        adcs_hk->Nadir_Vector = mes.nadir;
+        adcs_hk->Wheel_Speed = mes.wheel_speed;
+        adcs_hk->Mag_Field_Vector = mes.magnetic_field;
+    }
+    
+
+    if (temp = HAL_ADCS_get_power_temp(&pwr) != 0) {
+        return_state = temp;
+    } else {
+        adcs_hk->Wheel1_Current = pwr.wheel1_I;
+        adcs_hk->Wheel2_Current = pwr.wheel2_I;
+        adcs_hk->Wheel3_Current = pwr.wheel3_I;
+        adcs_hk->CubeSense1_Current = pwr.cubesense1_3v3_I;
+        adcs_hk->CubeSense2_Current = pwr.cubesense2_3v3_I;
+        adcs_hk->CubeControl_Current3v3 = pwr.cubecontrol_3v3_I;
+        adcs_hk->CubeControl_Current5v0 = pwr.cubecontrol_5v_I;
+        adcs_hk->CubeStar_Current = pwr.cubestar_I;
+        adcs_hk->Magnetorquer_Current = pwr.magnetorquer_I;
+        adcs_hk->CubeStar_Temp = pwr.cubestar_temp;
+        adcs_hk->MCU_Temp = pwr.MCU_temp;
+        adcs_hk->Rate_Sensor_Temp = pwr.rate_sensor_temp;
+    }
+
+    if (temp = HAL_ADCS_get_sat_pos_LLH(&adcs_hk->Sat_Position_LLH) != 0) return_state = temp;
     if (temp = HAL_ADCS_get_comms_stat(&adcs_hk->Comm_Status) != 0) return_state = temp;
+    
+    return return_state;
 }
