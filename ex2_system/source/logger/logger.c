@@ -27,8 +27,13 @@
 #include <string.h>
 #include <redposix.h>
 
+#define XSTR_(X) STR_(X)
+#define STR_(X) #X
+
+
+
 #define DEFAULT_INPUT_QUEUE_LEN 10
-#define TASK_NAME_SIZE 13
+#define TASK_NAME_SIZE configMAX_TASK_NAME_LEN + 3
 #define INPUT_QUEUE_ITEM_SIZE PRINT_BUF_LEN + TASK_NAME_SIZE
 
 static bool fs_init; // true if filesystem initialized
@@ -71,7 +76,7 @@ void ex2_log(const char *format, ...) {
     va_start(arg, format);
     vsnprintf(buffer + TASK_NAME_SIZE, PRINT_BUF_LEN, format, arg);
     va_end(arg);
-    snprintf(buffer, PRINT_BUF_LEN + TASK_NAME_SIZE, "[%.10s]%s", task_name, buffer + TASK_NAME_SIZE);
+    snprintf(buffer, PRINT_BUF_LEN + TASK_NAME_SIZE, "[%." XSTR_(configMAX_TASK_NAME_LEN) "s]%s", task_name, buffer + TASK_NAME_SIZE);
 
     int string_len = strlen(buffer);
     if (buffer[string_len - 1] == '\n') {
