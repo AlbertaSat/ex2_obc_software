@@ -13,7 +13,7 @@ ADCS_returnState HAL_ADCS_advance_log_pointer() {
 }
 
 ADCS_returnState HAL_ADCS_reset_boot_registers() {
-    return ADCS_reset_boot_registers;
+    return ADCS_reset_boot_registers();
 }
 
 ADCS_returnState HAL_ADCS_format_sd_card() {
