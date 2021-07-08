@@ -531,6 +531,9 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
            i++) {
         U_beacon->morse.message[i] =
             (uint8_t)packet->data[IN_DATA_BYTE + (CHAR_LEN - 1) + CHAR_LEN * i];
+        if (U_beacon->morse.message[i] == '|'){
+            U_beacon->morse.message[i] = ' ';
+        }
         U_beacon->morse.message[i] =
             csp_ntoh32((uint32_t)U_beacon->morse.message[i]);
       }
