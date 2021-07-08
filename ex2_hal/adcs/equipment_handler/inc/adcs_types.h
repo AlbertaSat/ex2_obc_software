@@ -118,6 +118,7 @@ typedef enum ACP_Telecommand_IDs {
 typedef enum ACP_Telemetry_IDs {
   // ADCS state
   ADCS_STATE = 190,  // Includes 132, 146:150, 201, 218-219, 224
+  SATELLITE_POSITION_LLH_ID = 150;
   // General
   JPG_CNV_PROGRESS_ID = 133,
   CUBEACP_STATE_FLAGS_ID = 135,

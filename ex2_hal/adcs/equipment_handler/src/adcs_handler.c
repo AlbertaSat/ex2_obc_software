@@ -708,9 +708,8 @@ ADCS_returnState ADCS_get_EDAC_err_count(uint16_t* single_sram,
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_comms_stat(uint16_t* TC_num, uint16_t* TM_num,
+ADCS_returnState ADCS_get_comms_stat(uint8_t telemetry[6], uint16_t* TC_num, uint16_t* TM_num,
                                      uint8_t* flags_arr) {
-  uint8_t telemetry[6];
   ADCS_returnState state;
   state = adcs_telemetry(COMMS_STAT_ID, telemetry, 6);
   *TC_num = (telemetry[1] << 8) | telemetry[0];
@@ -1430,6 +1429,24 @@ ADCS_returnState ADCS_get_cubeACP_state(uint8_t* flags_arr) {
   for (int i = 0; i < 6; i++) {
     *(flags_arr + i) = (telemetry >> i) & 1;
   }
+  return state;
+}
+
+/**
+ * @brief
+ * 		Gets the satellite position in WGS-84 coordinate (Table 106).
+ * @param target
+ * 		longitude, latitude, angle
+ * @return
+ * 		Success of function defined in adcs_types.h
+ */
+ADCS_returnState ADCS_get_sat_pos_LLH(xyz* target) {
+  uint8_t telemetry[6];
+  ADCS_returnState state;
+  state = adcs_telemetry(SATELLITE_POSITION_LLH_ID, telemetry, 6);
+  memcpy(&target->x, &telemetry[0], 2);
+  memcpy(&target->y, &telemetry[2], 2);
+  memcpy(&target->z, &telemetry[4], 2);
   return state;
 }
 
