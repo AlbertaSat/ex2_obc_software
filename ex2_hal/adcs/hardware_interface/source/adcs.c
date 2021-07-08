@@ -5,7 +5,7 @@ ADCS_returnState HAL_ADCS_reset() {
 }
 
 ADCS_returnState HAL_ADCS_reset_log_pointer() {
-    return ADCS_reset_log_pointer;
+    return ADCS_reset_log_pointer();
 }
 
 ADCS_returnState HAL_ADCS_advance_log_pointer() {
