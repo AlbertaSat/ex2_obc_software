@@ -43,7 +43,7 @@
   e.g. tempHKdata134.TMP
 */
 uint16_t MAX_FILES = 19; //testing value. will be set to approximately 20160 (7 days)
-char base_file[] = "tempHKdata"; //path may need to be changed
+char base_file[] = "VOL0:/tempHKdata"; //path may need to be changed
 char extension[] = ".TMP";
 uint16_t current_file = 1;  //Increments after file write. loops back at MAX_FILES
                             //1 indexed
