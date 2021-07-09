@@ -15,11 +15,11 @@ uint32_t delay = 1000;
 void dummy_task(void * pvParameters) {
     for(;;) {
         ex2_log("Dummy Task Running");
-        vTaskDelay(pdMS_TO_TICKS(delay));
         TaskHandle_t myHandle = xTaskGetCurrentTaskHandle();
         ex2_set_task_delay(myHandle, delay+10);
         uint32_t myDelay = ex2_get_task_delay(myHandle);
         ex2_log("My delay is: %d", myDelay);
+        vTaskDelay(pdMS_TO_TICKS(delay));
     }
 
 }

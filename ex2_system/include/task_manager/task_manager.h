@@ -34,40 +34,37 @@ typedef struct taskFunctions {
     void (*setDelayFunction)(uint32_t delay);
 } taskFunctions;
 
-typedef struct task_info {
+typedef struct {
     TaskHandle_t task;
     bool persistent;
     taskFunctions funcs;
 } task_info;
 
+typedef struct {
+    TaskHandle_t task;
+    char *task_name;
+} user_info;
+
 typedef struct task_info_node {
     struct task_info_node *next;
-    struct task_info info_list[10]; // each node will contain 10 tasks
+    task_info info_list[10]; // each node will contain 10 tasks
 } task_info_node;
-
-BaseType_t start_task_manager_watchdog();
-
-BaseType_t start_task_manager_daemon();
 
 TaskHandle_t ex2_get_task_handle_by_name(char *name);
 
 char * ex2_get_task_name_by_handle(TaskHandle_t handle);
 
-task_info_node * ex2_get_task_list();
-
-void ex2_task_killall();
-
-void ex2_task_kill(TaskHandle_t task);
+void ex2_get_task_list(user_info **task_lst, uint32_t *size);
 
 void ex2_deregister(TaskHandle_t task);
 
 void ex2_register(TaskHandle_t task, taskFunctions funcs, bool persistent);
 
-void ex2_set_task_delay(TaskHandle_t task, uint32_t delay);
+bool ex2_set_task_delay(TaskHandle_t task, uint32_t delay);
 
 uint32_t ex2_get_task_delay(TaskHandle_t task);
 
-uint32_t dev_ex2_get_task_high_watermark(TaskHandle_t task);
+UBaseType_t dev_ex2_get_task_high_watermark(TaskHandle_t task);
 
 bool ex2_task_exists(TaskHandle_t task);
 

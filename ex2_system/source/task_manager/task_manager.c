@@ -38,6 +38,21 @@ task_info *get_task_info(TaskHandle_t task) {
     return ret;
 }
 
+uint32_t get_task_count() {
+    task_info_node *curr = tasks_start;
+    uint32_t count = 0;
+    while (curr) {
+        int i;
+        for (i = 0; i < 10; i++) {
+            if (curr->info_list[i].task > 0) {
+                count++;
+            }
+        }
+        curr = curr->next;
+    }
+    return count;
+}
+
 task_info_node *get_new_task_node() {
     task_info_node *new_node = malloc(sizeof(task_info_node));
     memset(new_node, 0, sizeof(new_node));
@@ -60,7 +75,7 @@ void compress_list() {
 // TODO: make this handle malloc failure
 bool add_task_to_list(task_info *new_tsk) {
     if (is_task_in_list(new_tsk->task)) {
-        return;
+        return false;
     }
     xSemaphoreTakeRecursive(task_mutex, portMAX_DELAY);
     task_info *tsk = get_task_info(0);
@@ -105,8 +120,29 @@ char * ex2_get_task_name_by_handle(TaskHandle_t handle) {
     return pcTaskGetName(handle);
 }
 
-task_info_node *ex2_get_task_list() {
-    return tasks_start;
+// Returns array of structs
+// array is dynamically allocated and must be freed
+void ex2_get_task_list(user_info **task_lst, uint32_t *size) {
+    uint32_t count = get_task_count();
+    *task_lst = (user_info *)pvPortMalloc(sizeof(user_info)*count);
+    if (*task_lst == NULL) {
+        *size = 0;
+        return;
+    }
+    *size = count;
+    task_info_node *curr = tasks_start;
+    int task_lst_i = 0;
+    while (curr) {
+        int i;
+        for (i = 0; i < 10; i++) {
+            if (curr->info_list[i].task > 0) {
+                (*task_lst)[task_lst_i].task = curr->info_list[i].task;
+                (*task_lst)[task_lst_i].task_name = ex2_get_task_name_by_handle(curr->info_list[i].task);
+                task_lst_i++;
+            }
+        }
+        curr = curr->next;
+    }
 }
 
 void ex2_deregister(TaskHandle_t task) {
@@ -121,15 +157,16 @@ void ex2_register(TaskHandle_t task, taskFunctions funcs, bool persistent) {
     add_task_to_list(&new_task);
 }
 
-void ex2_set_task_delay(TaskHandle_t task, uint32_t delay) {
+bool ex2_set_task_delay(TaskHandle_t task, uint32_t delay) {
     task_info *tsk = get_task_info(task);
     if (!tsk) {
-        return 0;
+        return false;
     }
     if (!tsk->funcs.getDelayFunction) {
-        return 0;
+        return false;
     }
-    return tsk->funcs.setDelayFunction(delay);
+    tsk->funcs.setDelayFunction(delay);
+    return true;
 }
 
 uint32_t ex2_get_task_delay(TaskHandle_t task) {
@@ -143,7 +180,13 @@ uint32_t ex2_get_task_delay(TaskHandle_t task) {
     return tsk->funcs.getDelayFunction();
 }
 
-uint32_t dev_ex2_get_task_high_watermark(TaskHandle_t task);
+UBaseType_t dev_ex2_get_task_high_watermark(TaskHandle_t task) {
+    return uxTaskGetStackHighWaterMark(task);
+}
+
+bool ex2_task_exists(TaskHandle_t task) {
+    return is_task_in_list(task);
+}
 
 void ex2_task_init_mutex() {
     if (task_mutex == NULL){
