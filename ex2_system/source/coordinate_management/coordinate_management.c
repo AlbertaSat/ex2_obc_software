@@ -24,6 +24,29 @@
 static void * coordinate_management_daemon(void *pvParameters);
 SAT_returnState start_coordinate_management_daemon(void);
 
+int is_china(double lat,double lon){
+    const double lata =30.747500833466347;
+    const double longa=111.181640625;
+    const double rada=1500;
+    const double latb=38.54129088479034;
+    const double longb =88.41796875;
+    const double radb=1350;
+    const double latc=46.313549654089094;
+    const double longc=123.92578125;
+    const double radc=1000;
+
+    const double earth_radius=6371;
+
+    double siga,sigb,sigc;
+
+    siga=earth_radius*acos(sin(lat*M_PI/180)*sin(lata*M_PI/180)+cos(lat*M_PI/180)*cos(lata*M_PI/180)*cos(fabs((lon-longa)*M_PI/180)));
+    sigb=earth_radius*acos(sin(lat*M_PI/180)*sin(latb*M_PI/180)+cos(lat*M_PI/180)*cos(latb*M_PI/180)*cos(fabs((lon-longb)*M_PI/180)));
+    sigc=earth_radius*acos(sin(lat*M_PI/180)*sin(latc*M_PI/180)+cos(lat*M_PI/180)*cos(latc*M_PI/180)*cos(fabs((lon-longc)*M_PI/180)));
+
+    if(siga<=rada||sigb<=radb||sigc<=radc) return 1;
+    else return 0;
+}
+
 /**
  * Coordinate management. Handle updates of current latitude, longitude, and time as
  * reported by the Global Positioning System.
