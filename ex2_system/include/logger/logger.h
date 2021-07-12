@@ -39,4 +39,13 @@ void stop_logger_fs();
 // to be called before scheduler is started
 void init_logger_queue();
 
+typedef enum {
+   SET_FILE_SIZE = 0,
+   GET_FILE_SIZE = 1,
+   GET_LIST = 2,
+   GET_FILE = 3
+} logger_subservice;
+
+SAT_returnState start_logger_service(void);
+
 #endif // LOGGER_H
