@@ -49,8 +49,8 @@ uint32_t logger_file_handle = 0;
 
 uint32_t max_file_size = 4096;
 
-uint32_t max_string_length = 100;
-char* log_data[100] = {0};
+uint32_t max_string_length = 500;
+char* log_data[500] = {0};
 
 static void test_logger_daemon(void *pvParameters);
 
