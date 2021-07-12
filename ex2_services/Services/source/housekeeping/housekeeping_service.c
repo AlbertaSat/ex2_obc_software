@@ -235,9 +235,6 @@ Result mock_everyone(All_systems_housekeeping* all_hk_data) {
   all_hk_data->UHF_hk.pckts_in = tempu32;
   all_hk_data->UHF_hk.pckts_in_crc16 = tempu32;
   all_hk_data->UHF_hk.temperature = tempFloat;
-  all_hk_data->UHF_hk.low_pwr_stat = tempu8;
-  all_hk_data->UHF_hk.payload_size = tempu16;
-  all_hk_data->UHF_hk.secure_key = tempu32;
 
   for (i = 0; i < SCW_LEN;  i++) {
     all_hk_data->UHF_hk.scw[i] = tempu8;
