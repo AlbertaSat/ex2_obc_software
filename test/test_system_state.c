@@ -59,16 +59,18 @@ Ensure(system_state, starts_and_stops) {
   stop_state_daemon();
 }
 
-
-eps_mode_e get_eps_batt_mode() {
+#define get_eps_batt_mode mock_get_eps_batt_mode;
+eps_mode_e mock_get_eps_batt_mode() {
   return (eps_mode_e) mock();
 }
 
-int8_t eps_get_pwr_chnl(uint8_t pwr_chnl_port) {
+#define eps_get_pwr_chnl mock_eps_get_pwr_chnl
+int8_t mock_eps_get_pwr_chnl(uint8_t pwr_chnl_port) {
   return mock(pwr_chnl_port);
 }
 
-void eps_set_pwr_chnl(uint8_t pwr_chnl_port, bool bit) {
+#define eps_set_pwr_chnl mock_eps_set_pwr_chnl
+void mock_eps_set_pwr_chnl(uint8_t pwr_chnl_port, bool bit) {
   mock(pwr_chnl_port, bit);
 }
 
