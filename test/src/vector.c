@@ -87,7 +87,14 @@ int cgreen_vector_size(const CgreenVector *vector) {
 
 static void increase_space(CgreenVector *vector) {
     vector->space += 100;
-    vector->items = (void**)realloc(vector->items, sizeof(void *) * vector->space);
+    void ** new_items = (void **)pvPortMalloc(sizeof(void *) * vector->space);
+    //if (vector->items != NULL) {
+        for (int i = 0; i < vector->size; i++) {
+            new_items[i] = vector->items[i];
+        }
+    //}
+    vPortFree(vector->items);
+    vector->items = new_items;
 }
 
 /* vim: set ts=4 sw=4 et cindent: */
