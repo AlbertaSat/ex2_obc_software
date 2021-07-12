@@ -12,23 +12,14 @@
  * GNU General Public License for more details.
  */
 /**
- * @file run_test_suite.c
+ * @file test_suites.c
  * @author
  * @date 2020-06-28
  */
-#include "test_suites.h"
 
+#ifndef TEST_INCLUDE_TEST_SUITES_H_
+#define TEST_INCLUDE_TEST_SUITES_H_
 
-void run_test_suite() {
+int test_main();
 
-  INIT_TESTING();
-//  init_environment();
-
-  RUN_TEST_SUITE(system_state);
-
-  PRINT_DIAG();
-
-  return;
-}
-
-// init CSP, FreeRTOS, FS. It is reasonable to test with the whole system running.
+#endif /* TEST_INCLUDE_TEST_SUITES_H_ */

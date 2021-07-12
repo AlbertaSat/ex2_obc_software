@@ -29,6 +29,8 @@ static const bool On = TRUE;
 
 static void state_daemon(void *pvParam);
 
+static TaskHandle_t state_daemon_handle;
+
 /**
  * Query state from NanoAvionics EPS and make required updates
  * as-per the modes of operations.
@@ -41,7 +43,7 @@ static void state_daemon(void *pvParam) {
   TickType_t state_delay = pdMS_TO_TICKS(1000);
   for (;;) {
 
-#ifndef EPS_IS_STUBBED
+//#ifndef EPS_IS_STUBBED
     eps_mode_e eps_batt_mode;
     sat_state_e SAT_state;
     systems_status_t subsystem_target_state = {
@@ -89,7 +91,8 @@ static void state_daemon(void *pvParam) {
     }
 
     change_systems_status(subsystem_target_state);
-#endif
+//#endif
+//    taskYIELD();
     vTaskDelay(state_delay);
   }
 }
@@ -101,13 +104,17 @@ static void state_daemon(void *pvParam) {
  *  error report of creation
  */
 SAT_returnState start_state_daemon() {
-  if (xTaskCreate((TaskFunction_t)state_daemon, "state_task", 512, NULL,
-                  STATE_TASK_PRIO, NULL) != pdPASS) {
+  if (xTaskCreate((TaskFunction_t)state_daemon, "state_task", 9600, NULL,
+                  STATE_TASK_PRIO, &state_daemon_handle) != pdPASS) {
     ex2_log("FAILED TO CREATE TASK state_task\n");
     return SATR_ERROR;
   }
   ex2_log("State task started\n");
   return SATR_OK;
+}
+
+void stop_state_daemon() {
+  vTaskDelete(state_daemon_handle);
 }
 
 /**
@@ -170,7 +177,7 @@ void change_systems_status(systems_status_t subsystem_target_state) {
  * indirectly through change_systems_status.
  * @returns uhf_status for confirmation
  */
-void power_switch_uhf(const bool uhf_status) {
+UHF_return power_switch_uhf(const bool uhf_status) {
   UHF_return status;
   if (uhf_status == false) {
     status = HAL_UHF_lowPwr(1);
@@ -191,10 +198,9 @@ void power_switch_uhf(const bool uhf_status) {
     }
     if (status < 0) {
       ex2_log("Switching UHF TRX's power failed.");
-      // An error occurred. Call this function again?
-      return;
     }
   }
+  return status;
 }
 
 

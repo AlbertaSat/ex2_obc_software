@@ -24,6 +24,7 @@
 #include <stdbool.h>
 
 #include "eps.h"
+#include "uhf.h"
 #include "main/system.h"
 
 
@@ -49,10 +50,11 @@ typedef struct {
 } systems_status_t;
 
 SAT_returnState start_state_daemon();
+void stop_state_daemon();
 sat_state_e eps2sat_mode_cnv(eps_mode_e batt_mode);
 
 void change_systems_status(systems_status_t subsystem_target_state);
-void power_switch_uhf(const bool uhf_status);
+UHF_return power_switch_uhf(const bool uhf_status);
 sys_returnstate_e power_switch_sys(const uint8_t channel, const bool target_state);
 
 #endif /* EX2_SYSTEM_INCLUDE_SYSTEM_STATE_STATE_TASK_H_ */
