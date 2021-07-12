@@ -25,6 +25,7 @@
 #include "housekeeping/housekeeping_task.h"
 #include "performance_monitor/system_stats.h"
 #include "system_state/state_task.h"
+#include "logger/logger.h"
 
 SAT_returnState start_system_tasks(void);
 
@@ -35,12 +36,14 @@ SAT_returnState start_system_tasks(void);
  *  error report of daemon creation
  */
 SAT_returnState start_system_tasks(void) {
+  TaskHandle_t _;
   if (start_beacon_daemon() != SATR_OK ||
       start_coordinate_management_daemon() != SATR_OK ||
       start_diagnostic_daemon() != SATR_OK ||
       start_housekeeping_daemon() != SATR_OK ||
       start_system_stats_daemon() != SATR_OK ||
-      start_state_daemon() != SATR_OK) {
+      start_state_daemon() != SATR_OK        ||
+      start_logger_daemon(_) != SATR_OK) {
     ex2_log("Error starting system tasks\r\n");
     return SATR_ERROR;
   }

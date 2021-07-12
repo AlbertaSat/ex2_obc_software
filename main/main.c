@@ -45,8 +45,7 @@
 #include "HL_sys_common.h"
 #include "system_tasks.h"
 #include "mocks/rtc.h"
-#include "leop.h"
-
+#include "logger/logger.h"
 #include "file_delivery_app.h"
 
 /**
@@ -66,6 +65,7 @@
 
 static void init_filesystem();
 static void init_csp();
+static void init_software();
 static inline SAT_returnState init_csp_interface();
 static void init_system_tasks();
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
@@ -95,7 +95,8 @@ int ex2_main(int argc, char **argv) {
   //init_filesystem();
   init_csp();
   /* Start service server, and response server */
-  init_leop(leop_time_ms);
+  init_software();
+
 //  start_eps_mock();
 /*
   FTP app;
@@ -110,6 +111,16 @@ int ex2_main(int argc, char **argv) {
   for (;;); // Scheduler didn't start
 }
 
+/**
+ * Initialize service and system tasks
+ */
+void init_software() {
+    /* start system tasks and service listeners */
+    if (start_service_server() != SATR_OK ||
+        start_system_tasks() != SATR_OK) {
+      ex2_log("Initialization error\n");
+    }
+}
 
 /**
  * Initialize reliance edge file system
@@ -225,12 +236,13 @@ void initializeProfiler()
     RESET_PRIVILEGE;
 }
 
+// TODO: This might need to be put in application_defined_privileged_functions.h
 uint32 getProfilerTimerCount()
 {
     RAISE_PRIVILEGE;
-    return _pmuGetCycleCount_() / GCLK_FREQ;
-    portRESET_PRIVILEGE( xRunningPrivileged );
+    uint32_t ret = _pmuGetCycleCount_() / GCLK_FREQ;
     RESET_PRIVILEGE;
+    return ret;
 }
 
 void vApplicationStackOverflowHook( TaskHandle_t xTask, char *pcTaskName ) {
@@ -239,6 +251,10 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask, char *pcTaskName ) {
 
 void vApplicationMallocFailedHook( void ) {
     for(;;);
+}
+
+void vApplicationDaemonTaskStartupHook( void ) {
+    init_logger_queue();
 }
 
 void SciSendBuf( char *buf, uint32_t bufSize )
