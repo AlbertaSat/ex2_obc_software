@@ -30,7 +30,7 @@
 #include "util/service_utilities.h"
 //#include "uTransceiver.h" //* Uncomment after EH integration
 
-#define CHAR_LEN 4  // Numpy unicode string character length
+#define CHAR_LEN 1  // If using Numpy unicode string, change to 4
 #define CALLSIGN_LEN 6
 #define MORSE_BEACON_MSG_LEN_MAX 36
 #define BEACON_MSG_LEN_MAX 60
@@ -38,6 +38,7 @@
       // is changed.
 #define FRAM_SIZE 16
 #define SID_byte 1
+#define SINGLE_NOTE_LEN 3 // For MIDI audio notes
 
 SAT_returnState communication_service_app(csp_packet_t *packet);
 
@@ -546,17 +547,28 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
 
     case UHF_SET_MIDI:
       uhf_struct_len = BEACON_MSG_LEN_MAX;
-      for (i = 0;
-           i < uhf_struct_len &&
-           packet->data[IN_DATA_BYTE + (CHAR_LEN - 1) + CHAR_LEN * i] != 0;
-           i++) {
-        U_beacon->MIDI.message[i] =
-            (uint8_t)packet->data[IN_DATA_BYTE + (CHAR_LEN - 1) + CHAR_LEN * i];
-        U_beacon->MIDI.message[i] =
-            csp_ntoh32((uint32_t)U_beacon->MIDI.message[i]);
+      uint8_t M_char =
+          (uint8_t)packet->data[IN_DATA_BYTE + (CHAR_LEN - 1)];
+      if (csp_ntoh32((uint32_t)M_char) != 'M'){ // To get around the parser, force a letter in the start
+          status = -2; //U_BAD_PARAM
+      } else { // Now parse it
+          for (i = 0;
+               i < uhf_struct_len &&
+               packet->data[IN_DATA_BYTE + (CHAR_LEN - 1) + CHAR_LEN * (i+1)] != 0; // +1 for M_char
+               i++) {
+            U_beacon->MIDI.message[i] =
+                (uint8_t)packet->data[IN_DATA_BYTE + (CHAR_LEN - 1) + CHAR_LEN * (i+1)]; // +1 for M_char
+            U_beacon->MIDI.message[i] =
+                csp_ntoh32((uint32_t)U_beacon->MIDI.message[i]);
+          }
+          if (i % SINGLE_NOTE_LEN != 0){
+              status = -2; //U_BAD_PARAM
+          } else {
+              U_beacon->MIDI.len = i / SINGLE_NOTE_LEN;
+              status = HAL_UHF_setMIDI(U_beacon->MIDI);
+          }
       }
-      U_beacon->MIDI.len = i;
-      status = HAL_UHF_setMIDI(U_beacon->MIDI);
+
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       set_packet_length(packet, sizeof(int8_t) + 1);
 
@@ -699,7 +711,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
 
     case UHF_GET_MIDI:
       status = HAL_UHF_getMIDI(&U_beacon->MIDI);
-      uhf_struct_len = U_beacon->MIDI.len;
+      uhf_struct_len = U_beacon->MIDI.len * SINGLE_NOTE_LEN;
       uint8_t midi[BEACON_MSG_LEN_MAX * CHAR_LEN];
       memset(midi, 0, BEACON_MSG_LEN_MAX * CHAR_LEN);
       if (sizeof(midi) + 1 > csp_buffer_data_size()) {
