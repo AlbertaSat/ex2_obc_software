@@ -13,7 +13,7 @@
  */
 /**
  * @file state_task.c
- * @author Andrew R. Rooney, Arash Yazdani
+ * @author Andrew R. Rooney
  * @date Feb. 19, 2021
  */
 #include "system_state/state_task.h"
@@ -24,12 +24,9 @@
 #include "HL_het.h"
 #include "uhf.h"
 
-static const bool Off = FALSE;
-static const bool On = TRUE;
-
 static void state_daemon(void *pvParam);
 
-static TaskHandle_t state_daemon_handle;
+static TickType_t state_delay = pdMS_TO_TICKS(1000);
 
 /**
  * Query state from NanoAvionics EPS and make required updates
@@ -40,59 +37,42 @@ static TaskHandle_t state_daemon_handle;
  * @attention OBC is not operational in HW critical and critical states
  */
 static void state_daemon(void *pvParam) {
-  TickType_t state_delay = pdMS_TO_TICKS(1000);
   for (;;) {
-
-//#ifndef EPS_IS_STUBBED
+    // Fig. 4 in MOP
     eps_mode_e eps_batt_mode;
-    sat_state_e SAT_state;
-    systems_status_t subsystem_target_state = {
-      .heater = Off,
-      .eps = Off,
-      .obc = Off,
-      .uhf = Off,
-      .stx = Off,
-      .iris = Off,
-      .dfgm = Off,
-      .adcs = Off,
-    };
+    SAT_state_e SAT_state;
+    uint8_t system_ctrl =
+        1;  // A control word deciding what systems must be working
+    // LSB -> MSB: Battery heaters, EPS, OBC, UHF, S-band, Iris, DFGM, ADCS
+#ifndef EPS_IS_STUBBED
     eps_batt_mode = get_eps_batt_mode();
     SAT_state = eps2sat_mode_cnv(eps_batt_mode);
 
     switch (SAT_state) {
       case hw_critical_state:  // Battery heaters on
-        subsystem_target_state.heater = On;
+        system_ctrl |= (1 << batHeater_id);
         break;
       case critical_state:  // Battery heaters & EPS on
-        subsystem_target_state.heater = On;
-        subsystem_target_state.eps = On;
+        system_ctrl |= (1 << batHeater_id) | (1 << EPS_id);
         break;
       case safe_state:  // Battery heaters, EPS, OBC & UHF on
-        subsystem_target_state.heater = On;
-        subsystem_target_state.eps = On;
-        subsystem_target_state.obc = On;
-        subsystem_target_state.uhf = On;
+        system_ctrl |=
+            (1 << batHeater_id) | (1 << EPS_id) | (1 << OBC_id) | (1 << UHF_id);
         // TODO: start a task that prepares for critical mode
         break;
       case operational_state:  // All subsystems on
-        subsystem_target_state.heater = On;
-        subsystem_target_state.eps = On;
-        subsystem_target_state.obc = On;
-        subsystem_target_state.uhf = On;
-        subsystem_target_state.stx = On;
-        subsystem_target_state.iris = On;
-        subsystem_target_state.dfgm = On;
-        subsystem_target_state.adcs = On;
+        system_ctrl |= (1 << batHeater_id) | (1 << EPS_id) | (1 << OBC_id) |
+                       (1 << UHF_id) | (1 << STX_id) | (1 << Iris_id) |
+                       (1 << DFGM_id) | (1 << ADCS_id);
         break;
       default:
         // Shouldn't happen.
-        ex2_log("Unexpected Satellite mode\n");
+        printf("Unexpected Satellite mode\n");
         break;
     }
 
-    change_systems_status(subsystem_target_state);
-//#endif
-//    taskYIELD();
+    change_systems_status(system_ctrl);
+#endif
     vTaskDelay(state_delay);
   }
 }
@@ -104,17 +84,13 @@ static void state_daemon(void *pvParam) {
  *  error report of creation
  */
 SAT_returnState start_state_daemon() {
-  if (xTaskCreate((TaskFunction_t)state_daemon, "state_task", 9600, NULL,
-                  STATE_TASK_PRIO, &state_daemon_handle) != pdPASS) {
+  if (xTaskCreate((TaskFunction_t)state_daemon, "state_task", 512, NULL,
+                  STATE_TASK_PRIO, NULL) != pdPASS) {
     ex2_log("FAILED TO CREATE TASK state_task\n");
     return SATR_ERROR;
   }
   ex2_log("State task started\n");
   return SATR_OK;
-}
-
-void stop_state_daemon() {
-  vTaskDelete(state_daemon_handle);
 }
 
 /**
@@ -125,8 +101,8 @@ void stop_state_daemon() {
  * @attention OBC will turn off if the case is critical
  * @returns satellite's status
  */
-sat_state_e eps2sat_mode_cnv(eps_mode_e batt_mode) {
-  sat_state_e state;
+SAT_state_e eps2sat_mode_cnv(eps_mode_e batt_mode) {
+  SAT_state_e state;
   switch (batt_mode) {
     case critical:
       state = critical_state;
@@ -142,7 +118,7 @@ sat_state_e eps2sat_mode_cnv(eps_mode_e batt_mode) {
       break;
     default:
       // Should not happen but the safe option is not to change anything
-      ex2_log("Unexpected EPS mode\n");
+      printf("Unexpected EPS mode\n");
       break;
   }
   return state;
@@ -157,12 +133,21 @@ sat_state_e eps2sat_mode_cnv(eps_mode_e batt_mode) {
  * @attention May be replaced with an object
  * @returns
  */
-void change_systems_status(systems_status_t subsystem_target_state) {
-  power_switch_uhf(subsystem_target_state.uhf);
-  power_switch_sys(STX_PWR_CHNL, subsystem_target_state.stx);
-  power_switch_sys(IRIS_PWR_CHNL, subsystem_target_state.iris);
-  power_switch_sys(DFGM_PWR_CHNL, subsystem_target_state.dfgm);
-  power_switch_sys(ADCS_PWR_CHNL, subsystem_target_state.adcs);
+void change_systems_status(uint8_t ctrl_word) {
+  int8_t sys_state[number_of_systems] = {1};
+  systems_status systems_ctrl;  //* Can be made global to be accessed by HK
+  systems_ctrl.EPS = (ctrl_word >> EPS_id) & 1;
+  systems_ctrl.OBC = (ctrl_word >> OBC_id) & 1;
+  systems_ctrl.UHF = (ctrl_word >> UHF_id) & 1;
+  sys_state[UHF_id] = power_switch_uhf(&systems_ctrl.UHF);
+  systems_ctrl.STX = (ctrl_word >> STX_id) & 1;
+  sys_state[STX_id] = power_switch_stx(&systems_ctrl.STX);
+  systems_ctrl.Iris = (ctrl_word >> Iris_id) & 1;
+  sys_state[Iris_id] = power_switch_iris(&systems_ctrl.Iris);
+  systems_ctrl.DFGM = (ctrl_word >> DFGM_id) & 1;
+  sys_state[DFGM_id] = power_switch_dfgm(&systems_ctrl.DFGM);
+  systems_ctrl.ADCS = (ctrl_word >> ADCS_id) & 1;
+  sys_state[ADCS_id] = power_switch_adcs(&systems_ctrl.ADCS);
   // TODO: If sys_state[i] == SYS_NO_RESPONSE, do sth.
   // e.g., refine state task delay and repeat.
 }
@@ -177,8 +162,8 @@ void change_systems_status(systems_status_t subsystem_target_state) {
  * indirectly through change_systems_status.
  * @returns uhf_status for confirmation
  */
-UHF_return power_switch_uhf(const bool uhf_status) {
-  UHF_return status;
+SYS_returnState power_switch_uhf(bool *uhf_status) {
+  int8_t status;
   if (uhf_status == false) {
     status = HAL_UHF_lowPwr(1);
     // or if we want to shut it down completely:
@@ -188,32 +173,79 @@ UHF_return power_switch_uhf(const bool uhf_status) {
               1);  // Even if it was not set to zero in this function.
     uint8_t is_low_pwr;
     status = HAL_UHF_getLowPwr(&is_low_pwr);
-    if (uhf_status == false) {
+    if (uhf_status == 0) {
       if (is_low_pwr) {
         // send any command to wake it up, e.g.,
         uint8_t scw[12];
-        status = HAL_UHF_getSCW(scw);
+        status = HAL_UHF_getSCW(&scw);
         // Here write any code based on the read scw!
       }
     }
-    if (status < 0) {
-      ex2_log("Switching UHF TRX's power failed.");
+    if (status != 0) {
+      printf("Switching UHF TRX's power failed.");
+      // An error occurred. Call this function again?
     }
   }
   return status;
 }
 
-
-sys_returnstate_e power_switch_sys(const uint8_t channel, const bool target_state) {
-  int8_t current_status = eps_get_pwr_chnl(channel);
-  if (current_status != target_state) {
-    eps_set_pwr_chnl(channel, target_state);
-    current_status = eps_get_pwr_chnl(channel);
+/*
+ * Independent functions are considered for easier modification.
+ * e.g., We might need to initiate a procedure for a subsystem before
+ * disconnecting power.
+ */
+SYS_returnState power_switch_stx(bool *stx_status) {
+  int8_t current_status = eps_get_pwr_chnl(STX_PWR_CHNL);
+  if (current_status != *stx_status) {
+    eps_set_pwr_chnl(STX_PWR_CHNL, *stx_status);
+    current_status = eps_get_pwr_chnl(STX_PWR_CHNL);
   }
-  if (current_status == target_state) {
-    return (sys_returnstate_e)current_status;
+  if (current_status == *stx_status) {
+    return (SYS_returnState)current_status;
   } else {
-    ex2_log("Switching system power failed.");
+    printf("Switching S-band transmitter's power failed.");
+    return SYS_NO_RESPONSE;
+  }
+}
+
+SYS_returnState power_switch_iris(bool *iris_status) {
+  int8_t current_status = eps_get_pwr_chnl(IRIS_PWR_CHNL);
+  if (current_status != *iris_status) {
+    eps_set_pwr_chnl(IRIS_PWR_CHNL, *iris_status);
+    current_status = eps_get_pwr_chnl(IRIS_PWR_CHNL);
+  }
+  if (current_status == *iris_status) {
+    return (SYS_returnState)current_status;
+  } else {
+    printf("Switching Iris's power failed.");
+    return SYS_NO_RESPONSE;
+  }
+}
+
+SYS_returnState power_switch_dfgm(bool *dfgm_status) {
+  int8_t current_status = eps_get_pwr_chnl(DFGM_PWR_CHNL);
+  if (current_status != *dfgm_status) {
+    eps_set_pwr_chnl(DFGM_PWR_CHNL, *dfgm_status);
+    current_status = eps_get_pwr_chnl(DFGM_PWR_CHNL);
+  }
+  if (current_status == *dfgm_status) {
+    return (SYS_returnState)current_status;
+  } else {
+    printf("Switching DFGM's power failed.");
+    return SYS_NO_RESPONSE;
+  }
+}
+
+SYS_returnState power_switch_adcs(bool *adcs_status) {
+  int8_t current_status = eps_get_pwr_chnl(ADCS_PWR_CHNL);
+  if (current_status != *adcs_status) {
+    eps_set_pwr_chnl(ADCS_PWR_CHNL, *adcs_status);
+    current_status = eps_get_pwr_chnl(ADCS_PWR_CHNL);
+  }
+  if (current_status == *adcs_status) {
+    return (SYS_returnState)current_status;
+  } else {
+    printf("Switching ADCS's power failed.");
     return SYS_NO_RESPONSE;
   }
 }
