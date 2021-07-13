@@ -9,7 +9,7 @@ typedef struct __attribute__((packed)) {
     xyz Sat_Position_ECI;
     xyz Sat_Velocity_ECI;
     xyz Sat_Position_LLH;
-    xyz ECEF_Position;
+    xyz16 ECEF_Position;
     xyz Coarse_Sun_Vector;
     xyz Fine_Sun_Vector;
     xyz Nadir_Vector;
