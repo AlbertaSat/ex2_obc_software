@@ -76,6 +76,7 @@ void run_test(void* args) {
 }
 
 int ex2_main(int argc, char **argv) {
+
 #if DEV_RUN_TEST_SUITE == 1
   if (xTaskCreate((TaskFunction_t)run_test, "test", 4800, NULL,
                   1, NULL) != pdPASS) {
