@@ -467,3 +467,99 @@ uint8_t *puc;
 	}
 }
 
+void *pvPortCalloc(int num, size_t xSize) {
+    void *ret;
+    ret = pvPortMalloc(xSize * num);
+    if (ret) {
+        ret = memset(ret, 0, xSize * num);
+    }
+    return ret;
+}
+
+// ******************************************************************************************************
+// *                                                                                                    *
+// * pvPortRealloc                                                                                      *
+// *                                                                                                    *
+// * Reallocate memory in heap to be bigger                                                             *
+// *                                                                                                    *
+// * Parameter : (void *) Pointer to a memory block previously allocated with malloc, calloc or realloc *
+// *             (size_t) Number of byte to resize section                                              *
+// *                                                                                                    *
+// * Return    : (void *) Pointer to allocate region, NULL if error on allocation                       *
+// *                                                                                                    *
+// ******************************************************************************************************
+
+void *pvPortRealloc( void *pv, size_t xWantedSize )
+{
+    // Local variable
+    size_t move_size;
+    size_t block_size;
+    BlockLink_t *pxLink;
+    void *pvReturn = NULL;
+    uint8_t *puc = ( uint8_t * ) pv;
+
+    // Se NULL, exit
+    if (xWantedSize > 0)
+    {
+        // Controllo se buffer valido
+        if (pv != NULL)
+        {
+            // The memory being freed will have an BlockLink_t structure immediately before it.
+            puc -= xHeapStructSize;
+
+            // This casting is to keep the compiler from issuing warnings.
+            pxLink = ( void * ) puc;
+
+            // Check allocate block
+            if ((pxLink->xBlockSize & xBlockAllocatedBit) != 0)
+            {
+                // The block is being returned to the heap - it is no longer allocated.
+                block_size = (pxLink->xBlockSize & ~xBlockAllocatedBit) - xHeapStructSize;
+
+                // Alloco nuovo spazio di memoria
+                pvReturn = pvPortCalloc(1, xWantedSize);
+
+                // Check creation
+                if (pvReturn != NULL)
+                {
+                    // Sposta soltanto fino al limite
+                    if (block_size < xWantedSize)
+                    {
+                        // Il nuovo posto disponibile è inferiore
+                        move_size = block_size;
+                    }
+                    else
+                    {
+                        // Il nuovo posto disponibile è maggiore
+                        move_size = xWantedSize;
+                    }
+
+                    // Copio dati nel nuovo spazio di memoria
+                    memcpy(pvReturn, pv, move_size);
+
+                    // Libero vecchio blocco di memoria
+                    vPortFree(pv);
+                }
+            }
+            else
+            {
+                // Puntatore nullo, alloca memoria come fosse nuova
+                pvReturn = pvPortCalloc(1, xWantedSize);
+            }
+        }
+        else
+        {
+            // Puntatore nullo, alloca memoria come fosse nuova
+            pvReturn = pvPortCalloc(1, xWantedSize);
+        }
+    }
+    else
+    {
+        // Exit without memory block
+        pvReturn = NULL;
+    }
+
+    // Exit with memory block
+    return pvReturn;
+}
+
