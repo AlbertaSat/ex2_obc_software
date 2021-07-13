@@ -75,24 +75,27 @@ void mock_eps_set_pwr_chnl(uint8_t pwr_chnl_port, bool bit) {
 }
 
 Ensure(system_state, sets_critical_state) {
-//  expect(get_eps_batt_mode, will_return(critical));
+  expect(get_eps_batt_mode, will_return(critical));
 
   expect(eps_get_pwr_chnl, will_return(1));
   expect(eps_set_pwr_chnl, when(pwr_chnl_port, is_equal_to(STX_PWR_CHNL)), when(bit, is_false));
-//  expect(eps_get_pwr_chnl, will_return(0));
+  expect(eps_get_pwr_chnl, will_return(0));
 
-////  expect(eps_get_pwr_chnl, will_return(1));
-//  expect(eps_set_pwr_chnl, when(pwr_chnl_port, is_equal_to(IRIS_PWR_CHNL)), when(bit, is_false));
-////  expect(eps_get_pwr_chnl, will_return(0));
-//
-////  expect(eps_get_pwr_chnl, will_return(1));
-//  expect(eps_set_pwr_chnl, when(pwr_chnl_port, is_equal_to(DFGM_PWR_CHNL)), when(bit, is_false));
-////  expect(eps_get_pwr_chnl, will_return(0));
-//
-////  expect(eps_get_pwr_chnl, will_return(1));
-//  expect(eps_set_pwr_chnl, when(pwr_chnl_port, is_equal_to(ADCS_PWR_CHNL)), when(bit, is_false));
-//  always_expect(eps_get_pwr_chnl, will_return(0));
-//  expect(eps_get_pwr_chnl, will_return(0));
+  expect(eps_get_pwr_chnl, will_return(1));
+  expect(eps_set_pwr_chnl, when(pwr_chnl_port, is_equal_to(IRIS_PWR_CHNL)), when(bit, is_false));
+  expect(eps_get_pwr_chnl, will_return(0));
+
+  expect(eps_get_pwr_chnl, will_return(1));
+
+
+  //TODO: crash is here
+  expect(eps_set_pwr_chnl, when(pwr_chnl_port, is_equal_to(DFGM_PWR_CHNL)), when(bit, is_false));
+  expect(eps_get_pwr_chnl, will_return(0));
+
+  expect(eps_get_pwr_chnl, will_return(1));
+  expect(eps_set_pwr_chnl, when(pwr_chnl_port, is_equal_to(ADCS_PWR_CHNL)), when(bit, is_false));
+  always_expect(eps_get_pwr_chnl, will_return(0));
+  expect(eps_get_pwr_chnl, will_return(0));
   SAT_returnState sat_state = start_state_daemon();
   taskYIELD();
   stop_state_daemon();

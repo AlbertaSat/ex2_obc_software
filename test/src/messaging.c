@@ -76,7 +76,7 @@ int start_cgreen_messaging(int tag) {
         }
     }
 
-    tmp = (CgreenMessageQueue *) realloc(queues, sizeof(CgreenMessageQueue) * ++queue_count);
+    tmp = (CgreenMessageQueue *) pvPortRealloc(queues, sizeof(CgreenMessageQueue) * ++queue_count);
     if (tmp == NULL) {
         /* ignoring return value here, as the world is ending anyways */
         (void)atexit(&clean_up_messaging);
@@ -100,7 +100,7 @@ int start_cgreen_messaging(int tag) {
 void send_cgreen_message(int messaging, int result) {
     CgreenMessage *message;
     
-    message = (CgreenMessage *) malloc(sizeof(CgreenMessage));
+    message = (CgreenMessage *) pvPortMalloc(sizeof(CgreenMessage));
     if (message == NULL) {
       return;
     }
@@ -112,20 +112,20 @@ void send_cgreen_message(int messaging, int result) {
     // before the child crashes
     taskYIELD();
 
-    free(message);
+    vPortFree(message);
 }
 
 int receive_cgreen_message(int messaging) {
     ssize_t received;
     int result;
-    CgreenMessage *message = (CgreenMessage *) malloc(sizeof(CgreenMessage));
+    CgreenMessage *message = (CgreenMessage *) pvPortMalloc(sizeof(CgreenMessage));
     if (message == NULL) {
       return -1;
     }
 
     received = cgreen_pipe_read(queues[messaging].readpipe, message, sizeof(CgreenMessage));
     result = (received > 0 ? message->result : 0);
-    free(message);
+    vPortFree(message);
     return result;
 }
 
@@ -137,7 +137,7 @@ static void clean_up_messaging(void) {
             cgreen_pipe_close(queues[i].writepipe);
         }
     }
-    free(queues);
+    vPortFree(queues);
     queues = NULL;
     queue_count = 0;
 }

@@ -46,14 +46,14 @@ void set_reporter_options(TestReporter *reporter, void *options) {
 
 TestReporter *create_reporter() {
     CgreenBreadcrumb *breadcrumb;
-    TestReporter *reporter = (TestReporter *) malloc(sizeof(TestReporter));
+    TestReporter *reporter = (TestReporter *) pvPortMalloc(sizeof(TestReporter));
     if (reporter == NULL) {
         return NULL;
     }
 
     breadcrumb = create_breadcrumb();
     if (breadcrumb == NULL) {
-        free(reporter);
+        vPortFree(reporter);
         return NULL;
     }
 
@@ -86,7 +86,7 @@ TestReporter *create_reporter() {
 void destroy_reporter(TestReporter *reporter) {
     destroy_breadcrumb((CgreenBreadcrumb *)reporter->breadcrumb);
     destroy_memo((TestReportMemo *)reporter->memo);
-    free(reporter);
+    vPortFree(reporter);
     // hack to allow destroy_reporter to be called in reporter_tests when
     // tests are running in same process
     if (context.reporter == reporter)
@@ -97,7 +97,7 @@ void destroy_reporter(TestReporter *reporter) {
 
 void destroy_memo(TestReportMemo *memo) {
     if (NULL != memo) {
-        free(memo);
+        vPortFree(memo);
     }
 }
 

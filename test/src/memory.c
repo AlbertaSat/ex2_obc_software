@@ -15,13 +15,13 @@ static int move_to_front(MemoryPool *pool, void *pointer);
 static void move_up_one(void **blocks, long amount);
 
 MemoryPool *create_memory_pool() {
-    MemoryPool *pool = (MemoryPool *)malloc(sizeof(MemoryPool));
+    MemoryPool *pool = (MemoryPool *)pvPortMalloc(sizeof(MemoryPool));
     if (pool == NULL) {
         return NULL;
     }
-    pool->blocks = (void **)malloc(MEMORY_INCREMENT * sizeof(void *));
+    pool->blocks = (void **)pvPortMalloc(MEMORY_INCREMENT * sizeof(void *));
     if (pool->blocks == NULL) {
-        free(pool);
+        vPortFree(pool);
         return NULL;
     }
     pool->size = 0;
@@ -32,27 +32,27 @@ MemoryPool *create_memory_pool() {
 void free_memory_pool(MemoryPool *pool) {
     long i;
     for (i = 0; i < pool->size; i++) {
-        free(pool->blocks[i]);
+        vPortFree(pool->blocks[i]);
     }
-    free(pool->blocks);
-    free(pool);
+    vPortFree(pool->blocks);
+    vPortFree(pool);
 }
 
 void *memory_pool_allocate(MemoryPool *pool, size_t bytes) {
     enlarge(pool);
-    return pool->blocks[pool->size++] = malloc(bytes);
+    return pool->blocks[pool->size++] = pvPortMalloc(bytes);
 }
 
 void *memory_pool_reallocate(MemoryPool *pool, void *pointer, size_t bytes) {
     if (! move_to_front(pool, pointer)) {
         return NULL;
     }
-    return pool->blocks[0] = realloc(pool->blocks[0], bytes);
+    return pool->blocks[0] = pvPortRealloc(pool->blocks[0], bytes);
 }
 
 static void enlarge(MemoryPool *pool) {
     if (pool->size == pool->space) {
-        pool->blocks = (void**)realloc(pool->blocks, (pool->space + MEMORY_INCREMENT) * sizeof(void *));
+        pool->blocks = (void**)pvPortRealloc(pool->blocks, (pool->space + MEMORY_INCREMENT) * sizeof(void *));
         pool->space += MEMORY_INCREMENT;
     }
 }

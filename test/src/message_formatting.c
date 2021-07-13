@@ -58,7 +58,7 @@ static char *copy_while_doubling_percent_signs(char *string, char const *origina
 static char *double_all_percent_signs_in(const char *original)
 {
     size_t percent_count = count_percent_signs(original);
-    char *new_string = (char *)malloc(strlen(original) + percent_count + 1);
+    char *new_string = (char *)pvPortMalloc(strlen(original) + percent_count + 1);
     if (new_string == NULL) {
         return NULL;
     }
@@ -93,7 +93,7 @@ bool parameters_are_not_valid_for(Constraint *constraint, intptr_t actual) {
 
     bool not_valid = (strlen(message) > 0);
 
-    free(message);
+    vPortFree(message);
 
     return not_valid;
 }
@@ -117,7 +117,7 @@ char *validation_failure_message_for(Constraint *constraint, intptr_t actual) {
             strlen(null_used_for_actual_message) +
             512; // just in case
 
-    char *message = (char *)malloc(message_size);
+    char *message = (char *)pvPortMalloc(message_size);
     memset(message, 0, message_size);
 
 //    (void)function; // UNUSED!
@@ -199,7 +199,7 @@ char *failure_message_for(Constraint *constraint, const char *actual_string, int
         }
     }
 
-    message = (char *)malloc(message_size);
+    message = (char *)pvPortMalloc(message_size);
 
     /* if the actual value expression contains '%' we want it to survive the final expansion with
        arguments that happens in assert_true() */
@@ -211,7 +211,7 @@ char *failure_message_for(Constraint *constraint, const char *actual_string, int
              actual_value_as_string,
              constraint->name);
 
-    free((void*)actual_value_as_string);
+    vPortFree((void*)actual_value_as_string);
 
     if (no_expected_value_in(constraint)) {
         return message;
@@ -246,7 +246,7 @@ char *failure_message_for(Constraint *constraint, const char *actual_string, int
         */
         if (next_percent_sign(message) != NULL) {
             char *message_with_doubled_percent_signs = double_all_percent_signs_in(message);
-            free(message);
+            vPortFree(message);
             message = message_with_doubled_percent_signs;
         }
         return message;

@@ -13,7 +13,7 @@ static char *strip_function_from(char *token, const char *function_name);
 static bool begins_with(char *token, const char *beginning);
 
 static char *stringdup(const char *string) {
-    return strcpy((char *)malloc(strlen(string)+1), string);
+    return strcpy((char *)pvPortMalloc(strlen(string)+1), string);
 }
 
 CgreenVector *create_vector_of_names(const char *parameters) {
@@ -43,12 +43,12 @@ CgreenVector *create_vector_of_names(const char *parameters) {
         token += length_of_token;
     }
 
-    free(tokens);
+    vPortFree(tokens);
     return names;
 }
 
 static bool *pointer_to_bool(bool value) {
-    bool *ptr = (bool *)malloc(sizeof(value));
+    bool *ptr = (bool *)pvPortMalloc(sizeof(value));
     *ptr = value;
     return ptr;
 }
@@ -85,7 +85,7 @@ CgreenVector *create_vector_of_double_markers_for(const char *parameters) {
         token += length_of_token;
     }
 
-    free(tokens);
+    vPortFree(tokens);
     return markers;
 }
 

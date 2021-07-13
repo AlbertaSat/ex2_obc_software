@@ -62,7 +62,7 @@ void assert_core_(const char *file, int line, const char *actual_string, intptr_
                                             validation_message);
 
         constraint->destroy(constraint);
-        free(validation_message);
+        vPortFree(validation_message);
         return;
     }
 
@@ -77,7 +77,7 @@ void assert_core_(const char *file, int line, const char *actual_string, intptr_
                                         );
 
     constraint->destroy(constraint);
-    free(failure_message);
+    vPortFree(failure_message);
 }
 
 void assert_that_double_(const char *file, int line, const char *expression, double actual, Constraint* constraint) {
@@ -123,7 +123,7 @@ void assert_that_double_(const char *file, int line, const char *expression, dou
             actual,
             constraint->expected_value.value.double_value);
 
-    free(boxed_actual);
+    vPortFree(boxed_actual);
     constraint->destroy(constraint);
 }
 

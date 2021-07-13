@@ -49,7 +49,7 @@ TestReporter *create_xml_reporter(const char *prefix) {
         return NULL;
     }
 
-    memo = (XmlMemo *) malloc(sizeof(XmlMemo));
+    memo = (XmlMemo *) pvPortMalloc(sizeof(XmlMemo));
     if (memo == NULL) {
         destroy_reporter(reporter);
         return NULL;
@@ -178,7 +178,7 @@ static void xml_reporter_start_test(TestReporter *reporter, const char *testname
 
 
 static char *concat(char *head, const char *tail) {
-    char *result = realloc(head, strlen(head)+strlen(tail)+1);
+    char *result = pvPortRealloc(head, strlen(head)+strlen(tail)+1);
     return strcat(result, tail);
 }
 
@@ -279,7 +279,7 @@ static void xml_reporter_finish_test(TestReporter *reporter, const char *filenam
     reporter_finish_test(reporter, filename, line, message);
     memo->printer(out, " time=\"%.5f\">\n", (double)reporter->duration/(double)1000);
     if (output && strlen(output) == 0) {
-        free(output);
+        vPortFree(output);
         output = NULL;
     }
 

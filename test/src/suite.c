@@ -46,7 +46,7 @@ void do_nothing(void) {
 }
 
 TestSuite *create_named_test_suite_(const char *name, const char *filename, int line) {
-    TestSuite *suite = (TestSuite *)malloc(sizeof(TestSuite));
+    TestSuite *suite = (TestSuite *)pvPortMalloc(sizeof(TestSuite));
     suite->name = name;
     suite->filename = filename;
     suite->line = line;
@@ -69,14 +69,14 @@ void destroy_test_suite(TestSuite *suiteToDestroy) {
     }
 
     if (suiteToDestroy->tests != NULL)
-        free(suiteToDestroy->tests);
+        vPortFree(suiteToDestroy->tests);
 
-    free(suiteToDestroy);
+    vPortFree(suiteToDestroy);
 }
 
 void add_test_(TestSuite *suite, const char *name, CgreenTest *test) {
     suite->size++;
-    suite->tests = (UnitTest *)realloc(suite->tests, sizeof(UnitTest) * suite->size);
+    suite->tests = (UnitTest *)pvPortRealloc(suite->tests, sizeof(UnitTest) * suite->size);
     suite->tests[suite->size - 1].type = test_function;
     suite->tests[suite->size - 1].name = name;
     suite->tests[suite->size - 1].Runnable.test = test;
@@ -96,7 +96,7 @@ void add_tests_(TestSuite *suite, const char *names, ...) {
 
 void add_suite_(TestSuite *owner, const char *name, TestSuite *suite) {
     owner->size++;
-    owner->tests = (UnitTest *)realloc(owner->tests, sizeof(UnitTest) * owner->size);
+    owner->tests = (UnitTest *)pvPortRealloc(owner->tests, sizeof(UnitTest) * owner->size);
     owner->tests[owner->size - 1].type = test_suite;
     owner->tests[owner->size - 1].name = name;
     owner->tests[owner->size - 1].Runnable.suite = suite;

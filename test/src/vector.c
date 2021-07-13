@@ -19,7 +19,7 @@ struct CgreenVector_ {
 static void increase_space(CgreenVector *vector);
 
 CgreenVector *create_cgreen_vector(void (*destructor)(void *)) {
-    CgreenVector *vector = (CgreenVector *)malloc(sizeof(CgreenVector));
+    CgreenVector *vector = (CgreenVector *)pvPortMalloc(sizeof(CgreenVector));
     vector->size = 0;
     vector->destructor = destructor;
     vector->space = 0;
@@ -41,7 +41,7 @@ void destroy_cgreen_vector(CgreenVector *vector) {
     vector->size = 0;
     vector->space = 0;
 
-    free(vector);
+    vPortFree(vector);
 }
 
 void cgreen_vector_add(CgreenVector *vector, void *item) {

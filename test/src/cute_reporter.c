@@ -52,7 +52,7 @@ TestReporter *create_cute_reporter(void) {
         return NULL;
     }
 
-    memo = (CuteMemo *) malloc(sizeof(CuteMemo) + 100);
+    memo = (CuteMemo *) pvPortMalloc(sizeof(CuteMemo) + 100);
     if (memo == NULL) {
         destroy_reporter(reporter);
         return NULL;

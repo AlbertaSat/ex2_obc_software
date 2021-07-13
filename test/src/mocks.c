@@ -389,7 +389,7 @@ void test_times_called(Constraint *constraint, const char *function, CgreenValue
             (*constraint->compare)(constraint, actual),
             message);
 
-    free(message);
+    vPortFree(message);
 }
 
 Constraint *times_(const int number_times_called) {
@@ -696,7 +696,7 @@ static RecordedExpectation *create_recorded_expectation(const char *function, co
     RecordedExpectation *expectation;
 
     ensure_expectation_queue_exists();
-    expectation = (RecordedExpectation *)malloc(sizeof(RecordedExpectation));
+    expectation = (RecordedExpectation *)pvPortMalloc(sizeof(RecordedExpectation));
     expectation->function = function;
     expectation->test_file = test_file;
     expectation->test_line = test_line;
@@ -717,7 +717,7 @@ static void destroy_expectation(RecordedExpectation *expectation) {
     expectation->number_times_called = 0;
     expectation->times_triggered = 0;
 
-    free(expectation);
+    vPortFree(expectation);
 }
 
 static void ensure_successfully_mocked_calls_list_exists(void) {
@@ -903,7 +903,7 @@ static CgreenValue stored_result_or_default_for(CgreenVector* constraints) {
                not get lost when the constraint is destroyed. The user
                will be responsible for deallocating the copy of the struct. */
             CgreenValue returnable = constraint->expected_value;
-            void *the_struct = malloc(returnable.value_size);
+            void *the_struct = pvPortMalloc(returnable.value_size);
             memcpy(the_struct, returnable.value.pointer_value, returnable.value_size);
             returnable.value.pointer_value = the_struct;
             return returnable;

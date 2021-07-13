@@ -88,7 +88,7 @@ static void execute_sideeffect(Constraint *constraint, const char *function, Cgr
                                const char *test_file, int test_line, TestReporter *reporter);
 
 Constraint *create_constraint(void) {
-    Constraint *constraint = (Constraint *)malloc(sizeof(Constraint));
+    Constraint *constraint = (Constraint *)pvPortMalloc(sizeof(Constraint));
     /* TODO: setting this to NULL as an implicit type check :( */
     constraint->parameter_name = NULL;
     constraint->destroy = &destroy_empty_constraint;
@@ -117,9 +117,9 @@ void destroy_empty_constraint(Constraint *constraint) {
     constraint->destroy = NULL;
 
     if (constraint->expected_value_name != NULL)
-        free((void *)constraint->expected_value_name);
+        vPortFree((void *)constraint->expected_value_name);
 
-    free(constraint);
+    vPortFree(constraint);
 }
 
 void destroy_static_constraint(Constraint *constraint) {
@@ -458,7 +458,7 @@ Constraint *create_return_value_constraint(intptr_t value_to_return) {
 }
 
 Constraint *create_return_by_value_constraint(intptr_t value_to_return, size_t size) {
-    intptr_t actual_return = (intptr_t) malloc(size);
+    intptr_t actual_return = (intptr_t) pvPortMalloc(size);
     memcpy((void*)actual_return, (void*)value_to_return, size);
     Constraint* constraint = create_constraint();
     constraint->type = CGREEN_RETURN_BY_VALUE_CONSTRAINT;
@@ -563,7 +563,7 @@ static void set_contents(Constraint *constraint, const char *function, CgreenVal
                 false,
                 message);
 
-        free(message);
+        vPortFree(message);
         return;
     }
 
@@ -603,7 +603,7 @@ void test_want(Constraint *constraint, const char *function, CgreenValue actual,
                 false,
                 message);
 
-        free(message);
+        vPortFree(message);
 
         return;
     }
@@ -618,7 +618,7 @@ void test_want(Constraint *constraint, const char *function, CgreenValue actual,
             (*constraint->compare)(constraint, actual),
             message);
 
-    free(message);
+    vPortFree(message);
 }
 
 static bool compare_want_string(Constraint *constraint, CgreenValue actual) {

@@ -3,7 +3,7 @@
 
 
 CgreenBreadcrumb *create_breadcrumb(void) {
-    CgreenBreadcrumb *breadcrumb = (CgreenBreadcrumb *) malloc(sizeof(CgreenBreadcrumb));
+    CgreenBreadcrumb *breadcrumb = (CgreenBreadcrumb *) pvPortMalloc(sizeof(CgreenBreadcrumb));
     if (breadcrumb == NULL) {
         return NULL;
     }
@@ -14,8 +14,8 @@ CgreenBreadcrumb *create_breadcrumb(void) {
 }
 
 void destroy_breadcrumb(CgreenBreadcrumb *breadcrumb) {
-    free((void*)breadcrumb->trail);
-    free((void*)breadcrumb);
+    vPortFree((void*)breadcrumb->trail);
+    vPortFree((void*)breadcrumb);
 }
 
 void push_breadcrumb(CgreenBreadcrumb *breadcrumb, const char *name) {
@@ -23,7 +23,7 @@ void push_breadcrumb(CgreenBreadcrumb *breadcrumb, const char *name) {
     if (breadcrumb->depth > breadcrumb->space) {
         const char **tmp;
         breadcrumb->space++;
-        tmp = (const char**) realloc((void*)breadcrumb->trail,
+        tmp = (const char**) pvPortRealloc((void*)breadcrumb->trail,
                 sizeof(const char *) * breadcrumb->space);
         if (tmp == NULL) {
             breadcrumb->space--;

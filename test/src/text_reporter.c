@@ -65,7 +65,7 @@ TestReporter *create_text_reporter(void) {
         return NULL;
     }
 
-    memo = (TextMemo *)malloc(sizeof(TextMemo));
+    memo = (TextMemo *)pvPortMalloc(sizeof(TextMemo));
     if (memo == NULL) {
         destroy_reporter(reporter);
         return NULL;

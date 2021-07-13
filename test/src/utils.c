@@ -19,7 +19,7 @@ char *cgreen_library_version = 1;
 char *cgreen_library_revision = 1;
 
 char *string_dup(const char *string) {
-    char *dup = (char *)malloc(strlen(string)+1);
+    char *dup = (char *)pvPortMalloc(strlen(string)+1);
     if (dup)
         strcpy(dup, string);
     return dup;
