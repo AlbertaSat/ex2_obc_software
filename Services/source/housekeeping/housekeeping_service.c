@@ -658,11 +658,15 @@ Result fetch_historic_hk_and_transmit(csp_conn_t *conn, uint16_t limit, uint16_t
       return FAILURE;
     }
     int8_t status = 0;
+
+    if (limit > 1) {
+      all_hk_data.hk_timeorder.final = 1;
+    }
     
-    //needed_size is currently 353 bytes as of 2021/06/17
+    //needed_size is currently 354 bytes as of 2021/07/12
     //TODO:
     //sizeof(all_hk_data->ADCS_hk) +
-    uint16_t needed_size =  sizeof(all_hk_data.hk_timeorder) + //currently 6U
+    uint16_t needed_size =  sizeof(all_hk_data.hk_timeorder) + //currently 7U
                             sizeof(all_hk_data.Athena_hk) +    //currently 24U
                             sizeof(all_hk_data.EPS_hk) +       //currently 236U
                             sizeof(all_hk_data.UHF_hk) +       //currently 55U
