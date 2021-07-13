@@ -59,4 +59,8 @@ void eeprom_set_golden_info(image_info i);
 
 image_info eeprom_get_golden_info();
 
+bool verify_application();
+
+bool verify_golden();
+
 #endif /* BL_EEPROM_H_ */

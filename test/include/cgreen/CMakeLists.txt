@@ -1,0 +1,34 @@
+set(cgreen_HDRS
+  assertions.h
+  boxed_double.h
+  breadcrumb.h
+  cdash_reporter.h
+  cgreen.h
+  cgreen_value.h
+  constraint.h
+  constraint_syntax_helpers.h
+  cpp_assertions.h
+  cpp_constraint.h
+  cute_reporter.h
+  filename.h
+  legacy.h
+  mocks.h
+  string_comparison.h
+  reporter.h
+  runner.h
+  suite.h
+  text_reporter.h
+  unit.h
+  vector.h
+)
+
+install(
+  FILES
+    ${cgreen_HDRS}
+  DESTINATION
+    ${CMAKE_INSTALL_INCLUDEDIR}/${APPLICATION_NAME}
+  COMPONENT
+    headers
+)
+
+add_subdirectory(internal)
