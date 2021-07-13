@@ -25,18 +25,11 @@
 #include "HL_sci.h"
 #include "os_task.h"
 
-#define PRINT_BUF_LEN 64
-
-void ex2_log(const char *format, ...) {
-    char buffer[PRINT_BUF_LEN] = {0};
-    va_list arg;
-    va_start(arg, format);
-    vsnprintf(buffer, PRINT_BUF_LEN, format, arg);
-    va_end(arg);
-
-    printf("%s\r\n", buffer);
+#pragma WEAK(ex2_log)
+void ex2_log(const char *format, ...){
     return;
 }
+
 
 /**
  * @brief
