@@ -59,7 +59,7 @@
  */
 
 #include "test_main.h"
-#define DEV_RUN_TEST_SUITE 1
+#define DEV_RUN_TEST_SUITE 0
 
 #define LEOP_SEQUENCE_TIMER_MS 10000
 
