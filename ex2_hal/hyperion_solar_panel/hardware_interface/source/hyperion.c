@@ -56,7 +56,7 @@ void hyperion_config_1_value(config_1_panel_t panel, config_1_channel_type_t cha
         break;
 
     case CONFIG_1_PANEL_SD:
-        slave_addr = PANEL_SLAVE_ADDR_STARTBOARD_DEPLOYABLE;
+        slave_addr = PANEL_SLAVE_ADDR_STARBOARD_DEPLOYABLE;
         break;
 
     case CONFIG_1_PANEL_Z:
@@ -71,53 +71,59 @@ void hyperion_config_1_value(config_1_panel_t panel, config_1_channel_type_t cha
     switch (channel)
     {
     /* Channel 1 to 3 handle temp sensor */
+
     case CONFIG_1_CHANNEL_TEMP_1:
         adc_init(slave_addr, 1 << 7);
         adc_get_raw(slave_addr, &data, &ch);
-        *param = adc_calculate_sensor_temp(&data, ADC_VREF);
+        *param = adc_calculate_sensor_temp(data, ADC_VREF);
         break;
 
     case CONFIG_1_CHANNEL_TEMP_2:
         adc_init(slave_addr, 1 << 6);
         adc_get_raw(slave_addr, &data, &ch);
-        *param = adc_calculate_sensor_temp(&data, ADC_VREF);
+        *param = adc_calculate_sensor_temp(data, ADC_VREF);
         break;
 
     case CONFIG_1_CHANNEL_TEMP_3:
         adc_init(slave_addr, 1 << 5);
         adc_get_raw(slave_addr, &data, &ch);
-        *param = adc_calculate_sensor_temp(&data, ADC_VREF);
+        *param = adc_calculate_sensor_temp(data, ADC_VREF);
         break;
 
     case CONFIG_1_CHANNEL_PD_1:
         adc_init(slave_addr, 1 << 4);
         adc_get_raw(slave_addr, &data, &ch);
-        *param = adc_calculate_sensor_pd(&data, ADC_VREF);
+        *param = adc_calculate_sensor_pd(data, ADC_VREF);
         break;
 
     case CONFIG_1_CHANNEL_PD_2:
         adc_init(slave_addr, 1 << 3);
         adc_get_raw(slave_addr, &data, &ch);
-        *param = adc_calculate_sensor_pd(&data, ADC_VREF);
+        *param = adc_calculate_sensor_pd(data, ADC_VREF);
         break;
 
     case CONFIG_1_CHANNEL_PD_3:
         adc_init(slave_addr, 1 << 2);
         adc_get_raw(slave_addr, &data, &ch);
-        *param = adc_calculate_sensor_pd(&data, ADC_VREF);
+        *param = adc_calculate_sensor_pd(data, ADC_VREF);
         break;
 
     case CONFIG_1_CHANNEL_VOLT:
         adc_init(slave_addr, 1 << 1);
         adc_get_raw(slave_addr, &data, &ch);
-        *param = adc_calculate_sensor_voltage(&data, ADC_VREF);
+        *param = adc_calculate_sensor_voltage(data, ADC_VREF);
         break;
 
     case CONFIG_1_CHANNEL_CURR:
         adc_init(slave_addr, 1 << 0);
         adc_get_raw(slave_addr, &data, &ch);
-        *param = adc_calculate_sensor_current(&data, ADC_VREF);
+        *param = adc_calculate_sensor_current(data, ADC_VREF);
         break;
+
+    case CONFIG_1_ADC_TEMP:
+        adc_init(slave_addr, 1 << 7);
+        *param = adc_get_tsense_temp(slave_addr, ADC_VREF);
+         break;
 
     default:
         break;
@@ -145,6 +151,7 @@ void hyperion_config_1_value(config_1_panel_t panel, config_1_channel_type_t cha
 void hyperion_config_2_value(config_2_panel_t panel, config_2_channel_type_t channel, float* param) {
     unsigned short data = 0;
     unsigned char ch = 0; // channel
+    int i=0;
     uint8_t slave_addr = 0;
 
     switch (panel)
@@ -170,18 +177,24 @@ void hyperion_config_2_value(config_2_panel_t panel, config_2_channel_type_t cha
     case CONFIG_2_CHANNEL_TEMP_1:
         adc_init(slave_addr, 1 << 7);
         adc_get_raw(slave_addr, &data, &ch);
-        *param = adc_calculate_sensor_temp(&data, ADC_VREF);
+        *param = (float) adc_calculate_sensor_temp(data, ADC_VREF);
         break;
 
     case CONFIG_2_CHANNEL_PD_1:
         adc_init(slave_addr, 1 << 6);
         adc_get_raw(slave_addr, &data, &ch);
-        *param = adc_calculate_sensor_pd(&data, ADC_VREF);
+        *param = adc_calculate_sensor_pd(data, ADC_VREF);
         break;
+
+    case CONFIG_2_ADC_TEMP:
+        adc_init(slave_addr, 1 << 7);
+        *param = adc_get_tsense_temp(slave_addr, ADC_VREF);
+         break;
 
     default:
         break;
     }
+    uint8_t test=0;
 }
 
 /**
@@ -221,13 +234,13 @@ void hyperion_config_2_value(config_2_panel_t panel, config_2_channel_type_t cha
         break;
 
     case CONFIG_3_PANEL_SD2U:
-        slave_addr = PANEL_SLAVE_ADDR_STARTBOARD_DEPLOYABLE2U;
+        slave_addr = PANEL_SLAVE_ADDR_STARBOARD_DEPLOYABLE2U;
         break;
     
-    case CONFIG_3_PANEL_Z2D:
+    case CONFIG_3_PANEL_Z2U:
         slave_addr = PANEL_SLAVE_ADDR_ZENITH2U;
         break;
-    
+
     default:
         break;
     }
@@ -237,38 +250,43 @@ void hyperion_config_2_value(config_2_panel_t panel, config_2_channel_type_t cha
     case CONFIG_3_CHANNEL_TEMP_1:
         adc_init(slave_addr, 1 << 7);
         adc_get_raw(slave_addr, &data, &ch);
-        *param = adc_calculate_sensor_temp(&data, ADC_VREF);
+        *param = adc_calculate_sensor_temp(data, ADC_VREF);
         break;
 
     case CONFIG_3_CHANNEL_TEMP_2:
         adc_init(slave_addr, 1 << 6);
         adc_get_raw(slave_addr, &data, &ch);
-        *param = adc_calculate_sensor_temp(&data, ADC_VREF);
+        *param = adc_calculate_sensor_temp(data, ADC_VREF);
         break;
 
     case CONFIG_3_CHANNEL_PD_1:
         adc_init(slave_addr, 1 << 5);
         adc_get_raw(slave_addr, &data, &ch);
-        *param = adc_calculate_sensor_pd(&data, ADC_VREF);
+        *param = adc_calculate_sensor_pd(data, ADC_VREF);
         break;
 
     case CONFIG_3_CHANNEL_PD_2:
         adc_init(slave_addr, 1 << 4);
         adc_get_raw(slave_addr, &data, &ch);
-        *param = adc_calculate_sensor_pd(&data, ADC_VREF);
+        *param = adc_calculate_sensor_pd(data, ADC_VREF);
         break;
 
     case CONFIG_3_CHANNEL_VOLT:
         adc_init(slave_addr, 1 << 3);
         adc_get_raw(slave_addr, &data, &ch);
-        *param = adc_calculate_sensor_voltage(&data, ADC_VREF);
+        *param = adc_calculate_sensor_voltage(data, ADC_VREF);
         break;
 
     case CONFIG_3_CHANNEL_CURR:
         adc_init(slave_addr, 1 << 2);
         adc_get_raw(slave_addr, &data, &ch);
-        *param = adc_calculate_sensor_current(&data, ADC_VREF);
+        *param = adc_calculate_sensor_current(data, ADC_VREF);
         break;
+
+    case CONFIG_3_ADC_TEMP:
+        adc_init(slave_addr, 1 << 7);
+        *param = adc_get_tsense_temp(slave_addr, ADC_VREF);
+         break;
     
     default:
         break;
