@@ -28,7 +28,7 @@
 #include "time_management/time_management_service.h"
 #include "util/service_utilities.h"
 #include "updater/updater.h"
-#include "logger.h"
+#include "logger/logger_service.h"
 #include "general.h"
 
 void csp_server(void *parameters);
