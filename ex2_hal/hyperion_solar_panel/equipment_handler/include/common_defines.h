@@ -46,12 +46,12 @@
 #define PANEL_SLAVE_ADDR_PORT                       0x20
 #define PANEL_SLAVE_ADDR_PORT_DEPLOYABLE            0x22
 #define PANEL_SLAVE_ADDR_STARBOARD                  0x23
-#define PANEL_SLAVE_ADDR_STARTBOARD_DEPLOYABLE      0x28
+#define PANEL_SLAVE_ADDR_STARBOARD_DEPLOYABLE       0x28
 #define PANEL_SLAVE_ADDR_ZENITH                     0x2E
 #define PANEL_SLAVE_ADDR_PORT2U                     0x20
 #define PANEL_SLAVE_ADDR_PORT_DEPLOYABLE2U          0x22
 #define PANEL_SLAVE_ADDR_STARBOARD2U                0x23
-#define PANEL_SLAVE_ADDR_STARTBOARD_DEPLOYABLE2U    0x28
+#define PANEL_SLAVE_ADDR_STARBOARD_DEPLOYABLE2U     0x28
 #define PANEL_SLAVE_ADDR_ZENITH2U                   0x2E
 #define PANEL_SLAVE_ADDR_ARKE                       0x2C
 #define PANEL_SLAVE_ADDR_NADIR                      0x2F
@@ -68,7 +68,8 @@ typedef enum config_1_channel_type_t{
     CONFIG_1_CHANNEL_PD_3,
     CONFIG_1_CHANNEL_VOLT,
     CONFIG_1_CHANNEL_CURR,
-    CONFIG_1_CHANNEL_NUM         // Number of ADC channels
+    CONFIG_1_CHANNEL_NUM,         // Number of ADC channels
+    CONFIG_1_ADC_TEMP
 }config_1_channel_type_t;
 
 typedef enum config_1_panel_t{
@@ -85,7 +86,8 @@ typedef enum config_1_panel_t{
 // VIN channels on ADC for sensors in configuration 2: ARKE, NADIR, NADIR 2U
 typedef enum config_2_channel_type_t{
     CONFIG_2_CHANNEL_TEMP_1 = 0,
-    CONFIG_2_CHANNEL_PD_1 = 1
+    CONFIG_2_CHANNEL_PD_1 = 1,
+    CONFIG_2_ADC_TEMP
 }config_2_channel_type_t;
 
 typedef enum config_2_panel_t{
@@ -101,7 +103,8 @@ typedef enum config_3_channel_type_t{
     CONFIG_3_CHANNEL_PD_1,
     CONFIG_3_CHANNEL_PD_2,
     CONFIG_3_CHANNEL_VOLT,
-    CONFIG_3_CHANNEL_CURR
+    CONFIG_3_CHANNEL_CURR,
+    CONFIG_3_ADC_TEMP
 }config_3_channel_type_t;
 
 typedef enum config_3_panel_t{
@@ -109,7 +112,7 @@ typedef enum config_3_panel_t{
     CONFIG_3_PANEL_PD2U,
     CONFIG_3_PANEL_S2U,
     CONFIG_3_PANEL_SD2U,
-    CONFIG_3_PANEL_Z2D
+    CONFIG_3_PANEL_Z2U
 }config_3_panel_t;
 
 

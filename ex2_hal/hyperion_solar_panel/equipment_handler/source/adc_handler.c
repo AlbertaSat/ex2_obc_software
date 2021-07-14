@@ -300,7 +300,7 @@ float adc_get_tsense_temp(uint8_t slave_addr, float vref) {
     int delay, i;
     unsigned short data = 0;
     unsigned char ch = 0;
-    printf("\n ADC TEMP RESULTS: \r\n Channel    Result \r\n");
+    //printf("\n ADC TEMP RESULTS: \r\n Channel    Result \r\n");
     //loops through and requests conversion results from all channels
     uint8_t reg_sel = 2;
     adc_set_register_pointer(slave_addr, reg_sel);
@@ -320,7 +320,7 @@ float adc_get_tsense_temp(uint8_t slave_addr, float vref) {
     +(float)((value-((value >>3)<<3))>>2)*(1)
     +(float)((value-((value >>2)<<2))>>1)*(0.5)
     +(float)((value-((value >>1)<<1))>>0)*(0.25);
-    printf("%d          %.2f \r\n", ch, temp_celsius);
+    //printf("%d          %.2f \r\n", ch, temp_celsius);
     return temp_celsius;
 }
 
