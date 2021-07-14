@@ -386,13 +386,13 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
     }
 
     // read scw and change the respective bit and set again
-    case UHF_SET_PIPE:
+    case UHF_SET_ECHO:
     case UHF_SET_BCN:
-    case UHF_SET_ECHO: {
+    case UHF_SET_PIPE: {
       uint8_t scw[SCW_LEN];
       status = HAL_UHF_getSCW(scw);
       if (status == U_GOOD_CONFIG) {
-        scw[ser_subtype - UHF_SET_PIPE + 4] =
+        scw[ser_subtype - UHF_SET_ECHO + 4] =
             1;
         status = HAL_UHF_setSCW(scw);
       }
@@ -485,7 +485,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       UHF_configStruct dest;
       uhf_struct_len = CALLSIGN_LEN;
       dest.len = uhf_struct_len;
-      for (i = 0; i < uhf_struct_len; i++) {
+      for (i = 0; i < uhf_struct_len && (uint8_t)packet->data[IN_DATA_BYTE + (CHAR_LEN - 1) + CHAR_LEN * i] != 0; i++) {
         dest.message[i] =
             (uint8_t)packet->data[IN_DATA_BYTE + (CHAR_LEN - 1) + CHAR_LEN * i];
       }
@@ -500,7 +500,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       UHF_configStruct src;
       uhf_struct_len = CALLSIGN_LEN;
       src.len = uhf_struct_len;
-      for (i = 0; i < uhf_struct_len; i++) {
+      for (i = 0; i < uhf_struct_len && (uint8_t)packet->data[IN_DATA_BYTE + (CHAR_LEN - 1) + CHAR_LEN * i] != 0; i++) {
         src.message[i] =
             (uint8_t)packet->data[IN_DATA_BYTE + (CHAR_LEN - 1) + CHAR_LEN * i];
       }
