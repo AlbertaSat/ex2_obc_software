@@ -33,11 +33,11 @@
 #define CALLSIGN_LEN 6
 #define MORSE_BEACON_MSG_LEN_MAX 36
 #define BEACON_MSG_LEN_MAX 60
-      // Update this to 108 (MIDI) and 97 (Beacon msg) when packet configuration
-      // is changed.
+// Update this to 108 (MIDI) and 97 (Beacon msg) when packet configuration
+// is changed.
 #define FRAM_SIZE 16
 #define SID_byte 1
-#define SINGLE_NOTE_LEN 3 // For MIDI audio notes
+#define SINGLE_NOTE_LEN 3  // For MIDI audio notes
 
 SAT_returnState communication_service_app(csp_packet_t *packet);
 
@@ -113,7 +113,8 @@ SAT_returnState start_communication_service(void) {
 SAT_returnState communication_service_app(csp_packet_t *packet) {
   uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
   int8_t status;  // Status of HAL functions success
-  SAT_returnState return_state = SATR_OK; //Remains OK unless changed by default or if statements.
+  SAT_returnState return_state =
+      SATR_OK;  // Remains OK unless changed by default or if statements.
   uint8_t uhf_struct_len;
   int i;            // For indexing in multiple loops
   int SID;          // The identifier in the packet
@@ -133,8 +134,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       freq = csp_htonflt(freq);
       // step 4: copy data & status byte into packet
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-      memcpy(&packet->data[OUT_DATA_BYTE], &freq,
-             sizeof(freq));
+      memcpy(&packet->data[OUT_DATA_BYTE], &freq, sizeof(freq));
       // Step 5: set packet length
       set_packet_length(packet, sizeof(int8_t) + sizeof(freq) + 1);
 
@@ -162,8 +162,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       }
 
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-      memcpy(&packet->data[OUT_DATA_BYTE], &enc,
-             sizeof(enc));
+      memcpy(&packet->data[OUT_DATA_BYTE], &enc, sizeof(enc));
       set_packet_length(packet, sizeof(int8_t) + sizeof(enc) + 1);
 
       break;
@@ -176,10 +175,8 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         return_state = SATR_ERROR;
       }
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-      memcpy(&packet->data[OUT_DATA_BYTE], &PA_Power,
-             sizeof(PA_Power));
-      set_packet_length(packet,
-                        sizeof(int8_t) + sizeof(PA_Power) + 1);
+      memcpy(&packet->data[OUT_DATA_BYTE], &PA_Power, sizeof(PA_Power));
+      set_packet_length(packet, sizeof(int8_t) + sizeof(PA_Power) + 1);
 
       break;
     }
@@ -188,8 +185,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       Sband_config S_config;
       status = HAL_S_getFreq(&S_config.freq) +
                HAL_S_getPAPower(&S_config.PA_Power) +
-               HAL_S_getControl(&S_config.PA) +
-               HAL_S_getEncoder(&S_config.enc);
+               HAL_S_getControl(&S_config.PA) + HAL_S_getEncoder(&S_config.enc);
 
       if (sizeof(S_config) + 1 > csp_buffer_data_size()) {
         return_state = SATR_ERROR;
@@ -222,8 +218,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         return_state = SATR_ERROR;
       }
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-      memcpy(&packet->data[OUT_DATA_BYTE], &transmit,
-             sizeof(transmit));
+      memcpy(&packet->data[OUT_DATA_BYTE], &transmit, sizeof(transmit));
       set_packet_length(packet, sizeof(int8_t) + sizeof(transmit) + 1);
 
       break;
@@ -265,8 +260,8 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         memcpy(&packet->data[OUT_DATA_BYTE], &buffer.pointer[SID],
                sizeof(buffer.pointer[SID]));
-        set_packet_length(
-            packet, sizeof(int8_t) + sizeof(buffer.pointer[SID]) + 1);
+        set_packet_length(packet,
+                          sizeof(int8_t) + sizeof(buffer.pointer[SID]) + 1);
       }
       break;
     }
@@ -392,8 +387,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       uint8_t scw[SCW_LEN];
       status = HAL_UHF_getSCW(scw);
       if (status == U_GOOD_CONFIG) {
-        scw[ser_subtype - UHF_SET_ECHO + 4] =
-            1;
+        scw[ser_subtype - UHF_SET_ECHO + 4] = 1;
         status = HAL_UHF_setSCW(scw);
       }
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -455,8 +449,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       set.beacon_t = csp_ntoh32(set.beacon_t);
       cnv8_32(&packet->data[IN_DATA_BYTE + 12], &set.audio_t);
       set.audio_t = csp_ntoh32(set.audio_t);
-      status = HAL_UHF_setFreq(set.freq) +
-               HAL_UHF_setPipeT(set.pipe_t) +
+      status = HAL_UHF_setFreq(set.freq) + HAL_UHF_setPipeT(set.pipe_t) +
                HAL_UHF_setBeaconT(set.beacon_t) +
                HAL_UHF_setAudioT(set.audio_t);
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -485,7 +478,11 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       UHF_configStruct dest;
       uhf_struct_len = CALLSIGN_LEN;
       dest.len = uhf_struct_len;
-      for (i = 0; i < uhf_struct_len && (uint8_t)packet->data[IN_DATA_BYTE + (CHAR_LEN - 1) + CHAR_LEN * i] != 0; i++) {
+      for (i = 0;
+           i < uhf_struct_len &&
+           (uint8_t)packet
+                   ->data[IN_DATA_BYTE + (CHAR_LEN - 1) + CHAR_LEN * i] != 0;
+           i++) {
         dest.message[i] =
             (uint8_t)packet->data[IN_DATA_BYTE + (CHAR_LEN - 1) + CHAR_LEN * i];
       }
@@ -500,7 +497,11 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       UHF_configStruct src;
       uhf_struct_len = CALLSIGN_LEN;
       src.len = uhf_struct_len;
-      for (i = 0; i < uhf_struct_len && (uint8_t)packet->data[IN_DATA_BYTE + (CHAR_LEN - 1) + CHAR_LEN * i] != 0; i++) {
+      for (i = 0;
+           i < uhf_struct_len &&
+           (uint8_t)packet
+                   ->data[IN_DATA_BYTE + (CHAR_LEN - 1) + CHAR_LEN * i] != 0;
+           i++) {
         src.message[i] =
             (uint8_t)packet->data[IN_DATA_BYTE + (CHAR_LEN - 1) + CHAR_LEN * i];
       }
@@ -509,7 +510,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       set_packet_length(packet, sizeof(int8_t) + 1);
 
       break;
-  }
+    }
 
     case UHF_SET_MORSE: {
       UHF_configStruct morse;
@@ -520,8 +521,8 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
            i++) {
         morse.message[i] =
             (uint8_t)packet->data[IN_DATA_BYTE + (CHAR_LEN - 1) + CHAR_LEN * i];
-        if (morse.message[i] == '|'){
-            morse.message[i] = ' ';
+        if (morse.message[i] == '|') {
+          morse.message[i] = ' ';
         }
       }
       morse.len = i;
@@ -535,24 +536,26 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
     case UHF_SET_MIDI: {
       UHF_configStruct MIDI;
       uhf_struct_len = BEACON_MSG_LEN_MAX;
-      uint8_t M_char =
-          (uint8_t)packet->data[IN_DATA_BYTE + (CHAR_LEN - 1)];
-      if (M_char != 'M'){ // To get around the parser, force a letter in the start
+      uint8_t M_char = (uint8_t)packet->data[IN_DATA_BYTE + (CHAR_LEN - 1)];
+      if (M_char !=
+          'M') {  // To get around the parser, force a letter in the start
+        status = U_BAD_PARAM;
+      } else {  // Now parse it
+        for (i = 0;
+             i < uhf_struct_len &&
+             packet->data[IN_DATA_BYTE + (CHAR_LEN - 1) + CHAR_LEN * (i + 1)] !=
+                 0;  // +1 for M_char
+             i++) {
+          MIDI.message[i] =
+              (uint8_t)packet->data[IN_DATA_BYTE + (CHAR_LEN - 1) +
+                                    CHAR_LEN * (i + 1)];  // +1 for M_char
+        }
+        if (i % SINGLE_NOTE_LEN != 0) {
           status = U_BAD_PARAM;
-      } else { // Now parse it
-          for (i = 0;
-               i < uhf_struct_len &&
-               packet->data[IN_DATA_BYTE + (CHAR_LEN - 1) + CHAR_LEN * (i+1)] != 0; // +1 for M_char
-               i++) {
-            MIDI.message[i] =
-                (uint8_t)packet->data[IN_DATA_BYTE + (CHAR_LEN - 1) + CHAR_LEN * (i+1)]; // +1 for M_char
-          }
-          if (i % SINGLE_NOTE_LEN != 0){
-              status = U_BAD_PARAM;
-          } else {
-              MIDI.len = i / SINGLE_NOTE_LEN;
-              status = HAL_UHF_setMIDI(MIDI);
-          }
+        } else {
+          MIDI.len = i / SINGLE_NOTE_LEN;
+          status = HAL_UHF_setMIDI(MIDI);
+        }
       }
 
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -590,7 +593,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       break;
     }
 
-    case UHF_WRITE_FRAM:{
+    case UHF_WRITE_FRAM: {
       UHF_framStruct U_FRAM;
       cnv8_32(&packet->data[IN_DATA_BYTE], &U_FRAM.addr);
       for (i = 0; i < FRAM_SIZE; i++) {
@@ -615,8 +618,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
 
     case UHF_GET_FULL_STAT: {
       UHF_Status U_stat;
-      status = HAL_UHF_getSCW(U_stat.scw) +
-               HAL_UHF_getFreq(&U_stat.set.freq) +
+      status = HAL_UHF_getSCW(U_stat.scw) + HAL_UHF_getFreq(&U_stat.set.freq) +
                HAL_UHF_getUptime(&U_stat.uptime) +
                HAL_UHF_getPcktsOut(&U_stat.pckts_out) +
                HAL_UHF_getPcktsIn(&U_stat.pckts_in) +
@@ -659,10 +661,8 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         return_state = SATR_ERROR;
       }
       for (i = 0; i < uhf_struct_len; i++) {
-        dst[(CHAR_LEN - 1) + CHAR_LEN * i] =
-            U_callsign.dest.message[i];
-        src[(CHAR_LEN - 1) + CHAR_LEN * i] =
-            U_callsign.src.message[i];
+        dst[(CHAR_LEN - 1) + CHAR_LEN * i] = U_callsign.dest.message[i];
+        src[(CHAR_LEN - 1) + CHAR_LEN * i] = U_callsign.src.message[i];
       }
 
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -683,8 +683,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         return_state = SATR_ERROR;
       }
       for (i = 0; i < uhf_struct_len; i++) {
-        mrs[(CHAR_LEN - 1) + CHAR_LEN * i] =
-            morse.message[i];
+        mrs[(CHAR_LEN - 1) + CHAR_LEN * i] = morse.message[i];
       }
 
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -704,8 +703,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         return_state = SATR_ERROR;
       }
       for (i = 0; i < uhf_struct_len; i++) {
-        midi[(CHAR_LEN - 1) + CHAR_LEN * i] =
-            MIDI_bcn.message[i];
+        midi[(CHAR_LEN - 1) + CHAR_LEN * i] = MIDI_bcn.message[i];
       }
 
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -726,8 +724,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         return_state = SATR_ERROR;
       }
       for (i = 0; i < uhf_struct_len; i++) {
-        beacon[(CHAR_LEN - 1) + CHAR_LEN * i] =
-                beacon_msg.message[i];
+        beacon[(CHAR_LEN - 1) + CHAR_LEN * i] = beacon_msg.message[i];
       }
 
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -735,7 +732,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
       set_packet_length(packet, sizeof(int8_t) + sizeof(beacon) + 1);
 
       break;
-  }
+    }
 
     case UHF_GET_FRAM: {
       UHF_framStruct U_FRAM;
@@ -747,8 +744,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         return_state = SATR_ERROR;
       }
       for (i = 0; i < FRAM_SIZE; i++) {
-        fram[(CHAR_LEN - 1) + CHAR_LEN * i] =
-            U_FRAM.data[i];
+        fram[(CHAR_LEN - 1) + CHAR_LEN * i] = U_FRAM.data[i];
       }
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
       memcpy(&packet->data[OUT_DATA_BYTE], &fram, sizeof(fram));
@@ -764,10 +760,8 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         return_state = SATR_ERROR;
       }
       memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-      memcpy(&packet->data[OUT_DATA_BYTE], &key,
-             sizeof(key));
-      set_packet_length(packet,
-                        sizeof(int8_t) + sizeof(key) + 1);
+      memcpy(&packet->data[OUT_DATA_BYTE], &key, sizeof(key));
+      set_packet_length(packet, sizeof(int8_t) + sizeof(key) + 1);
 
       break;
     }
