@@ -24,6 +24,7 @@
 static void * coordinate_management_daemon(void *pvParameters);
 SAT_returnState start_coordinate_management_daemon(void);
 
+/*
 int is_china(double lat,double lon){
     const double lata =30.747500833466347;
     const double longa=111.181640625;
@@ -45,7 +46,7 @@ int is_china(double lat,double lon){
 
     if(siga<=rada||sigb<=radb||sigc<=radc) return 1;
     else return 0;
-}
+}*/
 
 /**
  * Coordinate management. Handle updates of current latitude, longitude, and time as
