@@ -48,6 +48,34 @@ static void test_logger_daemon(void *pvParameters);
 
 /**
  * @brief
+ * Puts a string on the output
+ *
+ * @details
+ * If filesystem is initialized it will write to the syslog.
+ * If the MCU it is being run on is a flatsat it will not print on the uart
+ * Prepends the uptime in seconds
+ *
+ * @param String to print
+ * @return None
+ */
+static void do_output(const char *str) {
+    char output_string[STRING_MAX_LEN] = {0};
+
+    uint32_t uptime = (uint32_t)(xTaskGetTickCount()/configTICK_RATE_HZ);
+
+    snprintf(output_string, STRING_MAX_LEN, "[%010d]%s\r\n", uptime, str);
+
+    if (fs_init) {
+        red_write(logger_file_handle, output_string, strlen(output_string));
+    }
+
+#ifndef IS_FLATSAT
+    printf(output_string);
+#endif
+}
+
+/**
+ * @brief
  * Logs a string
  * 
  * @details
@@ -98,34 +126,6 @@ void ex2_log(const char *format, ...) {
 
 /**
  * @brief
- * Puts a string on the output
- * 
- * @details
- * If filesystem is initialized it will write to the syslog.
- * If the MCU it is being run on is a flatsat it will not print on the uart
- * Prepends the uptime in seconds
- * 
- * @param String to print
- * @return None
- */
-static void do_output(const char *str) {
-    char output_string[STRING_MAX_LEN] = {0};
-
-    uint32_t uptime = (uint32_t)(xTaskGetTickCount()/configTICK_RATE_HZ);
-
-    snprintf(output_string, STRING_MAX_LEN, "[%010d]%s\r\n", uptime, str);
-
-    if (fs_init) {
-        red_write(logger_file_handle, output_string, strlen(output_string));
-    }
-
-#ifndef IS_FLATSAT
-    printf(output_string);
-#endif
-}
-
-/**
- * @brief
  * Initialize filesystem related contructs for logger
  * 
  * @details
@@ -138,10 +138,8 @@ bool init_logger_fs() {
 
     int32_t fd = red_open(logger_file, RED_O_RDWR | RED_O_APPEND);
     if (fd < 0) {
-        int errno = red_errno;
         fd = red_open(logger_file, RED_O_CREAT | RED_O_RDWR);
         if (fd < 0) {
-            errno = red_errno;
             return false;
         }
     }
