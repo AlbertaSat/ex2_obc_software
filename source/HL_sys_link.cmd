@@ -107,6 +107,9 @@ SECTIONS
 /* Misc                                                                       */
 
 /* USER CODE BEGIN (6) */
+#define GOLDEN_IMAGE
+//#define WORKING_IMAGE
+//#define BOOTLOADER_PRESENT
 /*----------------------------------------------------------------------------*/
 /* Linker Settings                                                            */
 
@@ -117,7 +120,7 @@ SECTIONS
 /* Memory Map                                                                 */
 MEMORY
 {
-	#ifdef GOLDEN_IMAGE && BOOTLOADER_PRESENT
+	#if defined(GOLDEN_IMAGE) && defined(BOOTLOADER_PRESENT)
     VECTORS (X)  : origin=0x00018000 length=0x00000040
     KERNEL  (RX) : origin=0x00018040 length=0x00008000
     FLASH   (RX) : origin=end(KERNEL) length=0x00200000 - 0x8040
