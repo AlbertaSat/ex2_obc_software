@@ -14,6 +14,8 @@
 #include <csp/csp_endian.h>
 #include <main/system.h>
 #include "services.h"
+#include "adcs.h"
+#include "service_utilities.h"
 
 typedef enum {
     ADCS_RESET,
