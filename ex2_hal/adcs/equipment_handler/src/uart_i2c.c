@@ -18,7 +18,7 @@
  */
 
 #include "uart_i2c.h"
-#include "drivers/HL_i2c.h"             // HalCoGen generated i2c driver
+#include "HL_i2c.h"             // HalCoGen generated i2c driver
 
 #include <stdint.h>
 
