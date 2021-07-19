@@ -1,0 +1,23 @@
+version: 2
+
+workflows:
+  version: 2
+  dist-compile:
+    jobs:
+      - cgreen
+
+jobs:
+  cgreen:
+    docker:
+      - image: gcc:8.2
+      - image: circleci/python:3.6.4
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "e8:1c:0d:55:b0:66:41:8c:52:de:81:2f:bc:af:20:53"
+      # instead of checking out, restore workspace (will merge all parallel containers from previous job)
+      - checkout
+      - run: git submodule update --init --recursive
+      # link the compiled files into an executable
+      - run: ls && ls ex2_hal
+      - run: cd /root/project/test  && ls -la && make && make test
