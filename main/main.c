@@ -58,8 +58,6 @@
  *  - Start the FreeRTOS scheduler
  */
 
-#define DEV_RUN_TEST_SUITE 1
-
 #define LEOP_SEQUENCE_TIMER_MS 10000
 
 static void init_filesystem();
