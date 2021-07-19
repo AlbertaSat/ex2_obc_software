@@ -9,6 +9,7 @@ workflows:
 jobs:
   cgreen:
     docker:
+      - image: cimg/base:2021.04
       - image: gcc:8.2
       - image: circleci/python:3.6.4
     steps:
@@ -21,4 +22,4 @@ jobs:
       - run: git submodule update --init --recursive
       # link the compiled files into an executable
       - run: ls && ls ex2_hal
-      - run: cd /root/project/test  && ls -la && make && make test
+      - run: cd ./test  && ls -la && make && make test
