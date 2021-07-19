@@ -148,7 +148,6 @@ Ensure(logger, stop_fs_closes_file_when_init) {
     stop_logger_fs();
     assert_that(logger_file_handle, is_equal_to(0));
     assert_that(fs_init, is_false);
-    assert_that(0, is_equal_to(1));
 }
 
 TestSuite *logger_fs_tests() {
@@ -189,6 +188,5 @@ int test_logger() {
   TestSuite *suite = create_test_suite();
   add_suite(suite, logger_fs_tests());
   add_suite(suite, logger_input_tests());
-  run_test_suite(suite, create_text_reporter());
-  return 0;
+  return run_test_suite(suite, create_text_reporter());
 }

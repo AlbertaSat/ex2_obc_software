@@ -3,4 +3,4 @@ Debug/**
 /Release/
 /test/main
 /test/*.o
-/test/test_*
+/test/**/*.o

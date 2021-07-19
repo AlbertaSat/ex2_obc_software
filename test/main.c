@@ -1,6 +1,7 @@
 #include "logger/test_logger.h"
 
 int main() {
-    test_logger();
-    return 0;
+    int status = 0;
+    status += test_logger();
+    return status;
 }
