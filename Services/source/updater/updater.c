@@ -12,7 +12,24 @@
 #include "bl_flash.h"
 #include "privileged_functions.h"
 
-#define GOLDEN_IMAGE
+//for testing only. do hex dump
+//size is the number of bytes we want to print
+static void hex_dump(char *stuff, int size){
+  uint32_t current_packet_index = 0;
+  printf("printing number of bytes: %u\n", size);
+    int j = 0;
+    for (j = 0; j < size; j += 1) {
+      if (stuff[current_packet_index] < 0x10) {
+        printf("0");
+      }
+      printf("%X ", stuff[current_packet_index]);
+      current_packet_index += 1;
+      if (current_packet_index % 16 == 0) {
+        printf("\n");
+      }
+    }
+    printf("\n");
+}
 
 // returns the size of the buffer it managed to allocate
 uint32_t get_buffer(void **buf) {
@@ -32,8 +49,6 @@ SAT_returnState updater_app(csp_packet_t *packet) {
     uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
     int32_t fp;
     int8_t status;
-    uint32_t address;
-    uint16_t crc;
     uint8_t *buf;
 
     if (init_eeprom()) {
@@ -50,15 +65,6 @@ SAT_returnState updater_app(csp_packet_t *packet) {
                   int err = red_errno;
                   status = -1; break;
               }
-              if (!init_eeprom_()) {
-                  status = -1; break;
-              }
-              image_info inf = priv_eeprom_get_app_info();
-              inf.addr = 0x00200000;
-              inf.crc = 1234;
-              inf.size = 5678;
-              inf.exists = 9876;
-              priv_eeprom_set_app_info(inf);
               image_info app_info = priv_eeprom_get_app_info();
               if (!BLInternalFlashStartAddrCheck(app_info.addr, (uint32_t)file_info.st_size)){
                   status = -1; break;
@@ -106,9 +112,11 @@ SAT_returnState updater_app(csp_packet_t *packet) {
 
           case SET_APP_ADDRESS:
     #ifdef GOLDEN_IMAGE
-              memcpy(&packet->data[IN_DATA_BYTE], &address, sizeof(address));
+              hex_dump(&packet->data, 20);
+              int new_address = 0;
+              memcpy(&new_address, &packet->data[IN_DATA_BYTE], sizeof(uint32_t));
               image_info addr_info = priv_eeprom_get_app_info();
-              addr_info.addr = address;
+              addr_info.addr = new_address;
               priv_eeprom_set_app_info(addr_info);
               set_packet_length(packet, sizeof(int8_t) + 1);
               status = 0;
@@ -120,7 +128,8 @@ SAT_returnState updater_app(csp_packet_t *packet) {
 
           case SET_APP_CRC:
     #ifdef GOLDEN_IMAGE
-              memcpy(&packet->data[IN_DATA_BYTE], &crc, sizeof(crc));
+              uint16_t crc = 0;
+              memcpy(&crc, &packet->data[IN_DATA_BYTE], sizeof(uint16_t));
               image_info crc_info = priv_eeprom_get_app_info();
               crc_info.crc = crc;
               priv_eeprom_set_app_info(crc_info);
@@ -137,6 +146,7 @@ SAT_returnState updater_app(csp_packet_t *packet) {
               image_info erase_info = priv_eeprom_get_app_info();
               erase_info.exists = 0;
               priv_eeprom_set_app_info(erase_info);
+              set_packet_length(packet, sizeof(int8_t) + 1);
               status = 0;
     #else
               status = -1;
