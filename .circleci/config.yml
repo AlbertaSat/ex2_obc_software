@@ -17,6 +17,7 @@ jobs:
             - "e8:1c:0d:55:b0:66:41:8c:52:de:81:2f:bc:af:20:53"
       # instead of checking out, restore workspace (will merge all parallel containers from previous job)
       - checkout
+      - run: whereis python3
       - run: git submodule update --init --recursive
       # link the compiled files into an executable
       - run: ls && ls ex2_hal

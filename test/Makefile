@@ -21,16 +21,14 @@ all: $(MAIN)
 
 
 $(MAIN): $(OBJS_FILES) main.o $(SUT)
-	$(CC) $(OBJS_FILES) $(INC) main.o -Lcgreen/ -lcgreen $(LIB) -o main
+	$(CC) $(OBJS_FILES) $(CFLAGS) main.o $(LIB) -Lcgreen/ -lcgreen -o main
 
 test: all
-	export LD_LIBRARY_PATH=$(pwd)cgreen/
-	./main
+	LD_LIBRARY_PATH=$(pwd)cgreen ./main
 
 lib:  $(OBJS_FILES)
 	ar -rsc file_delivery_app.a $(OBJS_FILES)
 
-clean: 
+clean:
 	find . -type f -name '*.o' -exec rm {} \;
 	rm $(MAIN)
-
