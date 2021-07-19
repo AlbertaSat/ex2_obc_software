@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/usr/bin/python3
 import os
 
 def walkDir(start):
@@ -9,7 +9,7 @@ def walkDir(start):
             subf = subf.replace("test_", '');
             subf = "../../"+subf
             subf = os.path.abspath(subf);
-            if (os.path.isfile(subf)): 
+            if (os.path.isfile(subf)):
                 print(subf, end='');
     for subfold in subfolders:
         walkDir(subfold);

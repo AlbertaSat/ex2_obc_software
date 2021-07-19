@@ -1,0 +1,18 @@
+version: 2
+
+workflows:
+  version: 2
+  dist-compile:
+    jobs:
+      - cgreen
+
+jobs:
+  cgreen:
+    docker:
+      - image: cimg/base:2021.04
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "e8:1c:0d:55:b0:66:41:8c:52:de:81:2f:bc:af:20:53"
+      - checkout
+      - run: cd ./test && make && make test

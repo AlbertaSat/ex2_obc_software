@@ -188,6 +188,5 @@ int test_logger() {
   TestSuite *suite = create_test_suite();
   add_suite(suite, logger_fs_tests());
   add_suite(suite, logger_input_tests());
-  run_test_suite(suite, create_text_reporter());
-  return 0;
+  return run_test_suite(suite, create_text_reporter());
 }
