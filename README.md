@@ -1,4 +1,4 @@
-# EX2_OBC_SOFTWARE
+# EX2_OBC_SOFTWARE  [![CircleCI](https://circleci.com/gh/AlbertaSat/ex2_obc_software.svg?style=svg)](https://circleci.com/gh/AlbertaSat/ex2_obc_software)
 Welcome 👋 - this is the central repository for the Ex-alta 2 OBC, dubbed 'Athena'. 
 
 The software in this repository reflects the designs found in the Ex-Alta 2 Critical Design Review document, and separate folders contain software submodules for the Equipment Handlers (EH), Hardware Interface (HIL) and On-board services.
