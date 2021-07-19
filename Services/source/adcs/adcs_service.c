@@ -10,27 +10,70 @@
 SAT_returnState adcs_service_app(csp_packet_t *packet) {
     uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
     int8_t status;
-    SAT_returnState return_state = SATR_OK; // temporarily OK
+    // SAT_returnState return_state = SATR_OK; // temporarily OK
 
     switch (ser_subtype)
     {
     case ADCS_RESET:
-        /* code */
+        status = HAL_ADCS_reset();
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1); 
         break;
+
     case ADCS_RESET_LOG_POINTER:
+        status = HAL_ADCS_reset_log_pointer();
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1); 
         break;
+
     case ADCS_ADVANCE_LOG_POINTER:
+        status = HAL_ADCS_advance_log_pointer();
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1); 
         break;
+
     case ADCS_RESET_BOOT_REGISTERS:
+        status = HAL_ADCS_reset_boot_registers();
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1); 
         break;
+
     case ADCS_FORMAT_SD_CARD:
+        status = HAL_ADCS_format_sd_card();
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1); 
         break;
-    case ADCS_ERASE_FILE:
+
+    case ADCS_ERASE_FILE: {
+        uint8_t file_type = packet->data[IN_DATA_BYTE];
+        uint8_t file_counter = packet->data[IN_DATA_BYTE + 1];
+        uint8_t erase_all = packet->data[IN_DATA_BYTE + 2];
+        status = HAL_ADCS_erase_file(file_type, file_counter, erase_all);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1); 
+
         break;
-    case ADCS_LOAD_FILE_DOWNLOAD_BLOCK:
+    }
+         
+
+    case ADCS_LOAD_FILE_DOWNLOAD_BLOCK: {
+        uint8_t file_type = packet->data[IN_DATA_BYTE];
+        uint8_t counter = packet->data[IN_DATA_BYTE + 1];
+        uint32_t offset = packet->data32[IN_DATA_BYTE + 4];
+        uint16_t block_length = packet->data16[IN_DATA_BYTE + ];
+        status = HAL_ADCS_load_file_download_block(file_type, counter, offset, block_length);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1); 
         break;
+    }
+        
     case ADCS_ADVANCE_FILE_LIST_READ_POINTER:
+        status = HAL_ADCS_advance_file_list_read_pointer();
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1); 
+
         break;
+
     case ADCS_INITIATE_FILE_UPLOAD:
         break;
     case ADCS_FILE_UPLOAD_PACKET:
@@ -38,9 +81,19 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
     case ADCS_FINALIZE_UPLOAD_BLOCK:
         break;
     case ADCS_RESET_UPLOAD_BLOCK:
+        status = HAL_ADCS_reset_upload_block();
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1); 
+
         break;
+
     case ADCS_RESET_FILE_LIST_READ_POINTER:
+        status = HAL_ADCS_reset_file_list_read_pointer();
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1); 
+
         break;
+
     case ADCS_INITIATE_DOWNLOAD_BURST:
         break;
     case ADCS_GET_NODE_IDENTIFICATION:
@@ -61,8 +114,21 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
         break;
     case ADCS_GET_FILE_INFO:
         break;
-    case ADCS_GET_INIT_UPLOAD_STAT:
+    case ADCS_GET_INIT_UPLOAD_STAT: {
+        bool busy = false;
+        status = HAL_ADCS_get_init_upload_stat(&busy);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+
+        // only write the result if status is okay
+        if (status == SATR_OK) {
+        memcpy(&packet->data[OUT_DATA_BYTE], &busy, sizeof(busy));  
+        }
+        set_packet_length(packet, sizeof(int8_t) + 1); 
+
         break;
+    }
+        
+
     case ADCS_GET_FINALIZE_UPLOAD_STAT:
         break;
     case ADCS_GET_UPLOAD_CRC16_CHECKSUM:
@@ -71,20 +137,59 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
         break;
     case ADCS_GET_EDAC_ERR_COUNT:
         break;
-    case ADCS_GET_COMMS_STAT:
+    case ADCS_GET_COMMS_STAT: {
+        uint16_t comm_status = 0;
+        status = HAL_ADCS_get_comms_stat(&comm_status);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+
+        // only write the result if status is okay
+        if (status == SATR_OK) {
+        memcpy(&packet->data[OUT_DATA_BYTE], &comm_status, sizeof(comm_status));  
+        }
+        set_packet_length(packet, sizeof(int8_t) + 1); 
+
         break;
+    }
+        
+
     case ADCS_SET_CACHE_EN_STATE:
+        status = HAL_ADCS_set_cache_en_state((bool)packet->data[IN_DATA_BYTE]);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1); 
+
         break;
-    case ADCS_SET_SRAM_SCRUB_SIZE:
+
+    case ADCS_SET_SRAM_SCRUB_SIZE: {
+        uint16_t size = 0;
+        cnv8_16(&packet->data[IN_DATA_BYTE], &size);
+        status = HAL_ADCS_set_sram_scrub_size(size);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1); 
+
         break;
+    }
+        
+
     case ADCS_SET_UNIXTIME_SAVE_CONFIG:
         break;
     case ADCS_SET_HOLE_MAP:
         break;
     case ADCS_SET_UNIX_T:
         break;
-    case ADCS_GET_CACHE_EN_STATE:
+    case ADCS_GET_CACHE_EN_STATE: {
+        bool en_state = false;
+        status = HAL_ADCS_get_cache_en_state(&en_state);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+
+        // only write the result if status is okay
+        if (status == SATR_OK) {
+        memcpy(&packet->data[OUT_DATA_BYTE], &en_state, sizeof(en_state));  
+        }
+        set_packet_length(packet, sizeof(int8_t) + 1); 
+        
         break;
+    }
+        
     case ADCS_GET_SRAM_SCRUB_SIZE:
         break;
     case ADCS_GET_UNIXTIME_SAVE_CONFIG:
@@ -94,13 +199,31 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
     case ADCS_GET_UNIX_T:
         break;
     case ADCS_CLEAR_ERR_FLAGS:
+        status = HAL_ADCS_clear_err_flags();
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1); 
         break;
     case ADCS_SET_BOOT_INDEX:
+        status = HAL_ADCS_set_boot_index(packet->data[IN_DATA_BYTE]);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1);     
+
         break;
+
     case ADCS_RUN_SELECTED_PROGRAM:
+        status = HAL_ADCS_run_selected_program();
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1); 
+
         break;
+
     case ADCS_READ_PROGRAM_INFO:
+        status = HAL_ADCS_read_program_info(packet->data[IN_DATA_BYTE]);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1);  
+
         break;
+
     case ADCS_COPY_PROGRAM_INTERNAL_FLASH:
         break;
     case ADCS_GET_BOOTLOADER_STATE:
@@ -110,9 +233,19 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
     case ADCS_COPY_INTERNAL_FLASH_PROGRESS:
         break;
     case ADCS_DEPLOY_MAGNETOMETER_BOOM:
+        status = HAL_ADCS_deploy_magnetometer_boom(packet->data[IN_DATA_BYTE]);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1); 
+
         break;
+
     case ADCS_SET_ENABLED_STATE:
+        status = HAL_ADCS_set_enabled_state(packet->data[IN_DATA_BYTE]);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1); 
+
         break;
+        
     case ADCS_CLEAR_LATCHED_ERRS:
         break;
     case ADCS_SET_ATTITUDE_CTR_MODE:
