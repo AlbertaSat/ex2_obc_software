@@ -586,25 +586,6 @@ Result convert_hk_endianness(All_systems_housekeeping* hk){
   return SUCCESS;
 }
 
-//for testing only. do hex dump
-//size is the number of bytes we want to print
-void hex_dump(char *stuff, int size){
-  uint32_t current_packet_index = 0;
-  printf("printing number of bytes: %u\n", size);
-    int j = 0;
-    for (j = 0; j < size; j += 1) {
-      if (stuff[current_packet_index] < 0x10) {
-        printf("0");
-      }
-      printf("%X ", stuff[current_packet_index]);
-      current_packet_index += 1; 
-      if (current_packet_index % 16 == 0) {
-        printf("\n");
-      }
-    }
-    printf("\n");
-}
-
 /**
  * @brief
  *      Paging function to retrieve sets of data so they can be transmitted
