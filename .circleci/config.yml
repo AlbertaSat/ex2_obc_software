@@ -1,8 +1,10 @@
-version: 2
+version: '2.1'
+
+orbs:
+  slack: circleci/slack@4.1
 
 workflows:
-  version: 2
-  dist-compile:
+  run-cgreen-units:
     jobs:
       - cgreen
 
@@ -16,3 +18,7 @@ jobs:
             - "e8:1c:0d:55:b0:66:41:8c:52:de:81:2f:bc:af:20:53"
       - checkout
       - run: cd ./test && make && make test
+      - slack/notify:
+          channel: software
+          event: fail
+          template: basic_fail_1
