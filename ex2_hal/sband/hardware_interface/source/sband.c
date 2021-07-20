@@ -156,18 +156,6 @@ STX_return HAL_S_softResetFPGA(void) {
 #endif
 }
 
-STX_return HAL_S_getFV(float *S_firmware_Version) {
-    STX_return status;
-#ifndef SBAND_IS_STUBBED
-  status = STX_getFirmwareV(&S_FS.Firmware_Version);
-#else
-  S_FS.Firmware_Version = 7.14;
-  status = IS_STUBBED;
-#endif
-  *S_firmware_Version = S_FS.Firmware_Version;
-  return status;
-}
-
 STX_return HAL_S_setFreq(float S_freq_new) {
   S_config_reg.freq = S_freq_new;
 #ifdef SBAND_IS_STUBBED

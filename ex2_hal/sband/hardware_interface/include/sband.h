@@ -81,7 +81,6 @@ typedef struct __attribute__((packed)) {
   Sband_TR transmit;
   Sband_Buffer buffer;
   Sband_Housekeeping HK;
-  float Firmware_Version;
 } Sband_Full_Status;
 
 STX_return HAL_S_getFreq(float *S_freq);
@@ -94,7 +93,6 @@ STX_return HAL_S_getHK(Sband_Housekeeping *S_hk);
 STX_return HAL_S_hk_convert_endianness(Sband_Housekeeping *S_hk);
 STX_return HAL_S_getBuffer(int quantity, Sband_Buffer *S_buffer);
 STX_return HAL_S_softResetFPGA(void);
-STX_return HAL_S_getFV(float *S_firmware_Version);
 STX_return HAL_S_setFreq(float S_freq_new);
 STX_return HAL_S_setPAPower(uint8_t S_PA_Power_new);
 STX_return HAL_S_setControl(Sband_PowerAmplifier S_PA_new);
