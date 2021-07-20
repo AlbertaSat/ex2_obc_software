@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021  University of Alberta
+ * Copyright (C) 2015  University of Alberta
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -11,12 +11,10 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-
-/*
- * updater.h
- *
- *  Created on: Jun. 4, 2021
- *      Author: Robert Taylor
+/**
+ * @file updater.c
+ * @author Robert Taylor
+ * @date 2021-07-20
  */
 
 #ifndef UPDATER_H_

@@ -1,3 +1,22 @@
+/*
+ * Copyright (C) 2015  University of Alberta
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+/**
+ * @file updater.c
+ * @author Robert Taylor
+ * @date 2021-07-20
+ */
+
 #include "updater/updater.h"
 #include <FreeRTOS.h>
 #include <os_task.h>
@@ -12,26 +31,17 @@
 #include "bl_flash.h"
 #include "privileged_functions.h"
 
-//for testing only. do hex dump
-//size is the number of bytes we want to print
-static void hex_dump(char *stuff, int size){
-  uint32_t current_packet_index = 0;
-  printf("printing number of bytes: %u\n", size);
-    int j = 0;
-    for (j = 0; j < size; j += 1) {
-      if (stuff[current_packet_index] < 0x10) {
-        printf("0");
-      }
-      printf("%X ", stuff[current_packet_index]);
-      current_packet_index += 1;
-      if (current_packet_index % 16 == 0) {
-        printf("\n");
-      }
-    }
-    printf("\n");
-}
-
-// returns the size of the buffer it managed to allocate
+/**
+ * @brief
+ *      Attempts to malloc a buffer
+ * @detail
+ *      This function will try to malloc smaller and smaller buffers until it succeeds
+ *      In this case, having any buffer at all is more important than size
+ * @param buf
+ *      Pointer to the pointer to malloc the buffer in to
+ * @return
+ *      size of buffer that was allocated for
+ */
 uint32_t get_buffer(void **buf) {
     *buf = NULL;
     uint32_t attempts[] = {4096, 2048, 1024, 512, 256, 128, 64, 32, 16, 8};
@@ -45,6 +55,16 @@ uint32_t get_buffer(void **buf) {
     return 0;
 }
 
+/**
+ * @brief
+ *      Processes the incoming requests to decide what response is needed
+ * @param conn
+ *      Pointer to the connection on which to receive and send packets
+ * @param packet
+ *      The packet that was sent from the ground station
+ * @return
+ *      enum for return state
+ */
 SAT_returnState updater_app(csp_packet_t *packet) {
     uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
     int32_t fp;
@@ -57,26 +77,34 @@ SAT_returnState updater_app(csp_packet_t *packet) {
     #ifdef GOLDEN_IMAGE
               fp = red_open("VOL0:/application_image.bin", RED_O_RDONLY);
               if (fp == -1) {
+                  ex2_log("Update binary open failure %d", red_errno);
                   status = -1; break;
               }
               REDSTAT file_info;
               int res = red_fstat(fp, &file_info);
               if (res == -1) {
-                  int err = red_errno;
+                  ex2_log("STAT failure on update binary %d", red_errno);
                   status = -1; break;
               }
               image_info app_info = priv_eeprom_get_app_info();
               if (!BLInternalFlashStartAddrCheck(app_info.addr, (uint32_t)file_info.st_size)){
+                  ex2_log("Flash addr invalid");
                   status = -1; break;
               }
 
               uint8_t oReturnCheck = 0;
               oReturnCheck = priv_Fapi_BlockErase(app_info.addr, (uint32_t)file_info.st_size);
               if (oReturnCheck) {
+                  ex2_log("could not erase block");
                   status = -1; break;
               }
               uint32_t flash_destination = app_info.addr;
               uint32_t flash_size = get_buffer(&buf); // returns the size
+              if (flash_size == 0) {
+                  ex2_log("Buffer get failure");
+                  status = -1;
+                  break;
+              }
               int32_t bytes_read;
               bytes_read = red_read(fp, buf, flash_size);
               if (bytes_read < flash_size) {
@@ -84,6 +112,7 @@ SAT_returnState updater_app(csp_packet_t *packet) {
               }
               oReturnCheck = priv_Fapi_BlockProgram(1, flash_destination, (unsigned long)buf, flash_size);
               if (oReturnCheck) {
+                  ex2_log("Failed to write to block");
                   status = -1; break;
               }
               flash_destination += flash_size;
@@ -188,6 +217,14 @@ SAT_returnState updater_app(csp_packet_t *packet) {
     return SATR_OK;
 }
 
+/**
+ * @brief
+ *      FreeRTOS updater server task
+ * @details
+ *      Accepts incoming updater service packets and executes the application
+ * @param void* param
+ * @return None
+ */
 void updater_service(void *param) {
     csp_socket_t *sock;
     sock = csp_socket(CSP_SO_RDPREQ); // require RDP connection
@@ -215,7 +252,15 @@ void updater_service(void *param) {
     }
 }
 
-
+/**
+ * @brief
+ *      Start the updater server task
+ * @details
+ *      Starts the FreeRTOS task responsible for managing software updates
+ * @param None
+ * @return SAT_returnState
+ *      success report
+ */
 SAT_returnState start_updater_service(void) {
     if (xTaskCreate((TaskFunction_t)updater_service,
                     "updater_service", 300, NULL, NORMAL_SERVICE_PRIO,
