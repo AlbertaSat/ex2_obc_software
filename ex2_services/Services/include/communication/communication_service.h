@@ -69,9 +69,10 @@ typedef enum {
   UHF_GET_MIDI,
   UHF_GET_BEACON_MSG,
   UHF_GET_FRAM,
-  UHF_SET_PIPE,
+  UHF_SET_ECHO,
   UHF_SET_BCN,
-  UHF_SET_ECHO
+  UHF_SET_PIPE,
+  UHF_GET_SECURE_KEY
 } UHF_Subtype;
 
 SAT_returnState communication_service_app(csp_packet_t* pkt);
