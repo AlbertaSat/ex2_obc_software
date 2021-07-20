@@ -4,7 +4,11 @@ INC=$(addsuffix / ,$(addprefix -I,$(shell find ../ -name 'include' -type d -not 
 INC += -I../main/
 CC=gcc -std=c99
 SRC=$(shell find test_ex2_obc_software -name "*.c" -type f -not -path "../Debug/*")
-LIB=-lm
+
+LIB=-Wl,--start-group
+LIB+=-lm
+LIB+=-lc
+
 STATIC_FILES=cgreen/libcgreen.so
 CFLAGS=$(INC)
 SHELL:=/bin/bash
@@ -21,16 +25,14 @@ all: $(MAIN)
 
 
 $(MAIN): $(OBJS_FILES) main.o $(SUT)
-	$(CC) $(OBJS_FILES) $(INC) main.o -Lcgreen/ -lcgreen $(LIB) -o main
+	$(CC) $(OBJS_FILES) $(CFLAGS) main.o $(LIB) -Lcgreen/ -lcgreen -Wl,--end-group -o main
 
 test: all
-	export LD_LIBRARY_PATH=$(pwd)cgreen/
-	./main
+	LD_LIBRARY_PATH=$(pwd)cgreen ./main
 
 lib:  $(OBJS_FILES)
 	ar -rsc file_delivery_app.a $(OBJS_FILES)
 
-clean: 
+clean:
 	find . -type f -name '*.o' -exec rm {} \;
 	rm $(MAIN)
-
