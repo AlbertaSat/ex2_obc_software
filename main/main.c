@@ -66,7 +66,7 @@ static void init_software();
 static inline SAT_returnState init_csp_interface();
 static void init_system_tasks();
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
-static FTP app;
+static FTP ftp_app;
 
 
 int ex2_main(int argc, char **argv) {
@@ -77,14 +77,14 @@ int ex2_main(int argc, char **argv) {
   InitIO();
 
   /* Initialization routine */
-  init_filesystem();
+  //init_filesystem();
   init_csp();
   /* Start service server, and response server */
   init_software();
 
 //  start_eps_mock();
 
-  void *task_handler = create_ftp_task(OBC_APP_ID, &app);
+  void *task_handler = create_ftp_task(OBC_APP_ID, &ftp_app);
   if (task_handler == NULL) {
       return -1;
   }
