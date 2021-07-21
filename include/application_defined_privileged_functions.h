@@ -92,6 +92,22 @@ void priv_eeprom_set_golden_info_(image_info app_info) {
     RESET_PRIVILEGE;
 }
 
+bool priv_verify_application_() {
+    bool ret = false;
+    RAISE_PRIVILEGE;
+    ret = verify_application();
+    RESET_PRIVILEGE;
+    return ret;
+}
+
+bool priv_verify_golden_() {
+    bool ret = false;
+    RAISE_PRIVILEGE;
+    ret = verify_golden();
+    RESET_PRIVILEGE;
+    return ret;
+}
+
 inline uint32_t priv_Fapi_BlockErase_(uint32_t ulAddr, uint32_t Size) {
     RAISE_PRIVILEGE;
     uint32_t ret;

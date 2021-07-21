@@ -30,13 +30,15 @@
 #include "bl_eeprom.h"
 #include <stdbool.h>
 
-inline void reboot_system(char reboot_type);
-inline bool init_eeprom();
-inline void shutdown_eeprom();
-inline image_info priv_eeprom_get_app_info();
-inline image_info priv_eeprom_get_golden_info();
-inline void priv_eeprom_set_app_info(image_info app_info);
-inline void priv_eeprom_set_golden_info(image_info app_info);
-inline uint32_t priv_Fapi_BlockErase(uint32_t ulAddr, uint32_t Size);
-inline uint32_t priv_Fapi_BlockProgram( uint32_t Bank, uint32_t Flash_Address, uint32_t Data_Address, uint32_t SizeInBytes);
+void reboot_system(char reboot_type);
+bool init_eeprom();
+void shutdown_eeprom();
+image_info priv_eeprom_get_app_info();
+image_info priv_eeprom_get_golden_info();
+void priv_eeprom_set_app_info(image_info app_info);
+void priv_eeprom_set_golden_info(image_info app_info);
+uint32_t priv_Fapi_BlockErase(uint32_t ulAddr, uint32_t Size);
+uint32_t priv_Fapi_BlockProgram( uint32_t Bank, uint32_t Flash_Address, uint32_t Data_Address, uint32_t SizeInBytes);
+bool priv_verify_golden();
+bool priv_verify_application();
 #endif /* INCLUDE_PRIVILEGED_FUNCTIONS_H_ */
