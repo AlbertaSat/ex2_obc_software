@@ -438,9 +438,6 @@ int num_digits(int num) {
 static inline void prv_get_lock(SemaphoreHandle_t *lock) {
   if (*lock == NULL) {
     *lock = xSemaphoreCreateMutex();
-    if (*lock == NULL) {
-      return FAILURE;
-    }
   }
   xSemaphoreTake(*lock, portMAX_DELAY);
 }
