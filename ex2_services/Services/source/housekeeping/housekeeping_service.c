@@ -21,12 +21,16 @@
 #include <FreeRTOS.h>
 #include <os_task.h>
 #include <os_semphr.h>
+#include <os_projdefs.h>
+#include <os_portmacro.h>
 #include <csp/csp.h>
 #include <csp/csp_endian.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+
+#include "printf.h"
 
 #include <semphr.h> //for semaphore lock
 
@@ -47,6 +51,8 @@ char base_file[] = "VOL0:/tempHKdata"; //path may need to be changed
 char extension[] = ".TMP";
 uint16_t current_file = 1;  //Increments after file write. loops back at MAX_FILES
                             //1 indexed
+char hk_config[] = "VOL0:/HKconfig.TMP";
+uint8_t config_loaded = 0; //set to 1 after config is loaded
 
 uint32_t *timestamps = 0; //This is a dynamic array to handle file search by timestamp
 uint16_t hk_timestamp_array_size = 0; //NOT BYTES. stored as number of items. 1 indexed. 0 element unused
@@ -303,6 +309,42 @@ Found_file exists(const char *filename){
     return FILE_NOT_EXIST;
 }
 
+Result store_config() {
+  int32_t fout = red_open(hk_config, RED_O_CREAT | RED_O_RDWR); //open or create file to write binary
+  if (fout == -1) {
+    ex2_log("Failed to open or create file to write: '%s'\n", hk_config);
+    return FAILURE;
+  }
+  red_write(fout, &MAX_FILES, sizeof(MAX_FILES));
+  red_write(fout, &current_file, sizeof(current_file));
+  red_write(fout, &hk_timestamp_array_size, sizeof(hk_timestamp_array_size));
+  red_write(fout, timestamps, (hk_timestamp_array_size * sizeof(uint32_t)));
+
+  red_close(fout);
+  return SUCCESS;
+}
+
+Result load_config() {
+  uint16_t num_items = 0;
+  if(exists(hk_config) == FILE_NOT_EXIST){
+    ex2_log("Config file: '%s' does not exist\n", hk_config);
+    return FAILURE;
+  }
+  int32_t fin = red_open(hk_config, RED_O_RDONLY); //open file to read binary
+  if (fin == -1) {
+    ex2_log("Failed to open file to read: '%s'\n", hk_config);
+    return FAILURE;
+  }
+  red_read(fin, &MAX_FILES, sizeof(MAX_FILES));
+  red_read(fin, &current_file, sizeof(current_file));
+  red_read(fin, &num_items, sizeof(num_items));
+  if (dynamic_timestamp_array_handler(num_items) == SUCCESS) {
+    red_read(fin, timestamps, (hk_timestamp_array_size * sizeof(uint32_t)));
+  }
+  red_close(fin);
+  return SUCCESS;
+}
+
 /**
  * @brief
  *      Write housekeeping data to the given file
@@ -319,7 +361,7 @@ Found_file exists(const char *filename){
 Result write_hk_to_file(const char *filename, All_systems_housekeeping* all_hk_data) {
   int32_t fout = red_open(filename, RED_O_CREAT | RED_O_RDWR); //open or create file to write binary
   if (fout == -1) {
-    ex2_log("Failed to open or create file to write: '%c'\n", filename);
+    ex2_log("Failed to open or create file to write: '%s'\n", filename);
     return FAILURE;
   }
   red_errno = 0;
@@ -334,7 +376,7 @@ Result write_hk_to_file(const char *filename, All_systems_housekeeping* all_hk_d
   
 
   if(red_errno != 0) {
-    ex2_log("Failed to write to file: '%c'\n", filename);
+    ex2_log("Failed to write to file: '%s'\n", filename);
     red_close(fout);
     return FAILURE;
   }
@@ -357,7 +399,7 @@ Result write_hk_to_file(const char *filename, All_systems_housekeeping* all_hk_d
  */
 Result read_hk_from_file(const char *filename, All_systems_housekeeping* all_hk_data) {
   if(exists(filename) == FILE_NOT_EXIST){
-    ex2_log("Attempted to read file that doesn't exist: '%c'\n", filename);
+    ex2_log("Attempted to read file that doesn't exist: '%s'\n", filename);
     return FAILURE;
   }
   int32_t fin = red_open(filename, RED_O_RDONLY); //open file to read binary
@@ -395,12 +437,19 @@ int num_digits(int num) {
   return count;
 }
 
-static inline void prv_get_lock(SemaphoreHandle_t *lock) {
+static inline Result prv_get_lock(SemaphoreHandle_t *lock) {
   if (*lock == NULL) {
     *lock = xSemaphoreCreateMutex();
+    if (*lock == NULL) {
+      return FAILURE;
+    }
   }
-  configASSERT(*lock);
-  xSemaphoreTake(*lock, portMAX_DELAY);
+  for (int i = 0; i < 10; i++){
+    if (xSemaphoreTake(*lock, portMAX_DELAY) == pdTRUE) {
+      return SUCCESS;
+    }
+  }
+  return FAILURE;
 }
 
 static inline void prv_give_lock(SemaphoreHandle_t *lock) {
@@ -415,7 +464,7 @@ static inline void prv_give_lock(SemaphoreHandle_t *lock) {
  */
 Result populate_and_store_hk_data(void) {
   All_systems_housekeeping temp_hk_data;
-  
+
   /*
   if(collect_hk_from_devices(&temp_hk_data) == FAILURE) {
     ex2_log("Error collecting hk data from peripherals\n");
@@ -427,9 +476,16 @@ Result populate_and_store_hk_data(void) {
  
   //RTC_get_unix_time(&temp_hk_data.hk_timeorder.UNIXtimestamp);
   
-  prv_get_lock(&f_count_lock); //lock
-  temp_hk_data.hk_timeorder.dataPosition = current_file;
+  if (prv_get_lock(&f_count_lock) != SUCCESS) { //lock
+    return FAILURE;
+  }
+  
+  if (config_loaded == 0){
+    load_config();
+  }
+  config_loaded = 1;
 
+  temp_hk_data.hk_timeorder.dataPosition = current_file;
   uint16_t length = strlen(base_file) + num_digits(current_file) + 
   strlen(extension) + 1;
   char * filename = pvPortMalloc(length); // + 1 for NULL terminator
@@ -447,6 +503,7 @@ Result populate_and_store_hk_data(void) {
     return FAILURE;
   }
 
+  
   if (dynamic_timestamp_array_handler(MAX_FILES) == SUCCESS) {
     timestamps[current_file] = temp_hk_data.hk_timeorder.UNIXtimestamp;
   } else {
@@ -457,6 +514,8 @@ Result populate_and_store_hk_data(void) {
   if(current_file > MAX_FILES) {
     current_file = 1;
   }
+
+  store_config();
   prv_give_lock(&f_count_lock); //unlock
   vPortFree(filename); // No memory leaks here
   return SUCCESS;
@@ -510,7 +569,9 @@ Result set_max_files(uint16_t new_max) {
   //ensure number requested isn't garbage
   if (new_max < 1) return FAILURE;
 
-  prv_get_lock(&f_count_lock); //lock
+  if (prv_get_lock(&f_count_lock) != SUCCESS) { //lock
+    return FAILURE;
+  }
   
   //adjust the array
 
@@ -550,6 +611,8 @@ Result set_max_files(uint16_t new_max) {
       }
     }
   }
+
+  store_config();
   vPortFree(filename);
   return result;
 }
@@ -621,7 +684,9 @@ void hex_dump(char *stuff, int size){
  *      enum for success or failure
  */
 Result fetch_historic_hk_and_transmit(csp_conn_t *conn, uint16_t limit, uint16_t before_id, uint32_t before_time) {
-  prv_get_lock(&f_count_lock);
+  if (prv_get_lock(&f_count_lock) != SUCCESS) { //lock
+    return FAILURE;
+  }
   uint16_t locked_max = MAX_FILES;
   uint16_t locked_before_id = before_id;
   uint32_t locked_before_time = before_time;
