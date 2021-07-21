@@ -30,8 +30,6 @@
 #include <string.h>
 #include <time.h>
 
-#include "printf.h"
-
 #include <semphr.h> //for semaphore lock
 
 #include <redposix.h> //include for file system 
@@ -437,19 +435,14 @@ int num_digits(int num) {
   return count;
 }
 
-static inline Result prv_get_lock(SemaphoreHandle_t *lock) {
+static inline void prv_get_lock(SemaphoreHandle_t *lock) {
   if (*lock == NULL) {
     *lock = xSemaphoreCreateMutex();
     if (*lock == NULL) {
       return FAILURE;
     }
   }
-  for (int i = 0; i < 10; i++){
-    if (xSemaphoreTake(*lock, portMAX_DELAY) == pdTRUE) {
-      return SUCCESS;
-    }
-  }
-  return FAILURE;
+  xSemaphoreTake(*lock, portMAX_DELAY);
 }
 
 static inline void prv_give_lock(SemaphoreHandle_t *lock) {
@@ -476,9 +469,7 @@ Result populate_and_store_hk_data(void) {
  
   //RTC_get_unix_time(&temp_hk_data.hk_timeorder.UNIXtimestamp);
   
-  if (prv_get_lock(&f_count_lock) != SUCCESS) { //lock
-    return FAILURE;
-  }
+  prv_get_lock(&f_count_lock); //lock
   
   if (config_loaded == 0){
     load_config();
@@ -569,9 +560,7 @@ Result set_max_files(uint16_t new_max) {
   //ensure number requested isn't garbage
   if (new_max < 1) return FAILURE;
 
-  if (prv_get_lock(&f_count_lock) != SUCCESS) { //lock
-    return FAILURE;
-  }
+  prv_get_lock(&f_count_lock); //lock
   
   //adjust the array
 
@@ -684,9 +673,7 @@ void hex_dump(char *stuff, int size){
  *      enum for success or failure
  */
 Result fetch_historic_hk_and_transmit(csp_conn_t *conn, uint16_t limit, uint16_t before_id, uint32_t before_time) {
-  if (prv_get_lock(&f_count_lock) != SUCCESS) { //lock
-    return FAILURE;
-  }
+  prv_get_lock(&f_count_lock); //lock
   uint16_t locked_max = MAX_FILES;
   uint16_t locked_before_id = before_id;
   uint32_t locked_before_time = before_time;
