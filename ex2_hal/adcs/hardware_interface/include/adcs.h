@@ -30,6 +30,143 @@ typedef struct __attribute__((packed)) {
     xyz16 Rate_Sensor_Temp;
 } ADCS_HouseKeeping;
 
+typedef struct __attribute__((packed)) {
+    uint8_t node_type;
+    uint8_t interface_ver;
+    uint8_t major_firm_ver;
+    uint8_t minor_firm_ver;
+    uint16_t runtime_s;
+    uint16_t runtime_ms;
+} ADCS_node_identification;
+
+typedef struct __attribute__((packed)) {
+    uint8_t mcu_reset_cause;
+    uint8_t boot_cause;
+    uint16_t boot_count;
+    uint8_t boot_idx;
+} ADCS_boot_program_stat;
+
+typedef struct __attribute__((packed)) {
+    uint8_t program_idx;
+    uint8_t boot_stat;
+} ADCS_boot_index;
+
+typedef struct __attribute__((packed)) {
+    uint32_t time;
+    uint8_t event_id;
+    uint8_t event_param;
+} ADCS_last_logged_event;
+
+typedef struct __attribute__((packed)) {
+    bool format_busy;
+    bool erase_all_busy;
+} ADCS_SD_format_progress;
+
+typedef struct __attribute__((packed)) {
+    uint8_t last_tc_id;
+    bool tc_processed;
+    ADCS_returnState tc_err_stat;
+    uint8_t tc_err_idx;
+} ADCS_TC_ack;
+
+typedef struct __attribute__((packed)) {
+    uint16_t packet_count;
+    uint8_t file[20];
+} ADCS_file_download_buffer;
+
+typedef struct __attribute__((packed)) {
+    bool ready;
+    bool param_err;
+    uint16_t crc16_checksum;
+    uint16_t length;
+} ADCS_file_download_block_stat;
+
+typedef struct __attribute__((packed)) {
+    uint8_t type;
+    bool updating;
+    uint8_t counter;
+    uint32_t size;
+    uint32_t time;
+    uint16_t crc16_checksum;
+} ADCS_file_info;
+
+typedef struct __attribute__((packed)) {
+    bool busy;
+    bool err;
+} ADCS_finalize_upload_stat;
+
+typedef struct __attribute__((packed)) {
+    uint16_t sram1;
+    uint16_t sram2;
+} ADCS_SRAM_latchup_count;
+
+typedef struct __attribute__((packed)) {
+    uint16_t single_sram;
+    uint16_t double_sram;
+    uint16_t multi_sram;
+} ADCS_EDAC_err_count;
+
+typedef struct __attribute__((packed)) {
+    uint8_t when;
+    uint8_t period;
+} ADCS_Unixtime_save_config;
+
+typedef struct __attribute__((packed)) {
+    uint32_t unix_t;
+    uint16_t count_ms;
+} ADCS_unix_t;
+
+typedef struct __attribute__((packed)) {
+    uint16_t uptime;
+    uint8_t flags_arr;
+} ADCS_bootloader_state;
+
+typedef struct __attribute__((packed)) {
+    uint8_t index;
+    bool busy;
+    uint32_t file_size;
+    uint16_t crc16_checksum;
+} ADCS_program_info;
+
+typedef struct __attribute__((packed)) {
+    bool busy;
+    bool err;
+} ADCS_internal_flash_progress;
+
+typedef struct __attribute__((packed)) {
+    uint8_t percentage;
+    uint8_t result;
+    uint8_t file_counter;
+} ADCS_jpg_cnv_progress;
+
+typedef struct __attribute__((packed)) {
+    uint16_t adcs_update;
+    uint16_t sensor_comms;
+    uint16_t sgp4_propag;
+    uint16_t igrf_model;
+} ADCS_execution_times;
+
+typedef struct __attribute__((packed)) {
+    uint16_t time;
+    uint8_t execution_point;
+} ADCS_ACP_loop_stat;
+
+typedef struct __attribute__((packed)) {
+    uint8_t percentage;
+    uint8_t status;
+} ADCS_img_save_progress;
+
+typedef struct __attribute__((packed)) {
+    bool complete;
+    uint8_t err;
+    adcs_asgp4 asgp4;
+} ADCS_ASGP4;
+
+typedef struct __attribute__((packed)) {
+    uint8_t flags_err;
+    uint16_t period;
+    uint8_t dest;
+} ADCS_log_config;
 
 // Common Telecommands
 ADCS_returnState HAL_ADCS_reset();
