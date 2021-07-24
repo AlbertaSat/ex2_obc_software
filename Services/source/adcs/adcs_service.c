@@ -12,28 +12,6 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
     int8_t status;
     SAT_returnState return_state = SATR_OK; // temporarily OK
 
-    ADCS_node_identification* node_id = (ADCS_node_identification*)pvPortMalloc(sizeof(ADCS_node_identification));
-    ADCS_boot_program_stat* boot_program_stat = (ADCS_boot_program_stat*)pvPortMalloc(sizeof(ADCS_boot_program_stat));
-    ADCS_boot_index* boot_index = (ADCS_boot_index*)pvPortMalloc(sizeof(ADCS_boot_index));
-    ADCS_last_logged_event* last_logged_event = (ADCS_last_logged_event*)pvPortMalloc(sizeof(ADCS_last_logged_event));
-    ADCS_SD_format_progress* SD_format_progress = (ADCS_SD_format_progress*)pvPortMalloc(sizeof(ADCS_SD_format_progress));
-    ADCS_TC_ack* TC_ack = (ADCS_TC_ack*)pvPortMalloc(sizeof(ADCS_TC_ack));
-    ADCS_file_download_buffer* file_download_buffer = (ADCS_file_download_buffer*)pvPortMalloc(sizeof(ADCS_file_download_buffer));
-    ADCS_file_download_block_stat* file_download_block_stat = (ADCS_file_download_block_stat*)pvPortMalloc(sizeof(ADCS_file_download_block_stat));
-    ADCS_file_info* file_info = (ADCS_file_info*)pvPortMalloc(sizeof(ADCS_file_info));
-    ADCS_finalize_upload_stat* finalize_upload_stat = (ADCS_finalize_upload_stat*)pvPortMalloc(sizeof(ADCS_finalize_upload_stat));
-    ADCS_SRAM_latchup_count* SRAM_latchup_count = (ADCS_SRAM_latchup_count*)pvPortMalloc(sizeof(ADCS_SRAM_latchup_count));
-    ADCS_EDAC_err_count* EDAC_err_count = (ADCS_EDAC_err_count*)pvPortMalloc(sizeof(ADCS_EDAC_err_count));
-    ADCS_Unixtime_save_config* Unixtime_save_config = (ADCS_Unixtime_save_config*)pvPortMalloc(sizeof(ADCS_Unixtime_save_config));
-    ADCS_unix_t* A_unix_t = (ADCS_unix_t*)pvPortMalloc(sizeof(ADCS_unix_t));
-    ADCS_bootloader_state* bootloader_state = (ADCS_bootloader_state*)pvPortMalloc(sizeof(ADCS_bootloader_state));
-    ADCS_program_info* program_info = (ADCS_program_info*)pvPortMalloc(sizeof(ADCS_program_info));
-    ADCS_internal_flash_progress* internal_flash_progress = (ADCS_internal_flash_progress*)pvPortMalloc(sizeof(ADCS_internal_flash_progress));
-    ADCS_jpg_cnv_progress* jpg_cnv_progress = (ADCS_jpg_cnv_progress*)pvPortMalloc(sizeof(ADCS_jpg_cnv_progress));
-    ADCS_execution_times* execution_times = (ADCS_execution_times*)pvPortMalloc(sizeof(ADCS_execution_times));
-    ADCS_ACP_loop_stat* ACP_loop_stat = (ADCS_ACP_loop_stat*)pvPortMalloc(sizeof(ADCS_ACP_loop_stat));
-    ADCS_img_save_progress* img_save_progress = (ADCS_img_save_progress*)pvPortMalloc(sizeof(ADCS_img_save_progress));
-
     switch (ser_subtype)
     {
     case ADCS_RESET:
@@ -172,59 +150,58 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
     }
         
     case ADCS_GET_NODE_IDENTIFICATION: {
+        ADCS_node_identification node_id;
+        status = HAL_ADCS_get_node_identification(&node_id);
 
-        status = HAL_ADCS_get_node_identification(&node_id->node_type, &node_id->interface_ver, &node_id->major_firm_ver, 
-                                                    &node_id->minor_firm_ver, &node_id->runtime_s, &node_id->runtime_ms);
-
-        if (sizeof(*node_id) + 1 > csp_buffer_data_size()) {
+        if (sizeof(node_id) + 1 > csp_buffer_data_size()) {
             return_state = SATR_ERROR;
         }
-        node_id->node_type = csp_hton32((uint32_t)node_id->node_type);
-        node_id->interface_ver = csp_hton32((uint32_t)node_id->interface_ver);
-        node_id->major_firm_ver = csp_hton32((uint32_t)node_id->major_firm_ver);
-        node_id->minor_firm_ver = csp_hton32((uint32_t)node_id->minor_firm_ver);
-        node_id->runtime_s = csp_hton32((uint32_t)node_id->runtime_s);
-        node_id->runtime_ms = csp_hton32((uint32_t)node_id->runtime_ms);
+        node_id.node_type = csp_hton32((uint32_t)node_id.node_type);
+        node_id.interface_ver = csp_hton32((uint32_t)node_id.interface_ver);
+        node_id.major_firm_ver = csp_hton32((uint32_t)node_id.major_firm_ver);
+        node_id.minor_firm_ver = csp_hton32((uint32_t)node_id.minor_firm_ver);
+        node_id.runtime_s = csp_hton32((uint32_t)node_id.runtime_s);
+        node_id.runtime_ms = csp_hton32((uint32_t)node_id.runtime_ms);
 
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-        memcpy(&packet->data[OUT_DATA_BYTE], node_id, sizeof(*node_id));
-        set_packet_length(packet, sizeof(*node_id) + sizeof(int8_t) + 1); 
+        memcpy(&packet->data[OUT_DATA_BYTE], &node_id, sizeof(node_id));
+        set_packet_length(packet, sizeof(node_id) + sizeof(int8_t) + 1); 
 
         break;
     }
         
     case ADCS_GET_BOOT_PROGRAM_STAT: {
         
-        status = HAL_ADCS_get_boot_program_stat(&boot_program_stat->mcu_reset_cause, &boot_program_stat->boot_cause, 
-                                                &boot_program_stat->boot_count, &boot_program_stat->boot_idx);
+        ADCS_boot_program_stat boot_program_stat;
+        status = HAL_ADCS_get_boot_program_stat(&boot_program_stat);
 
-        if (sizeof(*boot_program_stat) + 1 > csp_buffer_data_size()) {
+        if (sizeof(boot_program_stat) + 1 > csp_buffer_data_size()) {
             return_state = SATR_ERROR;
         }
-        boot_program_stat->mcu_reset_cause = csp_hton32((uint32_t)boot_program_stat->mcu_reset_cause);
-        boot_program_stat->boot_cause = csp_hton32((uint32_t)boot_program_stat->boot_cause);
-        boot_program_stat->boot_count = csp_hton32((uint32_t)boot_program_stat->boot_count);
-        boot_program_stat->boot_idx = csp_hton32((uint32_t)boot_program_stat->boot_idx);
+        boot_program_stat.mcu_reset_cause = csp_hton32((uint32_t)boot_program_stat.mcu_reset_cause);
+        boot_program_stat.boot_cause = csp_hton32((uint32_t)boot_program_stat.boot_cause);
+        boot_program_stat.boot_count = csp_hton32((uint32_t)boot_program_stat.boot_count);
+        boot_program_stat.boot_idx = csp_hton32((uint32_t)boot_program_stat.boot_idx);
 
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
-        memcpy(&packet->data[OUT_DATA_BYTE], boot_program_stat, sizeof(*boot_program_stat)); 
-        set_packet_length(packet, sizeof(*boot_program_stat) + sizeof(int8_t) + 1); 
+        memcpy(&packet->data[OUT_DATA_BYTE], &boot_program_stat, sizeof(boot_program_stat));
+        set_packet_length(packet, sizeof(boot_program_stat) + sizeof(int8_t) + 1);
         break;
     }
         
     case ADCS_GET_BOOT_INDEX: {
-        
-        status = HAL_ADCS_get_boot_index(&boot_index->program_idx, &boot_index->boot_stat);
+        ADCS_boot_index boot_index;
+        status = HAL_ADCS_get_boot_index(&boot_index);
 
-        if (sizeof(*boot_index) + 1 > csp_buffer_data_size()) {
+        if (sizeof(boot_index) + 1 > csp_buffer_data_size()) {
             return_state = SATR_ERROR;
         }
 
-        boot_index->program_idx = csp_hton32((uint32_t)boot_index->program_idx);
-        boot_index->boot_stat = csp_hton32((uint32_t)boot_index->boot_stat);
+        boot_index.program_idx = csp_hton32((uint32_t)boot_index.program_idx);
+        boot_index.boot_stat = csp_hton32((uint32_t)boot_index.boot_stat);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
-        memcpy(&packet->data[OUT_DATA_BYTE], boot_index, sizeof(*boot_index)); 
-        set_packet_length(packet, sizeof(*boot_index) + sizeof(int8_t) + 1); 
+        memcpy(&packet->data[OUT_DATA_BYTE], &boot_index, sizeof(boot_index)); 
+        set_packet_length(packet, sizeof(boot_index) + sizeof(int8_t) + 1); 
         
         break;
 
@@ -232,60 +209,62 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
         
     case ADCS_GET_LAST_LOGGED_EVENT: {
 
-        status = HAL_ADCS_get_last_logged_event(&last_logged_event->time, &last_logged_event->event_id, &last_logged_event->event_param);
-
-        if (sizeof(*last_logged_event) + 1 > csp_buffer_data_size()) {
+        ADCS_last_logged_event last_logged_event;
+        status = HAL_ADCS_get_last_logged_event(&last_logged_event);
+        if (sizeof(last_logged_event) + 1 > csp_buffer_data_size()) {
             return_state = SATR_ERROR;
         }
-        last_logged_event->time = csp_hton32((uint32_t)last_logged_event->time);
-        last_logged_event->event_id = csp_hton32((uint32_t)last_logged_event->event_id);
-        last_logged_event->event_param = csp_hton32((uint32_t)last_logged_event->event_param);
+        last_logged_event.time = csp_hton32((uint32_t)last_logged_event.time);
+        last_logged_event.event_id = csp_hton32((uint32_t)last_logged_event.event_id);
+        last_logged_event.event_param = csp_hton32((uint32_t)last_logged_event.event_param);
 
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
-        memcpy(&packet->data[OUT_DATA_BYTE], last_logged_event, sizeof(*last_logged_event)); 
-        set_packet_length(packet, sizeof(*last_logged_event) + sizeof(int8_t) + 1); 
+        memcpy(&packet->data[OUT_DATA_BYTE], &last_logged_event, sizeof(last_logged_event)); 
+        set_packet_length(packet, sizeof(last_logged_event) + sizeof(int8_t) + 1); 
 
         break;
     }
         
     case ADCS_GET_SD_FORMAT_PROCESS: {
-        
-        status = HAL_ADCS_get_SD_format_progress(&SD_format_progress->format_busy, &SD_format_progress->erase_all_busy);
+        ADCS_SD_format_progress SD_format_progress;
+        status = HAL_ADCS_get_SD_format_progress(&SD_format_progress);
 
-        if (sizeof(*SD_format_progress) + 1 > csp_buffer_data_size()) {
+        if (sizeof(SD_format_progress) + 1 > csp_buffer_data_size()) {
             return_state = SATR_ERROR;
         }
 
-        SD_format_progress->format_busy = csp_hton32((uint32_t)SD_format_progress->format_busy);
-        SD_format_progress->erase_all_busy = csp_hton32((uint32_t)SD_format_progress->erase_all_busy);
+        SD_format_progress.format_busy = csp_hton32((uint32_t)SD_format_progress.format_busy);
+        SD_format_progress.erase_all_busy = csp_hton32((uint32_t)SD_format_progress.erase_all_busy);
         
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
-        memcpy(&packet->data[OUT_DATA_BYTE], SD_format_progress, sizeof(*SD_format_progress)); 
-        set_packet_length(packet, sizeof(*SD_format_progress) + sizeof(int8_t) + 1);
+        memcpy(&packet->data[OUT_DATA_BYTE], &SD_format_progress, sizeof(SD_format_progress)); 
+        set_packet_length(packet, sizeof(SD_format_progress) + sizeof(int8_t) + 1);
 
         break;
     }
     
     case ADCS_GET_TC_ACK: {
         
-        status = HAL_ADCS_get_TC_ack(&TC_ack->last_tc_id, &TC_ack->tc_processed, &TC_ack->tc_err_stat, &TC_ack->tc_err_idx);
+        ADCS_TC_ack TC_ack;
+        status = HAL_ADCS_get_TC_ack(&TC_ack);
 
-        if (sizeof(*TC_ack) + 1 > csp_buffer_data_size()) {
+        if (sizeof(TC_ack) + 1 > csp_buffer_data_size()) {
             return_state = SATR_ERROR;
         }
 
-        TC_ack->last_tc_id = csp_hton32((uint32_t)TC_ack->last_tc_id);
-        TC_ack->tc_processed = csp_hton32((uint32_t)TC_ack->tc_processed);
-        TC_ack->tc_err_idx = csp_hton32((uint32_t)TC_ack->tc_err_idx);
+        TC_ack.last_tc_id = csp_hton32((uint32_t)TC_ack.last_tc_id);
+        TC_ack.tc_processed = csp_hton32((uint32_t)TC_ack.tc_processed);
+        TC_ack.tc_err_idx = csp_hton32((uint32_t)TC_ack.tc_err_idx);
 
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
-        memcpy(&packet->data[OUT_DATA_BYTE], TC_ack, sizeof(*TC_ack)); 
-        set_packet_length(packet, sizeof(*TC_ack) + sizeof(int8_t) + 1);
+        memcpy(&packet->data[OUT_DATA_BYTE], &TC_ack, sizeof(TC_ack)); 
+        set_packet_length(packet, sizeof(TC_ack) + sizeof(int8_t) + 1);
 
         break;
     }
 
     case ADCS_GET_FILE_DOWNLOAD_BUFFER: {
+        //ADCS_file_download_buffer* file_download_buffer = (ADCS_file_download_buffer*)pvPortMalloc(sizeof(ADCS_file_download_buffer));
         // file_download_buffer->packet_count = packet->data[IN_DATA_BYTE];
 
         break;
@@ -293,42 +272,43 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
     
     case ADCS_GET_FILE_DOWNLOAD_BLOCK_STAT: {
 
-        status = HAL_ADCS_get_file_download_block_stat(&file_download_block_stat->ready, &file_download_block_stat->param_err, 
-                                                        &file_download_block_stat->crc16_checksum, &file_download_block_stat->length);
+        ADCS_file_download_block_stat file_download_block_stat;
 
-        if (sizeof(*file_download_block_stat) + 1 > csp_buffer_data_size()) {
+        status = HAL_ADCS_get_file_download_block_stat(&file_download_block_stat);
+
+        if (sizeof(file_download_block_stat) + 1 > csp_buffer_data_size()) {
             return_state = SATR_ERROR;
         }
 
-        file_download_block_stat->ready = csp_hton32((uint32_t)file_download_block_stat->ready);
-        file_download_block_stat->param_err = csp_hton32((uint32_t)file_download_block_stat->param_err);
-        file_download_block_stat->crc16_checksum = csp_hton32((uint32_t)file_download_block_stat->crc16_checksum);
-        file_download_block_stat->length = csp_hton32((uint32_t)file_download_block_stat->length);                                                
+        file_download_block_stat.ready = csp_hton32((uint32_t)file_download_block_stat.ready);
+        file_download_block_stat.param_err = csp_hton32((uint32_t)file_download_block_stat.param_err);
+        file_download_block_stat.crc16_checksum = csp_hton32((uint32_t)file_download_block_stat.crc16_checksum);
+        file_download_block_stat.length = csp_hton32((uint32_t)file_download_block_stat.length);                                                
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
-        memcpy(&packet->data[OUT_DATA_BYTE], file_download_block_stat, sizeof(*file_download_block_stat)); 
-        set_packet_length(packet, sizeof(*file_download_block_stat) + sizeof(int8_t) + 1);
+        memcpy(&packet->data[OUT_DATA_BYTE], &file_download_block_stat, sizeof(file_download_block_stat)); 
+        set_packet_length(packet, sizeof(file_download_block_stat) + sizeof(int8_t) + 1);
 
         break;
     }
     case ADCS_GET_FILE_INFO: {
+        ADCS_file_info file_info;
 
-        status = HAL_ADCS_get_file_info(&file_info->type, &file_info->updating, &file_info->counter,
-                                            &file_info->size, &file_info->time, &file_info->crc16_checksum);
+        status = HAL_ADCS_get_file_info(&file_info);
 
-        if (sizeof(*file_info) + 1 > csp_buffer_data_size()) {
+        if (sizeof(file_info) + 1 > csp_buffer_data_size()) {
             return_state = SATR_ERROR;
         }
 
-        file_info->type = csp_hton32((uint32_t)file_info->type);
-        file_info->updating = csp_hton32((uint32_t)file_info->updating);
-        file_info->counter = csp_hton32((uint32_t)file_info->counter);
-        file_info->size = csp_hton32((uint32_t)file_info->size);
-        file_info->time = csp_hton32((uint32_t)file_info->time);
-        file_info->crc16_checksum = csp_hton32((uint32_t)file_info->crc16_checksum);
+        file_info.type = csp_hton32((uint32_t)file_info.type);
+        file_info.updating = csp_hton32((uint32_t)file_info.updating);
+        file_info.counter = csp_hton32((uint32_t)file_info.counter);
+        file_info.size = csp_hton32((uint32_t)file_info.size);
+        file_info.time = csp_hton32((uint32_t)file_info.time);
+        file_info.crc16_checksum = csp_hton32((uint32_t)file_info.crc16_checksum);
 
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
-        memcpy(&packet->data[OUT_DATA_BYTE], file_info, sizeof(*file_info)); 
-        set_packet_length(packet, sizeof(*file_info) + sizeof(int8_t) + 1);
+        memcpy(&packet->data[OUT_DATA_BYTE], &file_info, sizeof(file_info)); 
+        set_packet_length(packet, sizeof(file_info) + sizeof(int8_t) + 1);
 
 
         break;
@@ -356,17 +336,20 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
         
 
     case ADCS_GET_FINALIZE_UPLOAD_STAT: {
-    
-        status = HAL_ADCS_get_finalize_upload_stat(&finalize_upload_stat->busy, &finalize_upload_stat->err);
-        if (sizeof(*finalize_upload_stat) + 1 > csp_buffer_data_size()) {
+        
+        bool busy = false;
+        bool err = false; 
+        status = HAL_ADCS_get_finalize_upload_stat(&busy, &err);
+        if (sizeof(busy) + sizeof(err) + 1 > csp_buffer_data_size()) {
             return_state = SATR_ERROR;
         }
-        finalize_upload_stat->busy = csp_hton32((uint32_t)finalize_upload_stat->busy);
-        finalize_upload_stat->err = csp_hton32((uint32_t)finalize_upload_stat->err);
+        busy = csp_hton32((uint32_t)busy);
+        err = csp_hton32((uint32_t)err);
 
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
-        memcpy(&packet->data[OUT_DATA_BYTE], finalize_upload_stat, sizeof(*finalize_upload_stat)); 
-        set_packet_length(packet, sizeof(*finalize_upload_stat) + sizeof(int8_t) + 1);
+        memcpy(&packet->data[OUT_DATA_BYTE], &busy, sizeof(busy)); 
+        memcpy(&packet->data[OUT_DATA_BYTE + 1], &err, sizeof(err)); 
+        set_packet_length(packet, sizeof(busy) + sizeof(err) + sizeof(int8_t) + 1);
 
         break;
     }
@@ -387,33 +370,34 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
     }
         
     case ADCS_GET_SRAM_LATCHUP_COUNT: {
+        ADCS_SRAM_latchup_count SRAM_latchup_count;
+        status = HAL_ADCS_get_SRAM_latchup_count(&SRAM_latchup_count);
 
-        status = HAL_ADCS_get_SRAM_latchup_count(&SRAM_latchup_count->sram1, &SRAM_latchup_count->sram2);
-
-        if (sizeof(*SRAM_latchup_count) + 1 > csp_buffer_data_size()) {
+        if (sizeof(SRAM_latchup_count) + 1 > csp_buffer_data_size()) {
             return_state = SATR_ERROR;
         }
-        SRAM_latchup_count->sram1 = csp_hton32((uint32_t)SRAM_latchup_count->sram1);
-        SRAM_latchup_count->sram2 = csp_hton32((uint32_t)SRAM_latchup_count->sram2);
+        SRAM_latchup_count.sram1 = csp_hton32((uint32_t)SRAM_latchup_count.sram1);
+        SRAM_latchup_count.sram2 = csp_hton32((uint32_t)SRAM_latchup_count.sram2);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
-        memcpy(&packet->data[OUT_DATA_BYTE], SRAM_latchup_count, sizeof(*SRAM_latchup_count)); 
-        set_packet_length(packet, sizeof(*SRAM_latchup_count) + sizeof(int8_t) + 1);
+        memcpy(&packet->data[OUT_DATA_BYTE], &SRAM_latchup_count, sizeof(SRAM_latchup_count)); 
+        set_packet_length(packet, sizeof(SRAM_latchup_count) + sizeof(int8_t) + 1);
         break;
     }
         
     case ADCS_GET_EDAC_ERR_COUNT: {
+        ADCS_EDAC_err_count EDAC_err_count;
 
-        status = HAL_ADCS_get_EDAC_err_count(&EDAC_err_count->single_sram, &EDAC_err_count->double_sram, &EDAC_err_count->multi_sram);
-        if (sizeof(*EDAC_err_count) + 1 > csp_buffer_data_size()) {
+        status = HAL_ADCS_get_EDAC_err_count(&EDAC_err_count);
+        if (sizeof(EDAC_err_count) + 1 > csp_buffer_data_size()) {
             return_state = SATR_ERROR;
         }
-        EDAC_err_count->single_sram = csp_hton32((uint32_t)EDAC_err_count->single_sram);
-        EDAC_err_count->double_sram = csp_hton32((uint32_t)EDAC_err_count->double_sram);
-        EDAC_err_count->multi_sram = csp_hton32((uint32_t)EDAC_err_count->multi_sram);
+        EDAC_err_count.single_sram = csp_hton32((uint32_t)EDAC_err_count.single_sram);
+        EDAC_err_count.double_sram = csp_hton32((uint32_t)EDAC_err_count.double_sram);
+        EDAC_err_count.multi_sram = csp_hton32((uint32_t)EDAC_err_count.multi_sram);
         
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
-        memcpy(&packet->data[OUT_DATA_BYTE], EDAC_err_count, sizeof(*EDAC_err_count)); 
-        set_packet_length(packet, sizeof(*EDAC_err_count) + sizeof(int8_t) + 1);
+        memcpy(&packet->data[OUT_DATA_BYTE], &EDAC_err_count, sizeof(EDAC_err_count)); 
+        set_packet_length(packet, sizeof(EDAC_err_count) + sizeof(int8_t) + 1);
 
         break;
     }
@@ -532,18 +516,19 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
     }
         
     case ADCS_GET_UNIXTIME_SAVE_CONFIG: {
-        
-        status = HAL_ADCS_get_UnixTime_save_config(&Unixtime_save_config->when, &Unixtime_save_config->period);
+        ADCS_Unixtime_save_config Unixtime_save_config;
 
-        if (sizeof(*Unixtime_save_config) + 1 > csp_buffer_data_size()) {
+        status = HAL_ADCS_get_UnixTime_save_config(&Unixtime_save_config);
+
+        if (sizeof(Unixtime_save_config) + 1 > csp_buffer_data_size()) {
             return_state = SATR_ERROR;
         }
-        Unixtime_save_config->when = csp_hton32((uint32_t)Unixtime_save_config->when);
-        Unixtime_save_config->period = csp_hton32((uint32_t)Unixtime_save_config->period);
+        Unixtime_save_config.when = csp_hton32((uint32_t)Unixtime_save_config.when);
+        Unixtime_save_config.period = csp_hton32((uint32_t)Unixtime_save_config.period);
         
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
-        memcpy(&packet->data[OUT_DATA_BYTE], Unixtime_save_config, sizeof(*Unixtime_save_config)); 
-        set_packet_length(packet, sizeof(*Unixtime_save_config) + sizeof(int8_t) + 1);
+        memcpy(&packet->data[OUT_DATA_BYTE], &Unixtime_save_config, sizeof(Unixtime_save_config));
+        set_packet_length(packet, sizeof(Unixtime_save_config) + sizeof(int8_t) + 1);
 
         break;
     }
@@ -567,17 +552,19 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
 
         
     case ADCS_GET_UNIX_T: {
-        status = HAL_ADCS_get_unix_t(&A_unix_t->unix_t, &A_unix_t->count_ms);
+        ADCS_unix_t A_unix_t;
 
-        if (sizeof(*A_unix_t) + 1 > csp_buffer_data_size()) {
+        status = HAL_ADCS_get_unix_t(&A_unix_t);
+
+        if (sizeof(A_unix_t) + 1 > csp_buffer_data_size()) {
             return_state = SATR_ERROR;
         }
-        A_unix_t->unix_t = csp_hton32((uint32_t)A_unix_t->unix_t);
-        A_unix_t->count_ms = csp_hton32((uint32_t)A_unix_t->count_ms);
+        A_unix_t.unix_t = csp_hton32((uint32_t)A_unix_t.unix_t);
+        A_unix_t.count_ms = csp_hton32((uint32_t)A_unix_t.count_ms);
         
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
-        memcpy(&packet->data[OUT_DATA_BYTE], A_unix_t, sizeof(*A_unix_t)); 
-        set_packet_length(packet, sizeof(*A_unix_t) + sizeof(int8_t) + 1);
+        memcpy(&packet->data[OUT_DATA_BYTE], &A_unix_t, sizeof(A_unix_t)); 
+        set_packet_length(packet, sizeof(A_unix_t) + sizeof(int8_t) + 1);
         break;
     }
     case ADCS_CLEAR_ERR_FLAGS:
@@ -617,49 +604,57 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
     }
         
     case ADCS_GET_BOOTLOADER_STATE: {
-        status = HAL_ADCS_get_bootloader_state(&bootloader_state->uptime, &bootloader_state->flags_arr);
+        ADCS_bootloader_state bootloader_state;
 
-        if (sizeof(*bootloader_state) + 1 > csp_buffer_data_size()) {
+        status = HAL_ADCS_get_bootloader_state(&bootloader_state);
+
+        if (sizeof(bootloader_state) + 1 > csp_buffer_data_size()) {
             return_state = SATR_ERROR;
         }
-        bootloader_state->uptime = csp_hton32((uint32_t)bootloader_state->uptime);
-        bootloader_state->flags_arr = csp_hton32((uint32_t)bootloader_state->flags_arr);
+        bootloader_state.uptime = csp_hton32((uint32_t)bootloader_state.uptime);
+        bootloader_state.flags_arr = csp_hton32((uint32_t)bootloader_state.flags_arr);
         
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
-        memcpy(&packet->data[OUT_DATA_BYTE], bootloader_state, sizeof(*bootloader_state)); 
-        set_packet_length(packet, sizeof(*bootloader_state) + sizeof(int8_t) + 1);
+        memcpy(&packet->data[OUT_DATA_BYTE], &bootloader_state, sizeof(bootloader_state)); 
+        set_packet_length(packet, sizeof(bootloader_state) + sizeof(int8_t) + 1);
 
         break;
     }
         
     case ADCS_GET_PROGRAM_INFO: {
 
-        status = HAL_ADCS_get_program_info(&program_info->index, &program_info->busy, &program_info->file_size, &program_info->crc16_checksum);
-        if (sizeof(*program_info) + 1 > csp_buffer_data_size()) {
+        ADCS_program_info program_info;
+
+        status = HAL_ADCS_get_program_info(&program_info);
+        if (sizeof(program_info) + 1 > csp_buffer_data_size()) {
             return_state = SATR_ERROR;
         }
-        program_info->index = csp_hton32((uint32_t)program_info->index);
-        program_info->busy = csp_hton32((uint32_t)program_info->busy);
-        program_info->file_size = csp_hton32((uint32_t)program_info->file_size);
-        program_info->crc16_checksum = csp_hton32((uint32_t)program_info->crc16_checksum);
+        program_info.index = csp_hton32((uint32_t)program_info.index);
+        program_info.busy = csp_hton32((uint32_t)program_info.busy);
+        program_info.file_size = csp_hton32((uint32_t)program_info.file_size);
+        program_info.crc16_checksum = csp_hton32((uint32_t)program_info.crc16_checksum);
         
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
-        memcpy(&packet->data[OUT_DATA_BYTE], program_info, sizeof(*program_info)); 
-        set_packet_length(packet, sizeof(*program_info) + sizeof(int8_t) + 1);
+        memcpy(&packet->data[OUT_DATA_BYTE], &program_info, sizeof(program_info)); 
+        set_packet_length(packet, sizeof(program_info) + sizeof(int8_t) + 1);
         break;
     }
         
     case ADCS_COPY_INTERNAL_FLASH_PROGRESS: {
-        status = HAL_ADCS_copy_internal_flash_progress(&internal_flash_progress->busy, &internal_flash_progress->err);
-        if (sizeof(*internal_flash_progress) + 1 > csp_buffer_data_size()) {
+        bool busy = false;
+        bool err = false;
+
+        status = HAL_ADCS_copy_internal_flash_progress(&busy, &err);
+        if (sizeof(busy) + sizeof(err) + 1 > csp_buffer_data_size()) {
             return_state = SATR_ERROR;
         }
-        internal_flash_progress->busy = csp_hton32((uint32_t)internal_flash_progress->busy);
-        internal_flash_progress->err = csp_hton32((uint32_t)internal_flash_progress->err);
+        busy = csp_hton32((uint32_t)busy);
+        err = csp_hton32((uint32_t)err);
         
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
-        memcpy(&packet->data[OUT_DATA_BYTE], internal_flash_progress, sizeof(*internal_flash_progress)); 
-        set_packet_length(packet, sizeof(*internal_flash_progress) + sizeof(int8_t) + 1);
+        memcpy(&packet->data[OUT_DATA_BYTE], &busy, sizeof(busy)); 
+        memcpy(&packet->data[OUT_DATA_BYTE + 1], &err, sizeof(err)); 
+        set_packet_length(packet, sizeof(busy) + sizeof(err) + sizeof(int8_t) + 1);
 
         break;
     }
@@ -789,17 +784,19 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
         
     case ADCS_GET_JPG_CNV_PROGESS: {
 
-        status = HAL_ADCS_get_jpg_cnv_progress(&jpg_cnv_progress->percentage, &jpg_cnv_progress->result, &jpg_cnv_progress->file_counter);
-        if (sizeof(*jpg_cnv_progress) + 1 > csp_buffer_data_size()) {
+        ADCS_jpg_cnv_progress jpg_cnv_progress;
+
+        status = HAL_ADCS_get_jpg_cnv_progress(&jpg_cnv_progress);
+        if (sizeof(jpg_cnv_progress) + 1 > csp_buffer_data_size()) {
             return_state = SATR_ERROR;
         }
-        jpg_cnv_progress->percentage = csp_hton32((uint32_t)jpg_cnv_progress->percentage);
-        jpg_cnv_progress->result = csp_hton32((uint32_t)jpg_cnv_progress->result);
-        jpg_cnv_progress->file_counter = csp_hton32((uint32_t)jpg_cnv_progress->file_counter);
+        jpg_cnv_progress.percentage = csp_hton32((uint32_t)jpg_cnv_progress.percentage);
+        jpg_cnv_progress.result = csp_hton32((uint32_t)jpg_cnv_progress.result);
+        jpg_cnv_progress.file_counter = csp_hton32((uint32_t)jpg_cnv_progress.file_counter);
         
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
-        memcpy(&packet->data[OUT_DATA_BYTE], jpg_cnv_progress, sizeof(*jpg_cnv_progress)); 
-        set_packet_length(packet, sizeof(*jpg_cnv_progress) + sizeof(int8_t) + 1);
+        memcpy(&packet->data[OUT_DATA_BYTE], &jpg_cnv_progress, sizeof(jpg_cnv_progress)); 
+        set_packet_length(packet, sizeof(jpg_cnv_progress) + sizeof(int8_t) + 1);
 
         break;
     }
@@ -821,48 +818,53 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
         // TODO:
         break;
     case ADCS_GET_EXECUTION_TIMES: {
-        
-        status = HAL_ADCS_get_execution_times(&execution_times->adcs_update, &execution_times->sensor_comms, &execution_times->sgp4_propag, &execution_times->igrf_model);
-        if (sizeof(*execution_times) + 1 > csp_buffer_data_size()) {
+        ADCS_execution_times execution_times;
+
+        status = HAL_ADCS_get_execution_times(&execution_times);
+        if (sizeof(execution_times) + 1 > csp_buffer_data_size()) {
             return_state = SATR_ERROR;
         }
-        execution_times->adcs_update = csp_hton32((uint32_t)execution_times->adcs_update);
-        execution_times->sensor_comms = csp_hton32((uint32_t)execution_times->sensor_comms);
-        execution_times->sgp4_propag = csp_hton32((uint32_t)execution_times->sgp4_propag);
-        execution_times->igrf_model = csp_hton32((uint32_t)execution_times->igrf_model);
+        execution_times.adcs_update = csp_hton32((uint32_t)execution_times.adcs_update);
+        execution_times.sensor_comms = csp_hton32((uint32_t)execution_times.sensor_comms);
+        execution_times.sgp4_propag = csp_hton32((uint32_t)execution_times.sgp4_propag);
+        execution_times.igrf_model = csp_hton32((uint32_t)execution_times.igrf_model);
         
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
-        memcpy(&packet->data[OUT_DATA_BYTE], execution_times, sizeof(*execution_times)); 
-        set_packet_length(packet, sizeof(*execution_times) + sizeof(int8_t) + 1);
+        memcpy(&packet->data[OUT_DATA_BYTE], &execution_times, sizeof(execution_times)); 
+        set_packet_length(packet, sizeof(execution_times) + sizeof(int8_t) + 1);
         break;
     }
         
     case ADCS_GET_ACP_LOOP_STAT: {
-        status = HAL_ADCS_get_ACP_loop_stat(&ACP_loop_stat->time, &ACP_loop_stat->execution_point);
-        if (sizeof(*ACP_loop_stat) + 1 > csp_buffer_data_size()) {
+        ADCS_ACP_loop_stat ACP_loop_stat;
+
+        status = HAL_ADCS_get_ACP_loop_stat(&ACP_loop_stat);
+        if (sizeof(ACP_loop_stat) + 1 > csp_buffer_data_size()) {
             return_state = SATR_ERROR;
         }
-        ACP_loop_stat->time = csp_hton32((uint32_t)ACP_loop_stat->time);
-        ACP_loop_stat->execution_point = csp_hton32((uint32_t)ACP_loop_stat->execution_point);
+        ACP_loop_stat.time = csp_hton32((uint32_t)ACP_loop_stat.time);
+        ACP_loop_stat.execution_point = csp_hton32((uint32_t)ACP_loop_stat.execution_point);
         
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
-        memcpy(&packet->data[OUT_DATA_BYTE], ACP_loop_stat, sizeof(*ACP_loop_stat)); 
-        set_packet_length(packet, sizeof(*ACP_loop_stat) + sizeof(int8_t) + 1);
+        memcpy(&packet->data[OUT_DATA_BYTE], &ACP_loop_stat, sizeof(ACP_loop_stat)); 
+        set_packet_length(packet, sizeof(ACP_loop_stat) + sizeof(int8_t) + 1);
 
         break;
     }
         
     case ADCS_GET_IMG_SAVE_PROGRESS: {
-        status = HAL_ADCS_get_img_save_progress(&img_save_progress->percentage, &img_save_progress->status);
-        if (sizeof(*img_save_progress) + 1 > csp_buffer_data_size()) {
+        ADCS_img_save_progress img_save_progress;
+
+        status = HAL_ADCS_get_img_save_progress(&img_save_progress);
+        if (sizeof(img_save_progress) + 1 > csp_buffer_data_size()) {
             return_state = SATR_ERROR;
         }
-        img_save_progress->percentage = csp_hton32((uint32_t)img_save_progress->percentage);
-        img_save_progress->status = csp_hton32((uint32_t)img_save_progress->status);
+        img_save_progress.percentage = csp_hton32((uint32_t)img_save_progress.percentage);
+        img_save_progress.status = csp_hton32((uint32_t)img_save_progress.status);
         
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
-        memcpy(&packet->data[OUT_DATA_BYTE], img_save_progress, sizeof(*img_save_progress)); 
-        set_packet_length(packet, sizeof(*img_save_progress) + sizeof(int8_t) + 1);
+        memcpy(&packet->data[OUT_DATA_BYTE], &img_save_progress, sizeof(img_save_progress)); 
+        set_packet_length(packet, sizeof(img_save_progress) + sizeof(int8_t) + 1);
 
         break;
     }
@@ -1014,27 +1016,6 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
         break;
     }
 
-    vPortFree(node_id);
-    vPortFree(boot_program_stat);
-    vPortFree(boot_index);
-    vPortFree(last_logged_event);
-    vPortFree(SD_format_progress);
-    vPortFree(TC_ack);
-    vPortFree(file_download_buffer);
-    vPortFree(file_download_block_stat);
-    vPortFree(file_info);
-    vPortFree(finalize_upload_stat);
-    vPortFree(SRAM_latchup_count);
-    vPortFree(EDAC_err_count);
-    vPortFree(Unixtime_save_config);
-    vPortFree(A_unix_t);
-    vPortFree(bootloader_state);
-    vPortFree(program_info);
-    vPortFree(internal_flash_progress);
-    vPortFree(jpg_cnv_progress);
-    vPortFree(execution_times);
-    vPortFree(ACP_loop_stat);
-    vPortFree(img_save_progress);
     return return_state;
 }
 

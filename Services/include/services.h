@@ -53,7 +53,7 @@
 // UPDATER_SERVICE
 #define TC_UPDATER_SERVICE 12
 // ADCS SERVICE
-#define TC_ADCS_SERVICE 14
+#define TC_ADCS_SERVICE 18
 
 typedef enum {
   OBC_APP_ID = _OBC_APP_ID_,
