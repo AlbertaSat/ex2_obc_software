@@ -128,7 +128,7 @@ SAT_returnState updater_app(csp_packet_t *packet) {
 
               image_info golden_info = priv_eeprom_get_golden_info();
               status = 0;
-              memcpy(&packet->data[OUT_DATA_BYTE], &app_info,sizeof(golden_info));
+              memcpy(&packet->data[OUT_DATA_BYTE], &golden_info,sizeof(golden_info));
               set_packet_length(packet, sizeof(int8_t)+sizeof(golden_info) + 1);
               break;
 
