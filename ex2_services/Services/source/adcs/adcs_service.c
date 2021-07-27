@@ -1,8 +1,20 @@
 /*
- * adcs_service.c
+ * Copyright (C) 2015  University of Alberta
  *
- *  Created on: Jul 08, 2021
- *      Author: tttru
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+/**
+ * @file adcs_service.c
+ * @author Quoc Trung Tran
+ * @date Jul 08, 2021
  */
 
 #include "adcs/adcs_service.h"
@@ -226,19 +238,22 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
     }
         
     case ADCS_GET_SD_FORMAT_PROCESS: {
-        ADCS_SD_format_progress SD_format_progress;
-        status = HAL_ADCS_get_SD_format_progress(&SD_format_progress);
+        bool format_busy = false;
+        bool erase_all_busy = false;
+        status = HAL_ADCS_get_SD_format_progress(&format_busy, &erase_all_busy);
 
-        if (sizeof(SD_format_progress) + 1 > csp_buffer_data_size()) {
+        if (sizeof(format_busy) + sizeof(erase_all_busy) + 1 > csp_buffer_data_size()) {
             return_state = SATR_ERROR;
         }
 
-        SD_format_progress.format_busy = csp_hton32((uint32_t)SD_format_progress.format_busy);
-        SD_format_progress.erase_all_busy = csp_hton32((uint32_t)SD_format_progress.erase_all_busy);
+        format_busy = csp_hton32((uint32_t)format_busy);
+        erase_all_busy = csp_hton32((uint32_t)erase_all_busy);
         
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
-        memcpy(&packet->data[OUT_DATA_BYTE], &SD_format_progress, sizeof(SD_format_progress)); 
-        set_packet_length(packet, sizeof(SD_format_progress) + sizeof(int8_t) + 1);
+        memcpy(&packet->data[OUT_DATA_BYTE], &format_busy, sizeof(format_busy)); 
+        memcpy(&packet->data[OUT_DATA_BYTE + 1], &erase_all_busy, sizeof(erase_all_busy)); 
+
+        set_packet_length(packet, sizeof(format_busy) + sizeof(erase_all_busy) + sizeof(int8_t) + 1);
 
         break;
     }
@@ -264,8 +279,17 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
     }
 
     case ADCS_GET_FILE_DOWNLOAD_BUFFER: {
-        //ADCS_file_download_buffer* file_download_buffer = (ADCS_file_download_buffer*)pvPortMalloc(sizeof(ADCS_file_download_buffer));
-        // file_download_buffer->packet_count = packet->data[IN_DATA_BYTE];
+        ADCS_file_download_buffer file_download_buffer;
+        status = HAL_ADCS_get_file_download_buffer(&file_download_buffer.packet_count, &file_download_buffer.file);
+
+        if (sizeof(file_download_buffer) + 1 > csp_buffer_data_size()) {
+            return_state = SATR_ERROR;
+        }
+
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        memcpy(&packet->data[OUT_DATA_BYTE], &file_download_buffer, sizeof(file_download_buffer)); 
+        set_packet_length(packet, sizeof(file_download_buffer) + sizeof(int8_t) + 1);
+
 
         break;
     }
@@ -709,11 +733,12 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
     }
         
     case ADCS_TRIGGER_ADCS_LOOP_SIM: {
-        // TODO: 
-        // status = HAL_ADCS_trigger_adcs_loop_sim(packet->data[IN_DATA_BYTE]);
-        // memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
-        // set_packet_length(packet, sizeof(int8_t) + 1);
-        // break;
+        sim_sensor_data data;
+        memcpy(&data, &packet->data[IN_DATA_BYTE], sizeof(sim_sensor_data));
+        status = HAL_ADCS_trigger_adcs_loop_sim(data);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1);
+        break;
     }
         
     case ADCS_SET_ASGP4_RUNE_MODE: {
@@ -752,12 +777,24 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
         break;
     }
         
-    case ADCS_SET_MAGNETORQUER_OUTPUT:
-        // TODO:
+    case ADCS_SET_MAGNETORQUER_OUTPUT: {
+        xyz16 coordinate;
+        memcpy(&coordinate, &packet->data[IN_DATA_BYTE], sizeof(xyz16));
+        status = HAL_ADCS_set_magnetorquer_output(coordinate);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1);
         break;
-    case ADCS_SET_WHEEL_SPEED:
-        // TODO:
+    }
+        
+    case ADCS_SET_WHEEL_SPEED: {
+        xyz16 speed;
+        memcpy(&speed, &packet->data[IN_DATA_BYTE], sizeof(xyz16));
+        status = HAL_ADCS_set_wheel_speed(speed);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1);
         break;
+    }
+        
     case ADCS_SAVE_CONFIG: {
         status = HAL_ADCS_save_config();
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
@@ -773,12 +810,11 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
     }
         
     case ADCS_GET_CURRENT_STATE: {
-        // TODO: cannot use sizeof(data) because of incompatible types
-//        adcs_state data;
-//        status = HAL_ADCS_get_current_state(&data);
-//        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-//        memcpy(&packet->data[OUT_DATA_BYTE], data, sizeof(adcs_state));
-//        set_packet_length(packet, sizeof(data) + sizeof(int8_t) + 1);
+        adcs_state data;
+        status = HAL_ADCS_get_current_state(&data);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        memcpy(&packet->data[OUT_DATA_BYTE], &data, sizeof(adcs_state));
+        set_packet_length(packet, sizeof(data) + sizeof(int8_t) + 1);
         break;
     }
         
@@ -814,9 +850,16 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
         break;
     }   
         
-    case ADCS_GET_SAT_POS_LLH:
-        // TODO:
+    case ADCS_GET_SAT_POS_LLH: {
+        xyz target;
+        status = HAL_ADCS_get_sat_pos_LLH(&target);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        memcpy(&packet->data[OUT_DATA_BYTE], &target, sizeof(xyz));
+        set_packet_length(packet, sizeof(xyz) + sizeof(int8_t) + 1);
         break;
+    }
+        
+        
     case ADCS_GET_EXECUTION_TIMES: {
         ADCS_execution_times execution_times;
 
@@ -870,34 +913,118 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
     }
         
     case ADCS_GET_MEASUREMENTS: {
-        // TODO: 
+        
+        adcs_measures mes;
+        status = HAL_ADCS_get_measurements(&mes);
+        if (sizeof(mes) + 1 > csp_buffer_data_size()) {
+            return_state = SATR_ERROR;
+        }
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        memcpy(&packet->data[OUT_DATA_BYTE], &mes, sizeof(mes)); 
+        set_packet_length(packet, sizeof(mes) + sizeof(int8_t) + 1);
         break;
     }
         
-    case ADCS_GET_ACTUATOR:
-        // TODO:
+    case ADCS_GET_ACTUATOR: {
+        adcs_actuator cmd;
+        status = HAL_ADCS_get_actuator(&cmd);
+        if (sizeof(cmd) + 1 > csp_buffer_data_size()) {
+            return_state = SATR_ERROR;
+        }
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        memcpy(&packet->data[OUT_DATA_BYTE], &cmd, sizeof(cmd)); 
+        set_packet_length(packet, sizeof(cmd) + sizeof(int8_t) + 1);
         break;
-    case ADCS_GET_ESTIMATION:
-        // TODO: 
+    }
+        
+    case ADCS_GET_ESTIMATION: {
+        adcs_estimate data;
+        status = HAL_ADCS_get_estimation(&data);
+        if (sizeof(data) + 1 > csp_buffer_data_size()) {
+            return_state = SATR_ERROR;
+        }
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        memcpy(&packet->data[OUT_DATA_BYTE], &data, sizeof(data)); 
+        set_packet_length(packet, sizeof(data) + sizeof(int8_t) + 1);
         break;
-    case ADCS_GET_ASGP4:
-        // TODO: 
+    }
+        
+    case ADCS_GET_ASGP4: {
+        bool complete = false;
+        uint8_t err = 0;
+        adcs_asgp4 asgp4;
+        status = HAL_ADCS_get_ASGP4(&complete, &err, &asgp4);
+        if (sizeof(complete) + sizeof(err) + sizeof(asgp4) + 1 > csp_buffer_data_size()) {
+            return_state = SATR_ERROR;
+        }
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        memcpy(&packet->data[OUT_DATA_BYTE], &complete, sizeof(complete)); 
+        memcpy(&packet->data[OUT_DATA_BYTE + 1], &err, sizeof(err)); 
+        memcpy(&packet->data[OUT_DATA_BYTE + 2], &asgp4, sizeof(asgp4)); 
+        set_packet_length(packet, sizeof(complete) + sizeof(err) + sizeof(asgp4) + sizeof(int8_t) + 1);
         break;
-    case ADCS_GET_RAW_SENSOR:
-        // TODO: 
+    }
+        
+    case ADCS_GET_RAW_SENSOR: {
+        adcs_raw_sensor raw;
+        status = HAL_ADCS_get_raw_sensor(&raw);
+        if (sizeof(raw) + 1 > csp_buffer_data_size()) {
+            return_state = SATR_ERROR;
+        }
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        memcpy(&packet->data[OUT_DATA_BYTE], &raw, sizeof(raw)); 
+        set_packet_length(packet, sizeof(raw) + sizeof(int8_t) + 1);
         break;
-    case ADCS_GET_RAW_GPS:
-        // TODO: 
+    }
+        
+    case ADCS_GET_RAW_GPS: {
+        adcs_raw_gps mes;
+        status = HAL_ADCS_get_raw_GPS(&mes);
+        if (sizeof(mes) + 1 > csp_buffer_data_size()) {
+            return_state = SATR_ERROR;
+        }
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        memcpy(&packet->data[OUT_DATA_BYTE], &mes, sizeof(mes)); 
+        set_packet_length(packet, sizeof(mes) + sizeof(int8_t) + 1);
         break;
-    case ADCS_GET_STAR_TRACKER:
-        // TODO: 
+    }
+        
+    case ADCS_GET_STAR_TRACKER: {
+        adcs_star_track mes;
+        status = HAL_ADCS_get_star_tracker(&mes);
+        if (sizeof(mes) + 1 > csp_buffer_data_size()) {
+            return_state = SATR_ERROR;
+        }
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        memcpy(&packet->data[OUT_DATA_BYTE], &mes, sizeof(mes)); 
+        set_packet_length(packet, sizeof(mes) + sizeof(int8_t) + 1);
         break;
-    case ADCS_GET_MTM2_MEASUREMENTS:
-        // TODO: 
+    }
+        
+    case ADCS_GET_MTM2_MEASUREMENTS: {
+        xyz16 mag;
+        status = HAL_ADCS_get_MTM2_measurements(&mag);
+        if (sizeof(mag) + 1 > csp_buffer_data_size()) {
+            return_state = SATR_ERROR;
+        }
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        memcpy(&packet->data[OUT_DATA_BYTE], &mag, sizeof(mag)); 
+        set_packet_length(packet, sizeof(mag) + sizeof(int8_t) + 1);
         break;
-    case ADCS_GET_POWER_TEMP:
-        // TODO: 
+    }
+
+    case ADCS_GET_POWER_TEMP: {
+        adcs_pwr_temp mes;
+        status = HAL_ADCS_get_power_temp(&mes);
+        if (sizeof(mes) + 1 > csp_buffer_data_size()) {
+            return_state = SATR_ERROR;
+        }
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        memcpy(&packet->data[OUT_DATA_BYTE], &mes, sizeof(mes)); 
+        set_packet_length(packet, sizeof(mes) + sizeof(int8_t) + 1);
         break;
+    }
+        
     case ADCS_SET_POWER_CONTROL: {
         uint8_t control = packet->data[IN_DATA_BYTE];
         status = HAL_ADCS_set_power_control(&control);
@@ -926,14 +1053,50 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
         break;
     }
         
-    case ADCS_SET_ATTITUDE_ANGLE:
+    case ADCS_SET_ATTITUDE_ANGLE: {
+        xyz angle;
+        memcpy(&angle, packet->data[IN_DATA_BYTE], sizeof(xyz));
+        status = ADCS_set_attitude_angle(angle);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1);
         break;
-    case ADCS_GET_ATTITUDE_ANGLE:
+    }
+
+    case ADCS_GET_ATTITUDE_ANGLE: {
+        xyz angle;
+        status = HAL_ADCS_get_attitude_angle(&angle);
+        if (sizeof(angle) + 1 > csp_buffer_data_size()) {
+            return_state = SATR_ERROR;
+        }
+        
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        memcpy(&packet->data[OUT_DATA_BYTE], &angle, sizeof(angle)); 
+        set_packet_length(packet, sizeof(angle) + sizeof(int8_t) + 1);
         break;
-    case ADCS_SET_TRACK_CONTROLLER:
+    }
+
+    case ADCS_SET_TRACK_CONTROLLER: {
+        xyz target;
+        memcpy(&target, packet->data[IN_DATA_BYTE], sizeof(xyz));
+        status = ADCS_set_track_controller(target);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1);
         break;
-    case ADCS_GET_TRACK_CONTROLLER:
+    }
+        
+    case ADCS_GET_TRACK_CONTROLLER: {
+        xyz target;
+        status = HAL_ADCS_get_track_controller(&target);
+        if (sizeof(target) + 1 > csp_buffer_data_size()) {
+            return_state = SATR_ERROR;
+        }
+        
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        memcpy(&packet->data[OUT_DATA_BYTE], &target, sizeof(target)); 
+        set_packet_length(packet, sizeof(target) + sizeof(int8_t) + 1);
         break;
+    }
+        
     case ADCS_SET_LOG_CONFIG: {
         uint8_t flags_arr = packet->data[IN_DATA_BYTE];
         uint16_t period;
@@ -955,22 +1118,101 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
         break;
     }
         
-    case ADCS_GET_LOG_CONFIG:
+    case ADCS_GET_LOG_CONFIG: {
+        uint8_t flags_arr;
+        uint16_t period;
+        uint8_t dest;
+        uint8_t log;
+        status = HAL_ADCS_get_log_config(&flags_arr, &period, &dest, &log);
+        if (sizeof(flags_arr) + sizeof(period) + sizeof(dest) + sizeof(log) + 1 > csp_buffer_data_size()) {
+            return_state = SATR_ERROR;
+        }
+        
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        memcpy(&packet->data[OUT_DATA_BYTE], &flags_arr, sizeof(flags_arr));  
+        memcpy(&packet->data[OUT_DATA_BYTE + 1], &period, sizeof(period));  
+        memcpy(&packet->data[OUT_DATA_BYTE + 3], &dest, sizeof(dest));
+        memcpy(&packet->data[OUT_DATA_BYTE + 4], &log, sizeof(log));      
+
+        set_packet_length(packet, sizeof(flags_arr) + sizeof(period) + sizeof(dest) + sizeof(log) + sizeof(int8_t) + 1);
         break;
-    case ADCS_SET_INERTIAL_REF:
+    }
+
+    case ADCS_SET_INERTIAL_REF: {
+        xyz iner_ref;
+        memcpy(&iner_ref, packet->data[IN_DATA_BYTE], sizeof(xyz));
+        status = ADCS_set_inertial_ref(iner_ref);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1);
         break;
-    case ADCS_GET_INERTIAL_REF:
+    }
+        
+    case ADCS_GET_INERTIAL_REF: {
+        xyz iner_ref;
+        status = HAL_ADCS_get_inertial_ref(&iner_ref);
+        if (sizeof(iner_ref) + 1 > csp_buffer_data_size()) {
+            return_state = SATR_ERROR;
+        }
+        
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        memcpy(&packet->data[OUT_DATA_BYTE], &iner_ref, sizeof(iner_ref)); 
+        set_packet_length(packet, sizeof(iner_ref) + sizeof(int8_t) + 1);
         break;
-    case ADCS_SET_SGP4_ORBIT_PARAMS:
+    }
+        
+    case ADCS_SET_SGP4_ORBIT_PARAMS: {
+        adcs_sgp4 sgp;
+        memcpy(&sgp, packet->data[IN_DATA_BYTE], sizeof(adcs_sgp4));
+        status = ADCS_set_sgp4_orbit_params(sgp);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1);
         break;
-    case ADCS_GET_SGP4_ORBIT_PARAMS:
+    }
+        
+    case ADCS_GET_SGP4_ORBIT_PARAMS: {
+        adcs_sgp4 sgp;
+        status = HAL_ADCS_get_sgp4_orbit_params(&sgp);
+        if (sizeof(sgp) + 1 > csp_buffer_data_size()) {
+            return_state = SATR_ERROR;
+        }
+        
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        memcpy(&packet->data[OUT_DATA_BYTE], &sgp, sizeof(sgp)); 
+        set_packet_length(packet, sizeof(sgp) + sizeof(int8_t) + 1);
         break;
-    case ADCS_SET_SYSTEM_CONFIG:
+    }
+        
+    case ADCS_SET_SYSTEM_CONFIG: {
+        adcs_sysConfig config;
+        memcpy(&config, packet->data[IN_DATA_BYTE], sizeof(adcs_sysConfig));
+        status = ADCS_set_system_config(config);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1);
         break;
-    case ADCS_GET_SYSTEM_CONFIG:
+    }
+        
+    case ADCS_GET_SYSTEM_CONFIG: {
+        adcs_sysConfig config;
+        status = HAL_ADCS_get_system_config(&config);
+        if (sizeof(config) + 1 > csp_buffer_data_size()) {
+            return_state = SATR_ERROR;
+        }
+        
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        memcpy(&packet->data[OUT_DATA_BYTE], &config, sizeof(config)); 
+        set_packet_length(packet, sizeof(config) + sizeof(int8_t) + 1);
         break;
-    case ADCS_SET_MTQ_CONFIG:
+    }
+        
+    case ADCS_SET_MTQ_CONFIG: {
+        xyzu8 params;
+        memcpy(&params, packet->data[IN_DATA_BYTE], sizeof(xyzu8));
+        status = ADCS_set_MTQ_config(params);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1);
         break;
+    }
+        
     case ADCS_SET_RW_CONFIG: {
         uint8_t RW = packet->data[IN_DATA_BYTE];
         status = HAL_ADCS_set_RW_config(&RW);
@@ -985,32 +1227,126 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
         break;
     }
         
-    case ADCS_SET_RATE_GYRO:
+    case ADCS_SET_RATE_GYRO: {
+        rate_gyro_config params;
+        memcpy(&params, packet->data[IN_DATA_BYTE], sizeof(rate_gyro_config));
+        status = ADCS_set_rate_gyro(params);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1);
         break;
-    case ADCS_SET_CSS_CONFIG:
+    }
+        
+    case ADCS_SET_CSS_CONFIG: {
+        css_config config;
+        memcpy(&config, packet->data[IN_DATA_BYTE], sizeof(css_config));
+        status = ADCS_set_css_config(config);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1);
         break;
-    case ADCS_SET_STAR_TRACK_CONFIG:
+    }
+        
+    case ADCS_SET_STAR_TRACK_CONFIG: {
+        cubestar_config config;
+        memcpy(&config, packet->data[IN_DATA_BYTE], sizeof(cubestar_config));
+        status = ADCS_set_star_track_config(config);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1);
         break;
-    case ADCS_SET_CUBESENSE_CONFIG:
+    }
+        
+    case ADCS_SET_CUBESENSE_CONFIG: {
+        cubesense_config config;
+        memcpy(&config, packet->data[IN_DATA_BYTE], sizeof(cubesense_config));
+        status = ADCS_set_cubesense_config(config);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1);
         break;
-    case ADCS_SET_MTM_CONFIG:
+    }
+        
+    case ADCS_SET_MTM_CONFIG: {
+        mtm_config config;
+        memcpy(&config, packet->data[IN_DATA_BYTE], sizeof(mtm_config));
+        uint8_t mtm = packet->data[IN_DATA_BYTE + sizeof(mtm_config)];
+        status = ADCS_set_mtm_config(config, mtm);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1);
         break;
-    case ADCS_SET_DETUMBLE_CONFIG:
+    }
+        
+    case ADCS_SET_DETUMBLE_CONFIG:{
+        detumble_config config;
+        memcpy(&config, packet->data[IN_DATA_BYTE], sizeof(detumble_config));
+        status = ADCS_set_detumble_config(config);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1);
         break;
-    case ADCS_SET_YWHEEL_CONFIG:
+    }
+
+    case ADCS_SET_YWHEEL_CONFIG: {
+        ywheel_ctrl_config config;
+        memcpy(&config, packet->data[IN_DATA_BYTE], sizeof(ywheel_ctrl_config));
+        status = ADCS_set_ywheel_config(config);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1);
         break;
-    case ADCS_SET_TRACKING_CONFIG:
+    }
+    case ADCS_SET_TRACKING_CONFIG: {
+        track_ctrl_config config;
+        memcpy(&config, packet->data[IN_DATA_BYTE], sizeof(track_ctrl_config));
+        status = ADCS_set_tracking_config(config);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1);
         break;
-    case ADCS_SET_MOI_MAT:
+    }
+        
+    case ADCS_SET_MOI_MAT: {
+        moment_inertia_config config;
+        memcpy(&config, packet->data[IN_DATA_BYTE], sizeof(moment_inertia_config));
+        status = ADCS_set_MoI_mat(config);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1);
         break;
-    case ADCS_SET_ESTIMATION_CONFIG:
+    }
+        
+    case ADCS_SET_ESTIMATION_CONFIG: {
+        estimation_config config;
+        memcpy(&config, packet->data[IN_DATA_BYTE], sizeof(estimation_config));
+        status = ADCS_set_estimation_config(config);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1);
         break;
-    case ADCS_SET_USERCODED_SETTING:
+    }
+        
+    case ADCS_SET_USERCODED_SETTING: {
+        usercoded_setting setting;
+        memcpy(&setting, packet->data[IN_DATA_BYTE], sizeof(usercoded_setting));
+        status = ADCS_set_usercoded_setting(setting);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1);
         break;
-    case ADCS_SET_ASGP4_SETTING:
+    }
+        
+    case ADCS_SET_ASGP4_SETTING: {
+        aspg4_setting setting;
+        memcpy(&setting, packet->data[IN_DATA_BYTE], sizeof(aspg4_setting));
+        status = ADCS_set_asgp4_setting(setting);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        set_packet_length(packet, sizeof(int8_t) + 1);
         break;
-    case ADCS_GET_FULL_CONFIG:
+    }
+        
+    case ADCS_GET_FULL_CONFIG: {
+        adcs_config config;
+        status = HAL_ADCS_get_full_config(&config);
+        if (sizeof(config) + 1 > csp_buffer_data_size()) {
+            return_state = SATR_ERROR;
+        }
+        
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));  
+        memcpy(&packet->data[OUT_DATA_BYTE], &config, sizeof(adcs_config));
+        set_packet_length(packet, sizeof(adcs_config) + sizeof(int8_t) + 1);
         break;
+    }
 
     default:
         break;
