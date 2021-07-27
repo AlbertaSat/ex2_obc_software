@@ -11,28 +11,26 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+
+
 /**
- * @file updater.c
- * @author Robert Taylor
- * @date 2021-07-20
+ * @file logger_service.h
+ * @author Dustin Wagner
+ * @date 2021-07-14
  */
 
-#ifndef UPDATER_H_
-#define UPDATER_H_
+#ifndef LOGGERSERVICE_H
+#define LOGGERSERVICE_H
 
 #include "services.h"
 
-SAT_returnState start_updater_service(void);
-
 typedef enum {
-    FLASH_UPDATE,
-    GET_GOLDEN_INFO,
-    GET_APP_INFO,
-    SET_APP_ADDRESS,
-    SET_APP_CRC,
-    ERASE_APP,
-    VERIFY_APPLICATION_IMAGE,
-    VERIFY_GOLDEN_IMAGE
-} updater_subtype;  // shared with EPS!
+   SET_FILE_SIZE = 0,
+   GET_FILE_SIZE = 1,
+   GET_LIST = 2,
+   GET_FILE = 3
+} logger_subservice;
 
-#endif /* UPDATER_H_ */
+SAT_returnState start_logger_service(void);
+
+#endif LOGGERSERVICE_H
