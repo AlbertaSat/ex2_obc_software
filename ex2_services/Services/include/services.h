@@ -43,7 +43,7 @@
 
 /* SERVICE SOCKETS */
 // HOUSEKEEPING SERVICE
-#define TC_HOUSEKEEPING_SERVICE 9
+#define TC_HOUSEKEEPING_SERVICE 17
 // TIME MANAGEMENT SERVICE
 #define TC_TIME_MANAGEMENT_SERVICE 8
 // COMMUNICATION_SERVICE
@@ -54,6 +54,9 @@
 #define TC_UPDATER_SERVICE 12
 // ADCS SERVICE
 #define TC_ADCS_SERVICE 18
+// LOGGING SERVICE
+#define TC_LOGGER_SERVICE 13
+
 
 typedef enum {
   OBC_APP_ID = _OBC_APP_ID_,
@@ -76,5 +79,7 @@ union _cnv {
 
 
 SAT_returnState start_service_server(void);
+
+void hex_dump(char *stuff, int size);
 
 #endif /* SERVICES_H */

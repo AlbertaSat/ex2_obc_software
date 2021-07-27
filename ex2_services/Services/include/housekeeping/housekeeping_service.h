@@ -70,6 +70,7 @@ typedef enum { EPS, ADCS, OBC, COMMS } hardware;
 
 typedef struct __attribute__((packed)){
   /*placeholder timestamp structure. Not sure if we use UNIX time*/
+  uint8_t final;                        //indicator to tell if more datasets will be sent
   uint32_t UNIXtimestamp;              //Note when this data was collected
   uint16_t dataPosition;                  //Use to place datasets in chronological order
 } hk_time_and_order;
