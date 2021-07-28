@@ -63,6 +63,18 @@ image_info eeprom_get_golden_info() {
     return out;
 }
 
+boot_info eeprom_get_boot_info() {
+    boot_info out = {0};
+    TI_Fee_ReadSync(BOOT_INFO_BLOCKNUMBER, BOOT_INFO_OFFSET, (uint8_t *)(&out), BOOT_INFO_LEN);
+    TI_FeeJobResultType res = TI_Fee_GetJobResult(0);
+    return out;
+}
+
+void eeprom_set_boot_info(boot_info b) {
+    TI_Fee_WriteSync(BOOT_INFO_BLOCKNUMBER, (uint8_t *)&b);
+    TI_FeeJobResultType res = TI_Fee_GetJobResult(0);
+}
+
 bool verify_application() {
     image_info app_info = {0};
     app_info = eeprom_get_app_info();

@@ -30,7 +30,7 @@
 #define XSTR_(X) STR_(X)
 #define STR_(X) #X
 
-
+#define LOGGER_SWAP_PERIOD_MS 10000
 
 #define DEFAULT_INPUT_QUEUE_LEN 10
 #define TASK_NAME_SIZE configMAX_TASK_NAME_LEN + 3
@@ -42,6 +42,7 @@ static xQueueHandle input_queue = NULL;
 static TaskHandle_t my_handle;
 
 const char logger_file[] = "VOL0:/syslog.log";
+const char old_logger_file[] = "VOL0:/syslog.log.old"
 uint32_t logger_file_handle = 0;
 
 static void test_logger_daemon(void *pvParameters);
@@ -62,6 +63,11 @@ static void do_output(const char *str) {
     char output_string[STRING_MAX_LEN] = {0};
 
     uint32_t uptime = (uint32_t)(xTaskGetTickCount()/configTICK_RATE_HZ);
+
+    if (uptime > LOGGER_SWAP_PERIOD_MS) {
+        stop_logger_fs(); // reset the logger file
+        init_logger_fs();
+    }
 
     snprintf(output_string, STRING_MAX_LEN, "[%010d]%s\r\n", uptime, str);
 
@@ -136,8 +142,16 @@ bool init_logger_fs() {
         return true;
     }
 
-    int32_t fd = red_open(logger_file, RED_O_RDWR | RED_O_APPEND);
+    int32_t fd = red_open(logger_file, RED_O_RDWR);
     if (fd < 0) {
+
+        fd = red_open(logger_file, RED_O_CREAT | RED_O_RDWR);
+        if (fd < 0) {
+            return false;
+        }
+    } else if (fd > 0) {
+        red_close(fd);
+        red_rename(logger_file, old_logger_file);
         fd = red_open(logger_file, RED_O_CREAT | RED_O_RDWR);
         if (fd < 0) {
             return false;
