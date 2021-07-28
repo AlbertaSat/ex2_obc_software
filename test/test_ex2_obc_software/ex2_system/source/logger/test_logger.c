@@ -27,6 +27,12 @@ AfterEach(logger) {};
 int32_t red_open( const char *pszPath, uint32_t ulOpenMode) {
     return mock(pszPath, ulOpenMode);
 }
+int32_t red_rename(
+    const char *pszOldPath,
+    const char *pszNewPath) {
+    return mock(pszOldPath, pszNewPath);
+    }
+
 
 int32_t red_write(
     int32_t     iFildes,
@@ -106,6 +112,9 @@ Ensure(logger, notices_file_does_not_exist) {
 
 Ensure(logger, notices_file_exists) {
     expect(red_open, will_return(1));
+    expect(red_close);
+    expect(red_rename);
+    expect(red_open, will_return(1));
     never_expect(red_open);
     bool open = init_logger_fs();
     assert_that(open, is_true);
@@ -122,7 +131,9 @@ Ensure(logger, sets_internals_when_file_does_not_exist) {
 
 Ensure(logger, sets_internals_when_file_exists) {
     expect(red_open, will_return(1));
-    never_expect(red_open);
+    expect(red_close);
+    expect(red_rename);
+    expect(red_open, will_return(1));
     bool open = init_logger_fs();
     assert_that(open, is_true);
     assert_that(logger_file_handle, is_equal_to(1));

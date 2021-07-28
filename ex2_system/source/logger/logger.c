@@ -42,8 +42,10 @@ static xQueueHandle input_queue = NULL;
 static TaskHandle_t my_handle;
 
 const char logger_file[] = "VOL0:/syslog.log";
-const char old_logger_file[] = "VOL0:/syslog.log.old"
+const char old_logger_file[] = "VOL0:/syslog.log.old";
 uint32_t logger_file_handle = 0;
+
+uint32_t next_swap = LOGGER_SWAP_PERIOD_MS;
 
 static void test_logger_daemon(void *pvParameters);
 
@@ -64,9 +66,10 @@ static void do_output(const char *str) {
 
     uint32_t uptime = (uint32_t)(xTaskGetTickCount()/configTICK_RATE_HZ);
 
-    if (uptime > LOGGER_SWAP_PERIOD_MS) {
+    if (uptime > next_swap) {
         stop_logger_fs(); // reset the logger file
         init_logger_fs();
+        next_swap += LOGGER_SWAP_PERIOD_MS; // if this overflows that is okay. The tick count also overflows;
     }
 
     snprintf(output_string, STRING_MAX_LEN, "[%010d]%s\r\n", uptime, str);
