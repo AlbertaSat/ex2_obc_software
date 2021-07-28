@@ -147,7 +147,6 @@ bool init_logger_fs() {
 
     int32_t fd = red_open(logger_file, RED_O_RDWR);
     if (fd < 0) {
-
         fd = red_open(logger_file, RED_O_CREAT | RED_O_RDWR);
         if (fd < 0) {
             return false;
