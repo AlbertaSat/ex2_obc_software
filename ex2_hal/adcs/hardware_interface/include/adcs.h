@@ -185,36 +185,22 @@ ADCS_returnState HAL_ADCS_reset_file_list_read_pointer();
 ADCS_returnState HAL_ADCS_initiate_download_burst(uint8_t msg_length, bool ignore_hole_map);
 
 // Common Telemetry
-ADCS_returnState HAL_ADCS_get_node_identification(
-    uint8_t* node_type, uint8_t* interface_ver, uint8_t* major_firm_ver,
-    uint8_t* minor_firm_ver, uint16_t* runtime_s, uint16_t* runtime_ms);
-ADCS_returnState HAL_ADCS_get_boot_program_stat(uint8_t* mcu_reset_cause,
-                                            uint8_t* boot_cause,
-                                            uint16_t* boot_count,
-                                            uint8_t* boot_idx);
-ADCS_returnState HAL_ADCS_get_boot_index(uint8_t* program_idx, uint8_t* boot_stat);
-ADCS_returnState HAL_ADCS_get_last_logged_event(uint32_t* time, uint8_t* event_id,
-                                            uint8_t* event_param);
+ADCS_returnState HAL_ADCS_get_node_identification(ADCS_node_identification* node_id);
+ADCS_returnState HAL_ADCS_get_boot_program_stat(ADCS_boot_program_stat* boot_program_stat);
+ADCS_returnState HAL_ADCS_get_boot_index(ADCS_boot_index* boot_index);
+ADCS_returnState HAL_ADCS_get_last_logged_event(ADCS_last_logged_event* last_logged_event);
 ADCS_returnState HAL_ADCS_get_SD_format_progress(bool* format_busy,
                                              bool* erase_all_busy);
-ADCS_returnState HAL_ADCS_get_TC_ack(uint8_t* last_tc_id, bool* tc_processed,
-                                 ADCS_returnState* tc_err_stat,
-                                 uint8_t* tc_err_idx);
+ADCS_returnState HAL_ADCS_get_TC_ack(ADCS_TC_ack* TC_ack);
 ADCS_returnState HAL_ADCS_get_file_download_buffer(uint16_t* packet_count,
                                                uint8_t* file[20]);
-ADCS_returnState HAL_ADCS_get_file_download_block_stat(bool* ready, bool* param_err,
-                                                   uint16_t* crc16_checksum,
-                                                   uint16_t* length);
-ADCS_returnState HAL_ADCS_get_file_info(uint8_t* type, bool* updating,
-                                    uint8_t* counter, uint32_t* size,
-                                    uint32_t* time, uint16_t* crc16_checksum);
+ADCS_returnState HAL_ADCS_get_file_download_block_stat(ADCS_file_download_block_stat* file_download_block_stat);
+ADCS_returnState HAL_ADCS_get_file_info(ADCS_file_info* file_info);
 ADCS_returnState HAL_ADCS_get_init_upload_stat(bool* busy);
 ADCS_returnState HAL_ADCS_get_finalize_upload_stat(bool* busy, bool* err);
 ADCS_returnState HAL_ADCS_get_upload_crc16_checksum(uint16_t* checksum);
-ADCS_returnState HAL_ADCS_get_SRAM_latchup_count(uint16_t* sram1, uint16_t* sram2);
-ADCS_returnState HAL_ADCS_get_EDAC_err_count(uint16_t* single_sram,
-                                         uint16_t* double_sram,
-                                         uint16_t* multi_sram);
+ADCS_returnState HAL_ADCS_get_SRAM_latchup_count(ADCS_SRAM_latchup_count* SRAM_latchup_count);
+ADCS_returnState HAL_ADCS_get_EDAC_err_count(ADCS_EDAC_err_count* EDAC_err_count);
 ADCS_returnState HAL_ADCS_get_comms_stat(uint16_t* comm_status);
 
 // Common Config Msgs
@@ -225,9 +211,9 @@ ADCS_returnState HAL_ADCS_set_hole_map(uint8_t* hole_map, uint8_t num);
 ADCS_returnState HAL_ADCS_set_unix_t(uint32_t unix_t, uint16_t count_ms);
 ADCS_returnState HAL_ADCS_get_cache_en_state(bool* en_state);
 ADCS_returnState HAL_ADCS_get_sram_scrub_size(uint16_t* size);
-ADCS_returnState HAL_ADCS_get_UnixTime_save_config(uint8_t* when, uint8_t* period);
+ADCS_returnState HAL_ADCS_get_UnixTime_save_config(ADCS_Unixtime_save_config* Unixtime_save_config);
 ADCS_returnState HAL_ADCS_get_hole_map(uint8_t* hole_map, uint8_t num);
-ADCS_returnState HAL_ADCS_get_unix_t(uint32_t* unix_t, uint16_t* count_ms);
+ADCS_returnState HAL_ADCS_get_unix_t(ADCS_unix_t* A_unix_t);
 
 // BootLoader Telecommands
 ADCS_returnState HAL_ADCS_clear_err_flags();
@@ -237,11 +223,8 @@ ADCS_returnState HAL_ADCS_read_program_info(uint8_t index);
 ADCS_returnState HAL_ADCS_copy_program_internal_flash(uint8_t index, uint8_t overwrite_flag);
 
 // BootLoader Telemetries
-ADCS_returnState HAL_ADCS_get_bootloader_state(uint16_t* uptime,
-                                           uint8_t* flags_arr);
-ADCS_returnState HAL_ADCS_get_program_info(uint8_t* index, bool* busy,
-                                       uint32_t* file_size,
-                                       uint16_t* crc16_checksum);
+ADCS_returnState HAL_ADCS_get_bootloader_state(ADCS_bootloader_state* bootloader_state);
+ADCS_returnState HAL_ADCS_get_program_info(ADCS_program_info* program_info);
 ADCS_returnState HAL_ADCS_copy_internal_flash_progress(bool* busy, bool* err);
 
 // ACP Telecommands
@@ -267,18 +250,12 @@ ADCS_returnState HAL_ADCS_save_orbit_params();
 // ACP Telemetry
 ADCS_returnState HAL_ADCS_get_current_state(adcs_state* data);
 
-ADCS_returnState HAL_ADCS_get_jpg_cnv_progress(uint8_t* percentage, uint8_t* result,
-                                           uint8_t* file_counter);
+ADCS_returnState HAL_ADCS_get_jpg_cnv_progress(ADCS_jpg_cnv_progress* jpg_cnv_progress);
 ADCS_returnState HAL_ADCS_get_cubeACP_state(uint8_t* flags_arr);
 ADCS_returnState HAL_ADCS_get_sat_pos_LLH(xyz* target);
-ADCS_returnState HAL_ADCS_get_execution_times(uint16_t* adcs_update,
-                                          uint16_t* sensor_comms,
-                                          uint16_t* sgp4_propag,
-                                          uint16_t* igrf_model);
-ADCS_returnState HAL_ADCS_get_ACP_loop_stat(uint16_t* time,
-                                        uint8_t* execution_point);
-ADCS_returnState HAL_ADCS_get_img_save_progress(uint8_t* percentage,
-                                            uint8_t* status);
+ADCS_returnState HAL_ADCS_get_execution_times(ADCS_execution_times* execution_times);
+ADCS_returnState HAL_ADCS_get_ACP_loop_stat(ADCS_ACP_loop_stat* ACP_loop_stat);
+ADCS_returnState HAL_ADCS_get_img_save_progress(ADCS_img_save_progress* img_save_progress);
 
 ADCS_returnState HAL_ADCS_get_measurements(adcs_measures* measurements);
 ADCS_returnState HAL_ADCS_get_actuator(adcs_actuator* commands);
@@ -298,9 +275,9 @@ ADCS_returnState HAL_ADCS_set_attitude_angle(xyz att_angle);
 ADCS_returnState HAL_ADCS_get_attitude_angle(xyz* att_angle);
 ADCS_returnState HAL_ADCS_set_track_controller(xyz target);
 ADCS_returnState HAL_ADCS_get_track_controller(xyz* target);
-ADCS_returnState HAL_ADCS_set_log_config(uint8_t* flags_arr, uint16_t period,
+ADCS_returnState HAL_ADCS_set_log_config(uint8_t* flags_arr[10], uint16_t period,
                                      uint8_t dest, uint8_t log);
-ADCS_returnState HAL_ADCS_get_log_config(uint8_t* flags_arr, uint16_t* period,
+ADCS_returnState HAL_ADCS_get_log_config(uint8_t* flags_arr[10], uint16_t* period,
                                      uint8_t* dest, uint8_t log);
 ADCS_returnState HAL_ADCS_set_inertial_ref(xyz iner_ref);
 ADCS_returnState HAL_ADCS_get_inertial_ref(xyz* iner_ref);
