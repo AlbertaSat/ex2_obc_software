@@ -280,7 +280,7 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
 
     case ADCS_GET_FILE_DOWNLOAD_BUFFER: {
         ADCS_file_download_buffer file_download_buffer;
-        status = HAL_ADCS_get_file_download_buffer(&file_download_buffer.packet_count, &file_download_buffer.file);
+        status = HAL_ADCS_get_file_download_buffer(&file_download_buffer.packet_count, file_download_buffer.file);
 
         if (sizeof(file_download_buffer) + 1 > csp_buffer_data_size()) {
             return_state = SATR_ERROR;
@@ -1098,14 +1098,15 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
     }
         
     case ADCS_SET_LOG_CONFIG: {
-        uint8_t flags_arr = packet->data[IN_DATA_BYTE];
+        uint8_t flags_arr[10];
+        memcpy(&flags_arr, &packet->data[IN_DATA_BYTE], 10);
         uint16_t period;
         cnv8_16(&packet->data[IN_DATA_BYTE + 1], &period);
         period = csp_ntoh16(period);
         uint8_t dest = packet->data[IN_DATA_BYTE + 2];
         uint8_t log = packet->data[IN_DATA_BYTE + 3];
 
-        status = HAL_ADCS_set_log_config(&flags_arr, period, dest, log);
+        status = HAL_ADCS_set_log_config(flags_arr, period, dest, log);
 
         if (sizeof(flags_arr) + 1 > csp_buffer_data_size()) {
             return_state = SATR_ERROR;
@@ -1119,11 +1120,11 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
     }
         
     case ADCS_GET_LOG_CONFIG: {
-        uint8_t flags_arr;
+        uint8_t flags_arr[10];
         uint16_t period;
         uint8_t dest;
         uint8_t log;
-        status = HAL_ADCS_get_log_config(&flags_arr, &period, &dest, &log);
+        status = HAL_ADCS_get_log_config(flags_arr, &period, &dest, &log);
         if (sizeof(flags_arr) + sizeof(period) + sizeof(dest) + sizeof(log) + 1 > csp_buffer_data_size()) {
             return_state = SATR_ERROR;
         }
