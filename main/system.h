@@ -20,8 +20,8 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
-#include <stdint.h>
 #include "FreeRTOS.h"
+#include <stdint.h>
 
 #define config_IS_ATHENA 0
 #define config_IS_FLATSAT 0
@@ -31,58 +31,58 @@
 #endif
 
 #if config_IS_FLATSAT == 1
-    #ifndef IS_ATHENA
-    #error If config_IS_FLATSAT is set to 1 IS_ATHENA must be defined
-    #endif
+#ifndef IS_ATHENA
+#error If config_IS_FLATSAT is set to 1 IS_ATHENA must be defined
+#endif
 #define IS_FLATSAT
 #endif
 
 #define SYSTEM_APP_ID _OBC_APP_ID_
 
-#define NORMAL_SERVICE_PRIO               1
-#define STATE_TASK_PRIO                   1
-#define HOUSEKEEPING_TASK_PRIO            1
-#define COORDINATE_MANAGEMENT_TASK_PRIO   1
-#define BEACON_TASK_PRIO                  1
-#define DIAGNOSTIC_TASK_PRIO              1
-#define SYSTEM_STATS_TASK_PRIO            1
-#define LOGGER_TASK_PRIO                  2
-#define MOCK_RTC_TASK_PRIO                configMAX_PRIORITIES-1
-#define TASK_MANAGER_PRIO                 3
+#define NORMAL_SERVICE_PRIO 1
+#define STATE_TASK_PRIO 1
+#define HOUSEKEEPING_TASK_PRIO 1
+#define COORDINATE_MANAGEMENT_TASK_PRIO 1
+#define BEACON_TASK_PRIO 1
+#define DIAGNOSTIC_TASK_PRIO 1
+#define SYSTEM_STATS_TASK_PRIO 1
+#define LOGGER_TASK_PRIO 2
+#define MOCK_RTC_TASK_PRIO configMAX_PRIORITIES - 1
+#define TASK_MANAGER_PRIO 3
 
 #define GPS_SCI sciREG2
 #define CSP_SCI sciREG3
 
 #ifndef IS_FLATSAT
-    #ifdef IS_ATHENA
-    #define PRINTF_SCI sciREG4
-    #else
-    #define PRINTF_SCI sciREG1
-    #endif
+#ifdef IS_ATHENA
+#define PRINTF_SCI sciREG4
+#else
+#define PRINTF_SCI sciREG1
+#endif
 #else
 #define PRINTF_SCI NULL
 #endif
 
 typedef enum {
-  SATR_PKT_ILLEGAL_APPID = 0,
-  SATR_PKT_ILLEGAL_SUBSERVICE,
-  SATR_OK,
-  SATR_ERROR,
-  SATR_RETURN_FROM_TASK,
-  SATR_BUFFER_ERR,
-  /*LAST*/
-  SATR_LAST
+    SATR_PKT_ILLEGAL_APPID = 0,
+    SATR_PKT_ILLEGAL_SUBSERVICE,
+    SATR_OK,
+    SATR_ERROR,
+    SATR_RETURN_FROM_TASK,
+    SATR_BUFFER_ERR,
+    /*LAST*/
+    SATR_LAST
 } SAT_returnState;
 
 /* Subsystems Pins & Ports */
-#define UHF_GIO_PORT    hetPORT2
-#define UHF_GIO_PIN     22
+#define UHF_GIO_PORT hetPORT2
+#define UHF_GIO_PIN 22
 // TODO: Numbers to be set
-#define UHF_PWR_CHNL    1
-#define STX_PWR_CHNL    1
-#define IRIS_PWR_CHNL   1
-#define DFGM_PWR_CHNL   1
-#define ADCS_PWR_CHNL   1
+#define UHF_PWR_CHNL 1
+#define STX_PWR_CHNL 1
+#define IRIS_PWR_CHNL 1
+#define DFGM_PWR_CHNL 1
+#define ADCS_PWR_CHNL 1
 
 int ex2_main(int argc, char **argv);
 void SciSendBuf(char *buf, uint32_t bufSize);
