@@ -524,7 +524,7 @@ ADCS_returnState ADCS_get_SRAM_latchup_count(uint16_t* sram1, uint16_t* sram2);
 ADCS_returnState ADCS_get_EDAC_err_count(uint16_t* single_sram,
                                          uint16_t* double_sram,
                                          uint16_t* multi_sram);
-ADCS_returnState ADCS_get_comms_stat(uint8_t telemetry[6], uint16_t* TC_num, uint16_t* TM_num,
+ADCS_returnState ADCS_get_comms_stat(uint16_t telemetry[6], uint16_t* TC_num, uint16_t* TM_num,
                                      uint8_t* flags_arr);
 
 // Common Config Msgs
