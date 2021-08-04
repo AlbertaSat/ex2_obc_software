@@ -8,6 +8,7 @@
 #include "FreeRTOS.h"
 #include "NMEAParser.h"
 #include "os_task.h"
+#include "os_semphr.h"
 #include <string.h>
 
 static int NMEAParser_termcmp(const char *str1, const char *str2);
@@ -15,6 +16,8 @@ static int NMEAParser_hexToInt(char hex);
 static int32_t NMEAParser_parse_decimal(char *p);
 static void NMEAParser_parse_degrees(char *p, int32_t *upper, int32_t *lower);
 static bool NMEAParser_decode_sentence();
+
+
 
 static char _sentence[NMEASENTENCE_MAXLENGTH];
 static int  _char_offset;
@@ -62,11 +65,15 @@ const static GPRMC_s GPRMC_invalid = {._time = GPS_INVALID_TIME,
  * @return false failure
  */
 bool init_NMEA() {
-    NMEAParser_reset_all_values();
     NMEA_queue = xQueueCreate(NMEA_QUEUE_MAX_LEN, NMEA_QUEUE_ITEM_SIZE);
+    NMEA_mutex = xSemaphoreCreateRecursiveMutex();
+    if (NMEA_mutex == NULL) {
+        return false;
+    }
     if (NMEA_queue == NULL) {
         return false;
     }
+    NMEAParser_reset_all_values();
     return true;
 }
 
@@ -80,13 +87,13 @@ bool init_NMEA() {
 bool NMEAParser_get_GPGGA(GPGGA_s *output) {
     TickType_t tickCount = xTaskGetTickCount();
 
-    taskENTER_CRITICAL();
+    xSemaphoreTakeRecursive(NMEA_mutex, portMAX_DELAY);
     if ((GPGGA._logtime != GPS_INVALID_FIX_TIME) && (tickCount - GPGGA._logtime < GPS_AGE_INVALID_THRESHOLD)) {
         memcpy(output,&GPGGA, sizeof(GPGGA_s));
-        taskEXIT_CRITICAL();
+        xSemaphoreGiveRecursive(NMEA_mutex);
         return true;
     }
-    taskEXIT_CRITICAL();
+    xSemaphoreGiveRecursive(NMEA_mutex);
     return false;
 
 }
@@ -100,14 +107,14 @@ bool NMEAParser_get_GPGGA(GPGGA_s *output) {
 bool NMEAParser_get_GPGSA(GPGSA_s *output) {
     TickType_t tickCount = xTaskGetTickCount();
 
-    taskENTER_CRITICAL();
+    xSemaphoreTakeRecursive(NMEA_mutex, portMAX_DELAY);
     if ((GPGSA._logtime != GPS_INVALID_FIX_TIME) && (tickCount - GPGSA._logtime < GPS_AGE_INVALID_THRESHOLD)) {
         memcpy(output,&GPGSA, sizeof(GPGSA_s));
-        taskEXIT_CRITICAL();
+        xSemaphoreGiveRecursive(NMEA_mutex);
         return true;
 
     }
-    taskEXIT_CRITICAL();
+    xSemaphoreGiveRecursive(NMEA_mutex);
     return false;
 }
 
@@ -121,14 +128,14 @@ bool NMEAParser_get_GPGSA(GPGSA_s *output) {
 bool NMEAParser_get_GPGSV(GPGSV_s *output) {
     TickType_t tickCount = xTaskGetTickCount();
 
-    taskENTER_CRITICAL();
+    xSemaphoreTakeRecursive(NMEA_mutex, portMAX_DELAY);
     if ((GPGSV._logtime != GPS_INVALID_FIX_TIME) && (tickCount - GPGSV._logtime < GPS_AGE_INVALID_THRESHOLD)) {
         memcpy(output,&GPGSV, sizeof(GPGSV_s));
-        taskEXIT_CRITICAL();
+        xSemaphoreGiveRecursive(NMEA_mutex);
         return true;
     }
 
-    taskEXIT_CRITICAL();
+    xSemaphoreGiveRecursive(NMEA_mutex);
     return false;
 }
 
@@ -142,13 +149,13 @@ bool NMEAParser_get_GPGSV(GPGSV_s *output) {
 bool NMEAParser_get_GPRMC(GPRMC_s *output) {
     TickType_t tickCount = xTaskGetTickCount();
 
-    taskENTER_CRITICAL();
+    xSemaphoreTakeRecursive(NMEA_mutex, portMAX_DELAY);
     if ((GPRMC._logtime != GPS_INVALID_FIX_TIME) && (tickCount - GPRMC._logtime < GPS_AGE_INVALID_THRESHOLD)) {
         memcpy(output,&GPRMC, sizeof(GPRMC_s));
-        taskEXIT_CRITICAL();
+        xSemaphoreGiveRecursive(NMEA_mutex);
         return true;
     }
-    taskEXIT_CRITICAL();
+    xSemaphoreGiveRecursive(NMEA_mutex);
     return false;
 }
 
@@ -168,9 +175,9 @@ void NMEAParser_reset_all_values(void) {
  * 
  */
 void NMEAParser_clear_GPGGA(void) {
-    taskENTER_CRITICAL();
+    xSemaphoreTakeRecursive(NMEA_mutex, portMAX_DELAY);
     memcpy(&GPGGA, &GPGGA_invalid, sizeof(GPGGA_s));
-    taskEXIT_CRITICAL();
+    xSemaphoreGiveRecursive(NMEA_mutex);
 }
 
 /**
@@ -178,9 +185,9 @@ void NMEAParser_clear_GPGGA(void) {
  * 
  */
 void NMEAParser_clear_GPGSA(void) {
-    taskENTER_CRITICAL();
+    xSemaphoreTakeRecursive(NMEA_mutex, portMAX_DELAY);
     memcpy(&GPGSA, &GPGSA_invalid, sizeof(GPGSA_s));
-    taskEXIT_CRITICAL();
+    xSemaphoreGiveRecursive(NMEA_mutex);
 }
 
 /**
@@ -188,9 +195,9 @@ void NMEAParser_clear_GPGSA(void) {
  * 
  */
 void NMEAParser_clear_GPGSV(void) {
-    taskENTER_CRITICAL();
+    xSemaphoreTakeRecursive(NMEA_mutex, portMAX_DELAY);
     memcpy(&GPGSV, &GPGSV_invalid, sizeof(GPGSV_s));
-    taskEXIT_CRITICAL();
+    xSemaphoreGiveRecursive(NMEA_mutex);
 }
 
 /**
@@ -198,9 +205,9 @@ void NMEAParser_clear_GPGSV(void) {
  * 
  */
 void NMEAParser_clear_GPRMC(void) {
-    taskENTER_CRITICAL();
+    xSemaphoreTakeRecursive(NMEA_mutex, portMAX_DELAY);
     memcpy(&GPRMC, &GPRMC_invalid, sizeof(GPRMC_s));
-    taskEXIT_CRITICAL();
+    xSemaphoreGiveRecursive(NMEA_mutex);
 }
 
 /**
@@ -235,9 +242,9 @@ bool NMEAParser_encode(char c)
                 checksum ^= _sentence[_char_offset--];
             if (checksum == 0) // checksum is valid
             {
-                taskENTER_CRITICAL();
+                xSemaphoreTakeRecursive(NMEA_mutex, portMAX_DELAY);
                 new_data = NMEAParser_decode_sentence();
-                taskEXIT_CRITICAL();
+                xSemaphoreGiveRecursive(NMEA_mutex);
             }
             _char_offset = 0;
             _sentence[0] = 0;
