@@ -17,6 +17,74 @@
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
 
+unsigned int toBCD (unsigned int val)
+{
+    return val + 6 * (val / 10);
+}
+
+unsigned int toBIN(unsigned int val) {
+    return val - 6 * (val >> 4);
+}
+
+static void SpinDelay(int time) {
+    for (int temp = 0; temp < time; temp++);//temporary fix... don't want delay down the road
+}
+
+int RTCMK_SetUnix(time_t new_time) {
+    struct tm t;
+    t = *gmtime(&new_time);
+    if (RTCMK_SetSecond(RTCMK_ADDR, t.tm_sec) == -1) return -1;
+    SpinDelay(100);
+    if (RTCMK_SetMinute(RTCMK_ADDR, t.tm_min) == -1) return -1;
+    SpinDelay(100);
+    if (RTCMK_SetHour(RTCMK_ADDR, t.tm_hour) == -1) return -1;
+    SpinDelay(100);
+    if (RTCMK_SetDay(RTCMK_ADDR, t.tm_mday) == -1) return -1;
+    SpinDelay(100);
+    if (RTCMK_SetMonth(RTCMK_ADDR, t.tm_mon) == -1) return -1;
+    SpinDelay(100);
+    if (RTCMK_SetYear(RTCMK_ADDR, (t.tm_year % 100)) == -1) return -1;
+    return 0;
+}
+
+int RTCMK_GetUnix(time_t *unix_time) {
+    struct tm t = {0};
+
+    uint8_t sec;
+    if (RTCMK_ReadSeconds(RTCMK_ADDR, &sec) == -1) return -1;
+    t.tm_sec = (uint32_t)sec;
+    SpinDelay(100);
+
+    uint8_t min;
+    if (RTCMK_ReadMinutes(RTCMK_ADDR, &min) == -1) return -1;
+    t.tm_min = (uint32_t)min;
+    SpinDelay(100);
+
+    uint8_t hour;
+    if (RTCMK_ReadHours(RTCMK_ADDR, &hour) == -1) return -1;
+    t.tm_hour = (uint32_t)hour;
+    SpinDelay(100);
+
+    uint8_t day;
+    if (RTCMK_ReadDay(RTCMK_ADDR, &day) == -1) return -1;
+    t.tm_mday = (uint32_t)day;
+    SpinDelay(100);
+
+    uint8_t mon;
+    if (RTCMK_ReadMonth(RTCMK_ADDR, &mon) == -1) return -1;
+    t.tm_mon = (uint32_t)mon;
+    SpinDelay(100);
+
+    uint8_t year;
+    if (RTCMK_ReadYear(RTCMK_ADDR, &year) == -1) return -1;
+    t.tm_year = (uint32_t)year;
+    t.tm_year += 100;
+    t.tm_isdst = -1;
+    *unix_time = mktime(&t);
+    return 0;
+}
+
+
 /***************************************************************************//**
  * @brief
  *   Set content of a register.
@@ -37,6 +105,8 @@ int RTCMK_RegisterSet(uint8_t addr,
                       RTCMK_Register_TypeDef reg,
                       uint8_t val)
 {
+    /* Configure address of Slave to talk to */
+  i2cSetSlaveAdd(RTCMK_PORT, addr);
 
   uint8_t data[2];
 
@@ -108,7 +178,7 @@ int RTCMK_RegisterGet(uint8_t addr,
     i2cClearSCD(RTCMK_PORT);
 
     int temp;
-    for (temp = 0; temp < 0x100; temp++);//temporary fix... don't want delay down the road
+    SpinDelay(100);
 
     i2cSetSlaveAdd(RTCMK_PORT, addr);
     /* Set direction to receiver */
@@ -210,7 +280,8 @@ int RTCMK_ReadSeconds(uint8_t addr,
 
   tmp &= _RTCMK_SEC_SEC_MASK;
 
-  *val = ((tmp & 0xF0) >> 4) * 10 + (tmp & 0x0F);
+  *val = toBIN(tmp);
+
 
   return(ret);
 }
@@ -243,7 +314,7 @@ int RTCMK_ReadMinutes(uint8_t addr,
 
   tmp &= _RTCMK_MIN_MIN_MASK;
 
-  *val = ((tmp & 0xF0) >> 4) * 10 + (tmp & 0x0F);
+  *val = toBIN(tmp);
 
   return(ret);
 }
@@ -276,7 +347,7 @@ int RTCMK_ReadHours(uint8_t addr,
 
   tmp &= _RTCMK_HOUR_HOUR_MASK;
 
-  *val = ((tmp & 0xF0) >> 4) * 10 + (tmp & 0x0F);
+  *val = toBIN(tmp);
 
   return(ret);
 }
@@ -309,7 +380,7 @@ int RTCMK_ReadWeek(uint8_t addr,
 
   tmp &= _RTCMK_WEEK_WEEK_MASK;
 
-  *val = ((tmp & 0xF0) >> 4) * 10 + (tmp & 0x0F);
+  *val = toBIN(tmp);
 
   return(ret);
 }
@@ -342,7 +413,7 @@ int RTCMK_ReadMonth(uint8_t addr,
 
   tmp &= _RTCMK_MONTH_MONTH_MASK;
 
-  *val = ((tmp & 0xF0) >> 4) * 10 + (tmp & 0x0F);
+  *val = toBIN(tmp);
 
   return(ret);
 }
@@ -375,7 +446,7 @@ int RTCMK_ReadYear(uint8_t addr,
 
   tmp &= _RTCMK_YEAR_YEAR_MASK;
 
-  *val = ((tmp & 0xF0) >> 4) * 10 + (tmp & 0x0F);
+  *val = toBIN(tmp);
 
   return(ret);
 }
@@ -408,7 +479,7 @@ int RTCMK_ReadDay(uint8_t addr,
 
   tmp &= _RTCMK_DAY_DAY_MASK;
 
-  *val = ((tmp & 0xF0) >> 4) * 10 + (tmp & 0x0F);
+  *val = toBIN(tmp);
 
   return(ret);
 }
@@ -430,8 +501,11 @@ int RTCMK_SetDay(uint8_t addr,
                  uint8_t val)
 {
   int ret = -1;
-
-  ret = RTCMK_RegisterSet(addr,RTCMK_RegDay,val);
+  int day = toBCD(val);
+  day &= _RTCMK_DAY_DAY_MASK;
+  int bcdVal = toBCD(val);
+  bcdVal &= _RTCMK_DAY_DAY_MASK;
+  ret = RTCMK_RegisterSet(addr,RTCMK_RegDay,day);
   if (ret < 0)
   {
     return(ret);
@@ -457,8 +531,9 @@ int RTCMK_SetHour(uint8_t addr,
                   uint8_t val)
 {
   int ret = -1;
-
-  ret = RTCMK_RegisterSet(addr,RTCMK_RegHour,val);
+  int bcdVal = toBCD(val);
+  bcdVal &= _RTCMK_HOUR_HOUR_MASK;
+  ret = RTCMK_RegisterSet(addr,RTCMK_RegHour,bcdVal);
   if (ret < 0)
   {
     return(ret);
@@ -483,8 +558,38 @@ int RTCMK_SetMinute(uint8_t addr,
                     uint8_t val)
 {
   int ret = -1;
+  int bcdVal = toBCD(val);
+  bcdVal &= _RTCMK_MIN_MIN_MASK;
+  ret = RTCMK_RegisterSet(addr,RTCMK_RegMin,bcdVal);
+  if (ret < 0)
+  {
+    return(ret);
+  }
 
-  ret = RTCMK_RegisterSet(addr,RTCMK_RegMin,val);
+  return(ret);
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Sets the content of minute register register in decimal.
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format, where LSB is reserved for R/W bit.
+ *
+ * @param[in] val
+ *   Value to set to
+ *
+ * @return
+ *   Returns 0 if registers written, <0 if unable to write to registers.
+ ******************************************************************************/
+int RTCMK_SetMonth(uint8_t addr,
+                    uint8_t val)
+{
+  int ret = -1;
+
+  int bcdVal = toBCD(val);
+  bcdVal &= _RTCMK_MONTH_MONTH_MASK;
+  ret = RTCMK_RegisterSet(addr,RTCMK_RegMonth,bcdVal);
   if (ret < 0)
   {
     return(ret);
@@ -510,8 +615,9 @@ int RTCMK_SetSecond(uint8_t addr,
                     uint8_t val)
 {
   int ret = -1;
-
-  ret = RTCMK_RegisterSet(addr,RTCMK_RegSec,val);
+  int bcdVal = toBCD(val);
+  bcdVal &= _RTCMK_SEC_SEC_MASK;
+  ret = RTCMK_RegisterSet(addr,RTCMK_RegSec,bcdVal);
   if (ret < 0)
   {
     return(ret);
@@ -538,9 +644,9 @@ int RTCMK_SetYear(uint8_t addr,
 {
   int ret = -1;
 
-  //val |= _RTCMK_DAY_DAY_MASK;
-
-  ret = RTCMK_RegisterSet(addr,RTCMK_RegYear,val);
+  int bcdVal = toBCD(val);
+  bcdVal &= _RTCMK_YEAR_YEAR_MASK;
+  ret = RTCMK_RegisterSet(addr,RTCMK_RegYear,bcdVal);
   if (ret < 0)
   {
     return(ret);
@@ -567,7 +673,9 @@ int RTCMK_SetWeek(uint8_t addr,
 {
   int ret = -1;
 
-  ret = RTCMK_RegisterSet(addr,RTCMK_RegWeek,val);
+  int bcdVal = toBCD(val);
+  bcdVal &= _RTCMK_WEEK_WEEK_MASK;
+  ret = RTCMK_RegisterSet(addr,RTCMK_RegWeek,bcdVal);
   if (ret < 0)
   {
     return(ret);

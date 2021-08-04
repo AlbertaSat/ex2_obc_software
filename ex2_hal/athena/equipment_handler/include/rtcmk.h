@@ -6,7 +6,9 @@
  */
 
 #ifndef DRIVERS_RTCMK_H_
-#define DRIVERS_RTCMK_H_		
+#define DRIVERS_RTCMK_H_
+
+#include <time.h>
 
 /*******************************************************************************
  *******************************   DEFINES   ***********************************
@@ -283,6 +285,10 @@ typedef enum
  *****************************   PROTOTYPES   **********************************
  ******************************************************************************/
 
+int RTCMK_SetUnix(time_t new_time);
+
+int RTCMK_GetUnix(time_t *unix_time);
+
 int RTCMK_RegisterSet(uint8_t addr,
                       RTCMK_Register_TypeDef reg,
                       uint8_t val);
@@ -311,6 +317,9 @@ int RTCMK_ReadWeek(uint8_t addr,
 int RTCMK_ReadMonth(uint8_t addr,
                   uint8_t *val);
 
+int RTCMK_ReadYear(uint8_t addr,
+                   uint8_t *val);
+
 int RTCMK_SetDay(uint8_t addr,
                  uint8_t val);
 
@@ -327,6 +336,9 @@ int RTCMK_SetYear(uint8_t addr,
                   uint8_t val);
 
 int RTCMK_SetWeek(uint8_t addr,
+                  uint8_t val);
+
+int RTCMK_SetMonth(uint8_t addr,
                   uint8_t val);
 
 int RTCMK_ReadMinutesAlarm(uint8_t addr,
