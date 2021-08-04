@@ -29,11 +29,10 @@
 #include "services.h"
 #include "skytraq_gps_driver.h"
 #include "nmea_service.h"
-#include "time_struct.h"
-#include "mocks/rtc.h"
+#include "rtcmk.h"
 
-#define GPS_TASK_SIZE 200
-#define NMEA_TASK_SIZE 100
+#define GPS_TASK_SIZE 200 //TODO: Make make these sizes better
+#define NMEA_TASK_SIZE 200
 
 #define MIN_YEAR 1577836800  // 2020-01-01
 #define MAX_YEAR 1893456000  // 2030-01-01
@@ -54,22 +53,23 @@ void RTC_discipline_service(void) {
 
     ex2_log("GPS Task Started");
 
+    time_t utc_time;
+
     if (!gps_skytraq_driver_init()) {
         ex2_log("failed to init skytraq\r\n");
         vTaskDelete(NULL);
     }
-
-    ex2_time_t utc_time;
-    date_t utc_date;
 
     for (;;) {
         vTaskDelay(DISCIPLINE_DELAY);
         if(!(gps_get_utc_time(&utc_time))){
             ex2_log("Couldn't get gps time");
             continue; // delay wait until gps signal acquired
+        } else {
+            RTCMK_SetUnix(utc_time);
+            ex2_log("Current time: %d", utc_time);
         }
-        mock_RTC_set_time(utc_time);
-        mock_RTC_set_date(utc_date);
+
     }
 }
 
