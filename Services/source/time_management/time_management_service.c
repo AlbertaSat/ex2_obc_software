@@ -33,7 +33,7 @@
 
 #define GPS_TASK_SIZE 200 //TODO: Make make these sizes better
 #define NMEA_TASK_SIZE 200
-#define TIME_MANAGEMENT_SIZE 300;
+#define TIME_MANAGEMENT_SIZE 300
 
 #define MIN_YEAR 1577836800  // 2020-01-01
 #define MAX_YEAR 1893456000  // 2030-01-01
