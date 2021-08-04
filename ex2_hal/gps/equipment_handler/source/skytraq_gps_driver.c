@@ -192,7 +192,7 @@ void extract_date(uint32_t date, bool date_overflow, struct gps_date *utc_date) 
 /**
  * @brief Get UTC time from latest NMEA packet containing time
  * 
- * @param utc_time Struct to store time
+ * @param utc_time time_t * to store time
  * @return true Time updated
  * @return false Time unavailable
  */
