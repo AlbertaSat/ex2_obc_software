@@ -17,11 +17,31 @@
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
 
+/***************************************************************************//**
+ * @brief
+ *   Convert 8 bit binary to 8 bit BCD
+ *
+ * @param[in] val
+ *   binary value to convert
+ *
+ * @return
+ *   Input represented as BCD
+ ******************************************************************************/
 unsigned int toBCD (unsigned int val)
 {
     return val + 6 * (val / 10);
 }
 
+/***************************************************************************//**
+ * @brief
+ *   Convert 8 bit BCD to 8 bit binary
+ *
+ * @param[in] val
+ *   BCD value to convert
+ *
+ * @return
+ *   Input represented as binary
+ ******************************************************************************/
 unsigned int toBIN(unsigned int val) {
     return val - 6 * (val >> 4);
 }
@@ -30,6 +50,16 @@ static void SpinDelay(int time) {
     for (int temp = 0; temp < time; temp++);//temporary fix... don't want delay down the road
 }
 
+/***************************************************************************//**
+ * @brief
+ *   Set time to unix time
+ *
+ * @param[in] new_time
+ *   unix time to set
+ *
+ * @return
+ *   Returns 0 if time updated, <0 if unable to update time.
+ ******************************************************************************/
 int RTCMK_SetUnix(time_t new_time) {
     struct tm t;
     t = *gmtime(&new_time);
@@ -47,6 +77,16 @@ int RTCMK_SetUnix(time_t new_time) {
     return 0;
 }
 
+/***************************************************************************//**
+ * @brief
+ *   Get time represented as unix time
+ *
+ * @param[in] *unix_time
+ *   Variable to store time
+ *
+ * @return
+ *   Returns 0 if time updated, <0 if unable to update time.
+ ******************************************************************************/
 int RTCMK_GetUnix(time_t *unix_time) {
     struct tm t = {0};
 
