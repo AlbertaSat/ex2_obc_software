@@ -69,7 +69,7 @@ SAT_returnState get_file(const char *filename, csp_packet_t *packet) {
             }
         } else {
             status = -1;
-            strncpy(log_data, "Can't open log file\n", max_string_length);
+            sprintf(log_data, "Can't open log file. red_errno: %d\n", red_errno);
         }
     } else {
         status = -1;
