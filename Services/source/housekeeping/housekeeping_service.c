@@ -304,7 +304,11 @@ Found_file exists(const char *filename){
     return FILE_NOT_EXIST;
 }
 
-Result store_config() {
+Result store_config(uint8_t rewrite_all) {
+  uint8_t exist = 0;
+  if (exists(hk_config) == FILE_EXISTS) {
+    exist = 1;
+  }
   int32_t fout = red_open(hk_config, RED_O_CREAT | RED_O_RDWR); //open or create file to write binary
   if (fout == -1) {
     ex2_log("Failed to open or create file to write: '%s'\n", hk_config);
@@ -312,8 +316,13 @@ Result store_config() {
   }
   red_write(fout, &MAX_FILES, sizeof(MAX_FILES));
   red_write(fout, &current_file, sizeof(current_file));
-  red_write(fout, timestamps, ((hk_timestamp_array_size + 1) * sizeof(uint32_t)));
-
+  red_write(fout, &tempTime, sizeof(tempTime)); //for debugging
+  if (exist == 0 || rewrite_all == 1){
+    red_write(fout, timestamps, ((hk_timestamp_array_size + 1) * sizeof(uint32_t)));
+  } else {
+    red_lseek(fout, current_file * sizeof(uint32_t), RED_SEEK_CUR);
+    red_write(fout, &timestamps[current_file], sizeof(uint32_t));
+  }
   red_close(fout);
   return SUCCESS;
 }
@@ -330,12 +339,19 @@ Result load_config() {
   }
   red_read(fin, &MAX_FILES, sizeof(MAX_FILES));
   red_read(fin, &current_file, sizeof(current_file));
+  red_read(fin, &tempTime, sizeof(tempTime)); //for debugging
   if (dynamic_timestamp_array_handler(MAX_FILES) == SUCCESS) {
     red_read(fin, timestamps, ((hk_timestamp_array_size + 1) * sizeof(uint32_t)));
   } else {
     return FAILURE;
   }
   red_close(fin);
+
+  ++current_file;
+  if(current_file > MAX_FILES) {
+    current_file = 1;
+  }
+
   return SUCCESS;
 }
 
@@ -456,8 +472,6 @@ Result populate_and_store_hk_data(void) {
     ex2_log("Error collecting hk data from peripherals\n");
   }
   */
-  //TEMP mock hk
-  mock_everyone(&temp_hk_data); //not permanent
 
  
   //RTC_get_unix_time(&temp_hk_data.hk_timeorder.UNIXtimestamp);
@@ -470,6 +484,9 @@ Result populate_and_store_hk_data(void) {
     }
   }
   config_loaded = 1;
+
+  //TEMP mock hk
+  mock_everyone(&temp_hk_data); //not permanent
   
   temp_hk_data.hk_timeorder.dataPosition = current_file;
   uint16_t length = strlen(base_file) + num_digits(current_file) + 
@@ -495,13 +512,14 @@ Result populate_and_store_hk_data(void) {
   } else {
     ex2_log("Warning, failed to malloc for secondary data structure\n");
   }
-  ++current_file;
+  store_config(0);
 
+  ++current_file;
   if(current_file > MAX_FILES) {
     current_file = 1;
   }
 
-  store_config();
+  
   prv_give_lock(&f_count_lock); //unlock
   ex2_log("%s written to disk", filename);
   vPortFree(filename); // No memory leaks here
@@ -597,7 +615,7 @@ Result set_max_files(uint16_t new_max) {
     }
   }
 
-  store_config();
+  store_config(1);
   vPortFree(filename);
   return result;
 }
