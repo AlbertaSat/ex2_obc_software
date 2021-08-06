@@ -25,10 +25,10 @@
 #include "services.h"
 
 typedef enum {
-   SET_FILE_SIZE = 0,
-   GET_FILE_SIZE = 1,
-   GET_LIST = 2,
-   GET_FILE = 3
+   GET_FILE = 0,
+   GET_OLD_FILE = 1,
+   GET_FILE_SIZE = 2,
+   SET_FILE_SIZE = 3 
 } logger_subservice;
 
 SAT_returnState start_logger_service(void);

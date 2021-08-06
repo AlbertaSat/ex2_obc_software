@@ -26,10 +26,11 @@
 #include "util/service_utilities.h" //for setting csp packet length
 
 const char log_file[] = "VOL0:/syslog.log"; //replace with getter in logger.c
+const char old_log_file[] = "VOL0:/syslog_old.log"; //replace with getter
 uint32_t max_file_size = 500; //repalce with getter
 
 uint32_t max_string_length = 500;
-char* log_data[500] = {0};
+
 
  /* @brief
  *      Check if file with given name exists
@@ -51,13 +52,40 @@ int file_exists(const char *filename){
     return 1;
 }
 
+SAT_returnState get_file(const char *filename, csp_packet_t *packet) {
+    int8_t status;
+    int32_t file;
+    uint32_t data_size;
+    char* log_data[500] = {0};
+    if (file_exists(filename) == 0) {
+        file = red_open(filename, RED_O_RDONLY);
+        if(file > -1){
+            data_size = red_read(file, log_data, max_file_size);
+            if (data_size == 0){
+                status = -1;
+                strncpy(log_data, "Log file is empty\n", max_string_length);
+            } else {
+                status = 0;
+            }
+        } else {
+            status = -1;
+            sprintf(log_data, "Can't open log file. red_errno: %d\n", red_errno);
+        }
+    } else {
+        status = -1;
+        strncpy(log_data, "Log file does not exist\n", max_string_length);
+    }
+    memcpy(&packet->data[STATUS_BYTE], &status, 1);
+    memcpy(&packet->data[OUT_DATA_BYTE], log_data, max_string_length);
+    set_packet_length(packet, max_string_length + 2);
+    return SATR_OK;
+}
+
 
 
 SAT_returnState logger_service_app(csp_packet_t *packet) {
     uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
     int8_t status;
-    int32_t file;
-    uint32_t data_size;
 
     switch (ser_subtype) {
         case SET_FILE_SIZE:
@@ -67,30 +95,10 @@ SAT_returnState logger_service_app(csp_packet_t *packet) {
             break;
         case GET_FILE_SIZE:
             break;
-        case GET_LIST:
-            break;
         case GET_FILE:
-            if (file_exists(log_file) == 0) {
-                file = red_open(log_file, RED_O_RDONLY);
-                if(file > -1){
-                    data_size = red_read(file, log_data, max_file_size);
-                    if (data_size == 0){
-                        status = -1;
-                        strncpy(log_data, "Log file is empty\n", max_string_length);
-                    } else {
-                        status = 0;
-                    }
-                } else {
-                    status = -1;
-                    strncpy(log_data, "Can't open log file\n", max_string_length);
-                }
-            } else {
-                status = -1;
-                strncpy(log_data, "Log file does not exist\n", max_string_length);
-            }
-            memcpy(&packet->data[STATUS_BYTE], &status, 1);
-            memcpy(&packet->data[OUT_DATA_BYTE], log_data, max_string_length);
-            set_packet_length(packet, max_string_length + 2);
+            get_file(log_file, packet);
+        case GET_OLD_FILE:
+            get_file(old_log_file, packet);
 
             break;
         default:

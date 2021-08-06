@@ -44,7 +44,7 @@
   naming convention becomes base_file + current_file + extension
   e.g. tempHKdata134.TMP
 */
-uint16_t MAX_FILES = 19; //testing value. will be set to approximately 20160 (7 days)
+uint16_t MAX_FILES = 100; //testing value. will be set to approximately 20160 (7 days)
 char base_file[] = "VOL0:/tempHKdata"; //path may need to be changed
 char extension[] = ".TMP";
 uint16_t current_file = 1;  //Increments after file write. loops back at MAX_FILES
@@ -312,15 +312,13 @@ Result store_config() {
   }
   red_write(fout, &MAX_FILES, sizeof(MAX_FILES));
   red_write(fout, &current_file, sizeof(current_file));
-  red_write(fout, &hk_timestamp_array_size, sizeof(hk_timestamp_array_size));
-  red_write(fout, timestamps, (hk_timestamp_array_size * sizeof(uint32_t)));
+  red_write(fout, timestamps, ((hk_timestamp_array_size + 1) * sizeof(uint32_t)));
 
   red_close(fout);
   return SUCCESS;
 }
 
 Result load_config() {
-  uint16_t num_items = 0;
   if(exists(hk_config) == FILE_NOT_EXIST){
     ex2_log("Config file: '%s' does not exist\n", hk_config);
     return FAILURE;
@@ -332,9 +330,10 @@ Result load_config() {
   }
   red_read(fin, &MAX_FILES, sizeof(MAX_FILES));
   red_read(fin, &current_file, sizeof(current_file));
-  red_read(fin, &num_items, sizeof(num_items));
-  if (dynamic_timestamp_array_handler(num_items) == SUCCESS) {
-    red_read(fin, timestamps, (hk_timestamp_array_size * sizeof(uint32_t)));
+  if (dynamic_timestamp_array_handler(MAX_FILES) == SUCCESS) {
+    red_read(fin, timestamps, ((hk_timestamp_array_size + 1) * sizeof(uint32_t)));
+  } else {
+    return FAILURE;
   }
   red_close(fin);
   return SUCCESS;
@@ -466,10 +465,12 @@ Result populate_and_store_hk_data(void) {
   prv_get_lock(&f_count_lock); //lock
   
   if (config_loaded == 0){
-    load_config();
+    if (load_config() == FAILURE) {
+      ex2_log("couldn't load config");
+    }
   }
   config_loaded = 1;
-
+  
   temp_hk_data.hk_timeorder.dataPosition = current_file;
   uint16_t length = strlen(base_file) + num_digits(current_file) + 
   strlen(extension) + 1;
@@ -502,6 +503,7 @@ Result populate_and_store_hk_data(void) {
 
   store_config();
   prv_give_lock(&f_count_lock); //unlock
+  ex2_log("%s written to disk", filename);
   vPortFree(filename); // No memory leaks here
   return SUCCESS;
 }
