@@ -13,12 +13,13 @@
  */
 /**
  * @file    adc_handler.c
- * @author  Vasu Gupta
+ * @author  Quoc Trung Tran, Vasu Gupta
  * @date    2020-06-15
  */
 
 #include <ex2_hal/ex2_hyperion_solar_panel_software/equipment_handler/include/adc_handler.h>
 #include <stdint.h>
+#include "i2c_io.h"
 
 /**
  * @brief
@@ -40,49 +41,13 @@ unsigned char adc_init(uint8_t slave_addr, uint8_t channel) {
 }
 
 void adc_write(uint8_t *buf, int size, uint8_t slave_addr) {
-    i2cSetSlaveAdd(ADC_i2c_PORT, slave_addr);
-    i2cSetDirection(i2cREG1, I2C_TRANSMITTER);
-    i2cSetBaudrate(ADC_i2c_PORT, 400);
-    i2cSetCount(ADC_i2c_PORT, size);
-    /* Set mode as Master */
-    i2cSetMode(i2cREG1, I2C_MASTER);
-
-
-    i2cSetStop(ADC_i2c_PORT);
-    /* Transmit Start Condition */
-    i2cSetStart(ADC_i2c_PORT);
-    i2cSend(ADC_i2c_PORT, size, buf);
-
-    /* Wait until Bus Busy is cleared */
-    while(i2cIsBusBusy(ADC_i2c_PORT) == true);
-    i2cSetStop(ADC_i2c_PORT);
-    /* Wait until Stop is detected */
-    //while(i2cIsStopDetected(ADC_i2c_PORT) == 0);
-    /* Clear the Stop condition */
-    i2cClearSCD(ADC_i2c_PORT);
+    // TODO: Make this use error code return
+    i2c_Send(ADC_i2c_PORT, slave_addr, size, buf);
 }
 
-void adc_read(uint8_t *data, uint32_t length, uint8_t slave_addr) {
-    i2cSetSlaveAdd(ADC_i2c_PORT, slave_addr);
-    i2cSetDirection(i2cREG1, I2C_RECEIVER);
-    i2cSetCount(i2cREG1, length);
-    i2cSetMode(i2cREG1, I2C_MASTER);
-    /* Set Stop after programmed Count */
-    i2cSetStop(i2cREG1);
-    /* Transmit Start Condition */
-    i2cSetStart(ADC_i2c_PORT);
-
-    i2cReceive(ADC_i2c_PORT,length,data);
-
-    /* Wait until Bus Busy is cleared */
-    //while(i2cIsBusBusy(i2cREG1) == true);
-
-    /* Wait until Stop is detected */
-    while(i2cIsStopDetected(i2cREG1) == 0);
-
-    /* Clear the Stop condition */
-    i2cClearSCD(i2cREG1);
-
+void adc_read(uint8_t *buf, uint32_t size, uint8_t slave_addr) {
+    // TODO: make this use error code return
+    i2c_Receive(ADC_i2c_PORT, slave_addr, size, buf);
 }
 
 /**
