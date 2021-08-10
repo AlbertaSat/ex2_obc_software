@@ -14,6 +14,7 @@
 #include "FreeRTOS.h"
 #include "NMEA_types.h"
 #include "os_queue.h"
+#include "os_semphr.h"
 
 #define NMEA_GGA 0
 #define NMEA_GSA 1
@@ -43,6 +44,8 @@ enum {
 #define NMEA_QUEUE_MAX_LEN 2
 
 QueueHandle_t NMEA_queue;
+
+SemaphoreHandle_t NMEA_mutex;
 
 bool init_NMEA();
 
