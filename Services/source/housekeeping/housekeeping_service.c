@@ -574,7 +574,7 @@ Result load_historic_hk_data(uint16_t file_num, All_systems_housekeeping* all_hk
  */
 Result set_max_files(uint16_t new_max) {
   //ensure number requested isn't garbage
-  if (new_max < 1) return FAILURE;
+  if (new_max < 1 || new_max > 20160) return FAILURE;
 
   prv_get_lock(&f_count_lock); //lock
   
