@@ -26,6 +26,7 @@
 #include "HL_i2c.h"
 #include "tmp421.h"
 #include "stdio.h"
+#include "i2c_io.h"
 
 ///* Addresses to scan */
 //static const unsigned short normal_i2c[] = { 0x2a, 0x4c, 0x4d, 0x4e, 0x4f,
@@ -109,101 +110,32 @@ static const uint8_t TMP421_TEMP_LSB[2]		= { 0x10, 0x11};
 
 //CODE TO MAYBE BE ADDED TO I2C DRIVERS BELOW
 void i2cSlaveWriteReg(uint8_t sadd, uint8_t reg, uint8_t data) {
-    i2cSetSlaveAdd(i2cREG2, sadd);
-    i2cSetDirection(i2cREG2, I2C_TRANSMITTER);
-    i2cSetCount(i2cREG2, 2);
-    i2cSetMode(i2cREG2, I2C_MASTER);
-    i2cSetStop(i2cREG2);
-    i2cSetStart(i2cREG2);
-    i2cSendByte(i2cREG2, reg);
-    i2cSendByte(i2cREG2, data);
-    while(i2cIsBusBusy(i2cREG2) == true);
-    while(i2cIsStopDetected(i2cREG2) == 0);
-    i2cClearSCD(i2cREG2);
+    // TODO: make this use error code return instead
+    uint8_t buf[2];
+    buf[0] = reg;
+    buf[1] = data;
+    return i2c_Send(i2cREG2, sadd, 2, &buf);
 }
 
 uint8_t i2cSlaveRead1ByteReg(uint8_t sadd, uint8_t reg) {
+    // TODO: make this use error code return instead
 	uint8_t value = 0;
 
-	i2cSetSlaveAdd(i2cREG2, sadd);
+	i2c_Send(i2cREG2, sadd, 1, &reg);
 
-    i2cSetDirection(i2cREG2, I2C_TRANSMITTER);
-    i2cSetCount(i2cREG2, 1);
-    i2cSetMode(i2cREG2, I2C_MASTER);
-    i2cSetStop(i2cREG2);
-    i2cSetStart(i2cREG2);
-    i2cSend(i2cREG2, 1, &reg);
-
-    while(i2cIsBusBusy(i2cREG2) == true);
-    while(i2cIsStopDetected(i2cREG2) == 0);
-    i2cClearSCD(i2cREG2);
-
-    int temp;
-    for (temp = 0; temp < 0x1000; temp++);//temporary fix... don't want delay down the road
-
-    i2cSetSlaveAdd(i2cREG2, sadd);
-    /* Set direction to receiver */
-    i2cSetDirection(i2cREG2, I2C_RECEIVER);
-    i2cSetCount(i2cREG2, 1);
-    /* Set mode as Master */
-    i2cSetMode(i2cREG2, I2C_MASTER);
-    i2cSetStop(i2cREG2);
-    /* Transmit Start Condition */
-    i2cSetStart(i2cREG2);
-    value = i2cReceiveByte(i2cREG2);
-
-    /* Wait until Bus Busy is cleared */
-    while(i2cIsBusBusy(i2cREG2) == true);
-
-    /* Wait until Stop is detected */
-    while(i2cIsStopDetected(i2cREG2) == 0);
-
-    /* Clear the Stop condition */
-    i2cClearSCD(i2cREG2);
+	i2c_Receive(i2cREG2, sadd, 1, &value);
 
 	return value;
 }
 
 uint16_t i2cSlaveRead2ByteReg(uint8_t sadd, uint8_t reg) {
+// TODO: make this use error code return instead
 	uint8_t data[2] = {0};
 	uint16_t value = 0;
 
-    i2cSetSlaveAdd(i2cREG2, sadd);
+    i2c_Send(i2cREG2, sadd, 1, &reg);
 
-    i2cSetDirection(i2cREG2, I2C_TRANSMITTER);
-    i2cSetCount(i2cREG2, 1);
-    i2cSetMode(i2cREG2, I2C_MASTER);
-    i2cSetStop(i2cREG2);
-    i2cSetStart(i2cREG2);
-    i2cSend(i2cREG2, 1, &reg);
-
-    while(i2cIsBusBusy(i2cREG2) == true);
-    while(i2cIsStopDetected(i2cREG2) == 0);
-    i2cClearSCD(i2cREG2);
-
-    int temp;
-    for (temp = 0; temp < 0x10000; temp++);//temporary fix... don't want delay down the road
-
-    i2cSetSlaveAdd(i2cREG2, sadd);
-    /* Set direction to receiver */
-    i2cSetDirection(i2cREG2, I2C_RECEIVER);
-    i2cSetCount(i2cREG2, 2);
-    /* Set mode as Master */
-    i2cSetMode(i2cREG2, I2C_MASTER);
-    i2cSetStop(i2cREG2);
-    /* Transmit Start Condition */
-    i2cSetStart(i2cREG2);
-    i2cReceive(i2cREG2, 2, data);
-
-
-    /* Wait until Bus Busy is cleared */
-    while(i2cIsBusBusy(i2cREG2) == true);
-
-    /* Wait until Stop is detected */
-    while(i2cIsStopDetected(i2cREG2) == 0);
-
-    /* Clear the Stop condition */
-    i2cClearSCD(i2cREG2);
+    i2c_Receive(i2cREG2, sadd, 2, &data);
 
     value = (((uint16_t)(data[0])) << 8) | data[1];
 
