@@ -77,9 +77,9 @@ int ex2_main(int argc, char **argv) {
 
     /* Initialization routine */
     // init_filesystem();
-            init_csp();
+    init_csp();
     /* Start service server, and response server */
-      init_software();
+    init_software();
 
     //  start_eps_mock();
 

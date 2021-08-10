@@ -1,3 +1,3 @@
 #!/bin/bash
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-ln -s $SCRIPT_DIR/.hooks $SCRIPT_DIR/.git/hooks
+sudo ln -sf $SCRIPT_DIR/.git-hooks/hooks $SCRIPT_DIR/.git/hooks
