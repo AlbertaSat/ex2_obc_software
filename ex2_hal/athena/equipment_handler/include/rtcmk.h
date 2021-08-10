@@ -6,13 +6,20 @@
  */
 
 #ifndef DRIVERS_RTCMK_H_
-#define DRIVERS_RTCMK_H_		
+#define DRIVERS_RTCMK_H_
+
+#include <time.h>
 
 /*******************************************************************************
  *******************************   DEFINES   ***********************************
  ******************************************************************************/
 
-#define RTCMK_ADDR				(0x64)
+#define RTCMK_ADDR				(0x32)
+#ifdef IS_ATHENA
+#define RTCMK_PORT              i2cREG2
+#else
+#define RTCMK_PORT              i2cREG1 // port used on dev board
+#endif
 
 #define RTCMK_SEC_SEC				              (0x7FUL << 0)
 #define _RTCMK_SEC_SEC_SHIFT		          0
@@ -278,29 +285,87 @@ typedef enum
  *****************************   PROTOTYPES   **********************************
  ******************************************************************************/
 
-int RTCMK_RegisterSet(/*I2C_TypeDef *i2c,*/
-                        uint8_t addr,
-                        RTCMK_Register_TypeDef reg,
-                        uint8_t val);
+int RTCMK_SetUnix(time_t new_time);
 
-int RTCMK_RegisterGet(/*I2C_TypeDef *i2c,*/
-                        uint8_t addr,
-                        RTCMK_Register_TypeDef reg,
+int RTCMK_GetUnix(time_t *unix_time);
+
+int RTCMK_RegisterSet(uint8_t addr,
+                      RTCMK_Register_TypeDef reg,
+                      uint8_t val);
+
+int RTCMK_RegisterGet(uint8_t addr,
+                      RTCMK_Register_TypeDef reg,
+                      uint8_t *val);
+
+int RTCMK_ResetTime(uint8_t addr);
+
+int RTCMK_ReadSeconds(uint8_t addr,
+                      uint8_t *val);
+
+int RTCMK_ReadMinutes(uint8_t addr,
+                      uint8_t *val);
+
+int RTCMK_ReadHours(uint8_t addr,
+                    uint8_t *val);
+
+int RTCMK_ReadDay(uint8_t addr,
+                  uint8_t *val);
+
+int RTCMK_ReadWeek(uint8_t addr,
+                  uint8_t *val);
+
+int RTCMK_ReadMonth(uint8_t addr,
+                  uint8_t *val);
+
+int RTCMK_ReadYear(uint8_t addr,
+                   uint8_t *val);
+
+int RTCMK_SetDay(uint8_t addr,
+                 uint8_t val);
+
+int RTCMK_SetHour(uint8_t addr,
+                  uint8_t val);
+
+int RTCMK_SetMinute(uint8_t addr,
+                    uint8_t val);
+
+int RTCMK_SetSecond(uint8_t addr,
+                    uint8_t val);
+
+int RTCMK_SetYear(uint8_t addr,
+                  uint8_t val);
+
+int RTCMK_SetWeek(uint8_t addr,
+                  uint8_t val);
+
+int RTCMK_SetMonth(uint8_t addr,
+                  uint8_t val);
+
+int RTCMK_ReadMinutesAlarm(uint8_t addr,
+                           uint8_t *val);
+
+int RTCMK_ReadHourAlarm(uint8_t addr,
                         uint8_t *val);
 
-int RTCMK_ResetTime(/*I2C_TypeDef *i2c,*/
-                        uint8_t addr);
-
-int RTCMK_ReadSeconds(/*I2C_TypeDef *i2c,*/
-                        uint8_t addr,
+int RTCMK_ReadWeekAlarm(uint8_t addr,
                         uint8_t *val);
 
-int RTCMK_ReadMinutes(/*I2C_TypeDef *i2c,*/
-                        uint8_t addr,
-                        uint8_t *val);
+int RTCMK_ReadSelect(uint8_t addr,
+                     uint8_t *val);
 
-int RTCMK_ReadHours(/*I2C_TypeDef *i2c,*/
-                        uint8_t addr,
-                        uint8_t *val);
+int RTCMK_ReadFlag(uint8_t addr,
+                   uint8_t *val);
+
+int RTCMK_ReadControl(uint8_t addr,
+                      uint8_t *val);
+
+int RTCMK_SetWeekAlarm(uint8_t addr,
+                       uint8_t val);
+
+int RTCMK_SetMinAlarm(uint8_t addr,
+                      uint8_t val);
+
+int RTCMK_SetHourAlarm(uint8_t addr,
+                       uint8_t val);
 
 #endif /* DRIVERS_RTCMK_H_ */
