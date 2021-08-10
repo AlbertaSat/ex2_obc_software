@@ -6,11 +6,36 @@
 #include "os_queue.h"
 #include "os_task.h"
 #include "skytraq_gps_driver.h"
+#include <time.h>
 
 bool GGA_ENABLED = false;
 bool GSA_ENABLED = false;
 bool GSV_ENABLED = false;
 bool RMC_ENABLED = false;
+
+struct gps_date {
+    int day;
+    int month;
+    int year;
+};
+
+struct gps_time {
+    int ms;
+    int second;
+    int minute;
+    int hour;
+};
+
+time_t make_unix(struct gps_time *g_t, struct gps_date *g_d) {
+    struct tm unix_tm;
+    unix_tm.tm_sec = g_t->second;
+    unix_tm.tm_min = g_t->minute;
+    unix_tm.tm_hour = g_t->hour;
+    unix_tm.tm_mday = g_d->day;
+    unix_tm.tm_mon = g_d->month - 1;
+    unix_tm.tm_year = g_d->year + 100;
+    return mktime(&unix_tm);
+}
 
 /**
  * @brief Initialises all of the skytraq and driver
@@ -21,7 +46,7 @@ bool RMC_ENABLED = false;
 bool gps_skytraq_driver_init() {
     skytraq_binary_init();
 
-    GPS_RETURNSTATE gps_enable_all = gps_configure_message_types(2,0,0,3);
+    GPS_RETURNSTATE gps_enable_all = gps_configure_message_types(0,0,0,3);
     if (gps_enable_all != SUCCESS) {
         return false;
     }
@@ -79,7 +104,7 @@ GPS_RETURNSTATE gps_disable_NMEA_output() {
  * @return true date overflowed to next date
  * @return false date did not overflow
  */
-bool extract_time(uint32_t _time, TickType_t correction, ex2_time_t *utc_time) {
+bool extract_time(uint32_t _time, TickType_t correction, struct gps_time *utc_time) {
     // _time is stored such that: hhmmssss
 
     int ms_since_logged = (xTaskGetTickCount()* portTICK_PERIOD_MS) - correction*portTICK_PERIOD_MS;
@@ -115,7 +140,7 @@ bool extract_time(uint32_t _time, TickType_t correction, ex2_time_t *utc_time) {
   * @param date_overflow True if date overflowed since data was collected
   * @param utc_date Struct to store date in
   */
-void extract_date(uint32_t date, bool date_overflow, date_t *utc_date) {
+void extract_date(uint32_t date, bool date_overflow, struct gps_date *utc_date) {
     utc_date->day = date / 10000;
     utc_date->month = date / 100 % 100;
     utc_date->year = date % 100;
@@ -167,46 +192,16 @@ void extract_date(uint32_t date, bool date_overflow, date_t *utc_date) {
 /**
  * @brief Get UTC time from latest NMEA packet containing time
  * 
- * @param utc_time Struct to store time
+ * @param utc_time time_t * to store time
  * @return true Time updated
  * @return false Time unavailable
  */
-bool gps_get_utc_time(ex2_time_t *utc_time) {
+bool gps_get_utc_time(time_t *utc_time) {
 
-    // this will take GPRMC time if it is available, otherwise GPGGA
-    bool GGA = GGA_ENABLED;
-    bool RMC = RMC_ENABLED;
-    GPGGA_s GGA_s;
-    GPRMC_s RMC_s;
+    struct gps_time g_t;
+    struct gps_date g_d;
 
-    if (RMC) {
-        bool RMC_valid = NMEAParser_get_GPRMC(&RMC_s);
-        if (RMC_valid) {
-            extract_time(RMC_s._time, RMC_s._logtime, utc_time);
-            return true;
-        }
-    }
-
-    if (GGA) {
-        bool GGA_valid = NMEAParser_get_GPGGA(&GGA_s);
-        if (GGA_valid) {
-            extract_time(GGA_s._time, GGA_s._logtime, utc_time);
-            return true;
-        }
-    }
-    return false;
-}
-
-/**
- * @brief Get UTC date from latest NMEA packet containing date
- * 
- * @param utc_time Struct to store time
- * @return true Date updated
- * @return false Date unavailable
- */
-bool gps_get_date(date_t *utc_date) {
-    // date is only present on gprmc
-    ex2_time_t utc_time;
+    // this will take GPRMC time
     bool RMC = RMC_ENABLED;
     GPRMC_s RMC_s;
 
@@ -214,8 +209,9 @@ bool gps_get_date(date_t *utc_date) {
         bool RMC_valid = NMEAParser_get_GPRMC(&RMC_s);
         if (RMC_valid) {
             // time will be used to correct for if we overflow to a new utc date
-            bool date_overflow = extract_time(RMC_s._time, RMC_s._logtime, &utc_time);
-            extract_date(RMC_s._date, date_overflow, utc_date);
+            bool date_overflow = extract_time(RMC_s._time, RMC_s._logtime, &g_t);
+            extract_date(RMC_s._date, date_overflow, &g_d);
+            *utc_time = make_unix(&g_t, &g_d);
             return true;
         }
     }
