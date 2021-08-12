@@ -22,6 +22,10 @@ static struct i2csemphr
     bool hadFailure;
 } i2csemphr_t[2U];
 
+/**
+ * @Brief
+ *    Initialize freertos structures for the driver
+ **/
 void init_i2c_driver() {
     // these can't fail
     i2csemphr_t[0].i2c_mutex = xSemaphoreCreateMutex();
@@ -32,9 +36,29 @@ void init_i2c_driver() {
     i2csemphr_t[1].hadFailure = false;
 }
 
+/**
+ * @brief
+ *   Receive an array from an i2c device
+ *
+ * @param[in] i2c
+ *   Pointer to I2C peripheral register block.
+ *
+ * @param[in] addr
+ *   I2C address, in 7 bit format, where LSB is reserved for R/W bit.
+ *
+ * @param[in] size
+ *   Size of the data to expect to receive
+ *
+ * @param[in] buf
+ *   Buffer to store received data
+ *
+ * @return
+ *   Returns 0 data read, <0 if unable to read data.
+ **/
 int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
-    uint8 ret;
+    uint8 ret = 0;
     uint32 index = i2c == i2cREG1 ? 0U : 1U;
+
     if (xSemaphoreTake(i2csemphr_t[index].i2c_mutex, I2C_TIMEOUT_MS) != pdTRUE) {
         return -1;
     }
@@ -48,12 +72,9 @@ int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
     i2cSetStart(i2c);
     i2cReceive(i2c, size, buf);
 
-
     if (xSemaphoreTake(i2csemphr_t[index].i2c_block, I2C_TIMEOUT_MS) != pdTRUE) {
         i2cSetStop(i2c);
         ret = -1;
-    } else {
-        ret = 0;
     }
 
     /* Clear the Stop condition */
@@ -61,10 +82,27 @@ int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
     xSemaphoreGive(i2csemphr_t[index].i2c_mutex);
     return ret;
 }
-
-// ret =  0 on success, -1 on failure
+/**
+ * @brief
+ *   Send an array to an i2c device
+ *
+ * @param[in] i2c
+ *   Pointer to I2C peripheral register block.
+ *
+ * @param[in] addr
+ *   I2C address, in 7 bit format, where LSB is reserved for R/W bit.
+ *
+ * @param[in] size
+ *   Size of the data to send
+ *
+ * @param[in] buf
+ *   Buffer with data to send
+ *
+ * @return
+ *   Returns 0 data written, <0 if unable to write data.
+ **/
 int i2c_Send(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
-    uint8 ret;
+    uint8 ret = 0;
     uint32 index = i2c == i2cREG1 ? 0U : 1U;
     if (xSemaphoreTake(i2csemphr_t[index].i2c_mutex, I2C_TIMEOUT_MS) != pdTRUE) {
         return -1;
@@ -86,8 +124,6 @@ int i2c_Send(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
         if (i2csemphr_t[index].hadFailure == true) {
             ret = -1;
             i2csemphr_t[index].hadFailure = false; // reset failure flag
-        } else {
-            ret = 0;
         }
     }
 
