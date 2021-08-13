@@ -15,9 +15,7 @@
 #ifndef SBAND_H
 #define SBAND_H
 
-//#include <csp/csp.h>
 #include <inttypes.h>
-//#include "services.h"
 
 #ifdef SBAND_IS_STUBBED
 typedef enum {
