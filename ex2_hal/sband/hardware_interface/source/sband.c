@@ -161,7 +161,7 @@ STX_return HAL_S_setFreq(float S_freq_new) {
 #ifdef SBAND_IS_STUBBED
   return IS_STUBBED;
 #else
-  return STX_setFreq(S_config_reg.freq);
+  return STX_setFrequency(S_config_reg.freq);
 #endif
 }
 
