@@ -291,4 +291,211 @@ void hyperion_config_2_value(config_2_panel_t panel, config_2_channel_type_t cha
     default:
         break;
     }
- }
+}
+
+void Hyperion_config1_getHK(Hyperion_HouseKeeping* hyperion_hk) {
+    // NADIR TEMP 1
+    hyperion_config_2_value(CONFIG_2_PANEL_NADIR, CONFIG_2_CHANNEL_PD_1, &hyperion_hk->Nadir_Pd1);
+
+    // Port TEMP 1 2 3
+    hyperion_config_1_value(CONFIG_1_PANEL_P, CONFIG_1_CHANNEL_TEMP_1, &hyperion_hk->Port_Temp1);
+    hyperion_config_1_value(CONFIG_1_PANEL_P, CONFIG_1_CHANNEL_TEMP_2, &hyperion_hk->Port_Temp2);
+    //hyperion_config_1_value(CONFIG_1_PANEL_P, CONFIG_1_CHANNEL_TEMP_3, &hyperion_hk->Port_Temp3);
+
+    // Port Temp Adc
+    hyperion_hk->Port_Temp_Adc = adc_get_tsense_temp(PANEL_SLAVE_ADDR_PORT, ADC_VREF);
+
+    // Port Dep Temp 1 2 3
+    hyperion_config_1_value(CONFIG_1_PANEL_PD, CONFIG_1_CHANNEL_TEMP_1, &hyperion_hk->Port_Dep_Temp1);
+    hyperion_config_1_value(CONFIG_1_PANEL_PD, CONFIG_1_CHANNEL_TEMP_2, &hyperion_hk->Port_Dep_Temp2);
+    hyperion_config_1_value(CONFIG_1_PANEL_PD, CONFIG_1_CHANNEL_TEMP_3, &hyperion_hk->Port_Dep_Temp3);
+
+    // Port Dep Temp Adc
+    hyperion_hk->Port_Dep_Temp_Adc = adc_get_tsense_temp(PANEL_SLAVE_ADDR_PORT_DEPLOYABLE, ADC_VREF);
+
+    // Star Temp 1 2 3
+    hyperion_config_1_value(CONFIG_1_PANEL_S, CONFIG_1_CHANNEL_TEMP_1, &hyperion_hk->Star_Temp1);
+    hyperion_config_1_value(CONFIG_1_PANEL_S, CONFIG_1_CHANNEL_TEMP_2, &hyperion_hk->Star_Temp2);
+    hyperion_config_1_value(CONFIG_1_PANEL_S, CONFIG_1_CHANNEL_TEMP_3, &hyperion_hk->Star_Temp3);
+
+    // Star Temp Adc
+    hyperion_hk->Star_Temp_Adc = adc_get_tsense_temp(PANEL_SLAVE_ADDR_STARBOARD, ADC_VREF);
+
+    // Star Dep Temp 1 2 3
+    hyperion_config_1_value(CONFIG_1_PANEL_SD, CONFIG_1_CHANNEL_TEMP_1, &hyperion_hk->Star_Dep_Temp1);
+    hyperion_config_1_value(CONFIG_1_PANEL_SD, CONFIG_1_CHANNEL_TEMP_2, &hyperion_hk->Star_Dep_Temp2);
+    hyperion_config_1_value(CONFIG_1_PANEL_SD, CONFIG_1_CHANNEL_TEMP_3, &hyperion_hk->Star_Dep_Temp3);
+
+    // Star Dep Adc
+    hyperion_hk->Star_Dep_Temp_Adc = adc_get_tsense_temp(PANEL_SLAVE_ADDR_STARBOARD_DEPLOYABLE, ADC_VREF);
+
+    // Zenith Temp 1 2 3
+    hyperion_config_1_value(CONFIG_1_PANEL_Z, CONFIG_1_CHANNEL_TEMP_1, &hyperion_hk->Zenith_Temp1);
+    hyperion_config_1_value(CONFIG_1_PANEL_Z, CONFIG_1_CHANNEL_TEMP_2, &hyperion_hk->Zenith_Temp2);
+    hyperion_config_1_value(CONFIG_1_PANEL_Z, CONFIG_1_CHANNEL_TEMP_3, &hyperion_hk->Zenith_Temp3);
+
+    // Zenith Temp Adc
+    hyperion_hk->Zenith_Temp_Adc = adc_get_tsense_temp(PANEL_SLAVE_ADDR_ZENITH, ADC_VREF);
+
+    // Nadir Pd 1
+    hyperion_config_2_value(CONFIG_2_PANEL_NADIR, CONFIG_2_CHANNEL_PD_1, &hyperion_hk->Nadir_Pd1);
+
+    // Port Pd 1 2 3
+    hyperion_config_1_value(CONFIG_1_PANEL_P, CONFIG_1_CHANNEL_PD_1, &hyperion_hk->Port_Pd1);
+    hyperion_config_1_value(CONFIG_1_PANEL_P, CONFIG_1_CHANNEL_PD_2, &hyperion_hk->Port_Pd2);
+    hyperion_config_1_value(CONFIG_1_PANEL_P, CONFIG_1_CHANNEL_PD_3, &hyperion_hk->Port_Pd3);
+
+    // Port Dep Pd 1 2 3
+    hyperion_config_1_value(CONFIG_1_PANEL_PD, CONFIG_1_CHANNEL_PD_1, &hyperion_hk->Port_Dep_Pd1);
+    hyperion_config_1_value(CONFIG_1_PANEL_PD, CONFIG_1_CHANNEL_PD_2, &hyperion_hk->Port_Dep_Pd2);
+    hyperion_config_1_value(CONFIG_1_PANEL_PD, CONFIG_1_CHANNEL_PD_3, &hyperion_hk->Port_Dep_Pd3);
+
+    // Star Pd 1 2 3
+    hyperion_config_1_value(CONFIG_1_PANEL_S, CONFIG_1_CHANNEL_PD_1, &hyperion_hk->Star_Pd1);
+    hyperion_config_1_value(CONFIG_1_PANEL_S, CONFIG_1_CHANNEL_PD_2, &hyperion_hk->Star_Pd2);
+    hyperion_config_1_value(CONFIG_1_PANEL_S, CONFIG_1_CHANNEL_PD_3, &hyperion_hk->Star_Pd3);
+
+    // Star Dep Pd 1 2 3
+    hyperion_config_1_value(CONFIG_1_PANEL_SD, CONFIG_1_CHANNEL_PD_1, &hyperion_hk->Star_Dep_Pd1);
+    hyperion_config_1_value(CONFIG_1_PANEL_SD, CONFIG_1_CHANNEL_PD_2, &hyperion_hk->Star_Dep_Pd2);
+    hyperion_config_1_value(CONFIG_1_PANEL_SD, CONFIG_1_CHANNEL_PD_3, &hyperion_hk->Star_Dep_Pd3);
+
+    // Zenith Pd 1 2 3
+    hyperion_config_1_value(CONFIG_1_PANEL_Z, CONFIG_1_CHANNEL_PD_1, &hyperion_hk->Zenith_Pd1);
+    hyperion_config_1_value(CONFIG_1_PANEL_Z, CONFIG_1_CHANNEL_PD_2, &hyperion_hk->Zenith_Pd2);
+    hyperion_config_1_value(CONFIG_1_PANEL_Z, CONFIG_1_CHANNEL_PD_3, &hyperion_hk->Zenith_Pd3);
+
+    // Port Voltage
+    hyperion_config_1_value(CONFIG_1_PANEL_P, CONFIG_1_CHANNEL_VOLT, &hyperion_hk->Port_Voltage);
+
+    // Port Dep Voltage
+    hyperion_config_1_value(CONFIG_1_PANEL_PD, CONFIG_1_CHANNEL_VOLT, &hyperion_hk->Port_Dep_Voltage);
+
+    // Star Voltage
+    hyperion_config_1_value(CONFIG_1_PANEL_S, CONFIG_1_CHANNEL_VOLT, &hyperion_hk->Star_Voltage);
+
+    // Star Dep Voltage
+    hyperion_config_1_value(CONFIG_1_PANEL_S, CONFIG_1_CHANNEL_VOLT, &hyperion_hk->Star_Dep_Voltage);
+
+    // Zenith Voltage
+    hyperion_config_1_value(CONFIG_1_PANEL_Z, CONFIG_1_CHANNEL_VOLT, &hyperion_hk->Zenith_Voltage);
+
+    // Port Current
+    hyperion_config_1_value(CONFIG_1_PANEL_P, CONFIG_1_CHANNEL_CURR, &hyperion_hk->Port_Current);
+
+    // Port Dep Current
+    hyperion_config_1_value(CONFIG_1_PANEL_PD, CONFIG_1_CHANNEL_CURR, &hyperion_hk->Port_Dep_Current);
+
+    // Star Current
+    hyperion_config_1_value(CONFIG_1_PANEL_S, CONFIG_1_CHANNEL_CURR, &hyperion_hk->Star_Current);
+
+    // Star Dep Current
+    hyperion_config_1_value(CONFIG_1_PANEL_S, CONFIG_1_CHANNEL_CURR, &hyperion_hk->Star_Dep_Current);
+
+    // Zenith Current
+    hyperion_config_1_value(CONFIG_1_PANEL_Z, CONFIG_1_CHANNEL_CURR, &hyperion_hk->Zenith_Current);
+}
+
+void Hyperion_config3_getHK(Hyperion_HouseKeeping* hyperion_hk) {
+    // NADIR TEMP 1
+    hyperion_config_2_value(CONFIG_2_PANEL_NADIR, CONFIG_2_CHANNEL_PD_1, &hyperion_hk->Nadir_Pd1);
+
+    // Port 2U TEMP 1 2 3
+    hyperion_config_3_value(CONFIG_3_PANEL_P2U, CONFIG_3_CHANNEL_TEMP_1, &hyperion_hk->Port_Temp1);
+    hyperion_config_3_value(CONFIG_3_PANEL_P2U, CONFIG_3_CHANNEL_TEMP_2, &hyperion_hk->Port_Temp2);
+    // hyperion_config_3_value(CONFIG_3_PANEL_P2U, CONFIG_3_CHANNEL_TEMP_3, &hyperion_hk->Port_Temp3); // reserved
+
+    // Port 2U Temp Adc
+    hyperion_config_3_value(CONFIG_3_PANEL_P2U, CONFIG_3_ADC_TEMP, &hyperion_hk->Port_Temp_Adc);
+
+    // Port Dep Temp 1 2 3
+    hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_TEMP_1, &hyperion_hk->Port_Dep_Temp1);
+    hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_TEMP_2, &hyperion_hk->Port_Dep_Temp2);
+    // hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_TEMP_3, &hyperion_hk->Port_Dep_Temp3); // reserved
+
+    // Port Dep Temp Adc
+    hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_ADC_TEMP, &hyperion_hk->Port_Dep_Temp_Adc);
+
+    // Star Temp 1 2 3
+    hyperion_config_3_value(CONFIG_3_PANEL_S2U, CONFIG_3_CHANNEL_TEMP_1, &hyperion_hk->Star_Temp1);
+    hyperion_config_3_value(CONFIG_3_PANEL_S2U, CONFIG_3_CHANNEL_TEMP_2, &hyperion_hk->Star_Temp2);
+    // hyperion_config_3_value(CONFIG_3_PANEL_S, CONFIG_3_CHANNEL_TEMP_3, &hyperion_hk->Star_Temp3); // reserved
+
+    // Star Temp Adc
+    hyperion_config_3_value(CONFIG_3_PANEL_S2U, CONFIG_3_ADC_TEMP, &hyperion_hk->Star_Temp_Adc);
+
+    // Star Dep Temp 1 2 3
+    hyperion_config_3_value(CONFIG_3_PANEL_SD2U, CONFIG_3_CHANNEL_TEMP_1, &hyperion_hk->Star_Dep_Temp1);
+    hyperion_config_3_value(CONFIG_3_PANEL_SD2U, CONFIG_3_CHANNEL_TEMP_2, &hyperion_hk->Star_Dep_Temp2);
+    // hyperion_config_3_value(CONFIG_3_PANEL_SD2U, CONFIG_3_CHANNEL_TEMP_3, &hyperion_hk->Star_Dep_Temp3); //reserved
+
+    // Star Dep Adc
+    hyperion_config_3_value(CONFIG_3_PANEL_SD2U, CONFIG_3_ADC_TEMP, &hyperion_hk->Star_Dep_Temp_Adc);
+
+    // Zenith Temp 1 2 3
+    hyperion_config_3_value(CONFIG_3_PANEL_Z2U, CONFIG_3_CHANNEL_TEMP_1, &hyperion_hk->Zenith_Temp1);
+    hyperion_config_3_value(CONFIG_3_PANEL_Z2U, CONFIG_3_CHANNEL_TEMP_2, &hyperion_hk->Zenith_Temp2);
+    // hyperion_config_3_value(CONFIG_3_PANEL_Z2U, CONFIG_3_CHANNEL_TEMP_3, &hyperion_hk->Zenith_Temp3); // reserved
+
+    // Zenith Temp Adc
+    hyperion_config_3_value(CONFIG_3_PANEL_Z2U, CONFIG_3_ADC_TEMP, &hyperion_hk->Zenith_Temp_Adc);
+
+    // Nadir Pd 1
+    hyperion_config_2_value(CONFIG_2_PANEL_NADIR, CONFIG_2_CHANNEL_PD_1, &hyperion_hk->Nadir_Pd1);
+
+    // Port 2U Pd 1 2 3
+    hyperion_config_3_value(CONFIG_3_PANEL_P2U, CONFIG_3_CHANNEL_PD_1, &hyperion_hk->Port_Pd1);
+    hyperion_config_3_value(CONFIG_3_PANEL_P2U, CONFIG_3_CHANNEL_PD_2, &hyperion_hk->Port_Pd2);
+    // hyperion_config_3_value(CONFIG_3_PANEL_P2U, CONFIG_3_CHANNEL_PD_3, &hyperion_hk->Port_Pd3); // reserved
+
+    // Port 2U Dep Pd 1 2 3
+    hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_PD_1, &hyperion_hk->Port_Dep_Pd1);
+    hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_PD_2, &hyperion_hk->Port_Dep_Pd2);
+    // hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_PD_3, &hyperion_hk->Port_Dep_Pd3);
+
+    // Star 2U Pd 1 2 3
+    hyperion_config_3_value(CONFIG_3_PANEL_S2U, CONFIG_3_CHANNEL_PD_1, &hyperion_hk->Star_Pd1);
+    hyperion_config_3_value(CONFIG_3_PANEL_S2U, CONFIG_3_CHANNEL_PD_2, &hyperion_hk->Star_Pd2);
+    // hyperion_config_3_value(CONFIG_3_PANEL_S2U, CONFIG_1_CHANNEL_PD_3, &hyperion_hk->Star_Pd3); // reserved
+
+    // Star Dep 2U Pd 1 2 3
+    hyperion_config_3_value(CONFIG_3_PANEL_SD2U, CONFIG_3_CHANNEL_PD_1, &hyperion_hk->Star_Dep_Pd1);
+    hyperion_config_3_value(CONFIG_3_PANEL_SD2U, CONFIG_3_CHANNEL_PD_2, &hyperion_hk->Star_Dep_Pd2);
+    // hyperion_config_3_value(CONFIG_3_PANEL_SD2U, CONFIG_1_CHANNEL_PD_3, &hyperion_hk->Star_Dep_Pd3); // reserved
+
+    // Zenith 2U Pd 1 2 3
+    hyperion_config_3_value(CONFIG_3_PANEL_Z2U, CONFIG_3_CHANNEL_PD_1, &hyperion_hk->Zenith_Pd1);
+    hyperion_config_3_value(CONFIG_3_PANEL_Z2U, CONFIG_3_CHANNEL_PD_2, &hyperion_hk->Zenith_Pd2);
+    // hyperion_config_3_value(CONFIG_3_PANEL_Z2U, CONFIG_3_CHANNEL_PD_3, &hyperion_hk->Zenith_Pd3); // reserved
+
+    // Port 2U Voltage
+    hyperion_config_3_value(CONFIG_3_PANEL_P2U, CONFIG_3_CHANNEL_VOLT, &hyperion_hk->Port_Voltage);
+
+    // Port Dep 2U Voltage
+    hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_VOLT, &hyperion_hk->Port_Dep_Voltage);
+
+    // Star 2U Voltage
+    hyperion_config_3_value(CONFIG_3_PANEL_S2U, CONFIG_3_CHANNEL_VOLT, &hyperion_hk->Star_Voltage);
+
+    // Star Dep 2U Voltage
+    hyperion_config_3_value(CONFIG_3_PANEL_S2U, CONFIG_3_CHANNEL_VOLT, &hyperion_hk->Star_Dep_Voltage);
+
+    // Zenith 2U Voltage
+    hyperion_config_3_value(CONFIG_3_PANEL_Z2U, CONFIG_3_CHANNEL_VOLT, &hyperion_hk->Zenith_Voltage);
+
+    // Port 2U Current
+    hyperion_config_3_value(CONFIG_3_PANEL_P2U, CONFIG_3_CHANNEL_CURR, &hyperion_hk->Port_Current);
+
+    // Port Dep 2U Current
+    hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_CURR, &hyperion_hk->Port_Dep_Current);
+
+    // Star 2U Current
+    hyperion_config_3_value(CONFIG_3_PANEL_S2U, CONFIG_3_CHANNEL_CURR, &hyperion_hk->Star_Current);
+
+    // Star Dep 2U Current
+    hyperion_config_3_value(CONFIG_3_PANEL_S2U, CONFIG_3_CHANNEL_CURR, &hyperion_hk->Star_Dep_Current);
+
+    // Zenith 2U Current
+    hyperion_config_3_value(CONFIG_3_PANEL_Z2U, CONFIG_3_CHANNEL_CURR, &hyperion_hk->Zenith_Current);
+}
+>>>>>>> 974f3c7 (Clean code, add error handling code, add gethk for config3)
