@@ -40,14 +40,16 @@ unsigned char adc_init(uint8_t slave_addr, uint8_t channel) {
     return 1;
 }
 
-void adc_write(uint8_t *buf, int size, uint8_t slave_addr) {
+// return 0 on success; -1 on failure
+int adc_write(uint8_t *buf, int size, uint8_t slave_addr) {
     // TODO: Make this use error code return
-    i2c_Send(ADC_i2c_PORT, slave_addr, size, buf);
+    return i2c_Send(ADC_i2c_PORT, slave_addr, size, buf);
 }
 
-void adc_read(uint8_t *buf, uint32_t size, uint8_t slave_addr) {
+// return 0 on success; -1 on failure
+int adc_read(uint8_t *buf, uint32_t size, uint8_t slave_addr) {
     // TODO: make this use error code return
-    i2c_Receive(ADC_i2c_PORT, slave_addr, size, buf);
+    return i2c_Receive(ADC_i2c_PORT, slave_addr, size, buf);
 }
 
 /**
@@ -79,9 +81,10 @@ void adc_read(uint8_t *buf, uint32_t size, uint8_t slave_addr) {
  * @param autocycle
  *      Enable/Disable autocycle mode of operation
  * @return
- * 		None
+ * 		0: success
+ *      -1: fail
  */
-void adc_set_command_reg(uint8_t slave_addr,
+int adc_set_command_reg(uint8_t slave_addr,
                             uint8_t channel,
                             uint8_t ext_ref,
                             uint8_t tsense,
@@ -89,6 +92,7 @@ void adc_set_command_reg(uint8_t slave_addr,
                             uint8_t reset,
                             uint8_t autocycle)
 {
+    int return_val;
     uint8_t buffer[3] = {0,0,0};
 
     uint8_t control_reg_value = 0;
@@ -103,14 +107,15 @@ void adc_set_command_reg(uint8_t slave_addr,
     buffer[2] = control_reg_value;
   
     //i2c data send
-    adc_write(buffer, 3, slave_addr);
+    return_val = adc_write(buffer, 3, slave_addr);
 
 
     control_reg_val = control_reg_value;
+    return return_val;
 }
 
-void adc_set_register_pointer(uint8_t slave_addr, uint8_t reg_sel) {
-    adc_write(&reg_sel, 1, slave_addr);
+int adc_set_register_pointer(uint8_t slave_addr, uint8_t reg_sel) {
+    return adc_write(&reg_sel, 1, slave_addr);
 }
 
 /**
@@ -127,14 +132,16 @@ void adc_set_register_pointer(uint8_t slave_addr, uint8_t reg_sel) {
  * @param ch
  * 		Buffer for storing which channel the value was received from.
  * @return
- * 		None
+ * 		0: success
+ *      -1: fail
  */
-void adc_get_raw(uint8_t slave_addr, unsigned short *data, unsigned char *ch)
+int adc_get_raw(uint8_t slave_addr, unsigned short *data, unsigned char *ch)
 {  
+    int ret;
     unsigned char buffer[2] = {0,0};
 
     //i2c slave read
-    adc_read(buffer, 2, slave_addr);
+    ret = adc_read(buffer, 2, slave_addr);
 
     unsigned short value = (buffer[0] << 8) | buffer[1];
 
@@ -147,6 +154,7 @@ void adc_get_raw(uint8_t slave_addr, unsigned short *data, unsigned char *ch)
 
     
     *data = value;
+    return ret;
 }
 
 /**
