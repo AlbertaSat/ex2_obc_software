@@ -114,7 +114,7 @@ typedef enum {
 #define DFGM_PWR_CHNL   1
 #define ADCS_PWR_CHNL   1
 
-int ex2_main(int argc, char **argv);
+int ex2_main(void);
 void SciSendBuf(char *buf, uint32_t bufSize);
 
 #endif /* SYSTEM_H */

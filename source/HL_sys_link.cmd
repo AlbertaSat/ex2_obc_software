@@ -137,9 +137,8 @@ MEMORY
     #endif
 
     RAMINTVECS (RWX) : origin=0x08000000 length = 0x20
-    STACKS  (RW)     : origin=end(RAMINTVECS) length=0x00000800
-    KRAM    (RW)     : origin=end(STACKS) length=0x00000800
-    RAM     (RW)     : origin=end(KRAM)   length=0x0007f800 - 0x800 - 0x800 - 0x20
+    KRAM    (RW)     : origin=end(RAMINTVECS) length=0x00000800
+    RAM     (RW)     : origin=end(KRAM)   length=0x0007f800 - 0x400 - 0x800 - 0x20
 	SDRAM  (RWX) : origin=0x80000000 length=0x07FFFFFF//experimental
 
 }
