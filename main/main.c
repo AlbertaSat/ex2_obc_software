@@ -59,6 +59,7 @@
  */
 
 #define INIT_PRIO configMAX_PRIORITIES -1
+#define INIT_STACK_SIZE 1500
 
 static void init_filesystem();
 static void init_csp();
@@ -90,7 +91,7 @@ void ex2_init(void *pvParameters) {
 int ex2_main(void) {
     _enable_IRQ_interrupt_(); // enable inturrupts
     InitIO();
-    xTaskCreate(ex2_init, "init", 1500, NULL, INIT_PRIO, NULL);
+    xTaskCreate(ex2_init, "init", INIT_STACK_SIZE, NULL, INIT_PRIO, NULL);
     /* Start FreeRTOS! */
     vTaskStartScheduler();
 
