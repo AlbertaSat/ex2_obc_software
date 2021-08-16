@@ -48,7 +48,7 @@
 #define PANEL_SLAVE_ADDR_STARBOARD                  0x23
 #define PANEL_SLAVE_ADDR_STARBOARD_DEPLOYABLE       0x28
 #define PANEL_SLAVE_ADDR_ZENITH                     0x2E
-#define PANEL_SLAVE_ADDR_PORT2U                     0x2A
+#define PANEL_SLAVE_ADDR_PORT2U                     0x20
 #define PANEL_SLAVE_ADDR_PORT_DEPLOYABLE2U          0x22
 #define PANEL_SLAVE_ADDR_STARBOARD2U                0x23
 #define PANEL_SLAVE_ADDR_STARBOARD_DEPLOYABLE2U     0x28
