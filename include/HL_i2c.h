@@ -160,13 +160,13 @@ typedef struct i2c_config_reg
 
 /* Configuration registers initial value for I2C*/
 #define I2C1_OAR_CONFIGVALUE       0x00000000U
-#define I2C1_IMR_CONFIGVALUE       ((uint32)((uint32)0U << 6U) \
-                                 | (uint32)((uint32)0U << 5U) \
-                                 | (uint32)((uint32)0U << 4U) \
-                                 | (uint32)((uint32)0U << 3U) \
-                                 | (uint32)((uint32)0U << 2U) \
-                                 | (uint32)((uint32)0U << 1U) \
-                                 | ((uint32)0U))
+#define I2C1_IMR_CONFIGVALUE       ((uint32)((uint32)1U << 6U) \
+                                 | (uint32)((uint32)1U << 5U) \
+                                 | (uint32)((uint32)1U << 4U) \
+                                 | (uint32)((uint32)1U << 3U) \
+                                 | (uint32)((uint32)1U << 2U) \
+                                 | (uint32)((uint32)1U << 1U) \
+                                 | ((uint32)1U))
 
 #define I2C1_CLKL_CONFIGVALUE      37U
 #define I2C1_CLKH_CONFIGVALUE      37U
@@ -201,13 +201,13 @@ typedef struct i2c_config_reg
 
 /* Configuration registers initial value for I2C*/
 #define I2C2_OAR_CONFIGVALUE       0x00000000U
-#define I2C2_IMR_CONFIGVALUE       ((uint32)((uint32)0U << 6U) \
-                                 | (uint32)((uint32)0U << 5U) \
-                                 | (uint32)((uint32)0U << 4U) \
-                                 | (uint32)((uint32)0U << 3U) \
-                                 | (uint32)((uint32)0U << 2U) \
-                                 | (uint32)((uint32)0U << 1U) \
-                                 | ((uint32)0U))
+#define I2C2_IMR_CONFIGVALUE       ((uint32)((uint32)1U << 6U) \
+                                 | (uint32)((uint32)1U << 5U) \
+                                 | (uint32)((uint32)1U << 4U) \
+                                 | (uint32)((uint32)1U << 3U) \
+                                 | (uint32)((uint32)1U << 2U) \
+                                 | (uint32)((uint32)1U << 1U) \
+                                 | ((uint32)1U))
 
 #define I2C2_CLKL_CONFIGVALUE      37U
 #define I2C2_CLKH_CONFIGVALUE      37U
