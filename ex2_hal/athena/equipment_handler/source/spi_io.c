@@ -3,22 +3,21 @@
 #include "HL_gio.h"
 #include "HL_het.h"
 #include "HL_mibspi.h"
+#include "system.h"
+#include "os_semphr.h"
 
 /******************************************************************************
  Module Public Functions - Low level SPI control functions
 ******************************************************************************/
 
-
-
 void SPI_Init (void) {
-
 }
 
 BYTE SPI_RW (BYTE d) {
-    while ((spiREG3->FLG & 0x0200) == 0); // Wait until TXINTFLG is set for previous transmission
+    while ((SD_SPI->FLG & 0x0200) == 0); // Wait until TXINTFLG is set for previous transmission
     spiREG3->DAT1 = d | 0x100D0000;    // transmit register address
 
-    while ((spiREG3->FLG & 0x0100) == 0); // Wait until RXINTFLG is set when new value is received
+    while ((SD_SPI->FLG & 0x0100) == 0); // Wait until RXINTFLG is set when new value is received
     return((unsigned char)spiREG3->BUF);  // Return received value
 }
 
@@ -27,20 +26,36 @@ void SPI_Release (void) {
     for (idx=512; idx && (SPI_RW(0xFF)!=0xFF); idx--);
 }
 
-inline void SPI_CS_Low (void) {
-#ifdef IS_ATHENA
-    gioSetPort(gioPORTA, 0); //CS LOW
-#else
-    gioSetBit(hetPORT1, 12, 0); //CS LOW
-#endif
+inline void SPI_CS_Low (uint8_t bVolNum) {
+    if (bVolNum == 0) {
+    #ifdef IS_ATHENA
+        gioSetBit(gioPORTA, 3, 0); //CS LOW
+    #else
+        gioSetBit(hetPORT1, 12, 0); //CS LOW
+    #endif
+    } else if (bVolNum == 1) {
+    #ifdef IS_ATHENA
+        gioSetBit(hetPORT2, 6, 0); //CS LOW
+    #else
+        return;
+    #endif
+    }
 }
 
-inline void SPI_CS_High (void){
-#ifdef IS_ATHENA
-    gioSetPort(gioPORTA, 1); //CS HIGH
-#else
-    gioSetBit(hetPORT1, 12, 1); //CS HIGH
-#endif
+inline void SPI_CS_High (uint8_t bVolNum){
+    if (bVolNum == 0) {
+    #ifdef IS_ATHENA
+        gioSetBit(gioPORTA, 3, 1); //CS HIGH
+    #else
+        gioSetBit(hetPORT1, 12, 1); //CS HIGH
+    #endif
+    } else if (bVolNum == 1) {
+    #ifdef IS_ATHENA
+        gioSetBit(hetPORT2, 6, 1); //CS HIGH
+    #else
+        return;
+    #endif
+    }
 }
 
 inline void SPI_Freq_High (void) {
