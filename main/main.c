@@ -13,7 +13,7 @@
  */
 /**
  * @file main.c
- * @author Andrew Rooney, Haoran Qi
+ * @author Andrew Rooney, Haoran Qi, Robert Taylor, Dustin Wagner, Arash Yazdani
  * @date 2020-06-06
  */
 
@@ -58,7 +58,8 @@
  *  - Start the FreeRTOS scheduler
  */
 
-#define LEOP_SEQUENCE_TIMER_MS 10000
+#define INIT_PRIO configMAX_PRIORITIES -1
+#define INIT_STACK_SIZE 1500
 
 static void init_filesystem();
 static void init_csp();
@@ -68,31 +69,33 @@ static void init_system_tasks();
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
 static FTP ftp_app;
 
+void ex2_init(void *pvParameters) {
 
-int ex2_main(int argc, char **argv) {
+    /* Initialization routine */
+    //init_filesystem();
+    init_csp();
+    /* Start service server, and response server */
+    init_software();
 
-  const TickType_t leop_time_ms = pdMS_TO_TICKS(LEOP_SEQUENCE_TIMER_MS);
+  //  start_eps_mock();
+/*
+    void *task_handler = create_ftp_task(OBC_APP_ID, &ftp_app);
+    if (task_handler == NULL) {
+        return -1;
+    }
+*/
+    vTaskDelete(0); // delete self to free up heap
 
-  _enable_IRQ_interrupt_(); // enable inturrupts
-  InitIO();
+}
 
-  /* Initialization routine */
-  //init_filesystem();
-  init_csp();
-  /* Start service server, and response server */
-  init_software();
+int ex2_main(void) {
+    _enable_IRQ_interrupt_(); // enable inturrupts
+    InitIO();
+    xTaskCreate(ex2_init, "init", INIT_STACK_SIZE, NULL, INIT_PRIO, NULL);
+    /* Start FreeRTOS! */
+    vTaskStartScheduler();
 
-//  start_eps_mock();
-
-  void *task_handler = create_ftp_task(OBC_APP_ID, &ftp_app);
-  if (task_handler == NULL) {
-      return -1;
-  }
-
-  /* Start FreeRTOS! */
-  vTaskStartScheduler();
-
-  for (;;); // Scheduler didn't start
+    for (;;); // Scheduler didn't start
 }
 
 /**
