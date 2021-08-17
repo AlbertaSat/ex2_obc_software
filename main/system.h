@@ -65,23 +65,11 @@
 #endif
 #else // These values are expected to be adjusted based on what the developer is working on
     #define CSP_SCI sciREG3
-    #define GPS_SCI 0
+    #define GPS_SCI sciREG2
     #define ADCS_SCI 0
     #define PAYLOAD_SCI 0
     #define DFGM_SCI 0
 #endif
-
-#if defined(IS_ATHENA)
-#define IRIS_CONFIG_SPI spiREG1
-#define IRIS_SPI spiREG3
-#define SBAND_SPI spiREG3
-#else // These values are expected to be adjusted based on what the developer is working on
-#define IRIS_CONFIG_SPI 0
-#define IRIS_SPI 0
-#define SBAND_SPI 0
-#endif
-
-
 
 #ifndef IS_FLATSAT
     #ifdef IS_ATHENA
@@ -91,6 +79,38 @@
     #endif
 #else
 #define PRINTF_SCI NULL
+#endif
+
+#if defined(IS_ATHENA)
+    #define IRIS_CONFIG_SPI spiREG1
+    #define IRIS_SPI spiREG3
+    #define SBAND_SPI spiREG2
+    #define SD_SPI spiREG3
+#else // These values are expected to be adjusted based on what the developer is working on
+    #define IRIS_CONFIG_SPI spiREG1
+    #define IRIS_SPI spiREG4
+    #define SBAND_SPI spiREG2
+    #define SD_SPI spiREG3
+#endif
+
+#if defined(IS_ATHENA)
+    #define IMU_I2C i2cREG2
+    #define SOLAR_I2C i2cREG2
+    #define TEMPSENSE_I2C i2cREG2
+    #define RTC_I2C i2cREG2
+
+    #define SBAND_I2C i2cREG1
+    #define ADCS_I2C i2cREG1
+    #define UHF_I2C i2cREG1
+#else // These values are expected to be adjusted based on what the developer is working on
+    #define IMU_I2C i2cREG2
+    #define SOLAR_I2C i2cREG2
+    #define TEMPSENSE_I2C i2cREG2
+    #define RTC_I2C i2cREG2
+
+    #define SBAND_I2C i2cREG1
+    #define ADCS_I2C i2cREG1
+    #define UHF_I2C i2cREG1
 #endif
 
 typedef enum {
