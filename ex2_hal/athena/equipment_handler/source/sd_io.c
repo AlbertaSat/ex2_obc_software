@@ -283,7 +283,7 @@ SDRESULTS SD_Init(uint8_t bVolNum)
     if(ct) {
         dev->cardtype = ct;
         dev->mount = TRUE;
-        dev->last_sector = __SD_Sectors(dev) - 1;
+        dev->last_sector = __SD_Sectors(bVolNum) - 1;
         dev->last_sector = 3717120;
 
         __SD_Speed_Transfer(HIGH); // High speed transfer
