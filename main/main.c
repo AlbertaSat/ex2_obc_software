@@ -72,7 +72,7 @@ static FTP ftp_app;
 void ex2_init(void *pvParameters) {
 
     /* Initialization routine */
-    init_filesystem();
+    //init_filesystem();
     init_csp();
     /* Start service server, and response server */
     init_software();
