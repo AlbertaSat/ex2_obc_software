@@ -48,33 +48,31 @@ static void *beacon_daemon(void *pvParameters) {
     UHF_configStruct beacon_msg;
     // TODO: call the appropriate HAL functions to get the most updated or
     // cached information of the components + state machine, RTC, etc.
-
-    uhf_status = HAL_UHF_setBeaconMsg(beacon_msg);
+    // Then uncomment the next line:
+    //uhf_status = HAL_UHF_setBeaconMsg(beacon_msg);
 
     /* Sending the beacon */
     // The beacon transmission period is configurable through comms service
     // by the operator or here through HAL_UHF_getBeaconT().
     uint8_t scw[SCW_LEN];
-    uhf_status = HAL_UHF_getSCW(scw);
 #ifndef UHF_IS_STUBBED
+    uhf_status = HAL_UHF_getSCW(scw);
+
     if (uhf_status == U_GOOD_CONFIG) {
-#else
-    if (uhf_status == 0) {
-#endif
       scw[SCW_BCN_FLAG] = SCW_BCN_ON;
       uhf_status = HAL_UHF_setSCW(scw);
     }
-#ifndef UHF_IS_STUBBED
-    if (uhf_status != U_GOOD_CONFIG) {
-#else
-    if (uhf_status != 0) {
 #endif
+#ifndef EPS_IS_STUBBED
+    if (uhf_status != U_GOOD_CONFIG) {
+
       if (eps_get_pwr_chnl(UHF_PWR_CHNL) == 1 &&
           gioGetBit(UHF_GIO_PORT, UHF_GIO_PIN) == 1) {
         printf("Beacon failed");
       } else
         printf("UHF is off.");
     }
+#endif
 
     vTaskDelay(beacon_delay);
   }
