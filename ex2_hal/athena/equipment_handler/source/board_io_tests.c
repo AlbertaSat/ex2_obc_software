@@ -14,7 +14,8 @@
 #include "HL_can.h"
 #include "HL_spi.h"
 #include "HL_emif.h"
-
+#include "redposix.h"
+#include "FreeRTOS.h"
 
 
 /* Initialize all IO controllers, set the direction for all GPIO pins,
@@ -612,7 +613,7 @@ void fs_stress_worker2(void *pvParameters) {
 
 // Launch multiple SD card stress test;
 void fs_stress_test() {
-    xTaskCreate(fs_stress_worker1, "fs 1", INIT_STACK_SIZE, NULL, INIT_PRIO, NULL);
-    xTaskCreate(fs_stress_worker2, "fs 2", INIT_STACK_SIZE, NULL, INIT_PRIO, NULL);
+    xTaskCreate(fs_stress_worker1, "fs 1", 1500, NULL, configMAX_PRIORITIES - 1, NULL);
+    xTaskCreate(fs_stress_worker2, "fs 2", 1500, NULL, configMAX_PRIORITIES - 1, NULL);
 
 }
