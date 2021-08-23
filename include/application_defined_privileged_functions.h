@@ -124,4 +124,12 @@ uint32_t priv_Fapi_BlockProgram_( uint32_t Bank, uint32_t Flash_Address, uint32_
     return ret;
 }
 
+boot_info priv_eeprom_get_boot_info_() {
+    RAISE_PRIVILEGE;
+    boot_info ret = {0};
+    ret = eeprom_get_boot_info();
+    RESET_PRIVILEGE;
+    return ret;
+}
+
 #endif /* INCLUDE_APPLICATION_DEFINED_PRIVILEGED_FUNCTIONS_H_ */
