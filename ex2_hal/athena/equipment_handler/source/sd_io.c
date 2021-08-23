@@ -11,34 +11,11 @@
 #define TRUE 1
 #define HIGH 1
 
-#ifdef _M_IX86  // For use over x86
-/*****************************************************************************/
-/* Private Methods Prototypes - Direct work with PC file                     */
-/*****************************************************************************/
-
-/**
- * \brief Get the total numbers of sectors in SD card.
- * \param dev Device descriptor.
- * \return Quantity of sectors. Zero if fail.
- */
-DWORD __SD_Sectors (SD_DEV* dev);
-
-/*****************************************************************************/
-/* Private Methods - Direct work with PC file                                */
-/*****************************************************************************/
-
-DWORD __SD_Sectors (SD_DEV *dev)
-{
-    if (dev->fp == NULL) return(0); // Fail
-    else {
-        fseek(dev->fp, 0L, SEEK_END);
-        return (((DWORD)(ftell(dev->fp)))/((DWORD)512)-1);
-    }
-}
-#else   // For use with uControllers   
 /******************************************************************************
  Private Methods Prototypes - Direct work with SD card
 ******************************************************************************/
+
+SD_DEV devs[2];
 
 /**
     \brief Simple function to calculate power of two.
@@ -50,12 +27,12 @@ DWORD __SD_Power_Of_Two(BYTE e);
 /**
      \brief Assert the SD card (SPI CS low).
  */
-inline void __SD_Assert (void);
+inline void __SD_Assert (uint8_t bVolNum);
 
 /**
     \brief Deassert the SD (SPI CS high).
  */
-inline void __SD_Deassert (void);
+inline void __SD_Deassert (uint8_t bVolNum);
 
 /**
     \brief Change to max the speed transfer.
@@ -69,21 +46,21 @@ void __SD_Speed_Transfer (BYTE throttle);
     \param arg Argument to send.
     \return R1 response.
  */
-BYTE __SD_Send_Cmd(BYTE cmd, DWORD arg);
+BYTE __SD_Send_Cmd(uint8_t bVolNum, BYTE cmd, DWORD arg);
 
 /**
     \brief Write a data block on SD card.
     \param dat Storage the data to transfer.
     \param token Inidicates the type of transfer (single or multiple).
  */
-SDRESULTS __SD_Write_Block(SD_DEV *dev, const void *dat, BYTE token);
+SDRESULTS __SD_Write_Block(uint8_t bVolNum, const void *dat, BYTE token);
 
 /**
     \brief Get the total numbers of sectors in SD card.
     \param dev Device descriptor.
     \return Quantity of sectors. Zero if fail.
  */
-DWORD __SD_Sectors (SD_DEV *dev);
+DWORD __SD_Sectors (uint8_t bVolNum);
 
 /******************************************************************************
  Private Methods - Direct work with SD card
@@ -97,12 +74,12 @@ DWORD __SD_Power_Of_Two(BYTE e)
     return(partial);
 }
 
-inline void __SD_Assert(void){
-    SPI_CS_Low();
+inline void __SD_Assert(uint8_t bVolNum){
+    SPI_CS_Low(bVolNum);
 }
 
-inline void __SD_Deassert(void){
-    SPI_CS_High();
+inline void __SD_Deassert(uint8_t bVolNum){
+    SPI_CS_High(bVolNum);
 }
 
 void __SD_Speed_Transfer(BYTE throttle) {
@@ -110,20 +87,20 @@ void __SD_Speed_Transfer(BYTE throttle) {
     else SPI_Freq_Low();
 }
 
-BYTE __SD_Send_Cmd(BYTE cmd, DWORD arg)
+BYTE __SD_Send_Cmd(uint8_t bVolNum, BYTE cmd, DWORD arg)
 {
     BYTE crc, res;
-    // ACMD«n» is the command sequense of CMD55-CMD«n»
+    // ACMD«n» is the command sequence of CMD55-CMD«n»
     if(cmd & 0x80) {
         cmd &= 0x7F;
-        res = __SD_Send_Cmd(CMD55, 0);
+        res = __SD_Send_Cmd(bVolNum, CMD55, 0);
         if (res > 1) return (res);
     }
 
     // Select the card
-    __SD_Deassert();
+    __SD_Deassert(bVolNum);
     SPI_RW(0xFF);
-    __SD_Assert();
+    __SD_Assert(bVolNum);
     SPI_RW(0xFF);
 
     // Send complete command set
@@ -150,7 +127,7 @@ BYTE __SD_Send_Cmd(BYTE cmd, DWORD arg)
     return(res);
 }
 
-SDRESULTS __SD_Write_Block(SD_DEV *dev, const void *dat, BYTE token)
+SDRESULTS __SD_Write_Block(uint8_t bVolNum, const void *dat, BYTE token)
 {
     WORD idx;
     BYTE line;
@@ -167,34 +144,26 @@ SDRESULTS __SD_Write_Block(SD_DEV *dev, const void *dat, BYTE token)
         // If not accepted, returns the reject error
         if((SPI_RW(0xFF) & 0x1F) != 0x05) return(SD_REJECT);
     }
-#ifdef SD_IO_WRITE_WAIT_BLOCKER
-    // Waits until finish of data programming (blocked)
-    while(SPI_RW(0xFF)==0);
-    return(SD_OK);
-#else
     // Waits until finish of data programming with a timeout
     SPI_Timer_On(SD_IO_WRITE_TIMEOUT_WAIT);
     do {
         line = SPI_RW(0xFF);
     } while((line==0)&&(SPI_Timer_Status()==TRUE));
     SPI_Timer_Off();
-#ifdef SD_IO_DBG_COUNT
-    dev->debug.write++;
-#endif
     if(line==0) return(SD_BUSY);
     else return(SD_OK);
-#endif
 }
 
-DWORD __SD_Sectors (SD_DEV *dev)
+DWORD __SD_Sectors (uint8_t bVolNum)
 {
+    SD_DEV *dev = bVolNum ? &devs[0] : &devs[1];
     BYTE csd[16];
     BYTE idx;
     DWORD ss = 0;
     WORD C_SIZE = 0;
     BYTE C_SIZE_MULT = 0;
     BYTE READ_BL_LEN = 0;
-    if(__SD_Send_Cmd(CMD9, 0)==0) 
+    if(__SD_Send_Cmd(bVolNum, CMD9, 0)==0)
     {
         // Wait for response
         while (SPI_RW(0xFF) == 0xFF);
@@ -237,28 +206,14 @@ DWORD __SD_Sectors (SD_DEV *dev)
         return (ss);
     } else return (0); // Error
 }
-#endif // Private methods for uC
 
 /******************************************************************************
  Public Methods - Direct work with SD card
 ******************************************************************************/
 
-SDRESULTS SD_Init(SD_DEV *dev)
+SDRESULTS SD_Init(uint8_t bVolNum)
 {
-#if defined(_M_IX86)    // x86 
-    dev->fp = fopen(dev->fn, "r+");
-    if (dev->fp == NULL)
-        return (SD_ERROR);
-    else
-    {
-        dev->last_sector = __SD_Sectors(dev);
-#ifdef SD_IO_DBG_COUNT
-        dev->debug.read = 0;
-        dev->debug.write = 0;
-#endif
-        return (SD_OK);
-    }
-#else   // uControllers
+    SD_DEV *dev = bVolNum ? &devs[0] : &devs[1];
     BYTE n, cmd, ct, ocr[4];
     BYTE idx;
     BYTE init_trys;
@@ -268,7 +223,7 @@ SDRESULTS SD_Init(SD_DEV *dev)
         // Initialize SPI for use with the memory card
         SPI_Init();
 
-        SPI_CS_High();
+        SPI_CS_High(bVolNum);
         SPI_Freq_Low();
 
         // 80 dummy clocks
@@ -280,12 +235,12 @@ SDRESULTS SD_Init(SD_DEV *dev)
 
         dev->mount = FALSE;
         SPI_Timer_On(500);
-        while ((__SD_Send_Cmd(CMD0, 0) != 1)&&(SPI_Timer_Status()==TRUE));
+        while ((__SD_Send_Cmd(bVolNum, CMD0, 0) != 1)&&(SPI_Timer_Status()==TRUE));
         SPI_Timer_Off();
         // Idle state
-        if (__SD_Send_Cmd(CMD0, 0) == 1) {                      
+        if (__SD_Send_Cmd(bVolNum, CMD0, 0) == 1) {
             // SD version 2?
-            if (__SD_Send_Cmd(CMD8, 0x1AA) == 1) {
+            if (__SD_Send_Cmd(bVolNum, CMD8, 0x1AA) == 1) {
                 // Get trailing return value of R7 resp
                 for (n = 0; n < 4; n++) ocr[n] = SPI_RW(0xFF);
                 // VDD range of 2.7-3.6V is OK?  
@@ -293,10 +248,10 @@ SDRESULTS SD_Init(SD_DEV *dev)
                 {
                     // Wait for leaving idle state (ACMD41 with HCS bit)...
                     SPI_Timer_On(1000);
-                    while ((SPI_Timer_Status()==TRUE)&&(__SD_Send_Cmd(ACMD41, 1UL << 30)));
+                    while ((SPI_Timer_Status()==TRUE)&&(__SD_Send_Cmd(bVolNum, ACMD41, 1UL << 30)));
                     SPI_Timer_Off(); 
                     // CCS in the OCR?
-                    if ((SPI_Timer_Status()==TRUE)&&(__SD_Send_Cmd(CMD58, 0) == 0))
+                    if ((SPI_Timer_Status()==TRUE)&&(__SD_Send_Cmd(bVolNum, CMD58, 0) == 0))
                     {
                         for (n = 0; n < 4; n++) ocr[n] = SPI_RW(0xFF);
                         // SD version 2?
@@ -305,7 +260,7 @@ SDRESULTS SD_Init(SD_DEV *dev)
                 }
             } else {
                 // SD version 1 or MMC?
-                if (__SD_Send_Cmd(ACMD41, 0) <= 1)
+                if (__SD_Send_Cmd(bVolNum, ACMD41, 0) <= 1)
                 {
                     // SD version 1
                     ct = SDCT_SD1; 
@@ -317,60 +272,36 @@ SDRESULTS SD_Init(SD_DEV *dev)
                 }
                 // Wait for leaving idle state
                 SPI_Timer_On(250);
-                while((SPI_Timer_Status()==TRUE)&&(__SD_Send_Cmd(cmd, 0)));
+                while((SPI_Timer_Status()==TRUE)&&(__SD_Send_Cmd(bVolNum, cmd, 0)));
                 SPI_Timer_Off();
                 if(SPI_Timer_Status()==FALSE) ct = 0;
-                if(__SD_Send_Cmd(CMD59, 0))   ct = 0;   // Deactivate CRC check (default)
-                if(__SD_Send_Cmd(CMD16, 512)) ct = 0;   // Set R/W block length to 512 bytes
+                if(__SD_Send_Cmd(bVolNum, CMD59, 0))   ct = 0;   // Deactivate CRC check (default)
+                if(__SD_Send_Cmd(bVolNum, CMD16, 512)) ct = 0;   // Set R/W block length to 512 bytes
             }
         }
     }
     if(ct) {
         dev->cardtype = ct;
         dev->mount = TRUE;
-        dev->last_sector = __SD_Sectors(dev) - 1;
+        dev->last_sector = __SD_Sectors(bVolNum) - 1;
         dev->last_sector = 3717120;
-#ifdef SD_IO_DBG_COUNT
-        dev->debug.read = 0;
-        dev->debug.write = 0;
-#endif
+
         __SD_Speed_Transfer(HIGH); // High speed transfer
     }
     SPI_Release();
     return (ct ? SD_OK : SD_NOINIT);
-#endif
 }
 
-SDRESULTS SD_Read(SD_DEV *dev, void *dat, DWORD sector, WORD ofs, WORD cnt)
+SDRESULTS SD_Read(uint8_t bVolNum, void *dat, DWORD sector, WORD ofs, WORD cnt)
 {
-#if defined(_M_IX86)    // x86
-    // Check the sector query
-    if((sector > dev->last_sector)||(cnt == 0)) return(SD_PARERR);
-    if(dev->fp!=NULL)
-    {
-        if (fseek(dev->fp, ((512 * sector) + ofs), SEEK_SET)!=0)
-            return(SD_ERROR);
-        else {
-            if(fread(dat, 1, (cnt - ofs),dev->fp)==(cnt - ofs))
-            {
-#ifdef SD_IO_DBG_COUNT
-                dev->debug.read++;
-#endif
-                return(SD_OK);
-            }
-            else return(SD_ERROR);
-        }
-    } else {
-        return(SD_ERROR);
-    }
-#else   // uControllers
+    SD_DEV *dev = bVolNum ? &devs[0] : &devs[1];
     SDRESULTS res;
     BYTE tkn;
     WORD remaining;
     res = SD_ERROR;
     if ((sector > dev->last_sector)||(cnt == 0)) return(SD_PARERR);
     // Convert sector number to byte address (sector * SD_BLK_SIZE)
-    if (__SD_Send_Cmd(CMD17, sector * SD_BLK_SIZE) == 0) {
+    if (__SD_Send_Cmd(bVolNum, CMD17, sector * SD_BLK_SIZE) == 0) {
         SPI_Timer_On(100);  // Wait for data packet (timeout of 100ms)
         do {
             tkn = SPI_RW(0xFF);
@@ -399,54 +330,24 @@ SDRESULTS SD_Read(SD_DEV *dev, void *dat, DWORD sector, WORD ofs, WORD cnt)
         }
     }
     SPI_Release();
-#ifdef SD_IO_DBG_COUNT
-    dev->debug.read++;
-#endif
     return(res);
-#endif
 }
 
-#ifdef SD_IO_WRITE
-SDRESULTS SD_Write(SD_DEV *dev, const void *dat, DWORD sector)
+SDRESULTS SD_Write(uint8_t bVolNum, const void *dat, DWORD sector)
 {
-#if defined(_M_IX86)    // x86
-    // Query ok?
-    if(sector > dev->last_sector) return(SD_PARERR);
-    if(dev->fp != NULL)
-    {
-        if(fseek(dev->fp, SD_BLK_SIZE * sector, SEEK_SET)!=0)
-            return(SD_ERROR);
-        else {
-            if(fwrite(dat, 1, SD_BLK_SIZE, dev->fp)==SD_BLK_SIZE)
-            {
-#ifdef SD_IO_DBG_COUNT
-                dev->debug.write++;
-#endif
-                return(SD_OK);
-            }
-            else return(SD_ERROR);
-        }
-    } else return(SD_ERROR);
-#else   // uControllers
     // Query ok?
     //if(sector > dev->last_sector) return(SD_PARERR);//testing deleting this
     // Single block write (token <- 0xFE)
     // Convert sector number to bytes address (sector * SD_BLK_SIZE)
-    if(__SD_Send_Cmd(CMD24, sector * SD_BLK_SIZE)==0)
-        return(__SD_Write_Block(dev, dat, 0xFE));
+    if(__SD_Send_Cmd(bVolNum, CMD24, sector * SD_BLK_SIZE)==0)
+        return(__SD_Write_Block(bVolNum, dat, 0xFE));
     else
         return(SD_ERROR);
-#endif
 }
-#endif
 
-SDRESULTS SD_Status(SD_DEV *dev)
+SDRESULTS SD_Status(uint8_t bVolNum)
 {
-#if defined(_M_IX86)
-    return((dev->fp == NULL) ? SD_OK : SD_NORESPONSE);
-#else
-    return(__SD_Send_Cmd(CMD0, 0) ? SD_OK : SD_NORESPONSE);
-#endif
+    return(__SD_Send_Cmd(bVolNum, CMD0, 0) ? SD_OK : SD_NORESPONSE);
 }
 
 // «sd_io.c» is part of:

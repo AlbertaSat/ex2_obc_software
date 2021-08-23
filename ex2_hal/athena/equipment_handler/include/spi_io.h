@@ -38,12 +38,12 @@ void SPI_Release (void);
 /**
     \brief Selecting function in SPI terms, associated with SPI module.
  */
-void SPI_CS_Low (void);
+void SPI_CS_Low (uint8_t bVolNum);
 
 /**
     \brief Deselecting function in SPI terms, associated with SPI module.
  */
-void SPI_CS_High (void);
+void SPI_CS_High (uint8_t bVolNum);
 
 /**
     \brief Setting frequency of SPI's clock to maximun possible.

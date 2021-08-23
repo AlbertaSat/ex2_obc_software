@@ -14,7 +14,8 @@
 #include "HL_can.h"
 #include "HL_spi.h"
 #include "HL_emif.h"
-
+#include "redposix.h"
+#include "FreeRTOS.h"
 
 
 /* Initialize all IO controllers, set the direction for all GPIO pins,
@@ -44,6 +45,7 @@ void InitIO(void){
     gioSetBit(hetPORT2, 6, 1);//SD card - disable
 #else
     gioSetBit(hetPORT1, 12, 1);//SD card - disable
+    gioSetBit(hetPORT1, 14, 1); //SD card - disable
 #endif
 
 }
@@ -559,5 +561,59 @@ void SDRAM_Test(){
     }
 
     blinky();
+
+}
+
+
+void fs_stress_worker1(void *pvParameters) {
+    char buf[100] = {0};
+    char inbuf[100] = {0};
+    int i = 0;
+    for (;;) {
+        snprintf(buf, 100, "hello world: %d!", i);
+
+        int fd = red_open("VOL0:/hello_world.txt", RED_O_RDWR | RED_O_CREAT);
+        red_write(fd, buf, 100);
+
+        red_close(fd);
+
+        fd = red_open("VOL0:/hello_world.txt", RED_O_RDWR);
+        red_read(fd, inbuf, 100);
+
+        red_close(fd);
+
+        red_unlink("VOL0:/hello_world.txt");
+        configASSERT(strcmp(buf,inbuf) == 0);
+        i++;
+    }
+}
+
+void fs_stress_worker2(void *pvParameters) {
+    char buf[100] = {0};
+    char inbuf[100] = {0};
+    int i = 0;
+    for (;;) {
+        snprintf(buf, 100, "goodbye world! %d!", i);
+
+        int fd = red_open("VOL1:/hello_world.txt", RED_O_RDWR | RED_O_CREAT);
+        red_write(fd, buf, 100);
+
+        red_close(fd);
+
+        fd = red_open("VOL1:/hello_world.txt", RED_O_RDWR);
+        red_read(fd, inbuf, 100);
+
+        red_close(fd);
+        red_unlink("VOL1:/hello_world.txt");
+        configASSERT(strcmp(buf,inbuf) == 0);
+        i++;
+    }
+
+}
+
+// Launch multiple SD card stress test;
+void fs_stress_test() {
+    xTaskCreate(fs_stress_worker1, "fs 1", 1500, NULL, configMAX_PRIORITIES - 1, NULL);
+    xTaskCreate(fs_stress_worker2, "fs 2", 1500, NULL, configMAX_PRIORITIES - 1, NULL);
 
 }
