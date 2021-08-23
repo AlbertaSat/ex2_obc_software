@@ -34,6 +34,9 @@ enum current_sentence {
     nmea
 } line_type;
 
+#define GPS_TX_TIMEOUT_MS 1000
+SemaphoreHandle_t tx_semphr;
+
 #define BUFSIZE 100
 #define ITEM_SIZE BUFSIZE
 #define QUEUE_LENGTH 2
@@ -62,6 +65,11 @@ bool skytraq_binary_init() {
     bin_buff_loc = 0;
     sci_busy = false;
     binary_queue = xQueueCreate(QUEUE_LENGTH, ITEM_SIZE);
+    tx_semphr = xSemaphoreCreateBinary();
+
+    if (tx_semphr == NULL) {
+        return false;
+    }
 
     if (binary_queue == NULL) {
         return false;
@@ -101,6 +109,10 @@ GPS_RETURNSTATE skytraq_send_message(uint8_t *paylod, uint16_t size) {
 
 
     sciSend(GPS_SCI, total_size, message);
+    if (xSemaphoreTake(tx_semphr, GPS_TX_TIMEOUT_MS) != pdTRUE) {
+        return UNKNOWN_ERROR;
+    }
+
     vPortFree(message);
 
     uint8_t sentence[BUFSIZE];
@@ -211,10 +223,14 @@ void get_byte() {
  * @param flags interrupt flags
  */
 void gps_sciNotification(sciBASE_t *sci, unsigned flags) {
+    portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
     switch(flags) {
     case SCI_RX_INT: get_byte(); sciReceive(sci, 1, &byte); break;
 
-    case SCI_TX_INT: break;
+    case SCI_TX_INT:
+        xSemaphoreGiveFromISR(tx_semphr, &xHigherPriorityTaskWoken);
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+        break;
     }
 }
 
