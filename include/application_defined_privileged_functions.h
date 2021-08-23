@@ -48,6 +48,10 @@ void reboot_system_(char reboot_type) {
         ex2_log("Invalid reboot type");
         return;
     }
+    boot_info b_inf;
+    b_inf = eeprom_get_boot_info();
+    b_inf.reason.swr_reason = REQUESTED;
+    eeprom_set_boot_info(b_inf);
     eeprom_shutdown();
     systemREG1->SYSECR = (0x10) << 14;
     RESET_PRIVILEGE;
