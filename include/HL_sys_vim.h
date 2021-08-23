@@ -101,6 +101,8 @@ extern void can2HighLevelInterrupt(void);
 extern void mibspi5HighLevelInterrupt(void);
 extern void mibspi5LowLevelInterrupt(void);
 extern void sci3HighLevelInterrupt(void);
+extern void i2cInterrupt(void);
+extern void i2c2Interrupt(void);
 extern void lin2HighLevelInterrupt(void);
 extern void sci4HighLevelInterrupt(void);
 extern void sci4LowLevelInterrupt(void);
@@ -337,7 +339,7 @@ typedef struct vim_config_reg
                         
 #define VIM_REQMASKSET2_CONFIGVALUE ((uint32)((uint32)1U << 0U)\
                                     |(uint32)((uint32)0U << 1U)\
-                                    |(uint32)((uint32)0U << 2U)\
+                                    |(uint32)((uint32)1U << 2U)\
                                     |(uint32)((uint32)0U << 3U)\
                                     |(uint32)((uint32)0U << 4U)\
                                     |(uint32)((uint32)0U << 5U)\
@@ -386,7 +388,7 @@ typedef struct vim_config_reg
                                     |(uint32)((uint32)0U << 15U)\
                                     |(uint32)((uint32)0U << 16U)\
                                     |(uint32)((uint32)0U << 17U)\
-                                    |(uint32)((uint32)0U << 18U)\
+                                    |(uint32)((uint32)1U << 18U)\
                                     |(uint32)((uint32)1U << 19U)\
                                     |(uint32)((uint32)1U << 20U)\
                                     |(uint32)((uint32)0U << 21U)\

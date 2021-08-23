@@ -83,9 +83,8 @@ uint32 	emacPhyAddress	=	1U;
 int main(void)
 {
 /* USER CODE BEGIN (3) */
-    ex2_main(NULL, NULL);
-    for (;;);
-    return -1;
+    ex2_main();
+    systemREG1->SYSECR = (0x10) << 14; // Bootloops are bad but returning from main is worse
 /* USER CODE END */
 
     return 0;
