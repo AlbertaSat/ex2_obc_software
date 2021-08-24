@@ -29,8 +29,8 @@
 #include "eps.h"
 #include "uhf.h"
 #include "sband.h"
-//TODO:
-//#include "adcs.h"
+#include "hyperion.h"
+#include "adcs.h"
 
 /* Housekeeping service address & port*/
 
@@ -79,11 +79,12 @@ typedef struct __attribute__((packed)){
   hk_time_and_order hk_timeorder;        //debugging time and file order
 
   //TODO:
-  //adcs_housekeeping ADCS_hk;           //ADCS housekeeping struct
+  ADCS_HouseKeeping adcs_hk;           //ADCS housekeeping struct
   athena_housekeeping Athena_hk;         //Athena housekeeping struct
   eps_instantaneous_telemetry_t EPS_hk;  //EPS telemetry struct
-  UHF_housekeeping UHF_hk;                     //UHF status struct
+  UHF_housekeeping UHF_hk;               //UHF status struct
   Sband_Housekeeping S_band_hk;          //S-band housekeeping struct
+  Hyperion_HouseKeeping hyperion_hk;     //Hyperion housekeeping
 } All_systems_housekeeping;
 
 SAT_returnState start_housekeeping_service(void);
