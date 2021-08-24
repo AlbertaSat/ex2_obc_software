@@ -268,13 +268,15 @@ Result mock_everyone(All_systems_housekeeping* all_hk_data) {
  */
 Result collect_hk_from_devices(All_systems_housekeeping* all_hk_data) {
   /*populate struct by calling appropriate functions*/
-  //TODO:
-  //ADCS_return = HAL_adcs_gethk(&all_hk_data->ADCS_hk);             //ADCS get housekeeeing
+  ADCS_returnState ADCS_return_code = HAL_ADCS_getHK(&all_hk_data->adcs_hk);             //ADCS get housekeeeing
   int Athena_return_code = Athena_getHK(&all_hk_data->Athena_hk);    //Athena get temperature
 
   EPS_getHK(&all_hk_data->EPS_hk);                                   //EPS get housekeeping
   UHF_return UHF_return_code = UHF_getHK(&all_hk_data->UHF_hk);      //UHF get housekeeping
   STX_return STX_return_code = HAL_S_getHK(&all_hk_data->S_band_hk); //S_band get housekeeping
+  
+  
+
   /*consider if struct should hold error codes returned from these functions*/
   return SUCCESS;
 }
