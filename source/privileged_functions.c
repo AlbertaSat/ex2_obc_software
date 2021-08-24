@@ -47,3 +47,7 @@ uint32_t priv_Fapi_BlockErase(uint32_t ulAddr, uint32_t Size) {
 uint32_t priv_Fapi_BlockProgram( uint32_t Bank, uint32_t Flash_Address, uint32_t Data_Address, uint32_t SizeInBytes){
     return priv_Fapi_BlockProgram_(Bank, Flash_Address, Data_Address, SizeInBytes);
 }
+
+boot_info priv_eeprom_get_boot_info() {
+    return priv_eeprom_get_boot_info_();
+}
