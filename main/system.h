@@ -58,6 +58,7 @@
     #define CSP_SCI sciREG2
     #define ADCS_SCI sciREG4
     #define DFGM_SCI sciREG1
+    #define UHF_SCI CSP_SCI
 #if defined(IS_3U)
     #define GPS_SCI sciREG3
 #else if defined(IS_2U)
