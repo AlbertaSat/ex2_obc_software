@@ -175,6 +175,56 @@ Result mock_everyone(All_systems_housekeeping* all_hk_data) {
   all_hk_data->hk_timeorder.UNIXtimestamp = tempTime;
 
 
+  //ADCS
+  all_hk_data->adcs_hk.Estimated_Angular_Rate_X = tempFloat;
+  all_hk_data->adcs_hk.Estimated_Angular_Rate_Y = tempFloat;
+  all_hk_data->adcs_hk.Estimated_Angular_Rate_Z = tempFloat;
+  all_hk_data->adcs_hk.Estimated_Angular_Angle_X = tempFloat;
+  all_hk_data->adcs_hk.Estimated_Angular_Angle_Y = tempFloat;
+  all_hk_data->adcs_hk.Estimated_Angular_Angle_Z = tempFloat;
+  all_hk_data->adcs_hk.Sat_Position_ECI_X = tempFloat;
+  all_hk_data->adcs_hk.Sat_Position_ECI_Y = tempFloat;
+  all_hk_data->adcs_hk.Sat_Position_ECI_Z = tempFloat;
+  all_hk_data->adcs_hk.Sat_Velocity_ECI_X = tempFloat;
+  all_hk_data->adcs_hk.Sat_Velocity_ECI_Y = tempFloat;
+  all_hk_data->adcs_hk.Sat_Velocity_ECI_Z = tempFloat;
+  all_hk_data->adcs_hk.Sat_Position_LLH_X = tempFloat;
+  all_hk_data->adcs_hk.Sat_Position_LLH_Y = tempFloat;
+  all_hk_data->adcs_hk.Sat_Position_LLH_Z = tempFloat;
+  all_hk_data->adcs_hk.ECEF_Position_X = tempFloat;
+  all_hk_data->adcs_hk.ECEF_Position_Y = tempFloat;
+  all_hk_data->adcs_hk.ECEF_Position_Z = tempFloat;
+  all_hk_data->adcs_hk.Coarse_Sun_Vector_X = tempFloat;
+  all_hk_data->adcs_hk.Coarse_Sun_Vector_Y = tempFloat;
+  all_hk_data->adcs_hk.Coarse_Sun_Vector_Z = tempFloat;
+  all_hk_data->adcs_hk.Fine_Sun_Vector_X = tempFloat;
+  all_hk_data->adcs_hk.Fine_Sun_Vector_Y = tempFloat;
+  all_hk_data->adcs_hk.Fine_Sun_Vector_Z = tempFloat;
+  all_hk_data->adcs_hk.Nadir_Vector_X = tempFloat;
+  all_hk_data->adcs_hk.Nadir_Vector_Y = tempFloat;
+  all_hk_data->adcs_hk.Nadir_Vector_Z = tempFloat;
+  all_hk_data->adcs_hk.Wheel_Speed_X = tempFloat;
+  all_hk_data->adcs_hk.Wheel_Speed_Y = tempFloat;
+  all_hk_data->adcs_hk.Wheel_Speed_Z = tempFloat;
+  all_hk_data->adcs_hk.Mag_Field_Vector_X = tempFloat;
+  all_hk_data->adcs_hk.Mag_Field_Vector_Y = tempFloat;
+  all_hk_data->adcs_hk.Mag_Field_Vector_Z = tempFloat;
+  all_hk_data->adcs_hk.Comm_Status = tempFloat;
+  all_hk_data->adcs_hk.Wheel1_Current = tempFloat;
+  all_hk_data->adcs_hk.Wheel2_Current = tempFloat;
+  all_hk_data->adcs_hk.Wheel3_Current = tempFloat;
+  all_hk_data->adcs_hk.CubeSense1_Current = tempFloat;
+  all_hk_data->adcs_hk.CubeSense2_Current = tempFloat;
+  all_hk_data->adcs_hk.CubeControl_Current3v3 = tempFloat;
+  all_hk_data->adcs_hk.CubeControl_Current5v0 = tempFloat;
+  all_hk_data->adcs_hk.CubeStar_Current = tempFloat;
+  all_hk_data->adcs_hk.CubeStar_Temp = tempFloat;
+  all_hk_data->adcs_hk.Magnetorquer_Current = tempFloat;
+  all_hk_data->adcs_hk.MCU_Temp = tempFloat;
+  all_hk_data->adcs_hk.Rate_Sensor_Temp_X = tempFloat;
+  all_hk_data->adcs_hk.Rate_Sensor_Temp_Y = tempFloat;
+  all_hk_data->adcs_hk.Rate_Sensor_Temp_Z = tempFloat;
+
   //Athena
   uint8_t i;
   for (i = 0; i < 6; i++) {
@@ -249,6 +299,55 @@ Result mock_everyone(All_systems_housekeeping* all_hk_data) {
   all_hk_data->S_band_hk.PA_Current = tempFloat;
   all_hk_data->S_band_hk.PA_Voltage = tempFloat;
 
+  //Hyperion
+  all_hk_data->hyperion_hk.Nadir_Temp1 = tempFloat;
+  all_hk_data->hyperion_hk.Port_Temp1 = tempFloat;
+  all_hk_data->hyperion_hk.Port_Temp2 = tempFloat;
+  all_hk_data->hyperion_hk.Port_Temp3 = tempFloat;
+  all_hk_data->hyperion_hk.Port_Temp_Adc = tempFloat;
+  all_hk_data->hyperion_hk.Port_Dep_Temp1 = tempFloat;
+  all_hk_data->hyperion_hk.Port_Dep_Temp2 = tempFloat;
+  all_hk_data->hyperion_hk.Port_Dep_Temp3 = tempFloat;
+  all_hk_data->hyperion_hk.Port_Dep_Temp_Adc = tempFloat;
+  all_hk_data->hyperion_hk.Star_Temp1 = tempFloat;
+  all_hk_data->hyperion_hk.Star_Temp2 = tempFloat;
+  all_hk_data->hyperion_hk.Star_Temp3 = tempFloat;
+  all_hk_data->hyperion_hk.Star_Temp_Adc = tempFloat;
+  all_hk_data->hyperion_hk.Star_Dep_Temp1 = tempFloat;
+  all_hk_data->hyperion_hk.Star_Dep_Temp2 = tempFloat;
+  all_hk_data->hyperion_hk.Star_Dep_Temp3 = tempFloat;
+  all_hk_data->hyperion_hk.Star_Dep_Temp_Adc = tempFloat;
+  all_hk_data->hyperion_hk.Zenith_Temp1 = tempFloat;
+  all_hk_data->hyperion_hk.Zenith_Temp2 = tempFloat;
+  all_hk_data->hyperion_hk.Zenith_Temp3 = tempFloat;
+  all_hk_data->hyperion_hk.Zenith_Temp_Adc = tempFloat;
+  all_hk_data->hyperion_hk.Nadir_Pd1 = tempFloat;
+  all_hk_data->hyperion_hk.Port_Pd1 = tempFloat;
+  all_hk_data->hyperion_hk.Port_Pd2 = tempFloat;
+  all_hk_data->hyperion_hk.Port_Pd3 = tempFloat;
+  all_hk_data->hyperion_hk.Port_Dep_Pd1 = tempFloat;
+  all_hk_data->hyperion_hk.Port_Dep_Pd2 = tempFloat;
+  all_hk_data->hyperion_hk.Port_Dep_Pd3 = tempFloat;
+  all_hk_data->hyperion_hk.Star_Pd1 = tempFloat;
+  all_hk_data->hyperion_hk.Star_Pd2 = tempFloat;
+  all_hk_data->hyperion_hk.Star_Pd3 = tempFloat;
+  all_hk_data->hyperion_hk.Star_Dep_Pd1 = tempFloat;
+  all_hk_data->hyperion_hk.Star_Dep_Pd2 = tempFloat;
+  all_hk_data->hyperion_hk.Star_Dep_Pd3 = tempFloat;
+  all_hk_data->hyperion_hk.Zenith_Pd1 = tempFloat;
+  all_hk_data->hyperion_hk.Zenith_Pd2 = tempFloat;
+  all_hk_data->hyperion_hk.Zenith_Pd3 = tempFloat;
+  all_hk_data->hyperion_hk.Port_Voltage = tempFloat;
+  all_hk_data->hyperion_hk.Port_Dep_Voltage = tempFloat;
+  all_hk_data->hyperion_hk.Star_Voltage = tempFloat;
+  all_hk_data->hyperion_hk.Star_Dep_Voltage = tempFloat;
+  all_hk_data->hyperion_hk.Zenith_Voltage = tempFloat;
+  all_hk_data->hyperion_hk.Port_Current = tempFloat;
+  all_hk_data->hyperion_hk.Port_Dep_Current = tempFloat;
+  all_hk_data->hyperion_hk.Star_Current = tempFloat;
+  all_hk_data->hyperion_hk.Star_Dep_Current = tempFloat;
+  all_hk_data->hyperion_hk.Zenith_Current = tempFloat;
+
   temp++;
   tempTime += 30;
   return SUCCESS;
@@ -275,7 +374,13 @@ Result collect_hk_from_devices(All_systems_housekeeping* all_hk_data) {
   UHF_return UHF_return_code = UHF_getHK(&all_hk_data->UHF_hk);      //UHF get housekeeping
   STX_return STX_return_code = HAL_S_getHK(&all_hk_data->S_band_hk); //S_band get housekeeping
   
-  
+  #ifdef HYPERION_PANEL_3U
+    Hyperion_config1_getHK(&all_hk_data->hyperion_hk);
+  #endif /* HYPERION_PANEL_3U */
+
+  #ifdef HYPERION_PANEL_2U
+    Hyperion_config3_getHK(&all_hk_data->hyperion_hk);
+  #endif /* HYPERION_PANEL_2U */
 
   /*consider if struct should hold error codes returned from these functions*/
   return SUCCESS;
@@ -354,6 +459,27 @@ Result load_config() {
 
 /**
  * @brief
+ *    get the size of the entire housekeeping struct
+ * @param all_hk_data
+ *    a pointer to an instance of the housekeeping struct to measure size of
+ * @return needed_size
+ *    uint16_t of the size of the structure
+ */
+uint16_t get_size_of_housekeeping(All_systems_housekeeping* all_hk_data) { 
+  //needed_size is currently 713 bytes as of 2021/08/24
+  uint16_t needed_size =  sizeof(all_hk_data->hk_timeorder) + //currently 7U
+                          sizeof(all_hk_data->Athena_hk) +    //currently 24U
+                          sizeof(all_hk_data->EPS_hk) +       //currently 236U
+                          sizeof(all_hk_data->UHF_hk) +       //currently 48U
+                          sizeof(all_hk_data->S_band_hk)+     //currently 32U
+                          sizeof(all_hk_data->adcs_hk) +      //currently 178U
+                          sizeof(all_hk_data->hyperion_hk);   //currently 188U
+  return needed_size;
+}
+
+
+/**
+ * @brief
  *      Write housekeeping data to the given file location
  * @details
  *      Writes one struct to file for each subsystem present
@@ -371,15 +497,8 @@ Result write_hk_to_file(uint16_t filenumber, All_systems_housekeeping* all_hk_da
     ex2_log("Failed to open or create file to write: '%s'\n", fileName);
     return FAILURE;
   }
-
-  //needed_size is currently 354 bytes as of 2021/07/12
-  //TODO:
-  //sizeof(all_hk_data->ADCS_hk) +
-  uint16_t needed_size =  sizeof(all_hk_data->hk_timeorder) + //currently 7U
-                          sizeof(all_hk_data->Athena_hk) +    //currently 24U
-                          sizeof(all_hk_data->EPS_hk) +       //currently 236U
-                          sizeof(all_hk_data->UHF_hk) +       //currently 55U
-                          sizeof(all_hk_data->S_band_hk);    //currently 32U
+  uint16_t needed_size = get_size_of_housekeeping(all_hk_data);
+  
 
 
   red_lseek(fout, (filenumber - 1) * needed_size, RED_SEEK_SET);
@@ -387,13 +506,13 @@ Result write_hk_to_file(uint16_t filenumber, All_systems_housekeeping* all_hk_da
 
   red_errno = 0;
   /*The order of writes and subsequent reads must match*/
-  //TODO:
-  //red_write(fout, &all_hk_data->ADCS_hk, sizeof(all_hk_data->ADCS_hk));
+  red_write(fout, &all_hk_data->adcs_hk, sizeof(all_hk_data->adcs_hk));
   red_write(fout, &all_hk_data->hk_timeorder, sizeof(all_hk_data->hk_timeorder));
   red_write(fout, &all_hk_data->Athena_hk, sizeof(all_hk_data->Athena_hk));
   red_write(fout, &all_hk_data->EPS_hk, sizeof(all_hk_data->EPS_hk));
   red_write(fout, &all_hk_data->UHF_hk, sizeof(all_hk_data->UHF_hk));
   red_write(fout, &all_hk_data->S_band_hk, sizeof(all_hk_data->S_band_hk));
+  red_write(fout, &all_hk_data->hyperion_hk, sizeof(all_hk_data->hyperion_hk));
   
 
   if(red_errno != 0) {
@@ -429,14 +548,7 @@ Result read_hk_from_file(uint16_t filenumber, All_systems_housekeeping* all_hk_d
     return FAILURE;
   }
 
-  //needed_size is currently 354 bytes as of 2021/07/12
-  //TODO:
-  //sizeof(all_hk_data->ADCS_hk) +
-  uint16_t needed_size =  sizeof(all_hk_data->hk_timeorder) + //currently 7U
-                          sizeof(all_hk_data->Athena_hk) +    //currently 24U
-                          sizeof(all_hk_data->EPS_hk) +       //currently 236U
-                          sizeof(all_hk_data->UHF_hk) +       //currently 55U
-                          sizeof(all_hk_data->S_band_hk);    //currently 32U
+  uint16_t needed_size = get_size_of_housekeeping(all_hk_data);
 
 
   red_lseek(fin, (filenumber - 1) * needed_size, RED_SEEK_SET);
@@ -444,13 +556,13 @@ Result read_hk_from_file(uint16_t filenumber, All_systems_housekeeping* all_hk_d
 
   red_errno = 0;
   /*The order of writes and subsequent reads must match*/
-  //TODO:
-  //red_read(fin, &all_hk_data->ADCS_hk, sizeof(all_hk_data->ADCS_hk));
+  red_read(fin, &all_hk_data->adcs_hk, sizeof(all_hk_data->adcs_hk));
   red_read(fin, &all_hk_data->hk_timeorder, sizeof(all_hk_data->hk_timeorder));
   red_read(fin, &all_hk_data->Athena_hk, sizeof(all_hk_data->Athena_hk));
   red_read(fin, &all_hk_data->EPS_hk, sizeof(all_hk_data->EPS_hk));
   red_read(fin, &all_hk_data->UHF_hk, sizeof(all_hk_data->UHF_hk));
   red_read(fin, &all_hk_data->S_band_hk, sizeof(all_hk_data->S_band_hk));
+  red_read(fin, &all_hk_data->hyperion_hk, sizeof(all_hk_data->hyperion_hk));
 
   if(red_errno != 0) {
     ex2_log("Failed to read: '%c'\n", fileName);
@@ -636,6 +748,8 @@ Result convert_hk_endianness(All_systems_housekeeping* hk){
   /*Sband_Housekeeping*/
   HAL_S_hk_convert_endianness(&hk->S_band_hk);
 
+  /* The endianness converters for ADCS and Hyperion were never created */
+
   return SUCCESS;
 }
 
@@ -696,16 +810,8 @@ Result fetch_historic_hk_and_transmit(csp_conn_t *conn, uint16_t limit, uint16_t
     if (limit > 1) {
       all_hk_data.hk_timeorder.final = 1;
     }
-    
-    //needed_size is currently 354 bytes as of 2021/07/12
-    //TODO:
-    //sizeof(all_hk_data->ADCS_hk) +
-    uint16_t needed_size =  sizeof(all_hk_data.hk_timeorder) + //currently 7U
-                            sizeof(all_hk_data.Athena_hk) +    //currently 24U
-                            sizeof(all_hk_data.EPS_hk) +       //currently 236U
-                            sizeof(all_hk_data.UHF_hk) +       //currently 55U
-                            sizeof(all_hk_data.S_band_hk) +    //currently 32U
-                            2;
+
+    uint16_t needed_size = get_size_of_housekeeping(&all_hk_data) + 2; // +2 for subservice and error
 
     csp_packet_t *packet = csp_buffer_get((size_t)needed_size);
     uint8_t ser_subtype = GET_HK;
@@ -716,9 +822,8 @@ Result fetch_historic_hk_and_transmit(csp_conn_t *conn, uint16_t limit, uint16_t
     uint16_t used_size = 0;
     memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.hk_timeorder, sizeof(all_hk_data.hk_timeorder));
     used_size += sizeof(all_hk_data.hk_timeorder);
-    //TODO:
-    //memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data->ADCS_hk, sizeof(all_hk_data->ADCS_hk));
-    //used_size += sizeof(all_hk_data->ADCS_hk);
+    memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.adcs_hk, sizeof(all_hk_data.adcs_hk));
+    used_size += sizeof(all_hk_data.adcs_hk);
     memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.Athena_hk, sizeof(all_hk_data.Athena_hk));
     used_size += sizeof(all_hk_data.Athena_hk);
     memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.EPS_hk, sizeof(all_hk_data.EPS_hk));
@@ -727,6 +832,8 @@ Result fetch_historic_hk_and_transmit(csp_conn_t *conn, uint16_t limit, uint16_t
     used_size += sizeof(all_hk_data.UHF_hk);
     memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.S_band_hk, sizeof(all_hk_data.S_band_hk));
     used_size += sizeof(all_hk_data.S_band_hk);
+    memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.hyperion_hk, sizeof(all_hk_data.hyperion_hk));
+    used_size += sizeof(all_hk_data.hyperion_hk);
 
     set_packet_length(packet, used_size + 2);
 
@@ -862,7 +969,7 @@ void housekeeping_service(void * param) {
  */
 SAT_returnState start_housekeeping_service(void) {
   if (xTaskCreate((TaskFunction_t)housekeeping_service,
-                  "start_housekeeping_service", 400, NULL, NORMAL_SERVICE_PRIO,
+                  "start_housekeeping_service", 600, NULL, NORMAL_SERVICE_PRIO,
                   NULL) != pdPASS) {
     ex2_log("FAILED TO CREATE TASK start_housekeeping_service\n");
     return SATR_ERROR;
