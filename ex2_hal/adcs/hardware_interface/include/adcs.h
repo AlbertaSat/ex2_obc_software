@@ -4,17 +4,50 @@
 #include "adcs_handler.h"
 
 typedef struct __attribute__((packed)) {
-    xyz Estimated_Angular_Rate;
-    xyz Estimated_Angular_Angle;
-    xyz Sat_Position_ECI;
-    xyz Sat_Velocity_ECI;
-    xyz Sat_Position_LLH;
-    xyz16 ECEF_Position;
-    xyz Coarse_Sun_Vector;
-    xyz Fine_Sun_Vector;
-    xyz Nadir_Vector;
-    xyz Wheel_Speed;
-    xyz Mag_Field_Vector;
+    //xyz Estimated_Angular_Rate;
+    float Estimated_Angular_Rate_X;
+    float Estimated_Angular_Rate_Y;
+    float Estimated_Angular_Rate_Z;
+    //xyz Estimated_Angular_Angle;
+    float Estimated_Angular_Angle_X;
+    float Estimated_Angular_Angle_Y;
+    float Estimated_Angular_Angle_Z;
+    //xyz Sat_Position_ECI;
+    float Sat_Position_ECI_X;
+    float Sat_Position_ECI_Y;
+    float Sat_Position_ECI_Z;
+    //xyz Sat_Velocity_ECI;
+    float Sat_Velocity_ECI_X;
+    float Sat_Velocity_ECI_Y;
+    float Sat_Velocity_ECI_Z;
+    //xyz Sat_Position_LLH;
+    float Sat_Position_LLH_X;
+    float Sat_Position_LLH_Y;
+    float Sat_Position_LLH_Z;
+    //xyz16 ECEF_Position;
+    int16_t ECEF_Position_X;
+    int16_t ECEF_Position_Y;
+    int16_t ECEF_Position_Z;
+    //xyz Coarse_Sun_Vector;
+    float Coarse_Sun_Vector_X;
+    float Coarse_Sun_Vector_Y;
+    float Coarse_Sun_Vector_Z;
+    //xyz Fine_Sun_Vector;
+    float Fine_Sun_Vector_X;
+    float Fine_Sun_Vector_Y;
+    float Fine_Sun_Vector_Z;
+    //xyz Nadir_Vector;
+    float Nadir_Vector_X;
+    float Nadir_Vector_Y;
+    float Nadir_Vector_Z;
+    //xyz Wheel_Speed;
+    float Wheel_Speed_X;
+    float Wheel_Speed_Y;
+    float Wheel_Speed_Z;
+    //xyz Mag_Field_Vector;
+    float Mag_Field_Vector_X;
+    float Mag_Field_Vector_Y;
+    float Mag_Field_Vector_Z;
     uint16_t Comm_Status;
     float Wheel1_Current;
     float Wheel2_Current;
@@ -27,7 +60,10 @@ typedef struct __attribute__((packed)) {
     float CubeStar_Temp;
     float Magnetorquer_Current;
     float MCU_Temp;
-    xyz16 Rate_Sensor_Temp;
+    //xyz16 Rate_Sensor_Temp;
+    int16_t Rate_Sensor_Temp_X;
+    int16_t Rate_Sensor_Temp_Y;
+    int16_t Rate_Sensor_Temp_Z;
 } ADCS_HouseKeeping;
 
 typedef struct __attribute__((packed)) {

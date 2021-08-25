@@ -78,7 +78,7 @@ ADCS_returnState HAL_ADCS_get_SD_format_progress(bool* format_busy, bool* erase_
 }
 
 ADCS_returnState HAL_ADCS_get_TC_ack(ADCS_TC_ack* TC_ack) {
-    return ADCS_get_TC_ack9(&TC_ack->last_tc_id, &TC_ack->tc_processed, &TC_ack->tc_err_stat, &TC_ack->tc_err_idx);
+    return ADCS_get_TC_ack(&TC_ack->last_tc_id, &TC_ack->tc_processed, &TC_ack->tc_err_stat, &TC_ack->tc_err_idx);
 }
 
 ADCS_returnState HAL_ADCS_get_file_download_buffer(uint16_t* packet_count, uint8_t* file[20]) {
@@ -449,26 +449,57 @@ ADCS_returnState HAL_ADCS_getHK(ADCS_HouseKeeping* adcs_hk) {
     adcs_state data;
     adcs_measures mes;
     adcs_pwr_temp pwr;
+    xyz pos;
 
     if (temp = HAL_ADCS_get_current_state(&data) != 0) {
         return_state = temp;
     } else {
-        adcs_hk->Estimated_Angular_Rate = data.est_angular_rate;
-        adcs_hk->Estimated_Angular_Angle = data.est_angular_rate;
-        adcs_hk->Sat_Position_ECI = data.ECI_pos;
-        adcs_hk->Sat_Velocity_ECI = data.ECI_vel;
-        adcs_hk->ECEF_Position = data.ecef_pos;
+        //adcs_hk->Estimated_Angular_Rate = data.est_angular_rate;
+        adcs_hk->Estimated_Angular_Rate_X = data.est_angular_rate.x;
+        adcs_hk->Estimated_Angular_Rate_Y = data.est_angular_rate.y;
+        adcs_hk->Estimated_Angular_Rate_Z = data.est_angular_rate.z;
+        //adcs_hk->Estimated_Angular_Angle = data.est_angle;
+        adcs_hk->Estimated_Angular_Angle_X = data.est_angle.x;
+        adcs_hk->Estimated_Angular_Angle_Y = data.est_angle.y;
+        adcs_hk->Estimated_Angular_Angle_Z = data.est_angle.z;
+        //adcs_hk->Sat_Position_ECI = data.ECI_pos;
+        adcs_hk->Sat_Position_ECI_X = data.ECI_pos.x;
+        adcs_hk->Sat_Position_ECI_Y = data.ECI_pos.y;
+        adcs_hk->Sat_Position_ECI_Z = data.ECI_pos.z;
+        //adcs_hk->Sat_Velocity_ECI = data.ECI_vel;
+        adcs_hk->Sat_Velocity_ECI_X = data.ECI_vel.x;
+        adcs_hk->Sat_Velocity_ECI_Y = data.ECI_vel.y;
+        adcs_hk->Sat_Velocity_ECI_Z = data.ECI_vel.z;
+        //adcs_hk->ECEF_Position = data.ecef_pos;
+        adcs_hk->ECEF_Position_X = data.ecef_pos.x;
+        adcs_hk->ECEF_Position_Y = data.ecef_pos.y;
+        adcs_hk->ECEF_Position_Z = data.ecef_pos.z;
     }
     
 
     if (temp = HAL_ADCS_get_measurements(&mes) != 0) {
         return_state = temp;
     } else {
-        adcs_hk->Coarse_Sun_Vector = mes.coarse_sun;
-        adcs_hk->Fine_Sun_Vector = mes.sun;
-        adcs_hk->Nadir_Vector = mes.nadir;
-        adcs_hk->Wheel_Speed = mes.wheel_speed;
-        adcs_hk->Mag_Field_Vector = mes.magnetic_field;
+        //adcs_hk->Coarse_Sun_Vector = mes.coarse_sun;
+        adcs_hk->Coarse_Sun_Vector_X = mes.coarse_sun.x;
+        adcs_hk->Coarse_Sun_Vector_Y = mes.coarse_sun.y;
+        adcs_hk->Coarse_Sun_Vector_Z = mes.coarse_sun.z;
+        //adcs_hk->Fine_Sun_Vector = mes.sun;
+        adcs_hk->Fine_Sun_Vector_X = mes.sun.x;
+        adcs_hk->Fine_Sun_Vector_Y = mes.sun.y;
+        adcs_hk->Fine_Sun_Vector_Z = mes.sun.z;
+        //adcs_hk->Nadir_Vector = mes.nadir;
+        adcs_hk->Nadir_Vector_X = mes.nadir.x;
+        adcs_hk->Nadir_Vector_Y = mes.nadir.y;
+        adcs_hk->Nadir_Vector_Z = mes.nadir.z;
+        //adcs_hk->Wheel_Speed = mes.wheel_speed;
+        adcs_hk->Wheel_Speed_X = mes.wheel_speed.x;
+        adcs_hk->Wheel_Speed_Y = mes.wheel_speed.y;
+        adcs_hk->Wheel_Speed_Z = mes.wheel_speed.z;
+        //adcs_hk->Mag_Field_Vector = mes.magnetic_field;
+        adcs_hk->Mag_Field_Vector_X = mes.magnetic_field.x;
+        adcs_hk->Mag_Field_Vector_Y = mes.magnetic_field.y;
+        adcs_hk->Mag_Field_Vector_Z = mes.magnetic_field.z;
     }
     
 
@@ -486,10 +517,22 @@ ADCS_returnState HAL_ADCS_getHK(ADCS_HouseKeeping* adcs_hk) {
         adcs_hk->Magnetorquer_Current = pwr.magnetorquer_I;
         adcs_hk->CubeStar_Temp = pwr.cubestar_temp;
         adcs_hk->MCU_Temp = pwr.MCU_temp;
-        adcs_hk->Rate_Sensor_Temp = pwr.rate_sensor_temp;
+        //adcs_hk->Rate_Sensor_Temp = pwr.rate_sensor_temp;
+        adcs_hk->Rate_Sensor_Temp_X = pwr.rate_sensor_temp.x;
+        adcs_hk->Rate_Sensor_Temp_Y = pwr.rate_sensor_temp.y;
+        adcs_hk->Rate_Sensor_Temp_Z = pwr.rate_sensor_temp.z;
     }
 
-    if (temp = HAL_ADCS_get_sat_pos_LLH(&adcs_hk->Sat_Position_LLH) != 0) return_state = temp;
+    //if (temp = HAL_ADCS_get_sat_pos_LLH(&adcs_hk->Sat_Position_LLH) != 0) return_state = temp;
+    if (temp = HAL_ADCS_get_sat_pos_LLH(&pos) != 0) {
+        return_state = temp;
+    } else {
+        adcs_hk->Sat_Position_LLH_X = pos.x;
+        adcs_hk->Sat_Position_LLH_Y = pos.y;
+        adcs_hk->Sat_Position_LLH_Z = pos.z;
+
+    }
+
     if (temp = HAL_ADCS_get_comms_stat(&adcs_hk->Comm_Status) != 0) return_state = temp;
     
     return return_state;
