@@ -10,6 +10,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "HL_system.h"
 
 #define EXISTS_FLAG 0xA5A5A5A5
 
@@ -37,7 +38,7 @@
 
 #define BOOT_INFO_BLOCKNUMBER 4
 #define BOOT_INFO_OFFSET 0
-#define BOOT_INFO_LEN 8
+#define BOOT_INFO_LEN sizeof(boot_info)
 
 // Representation of data which will be stored in FEE flash
 typedef struct __attribute__((packed)) {
@@ -47,11 +48,25 @@ typedef struct __attribute__((packed)) {
     uint16_t crc;
 } image_info;
 
-// Representation of data which will be stored in FEE flash
+typedef enum SW_RESET_REASON_ {
+    NONE,
+    DABORT,
+    PREFETCH,
+    REQUESTED
+} SW_RESET_REASON;
+
+typedef struct __attribute__((packed)) {
+    resetSource_t rstsrc;
+    SW_RESET_REASON swr_reason;
+} boot_reason;
+
 typedef struct __attribute__((packed)) {
     uint32_t count; // total number of boot attempts
     uint32_t attempts; // total attempts since last failure
+    boot_reason reason;
 } boot_info;
+
+void sw_reset(SW_RESET_REASON reason);
 
 bool eeprom_init();
 

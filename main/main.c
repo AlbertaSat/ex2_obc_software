@@ -113,8 +113,7 @@ void init_software() {
  * Initialize reliance edge file system
  */
 static void init_filesystem() {
-  int32_t iErr;
-  gioToggleBit(gioPORTA, 0U);
+  int32_t iErr = 0;
   const char *pszVolume0 = gaRedVolConf[0].pszPathPrefix;
   iErr = red_init();
 
@@ -132,6 +131,22 @@ static void init_filesystem() {
   if (iErr == -1) {
     exit(red_errno);
   }
+
+#ifdef IS_ATHENA_V2 // TODO: make this IS_ATHENA once V2 is actively used
+  iErr = 0;
+  const char *pszVolume1 = gaRedVolConf[1].pszPathPrefix;
+
+  iErr = red_format(pszVolume1);
+  if (iErr == -1) {
+    exit(red_errno);
+  }
+
+  iErr = red_mount(pszVolume1);
+
+  if (iErr == -1) {
+    exit(red_errno);
+  }
+#endif
 }
 
 /**

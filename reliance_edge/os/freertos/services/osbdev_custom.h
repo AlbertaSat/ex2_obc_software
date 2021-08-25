@@ -53,9 +53,6 @@
 */
 #include <sd_io.h>
 
-SD_DEV dev[1];
-
-
 /* @brief Initialize a disk.
 
     @param bVolNum  The volume number of the volume whose block device is being
@@ -72,7 +69,7 @@ static REDSTATUS DiskOpen(
     BDEVOPENMODE    mode)
 {
     //  Insert code here to open/initialize the block device.
-    if(SD_Init(dev)==SD_OK){
+    if(SD_Init(bVolNum)==SD_OK){
         return 0;
     }
     else{
@@ -143,7 +140,7 @@ static REDSTATUS DiskRead(
     //note: assumes 512 byte sectors
     int i;
     for(i=0; i<ulSectorCount; i++){
-        if(SD_Read(dev, pBuffer + (BYTE)(i*512), ullSectorStart + i, 0, 512) == SD_OK){
+        if(SD_Read(bVolNum, pBuffer + (BYTE)(i*512), ullSectorStart + i, 0, 512) == SD_OK){
             //do nothing
         }
         else{
@@ -152,7 +149,6 @@ static REDSTATUS DiskRead(
     }
     return 0;
 }
-
 
 #if REDCONF_READ_ONLY == 0
 
@@ -188,7 +184,7 @@ static REDSTATUS DiskWrite(
     int i;
     SDRESULTS returnval;
     for(i=0; i<ulSectorCount; i++){
-        returnval = SD_Write(dev, pBuffer + (BYTE)(i*512), ullSectorStart + i);
+        returnval = SD_Write(bVolNum, pBuffer + (BYTE)(i*512), ullSectorStart + i);
         if(returnval == SD_OK){
             //do nothing
         }
@@ -198,7 +194,6 @@ static REDSTATUS DiskWrite(
     }
     return 0;
 }
-
 
 /** @brief Flush any caches beneath the file system.
 
