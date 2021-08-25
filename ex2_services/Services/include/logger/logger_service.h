@@ -33,4 +33,4 @@ typedef enum {
 
 SAT_returnState start_logger_service(void);
 
-#endif LOGGERSERVICE_H
+#endif /* LOGGERSERVICE_H */
