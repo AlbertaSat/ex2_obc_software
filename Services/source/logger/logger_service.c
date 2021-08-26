@@ -20,13 +20,16 @@
 
 #include "logger/logger_service.h"
 #include "services.h"
-#include "logger/logger.h"
 #include <redposix.h>
 
 #include <csp/csp.h>
 #include "util/service_utilities.h" //for setting csp packet length
 
-uint32_t max_string_length = 500; //limits based on csp packet size
+const char log_file[] = "VOL0:/syslog.log"; //replace with getter in logger.c
+const char old_log_file[] = "VOL0:/syslog_old.log"; //replace with getter
+uint32_t max_file_size = 500; //repalce with getter
+
+uint32_t max_string_length = 500;
 
 
  /* @brief
@@ -49,95 +52,54 @@ int file_exists(const char *filename){
     return 1;
 }
 
-/**
- * @brief
- *      generic file to open and read any file that would contain text data.
- *      primarily designed to handle either of the 2 log files that may be read
- * 
- * @param filename
- *      the name of the file to be opened and read
- * @param packet
-        the packet that holds the service subtype and will be filled with the log data
- * @return SAT_returnState
-        state to define success of the operation
- */
-SAT_returnState get_file(char *filename, csp_packet_t *packet) {
-    uint32_t max_file_size;
+SAT_returnState get_file(const char *filename, csp_packet_t *packet) {
     int8_t status;
     int32_t file;
     uint32_t data_size;
-    char* log_data;
-    get_logger_file_size(&max_file_size);
-    log_data = (char *)pvPortMalloc(max_file_size);
-    if (log_data == NULL) {
-        status = -2;
-    } else if (file_exists(filename) == 0) {
+    char* log_data[500] = {0};
+    if (file_exists(filename) == 0) {
         file = red_open(filename, RED_O_RDONLY);
         if(file > -1){
             data_size = red_read(file, log_data, max_file_size);
             if (data_size == 0){
                 status = -1;
-                data_size = sprintf(log_data, "Log file %s is empty\n", filename);
+                strncpy(log_data, "Log file is empty\n", max_string_length);
             } else {
                 status = 0;
             }
         } else {
             status = -1;
-            data_size = sprintf(log_data, "Can't open log file. red_errno: %d\n", red_errno);
+            sprintf(log_data, "Can't open log file. red_errno: %d\n", red_errno);
         }
     } else {
         status = -1;
-        data_size = sprintf(log_data, "Log file %s does not exist\n", filename);
+        strncpy(log_data, "Log file does not exist\n", max_string_length);
     }
-    for (uint32_t i = data_size; i < max_file_size; i++) {
-            log_data[i] = '\0';
-        }
     memcpy(&packet->data[STATUS_BYTE], &status, 1);
     memcpy(&packet->data[OUT_DATA_BYTE], log_data, max_string_length);
     set_packet_length(packet, max_string_length + 2);
-    vPortFree(log_data);
     return SATR_OK;
 }
 
 
-/**
- * @brief
- *      logger service app to perform operations based on the given service subtype
 
- * @param packet
-        the packet that holds the service subtype and will be filled with the log data
- * @return SAT_returnState
-        state to define success of the operation
- */
 SAT_returnState logger_service_app(csp_packet_t *packet) {
     uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
     int8_t status;
-    uint32_t * data32;
-    int32_t file_size;
-    char *log_file;
 
     switch (ser_subtype) {
         case SET_FILE_SIZE:
-            //pull param from packet
-            data32 = (uint32_t *)(packet->data + 1);
-            file_size = data32[0];
-            status = set_logger_file_size(file_size);
+            status = 0;
             memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
             set_packet_length(packet, sizeof(int8_t) + 1);  // +1 for subservice
             break;
         case GET_FILE_SIZE:
-            status = get_logger_file_size(&file_size);
-            memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-            memcpy(&packet->data[OUT_DATA_BYTE], &file_size, sizeof(file_size));
-            set_packet_length(packet, sizeof(int8_t) + sizeof(file_size) + 1);
             break;
         case GET_FILE:
-            log_file = get_logger_file();
             get_file(log_file, packet);
-            break;
         case GET_OLD_FILE:
-            log_file = get_logger_old_file();
-            get_file(log_file, packet);
+            get_file(old_log_file, packet);
+
             break;
         default:
             ex2_log("No such subservice\n");
