@@ -295,7 +295,7 @@ void sciInit(void)
                    | (uint32)((uint32)0U << 0U);  /* Break detect */
 
     /** - initialize global transfer variables */
-    g_sciTransfer_t[2U].mode   = (uint32)0U << 8U;
+    g_sciTransfer_t[2U].mode   = (uint32)1U << 8U;
     g_sciTransfer_t[2U].tx_length = 0U;
 	g_sciTransfer_t[2U].rx_length = 0U;
 
