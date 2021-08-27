@@ -184,16 +184,17 @@ static void do_output(const char *str) {
     uint32_t uptime = (uint32_t)(xTaskGetTickCount()/configTICK_RATE_HZ);
 
     snprintf(output_string, STRING_MAX_LEN, "[%010d]%s\r\n", uptime, str);
-    current_size += strlen(output_string);
+    size_t string_length = strlen(output_string);
+    current_size += string_length;
 
     if (current_size > next_swap) {
         stop_logger_fs(); // reset the logger file
         init_logger_fs();
-        current_size = strlen(output_string);
+        current_size = string_length;
     }
 
     if (fs_init) {
-        red_write(logger_file_handle, output_string, strlen(output_string));
+        red_write(logger_file_handle, output_string, string_length);
         red_transact("VOL0:");
     }
 
