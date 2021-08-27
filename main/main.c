@@ -47,6 +47,7 @@
 #include "mocks/rtc.h"
 #include "logger/logger.h"
 #include "file_delivery_app.h"
+#include "task_manager/task_manager.h"
 
 /**
  * The main function must:
@@ -73,7 +74,10 @@ void ex2_init(void *pvParameters) {
 
     /* Initialization routine */
     //init_filesystem();
+
+    start_watchdog();
     init_csp();
+
     /* Start service server, and response server */
     init_software();
 

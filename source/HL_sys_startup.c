@@ -201,6 +201,11 @@ void _c_int00(void)
         case WATCHDOG2_RESET:
 				
 /* USER CODE BEGIN (15) */
+            _coreEnableEventBusExport_();
+            systemInit();
+            _coreEnableIrqVicOffset_();
+            vimInit();
+            esmInit();
 /* USER CODE END */
         break;
     
