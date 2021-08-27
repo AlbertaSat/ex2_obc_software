@@ -29,15 +29,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-
 #include <semphr.h> //for semaphore lock
-
 #include <redposix.h> //include for file system 
-
 #include "rtcmk.h" //to get time from RTC
-
 #include "util/service_utilities.h"
 #include "services.h"
+#include "task_manager/task_manager.h"
 
 
 uint16_t MAX_FILES = 20160; //value is 20160 (7 days) based on 30 second period
@@ -51,6 +48,11 @@ uint32_t *timestamps = 0; //This is a dynamic array to handle file search by tim
 uint16_t hk_timestamp_array_size = 0; //NOT BYTES. stored as number of items. 1 indexed. 0 element unused
 
 SemaphoreHandle_t f_count_lock = NULL;
+
+static uint32_t svc_wdt_counter = 0;
+static uint32_t get_svc_wdt_counter() {
+    return svc_wdt_counter;
+}
 
 /**
  * @brief
@@ -831,14 +833,18 @@ void housekeeping_service(void * param) {
     sock = csp_socket(CSP_SO_RDPREQ);
     csp_bind(sock, TC_HOUSEKEEPING_SERVICE);
     csp_listen(sock, SERVICE_BACKLOG_LEN);
+    svc_wdt_counter++;
 
     for(;;) {
         csp_conn_t *conn;
         csp_packet_t *packet;
-        if ((conn = csp_accept(sock, CSP_MAX_TIMEOUT)) == NULL) {
+        if ((conn = csp_accept(sock, DELAY_WAIT_TIMEOUT)) == NULL) {
+          svc_wdt_counter++;
           /* timeout */
           continue;
         }
+        svc_wdt_counter++;
+
         while ((packet = csp_read(conn, 50)) != NULL) {
           if (hk_service_app(conn, packet) != SATR_OK) {
             ex2_log("Error responding to packet");
@@ -859,12 +865,16 @@ void housekeeping_service(void * param) {
  *      success report
  */
 SAT_returnState start_housekeeping_service(void) {
+  TaskHandle_t svc_tsk;
+  taskFunctions svc_funcs = {0};
+  svc_funcs.getCounterFunction = get_svc_wdt_counter;
   if (xTaskCreate((TaskFunction_t)housekeeping_service,
                   "start_housekeeping_service", 400, NULL, NORMAL_SERVICE_PRIO,
-                  NULL) != pdPASS) {
+                  &svc_tsk) != pdPASS) {
     ex2_log("FAILED TO CREATE TASK start_housekeeping_service\n");
     return SATR_ERROR;
   }
+  ex2_register(svc_tsk, svc_funcs);
   ex2_log("Service handlers started\n");
   return SATR_OK;
 }
