@@ -211,9 +211,11 @@ bool check_tasks_health() {
             if (tsk.funcs.getCounterFunction == 0) {
                 continue;
             }
-            if (tsk.funcs.getCounterFunction () == tsk.prev_counter) {
+            uint32_t tsk_counter = tsk.funcs.getCounterFunction ();
+            if (tsk_counter == tsk.prev_counter) {
                 return false;
             }
+            tsk.prev_counter = tsk_counter;
         }
         curr = curr->next;
     }
