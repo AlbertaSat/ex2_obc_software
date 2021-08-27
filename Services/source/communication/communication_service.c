@@ -28,6 +28,7 @@
 #include "services.h"
 #include "uhf.h"
 #include "util/service_utilities.h"
+#include "task_manager/task_manager.h"
 
 #define CHAR_LEN 1  // If using Numpy unicode string, change to 4
 #define CALLSIGN_LEN 6
@@ -40,6 +41,11 @@
 #define SINGLE_NOTE_LEN 3  // For MIDI audio notes
 
 SAT_returnState communication_service_app(csp_packet_t *packet);
+
+static uint32_t svc_wdt_counter = 0;
+static uint32_t get_svc_wdt_counter() {
+    return svc_wdt_counter;
+}
 
 /**
  * @brief
@@ -56,12 +62,18 @@ void communication_service(void *param) {
   csp_bind(sock, TC_COMMUNICATION_SERVICE);
   csp_listen(sock, SERVICE_BACKLOG_LEN);
 
+  svc_wdt_counter++;
+
   for (;;) {
-    csp_conn_t *conn;
     csp_packet_t *packet;
-    if ((conn = csp_accept(sock, CSP_MAX_TIMEOUT)) == NULL) {
+    csp_conn_t *conn;
+    if ((conn = csp_accept(sock, DELAY_WAIT_TIMEOUT)) == NULL) {
+      svc_wdt_counter++;
+      /* timeout */
       continue;
     }
+    svc_wdt_counter++;
+
     while ((packet = csp_read(conn, 50)) != NULL) {
       if (communication_service_app(packet) != SATR_OK) {
         // something went wrong in the service
@@ -87,14 +99,19 @@ void communication_service(void *param) {
  *      success report
  */
 SAT_returnState start_communication_service(void) {
-  if (xTaskCreate((TaskFunction_t)communication_service,
-                  "communication_service", 1024, NULL, NORMAL_SERVICE_PRIO,
-                  NULL) != pdPASS) {
-    ex2_log("FAILED TO CREATE TASK start_communication_service\n");
-    return SATR_ERROR;
-  }
-  ex2_log("Service handlers started\n");
-  return SATR_OK;
+    TaskHandle_t svc_tsk;
+    taskFunctions svc_funcs = {0};
+    svc_funcs.getCounterFunction = get_svc_wdt_counter;
+
+    if (xTaskCreate((TaskFunction_t)communication_service,
+                    "communication_service", 1024, NULL, NORMAL_SERVICE_PRIO,
+                    &svc_tsk) != pdPASS) {
+        ex2_log("FAILED TO CREATE TASK start_communication_service\n");
+        return SATR_ERROR;
+    }
+    ex2_register(svc_tsk, svc_funcs);
+    ex2_log("Communication service started\n");
+    return SATR_OK;
 }
 
 /**

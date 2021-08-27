@@ -29,12 +29,17 @@
 #include "services.h"
 #include "util/service_utilities.h"
 #include "privileged_functions.h"
+#include "task_manager/task_manager.h"
 
 SAT_returnState general_app(csp_packet_t *packet);
 void general_service(void * param);
 
 csp_conn_t *conn;
+static uint32_t svc_wdt_counter = 0;
 
+static uint32_t get_svc_wdt_counter() {
+    return svc_wdt_counter;
+}
 /**
  * @brief
  *      Start the general server task
@@ -46,13 +51,18 @@ csp_conn_t *conn;
  *      success report
  */
 SAT_returnState start_general_service(void) {
+    TaskHandle_t svc_tsk;
+    taskFunctions svc_funcs = {0};
+    svc_funcs.getCounterFunction = get_svc_wdt_counter;
+
   if (xTaskCreate((TaskFunction_t)general_service,
                   "general_service", 300, NULL, NORMAL_SERVICE_PRIO,
-                  NULL) != pdPASS) {
+                  &svc_tsk) != pdPASS) {
     ex2_log("FAILED TO CREATE TASK general_service\n");
     return SATR_ERROR;
   }
-
+  ex2_register(svc_tsk, svc_funcs);
+  ex2_log("General service started\n");
   return SATR_OK;
 }
 
@@ -69,13 +79,19 @@ void general_service(void * param) {
     sock = csp_socket(CSP_SO_RDPREQ); // require RDP connection
     csp_bind(sock, TC_GENERAL_SERVICE);
     csp_listen(sock, SERVICE_BACKLOG_LEN);
+    svc_wdt_counter++;
 
     for(;;) {
+        svc_wdt_counter++;
+
         csp_packet_t *packet;
-        if ((conn = csp_accept(sock, CSP_MAX_TIMEOUT)) == NULL) {
+        // wait for connection, timeout
+        if ((conn = csp_accept(sock, DELAY_WAIT_TIMEOUT)) == NULL) {
+          svc_wdt_counter++;
           /* timeout */
           continue;
         }
+        svc_wdt_counter++;
         while ((packet = csp_read(conn, 50)) != NULL) {
           if (general_app(packet) != SATR_OK) {
             // something went wrong, this shouldn't happen

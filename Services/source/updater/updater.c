@@ -30,6 +30,12 @@
 #include "bl_eeprom.h"
 #include "bl_flash.h"
 #include "privileged_functions.h"
+#include "task_manager/task_manager.h"
+
+static uint32_t svc_wdt_counter = 0;
+uint32_t get_svc_wdt_counter() {
+    return svc_wdt_counter;
+}
 
 /**
  * @brief
@@ -226,18 +232,26 @@ SAT_returnState updater_app(csp_packet_t *packet) {
  * @return None
  */
 void updater_service(void *param) {
+    svc_wdt_counter++;
+
     csp_socket_t *sock;
     sock = csp_socket(CSP_SO_RDPREQ); // require RDP connection
     csp_bind(sock, TC_UPDATER_SERVICE);
     csp_listen(sock, SERVICE_BACKLOG_LEN);
-
     for(;;) {
+        svc_wdt_counter++;
+
         csp_conn_t *conn;
         csp_packet_t *packet;
-        if ((conn = csp_accept(sock, CSP_MAX_TIMEOUT)) == NULL) {
+
+        // wait for connection, timeout
+        if ((conn = csp_accept(sock, DELAY_WAIT_TIMEOUT)) == NULL) {
+          svc_wdt_counter++;
           /* timeout */
           continue;
         }
+        svc_wdt_counter++;
+
         while ((packet = csp_read(conn, 50)) != NULL) {
           if (updater_app(packet) != SATR_OK) {
             // something went wrong, this shouldn't happen
@@ -262,11 +276,17 @@ void updater_service(void *param) {
  *      success report
  */
 SAT_returnState start_updater_service(void) {
+    TaskHandle_t svc_tsk;
+    taskFunctions svc_funcs = {0};
+    svc_funcs.getCounterFunction = get_svc_wdt_counter;
+
     if (xTaskCreate((TaskFunction_t)updater_service,
                     "updater_service", 300, NULL, NORMAL_SERVICE_PRIO,
-                    NULL) != pdPASS) {
+                    &svc_tsk) != pdPASS) {
       ex2_log("FAILED TO CREATE TASK updater_service\n");
       return SATR_ERROR;
     }
+    ex2_register(svc_tsk, svc_funcs);
+    ex2_log("Updater service started\n");
     return SATR_OK;
 }

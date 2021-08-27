@@ -24,6 +24,7 @@
 
 #include <csp/csp.h>
 #include "util/service_utilities.h" //for setting csp packet length
+#include "task_manager/task_manager.h"
 
 const char log_file[] = "VOL0:/syslog.log"; //replace with getter in logger.c
 const char old_log_file[] = "VOL0:/syslog_old.log"; //replace with getter
@@ -31,6 +32,10 @@ uint32_t max_file_size = 500; //repalce with getter
 
 uint32_t max_string_length = 500;
 
+static uint32_t svc_wdt_counter = 0;
+static uint32_t get_svc_wdt_counter() {
+    return svc_wdt_counter;
+}
 
  /* @brief
  *      Check if file with given name exists
@@ -126,14 +131,18 @@ void logger_service(void * param) {
     sock = csp_socket(CSP_SO_RDPREQ);
     csp_bind(sock, TC_LOGGER_SERVICE);
     csp_listen(sock, SERVICE_BACKLOG_LEN);
+    svc_wdt_counter++;
 
     for(;;) {
         csp_conn_t *conn;
         csp_packet_t *packet;
-        if ((conn = csp_accept(sock, CSP_MAX_TIMEOUT)) == NULL) {
+        if ((conn = csp_accept(sock, DELAY_WAIT_TIMEOUT)) == NULL) {
+          svc_wdt_counter++;
           /* timeout */
           continue;
         }
+        svc_wdt_counter++;
+
         while ((packet = csp_read(conn, 50)) != NULL) {
           if (logger_service_app(packet) != SATR_OK) {
             // something went wrong, this shouldn't happen
@@ -159,12 +168,17 @@ void logger_service(void * param) {
  *      success report
  */
 SAT_returnState start_logger_service(void) {
+    TaskHandle_t svc_tsk;
+    taskFunctions svc_funcs = {0};
+    svc_funcs.getCounterFunction = get_svc_wdt_counter;
   if (xTaskCreate((TaskFunction_t)logger_service,
                   "start_logger_service", 1200, NULL, NORMAL_SERVICE_PRIO,
-                  NULL) != pdPASS) {
+                  &svc_tsk) != pdPASS) {
     ex2_log("FAILED TO CREATE TASK start_logger_service\n");
     return SATR_ERROR;
   }
-  ex2_log("Service handlers started\n");
+  ex2_register(svc_tsk, svc_funcs);
+
+  ex2_log("Logger service started\n");
   return SATR_OK;
 }

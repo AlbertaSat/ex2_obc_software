@@ -18,6 +18,12 @@
  */
 
 #include "adcs/adcs_service.h"
+#include "task_manager/task_manager.h"
+
+static uint32_t svc_wdt_counter = 0;
+static uint32_t get_svc_wdt_counter() {
+    return svc_wdt_counter;
+}
 
 SAT_returnState adcs_service_app(csp_packet_t *packet) {
     uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
@@ -1368,6 +1374,7 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
 void adcs_service(void *param) {
     // create socket
     csp_socket_t *sock = csp_socket(CSP_SO_RDPREQ);
+    svc_wdt_counter++;
 
     // bind the adcs service to socket
     csp_bind(sock, TC_ADCS_SERVICE);
@@ -1380,11 +1387,15 @@ void adcs_service(void *param) {
     csp_packet_t *packet;
     // process incoming connection
     while (1) {
+        svc_wdt_counter++;
 
         // wait for connection, timeout
-        if ((conn = csp_accept(sock, CSP_MAX_TIMEOUT)) == NULL) {
-            continue;
+        if ((conn = csp_accept(sock, DELAY_WAIT_TIMEOUT)) == NULL) {
+          svc_wdt_counter++;
+          /* timeout */
+          continue;
         }
+        svc_wdt_counter++;
 
         // read packets. timeout is 50ms
         while ((packet = csp_read(conn, 50)) != NULL) {
@@ -1415,14 +1426,19 @@ void adcs_service(void *param) {
  *      success report
  */
 SAT_returnState start_adcs_service(void) {
+    TaskHandle_t svc_tsk;
+    taskFunctions svc_funcs = {0};
+    svc_funcs.getCounterFunction = get_svc_wdt_counter;
+
     // create adcs service
     if (xTaskCreate((TaskFunction_t)adcs_service,
                   "adcs_service", 1024, NULL, NORMAL_SERVICE_PRIO,
-                  NULL) != pdPASS) {
-    ex2_log("FAILED TO CREATE TASK start_adcs_service\n");
-    return SATR_ERROR;
+                  &svc_tsk) != pdPASS) {
+        ex2_log("FAILED TO CREATE TASK start_adcs_service\n");
+        return SATR_ERROR;
     }
-    ex2_log("Service handlers started\n");
+    ex2_register(svc_tsk, svc_funcs);
+    ex2_log("ADCS service started\n");
     return SATR_OK;
 }
 
