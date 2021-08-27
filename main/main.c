@@ -75,7 +75,6 @@ void ex2_init(void *pvParameters) {
     /* Initialization routine */
     //init_filesystem();
 
-    start_watchdog();
     init_csp();
 
     /* Start service server, and response server */
