@@ -46,6 +46,18 @@ int32_t red_close(
         return mock(iFildes);
     }
 
+int32_t red_transact(const char * pszVolume) {
+    return mock(pszVolume);
+}
+
+int32_t red_read(int32_t iFildes, void *pBuffer, uint32_t ulLength) {
+    return mock(iFildes, pBuffer, ulLength);
+}
+
+int32_t red_unlink(const char * pszPath) {
+    return mock(pszPath);
+}
+
 TickType_t xTaskGetTickCount() {
     return mock();
 }
@@ -104,8 +116,13 @@ QueueHandle_t xQueueGenericCreate( const UBaseType_t uxQueueLength, const UBaseT
 /*------------------------------------------------------------------------------------*/
 
 Ensure(logger, notices_file_does_not_exist) {
+    REDSTATUS errnum = RED_ENOENT;
     expect(red_open, will_return(-1));
     expect(red_open, will_return(1));
+    expect(red_open, will_return(1));
+    expect(red_errnoptr, will_return(&errnum));
+    expect(red_close, will_return(0));
+    expect(red_unlink, will_return(0));
     bool open = init_logger_fs();
     assert_that(open, is_true);
 }

@@ -61,9 +61,8 @@ static void test_logger_daemon(void *pvParameters);
  *      const char * to name of file to check
  * @return bool
  */
-static bool exists(const char *filename){
+static bool exists(const char *filename) {
     int32_t file;
-    red_errno = 0;
     file = red_open(filename, RED_O_CREAT | RED_O_EXCL | RED_O_RDWR); //attempt to create file
     if (red_errno == RED_EEXIST){ //does file already exist?
         return true;   

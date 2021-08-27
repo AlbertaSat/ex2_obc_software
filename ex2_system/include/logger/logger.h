@@ -26,6 +26,8 @@
 
 #define STRING_MAX_LEN 201
 
+static bool exists(const char *filename);
+
 int8_t store_logger_file_size(void);
 
 int8_t load_logger_file_size(void);
