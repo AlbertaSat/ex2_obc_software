@@ -116,10 +116,10 @@ QueueHandle_t xQueueGenericCreate( const UBaseType_t uxQueueLength, const UBaseT
 /*------------------------------------------------------------------------------------*/
 
 Ensure(logger, notices_file_does_not_exist) {
-    REDSTATUS errnum = RED_ENOENT;
     expect(red_open, will_return(-1));
     expect(red_open, will_return(1));
     expect(red_open, will_return(1));
+    REDSTATUS errnum = RED_ENOENT;
     expect(red_errnoptr, will_return(&errnum));
     expect(red_close, will_return(0));
     expect(red_unlink, will_return(0));
@@ -132,6 +132,11 @@ Ensure(logger, notices_file_exists) {
     expect(red_close);
     expect(red_rename);
     expect(red_open, will_return(1));
+    expect(red_open, will_return(1));
+    REDSTATUS errnum = RED_ENOENT;
+    expect(red_errnoptr, will_return(&errnum));
+    expect(red_close, will_return(0));
+    expect(red_unlink, will_return(0));
     never_expect(red_open);
     bool open = init_logger_fs();
     assert_that(open, is_true);
@@ -140,6 +145,11 @@ Ensure(logger, notices_file_exists) {
 Ensure(logger, sets_internals_when_file_does_not_exist) {
     expect(red_open, will_return(-1));
     expect(red_open, will_return(1));
+    expect(red_open, will_return(1));
+    REDSTATUS errnum = RED_ENOENT;
+    expect(red_errnoptr, will_return(&errnum));
+    expect(red_close, will_return(0));
+    expect(red_unlink, will_return(0));
     bool open = init_logger_fs();
     assert_that(open, is_true);
     assert_that(logger_file_handle, is_equal_to(1));
@@ -151,6 +161,11 @@ Ensure(logger, sets_internals_when_file_exists) {
     expect(red_close);
     expect(red_rename);
     expect(red_open, will_return(1));
+    expect(red_open, will_return(1));
+    REDSTATUS errnum = RED_ENOENT;
+    expect(red_errnoptr, will_return(&errnum));
+    expect(red_close, will_return(0));
+    expect(red_unlink, will_return(0));
     bool open = init_logger_fs();
     assert_that(open, is_true);
     assert_that(logger_file_handle, is_equal_to(1));
