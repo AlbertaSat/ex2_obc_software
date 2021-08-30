@@ -265,24 +265,29 @@ bool init_logger_fs() {
         return true;
     }
 
-    int32_t fd = red_open(logger_file, RED_O_RDWR);
+    REDSTAT file_stats;
+
+    if (config_loaded == false) {
+        load_logger_file_size();
+        config_loaded = true;
+    }
+
+    int32_t fd = red_open(logger_file, RED_O_RDWR | RED_O_APPEND);
     if (fd < 0) {
         fd = red_open(logger_file, RED_O_CREAT | RED_O_RDWR);
         if (fd < 0) {
             return false;
         }
     } else if (fd > 0) {
-        red_close(fd);
-        red_rename(logger_file, old_logger_file);
-        fd = red_open(logger_file, RED_O_CREAT | RED_O_RDWR);
-        if (fd < 0) {
-            return false;
+        int32_t stat_worked = red_fstat(fd, &file_stats);
+        if (stat_worked == 0 && file_stats.st_size >= next_swap) {
+            red_close(fd);
+            red_rename(logger_file, old_logger_file);
+            fd = red_open(logger_file, RED_O_CREAT | RED_O_RDWR);
+            if (fd < 0) {
+                return false;
+            }
         }
-    }
-
-    if (config_loaded == false) {
-        load_logger_file_size();
-        config_loaded = true;
     }
 
     fs_init = true;
