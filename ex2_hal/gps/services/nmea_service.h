@@ -13,6 +13,7 @@
 #include "os_task.h"
 #include "NMEAParser.h"
 
+uint32_t nmea_get_wdt_counter();
 void NMEA_service();
 
 #endif /* EX2_HAL_EX2_GPS_SOFTWARE_SERVICES_INCLUDE_NMEA_SERVICE_H_ */
