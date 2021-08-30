@@ -140,7 +140,7 @@ Ensure(logger, notices_file_exists) {
 
     expect(red_open, will_return(1));
     expect(red_fstat, will_return(0));
-    file_stats.st_size == 1000;
+    file_stats.st_size = 1000;
     expect(red_close);
     expect(red_rename);
     expect(red_open, will_return(1));
@@ -175,7 +175,7 @@ Ensure(logger, sets_internals_when_file_exists) {
 
     expect(red_open, will_return(1));
     expect(red_fstat, will_return(0));
-    file_stats.st_size == 1000;
+    file_stats.st_size = 1000;
     expect(red_close);
     expect(red_rename);
     expect(red_open, will_return(1));
