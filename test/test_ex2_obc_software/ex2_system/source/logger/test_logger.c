@@ -27,6 +27,12 @@ AfterEach(logger) {};
 int32_t red_open( const char *pszPath, uint32_t ulOpenMode) {
     return mock(pszPath, ulOpenMode);
 }
+int32_t red_rename(
+    const char *pszOldPath,
+    const char *pszNewPath) {
+    return mock(pszOldPath, pszNewPath);
+    }
+
 
 int32_t red_write(
     int32_t     iFildes,
@@ -39,6 +45,22 @@ int32_t red_close(
     int32_t     iFildes) {
         return mock(iFildes);
     }
+
+int32_t red_transact(const char * pszVolume) {
+    return mock(pszVolume);
+}
+
+int32_t red_read(int32_t iFildes, void *pBuffer, uint32_t ulLength) {
+    return mock(iFildes, pBuffer, ulLength);
+}
+
+int32_t red_unlink(const char * pszPath) {
+    return mock(pszPath);
+}
+
+int32_t red_fstat(int32_t iFildes, REDSTAT * pStat) {
+    return mock(iFildes, pStat);
+}
 
 TickType_t xTaskGetTickCount() {
     return mock();
@@ -98,6 +120,12 @@ QueueHandle_t xQueueGenericCreate( const UBaseType_t uxQueueLength, const UBaseT
 /*------------------------------------------------------------------------------------*/
 
 Ensure(logger, notices_file_does_not_exist) {
+    REDSTATUS errnum = RED_ENOENT;
+    expect(red_open, will_return(1));
+    expect(red_errnoptr, will_return(&errnum));
+    expect(red_close, will_return(0));
+    expect(red_unlink, will_return(0));
+
     expect(red_open, will_return(-1));
     expect(red_open, will_return(1));
     bool open = init_logger_fs();
@@ -105,15 +133,35 @@ Ensure(logger, notices_file_does_not_exist) {
 }
 
 Ensure(logger, notices_file_exists) {
+    REDSTAT stats;
+    stats.st_size = 1000;
+    REDSTATUS errnum = RED_ENOENT;
     expect(red_open, will_return(1));
+    expect(red_errnoptr, will_return(&errnum));
+    expect(red_close, will_return(0));
+    expect(red_unlink, will_return(0));
+
+    expect(red_open, will_return(1));
+    expect(red_fstat, will_return(0), will_set_contents_of_parameter(pStat, &stats, sizeof(stats)));
+    expect(red_close);
+    expect(red_rename);
+    expect(red_open, will_return(1));
+   
     never_expect(red_open);
     bool open = init_logger_fs();
     assert_that(open, is_true);
 }
 
 Ensure(logger, sets_internals_when_file_does_not_exist) {
+    REDSTATUS errnum = RED_ENOENT;
+    expect(red_open, will_return(1));
+    expect(red_errnoptr, will_return(&errnum));
+    expect(red_close, will_return(0));
+    expect(red_unlink, will_return(0));
+
     expect(red_open, will_return(-1));
     expect(red_open, will_return(1));
+    
     bool open = init_logger_fs();
     assert_that(open, is_true);
     assert_that(logger_file_handle, is_equal_to(1));
@@ -121,8 +169,20 @@ Ensure(logger, sets_internals_when_file_does_not_exist) {
 }
 
 Ensure(logger, sets_internals_when_file_exists) {
+    REDSTAT stats;
+    stats.st_size = 1000;
+    REDSTATUS errnum = RED_ENOENT;
     expect(red_open, will_return(1));
-    never_expect(red_open);
+    expect(red_errnoptr, will_return(&errnum));
+    expect(red_close, will_return(0));
+    expect(red_unlink, will_return(0));
+
+    expect(red_open, will_return(1));
+    expect(red_fstat, will_return(0), will_set_contents_of_parameter(pStat, &stats, sizeof(stats)));
+    expect(red_close);
+    expect(red_rename);
+    expect(red_open, will_return(1));
+    
     bool open = init_logger_fs();
     assert_that(open, is_true);
     assert_that(logger_file_handle, is_equal_to(1));
@@ -130,6 +190,12 @@ Ensure(logger, sets_internals_when_file_exists) {
 }
 
 Ensure(logger, init_fs_returns_false_on_failure) {
+    REDSTATUS errnum = RED_ENOENT;
+    expect(red_open, will_return(1));
+    expect(red_errnoptr, will_return(&errnum));
+    expect(red_close, will_return(0));
+    expect(red_unlink, will_return(0));
+    
     expect(red_open, will_return(-1));
     expect(red_open, will_return(-1));
     bool fd = init_logger_fs();

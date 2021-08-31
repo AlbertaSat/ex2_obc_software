@@ -26,6 +26,20 @@
 
 #define STRING_MAX_LEN 201
 
+static bool exists(const char *filename);
+
+int8_t store_logger_file_size(void);
+
+int8_t load_logger_file_size(void);
+
+int8_t set_logger_file_size(uint32_t file_size);
+
+int8_t get_logger_file_size(uint32_t* file_size);
+
+char * get_logger_file();
+
+char * get_logger_old_file();
+
 void ex2_log(const char *format, ...);
 
 SAT_returnState start_logger_daemon(TaskHandle_t *handle);
