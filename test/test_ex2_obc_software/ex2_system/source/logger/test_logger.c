@@ -133,7 +133,8 @@ Ensure(logger, notices_file_does_not_exist) {
 }
 
 Ensure(logger, notices_file_exists) {
-    uint64_t size = 1000;
+    REDSTAT stats;
+    stats.st_size = 1000;
     REDSTATUS errnum = RED_ENOENT;
     expect(red_open, will_return(1));
     expect(red_errnoptr, will_return(&errnum));
@@ -141,7 +142,7 @@ Ensure(logger, notices_file_exists) {
     expect(red_unlink, will_return(0));
 
     expect(red_open, will_return(1));
-    expect(red_fstat, will_return(0), will_set_contents_of_parameter(pStat.st_size, &size, sizeof(uint64_t)));
+    expect(red_fstat, will_return(0), will_set_contents_of_parameter(pStat, &stats, sizeof(stats)));
     expect(red_close);
     expect(red_rename);
     expect(red_open, will_return(1));
@@ -168,7 +169,8 @@ Ensure(logger, sets_internals_when_file_does_not_exist) {
 }
 
 Ensure(logger, sets_internals_when_file_exists) {
-    uint64_t size = 1000;
+    REDSTAT stats;
+    stats.st_size = 1000;
     REDSTATUS errnum = RED_ENOENT;
     expect(red_open, will_return(1));
     expect(red_errnoptr, will_return(&errnum));
@@ -176,7 +178,7 @@ Ensure(logger, sets_internals_when_file_exists) {
     expect(red_unlink, will_return(0));
 
     expect(red_open, will_return(1));
-    expect(red_fstat, will_return(0), will_set_contents_of_parameter(pStat.st_size, &size, sizeof(uint64_t)));
+    expect(red_fstat, will_return(0), will_set_contents_of_parameter(pStat, &stats, sizeof(stats)));
     expect(red_close);
     expect(red_rename);
     expect(red_open, will_return(1));
