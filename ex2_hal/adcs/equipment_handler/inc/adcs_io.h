@@ -16,8 +16,11 @@
 #define ADCS_IO_H
 
 #include <stdint.h>
-
 #include "adcs_types.h"
+
+#define ADCS_ADDR 0x57
+
+void init_adcs_io();
 
 // sends telecommand over uart/i2c, and return acknowledgment
 ADCS_returnState send_uart_telecommand(uint8_t* command, uint32_t length);

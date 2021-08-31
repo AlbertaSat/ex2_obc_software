@@ -20,17 +20,53 @@
 #include "adcs_io.h"
 #include "adcs_types.h"
 
-#define MOCKED
-
-#if defined(MOCKED)
-#include "mock_uart_i2c.h"
-#else
-#include "uart_i2c.h"
-#endif
-
+#include "FreeRTOS.h"
 #include <string.h>
 #include <stdbool.h>
+#include "os_queue.h"
+#include "os_task.h"
+#include "os_semphr.h"
+#include "system.h"
+#include "HL_sci.h"
+#include "i2c_io.h"
 
+#define QUEUE_LENGTH 32
+#define ITEM_SIZE 1
+
+static QueueHandle_t adcsQueue;
+static uint8_t adcsBuffer;
+static SemaphoreHandle_t tx_semphr;
+static SemaphoreHandle_t uart_mutex;
+
+/**
+ * @Brief
+ *      Initialize ADCS driver
+ */
+void init_adcs_io() {
+    tx_semphr = xSemaphoreCreateBinary();
+    adcsQueue = xQueueCreate(QUEUE_LENGTH, ITEM_SIZE);
+    uart_mutex  = xSemaphoreCreateMutex();
+    adcsBuffer = 0;
+    sciReceive(ADCS_SCI, 1, &adcsBuffer);
+}
+
+
+void adcs_sciNotification(sciBASE_t *sci, int flags) {
+    portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
+
+    switch (flags) {
+    case SCI_RX_INT:
+        xQueueSendToBackFromISR(adcsQueue, &adcsBuffer, &xHigherPriorityTaskWoken);
+        sciReceive(sci, 1, &adcsBuffer);
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+        break;
+    case SCI_TX_INT:
+        xSemaphoreGiveFromISR(tx_semphr, &xHigherPriorityTaskWoken);
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+        break;
+    default: break;
+    }
+}
 
 /**
  * @brief
@@ -42,17 +78,26 @@
  * 
  */
 ADCS_returnState send_uart_telecommand(uint8_t* command, uint32_t length) {
-  uint8_t frame[length + 4];
-  frame[0] = ADCS_ESC_CHAR;
-  frame[1] = ADCS_SOM;
-  memcpy(&frame[2], &command, length);
-  frame[length + 2] = ADCS_ESC_CHAR;
-  frame[length + 2] = ADCS_EOM;
-  uart_send(frame, length + 4);
-  uint8_t reply[6];
-  uart_receive(reply, 6);
-  ADCS_returnState TC_err_flag = reply[3];
-  return TC_err_flag;
+    xSemaphoreTake(uart_mutex, portMAX_DELAY); //  TODO: make this a reasonable timeout
+    uint8_t frame[length + 4];
+    frame[0] = ADCS_ESC_CHAR;
+    frame[1] = ADCS_SOM;
+    memcpy(&frame[2], &command, length);
+    frame[length + 2] = ADCS_ESC_CHAR;
+    frame[length + 2] = ADCS_EOM;
+    sciSend(ADCS_SCI, frame, length+4);
+    xSemaphoreTake(tx_semphr, portMAX_DELAY); // TODO: make a reasonable timeout
+
+    int received = 0;
+    uint8_t reply[6];
+
+    while (received < 6) {
+        xQueueReceive(adcsQueue, reply[received], portMAX_DELAY); // TODO: make a reasonable timeout
+        received++;
+    }
+    ADCS_returnState TC_err_flag = reply[3];
+    xSemaphoreGive(uart_mutex);
+    return TC_err_flag;
 }
 
 /**
@@ -66,23 +111,23 @@ ADCS_returnState send_uart_telecommand(uint8_t* command, uint32_t length) {
  */
 ADCS_returnState send_i2c_telecommand(uint8_t *command, uint32_t length)
 {
-  // Send telecommand
-  i2c_send(command, length);
+    // Send telecommand
+    i2c_Send(ADCS_I2C, ADCS_ADDR, length, command);
 
-  // Poll TC Acknowledge Telemetry Format until the Processed flag equals 1.
-  bool processed = false;
-  uint8_t tc_ack[4];
-  while (!processed)
-  {
+    // Poll TC Acknowledge Telemetry Format until the Processed flag equals 1.
+    bool processed = false;
+    uint8_t tc_ack[4];
+    while (!processed)
+    {
+        request_i2c_telemetry(LAST_TC_ACK_ID, tc_ack, 4);
+        processed = tc_ack[1] & 1;
+    }
+
+    // Confirm telecommand validity by checking the TC Error flag of the last read TC Acknowledge Telemetry Format.
     request_i2c_telemetry(LAST_TC_ACK_ID, tc_ack, 4);
-    processed = tc_ack[1] & 1;
-  }
+    ADCS_returnState TC_err_flag = tc_ack[2];
 
-  // Confirm telecommand validity by checking the TC Error flag of the last read TC Acknowledge Telemetry Format.
-  request_i2c_telemetry(LAST_TC_ACK_ID, tc_ack, 4);
-  ADCS_returnState TC_err_flag = tc_ack[2];
-
-  return TC_err_flag;
+    return TC_err_flag;
 }
 
 /**
@@ -98,19 +143,32 @@ ADCS_returnState send_i2c_telecommand(uint8_t *command, uint32_t length)
  */
 ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t* telemetry,
                                         uint32_t length) {
-  uint8_t frame[5];
-  frame[0] = ADCS_ESC_CHAR;
-  frame[1] = ADCS_SOM;
-  frame[2] = TM_ID;
-  frame[3] = ADCS_ESC_CHAR;
-  frame[4] = ADCS_EOM;
-  uart_send(frame, 5);
-  uint8_t reply[length + 5];
-  uart_receive(reply, length + 5);
-  for (int i = 0; i < length; i++) {
-    *(telemetry + i) = reply[3 + i];
-  }
-  return ADCS_OK;
+    xSemaphoreTake(uart_mutex, portMAX_DELAY); //  TODO: make this a reasonable timeout
+
+    uint8_t frame[5];
+    frame[0] = ADCS_ESC_CHAR;
+    frame[1] = ADCS_SOM;
+    frame[2] = TM_ID;
+    frame[3] = ADCS_ESC_CHAR;
+    frame[4] = ADCS_EOM;
+
+    sciSend(ADCS_SCI, frame, 5);
+    xSemaphoreTake(tx_semphr, portMAX_DELAY); // TODO: make a reasonable timeout
+
+    int received = 0;
+    uint8_t reply[length+5];
+
+    while (received < length+5) {
+        xQueueReceive(adcsQueue, reply[received], portMAX_DELAY); // TODO: make a reasonable timeout
+        received++;
+    }
+
+    for (int i = 0; i < length; i++) {
+        *(telemetry + i) = reply[3 + i];
+    }
+    xSemaphoreGive(uart_mutex);
+
+    return ADCS_OK;
 }
 
 /**
@@ -127,7 +185,7 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t* telemetry,
 ADCS_returnState request_i2c_telemetry(uint8_t TM_ID, uint8_t *telemetry,
                                        uint32_t length)
 {
-  i2c_receive(telemetry, TM_ID, length);
+  i2c_Receive(ADCS_I2C, TM_ID, length, telemetry);
 
   // Read error flag from Communication Status telemetry frame
   // to determine if an incorrect number of bytes are read. 
