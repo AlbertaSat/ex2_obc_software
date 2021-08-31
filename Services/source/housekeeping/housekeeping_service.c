@@ -45,7 +45,7 @@ char fileName[] = "VOL0:/tempHKdata.TMP";
 uint16_t current_file = 1;  //Increments after file write. loops back at MAX_FILES
                             //1 indexed
 char hk_config[] = "VOL0:/HKconfig.TMP";
-uint8_t config_loaded = 0; //set to 1 after config is loaded
+static uint8_t config_loaded = 0; //set to 1 after config is loaded
 
 uint32_t *timestamps = 0; //This is a dynamic array to handle file search by timestamp
 uint16_t hk_timestamp_array_size = 0; //NOT BYTES. stored as number of items. 1 indexed. 0 element unused
@@ -394,7 +394,7 @@ Result collect_hk_from_devices(All_systems_housekeeping* all_hk_data) {
  * @return Found_file
  *      FILE_EXISTS or FILE_NOT_EXIST
  */
-Found_file exists(const char *filename){
+static Found_file exists(const char *filename){
     int32_t file;
     red_errno = 0;
     file = red_open(filename, RED_O_CREAT | RED_O_EXCL | RED_O_RDWR); //attempt to create file
