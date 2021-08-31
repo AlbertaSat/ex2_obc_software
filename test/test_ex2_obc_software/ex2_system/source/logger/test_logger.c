@@ -191,9 +191,11 @@ Ensure(logger, sets_internals_when_file_exists) {
 
 Ensure(logger, init_fs_returns_false_on_failure) {
     REDSTATUS errnum = RED_ENOENT;
+    expect(red_open, will_return(1));
     expect(red_errnoptr, will_return(&errnum));
     expect(red_close, will_return(0));
     expect(red_unlink, will_return(0));
+    
     expect(red_open, will_return(-1));
     expect(red_open, will_return(-1));
     bool fd = init_logger_fs();
