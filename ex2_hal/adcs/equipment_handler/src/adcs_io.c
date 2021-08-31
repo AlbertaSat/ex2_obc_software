@@ -82,9 +82,10 @@ ADCS_returnState send_uart_telecommand(uint8_t* command, uint32_t length) {
     uint8_t frame[length + 4];
     frame[0] = ADCS_ESC_CHAR;
     frame[1] = ADCS_SOM;
+    // Note TC_ID here is included in the command
     memcpy(&frame[2], &command, length);
     frame[length + 2] = ADCS_ESC_CHAR;
-    frame[length + 2] = ADCS_EOM;
+    frame[length + 3] = ADCS_EOM;
     sciSend(ADCS_SCI, frame, length+4);
     xSemaphoreTake(tx_semphr, portMAX_DELAY); // TODO: make a reasonable timeout
 
@@ -185,7 +186,7 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t* telemetry,
 ADCS_returnState request_i2c_telemetry(uint8_t TM_ID, uint8_t *telemetry,
                                        uint32_t length)
 {
-  i2c_Receive(ADCS_I2C, TM_ID, length, telemetry);
+    i2c_Receive(ADCS_I2C, TM_ID, length, telemetry);
 
   // Read error flag from Communication Status telemetry frame
   // to determine if an incorrect number of bytes are read. 
