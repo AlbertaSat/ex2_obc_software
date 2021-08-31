@@ -65,9 +65,9 @@
     #define PAYLOAD_SCI sciREG3
 #endif
 #else // These values are expected to be adjusted based on what the developer is working on
-    #define CSP_SCI sciREG3
+    #define CSP_SCI sciREG4
     #define GPS_SCI sciREG2
-    #define ADCS_SCI 0
+    #define ADCS_SCI sciREG3
     #define PAYLOAD_SCI 0
     #define DFGM_SCI 0
 #endif
