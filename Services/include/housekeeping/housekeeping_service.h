@@ -13,7 +13,7 @@
  */
 /**
  * @file housekeeping_service.c
- * @author Haoran Qi, Andrew Rooney, Yuan Wang, Dustin Wagner
+ * @author Dustin Wagner
  * @date 2020-07-07
  */
 
