@@ -10,10 +10,10 @@
 #define SPI_SBAND_BUS_REG spiREG3
 #define SPI_SBAND_DEF_FMT 1 // Defines SPI speed (~8.3 MHz)
 
-void  spi_writeData(void);
+void spi_writeData(void);
 
-void SPIMasterTx(spiBASE_t * regset, uint16_t * data, uint8_t format);
+void SPIMasterTx(spiBASE_t *regset, uint16_t *data, uint8_t format);
 
-void SPISbandTx(uint16_t * data);
+void SPISbandTx(uint16_t *data);
 
 #endif /* spi_H */

@@ -19,9 +19,8 @@
  */
 
 #include "sTransmitter.h"
+
 #include <stdint.h>
-
-
 
 /**
  * @brief
@@ -35,11 +34,10 @@
  * @return STX_return
  *              Success of the function defined in sTransmitter.h
  */
-STX_return read_reg(uint8_t internal_address, uint8_t * answer)
-{
+STX_return read_reg(uint8_t internal_address, uint8_t *answer) {
     uint8_t command = internal_address;
-	i2c_sendAndReceive(SBAND_I2C_ADD, &command, MAX_SBAND_R_CMDLEN, answer, MAX_SBAND_R_ANSLEN);
-	return FUNC_PASS;
+    i2c_sendAndReceive(SBAND_I2C_ADD, &command, MAX_SBAND_R_CMDLEN, answer, MAX_SBAND_R_ANSLEN);
+    return FUNC_PASS;
 }
 
 /**
@@ -54,11 +52,10 @@ STX_return read_reg(uint8_t internal_address, uint8_t * answer)
  * @return STX_return
  *              Success of the function defined in sTransmitter.h
  */
-STX_return write_reg(uint8_t internal_address, uint8_t val)
-{
+STX_return write_reg(uint8_t internal_address, uint8_t val) {
     uint8_t command[2] = {internal_address, val};
-	i2c_sendCommand(SBAND_I2C_ADD, command, MAX_SBAND_W_CMDLEN);
-	return FUNC_PASS;
+    i2c_sendCommand(SBAND_I2C_ADD, command, MAX_SBAND_W_CMDLEN);
+    return FUNC_PASS;
 }
 
 /**
@@ -74,10 +71,9 @@ STX_return write_reg(uint8_t internal_address, uint8_t val)
  * @return uint16_t
  *              Returns appended value
  */
-uint16_t append_bytes(uint8_t b1, uint8_t b2)
-{
-	uint16_t b = (b1 << 8) | b2;
-	return b;
+uint16_t append_bytes(uint8_t b1, uint8_t b2) {
+    uint16_t b = (b1 << 8) | b2;
+    return b;
 }
 
 /**
@@ -94,16 +90,15 @@ uint16_t append_bytes(uint8_t b1, uint8_t b2)
  * @return float
  *              Returns temperature in degrees Celsius
  */
-float calculateTemp(uint16_t b)
-{
-	float temperature = 0;
-	b = b >> 4;
-	if (b & 2048){
-		temperature = -0.0625f*(float)((~b & 4095) + 1);
-	}else{
-		temperature = 0.0625f*(float)(b);
-	}
-	return temperature;
+float calculateTemp(uint16_t b) {
+    float temperature = 0;
+    b = b >> 4;
+    if (b & 2048) {
+        temperature = -0.0625f * (float)((~b & 4095) + 1);
+    } else {
+        temperature = 0.0625f * (float)(b);
+    }
+    return temperature;
 }
 
 /**
@@ -119,16 +114,15 @@ float calculateTemp(uint16_t b)
  * @return STX_return
  *              Success of the function defined in sTransmitter.h
  */
-STX_return STX_getControl(uint8_t * pa, uint8_t * mode)
-{
-	uint8_t rawValue = 0;
-	if(read_reg(0x0, &rawValue) != FUNC_PASS){
-		return BAD_READ;
-	}else{
-		*pa = rawValue >> 7;
-		*mode = rawValue & 3;
-		return FUNC_PASS;
-	}
+STX_return STX_getControl(uint8_t *pa, uint8_t *mode) {
+    uint8_t rawValue = 0;
+    if (read_reg(0x0, &rawValue) != FUNC_PASS) {
+        return BAD_READ;
+    } else {
+        *pa = rawValue >> 7;
+        *mode = rawValue & 3;
+        return FUNC_PASS;
+    }
 }
 
 /**
@@ -144,20 +138,18 @@ STX_return STX_getControl(uint8_t * pa, uint8_t * mode)
  * @return STX_return
  *              Success of the function defined in sTransmitter.h
  */
-STX_return STX_setControl(uint8_t new_pa, uint8_t new_mode)
-{
+STX_return STX_setControl(uint8_t new_pa, uint8_t new_mode) {
+    if (new_mode > 3 || new_pa > 1) {
+        return BAD_PARAM;
+    }
 
-	if(new_mode > 3 || new_pa > 1){
-		return BAD_PARAM;
-	}
+    new_mode |= (new_pa << 7);
 
-	new_mode |= (new_pa << 7);
-
-	if(write_reg(0x0, new_mode) != FUNC_PASS){
-		return BAD_WRITE;
-	}else{
-		return FUNC_PASS;
-	}
+    if (write_reg(0x0, new_mode) != FUNC_PASS) {
+        return BAD_WRITE;
+    } else {
+        return FUNC_PASS;
+    }
 }
 
 /**
@@ -179,19 +171,17 @@ STX_return STX_setControl(uint8_t new_pa, uint8_t new_mode)
  * @return STX_return
  *              Success of the function defined in sTransmitter.h
  */
-STX_return STX_getEncoder(uint8_t * scrambler, uint8_t * filter, uint8_t * mod, uint8_t * rate)
-{
-	uint8_t rawValue = 0;
-       	if(read_reg(0x01, &rawValue) != FUNC_PASS){
-		return BAD_READ;
-	}else{
-		*rate = rawValue & 3;
-		*mod = 1 & (rawValue >> 2);
-		*filter = 1 & (rawValue >> 3);
-		*scrambler = 1 & (rawValue >> 4);
-		return FUNC_PASS;
-	}
-
+STX_return STX_getEncoder(uint8_t *scrambler, uint8_t *filter, uint8_t *mod, uint8_t *rate) {
+    uint8_t rawValue = 0;
+    if (read_reg(0x01, &rawValue) != FUNC_PASS) {
+        return BAD_READ;
+    } else {
+        *rate = rawValue & 3;
+        *mod = 1 & (rawValue >> 2);
+        *filter = 1 & (rawValue >> 3);
+        *scrambler = 1 & (rawValue >> 4);
+        return FUNC_PASS;
+    }
 }
 
 /**
@@ -213,29 +203,28 @@ STX_return STX_getEncoder(uint8_t * scrambler, uint8_t * filter, uint8_t * mod, 
  * @return STX_return
  *              Success of the function defined in sTransmitter.h
  */
-STX_return STX_setEncoder(uint8_t new_scrambler, uint8_t new_filter, uint8_t new_mod, uint8_t new_rate)
-{
-	if(new_rate > 1 || new_mod > 1 || new_filter > 1 || new_scrambler > 1){
-		return BAD_PARAM;
-	}
+STX_return STX_setEncoder(uint8_t new_scrambler, uint8_t new_filter, uint8_t new_mod, uint8_t new_rate) {
+    if (new_rate > 1 || new_mod > 1 || new_filter > 1 || new_scrambler > 1) {
+        return BAD_PARAM;
+    }
 
-	new_rate = (new_rate) | (new_mod << 2) | (new_filter << 3) | (new_scrambler << 4);
+    new_rate = (new_rate) | (new_mod << 2) | (new_filter << 3) | (new_scrambler << 4);
 
-	uint8_t mode = 0, pa = 0;
-	if(STX_getControl(&pa, &mode) == FUNC_PASS){
-		if(mode == 0){
-			if(write_reg(0x01, new_rate)){
-				return BAD_WRITE;
-			}else{
-				return FUNC_PASS;
-			}
-		}else{
-			return BAD_PARAM;
-		}
+    uint8_t mode = 0, pa = 0;
+    if (STX_getControl(&pa, &mode) == FUNC_PASS) {
+        if (mode == 0) {
+            if (write_reg(0x01, new_rate)) {
+                return BAD_WRITE;
+            } else {
+                return FUNC_PASS;
+            }
+        } else {
+            return BAD_PARAM;
+        }
 
-	}else{
-		return BAD_READ;
-	}
+    } else {
+        return BAD_READ;
+    }
 }
 
 /**
@@ -248,22 +237,30 @@ STX_return STX_setEncoder(uint8_t new_scrambler, uint8_t new_filter, uint8_t new
  * @return STX_return
  *              Success of the function defined in sTransmitter.h
  */
-STX_return STX_getPaPower(uint8_t * power)
-{
-	uint8_t rawValue = 0;
+STX_return STX_getPaPower(uint8_t *power) {
+    uint8_t rawValue = 0;
 
-	if(read_reg(0x03, &rawValue) != FUNC_PASS){
-		return BAD_READ;
-	}else{
-		switch (rawValue){
-		case 0: *power = 24; break;
-		case 1: *power = 26; break;
-		case 2: *power = 28; break;
-		case 3: *power = 30; break;
-		default: return BAD_PARAM;
-		}
-		return FUNC_PASS;
-	}
+    if (read_reg(0x03, &rawValue) != FUNC_PASS) {
+        return BAD_READ;
+    } else {
+        switch (rawValue) {
+        case 0:
+            *power = 24;
+            break;
+        case 1:
+            *power = 26;
+            break;
+        case 2:
+            *power = 28;
+            break;
+        case 3:
+            *power = 30;
+            break;
+        default:
+            return BAD_PARAM;
+        }
+        return FUNC_PASS;
+    }
 }
 
 /**
@@ -276,23 +273,31 @@ STX_return STX_getPaPower(uint8_t * power)
  * @return STX_return
  *              Success of the function defined in sTransmitter.h
  */
-STX_return STX_setPaPower(uint8_t new_paPower)
-{
-	uint8_t rawValue = 0;
+STX_return STX_setPaPower(uint8_t new_paPower) {
+    uint8_t rawValue = 0;
 
-	switch (new_paPower){
-	case 24: rawValue = 0; break;
-	case 26: rawValue = 1; break;
-	case 28: rawValue = 2; break;
-	case 30: rawValue = 3; break;
-	default: return BAD_PARAM;
-	}
+    switch (new_paPower) {
+    case 24:
+        rawValue = 0;
+        break;
+    case 26:
+        rawValue = 1;
+        break;
+    case 28:
+        rawValue = 2;
+        break;
+    case 30:
+        rawValue = 3;
+        break;
+    default:
+        return BAD_PARAM;
+    }
 
-	if(write_reg(0x03, rawValue) != FUNC_PASS){
-		return BAD_WRITE;
-	}else{
-		return FUNC_PASS;
-	}
+    if (write_reg(0x03, rawValue) != FUNC_PASS) {
+        return BAD_WRITE;
+    } else {
+        return FUNC_PASS;
+    }
 }
 
 /**
@@ -305,15 +310,14 @@ STX_return STX_setPaPower(uint8_t new_paPower)
  * @return STX_return
  *              Success of the function defined in sTransmitter.h
  */
-STX_return STX_getFrequency(float * freq)
-{
-	uint8_t offset = 0;
-	if(read_reg(0x04, &offset) != FUNC_PASS){
-		return BAD_READ;
-	}else{
-		*freq = (float)offset/2 + 2200.0f;
-		return FUNC_PASS;
-	}
+STX_return STX_getFrequency(float *freq) {
+    uint8_t offset = 0;
+    if (read_reg(0x04, &offset) != FUNC_PASS) {
+        return BAD_READ;
+    } else {
+        *freq = (float)offset / 2 + 2200.0f;
+        return FUNC_PASS;
+    }
 }
 
 /**
@@ -326,19 +330,18 @@ STX_return STX_getFrequency(float * freq)
  * @return STX_return
  *              Success of the function defined in sTransmitter.h
  */
-STX_return STX_setFrequency(float new_frequency)
-{
-	if(new_frequency >= 2200.0f && new_frequency <= 2300.0f){
-		uint8_t offset = (uint8_t)((new_frequency - 2200.0f)*2);
+STX_return STX_setFrequency(float new_frequency) {
+    if (new_frequency >= 2200.0f && new_frequency <= 2300.0f) {
+        uint8_t offset = (uint8_t)((new_frequency - 2200.0f) * 2);
 
-		if(write_reg(0x04, offset) != FUNC_PASS){
-			return BAD_WRITE;
-		}else{
-			return FUNC_PASS; // Successful Write
-		}
-	}else{
-		return BAD_PARAM;
-	}
+        if (write_reg(0x04, offset) != FUNC_PASS) {
+            return BAD_WRITE;
+        } else {
+            return FUNC_PASS; // Successful Write
+        }
+    } else {
+        return BAD_PARAM;
+    }
 }
 
 /**
@@ -349,13 +352,12 @@ STX_return STX_setFrequency(float new_frequency)
  * @return STX_return
  *              Success of the function defined in sTransmitter.h
  */
-STX_return STX_softResetFPGA(void)
-{
-	if(write_reg(0x05, 0x0) != FUNC_PASS){
-		return BAD_WRITE;
-	}else{
-		return FUNC_PASS;
-	}
+STX_return STX_softResetFPGA(void) {
+    if (write_reg(0x05, 0x0) != FUNC_PASS) {
+        return BAD_WRITE;
+    } else {
+        return FUNC_PASS;
+    }
 }
 
 /**
@@ -368,18 +370,17 @@ STX_return STX_softResetFPGA(void)
  * @return STX_return
  *              Success of the function defined in sTransmitter.h
  */
-STX_return STX_getFirmwareV(float * version)
-{
-	uint8_t rawValue = 0;
-	if(read_reg(0x11, &rawValue) != FUNC_PASS){
-		return BAD_READ;
-	}else{
-		float major = (float)(rawValue >> 4);
-        	float minor = (float)(rawValue & 15);
-		minor /= 100.0f;
-		*version = (major+minor);
-		return FUNC_PASS;
-	}
+STX_return STX_getFirmwareV(float *version) {
+    uint8_t rawValue = 0;
+    if (read_reg(0x11, &rawValue) != FUNC_PASS) {
+        return BAD_READ;
+    } else {
+        float major = (float)(rawValue >> 4);
+        float minor = (float)(rawValue & 15);
+        minor /= 100.0f;
+        *version = (major + minor);
+        return FUNC_PASS;
+    }
 }
 
 /**
@@ -394,16 +395,15 @@ STX_return STX_getFirmwareV(float * version)
  * @return STX_return
  *              Success of the function defined in sTransmitter.h
  */
-STX_return STX_getStatus(uint8_t * pwrgd, uint8_t * txl)
-{
-	uint8_t rawValue = 0;
-	if(read_reg(0x12, &rawValue) != FUNC_PASS){
-		return BAD_READ;
-	}else{
-		*pwrgd = (rawValue & 2) >> 1;
-		*txl = rawValue & 1;
-		return FUNC_PASS;
-	}
+STX_return STX_getStatus(uint8_t *pwrgd, uint8_t *txl) {
+    uint8_t rawValue = 0;
+    if (read_reg(0x12, &rawValue) != FUNC_PASS) {
+        return BAD_READ;
+    } else {
+        *pwrgd = (rawValue & 2) >> 1;
+        *txl = rawValue & 1;
+        return FUNC_PASS;
+    }
 }
 
 /**
@@ -418,15 +418,14 @@ STX_return STX_getStatus(uint8_t * pwrgd, uint8_t * txl)
  * @return STX_return
  *              Success of the function defined in sTransmitter.h
  */
-STX_return STX_getTR(int * transmit)
-{
-	uint8_t rawValue = 0;
-       	if(read_reg(0x13, &rawValue) != FUNC_PASS){
-		return BAD_READ;
-	}else{
-		*transmit = rawValue & 1;
-		return FUNC_PASS;
-	}
+STX_return STX_getTR(int *transmit) {
+    uint8_t rawValue = 0;
+    if (read_reg(0x13, &rawValue) != FUNC_PASS) {
+        return BAD_READ;
+    } else {
+        *transmit = rawValue & 1;
+        return FUNC_PASS;
+    }
 }
 
 /**
@@ -443,33 +442,33 @@ STX_return STX_getTR(int * transmit)
  * @return STX_return
  *              Success of the function defined in sTransmitter.h
  */
-STX_return STX_getBuffer(uint8_t quantity, uint16_t * ptr)
-{
-	uint8_t rawValue1 = 0;
-	uint8_t rawValue2 = 0;
-	uint8_t address = 0;
+STX_return STX_getBuffer(uint8_t quantity, uint16_t *ptr) {
+    uint8_t rawValue1 = 0;
+    uint8_t rawValue2 = 0;
+    uint8_t address = 0;
 
-	switch(quantity){
-		case 0: // Buffer Count
-			address = 0x18;
-			break;
-		case 1: // Buffer Underrun
-			address = 0x14;
-			break;
-		case 2: // Buffer Overrun
-			address = 0x16;
-			break;
-		default: return BAD_PARAM;
-		}
+    switch (quantity) {
+    case 0: // Buffer Count
+        address = 0x18;
+        break;
+    case 1: // Buffer Underrun
+        address = 0x14;
+        break;
+    case 2: // Buffer Overrun
+        address = 0x16;
+        break;
+    default:
+        return BAD_PARAM;
+    }
 
-	if(read_reg(address, &rawValue1) != FUNC_PASS){
-		return BAD_READ;
-	}else if(read_reg(address + 1, &rawValue2) != FUNC_PASS){
-		return BAD_READ;
-	}else{
-		*ptr = append_bytes(rawValue1, rawValue2);
-		return FUNC_PASS;
-	}
+    if (read_reg(address, &rawValue1) != FUNC_PASS) {
+        return BAD_READ;
+    } else if (read_reg(address + 1, &rawValue2) != FUNC_PASS) {
+        return BAD_READ;
+    } else {
+        *ptr = append_bytes(rawValue1, rawValue2);
+        return FUNC_PASS;
+    }
 }
 
 /**
@@ -485,54 +484,54 @@ STX_return STX_getBuffer(uint8_t quantity, uint16_t * ptr)
  * @return STX_return
  *              Success of the function defined in sTransmitter.h
  */
-STX_return STX_getHK(sBand_housekeeping* hkStruct) {
-  uint16_t val = 0;
-  int16_t temp = 0;
+STX_return STX_getHK(sBand_housekeeping *hkStruct) {
+    uint16_t val = 0;
+    int16_t temp = 0;
 
-  uint8_t address = 0x1A;
+    uint8_t address = 0x1A;
 
-  for (address; address < 0x29; address = address + 2) {
-    uint8_t val1 = 0, val2 = 0;
+    for (address; address < 0x29; address = address + 2) {
+        uint8_t val1 = 0, val2 = 0;
 
-    if (read_reg(address, &val1) != FUNC_PASS) {
-      return BAD_READ;
-    } else if (read_reg(1 + address, &val2) != FUNC_PASS) {
-      return BAD_READ;
-    } else {
-      val = append_bytes(val1, val2);
-      switch (address) {
-        case 0x1A:
-          val &= 4095;
-          hkStruct->outputPower = ((float)val * (7.0f / 6144.0f));
-          break;
-        case 0x1C:
-          val &= 4095;
-          hkStruct->paTemp = (((float)val * 3.0f / 4096.0f) - 0.5f) * 100.0f;
-          break;
-        case 0x1E:
-          hkStruct->topTemp = calculateTemp(val);
-          break;
-        case 0x20:
-          hkStruct->bottomTemp = calculateTemp(val);
-          break;
-        case 0x22:
-          temp = (int16_t)val;
-          hkStruct->batCurrent = (float)temp * 0.00004f;
-          break;
-        case 0x24:
-          val &= 8191;
-          hkStruct->batVoltage = (float)val * 0.004f;
-          break;
-        case 0x26:
-          temp = (int16_t)val;
-          hkStruct->paCurrent = (float)temp * 0.00004f;
-          break;
-        case 0x28:
-          val &= 8191;
-          hkStruct->paVoltage = (float)val * 0.004f;
-          break;
-      }
+        if (read_reg(address, &val1) != FUNC_PASS) {
+            return BAD_READ;
+        } else if (read_reg(1 + address, &val2) != FUNC_PASS) {
+            return BAD_READ;
+        } else {
+            val = append_bytes(val1, val2);
+            switch (address) {
+            case 0x1A:
+                val &= 4095;
+                hkStruct->outputPower = ((float)val * (7.0f / 6144.0f));
+                break;
+            case 0x1C:
+                val &= 4095;
+                hkStruct->paTemp = (((float)val * 3.0f / 4096.0f) - 0.5f) * 100.0f;
+                break;
+            case 0x1E:
+                hkStruct->topTemp = calculateTemp(val);
+                break;
+            case 0x20:
+                hkStruct->bottomTemp = calculateTemp(val);
+                break;
+            case 0x22:
+                temp = (int16_t)val;
+                hkStruct->batCurrent = (float)temp * 0.00004f;
+                break;
+            case 0x24:
+                val &= 8191;
+                hkStruct->batVoltage = (float)val * 0.004f;
+                break;
+            case 0x26:
+                temp = (int16_t)val;
+                hkStruct->paCurrent = (float)temp * 0.00004f;
+                break;
+            case 0x28:
+                val &= 8191;
+                hkStruct->paVoltage = (float)val * 0.004f;
+                break;
+            }
+        }
     }
-  }
-  return FUNC_PASS;
+    return FUNC_PASS;
 }

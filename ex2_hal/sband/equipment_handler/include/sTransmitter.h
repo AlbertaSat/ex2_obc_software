@@ -22,6 +22,7 @@
 #define STRANSMITTER_H
 
 #include <stdint.h>
+
 #include "i2c.h"
 
 // S-band i2c address
@@ -72,22 +73,22 @@
 #define S_BUFFER_UNDERRUN 1
 #define S_BUFFER_OVERRUN 2
 
-typedef enum{
-	FUNC_PASS  = 0,
-	BAD_READ   = 1,
-	BAD_WRITE  = 1,
-	BAD_PARAM  = 2,
-}STX_return;
+typedef enum {
+    FUNC_PASS = 0,
+    BAD_READ = 1,
+    BAD_WRITE = 1,
+    BAD_PARAM = 2,
+} STX_return;
 
 typedef struct {
-  float outputPower;
-  float paTemp;
-  float topTemp;
-  float bottomTemp;
-  float batCurrent;
-  float batVoltage;
-  float paCurrent;
-  float paVoltage;
+    float outputPower;
+    float paTemp;
+    float topTemp;
+    float bottomTemp;
+    float batCurrent;
+    float batVoltage;
+    float paCurrent;
+    float paVoltage;
 } sBand_housekeeping;
 
 //* Simulated register functions
@@ -100,31 +101,31 @@ float calculateTemp(uint16_t);
 
 // External access/control functions
 
-STX_return STX_getControl(uint8_t * pa, uint8_t * mode);
+STX_return STX_getControl(uint8_t *pa, uint8_t *mode);
 
 STX_return STX_setControl(uint8_t new_pa, uint8_t new_mode);
 
-STX_return STX_getEncoder(uint8_t * scrambler, uint8_t * filter, uint8_t * mod, uint8_t * rate);
+STX_return STX_getEncoder(uint8_t *scrambler, uint8_t *filter, uint8_t *mod, uint8_t *rate);
 
 STX_return STX_setEncoder(uint8_t new_scrambler, uint8_t new_filter, uint8_t new_mod, uint8_t new_rate);
 
-STX_return STX_getPaPower(uint8_t * power);
+STX_return STX_getPaPower(uint8_t *power);
 
 STX_return STX_setPaPower(uint8_t new_paPower);
 
-STX_return STX_getFrequency(float * freq);
+STX_return STX_getFrequency(float *freq);
 
 STX_return STX_setFrequency(float new_frequency);
 
 STX_return STX_softResetFPGA(void);
 
-STX_return STX_getFirmwareV(float * version);
+STX_return STX_getFirmwareV(float *version);
 
-STX_return STX_getStatus(uint8_t * pwrgd, uint8_t * txl);
+STX_return STX_getStatus(uint8_t *pwrgd, uint8_t *txl);
 
-STX_return STX_getTR(int * transmit);
+STX_return STX_getTR(int *transmit);
 
-STX_return STX_getBuffer(uint8_t quantity, uint16_t * ptr);
+STX_return STX_getBuffer(uint8_t quantity, uint16_t *ptr);
 
 STX_return STX_getHK(sBand_housekeeping *hk);
 
