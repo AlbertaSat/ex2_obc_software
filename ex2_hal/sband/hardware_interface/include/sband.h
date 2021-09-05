@@ -19,66 +19,66 @@
 
 #ifdef SBAND_IS_STUBBED
 typedef enum {
-  IS_STUBBED = 0,
+    IS_STUBBED = 0,
 } STX_return;
 #else
 #include "sTransmitter.h"
 #endif
 
 typedef enum {
-  COUNT = 0,
-  UNDERRUN,
-  OVERRUN,
+    COUNT = 0,
+    UNDERRUN,
+    OVERRUN,
 } Buffer_Quantity;
 
 typedef struct __attribute__((packed)) {
-  uint8_t status;
-  uint8_t mode;
+    uint8_t status;
+    uint8_t mode;
 } Sband_PowerAmplifier;
 
 typedef struct __attribute__((packed)) {
-  uint8_t scrambler;
-  uint8_t filter;
-  uint8_t modulation;
-  uint8_t rate;
+    uint8_t scrambler;
+    uint8_t filter;
+    uint8_t modulation;
+    uint8_t rate;
 } Sband_Encoder;
 
 typedef struct __attribute__((packed)) {
-  float freq;
-  uint8_t PA_Power;
-  Sband_PowerAmplifier PA;
-  Sband_Encoder enc;
+    float freq;
+    uint8_t PA_Power;
+    Sband_PowerAmplifier PA;
+    Sband_Encoder enc;
 } Sband_config;
 
 typedef struct __attribute__((packed)) {
-  uint8_t PWRGD;
-  uint8_t TXL;
+    uint8_t PWRGD;
+    uint8_t TXL;
 } Sband_Status;
 
 typedef struct __attribute__((packed)) {
-  int transmit;
+    int transmit;
 } Sband_TR;
 
 typedef struct __attribute__((packed)) {
-  float Output_Power;
-  float PA_Temp;
-  float Top_Temp;
-  float Bottom_Temp;
-  float Bat_Current;
-  float Bat_Voltage;
-  float PA_Current;
-  float PA_Voltage;
+    float Output_Power;
+    float PA_Temp;
+    float Top_Temp;
+    float Bottom_Temp;
+    float Bat_Current;
+    float Bat_Voltage;
+    float PA_Current;
+    float PA_Voltage;
 } Sband_Housekeeping;
 
 typedef struct __attribute__((packed)) {
-  uint16_t pointer[3];
+    uint16_t pointer[3];
 } Sband_Buffer;
 
 typedef struct __attribute__((packed)) {
-  Sband_Status status;
-  Sband_TR transmit;
-  Sband_Buffer buffer;
-  Sband_Housekeeping HK;
+    Sband_Status status;
+    Sband_TR transmit;
+    Sband_Buffer buffer;
+    Sband_Housekeeping HK;
 } Sband_Full_Status;
 
 STX_return HAL_S_getFreq(float *S_freq);
