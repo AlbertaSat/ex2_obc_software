@@ -21,6 +21,7 @@
 
 #ifndef EX2_SERVICES_GENERAL
 #define EX2_SERVICES_GENERAL
+#include "system.h"
 
 SAT_returnState start_general_service(void);
 
