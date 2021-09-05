@@ -15,21 +15,19 @@
 #ifndef ADCS_IO_H
 #define ADCS_IO_H
 
-#include <stdint.h>
 #include "adcs_types.h"
+#include <stdint.h>
 
 #define ADCS_ADDR 0x57
 
 void init_adcs_io();
 
 // sends telecommand over uart/i2c, and return acknowledgment
-ADCS_returnState send_uart_telecommand(uint8_t* command, uint32_t length);
-ADCS_returnState send_i2c_telecommand(uint8_t* command, uint32_t length);
+ADCS_returnState send_uart_telecommand(uint8_t *command, uint32_t length);
+ADCS_returnState send_i2c_telecommand(uint8_t *command, uint32_t length);
 
 // request telemetry over uart/i2c, and return acknowledgment
-ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t* telemetry,
-                                        uint32_t length);
-ADCS_returnState request_i2c_telemetry(uint8_t TM_ID, uint8_t* telemetry,
-                                       uint32_t length);
+ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint32_t length);
+ADCS_returnState request_i2c_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint32_t length);
 
 #endif /* ADCS_IO_H */

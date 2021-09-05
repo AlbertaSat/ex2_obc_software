@@ -35,16 +35,16 @@
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState adcs_telecommand(uint8_t* command, uint32_t length){
-  ADCS_returnState ack = ADCS_OK;
+ADCS_returnState adcs_telecommand(uint8_t *command, uint32_t length) {
+    ADCS_returnState ack = ADCS_OK;
 
 #if defined(USE_UART)
-  ack = send_uart_telecommand(command, length);
+    ack = send_uart_telecommand(command, length);
 #elif defined(USE_I2C)
-  ack = send_i2c_telecommand(command, length);
+    ack = send_i2c_telecommand(command, length);
 #endif
 
-  return ack;
+    return ack;
 }
 
 /**
@@ -54,16 +54,15 @@ ADCS_returnState adcs_telecommand(uint8_t* command, uint32_t length){
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState adcs_telemetry(uint8_t TM_ID, uint8_t* reply,
-                                uint32_t length){
-  ADCS_returnState ack = ADCS_OK;
+ADCS_returnState adcs_telemetry(uint8_t TM_ID, uint8_t *reply, uint32_t length) {
+    ADCS_returnState ack = ADCS_OK;
 #if defined(USE_UART)
-  ack = request_uart_telemetry(TM_ID, reply, length);
+    ack = request_uart_telemetry(TM_ID, reply, length);
 #elif defined(USE_I2C)
-  ack = request_i2c_telemetry(TM_ID, reply, length);
+    ack = request_i2c_telemetry(TM_ID, reply, length);
 #endif
 
-  return ack;
+    return ack;
 }
 
 // To Do: We should put these functions into a new file so we can use them in
@@ -78,12 +77,12 @@ ADCS_returnState adcs_telemetry(uint8_t TM_ID, uint8_t* reply,
  * 		the appended int16_t
  */
 int16_t uint82int16(uint8_t b1, uint8_t b2) {
-  int16_t b;
-  if (b2 >> 7) {  // negative
-    b = -1 * ((~((b2 << 8) | b1)) + 1);
-  } else
-    b = (b2 << 8) | b1;  // positive
-  return b;
+    int16_t b;
+    if (b2 >> 7) { // negative
+        b = -1 * ((~((b2 << 8) | b1)) + 1);
+    } else
+        b = (b2 << 8) | b1; // positive
+    return b;
 }
 
 /**
@@ -94,16 +93,13 @@ int16_t uint82int16(uint8_t b1, uint8_t b2) {
  * @return
  * 		the appended int32_t
  */
-int32_t uint82int32(uint8_t* address) {
-  int32_t b;
-  if (*(address + 3) >> 7) {  // negative
-    b = -1 * ((~((*(address + 3) << 24) | (*(address + 2) << 16) |
-                 (*(address + 1) << 8) | *address)) +
-              1);
-  } else
-    b = (*(address + 3) << 24) | (*(address + 2) << 16) |
-        (*(address + 1) << 8) | *address;  // positive
-  return b;
+int32_t uint82int32(uint8_t *address) {
+    int32_t b;
+    if (*(address + 3) >> 7) { // negative
+        b = -1 * ((~((*(address + 3) << 24) | (*(address + 2) << 16) | (*(address + 1) << 8) | *address)) + 1);
+    } else
+        b = (*(address + 3) << 24) | (*(address + 2) << 16) | (*(address + 1) << 8) | *address; // positive
+    return b;
 }
 
 /**
@@ -114,10 +110,10 @@ int32_t uint82int32(uint8_t* address) {
  * @return
  * 		the appended float
  */
-uint16_t uint82uint16(uint8_t b1, uint8_t b2) {  //* improve
-  uint16_t b;
-  b = (b2 << 8) | b1;
-  return b;
+uint16_t uint82uint16(uint8_t b1, uint8_t b2) { //* improve
+    uint16_t b;
+    b = (b2 << 8) | b1;
+    return b;
 }
 
 /**
@@ -133,10 +129,10 @@ uint16_t uint82uint16(uint8_t b1, uint8_t b2) {  //* improve
  * @param coef
  * 		formatted value = rawval * coef;
  */
-void get_xyz(xyz* measurement, uint8_t* address, float coef) {
-  measurement->x = coef * uint82int16(*address, *(address + 1));
-  measurement->y = coef * uint82int16(*(address + 2), *(address + 3));
-  measurement->z = coef * uint82int16(*(address + 4), *(address + 5));
+void get_xyz(xyz *measurement, uint8_t *address, float coef) {
+    measurement->x = coef * uint82int16(*address, *(address + 1));
+    measurement->y = coef * uint82int16(*(address + 2), *(address + 3));
+    measurement->z = coef * uint82int16(*(address + 4), *(address + 5));
 }
 
 /**
@@ -149,10 +145,10 @@ void get_xyz(xyz* measurement, uint8_t* address, float coef) {
  * @param address
  * 		the position in the telemetry frame where the data is located
  */
-void get_xyz16(xyz16* measurement, uint8_t* address) {
-  measurement->x = uint82int16(*address, *(address + 1));
-  measurement->y = uint82int16(*(address + 2), *(address + 3));
-  measurement->z = uint82int16(*(address + 4), *(address + 5));
+void get_xyz16(xyz16 *measurement, uint8_t *address) {
+    measurement->x = uint82int16(*address, *(address + 1));
+    measurement->y = uint82int16(*(address + 2), *(address + 3));
+    measurement->z = uint82int16(*(address + 4), *(address + 5));
 }
 
 /**
@@ -168,17 +164,14 @@ void get_xyz16(xyz16* measurement, uint8_t* address) {
  * @param coef
  * 		formatted value = rawval * coef;
  */
-void get_3x3(float* matrix, uint8_t* address, float coef) {
-  for (int i = 0; i < 3; i++) {
-    matrix[4 * i] =
-        coef * uint82int16(*(address + 2 * i), *(address + 2 * i + 1));
-  }
-  for (int i = 0; i < 3; i++) {
-    matrix[1 + i] = coef * uint82int16(*(address + 2 * (i + 3)),
-                                       *(address + 2 * (i + 1) + 1));
-    matrix[5 + i] = coef * uint82int16(*(address + 2 * (i + 6)),
-                                       *(address + 2 * (i + 5) + 1));
-  }
+void get_3x3(float *matrix, uint8_t *address, float coef) {
+    for (int i = 0; i < 3; i++) {
+        matrix[4 * i] = coef * uint82int16(*(address + 2 * i), *(address + 2 * i + 1));
+    }
+    for (int i = 0; i < 3; i++) {
+        matrix[1 + i] = coef * uint82int16(*(address + 2 * (i + 3)), *(address + 2 * (i + 1) + 1));
+        matrix[5 + i] = coef * uint82int16(*(address + 2 * (i + 6)), *(address + 2 * (i + 5) + 1));
+    }
 }
 
 /*************************** Common TCs ***************************/
@@ -189,10 +182,10 @@ void get_3x3(float* matrix, uint8_t* address, float coef) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_reset(void) {
-  uint8_t command[2];
-  command[0] = RESET_ID;
-  command[1] = ADCS_MAGIC_NUMBER;  // Magic number 0x5A
-  return adcs_telecommand(command, 2);
+    uint8_t command[2];
+    command[0] = RESET_ID;
+    command[1] = ADCS_MAGIC_NUMBER; // Magic number 0x5A
+    return adcs_telecommand(command, 2);
 }
 
 /**
@@ -203,8 +196,8 @@ ADCS_returnState ADCS_reset(void) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_reset_log_pointer(void) {
-  uint8_t command = RESET_LOG_POINTER_ID;
-  return adcs_telecommand(&command, 1);
+    uint8_t command = RESET_LOG_POINTER_ID;
+    return adcs_telecommand(&command, 1);
 }
 
 /**
@@ -215,8 +208,8 @@ ADCS_returnState ADCS_reset_log_pointer(void) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_advance_log_pointer(void) {
-  uint8_t command = ADVANCE_LOG_POINTER_ID;
-  return adcs_telecommand(&command, 1);
+    uint8_t command = ADVANCE_LOG_POINTER_ID;
+    return adcs_telecommand(&command, 1);
 }
 
 /**
@@ -226,8 +219,8 @@ ADCS_returnState ADCS_advance_log_pointer(void) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_reset_boot_registers(void) {
-  uint8_t command = RESET_BOOT_REGISTERS_ID;
-  return adcs_telecommand(&command, 1);
+    uint8_t command = RESET_BOOT_REGISTERS_ID;
+    return adcs_telecommand(&command, 1);
 }
 
 /**
@@ -237,10 +230,10 @@ ADCS_returnState ADCS_reset_boot_registers(void) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_format_sd_card(void) {
-  uint8_t command[2];
-  command[0] = FORMAT_SD_CARD_ID;
-  command[1] = ADCS_MAGIC_NUMBER;  // magic number 0x5A
-  return adcs_telecommand(command, 2);
+    uint8_t command[2];
+    command[0] = FORMAT_SD_CARD_ID;
+    command[1] = ADCS_MAGIC_NUMBER; // magic number 0x5A
+    return adcs_telecommand(command, 2);
 }
 
 /**
@@ -258,14 +251,13 @@ ADCS_returnState ADCS_format_sd_card(void) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_erase_file(uint8_t file_type, uint8_t file_counter,
-                                 bool erase_all) {
-  uint8_t command[4];
-  command[0] = ERASE_FILE_ID;
-  command[1] = file_type;
-  command[2] = file_counter;
-  command[3] = erase_all;
-  return adcs_telecommand(command, 4);
+ADCS_returnState ADCS_erase_file(uint8_t file_type, uint8_t file_counter, bool erase_all) {
+    uint8_t command[4];
+    command[0] = ERASE_FILE_ID;
+    command[1] = file_type;
+    command[2] = file_counter;
+    command[3] = erase_all;
+    return adcs_telecommand(command, 4);
 }
 
 /**
@@ -283,20 +275,18 @@ ADCS_returnState ADCS_erase_file(uint8_t file_type, uint8_t file_counter,
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_load_file_download_block(uint8_t file_type,
-                                               uint8_t counter, uint32_t offset,
+ADCS_returnState ADCS_load_file_download_block(uint8_t file_type, uint8_t counter, uint32_t offset,
                                                uint16_t block_length) {
-  uint8_t command[9];
-  command[0] = LOAD_FILE_DOWNLOAD_BLOCK_ID;
-  command[1] = file_type;
-  command[2] = counter;
-  memcpy(&command[3], &offset, 4);
-  command[7] = block_length & 0xFF;
-  command[8] = block_length >> 8;
+    uint8_t command[9];
+    command[0] = LOAD_FILE_DOWNLOAD_BLOCK_ID;
+    command[1] = file_type;
+    command[2] = counter;
+    memcpy(&command[3], &offset, 4);
+    command[7] = block_length & 0xFF;
+    command[8] = block_length >> 8;
 
-  return adcs_telecommand(
-      command, 5);  //* tested + (command[6] * 256 * 256 * 256 + command[5] *
-                    // 256 * 256 + command[4] * 256 + command[3])
+    return adcs_telecommand(command, 5); //* tested + (command[6] * 256 * 256 * 256 + command[5] *
+                                         // 256 * 256 + command[4] * 256 + command[3])
 }
 
 /**
@@ -306,8 +296,8 @@ ADCS_returnState ADCS_load_file_download_block(uint8_t file_type,
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_advance_file_list_read_pointer(void) {
-  uint8_t command = ADVANCE_FILE_LIST_READ_POINTER_ID;
-  return adcs_telecommand(&command, 1);
+    uint8_t command = ADVANCE_FILE_LIST_READ_POINTER_ID;
+    return adcs_telecommand(&command, 1);
 }
 
 /**
@@ -322,13 +312,12 @@ ADCS_returnState ADCS_advance_file_list_read_pointer(void) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_initiate_file_upload(uint8_t file_dest,
-                                           uint8_t block_size) {
-  uint8_t command[3];
-  command[0] = INITIATE_FILE_UPLOAD_ID;
-  command[1] = file_dest;
-  command[2] = block_size;
-  return adcs_telecommand(command, 3);
+ADCS_returnState ADCS_initiate_file_upload(uint8_t file_dest, uint8_t block_size) {
+    uint8_t command[3];
+    command[0] = INITIATE_FILE_UPLOAD_ID;
+    command[1] = file_dest;
+    command[2] = block_size;
+    return adcs_telecommand(command, 3);
 }
 
 /**
@@ -341,16 +330,14 @@ ADCS_returnState ADCS_initiate_file_upload(uint8_t file_dest,
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_file_upload_packet(uint16_t packet_number,
-                                         char* file_bytes) {
-  uint8_t command[23];
-  command[0] = FILE_UPLOAD_PACKET_ID;
-  command[1] = packet_number & 0xFF;
-  command[2] = packet_number >> 8;
-  memcpy(&command[3], file_bytes, 22);
-  return adcs_telecommand(
-      command,
-      3);  //* Tested. returns ascii value of the string test: +command[6]
+ADCS_returnState ADCS_file_upload_packet(uint16_t packet_number, char *file_bytes) {
+    uint8_t command[23];
+    command[0] = FILE_UPLOAD_PACKET_ID;
+    command[1] = packet_number & 0xFF;
+    command[2] = packet_number >> 8;
+    memcpy(&command[3], file_bytes, 22);
+    return adcs_telecommand(command,
+                            3); //* Tested. returns ascii value of the string test: +command[6]
 }
 
 /**
@@ -365,15 +352,14 @@ ADCS_returnState ADCS_file_upload_packet(uint16_t packet_number,
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_finalize_upload_block(uint8_t file_dest, uint32_t offset,
-                                            uint16_t block_length) {
-  uint8_t command[8];
-  command[0] = FINALIZE_UPLOAD_BLOCK_ID;
-  command[1] = file_dest;
-  memcpy(&command[2], &offset, 4);
-  command[6] = block_length & 0xFF;
-  command[7] = block_length >> 8;
-  return adcs_telecommand(command, 8);
+ADCS_returnState ADCS_finalize_upload_block(uint8_t file_dest, uint32_t offset, uint16_t block_length) {
+    uint8_t command[8];
+    command[0] = FINALIZE_UPLOAD_BLOCK_ID;
+    command[1] = file_dest;
+    memcpy(&command[2], &offset, 4);
+    command[6] = block_length & 0xFF;
+    command[7] = block_length >> 8;
+    return adcs_telecommand(command, 8);
 }
 
 /**
@@ -383,8 +369,8 @@ ADCS_returnState ADCS_finalize_upload_block(uint8_t file_dest, uint32_t offset,
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_reset_upload_block(void) {
-  uint8_t command = RESET_UPLOAD_BLOCK_ID;
-  return adcs_telecommand(&command, 1);
+    uint8_t command = RESET_UPLOAD_BLOCK_ID;
+    return adcs_telecommand(&command, 1);
 }
 
 /**
@@ -394,8 +380,8 @@ ADCS_returnState ADCS_reset_upload_block(void) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_reset_file_list_read_pointer(void) {
-  uint8_t command = RESET_FILE_LIST_READ_POINTER_ID;
-  return adcs_telecommand(&command, 1);
+    uint8_t command = RESET_FILE_LIST_READ_POINTER_ID;
+    return adcs_telecommand(&command, 1);
 }
 
 /**
@@ -408,13 +394,12 @@ ADCS_returnState ADCS_reset_file_list_read_pointer(void) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_initiate_download_burst(uint8_t msg_length,
-                                              bool ignore_hole_map) {
-  uint8_t command[3];
-  command[0] = INITIATE_DOWNLOAD_BURST_ID;
-  command[1] = msg_length;
-  command[2] = ignore_hole_map;
-  return adcs_telecommand(command, 3);
+ADCS_returnState ADCS_initiate_download_burst(uint8_t msg_length, bool ignore_hole_map) {
+    uint8_t command[3];
+    command[0] = INITIATE_DOWNLOAD_BURST_ID;
+    command[1] = msg_length;
+    command[2] = ignore_hole_map;
+    return adcs_telecommand(command, 3);
 }
 
 /*************************** Common TMs ***************************/
@@ -428,19 +413,18 @@ ADCS_returnState ADCS_initiate_download_burst(uint8_t msg_length,
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_node_identification(
-    uint8_t* node_type, uint8_t* interface_ver, uint8_t* major_firm_ver,
-    uint8_t* minor_firm_ver, uint16_t* runtime_s, uint16_t* runtime_ms) {
-  uint8_t telemetry[8];
-  ADCS_returnState state;
-  state = adcs_telemetry(NODE_IDENTIFICATION_ID, telemetry, 8);
-  *node_type = telemetry[0];
-  *interface_ver = telemetry[1];
-  *major_firm_ver = telemetry[2];
-  *minor_firm_ver = telemetry[3];
-  *runtime_s = (telemetry[5] << 8) | telemetry[4];   // [s]
-  *runtime_ms = (telemetry[7] << 8) | telemetry[6];  // [ms]
-  return state;
+ADCS_returnState ADCS_get_node_identification(uint8_t *node_type, uint8_t *interface_ver, uint8_t *major_firm_ver,
+                                              uint8_t *minor_firm_ver, uint16_t *runtime_s, uint16_t *runtime_ms) {
+    uint8_t telemetry[8];
+    ADCS_returnState state;
+    state = adcs_telemetry(NODE_IDENTIFICATION_ID, telemetry, 8);
+    *node_type = telemetry[0];
+    *interface_ver = telemetry[1];
+    *major_firm_ver = telemetry[2];
+    *minor_firm_ver = telemetry[3];
+    *runtime_s = (telemetry[5] << 8) | telemetry[4];  // [s]
+    *runtime_ms = (telemetry[7] << 8) | telemetry[6]; // [ms]
+    return state;
 }
 
 /**
@@ -484,13 +468,13 @@ ADCS_returnState ADCS_get_boot_program_stat(uint8_t* mcu_reset_cause,
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_boot_index(uint8_t* program_idx, uint8_t* boot_stat) {
-  uint8_t telemetry[2];
-  ADCS_returnState state;
-  state = adcs_telemetry(BOOT_IDX_STAT, telemetry, 2);
-  *program_idx = telemetry[0];
-  *boot_stat = telemetry[1];
-  return state;
+ADCS_returnState ADCS_get_boot_index(uint8_t *program_idx, uint8_t *boot_stat) {
+    uint8_t telemetry[2];
+    ADCS_returnState state;
+    state = adcs_telemetry(BOOT_IDX_STAT, telemetry, 2);
+    *program_idx = telemetry[0];
+    *boot_stat = telemetry[1];
+    return state;
 }
 
 /**
@@ -500,16 +484,14 @@ ADCS_returnState ADCS_get_boot_index(uint8_t* program_idx, uint8_t* boot_stat) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_last_logged_event(uint32_t* time, uint8_t* event_id,
-                                            uint8_t* event_param) {
-  uint8_t telemetry[6];
-  ADCS_returnState state;
-  state = adcs_telemetry(LAST_LOGGED_EVENT_ID, telemetry, 6);
-  *time = (telemetry[3] << 24) | (telemetry[2] << 16) | (telemetry[1] << 8) |
-          telemetry[0];
-  *event_id = telemetry[4];
-  *event_param = telemetry[5];
-  return state;
+ADCS_returnState ADCS_get_last_logged_event(uint32_t *time, uint8_t *event_id, uint8_t *event_param) {
+    uint8_t telemetry[6];
+    ADCS_returnState state;
+    state = adcs_telemetry(LAST_LOGGED_EVENT_ID, telemetry, 6);
+    *time = (telemetry[3] << 24) | (telemetry[2] << 16) | (telemetry[1] << 8) | telemetry[0];
+    *event_id = telemetry[4];
+    *event_param = telemetry[5];
+    return state;
 }
 
 /**
@@ -518,14 +500,13 @@ ADCS_returnState ADCS_get_last_logged_event(uint32_t* time, uint8_t* event_id,
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_SD_format_progress(bool* format_busy,
-                                             bool* erase_all_busy) {
-  uint8_t telemetry[1];
-  ADCS_returnState state;
-  state = adcs_telemetry(SD_FORMAT_PROGRESS, telemetry, 1);
-  *format_busy = telemetry[0] & 0x1;
-  *erase_all_busy = telemetry[0] & 0x2;
-  return state;
+ADCS_returnState ADCS_get_SD_format_progress(bool *format_busy, bool *erase_all_busy) {
+    uint8_t telemetry[1];
+    ADCS_returnState state;
+    state = adcs_telemetry(SD_FORMAT_PROGRESS, telemetry, 1);
+    *format_busy = telemetry[0] & 0x1;
+    *erase_all_busy = telemetry[0] & 0x2;
+    return state;
 }
 
 /**
@@ -537,17 +518,16 @@ ADCS_returnState ADCS_get_SD_format_progress(bool* format_busy,
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_TC_ack(uint8_t* last_tc_id, bool* tc_processed,
-                                 ADCS_returnState* tc_err_stat,
-                                 uint8_t* tc_err_idx) {
-  uint8_t telemetry[4];
-  ADCS_returnState state;
-  state = adcs_telemetry(LAST_TC_ACK_ID, telemetry, 4);
-  *last_tc_id = telemetry[0];
-  *tc_processed = telemetry[1] & 1;
-  *tc_err_stat = telemetry[2];
-  *tc_err_idx = telemetry[3];
-  return state;
+ADCS_returnState ADCS_get_TC_ack(uint8_t *last_tc_id, bool *tc_processed, ADCS_returnState *tc_err_stat,
+                                 uint8_t *tc_err_idx) {
+    uint8_t telemetry[4];
+    ADCS_returnState state;
+    state = adcs_telemetry(LAST_TC_ACK_ID, telemetry, 4);
+    *last_tc_id = telemetry[0];
+    *tc_processed = telemetry[1] & 1;
+    *tc_err_stat = telemetry[2];
+    *tc_err_idx = telemetry[3];
+    return state;
 }
 
 /**
@@ -558,14 +538,13 @@ ADCS_returnState ADCS_get_TC_ack(uint8_t* last_tc_id, bool* tc_processed,
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_file_download_buffer(uint16_t* packet_count,
-                                               uint8_t* file[20]) {
-  uint8_t telemetry[22];
-  ADCS_returnState state;
-  state = adcs_telemetry(FILE_DL_BUFFER_ID, telemetry, 22);
-  *packet_count = (telemetry[1] << 8) | telemetry[0];
-  memcpy(&file, &telemetry[2], 20);
-  return state;
+ADCS_returnState ADCS_get_file_download_buffer(uint16_t *packet_count, uint8_t *file[20]) {
+    uint8_t telemetry[22];
+    ADCS_returnState state;
+    state = adcs_telemetry(FILE_DL_BUFFER_ID, telemetry, 22);
+    *packet_count = (telemetry[1] << 8) | telemetry[0];
+    memcpy(&file, &telemetry[2], 20);
+    return state;
 }
 
 /**
@@ -578,17 +557,16 @@ ADCS_returnState ADCS_get_file_download_buffer(uint16_t* packet_count,
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_file_download_block_stat(bool* ready, bool* param_err,
-                                                   uint16_t* crc16_checksum,
-                                                   uint16_t* length) {
-  uint8_t telemetry[5];
-  ADCS_returnState state;
-  state = adcs_telemetry(DL_BLOCK_STAT_ID, telemetry, 5);
-  *ready = telemetry[0] & 0x1;
-  *param_err = telemetry[0] & 0x2;
-  *crc16_checksum = (telemetry[2] << 8) + telemetry[1];
-  *length = (telemetry[4] << 8) | telemetry[3];
-  return state;
+ADCS_returnState ADCS_get_file_download_block_stat(bool *ready, bool *param_err, uint16_t *crc16_checksum,
+                                                   uint16_t *length) {
+    uint8_t telemetry[5];
+    ADCS_returnState state;
+    state = adcs_telemetry(DL_BLOCK_STAT_ID, telemetry, 5);
+    *ready = telemetry[0] & 0x1;
+    *param_err = telemetry[0] & 0x2;
+    *crc16_checksum = (telemetry[2] << 8) + telemetry[1];
+    *length = (telemetry[4] << 8) | telemetry[3];
+    return state;
 }
 
 /**
@@ -601,21 +579,18 @@ ADCS_returnState ADCS_get_file_download_block_stat(bool* ready, bool* param_err,
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_file_info(uint8_t* type, bool* updating,
-                                    uint8_t* counter, uint32_t* size,
-                                    uint32_t* time, uint16_t* crc16_checksum) {
-  uint8_t telemetry[12];
-  ADCS_returnState state;
-  state = adcs_telemetry(FILE_INFO_ID, telemetry, 12);
-  *type = telemetry[0] & 0xF;
-  *updating = (telemetry[0] >> 4) & 1;
-  *counter = telemetry[1];
-  *size = (telemetry[5] << 24) | (telemetry[4] << 16) | (telemetry[3] << 8) |
-          telemetry[2];
-  *time = (telemetry[9] << 24) | (telemetry[8] << 16) | (telemetry[7] << 8) |
-          telemetry[6];
-  *crc16_checksum = (telemetry[11] << 8) | telemetry[10];
-  return state;
+ADCS_returnState ADCS_get_file_info(uint8_t *type, bool *updating, uint8_t *counter, uint32_t *size,
+                                    uint32_t *time, uint16_t *crc16_checksum) {
+    uint8_t telemetry[12];
+    ADCS_returnState state;
+    state = adcs_telemetry(FILE_INFO_ID, telemetry, 12);
+    *type = telemetry[0] & 0xF;
+    *updating = (telemetry[0] >> 4) & 1;
+    *counter = telemetry[1];
+    *size = (telemetry[5] << 24) | (telemetry[4] << 16) | (telemetry[3] << 8) | telemetry[2];
+    *time = (telemetry[9] << 24) | (telemetry[8] << 16) | (telemetry[7] << 8) | telemetry[6];
+    *crc16_checksum = (telemetry[11] << 8) | telemetry[10];
+    return state;
 }
 
 /**
@@ -624,12 +599,12 @@ ADCS_returnState ADCS_get_file_info(uint8_t* type, bool* updating,
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_init_upload_stat(bool* busy) {
-  uint8_t telemetry[1];
-  ADCS_returnState state;
-  state = adcs_telemetry(INIT_UPLOAD_STAT_ID, telemetry, 1);
-  *busy = telemetry[0] & 1;
-  return state;
+ADCS_returnState ADCS_get_init_upload_stat(bool *busy) {
+    uint8_t telemetry[1];
+    ADCS_returnState state;
+    state = adcs_telemetry(INIT_UPLOAD_STAT_ID, telemetry, 1);
+    *busy = telemetry[0] & 1;
+    return state;
 }
 
 /**
@@ -638,13 +613,13 @@ ADCS_returnState ADCS_get_init_upload_stat(bool* busy) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_finalize_upload_stat(bool* busy, bool* err) {
-  uint8_t telemetry[1];
-  ADCS_returnState state;
-  state = adcs_telemetry(FINIALIZE_UPLOAD_STAT_ID, telemetry, 1);
-  *busy = telemetry[0] & 0x1;
-  *busy = telemetry[0] & 0x2;
-  return state;
+ADCS_returnState ADCS_get_finalize_upload_stat(bool *busy, bool *err) {
+    uint8_t telemetry[1];
+    ADCS_returnState state;
+    state = adcs_telemetry(FINIALIZE_UPLOAD_STAT_ID, telemetry, 1);
+    *busy = telemetry[0] & 0x1;
+    *busy = telemetry[0] & 0x2;
+    return state;
 }
 
 /**
@@ -653,12 +628,12 @@ ADCS_returnState ADCS_get_finalize_upload_stat(bool* busy, bool* err) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_upload_crc16_checksum(uint16_t* checksum) {
-  uint8_t telemetry[2];
-  ADCS_returnState state;
-  state = adcs_telemetry(UPLOAD_CRC16_ID, telemetry, 2);
-  *checksum = (telemetry[1] << 8) | telemetry[0];
-  return state;
+ADCS_returnState ADCS_get_upload_crc16_checksum(uint16_t *checksum) {
+    uint8_t telemetry[2];
+    ADCS_returnState state;
+    state = adcs_telemetry(UPLOAD_CRC16_ID, telemetry, 2);
+    *checksum = (telemetry[1] << 8) | telemetry[0];
+    return state;
 }
 
 /**
@@ -669,13 +644,13 @@ ADCS_returnState ADCS_get_upload_crc16_checksum(uint16_t* checksum) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_SRAM_latchup_count(uint16_t* sram1, uint16_t* sram2) {
-  uint8_t telemetry[6];
-  ADCS_returnState state;
-  state = adcs_telemetry(SRAM_LATCHUP_COUNT_ID, telemetry, 6);
-  *sram1 = (telemetry[1] << 8) | telemetry[0];
-  *sram2 = (telemetry[3] << 8) | telemetry[2];
-  return state;
+ADCS_returnState ADCS_get_SRAM_latchup_count(uint16_t *sram1, uint16_t *sram2) {
+    uint8_t telemetry[6];
+    ADCS_returnState state;
+    state = adcs_telemetry(SRAM_LATCHUP_COUNT_ID, telemetry, 6);
+    *sram1 = (telemetry[1] << 8) | telemetry[0];
+    *sram2 = (telemetry[3] << 8) | telemetry[2];
+    return state;
 }
 
 /**
@@ -686,16 +661,14 @@ ADCS_returnState ADCS_get_SRAM_latchup_count(uint16_t* sram1, uint16_t* sram2) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_EDAC_err_count(uint16_t* single_sram,
-                                         uint16_t* double_sram,
-                                         uint16_t* multi_sram) {
-  uint8_t telemetry[6];
-  ADCS_returnState state;
-  state = adcs_telemetry(EDAC_ERR_COUNT_ID, telemetry, 6);
-  *single_sram = (telemetry[1] << 8) | telemetry[0];
-  *double_sram = (telemetry[3] << 8) | telemetry[2];
-  *multi_sram = (telemetry[5] << 8) | telemetry[4];
-  return state;
+ADCS_returnState ADCS_get_EDAC_err_count(uint16_t *single_sram, uint16_t *double_sram, uint16_t *multi_sram) {
+    uint8_t telemetry[6];
+    ADCS_returnState state;
+    state = adcs_telemetry(EDAC_ERR_COUNT_ID, telemetry, 6);
+    *single_sram = (telemetry[1] << 8) | telemetry[0];
+    *double_sram = (telemetry[3] << 8) | telemetry[2];
+    *multi_sram = (telemetry[5] << 8) | telemetry[4];
+    return state;
 }
 
 /**
@@ -709,16 +682,16 @@ ADCS_returnState ADCS_get_EDAC_err_count(uint16_t* single_sram,
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_comms_stat(uint16_t telemetry[6], uint16_t* TC_num, uint16_t* TM_num,
-                                     uint8_t* flags_arr) {
-  ADCS_returnState state;
-  state = adcs_telemetry(COMMS_STAT_ID, telemetry, 6);
-  *TC_num = (telemetry[1] << 8) | telemetry[0];
-  *TM_num = (telemetry[3] << 8) | telemetry[2];
-  for (int i = 0; i < 6; i++) {
-    *(flags_arr + i) = (telemetry[4] >> i) & 1;
-  }
-  return state;
+ADCS_returnState ADCS_get_comms_stat(uint16_t telemetry[6], uint16_t *TC_num, uint16_t *TM_num,
+                                     uint8_t *flags_arr) {
+    ADCS_returnState state;
+    state = adcs_telemetry(COMMS_STAT_ID, telemetry, 6);
+    *TC_num = (telemetry[1] << 8) | telemetry[0];
+    *TM_num = (telemetry[3] << 8) | telemetry[2];
+    for (int i = 0; i < 6; i++) {
+        *(flags_arr + i) = (telemetry[4] >> i) & 1;
+    }
+    return state;
 }
 
 /************************* Common Config Msgs *************************/
@@ -729,10 +702,10 @@ ADCS_returnState ADCS_get_comms_stat(uint16_t telemetry[6], uint16_t* TC_num, ui
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_cache_en_state(bool en_state) {
-  uint8_t command[2];
-  command[0] = SET_CACHE_EN_STATE_ID;
-  command[1] = en_state;
-  return adcs_telecommand(command, 2);
+    uint8_t command[2];
+    command[0] = SET_CACHE_EN_STATE_ID;
+    command[1] = en_state;
+    return adcs_telecommand(command, 2);
 }
 
 /**
@@ -742,10 +715,10 @@ ADCS_returnState ADCS_set_cache_en_state(bool en_state) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_sram_scrub_size(uint16_t size) {
-  uint8_t command[3];
-  command[0] = SET_SRAM_SCRUB_PARAM_ID;
-  memcpy(&command[1], &size, 2);
-  return adcs_telecommand(command, 3);
+    uint8_t command[3];
+    command[0] = SET_SRAM_SCRUB_PARAM_ID;
+    memcpy(&command[1], &size, 2);
+    return adcs_telecommand(command, 3);
 }
 
 /**
@@ -764,11 +737,11 @@ ADCS_returnState ADCS_set_sram_scrub_size(uint16_t size) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_UnixTime_save_config(uint8_t when, uint8_t period) {
-  uint8_t command[3];
-  command[0] = SET_UNIX_TIME_SAVE_ID;
-  command[1] = when;
-  command[2] = period;  // [s]
-  return adcs_telecommand(command, 3);
+    uint8_t command[3];
+    command[0] = SET_UNIX_TIME_SAVE_ID;
+    command[1] = when;
+    command[2] = period; // [s]
+    return adcs_telecommand(command, 3);
 }
 
 /**
@@ -781,11 +754,11 @@ ADCS_returnState ADCS_set_UnixTime_save_config(uint8_t when, uint8_t period) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_set_hole_map(uint8_t* hole_map, uint8_t num) {
-  uint8_t command[17];
-  command[0] = SET_HOLE_MAP_ID + num;
-  memcpy(&command[1], hole_map, 16);
-  return adcs_telecommand(command, 17);  //* + command[9]. Tested
+ADCS_returnState ADCS_set_hole_map(uint8_t *hole_map, uint8_t num) {
+    uint8_t command[17];
+    command[0] = SET_HOLE_MAP_ID + num;
+    memcpy(&command[1], hole_map, 16);
+    return adcs_telecommand(command, 17); //* + command[9]. Tested
 }
 
 /**
@@ -797,11 +770,11 @@ ADCS_returnState ADCS_set_hole_map(uint8_t* hole_map, uint8_t num) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_unix_t(uint32_t unix_t, uint16_t count_ms) {
-  uint8_t command[7];
-  command[0] = SET_CURRENT_UNIX_TIME;
-  memcpy(&command[1], &unix_t, 4);
-  memcpy(&command[5], &count_ms, 2);  // [ms]
-  return adcs_telecommand(command, 7);
+    uint8_t command[7];
+    command[0] = SET_CURRENT_UNIX_TIME;
+    memcpy(&command[1], &unix_t, 4);
+    memcpy(&command[5], &count_ms, 2); // [ms]
+    return adcs_telecommand(command, 7);
 }
 
 /**
@@ -810,12 +783,12 @@ ADCS_returnState ADCS_set_unix_t(uint32_t unix_t, uint16_t count_ms) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_cache_en_state(bool* en_state) {
-  uint8_t telemetry[1];
-  ADCS_returnState state;
-  state = adcs_telemetry(GET_CACHE_EN_STATE_ID, telemetry, 1);
-  *en_state = telemetry[0] & 1;
-  return state;
+ADCS_returnState ADCS_get_cache_en_state(bool *en_state) {
+    uint8_t telemetry[1];
+    ADCS_returnState state;
+    state = adcs_telemetry(GET_CACHE_EN_STATE_ID, telemetry, 1);
+    *en_state = telemetry[0] & 1;
+    return state;
 }
 
 /**
@@ -824,12 +797,12 @@ ADCS_returnState ADCS_get_cache_en_state(bool* en_state) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_sram_scrub_size(uint16_t* size) {
-  uint8_t telemetry[2];
-  ADCS_returnState state;
-  state = adcs_telemetry(GET_SRAM_SCRUB_PARAM_ID, telemetry, 2);
-  *size = (telemetry[1] >> 8) | telemetry[0];
-  return state;
+ADCS_returnState ADCS_get_sram_scrub_size(uint16_t *size) {
+    uint8_t telemetry[2];
+    ADCS_returnState state;
+    state = adcs_telemetry(GET_SRAM_SCRUB_PARAM_ID, telemetry, 2);
+    *size = (telemetry[1] >> 8) | telemetry[0];
+    return state;
 }
 
 /**
@@ -847,13 +820,13 @@ ADCS_returnState ADCS_get_sram_scrub_size(uint16_t* size) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_UnixTime_save_config(uint8_t* when, uint8_t* period) {
-  uint8_t telemetry[2];
-  ADCS_returnState state;
-  state = adcs_telemetry(GET_UNIX_TIME_SAVE_ID, telemetry, 2);
-  *when = telemetry[0];
-  *period = telemetry[1];
-  return state;
+ADCS_returnState ADCS_get_UnixTime_save_config(uint8_t *when, uint8_t *period) {
+    uint8_t telemetry[2];
+    ADCS_returnState state;
+    state = adcs_telemetry(GET_UNIX_TIME_SAVE_ID, telemetry, 2);
+    *when = telemetry[0];
+    *period = telemetry[1];
+    return state;
 }
 
 /**
@@ -866,13 +839,13 @@ ADCS_returnState ADCS_get_UnixTime_save_config(uint8_t* when, uint8_t* period) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_hole_map(uint8_t* hole_map, uint8_t num) {
-  uint8_t telemetry[16];
-  ADCS_returnState state;
-  uint8_t TM_ID = GET_HOLE_MAP_ID + num;
-  state = adcs_telemetry(TM_ID, telemetry, 16);
-  memcpy(&hole_map, &telemetry[0], 16);
-  return state;
+ADCS_returnState ADCS_get_hole_map(uint8_t *hole_map, uint8_t num) {
+    uint8_t telemetry[16];
+    ADCS_returnState state;
+    uint8_t TM_ID = GET_HOLE_MAP_ID + num;
+    state = adcs_telemetry(TM_ID, telemetry, 16);
+    memcpy(&hole_map, &telemetry[0], 16);
+    return state;
 }
 
 /**
@@ -883,13 +856,13 @@ ADCS_returnState ADCS_get_hole_map(uint8_t* hole_map, uint8_t num) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_unix_t(uint32_t* unix_t, uint16_t* count_ms) {
-  uint8_t telemetry[6];
-  ADCS_returnState state;
-  state = adcs_telemetry(GET_CURRENT_UNIX_TIME, telemetry, 6);
-  memcpy(&unix_t, &telemetry[0], 4);
-  memcpy(&count_ms, &telemetry[4], 2);  // [ms]
-  return state;
+ADCS_returnState ADCS_get_unix_t(uint32_t *unix_t, uint16_t *count_ms) {
+    uint8_t telemetry[6];
+    ADCS_returnState state;
+    state = adcs_telemetry(GET_CURRENT_UNIX_TIME, telemetry, 6);
+    memcpy(&unix_t, &telemetry[0], 4);
+    memcpy(&count_ms, &telemetry[4], 2); // [ms]
+    return state;
 }
 
 /*************************** BootLoader TCs ***************************/
@@ -900,8 +873,8 @@ ADCS_returnState ADCS_get_unix_t(uint32_t* unix_t, uint16_t* count_ms) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_clear_err_flags(void) {
-  uint8_t command = CLEAR_ERR_FLAGS_ID;
-  return adcs_telecommand(&command, 1);
+    uint8_t command = CLEAR_ERR_FLAGS_ID;
+    return adcs_telecommand(&command, 1);
 }
 
 /**
@@ -913,14 +886,14 @@ ADCS_returnState ADCS_clear_err_flags(void) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_boot_index(uint8_t index) {
-  uint8_t command[2];
-  command[0] = SET_BOOT_INDEX_ID;
-  if (index != 1) {
-    return ADCS_INVALID_PARAMETERS;
-  } else {
-    command[1] = 1;
-    return adcs_telecommand(command, 2);
-  }
+    uint8_t command[2];
+    command[0] = SET_BOOT_INDEX_ID;
+    if (index != 1) {
+        return ADCS_INVALID_PARAMETERS;
+    } else {
+        command[1] = 1;
+        return adcs_telecommand(command, 2);
+    }
 }
 
 /**
@@ -932,8 +905,8 @@ ADCS_returnState ADCS_set_boot_index(uint8_t index) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_run_selected_program(void) {
-  uint8_t command = RUN_SELECTED_PROGRAM_ID;
-  return adcs_telecommand(&command, 1);
+    uint8_t command = RUN_SELECTED_PROGRAM_ID;
+    return adcs_telecommand(&command, 1);
 }
 
 /**
@@ -948,14 +921,14 @@ ADCS_returnState ADCS_run_selected_program(void) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_read_program_info(uint8_t index) {
-  uint8_t command[2];
-  command[0] = READ_PROGRAM_INFO_ID;
-  if (index < 0 || index > 18) {
-    return ADCS_INVALID_PARAMETERS;
-  } else {
-    command[1] = index;
-    return adcs_telecommand(command, 2);
-  }
+    uint8_t command[2];
+    command[0] = READ_PROGRAM_INFO_ID;
+    if (index < 0 || index > 18) {
+        return ADCS_INVALID_PARAMETERS;
+    } else {
+        command[1] = index;
+        return adcs_telecommand(command, 2);
+    }
 }
 
 /**
@@ -971,17 +944,16 @@ ADCS_returnState ADCS_read_program_info(uint8_t index) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_copy_program_internal_flash(uint8_t index,
-                                                  uint8_t overwrite_flag) {
-  uint8_t command[3];
-  command[0] = COPY_PROGRAM_INTERNAL_FLASH_ID;
-  if (index < 0 || index > 18) {
-    return ADCS_INVALID_PARAMETERS;
-  } else {
-    command[1] = index;
-    command[2] = overwrite_flag;
-    return adcs_telecommand(command, 3);
-  }
+ADCS_returnState ADCS_copy_program_internal_flash(uint8_t index, uint8_t overwrite_flag) {
+    uint8_t command[3];
+    command[0] = COPY_PROGRAM_INTERNAL_FLASH_ID;
+    if (index < 0 || index > 18) {
+        return ADCS_INVALID_PARAMETERS;
+    } else {
+        command[1] = index;
+        command[2] = overwrite_flag;
+        return adcs_telecommand(command, 3);
+    }
 }
 
 /*************************** BootLoader TMs ***************************/
@@ -1025,18 +997,15 @@ ADCS_returnState ADCS_get_bootloader_state(uint16_t* uptime,
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_program_info(uint8_t* index, bool* busy,
-                                       uint32_t* file_size,
-                                       uint16_t* crc16_checksum) {
-  uint8_t telemetry[8];
-  ADCS_returnState state;
-  state = adcs_telemetry(GET_PROGRAM_INFO_ID, telemetry, 8);
-  *index = telemetry[0];
-  *busy = telemetry[1] & 1;
-  *file_size = (telemetry[5] << 24) + (telemetry[4] << 16) +
-               (telemetry[3] << 8) + telemetry[2];
-  *crc16_checksum = (telemetry[7] << 8) + telemetry[6];
-  return state;
+ADCS_returnState ADCS_get_program_info(uint8_t *index, bool *busy, uint32_t *file_size, uint16_t *crc16_checksum) {
+    uint8_t telemetry[8];
+    ADCS_returnState state;
+    state = adcs_telemetry(GET_PROGRAM_INFO_ID, telemetry, 8);
+    *index = telemetry[0];
+    *busy = telemetry[1] & 1;
+    *file_size = (telemetry[5] << 24) + (telemetry[4] << 16) + (telemetry[3] << 8) + telemetry[2];
+    *crc16_checksum = (telemetry[7] << 8) + telemetry[6];
+    return state;
 }
 
 /**
@@ -1049,13 +1018,13 @@ ADCS_returnState ADCS_get_program_info(uint8_t* index, bool* busy,
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_copy_internal_flash_progress(bool* busy, bool* err) {
-  uint8_t telemetry;
-  ADCS_returnState state;
-  state = adcs_telemetry(COPY_INTERNAL_FLASH_PROGRESS_ID, &telemetry, 1);
-  *busy = telemetry & 1;
-  *err = telemetry & 2;
-  return state;
+ADCS_returnState ADCS_copy_internal_flash_progress(bool *busy, bool *err) {
+    uint8_t telemetry;
+    ADCS_returnState state;
+    state = adcs_telemetry(COPY_INTERNAL_FLASH_PROGRESS_ID, &telemetry, 1);
+    *busy = telemetry & 1;
+    *err = telemetry & 2;
+    return state;
 }
 
 /*************************** ACP TCs ***************************/
@@ -1070,10 +1039,10 @@ ADCS_returnState ADCS_copy_internal_flash_progress(bool* busy, bool* err) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_deploy_magnetometer_boom(uint8_t actuation_timeout) {
-  uint8_t command[2];
-  command[0] = DEPLOY_MAGNETOMETER_BOOM_ID;
-  command[1] = actuation_timeout;
-  return adcs_telecommand(command, 2);
+    uint8_t command[2];
+    command[0] = DEPLOY_MAGNETOMETER_BOOM_ID;
+    command[1] = actuation_timeout;
+    return adcs_telecommand(command, 2);
 }
 
 /**
@@ -1088,10 +1057,10 @@ ADCS_returnState ADCS_deploy_magnetometer_boom(uint8_t actuation_timeout) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_enabled_state(uint8_t state) {
-  uint8_t command[2];
-  command[0] = ADCS_RUN_MODE_ID;
-  command[1] = state;
-  return adcs_telecommand(command, 2);
+    uint8_t command[2];
+    command[0] = ADCS_RUN_MODE_ID;
+    command[1] = state;
+    return adcs_telecommand(command, 2);
 }
 
 /**
@@ -1103,12 +1072,11 @@ ADCS_returnState ADCS_set_enabled_state(uint8_t state) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_clear_latched_errs(bool adcs_flag, bool hk_flag) {
-  uint8_t command[2];
-  command[0] = CLEAR_LATCHED_ERRS_ID;
-  command[1] = adcs_flag + 2 * hk_flag;
-  return adcs_telecommand(
-      command,
-      2);  //* add "+ command[1]" for test and let it fail and check the value
+    uint8_t command[2];
+    command[0] = CLEAR_LATCHED_ERRS_ID;
+    command[1] = adcs_flag + 2 * hk_flag;
+    return adcs_telecommand(command,
+                            2); //* add "+ command[1]" for test and let it fail and check the value
 }
 
 /**
@@ -1119,14 +1087,13 @@ ADCS_returnState ADCS_clear_latched_errs(bool adcs_flag, bool hk_flag) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_set_attitude_ctrl_mode(uint8_t ctrl_mode,
-                                             uint16_t timeout) {
-  uint8_t command[4];
-  command[0] = SET_ATT_CONTROL_MODE_ID;
-  command[1] = ctrl_mode;
-  command[2] = timeout & 0xFF;
-  command[3] = timeout >> 8;
-  return adcs_telecommand(command, 4);  //*  + (256*command[3]+command[2])
+ADCS_returnState ADCS_set_attitude_ctrl_mode(uint8_t ctrl_mode, uint16_t timeout) {
+    uint8_t command[4];
+    command[0] = SET_ATT_CONTROL_MODE_ID;
+    command[1] = ctrl_mode;
+    command[2] = timeout & 0xFF;
+    command[3] = timeout >> 8;
+    return adcs_telecommand(command, 4); //*  + (256*command[3]+command[2])
 }
 
 /**
@@ -1137,10 +1104,10 @@ ADCS_returnState ADCS_set_attitude_ctrl_mode(uint8_t ctrl_mode,
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_attitude_estimate_mode(uint8_t mode) {
-  uint8_t command[2];
-  command[0] = SET_ATT_ESTIMATE_MODE_ID;
-  command[1] = mode;
-  return adcs_telecommand(command, 2);
+    uint8_t command[2];
+    command[0] = SET_ATT_ESTIMATE_MODE_ID;
+    command[1] = mode;
+    return adcs_telecommand(command, 2);
 }
 
 /**
@@ -1153,8 +1120,8 @@ ADCS_returnState ADCS_set_attitude_estimate_mode(uint8_t mode) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_trigger_adcs_loop(void) {
-  uint8_t command = TRIGGER_ADCS_LOOP_ID;
-  return adcs_telecommand(&command, 1);
+    uint8_t command = TRIGGER_ADCS_LOOP_ID;
+    return adcs_telecommand(&command, 1);
 }
 
 /**
@@ -1169,18 +1136,18 @@ ADCS_returnState ADCS_trigger_adcs_loop(void) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_trigger_adcs_loop_sim(sim_sensor_data sim_data) {
-  uint8_t command[128];
-  command[0] = TRIGGER_ADCS_LOOP_SIM_ID;
-  memcpy(&command[1], &sim_data, 121);
-  command[122] = sim_data.pos_std_dev.x * 10;
-  command[123] = sim_data.pos_std_dev.y * 10;
-  command[124] = sim_data.pos_std_dev.z * 10;
-  memcpy(&command[124], &sim_data.vel_std_dev, 3);
-  return adcs_telecommand(command, 128);
-  /* test cases:
-   + command[16] >> 8 | command[15]
-   + command[123]
-   */
+    uint8_t command[128];
+    command[0] = TRIGGER_ADCS_LOOP_SIM_ID;
+    memcpy(&command[1], &sim_data, 121);
+    command[122] = sim_data.pos_std_dev.x * 10;
+    command[123] = sim_data.pos_std_dev.y * 10;
+    command[124] = sim_data.pos_std_dev.z * 10;
+    memcpy(&command[124], &sim_data.vel_std_dev, 3);
+    return adcs_telecommand(command, 128);
+    /* test cases:
+     + command[16] >> 8 | command[15]
+     + command[123]
+     */
 }
 
 /**
@@ -1195,10 +1162,10 @@ ADCS_returnState ADCS_trigger_adcs_loop_sim(sim_sensor_data sim_data) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_ASGP4_rune_mode(uint8_t mode) {
-  uint8_t command[2];
-  command[0] = ASGP4_RUN_MODE_ID;
-  command[1] = mode;
-  return adcs_telecommand(command, 2);
+    uint8_t command[2];
+    command[0] = ASGP4_RUN_MODE_ID;
+    command[1] = mode;
+    return adcs_telecommand(command, 2);
 }
 
 /**
@@ -1208,8 +1175,8 @@ ADCS_returnState ADCS_set_ASGP4_rune_mode(uint8_t mode) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_trigger_ASGP4(void) {
-  uint8_t command = ASGP4_TRIGGER_ID;
-  return adcs_telecommand(&command, 1);
+    uint8_t command = ASGP4_TRIGGER_ID;
+    return adcs_telecommand(&command, 1);
 }
 
 /**
@@ -1224,10 +1191,10 @@ ADCS_returnState ADCS_trigger_ASGP4(void) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_MTM_op_mode(uint8_t mode) {
-  uint8_t command[2];
-  command[0] = SET_MTM_OP_MODE_ID;
-  command[1] = mode;
-  return adcs_telecommand(command, 2);
+    uint8_t command[2];
+    command[0] = SET_MTM_OP_MODE_ID;
+    command[1] = mode;
+    return adcs_telecommand(command, 2);
 }
 
 /**
@@ -1241,14 +1208,13 @@ ADCS_returnState ADCS_set_MTM_op_mode(uint8_t mode) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_cnv2jpg(uint8_t source, uint8_t QF,
-                              uint8_t white_balance) {
-  uint8_t command[4];
-  command[0] = CNV2JPG_ID;
-  command[1] = source;
-  command[1] = QF;
-  command[1] = white_balance;
-  return adcs_telecommand(command, 4);
+ADCS_returnState ADCS_cnv2jpg(uint8_t source, uint8_t QF, uint8_t white_balance) {
+    uint8_t command[4];
+    command[0] = CNV2JPG_ID;
+    command[1] = source;
+    command[1] = QF;
+    command[1] = white_balance;
+    return adcs_telecommand(command, 4);
 }
 
 /**
@@ -1269,11 +1235,11 @@ ADCS_returnState ADCS_cnv2jpg(uint8_t source, uint8_t QF,
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_save_img(uint8_t camera, uint8_t img_size) {
-  uint8_t command[3];
-  command[0] = SAVE_IMG_ID;
-  command[1] = camera;
-  command[1] = img_size;
-  return adcs_telecommand(command, 3);
+    uint8_t command[3];
+    command[0] = SAVE_IMG_ID;
+    command[1] = camera;
+    command[1] = img_size;
+    return adcs_telecommand(command, 3);
 }
 
 /**
@@ -1290,10 +1256,10 @@ ADCS_returnState ADCS_save_img(uint8_t camera, uint8_t img_size) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_magnetorquer_output(xyz16 duty_cycle) {
-  uint8_t command[7];
-  command[0] = SET_MAGNETORQUER_OUTPUT_ID;
-  memcpy(&command[1], &duty_cycle, 6);
-  return adcs_telecommand(command, 7);  //* + (256*command[6] + command[5])
+    uint8_t command[7];
+    command[0] = SET_MAGNETORQUER_OUTPUT_ID;
+    memcpy(&command[1], &duty_cycle, 6);
+    return adcs_telecommand(command, 7); //* + (256*command[6] + command[5])
 }
 
 /**
@@ -1308,10 +1274,10 @@ ADCS_returnState ADCS_set_magnetorquer_output(xyz16 duty_cycle) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_wheel_speed(xyz16 speed) {
-  uint8_t command[7];
-  command[0] = SET_WHEEL_SPEED_ID;
-  memcpy(&command[1], &speed, 6);
-  return adcs_telecommand(command, 7);
+    uint8_t command[7];
+    command[0] = SET_WHEEL_SPEED_ID;
+    memcpy(&command[1], &speed, 6);
+    return adcs_telecommand(command, 7);
 }
 
 /**
@@ -1321,8 +1287,8 @@ ADCS_returnState ADCS_set_wheel_speed(xyz16 speed) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_save_config(void) {
-  uint8_t command = SAVE_CONFIG_ID;
-  return adcs_telecommand(&command, 1);
+    uint8_t command = SAVE_CONFIG_ID;
+    return adcs_telecommand(&command, 1);
 }
 
 /**
@@ -1332,8 +1298,8 @@ ADCS_returnState ADCS_save_config(void) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_save_orbit_params(void) {
-  uint8_t command = SAVE_ORBIT_PARAMS;
-  return adcs_telecommand(&command, 1);
+    uint8_t command = SAVE_ORBIT_PARAMS;
+    return adcs_telecommand(&command, 1);
 }
 
 /*************************** ACP TMs ***************************/
@@ -1347,44 +1313,43 @@ ADCS_returnState ADCS_save_orbit_params(void) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_current_state(adcs_state* data) {
-  uint8_t telemetry[54];
-  ADCS_returnState state;
-  state = adcs_telemetry(ADCS_STATE, telemetry, 54);
-  data->att_estimate_mode = telemetry[0] & 0xF;     // Refer to table 80
-  data->att_ctrl_mode = (telemetry[0] >> 4) & 0xF;  // Refer to table 78
-  data->run_mode = telemetry[1] & 0x3;              // Refer to table 75
-  data->ASGP4_mode = (telemetry[1] >> 2) & 0x3;     // Refer to table 87
-  for (int i = 0; i < 4; i++) {
-    *(data->flags_arr + i) = (telemetry[1] >> (i + 4)) & 1;
-  }
-  uint32_t flags1;
-  memcpy(&flags1, &telemetry[2], 4);
-  for (int i = 0; i < 32; i++) {
-    *(data->flags_arr + i + 4) = (flags1 >> i) & 1;
-  }
-  uint32_t flags2;
-  memcpy(&flags2, &telemetry[6], 4);
-  for (int i = 0; i < 3; i++) {
-    *(data->flags_arr + i + 36) = (flags2 >> i) & 1;
-  }
-  // position:52
-  data->MTM_sample_mode = (flags2 >> 4) & 0x3;  // Refer to table 90
-  for (int i = 6; i < 18; i++) {
-    *(data->flags_arr + i + 34) =
-        (flags2 >> i) & 1;  // 34 because 2 were for sample mode
-  }
-  get_xyz(&data->est_angle, &telemetry[12], 0.01);  // [deg]
-  get_xyz16(&data->est_quaternion, &telemetry[18]);
-  get_xyz(&data->est_angular_rate, &telemetry[24], 0.01);  // [deg/s]
-  get_xyz(&data->ECI_pos, &telemetry[30], 0.25);           // [km]
-  get_xyz(&data->ECI_vel, &telemetry[36], 0.25);           // [m/s]
-  get_xyz(&data->longlatalt, &telemetry[42], 0.01);        // [deg, deg, km]
-  if (telemetry[47] >> 7) {  // since it is uint16 and has been treated as int16
-    data->longlatalt.z = 0.01 * (telemetry[47] << 8 | telemetry[46]);
-  }
-  get_xyz16(&data->ecef_pos, &telemetry[48]);  // [m]
-  return state;
+ADCS_returnState ADCS_get_current_state(adcs_state *data) {
+    uint8_t telemetry[54];
+    ADCS_returnState state;
+    state = adcs_telemetry(ADCS_STATE, telemetry, 54);
+    data->att_estimate_mode = telemetry[0] & 0xF;    // Refer to table 80
+    data->att_ctrl_mode = (telemetry[0] >> 4) & 0xF; // Refer to table 78
+    data->run_mode = telemetry[1] & 0x3;             // Refer to table 75
+    data->ASGP4_mode = (telemetry[1] >> 2) & 0x3;    // Refer to table 87
+    for (int i = 0; i < 4; i++) {
+        *(data->flags_arr + i) = (telemetry[1] >> (i + 4)) & 1;
+    }
+    uint32_t flags1;
+    memcpy(&flags1, &telemetry[2], 4);
+    for (int i = 0; i < 32; i++) {
+        *(data->flags_arr + i + 4) = (flags1 >> i) & 1;
+    }
+    uint32_t flags2;
+    memcpy(&flags2, &telemetry[6], 4);
+    for (int i = 0; i < 3; i++) {
+        *(data->flags_arr + i + 36) = (flags2 >> i) & 1;
+    }
+    // position:52
+    data->MTM_sample_mode = (flags2 >> 4) & 0x3; // Refer to table 90
+    for (int i = 6; i < 18; i++) {
+        *(data->flags_arr + i + 34) = (flags2 >> i) & 1; // 34 because 2 were for sample mode
+    }
+    get_xyz(&data->est_angle, &telemetry[12], 0.01); // [deg]
+    get_xyz16(&data->est_quaternion, &telemetry[18]);
+    get_xyz(&data->est_angular_rate, &telemetry[24], 0.01); // [deg/s]
+    get_xyz(&data->ECI_pos, &telemetry[30], 0.25);          // [km]
+    get_xyz(&data->ECI_vel, &telemetry[36], 0.25);          // [m/s]
+    get_xyz(&data->longlatalt, &telemetry[42], 0.01);       // [deg, deg, km]
+    if (telemetry[47] >> 7) {                               // since it is uint16 and has been treated as int16
+        data->longlatalt.z = 0.01 * (telemetry[47] << 8 | telemetry[46]);
+    }
+    get_xyz16(&data->ecef_pos, &telemetry[48]); // [m]
+    return state;
 }
 
 /************************* General **************************/
@@ -1404,15 +1369,14 @@ ADCS_returnState ADCS_get_current_state(adcs_state* data) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_jpg_cnv_progress(uint8_t* percentage, uint8_t* result,
-                                           uint8_t* file_counter) {
-  uint8_t telemetry[3];
-  ADCS_returnState state;
-  state = adcs_telemetry(JPG_CNV_PROGRESS_ID, telemetry, 3);
-  *percentage = telemetry[0];
-  *result = telemetry[1];
-  *file_counter = telemetry[2];
-  return state;
+ADCS_returnState ADCS_get_jpg_cnv_progress(uint8_t *percentage, uint8_t *result, uint8_t *file_counter) {
+    uint8_t telemetry[3];
+    ADCS_returnState state;
+    state = adcs_telemetry(JPG_CNV_PROGRESS_ID, telemetry, 3);
+    *percentage = telemetry[0];
+    *result = telemetry[1];
+    *file_counter = telemetry[2];
+    return state;
 }
 
 /**
@@ -1423,14 +1387,14 @@ ADCS_returnState ADCS_get_jpg_cnv_progress(uint8_t* percentage, uint8_t* result,
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_cubeACP_state(uint8_t* flags_arr) {
-  uint8_t telemetry;
-  ADCS_returnState state;
-  state = adcs_telemetry(CUBEACP_STATE_FLAGS_ID, &telemetry, 1);
-  for (int i = 0; i < 6; i++) {
-    *(flags_arr + i) = (telemetry >> i) & 1;
-  }
-  return state;
+ADCS_returnState ADCS_get_cubeACP_state(uint8_t *flags_arr) {
+    uint8_t telemetry;
+    ADCS_returnState state;
+    state = adcs_telemetry(CUBEACP_STATE_FLAGS_ID, &telemetry, 1);
+    for (int i = 0; i < 6; i++) {
+        *(flags_arr + i) = (telemetry >> i) & 1;
+    }
+    return state;
 }
 
 /**
@@ -1441,14 +1405,14 @@ ADCS_returnState ADCS_get_cubeACP_state(uint8_t* flags_arr) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_sat_pos_LLH(xyz* target) {
-  uint8_t telemetry[6];
-  ADCS_returnState state;
-  state = adcs_telemetry(SATELLITE_POSITION_LLH_ID, telemetry, 6);
-  memcpy(&target->x, &telemetry[0], 2);
-  memcpy(&target->y, &telemetry[2], 2);
-  memcpy(&target->z, &telemetry[4], 2);
-  return state;
+ADCS_returnState ADCS_get_sat_pos_LLH(xyz *target) {
+    uint8_t telemetry[6];
+    ADCS_returnState state;
+    state = adcs_telemetry(SATELLITE_POSITION_LLH_ID, telemetry, 6);
+    memcpy(&target->x, &telemetry[0], 2);
+    memcpy(&target->y, &telemetry[2], 2);
+    memcpy(&target->z, &telemetry[4], 2);
+    return state;
 }
 
 /**
@@ -1465,18 +1429,16 @@ ADCS_returnState ADCS_get_sat_pos_LLH(xyz* target) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_execution_times(uint16_t* adcs_update,
-                                          uint16_t* sensor_comms,
-                                          uint16_t* sgp4_propag,
-                                          uint16_t* igrf_model) {
-  uint8_t telemetry[8];
-  ADCS_returnState state;
-  state = adcs_telemetry(ADCS_EXE_TIMES_ID, telemetry, 8);
-  *adcs_update = (telemetry[1] << 8) + telemetry[0];
-  *sensor_comms = (telemetry[3] << 8) + telemetry[2];
-  *sgp4_propag = (telemetry[5] << 8) + telemetry[4];
-  *igrf_model = (telemetry[7] << 8) + telemetry[6];
-  return state;
+ADCS_returnState ADCS_get_execution_times(uint16_t *adcs_update, uint16_t *sensor_comms, uint16_t *sgp4_propag,
+                                          uint16_t *igrf_model) {
+    uint8_t telemetry[8];
+    ADCS_returnState state;
+    state = adcs_telemetry(ADCS_EXE_TIMES_ID, telemetry, 8);
+    *adcs_update = (telemetry[1] << 8) + telemetry[0];
+    *sensor_comms = (telemetry[3] << 8) + telemetry[2];
+    *sgp4_propag = (telemetry[5] << 8) + telemetry[4];
+    *igrf_model = (telemetry[7] << 8) + telemetry[6];
+    return state;
 }
 
 /**
@@ -1490,14 +1452,13 @@ ADCS_returnState ADCS_get_execution_times(uint16_t* adcs_update,
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_ACP_loop_stat(uint16_t* time,
-                                        uint8_t* execution_point) {
-  uint8_t telemetry[3];
-  ADCS_returnState state;
-  state = adcs_telemetry(ACP_EXE_STATE_ID, telemetry, 3);
-  *time = (telemetry[1] << 8) + telemetry[0];
-  *execution_point = telemetry[2];
-  return state;
+ADCS_returnState ADCS_get_ACP_loop_stat(uint16_t *time, uint8_t *execution_point) {
+    uint8_t telemetry[3];
+    ADCS_returnState state;
+    state = adcs_telemetry(ACP_EXE_STATE_ID, telemetry, 3);
+    *time = (telemetry[1] << 8) + telemetry[0];
+    *execution_point = telemetry[2];
+    return state;
 }
 
 /**
@@ -1515,14 +1476,13 @@ ADCS_returnState ADCS_get_ACP_loop_stat(uint16_t* time,
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_img_save_progress(uint8_t* percentage,
-                                            uint8_t* status) {
-  uint8_t telemetry[2];
-  ADCS_returnState state;
-  state = adcs_telemetry(IMG_CAPTURE_SAVE_OP_STAT, telemetry, 2);
-  *percentage = telemetry[0];
-  *status = telemetry[1];
-  return state;
+ADCS_returnState ADCS_get_img_save_progress(uint8_t *percentage, uint8_t *status) {
+    uint8_t telemetry[2];
+    ADCS_returnState state;
+    state = adcs_telemetry(IMG_CAPTURE_SAVE_OP_STAT, telemetry, 2);
+    *percentage = telemetry[0];
+    *status = telemetry[1];
+    return state;
 }
 
 /*********************** ADCS Measurement ************************/
@@ -1536,23 +1496,23 @@ ADCS_returnState ADCS_get_img_save_progress(uint8_t* percentage,
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_measurements(adcs_measures* measurements) {
-  uint8_t telemetry[72];
-  ADCS_returnState state;
-  state = adcs_telemetry(ADCS_MEASUREMENTS_ID, telemetry, 72);
-  get_xyz(&measurements->magnetic_field, &telemetry[0], 0.01);  // [uT]
-  get_xyz(&measurements->coarse_sun, &telemetry[6], 0.0001);
-  get_xyz(&measurements->sun, &telemetry[12], 0.0001);
-  get_xyz(&measurements->nadir, &telemetry[18], 0.0001);
-  get_xyz(&measurements->angular_rate, &telemetry[24], 0.01);  // [deg/s]
-  get_xyz(&measurements->wheel_speed, &telemetry[30], 1);      // [rpm]
-  get_xyz(&measurements->star1b, &telemetry[36], 0.0001);
-  get_xyz(&measurements->star1o, &telemetry[42], 0.0001);
-  get_xyz(&measurements->star2b, &telemetry[48], 0.0001);
-  get_xyz(&measurements->star2o, &telemetry[54], 0.0001);
-  get_xyz(&measurements->star3b, &telemetry[60], 0.0001);
-  get_xyz(&measurements->star3o, &telemetry[66], 0.0001);
-  return state;
+ADCS_returnState ADCS_get_measurements(adcs_measures *measurements) {
+    uint8_t telemetry[72];
+    ADCS_returnState state;
+    state = adcs_telemetry(ADCS_MEASUREMENTS_ID, telemetry, 72);
+    get_xyz(&measurements->magnetic_field, &telemetry[0], 0.01); // [uT]
+    get_xyz(&measurements->coarse_sun, &telemetry[6], 0.0001);
+    get_xyz(&measurements->sun, &telemetry[12], 0.0001);
+    get_xyz(&measurements->nadir, &telemetry[18], 0.0001);
+    get_xyz(&measurements->angular_rate, &telemetry[24], 0.01); // [deg/s]
+    get_xyz(&measurements->wheel_speed, &telemetry[30], 1);     // [rpm]
+    get_xyz(&measurements->star1b, &telemetry[36], 0.0001);
+    get_xyz(&measurements->star1o, &telemetry[42], 0.0001);
+    get_xyz(&measurements->star2b, &telemetry[48], 0.0001);
+    get_xyz(&measurements->star2o, &telemetry[54], 0.0001);
+    get_xyz(&measurements->star3b, &telemetry[60], 0.0001);
+    get_xyz(&measurements->star3o, &telemetry[66], 0.0001);
+    return state;
 }
 
 /*********************** ADCS Actuator ************************/
@@ -1565,13 +1525,13 @@ ADCS_returnState ADCS_get_measurements(adcs_measures* measurements) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_actuator(adcs_actuator* commands) {
-  uint8_t telemetry[12];
-  ADCS_returnState state;
-  state = adcs_telemetry(ACTUATOR_ID, telemetry, 12);
-  get_xyz(&commands->magnetorquer, &telemetry[0], 100);  // [s]
-  get_xyz(&commands->wheel_speed, &telemetry[6], 1);     // [rpm]
-  return state;
+ADCS_returnState ADCS_get_actuator(adcs_actuator *commands) {
+    uint8_t telemetry[12];
+    ADCS_returnState state;
+    state = adcs_telemetry(ACTUATOR_ID, telemetry, 12);
+    get_xyz(&commands->magnetorquer, &telemetry[0], 100); // [s]
+    get_xyz(&commands->wheel_speed, &telemetry[6], 1);    // [rpm]
+    return state;
 }
 
 /*********************** ADCS Estimation ************************/
@@ -1584,18 +1544,18 @@ ADCS_returnState ADCS_get_actuator(adcs_actuator* commands) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_estimation(adcs_estimate* data) {
-  uint8_t telemetry[42];
-  ADCS_returnState state;
-  state = adcs_telemetry(ESTIMATION_ID, telemetry, 42);
-  get_xyz(&data->igrf_magnetic_field, &telemetry[0], 0.01);  // [uT]
-  get_xyz(&data->sun, &telemetry[6], 0.0001);
-  get_xyz(&data->gyro_bias, &telemetry[12], 0.001);  // [deg/s]
-  get_xyz(&data->innovation, &telemetry[18], 0.0001);
-  get_xyz(&data->quaternion_err, &telemetry[24], 0.0001);
-  get_xyz(&data->quaternion_covar, &telemetry[30], 0.001);
-  get_xyz(&data->angular_rate_covar, &telemetry[36], 0.001);
-  return state;
+ADCS_returnState ADCS_get_estimation(adcs_estimate *data) {
+    uint8_t telemetry[42];
+    ADCS_returnState state;
+    state = adcs_telemetry(ESTIMATION_ID, telemetry, 42);
+    get_xyz(&data->igrf_magnetic_field, &telemetry[0], 0.01); // [uT]
+    get_xyz(&data->sun, &telemetry[6], 0.0001);
+    get_xyz(&data->gyro_bias, &telemetry[12], 0.001); // [deg/s]
+    get_xyz(&data->innovation, &telemetry[18], 0.0001);
+    get_xyz(&data->quaternion_err, &telemetry[24], 0.0001);
+    get_xyz(&data->quaternion_covar, &telemetry[30], 0.001);
+    get_xyz(&data->angular_rate_covar, &telemetry[36], 0.001);
+    return state;
 }
 
 /**
@@ -1615,22 +1575,21 @@ ADCS_returnState ADCS_get_estimation(adcs_estimate* data) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_ASGP4(bool* complete, uint8_t* err,
-                                adcs_asgp4* asgp4) {
-  uint8_t telemetry[33];
-  ADCS_returnState state;
-  state = adcs_telemetry(ASGP4_TLEs_ID, telemetry, 33);
-  *complete = telemetry[0] & 1;
-  *err = telemetry[0] >> 1;
-  memcpy(&asgp4->epoch, &telemetry[1], 4);
-  memcpy(&asgp4->inclination, &telemetry[5], 4);
-  memcpy(&asgp4->RAAN, &telemetry[9], 4);
-  memcpy(&asgp4->ECC, &telemetry[13], 4);
-  memcpy(&asgp4->AOP, &telemetry[17], 4);
-  memcpy(&asgp4->MA, &telemetry[21], 4);
-  memcpy(&asgp4->MM, &telemetry[25], 4);
-  memcpy(&asgp4->Bstar, &telemetry[29], 4);
-  return state;
+ADCS_returnState ADCS_get_ASGP4(bool *complete, uint8_t *err, adcs_asgp4 *asgp4) {
+    uint8_t telemetry[33];
+    ADCS_returnState state;
+    state = adcs_telemetry(ASGP4_TLEs_ID, telemetry, 33);
+    *complete = telemetry[0] & 1;
+    *err = telemetry[0] >> 1;
+    memcpy(&asgp4->epoch, &telemetry[1], 4);
+    memcpy(&asgp4->inclination, &telemetry[5], 4);
+    memcpy(&asgp4->RAAN, &telemetry[9], 4);
+    memcpy(&asgp4->ECC, &telemetry[13], 4);
+    memcpy(&asgp4->AOP, &telemetry[17], 4);
+    memcpy(&asgp4->MA, &telemetry[21], 4);
+    memcpy(&asgp4->MM, &telemetry[25], 4);
+    memcpy(&asgp4->Bstar, &telemetry[29], 4);
+    return state;
 }
 
 /********************* ADCS Raw Sensor Measurements **********************/
@@ -1648,11 +1607,11 @@ ADCS_returnState ADCS_get_ASGP4(bool* complete, uint8_t* err,
  * @param address
  * 		the position in the telemetry frame where the data is located
  */
-void get_cam_sensor(cam_sensor* cam, uint8_t* address) {
-  cam->centroid_x = uint82int16(*address, *(address + 1));
-  cam->centroid_y = uint82int16(*(address + 2), *(address + 3));
-  cam->capture_stat = *(address + 4);
-  cam->detect_result = *(address + 5);
+void get_cam_sensor(cam_sensor *cam, uint8_t *address) {
+    cam->centroid_x = uint82int16(*address, *(address + 1));
+    cam->centroid_y = uint82int16(*(address + 2), *(address + 3));
+    cam->capture_stat = *(address + 4);
+    cam->detect_result = *(address + 5);
 }
 
 /**
@@ -1664,18 +1623,18 @@ void get_cam_sensor(cam_sensor* cam, uint8_t* address) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_raw_sensor(adcs_raw_sensor* measurements) {
-  uint8_t telemetry[34];
-  ADCS_returnState state;
-  state = adcs_telemetry(RAW_SENSOR_MEASUREMENTS_ID, telemetry, 34);
-  get_cam_sensor(&measurements->cam1, &telemetry[0]);
-  get_cam_sensor(&measurements->cam2, &telemetry[6]);
-  for (int i = 0; i < 10; i++) {
-    *(measurements->css + i) = telemetry[i + 12];
-  }
-  get_xyz16(&measurements->MTM, &telemetry[22]);
-  get_xyz16(&measurements->rate, &telemetry[28]);
-  return state;
+ADCS_returnState ADCS_get_raw_sensor(adcs_raw_sensor *measurements) {
+    uint8_t telemetry[34];
+    ADCS_returnState state;
+    state = adcs_telemetry(RAW_SENSOR_MEASUREMENTS_ID, telemetry, 34);
+    get_cam_sensor(&measurements->cam1, &telemetry[0]);
+    get_cam_sensor(&measurements->cam2, &telemetry[6]);
+    for (int i = 0; i < 10; i++) {
+        *(measurements->css + i) = telemetry[i + 12];
+    }
+    get_xyz16(&measurements->MTM, &telemetry[22]);
+    get_xyz16(&measurements->rate, &telemetry[28]);
+    return state;
 }
 
 /**
@@ -1688,9 +1647,9 @@ ADCS_returnState ADCS_get_raw_sensor(adcs_raw_sensor* measurements) {
  * @param address
  * 		the position in the telemetry frame where the data is located
  */
-void get_ecef(ecef* coordinate, uint8_t* address) {
-  coordinate->pos = uint82int32(address);
-  coordinate->vel = uint82int16(*(address + 4), *(address + 5));
+void get_ecef(ecef *coordinate, uint8_t *address) {
+    coordinate->pos = uint82int32(address);
+    coordinate->vel = uint82int16(*(address + 4), *(address + 5));
 }
 
 /**
@@ -1702,29 +1661,28 @@ void get_ecef(ecef* coordinate, uint8_t* address) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_raw_GPS(adcs_raw_gps* measurements) {
-  uint8_t telemetry[36];
-  ADCS_returnState state;
-  state = adcs_telemetry(RAW_GPS_MEASUREMENTS_ID, telemetry, 36);
-  measurements->sol_stat = telemetry[0];
-  measurements->tracked_sats = telemetry[1];
-  measurements->usedInSol_sats = telemetry[2];
-  measurements->xyz_lof_count = telemetry[3];
-  measurements->range_log_count = telemetry[4];
-  measurements->response_msg = telemetry[5];
-  measurements->reference_week = telemetry[7] << 8 | telemetry[6];
-  measurements->time = telemetry[11] << 24 | telemetry[10] << 16 |
-                       telemetry[9] << 8 | telemetry[8];
-  get_ecef(&measurements->x, &telemetry[12]);
-  get_ecef(&measurements->y, &telemetry[18]);
-  get_ecef(&measurements->z, &telemetry[24]);
-  measurements->pos_std_dev.x = telemetry[30] * 0.1;
-  measurements->pos_std_dev.y = telemetry[31] * 0.1;
-  measurements->pos_std_dev.z = telemetry[32] * 0.1;
-  measurements->vel_std_dev.x = telemetry[33];
-  measurements->vel_std_dev.y = telemetry[34];
-  measurements->vel_std_dev.z = telemetry[35];
-  return state;
+ADCS_returnState ADCS_get_raw_GPS(adcs_raw_gps *measurements) {
+    uint8_t telemetry[36];
+    ADCS_returnState state;
+    state = adcs_telemetry(RAW_GPS_MEASUREMENTS_ID, telemetry, 36);
+    measurements->sol_stat = telemetry[0];
+    measurements->tracked_sats = telemetry[1];
+    measurements->usedInSol_sats = telemetry[2];
+    measurements->xyz_lof_count = telemetry[3];
+    measurements->range_log_count = telemetry[4];
+    measurements->response_msg = telemetry[5];
+    measurements->reference_week = telemetry[7] << 8 | telemetry[6];
+    measurements->time = telemetry[11] << 24 | telemetry[10] << 16 | telemetry[9] << 8 | telemetry[8];
+    get_ecef(&measurements->x, &telemetry[12]);
+    get_ecef(&measurements->y, &telemetry[18]);
+    get_ecef(&measurements->z, &telemetry[24]);
+    measurements->pos_std_dev.x = telemetry[30] * 0.1;
+    measurements->pos_std_dev.y = telemetry[31] * 0.1;
+    measurements->pos_std_dev.z = telemetry[32] * 0.1;
+    measurements->vel_std_dev.x = telemetry[33];
+    measurements->vel_std_dev.y = telemetry[34];
+    measurements->vel_std_dev.z = telemetry[35];
+    return state;
 }
 
 /**
@@ -1735,25 +1693,20 @@ ADCS_returnState ADCS_get_raw_GPS(adcs_raw_gps* measurements) {
  * @param i
  * 		star index
  */
-void get_star_data(star_data* coordinate, uint8_t* address, uint8_t i) {
-  coordinate->confidence = *(address + i);  // percent
-  coordinate->magnitude = *(address + 4 + 2 * i) << 8 | *(address + 3 + 2 * i);
-  coordinate->catalouge_num =
-      *(address + 10 + 6 * i) << 8 | *(address + 9 + 6 * i);
-  if ((*(address + 12 + 6 * i)) >> 7) {
-    coordinate->centroid_x =
-        -1 * (~(*(address + 12 + 6 * i) << 8 | *(address + 11 + 6 * i)) + 1);
-  } else {
-    coordinate->centroid_x =
-        *(address + 12 + 6 * i) << 8 | *(address + 11 + 6 * i);
-  }
-  if ((*(address + 14 + 6 * i)) >> 7) {
-    coordinate->centroid_y =
-        -1 * (~(*(address + 14 + 6 * i) << 8 | *(address + 13 + 6 * i)) + 1);
-  } else {
-    coordinate->centroid_y =
-        *(address + 14 + 6 * i) << 8 | *(address + 13 + 6 * i);
-  }
+void get_star_data(star_data *coordinate, uint8_t *address, uint8_t i) {
+    coordinate->confidence = *(address + i); // percent
+    coordinate->magnitude = *(address + 4 + 2 * i) << 8 | *(address + 3 + 2 * i);
+    coordinate->catalouge_num = *(address + 10 + 6 * i) << 8 | *(address + 9 + 6 * i);
+    if ((*(address + 12 + 6 * i)) >> 7) {
+        coordinate->centroid_x = -1 * (~(*(address + 12 + 6 * i) << 8 | *(address + 11 + 6 * i)) + 1);
+    } else {
+        coordinate->centroid_x = *(address + 12 + 6 * i) << 8 | *(address + 11 + 6 * i);
+    }
+    if ((*(address + 14 + 6 * i)) >> 7) {
+        coordinate->centroid_y = -1 * (~(*(address + 14 + 6 * i) << 8 | *(address + 13 + 6 * i)) + 1);
+    } else {
+        coordinate->centroid_y = *(address + 14 + 6 * i) << 8 | *(address + 13 + 6 * i);
+    }
 }
 
 /**
@@ -1765,29 +1718,29 @@ void get_star_data(star_data* coordinate, uint8_t* address, uint8_t i) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_star_tracker(adcs_star_track* measurements) {
-  uint8_t telemetry[54];
-  ADCS_returnState state;
-  state = adcs_telemetry(RAW_STAR_TRACKER_ID, telemetry, 54);
-  measurements->detected_stars = telemetry[0];
-  measurements->img_noise = telemetry[1];
-  measurements->invalid_stars = telemetry[2];
-  measurements->identified_stars = telemetry[3];
-  measurements->identification_mode = telemetry[4];
-  measurements->img_dark_val = telemetry[5];
-  for (int i = 0; i < 8; i++) {
-    *(measurements->flags_arr + i) = (telemetry[6] >> i) & 1;
-  }
-  measurements->sample_T = telemetry[8] << 8 | telemetry[7];
-  get_star_data(&measurements->star1, &telemetry[9], 0);
-  get_star_data(&measurements->star2, &telemetry[9], 1);
-  get_star_data(&measurements->star3, &telemetry[9], 2);
-  measurements->capture_t = telemetry[37] << 8 | telemetry[36];         // [ms]
-  measurements->detect_t = telemetry[39] << 8 | telemetry[38];          // [ms]
-  measurements->identification_t = telemetry[41] << 8 | telemetry[40];  // [ms]
-  get_xyz(&measurements->estimated_rate, &telemetry[42], 0.0001);
-  get_xyz(&measurements->estimated_att, &telemetry[48], 0.0001);
-  return state;
+ADCS_returnState ADCS_get_star_tracker(adcs_star_track *measurements) {
+    uint8_t telemetry[54];
+    ADCS_returnState state;
+    state = adcs_telemetry(RAW_STAR_TRACKER_ID, telemetry, 54);
+    measurements->detected_stars = telemetry[0];
+    measurements->img_noise = telemetry[1];
+    measurements->invalid_stars = telemetry[2];
+    measurements->identified_stars = telemetry[3];
+    measurements->identification_mode = telemetry[4];
+    measurements->img_dark_val = telemetry[5];
+    for (int i = 0; i < 8; i++) {
+        *(measurements->flags_arr + i) = (telemetry[6] >> i) & 1;
+    }
+    measurements->sample_T = telemetry[8] << 8 | telemetry[7];
+    get_star_data(&measurements->star1, &telemetry[9], 0);
+    get_star_data(&measurements->star2, &telemetry[9], 1);
+    get_star_data(&measurements->star3, &telemetry[9], 2);
+    measurements->capture_t = telemetry[37] << 8 | telemetry[36];        // [ms]
+    measurements->detect_t = telemetry[39] << 8 | telemetry[38];         // [ms]
+    measurements->identification_t = telemetry[41] << 8 | telemetry[40]; // [ms]
+    get_xyz(&measurements->estimated_rate, &telemetry[42], 0.0001);
+    get_xyz(&measurements->estimated_att, &telemetry[48], 0.0001);
+    return state;
 }
 
 /**
@@ -1798,12 +1751,12 @@ ADCS_returnState ADCS_get_star_tracker(adcs_star_track* measurements) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_MTM2_measurements(xyz16* Mag) {
-  uint8_t telemetry[6];
-  ADCS_returnState state;
-  state = adcs_telemetry(MTM2_MEASUREMENTS_ID, telemetry, 6);
-  get_xyz16(Mag, &telemetry[0]);
-  return state;
+ADCS_returnState ADCS_get_MTM2_measurements(xyz16 *Mag) {
+    uint8_t telemetry[6];
+    ADCS_returnState state;
+    state = adcs_telemetry(MTM2_MEASUREMENTS_ID, telemetry, 6);
+    get_xyz16(Mag, &telemetry[0]);
+    return state;
 }
 
 /******************* ADCS Power & Temperature ********************/
@@ -1817,8 +1770,8 @@ ADCS_returnState ADCS_get_MTM2_measurements(xyz16* Mag) {
  * @param coef
  * 		formatted value = rawval * coef;
  */
-void get_current(float* measurement, uint8_t* address, float coef) {
-  *measurement = coef * uint82uint16(*address, *(address + 1));
+void get_current(float *measurement, uint8_t *address, float coef) {
+    *measurement = coef * uint82uint16(*address, *(address + 1));
 }
 
 /**
@@ -1831,8 +1784,8 @@ void get_current(float* measurement, uint8_t* address, float coef) {
  * @param coef
  * 		formatted value = rawval * coef;
  */
-void get_temp(float* measurement, uint8_t* address, float coef) {
-  *measurement = coef * uint82int16(*address, *(address + 1));
+void get_temp(float *measurement, uint8_t *address, float coef) {
+    *measurement = coef * uint82int16(*address, *(address + 1));
 }
 
 /**
@@ -1844,34 +1797,34 @@ void get_temp(float* measurement, uint8_t* address, float coef) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_power_temp(adcs_pwr_temp* measurements) {
-  uint8_t telemetry[38];
-  ADCS_returnState state;
-  state = adcs_telemetry(POWER_TEMP_ID, telemetry, 38);
+ADCS_returnState ADCS_get_power_temp(adcs_pwr_temp *measurements) {
+    uint8_t telemetry[38];
+    ADCS_returnState state;
+    state = adcs_telemetry(POWER_TEMP_ID, telemetry, 38);
 
-  get_current(&measurements->cubesense1_3v3_I, &telemetry[0], 0.1);      // [mA]
-  get_current(&measurements->cubesense1_camSram_I, &telemetry[2], 0.1);  // [mA]
-  get_current(&measurements->cubesense2_3v3_I, &telemetry[4], 0.1);      // [mA]
-  get_current(&measurements->cubesense2_camSram_I, &telemetry[6], 0.1);  // [mA]
-  get_current(&measurements->cubecontrol_3v3_I, &telemetry[8],
-              0.48828125);  // [mA]
-  get_current(&measurements->cubecontrol_5v_I, &telemetry[10],
-              0.48828125);  // [mA]
-  get_current(&measurements->cubecontrol_vBat_I, &telemetry[12],
-              0.48828125);                                          // [mA]
-  get_current(&measurements->wheel1_I, &telemetry[14], 0.01);       // [mA]
-  get_current(&measurements->wheel2_I, &telemetry[16], 0.01);       // [mA]
-  get_current(&measurements->wheel3_I, &telemetry[18], 0.01);       // [mA]
-  get_current(&measurements->cubestar_I, &telemetry[20], 0.01);     // [mA]
-  get_current(&measurements->magnetorquer_I, &telemetry[20], 0.1);  // [mA]
+    get_current(&measurements->cubesense1_3v3_I, &telemetry[0], 0.1);     // [mA]
+    get_current(&measurements->cubesense1_camSram_I, &telemetry[2], 0.1); // [mA]
+    get_current(&measurements->cubesense2_3v3_I, &telemetry[4], 0.1);     // [mA]
+    get_current(&measurements->cubesense2_camSram_I, &telemetry[6], 0.1); // [mA]
+    get_current(&measurements->cubecontrol_3v3_I, &telemetry[8],
+                0.48828125); // [mA]
+    get_current(&measurements->cubecontrol_5v_I, &telemetry[10],
+                0.48828125); // [mA]
+    get_current(&measurements->cubecontrol_vBat_I, &telemetry[12],
+                0.48828125);                                         // [mA]
+    get_current(&measurements->wheel1_I, &telemetry[14], 0.01);      // [mA]
+    get_current(&measurements->wheel2_I, &telemetry[16], 0.01);      // [mA]
+    get_current(&measurements->wheel3_I, &telemetry[18], 0.01);      // [mA]
+    get_current(&measurements->cubestar_I, &telemetry[20], 0.01);    // [mA]
+    get_current(&measurements->magnetorquer_I, &telemetry[20], 0.1); // [mA]
 
-  get_temp(&measurements->cubestar_temp, &telemetry[22], 0.01);  // [C]
-  get_temp(&measurements->MCU_temp, &telemetry[24], 1);          // [C]
-  get_temp(&measurements->MTM_temp, &telemetry[26], 0.1);        // [C]
-  get_temp(&measurements->MTM2_temp, &telemetry[28], 0.1);       // [C]
-  get_xyz16(&measurements->rate_sensor_temp, &telemetry[30]);    // [C]
+    get_temp(&measurements->cubestar_temp, &telemetry[22], 0.01); // [C]
+    get_temp(&measurements->MCU_temp, &telemetry[24], 1);         // [C]
+    get_temp(&measurements->MTM_temp, &telemetry[26], 0.1);       // [C]
+    get_temp(&measurements->MTM2_temp, &telemetry[28], 0.1);      // [C]
+    get_xyz16(&measurements->rate_sensor_temp, &telemetry[30]);   // [C]
 
-  return state;
+    return state;
 }
 
 /************************* ACP Config Msgs *************************/
@@ -1887,20 +1840,20 @@ ADCS_returnState ADCS_get_power_temp(adcs_pwr_temp* measurements) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_set_power_control(uint8_t* control) {
-  uint8_t command[4] = {0};
-  command[0] = SET_POWER_CONTROL_ID;
-  for (int i = 0; i < 4; i++) {
-    command[1] = command[1] | (*(control + i) << 2 * i);
-  }
-  for (int i = 0; i < 4; i++) {
-    command[2] = command[2] | (*(control + 4 + i) << 2 * i);
-  }
-  for (int i = 0; i < 2; i++) {
-    command[3] = command[3] | (*(control + 8 + i) << 2 * i);
-  }
-  return adcs_telecommand(command,
-                          4);  //* + command[1] and  + command[3]. Tested
+ADCS_returnState ADCS_set_power_control(uint8_t *control) {
+    uint8_t command[4] = {0};
+    command[0] = SET_POWER_CONTROL_ID;
+    for (int i = 0; i < 4; i++) {
+        command[1] = command[1] | (*(control + i) << 2 * i);
+    }
+    for (int i = 0; i < 4; i++) {
+        command[2] = command[2] | (*(control + 4 + i) << 2 * i);
+    }
+    for (int i = 0; i < 2; i++) {
+        command[3] = command[3] | (*(control + 8 + i) << 2 * i);
+    }
+    return adcs_telecommand(command,
+                            4); //* + command[1] and  + command[3]. Tested
 }
 
 /**
@@ -1914,21 +1867,21 @@ ADCS_returnState ADCS_set_power_control(uint8_t* control) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_power_control(uint8_t* control) {
-  uint8_t telemetry[3];
-  ADCS_returnState state;
-  state = adcs_telemetry(GET_POWER_CONTROL_ID, telemetry, 3);
+ADCS_returnState ADCS_get_power_control(uint8_t *control) {
+    uint8_t telemetry[3];
+    ADCS_returnState state;
+    state = adcs_telemetry(GET_POWER_CONTROL_ID, telemetry, 3);
 
-  for (int i = 0; i < 4; i++) {
-    *(control + i) = (telemetry[0] >> 2 * i) & 0x3;
-  }
-  for (int i = 0; i < 4; i++) {
-    *(control + i + 4) = (telemetry[1] >> 2 * i) & 0x3;
-  }
-  for (int i = 0; i < 2; i++) {
-    *(control + i + 8) = (telemetry[2] >> 2 * i) & 0x3;
-  }
-  return state;
+    for (int i = 0; i < 4; i++) {
+        *(control + i) = (telemetry[0] >> 2 * i) & 0x3;
+    }
+    for (int i = 0; i < 4; i++) {
+        *(control + i + 4) = (telemetry[1] >> 2 * i) & 0x3;
+    }
+    for (int i = 0; i < 2; i++) {
+        *(control + i + 8) = (telemetry[2] >> 2 * i) & 0x3;
+    }
+    return state;
 }
 
 /**
@@ -1940,16 +1893,16 @@ ADCS_returnState ADCS_get_power_control(uint8_t* control) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_attitude_angle(xyz att_angle) {
-  uint8_t command[7];
-  command[0] = SET_ATT_ANGLE_ID;
-  float coef = 0.01;
-  xyz16 raw_val;
-  raw_val.x = att_angle.x / coef;
-  raw_val.y = att_angle.y / coef;
-  raw_val.z = att_angle.z / coef;
-  memcpy(&command[1], &raw_val, 6);
-  return adcs_telecommand(command,
-                          7);  //* Tested. + (command[2]<<8 | command[1])
+    uint8_t command[7];
+    command[0] = SET_ATT_ANGLE_ID;
+    float coef = 0.01;
+    xyz16 raw_val;
+    raw_val.x = att_angle.x / coef;
+    raw_val.y = att_angle.y / coef;
+    raw_val.z = att_angle.z / coef;
+    memcpy(&command[1], &raw_val, 6);
+    return adcs_telecommand(command,
+                            7); //* Tested. + (command[2]<<8 | command[1])
 }
 
 /**
@@ -1960,13 +1913,13 @@ ADCS_returnState ADCS_set_attitude_angle(xyz att_angle) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_attitude_angle(xyz* att_angle) {
-  uint8_t telemetry[6];
-  ADCS_returnState state;
-  state = adcs_telemetry(GET_ATT_ANGLE_ID, telemetry, 6);
-  float coef = 0.01;
-  get_xyz(att_angle, &telemetry[0], coef);
-  return state;
+ADCS_returnState ADCS_get_attitude_angle(xyz *att_angle) {
+    uint8_t telemetry[6];
+    ADCS_returnState state;
+    state = adcs_telemetry(GET_ATT_ANGLE_ID, telemetry, 6);
+    float coef = 0.01;
+    get_xyz(att_angle, &telemetry[0], coef);
+    return state;
 }
 
 /**
@@ -1978,10 +1931,10 @@ ADCS_returnState ADCS_get_attitude_angle(xyz* att_angle) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_track_controller(xyz target) {
-  uint8_t command[13];
-  command[0] = SET_TRACK_CTRLER_TARGET_REF_ID;
-  memcpy(&command[1], &target, 6);
-  return adcs_telecommand(command, 13);
+    uint8_t command[13];
+    command[0] = SET_TRACK_CTRLER_TARGET_REF_ID;
+    memcpy(&command[1], &target, 6);
+    return adcs_telecommand(command, 13);
 }
 
 /**
@@ -1992,14 +1945,14 @@ ADCS_returnState ADCS_set_track_controller(xyz target) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_track_controller(xyz* target) {
-  uint8_t telemetry[12];
-  ADCS_returnState state;
-  state = adcs_telemetry(GET_TRACK_CTRLER_TARGET_REF_ID, telemetry, 12);
-  memcpy(&target->x, &telemetry[0], 4);
-  memcpy(&target->y, &telemetry[4], 4);
-  memcpy(&target->z, &telemetry[8], 4);
-  return state;
+ADCS_returnState ADCS_get_track_controller(xyz *target) {
+    uint8_t telemetry[12];
+    ADCS_returnState state;
+    state = adcs_telemetry(GET_TRACK_CTRLER_TARGET_REF_ID, telemetry, 12);
+    memcpy(&target->x, &telemetry[0], 4);
+    memcpy(&target->y, &telemetry[4], 4);
+    memcpy(&target->z, &telemetry[8], 4);
+    return state;
 }
 
 /**
@@ -2023,25 +1976,24 @@ ADCS_returnState ADCS_get_track_controller(xyz* target) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_set_log_config(uint8_t* flags_arr, uint16_t period,
-                                     uint8_t dest, uint8_t log) {
-  uint8_t command[14] = {0};
-  command[0] = SET_SD_LOG1_CONFIG_ID + (log - 1);
-  for (int j = 0; j < 10; j++) {
-    for (int i = 0; i < 8; i++) {
-      command[j + 1] = command[j + 1] | (*(flags_arr + (8 * j) + i) << i);
+ADCS_returnState ADCS_set_log_config(uint8_t *flags_arr, uint16_t period, uint8_t dest, uint8_t log) {
+    uint8_t command[14] = {0};
+    command[0] = SET_SD_LOG1_CONFIG_ID + (log - 1);
+    for (int j = 0; j < 10; j++) {
+        for (int i = 0; i < 8; i++) {
+            command[j + 1] = command[j + 1] | (*(flags_arr + (8 * j) + i) << i);
+        }
     }
-  }
-  memcpy(&command[11], &period, 2);
-  command[13] = dest;
-  ADCS_returnState state;
-  if (log == 3) {
-    state = adcs_telecommand(command, 13);
-  } else {
-    state = adcs_telecommand(command, 14);
-  }
-  return state;  //* Tested. + command[8] or + command[13] or (+ command[12] <<
-                 // 8) | command[11]
+    memcpy(&command[11], &period, 2);
+    command[13] = dest;
+    ADCS_returnState state;
+    if (log == 3) {
+        state = adcs_telecommand(command, 13);
+    } else {
+        state = adcs_telecommand(command, 14);
+    }
+    return state; //* Tested. + command[8] or + command[13] or (+ command[12] <<
+                  // 8) | command[11]
 }
 
 /**
@@ -2065,30 +2017,29 @@ ADCS_returnState ADCS_set_log_config(uint8_t* flags_arr, uint16_t period,
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_log_config(uint8_t* flags_arr, uint16_t* period,
-                                     uint8_t* dest, uint8_t log) {
-  uint8_t telemetry[13];
-  ADCS_returnState state;
-  uint8_t TM_ID = GET_SD_LOG1_CONFIG_ID + (log - 1);
-  if (TM_ID == GET_UART_LOG_CONFIG_ID) {
-    state = adcs_telemetry(TM_ID, telemetry, 12);
-  } else {
-    state = adcs_telemetry(TM_ID, telemetry, 13);
-  }
-
-  for (int j = 0; j < 10; j++) {
-    for (int i = 0; i < 8; i++) {
-      *(flags_arr + (8 * j) + i) = (telemetry[j] >> i) & 1;
+ADCS_returnState ADCS_get_log_config(uint8_t *flags_arr, uint16_t *period, uint8_t *dest, uint8_t log) {
+    uint8_t telemetry[13];
+    ADCS_returnState state;
+    uint8_t TM_ID = GET_SD_LOG1_CONFIG_ID + (log - 1);
+    if (TM_ID == GET_UART_LOG_CONFIG_ID) {
+        state = adcs_telemetry(TM_ID, telemetry, 12);
+    } else {
+        state = adcs_telemetry(TM_ID, telemetry, 13);
     }
-  }
-  *period = telemetry[11] << 8 | telemetry[10];
-  if (TM_ID == GET_UART_LOG_CONFIG_ID) {
-    *dest = 2;
-  } else {
-    *dest = telemetry[12];
-  }
 
-  return state;
+    for (int j = 0; j < 10; j++) {
+        for (int i = 0; i < 8; i++) {
+            *(flags_arr + (8 * j) + i) = (telemetry[j] >> i) & 1;
+        }
+    }
+    *period = telemetry[11] << 8 | telemetry[10];
+    if (TM_ID == GET_UART_LOG_CONFIG_ID) {
+        *dest = 2;
+    } else {
+        *dest = telemetry[12];
+    }
+
+    return state;
 }
 
 /**
@@ -2103,15 +2054,15 @@ ADCS_returnState ADCS_get_log_config(uint8_t* flags_arr, uint16_t* period,
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_inertial_ref(xyz iner_ref) {
-  uint8_t command[7];
-  command[0] = SET_INERTIAL_POINT_ID;
-  float coef = 0.0001;
-  xyz16 raw_val;
-  raw_val.x = iner_ref.x / coef;
-  raw_val.y = iner_ref.y / coef;
-  raw_val.z = iner_ref.z / coef;
-  memcpy(&command[1], &raw_val, 6);
-  return adcs_telecommand(command, 7);
+    uint8_t command[7];
+    command[0] = SET_INERTIAL_POINT_ID;
+    float coef = 0.0001;
+    xyz16 raw_val;
+    raw_val.x = iner_ref.x / coef;
+    raw_val.y = iner_ref.y / coef;
+    raw_val.z = iner_ref.z / coef;
+    memcpy(&command[1], &raw_val, 6);
+    return adcs_telecommand(command, 7);
 }
 
 /**
@@ -2125,13 +2076,13 @@ ADCS_returnState ADCS_set_inertial_ref(xyz iner_ref) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_inertial_ref(xyz* iner_ref) {
-  uint8_t telemetry[6];
-  ADCS_returnState state;
-  state = adcs_telemetry(GET_INERTIAL_POINT_ID, telemetry, 6);
-  float coef = 0.0001;
-  get_xyz(iner_ref, &telemetry[0], coef);
-  return state;
+ADCS_returnState ADCS_get_inertial_ref(xyz *iner_ref) {
+    uint8_t telemetry[6];
+    ADCS_returnState state;
+    state = adcs_telemetry(GET_INERTIAL_POINT_ID, telemetry, 6);
+    float coef = 0.0001;
+    get_xyz(iner_ref, &telemetry[0], coef);
+    return state;
 }
 
 /************************* Configuration *************************/
@@ -2144,10 +2095,10 @@ ADCS_returnState ADCS_get_inertial_ref(xyz* iner_ref) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_sgp4_orbit_params(adcs_sgp4 params) {
-  uint8_t command[65];
-  command[0] = SET_SGP4_ORBIT_PARAMS_ID;
-  memcpy(&command[1], &params, 64);
-  return adcs_telecommand(command, 65);  //* Tested  + params.epoch*10
+    uint8_t command[65];
+    command[0] = SET_SGP4_ORBIT_PARAMS_ID;
+    memcpy(&command[1], &params, 64);
+    return adcs_telecommand(command, 65); //* Tested  + params.epoch*10
 }
 
 /**
@@ -2158,19 +2109,19 @@ ADCS_returnState ADCS_set_sgp4_orbit_params(adcs_sgp4 params) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_sgp4_orbit_params(adcs_sgp4* params) {
-  uint8_t telemetry[64];
-  ADCS_returnState state;
-  state = adcs_telemetry(GET_SGP4_ORBIT_PARAMS_ID, telemetry, 64);
-  memcpy(&params->inclination, &telemetry[0], 8);
-  memcpy(&params->ECC, &telemetry[8], 8);
-  memcpy(&params->RAAN, &telemetry[16], 8);
-  memcpy(&params->AOP, &telemetry[24], 8);
-  memcpy(&params->Bstar, &telemetry[32], 8);
-  memcpy(&params->MM, &telemetry[40], 8);
-  memcpy(&params->MA, &telemetry[48], 8);
-  memcpy(&params->epoch, &telemetry[56], 8);
-  return state;
+ADCS_returnState ADCS_get_sgp4_orbit_params(adcs_sgp4 *params) {
+    uint8_t telemetry[64];
+    ADCS_returnState state;
+    state = adcs_telemetry(GET_SGP4_ORBIT_PARAMS_ID, telemetry, 64);
+    memcpy(&params->inclination, &telemetry[0], 8);
+    memcpy(&params->ECC, &telemetry[8], 8);
+    memcpy(&params->RAAN, &telemetry[16], 8);
+    memcpy(&params->AOP, &telemetry[24], 8);
+    memcpy(&params->Bstar, &telemetry[32], 8);
+    memcpy(&params->MM, &telemetry[40], 8);
+    memcpy(&params->MA, &telemetry[48], 8);
+    memcpy(&params->epoch, &telemetry[56], 8);
+    return state;
 }
 
 /**
@@ -2182,36 +2133,36 @@ ADCS_returnState ADCS_get_sgp4_orbit_params(adcs_sgp4* params) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_system_config(adcs_sysConfig config) {
-  uint8_t command[174];
-  command[0] = SET_SYSTEM_CONFIG_ID;
-  command[1] = (config.special_ctrl_sel << 4) | config.acp_type;
-  command[2] = config.CC_sig_ver;
-  command[3] = config.CC_motor_ver;
-  command[4] = config.CS1_ver;
-  command[5] = config.CS2_ver;
-  command[6] = (config.CS2_cam << 4) | config.CS1_cam;
-  command[7] = config.cubeStar_ver;
-  command[8] = (config.include_MTM2 << 4) | config.GPS;
-  memcpy(&command[9], &config.MTQ_max_dipole, 12);
-  memcpy(&command[21], &config.MTQ_ontime_res, 4);
-  memcpy(&command[25], &config.MTQ_max_ontime, 4);
-  memcpy(&command[29], &config.RW_max_torque, 12);
-  memcpy(&command[41], &config.RW_max_moment, 12);
-  memcpy(&command[53], &config.RW_inertia, 12);
-  memcpy(&command[65], &config.RW_torque_inc, 4);
-  memcpy(&command[69], &config.MTM1, 48);
-  memcpy(&command[117], &config.MTM2, 48);
-  command[165] = (config.CC_signal.pin << 4) | config.CC_signal.port;
-  command[166] = (config.CC_motor.pin << 4) | config.CC_motor.port;
-  command[167] = (config.CC_common.pin << 4) | config.CC_common.port;
-  command[168] = (config.CS1.pin << 4) | config.CS1.port;
-  command[169] = (config.CS2.pin << 4) | config.CS2.port;
-  command[170] = (config.cubeStar.pin << 4) | config.cubeStar.port;
-  command[171] = (config.CW1.pin << 4) | config.CW1.port;
-  command[172] = (config.CW2.pin << 4) | config.CW2.port;
-  command[173] = (config.CW3.pin << 4) | config.CW3.port;
-  return adcs_telecommand(command,
-                          174);  //* Tested + command[8] and +command[165]
+    uint8_t command[174];
+    command[0] = SET_SYSTEM_CONFIG_ID;
+    command[1] = (config.special_ctrl_sel << 4) | config.acp_type;
+    command[2] = config.CC_sig_ver;
+    command[3] = config.CC_motor_ver;
+    command[4] = config.CS1_ver;
+    command[5] = config.CS2_ver;
+    command[6] = (config.CS2_cam << 4) | config.CS1_cam;
+    command[7] = config.cubeStar_ver;
+    command[8] = (config.include_MTM2 << 4) | config.GPS;
+    memcpy(&command[9], &config.MTQ_max_dipole, 12);
+    memcpy(&command[21], &config.MTQ_ontime_res, 4);
+    memcpy(&command[25], &config.MTQ_max_ontime, 4);
+    memcpy(&command[29], &config.RW_max_torque, 12);
+    memcpy(&command[41], &config.RW_max_moment, 12);
+    memcpy(&command[53], &config.RW_inertia, 12);
+    memcpy(&command[65], &config.RW_torque_inc, 4);
+    memcpy(&command[69], &config.MTM1, 48);
+    memcpy(&command[117], &config.MTM2, 48);
+    command[165] = (config.CC_signal.pin << 4) | config.CC_signal.port;
+    command[166] = (config.CC_motor.pin << 4) | config.CC_motor.port;
+    command[167] = (config.CC_common.pin << 4) | config.CC_common.port;
+    command[168] = (config.CS1.pin << 4) | config.CS1.port;
+    command[169] = (config.CS2.pin << 4) | config.CS2.port;
+    command[170] = (config.cubeStar.pin << 4) | config.cubeStar.port;
+    command[171] = (config.CW1.pin << 4) | config.CW1.port;
+    command[172] = (config.CW2.pin << 4) | config.CW2.port;
+    command[173] = (config.CW3.pin << 4) | config.CW3.port;
+    return adcs_telecommand(command,
+                            174); //* Tested + command[8] and +command[165]
 }
 
 /**
@@ -2222,49 +2173,49 @@ ADCS_returnState ADCS_set_system_config(adcs_sysConfig config) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_system_config(adcs_sysConfig* config) {
-  uint8_t telemetry[173];
-  ADCS_returnState state;
-  state = adcs_telemetry(GET_SYSTEM_CONFIG_ID, telemetry, 173);
-  config->acp_type = telemetry[0] & 0xF;
-  config->special_ctrl_sel = (telemetry[0] >> 4) & 0xF;
-  config->CC_sig_ver = telemetry[1];
-  config->CC_motor_ver = telemetry[2];
-  config->CS1_ver = telemetry[3];
-  config->CS2_ver = telemetry[4];
-  config->CS1_cam = telemetry[5] & 0xF;
-  config->CS2_cam = (telemetry[5] >> 4) & 0xF;
-  config->cubeStar_ver = telemetry[6];
-  config->GPS = telemetry[7] & 0xF;
-  config->include_MTM2 = (telemetry[7] >> 4) & 1;
-  memcpy(&config->MTQ_max_dipole, &telemetry[8], 12);
-  memcpy(&config->MTQ_ontime_res, &telemetry[20], 4);
-  memcpy(&config->MTQ_max_ontime, &telemetry[24], 4);
-  memcpy(&config->RW_max_torque, &telemetry[28], 12);
-  memcpy(&config->RW_max_moment, &telemetry[40], 12);
-  memcpy(&config->RW_inertia, &telemetry[52], 12);
-  memcpy(&config->RW_torque_inc, &telemetry[64], 4);
-  memcpy(&config->MTM1, &telemetry[68], 48);
-  memcpy(&config->MTM2, &telemetry[116], 48);
-  config->CC_signal.port = telemetry[164] & 0xF;
-  config->CC_signal.pin = (telemetry[164] >> 4) & 0xF;
-  config->CC_motor.port = telemetry[165] & 0xF;
-  config->CC_motor.pin = (telemetry[165] >> 4) & 0xF;
-  config->CC_common.port = telemetry[166] & 0xF;
-  config->CC_common.pin = (telemetry[166] >> 4) & 0xF;
-  config->CS1.port = telemetry[167] & 0xF;
-  config->CS1.pin = (telemetry[167] >> 4) & 0xF;
-  config->CS2.port = telemetry[168] & 0xF;
-  config->CS2.pin = (telemetry[168] >> 4) & 0xF;
-  config->cubeStar.port = telemetry[169] & 0xF;
-  config->cubeStar.pin = (telemetry[169] >> 4) & 0xF;
-  config->CW1.port = telemetry[170] & 0xF;
-  config->CW1.pin = (telemetry[170] >> 4) & 0xF;
-  config->CW2.port = telemetry[171] & 0xF;
-  config->CW2.pin = (telemetry[171] >> 4) & 0xF;
-  config->CW3.port = telemetry[172] & 0xF;
-  config->CW3.pin = (telemetry[172] >> 4) & 0xF;
-  return state;
+ADCS_returnState ADCS_get_system_config(adcs_sysConfig *config) {
+    uint8_t telemetry[173];
+    ADCS_returnState state;
+    state = adcs_telemetry(GET_SYSTEM_CONFIG_ID, telemetry, 173);
+    config->acp_type = telemetry[0] & 0xF;
+    config->special_ctrl_sel = (telemetry[0] >> 4) & 0xF;
+    config->CC_sig_ver = telemetry[1];
+    config->CC_motor_ver = telemetry[2];
+    config->CS1_ver = telemetry[3];
+    config->CS2_ver = telemetry[4];
+    config->CS1_cam = telemetry[5] & 0xF;
+    config->CS2_cam = (telemetry[5] >> 4) & 0xF;
+    config->cubeStar_ver = telemetry[6];
+    config->GPS = telemetry[7] & 0xF;
+    config->include_MTM2 = (telemetry[7] >> 4) & 1;
+    memcpy(&config->MTQ_max_dipole, &telemetry[8], 12);
+    memcpy(&config->MTQ_ontime_res, &telemetry[20], 4);
+    memcpy(&config->MTQ_max_ontime, &telemetry[24], 4);
+    memcpy(&config->RW_max_torque, &telemetry[28], 12);
+    memcpy(&config->RW_max_moment, &telemetry[40], 12);
+    memcpy(&config->RW_inertia, &telemetry[52], 12);
+    memcpy(&config->RW_torque_inc, &telemetry[64], 4);
+    memcpy(&config->MTM1, &telemetry[68], 48);
+    memcpy(&config->MTM2, &telemetry[116], 48);
+    config->CC_signal.port = telemetry[164] & 0xF;
+    config->CC_signal.pin = (telemetry[164] >> 4) & 0xF;
+    config->CC_motor.port = telemetry[165] & 0xF;
+    config->CC_motor.pin = (telemetry[165] >> 4) & 0xF;
+    config->CC_common.port = telemetry[166] & 0xF;
+    config->CC_common.pin = (telemetry[166] >> 4) & 0xF;
+    config->CS1.port = telemetry[167] & 0xF;
+    config->CS1.pin = (telemetry[167] >> 4) & 0xF;
+    config->CS2.port = telemetry[168] & 0xF;
+    config->CS2.pin = (telemetry[168] >> 4) & 0xF;
+    config->cubeStar.port = telemetry[169] & 0xF;
+    config->cubeStar.pin = (telemetry[169] >> 4) & 0xF;
+    config->CW1.port = telemetry[170] & 0xF;
+    config->CW1.pin = (telemetry[170] >> 4) & 0xF;
+    config->CW2.port = telemetry[171] & 0xF;
+    config->CW2.pin = (telemetry[171] >> 4) & 0xF;
+    config->CW3.port = telemetry[172] & 0xF;
+    config->CW3.pin = (telemetry[172] >> 4) & 0xF;
+    return state;
 }
 
 /**
@@ -2277,10 +2228,10 @@ ADCS_returnState ADCS_get_system_config(adcs_sysConfig* config) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_MTQ_config(xyzu8 params) {
-  uint8_t command[4];
-  command[0] = SET_MTQ_CONFIG_ID;
-  memcpy(&command[1], &params, 3);
-  return adcs_telecommand(command, 4);
+    uint8_t command[4];
+    command[0] = SET_MTQ_CONFIG_ID;
+    memcpy(&command[1], &params, 3);
+    return adcs_telecommand(command, 4);
 }
 
 /**
@@ -2292,11 +2243,11 @@ ADCS_returnState ADCS_set_MTQ_config(xyzu8 params) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_set_RW_config(uint8_t* RW) {
-  uint8_t command[5];
-  command[0] = SET_WHEEL_CONFIG_ID;
-  memcpy(&command[1], &RW[0], 4);
-  return adcs_telecommand(command, 5);
+ADCS_returnState ADCS_set_RW_config(uint8_t *RW) {
+    uint8_t command[5];
+    command[0] = SET_WHEEL_CONFIG_ID;
+    memcpy(&command[1], &RW[0], 4);
+    return adcs_telecommand(command, 5);
 }
 
 /**
@@ -2311,17 +2262,17 @@ ADCS_returnState ADCS_set_RW_config(uint8_t* RW) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_rate_gyro(rate_gyro_config params) {
-  uint8_t command[11];
-  command[0] = SET_RATE_GYRO_CONFIG_ID;
-  memcpy(&command[1], &params.gyro, 3);
-  float coef = 0.001;
-  xyz16 raw_val;
-  raw_val.x = params.sensor_offset.x / coef;
-  raw_val.y = params.sensor_offset.y / coef;
-  raw_val.z = params.sensor_offset.z / coef;
-  memcpy(&command[4], &raw_val, 6);
-  command[10] = params.rate_sensor_mult;
-  return adcs_telecommand(command, 11);
+    uint8_t command[11];
+    command[0] = SET_RATE_GYRO_CONFIG_ID;
+    memcpy(&command[1], &params.gyro, 3);
+    float coef = 0.001;
+    xyz16 raw_val;
+    raw_val.x = params.sensor_offset.x / coef;
+    raw_val.y = params.sensor_offset.y / coef;
+    raw_val.z = params.sensor_offset.z / coef;
+    memcpy(&command[4], &raw_val, 6);
+    command[10] = params.rate_sensor_mult;
+    return adcs_telecommand(command, 11);
 }
 
 /**
@@ -2338,17 +2289,17 @@ ADCS_returnState ADCS_set_rate_gyro(rate_gyro_config params) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_css_config(css_config config) {
-  uint8_t command[22];
-  command[0] = SET_CSS_CONFIG_ID;
-  memcpy(&command[1], &config.config[0], 10);
-  uint8_t raw_val[10];
-  float coef = 0.01;
-  for (int i = 0; i < 10; i++) {
-    raw_val[i] = config.rel_scale[i] / coef;
-  }
-  memcpy(&command[11], &raw_val[0], 10);
-  command[21] = config.threshold;
-  return adcs_telecommand(command, 22);
+    uint8_t command[22];
+    command[0] = SET_CSS_CONFIG_ID;
+    memcpy(&command[1], &config.config[0], 10);
+    uint8_t raw_val[10];
+    float coef = 0.01;
+    for (int i = 0; i < 10; i++) {
+        raw_val[i] = config.rel_scale[i] / coef;
+    }
+    memcpy(&command[11], &raw_val[0], 10);
+    command[21] = config.threshold;
+    return adcs_telecommand(command, 22);
 }
 
 /**
@@ -2361,19 +2312,19 @@ ADCS_returnState ADCS_set_css_config(css_config config) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_star_track_config(cubestar_config config) {
-  uint8_t command[54];
-  command[0] = SET_STAR_TRACK_CONFIG_ID;
-  xyz16 raw_val;
-  float coef = 0.01;
-  raw_val.x = config.mounting_angle.x / coef;
-  raw_val.y = config.mounting_angle.y / coef;
-  raw_val.z = config.mounting_angle.z / coef;
-  memcpy(&command[1], &raw_val, 6);
-  memcpy(&command[7], &config.exposure_t, 45);
-  command[52] = (config.loc_predict_en >> 1) | config.module_en;
-  uint8_t search_wid = config.search_wid * 5;
-  command[53] = search_wid;
-  return adcs_telecommand(command, 54);
+    uint8_t command[54];
+    command[0] = SET_STAR_TRACK_CONFIG_ID;
+    xyz16 raw_val;
+    float coef = 0.01;
+    raw_val.x = config.mounting_angle.x / coef;
+    raw_val.y = config.mounting_angle.y / coef;
+    raw_val.z = config.mounting_angle.z / coef;
+    memcpy(&command[1], &raw_val, 6);
+    memcpy(&command[7], &config.exposure_t, 45);
+    command[52] = (config.loc_predict_en >> 1) | config.module_en;
+    uint8_t search_wid = config.search_wid * 5;
+    command[53] = search_wid;
+    return adcs_telecommand(command, 54);
 }
 
 /**
@@ -2384,39 +2335,39 @@ ADCS_returnState ADCS_set_star_track_config(cubestar_config config) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_cubesense_config(cubesense_config params) {
-  uint8_t command[113];
-  command[0] = SET_CUBESENSE_CONFIG_ID;
-  xyz16 raw_val_angle1, raw_val_angle2;
-  uint16_t raw_boresight_x1, raw_boresight_y1;
-  uint16_t raw_boresight_x2, raw_boresight_y2;
-  float coef = 0.01;
+    uint8_t command[113];
+    command[0] = SET_CUBESENSE_CONFIG_ID;
+    xyz16 raw_val_angle1, raw_val_angle2;
+    uint16_t raw_boresight_x1, raw_boresight_y1;
+    uint16_t raw_boresight_x2, raw_boresight_y2;
+    float coef = 0.01;
 
-  raw_val_angle1.x = params.cam1_sense.mounting_angle.x / coef;
-  raw_val_angle1.y = params.cam1_sense.mounting_angle.y / coef;
-  raw_val_angle1.z = params.cam1_sense.mounting_angle.z / coef;
-  memcpy(&command[1], &raw_val_angle1, 6);
-  command[7] = params.cam1_sense.detect_th;
-  command[8] = params.cam1_sense.auto_adjust;
-  memcpy(&command[9], &params.cam1_sense.exposure_t, 2);
-  raw_boresight_x1 = params.cam1_sense.boresight_x / coef;
-  raw_boresight_y1 = params.cam1_sense.boresight_y / coef;
-  memcpy(&command[11], &raw_boresight_x1, 2);
-  memcpy(&command[12], &raw_boresight_y1, 2);
-  raw_val_angle2.x = params.cam2_sense.mounting_angle.x / coef;
-  raw_val_angle2.y = params.cam2_sense.mounting_angle.y / coef;
-  raw_val_angle2.z = params.cam2_sense.mounting_angle.z / coef;
-  memcpy(&command[14], &raw_val_angle2, 6);
-  command[20] = params.cam2_sense.detect_th;
-  command[21] = params.cam2_sense.auto_adjust;
-  memcpy(&command[22], &params.cam2_sense.exposure_t, 2);
-  raw_boresight_x2 = params.cam2_sense.boresight_x / coef;
-  raw_boresight_y2 = params.cam2_sense.boresight_y / coef;
-  memcpy(&command[23], &raw_boresight_x2, 2);
-  memcpy(&command[25], &raw_boresight_y2, 2);
+    raw_val_angle1.x = params.cam1_sense.mounting_angle.x / coef;
+    raw_val_angle1.y = params.cam1_sense.mounting_angle.y / coef;
+    raw_val_angle1.z = params.cam1_sense.mounting_angle.z / coef;
+    memcpy(&command[1], &raw_val_angle1, 6);
+    command[7] = params.cam1_sense.detect_th;
+    command[8] = params.cam1_sense.auto_adjust;
+    memcpy(&command[9], &params.cam1_sense.exposure_t, 2);
+    raw_boresight_x1 = params.cam1_sense.boresight_x / coef;
+    raw_boresight_y1 = params.cam1_sense.boresight_y / coef;
+    memcpy(&command[11], &raw_boresight_x1, 2);
+    memcpy(&command[12], &raw_boresight_y1, 2);
+    raw_val_angle2.x = params.cam2_sense.mounting_angle.x / coef;
+    raw_val_angle2.y = params.cam2_sense.mounting_angle.y / coef;
+    raw_val_angle2.z = params.cam2_sense.mounting_angle.z / coef;
+    memcpy(&command[14], &raw_val_angle2, 6);
+    command[20] = params.cam2_sense.detect_th;
+    command[21] = params.cam2_sense.auto_adjust;
+    memcpy(&command[22], &params.cam2_sense.exposure_t, 2);
+    raw_boresight_x2 = params.cam2_sense.boresight_x / coef;
+    raw_boresight_y2 = params.cam2_sense.boresight_y / coef;
+    memcpy(&command[23], &raw_boresight_x2, 2);
+    memcpy(&command[25], &raw_boresight_y2, 2);
 
-  memcpy(&command[27], &params.nadir_max_deviate,
-         84);  // copy the rest of the struct directly
-  return adcs_telecommand(command, 113);
+    memcpy(&command[27], &params.nadir_max_deviate,
+           84); // copy the rest of the struct directly
+    return adcs_telecommand(command, 113);
 }
 
 /**
@@ -2431,37 +2382,37 @@ ADCS_returnState ADCS_set_cubesense_config(cubesense_config params) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_mtm_config(mtm_config params, uint8_t mtm) {
-  uint8_t command[31];
-  if (mtm == 1) {
-    command[0] = SET_MTM_CONFIG_ID;
-  } else if (mtm == 2) {
-    command[0] = SET_MTM2_CONFIG_ID;
-  } else {
-    return ADCS_INVALID_PARAMETERS;
-  }
-  xyz16 raw_val_angle, raw_val_offset;
-  float coef = 0.01;
-  raw_val_angle.x = params.mounting_angle.x / coef;
-  raw_val_angle.y = params.mounting_angle.y / coef;
-  raw_val_angle.z = params.mounting_angle.z / coef;
-  memcpy(&command[1], &raw_val_angle, 6);
-  coef = 0.001;
-  raw_val_offset.x = params.channel_offset.x / coef;
-  raw_val_offset.y = params.channel_offset.y / coef;
-  raw_val_offset.z = params.channel_offset.z / coef;
-  memcpy(&command[7], &raw_val_offset, 6);
-  int16_t cell[9];
-  int j = 0;
-  for (int i = 0; i < 3; i++) {
-    cell[i] = params.sensitivity_mat[4 * i] / coef;  // diagonal
-  }
-  for (int i = 0; i < 3; i++) {
-    cell[3 + i] = params.sensitivity_mat[1 + i] / coef;
-    cell[6 + i] = params.sensitivity_mat[5 + i] / coef;
-  }
-  memcpy(&command[13], &cell[0], 18);
-  return adcs_telecommand(command, 31);  //* Tested but not completely exact!  +
-                                         //(command[16] << 8 | command[15])
+    uint8_t command[31];
+    if (mtm == 1) {
+        command[0] = SET_MTM_CONFIG_ID;
+    } else if (mtm == 2) {
+        command[0] = SET_MTM2_CONFIG_ID;
+    } else {
+        return ADCS_INVALID_PARAMETERS;
+    }
+    xyz16 raw_val_angle, raw_val_offset;
+    float coef = 0.01;
+    raw_val_angle.x = params.mounting_angle.x / coef;
+    raw_val_angle.y = params.mounting_angle.y / coef;
+    raw_val_angle.z = params.mounting_angle.z / coef;
+    memcpy(&command[1], &raw_val_angle, 6);
+    coef = 0.001;
+    raw_val_offset.x = params.channel_offset.x / coef;
+    raw_val_offset.y = params.channel_offset.y / coef;
+    raw_val_offset.z = params.channel_offset.z / coef;
+    memcpy(&command[7], &raw_val_offset, 6);
+    int16_t cell[9];
+    int j = 0;
+    for (int i = 0; i < 3; i++) {
+        cell[i] = params.sensitivity_mat[4 * i] / coef; // diagonal
+    }
+    for (int i = 0; i < 3; i++) {
+        cell[3 + i] = params.sensitivity_mat[1 + i] / coef;
+        cell[6 + i] = params.sensitivity_mat[5 + i] / coef;
+    }
+    memcpy(&command[13], &cell[0], 18);
+    return adcs_telecommand(command, 31); //* Tested but not completely exact!  +
+                                          //(command[16] << 8 | command[15])
 }
 
 /**
@@ -2472,15 +2423,15 @@ ADCS_returnState ADCS_set_mtm_config(mtm_config params, uint8_t mtm) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_detumble_config(detumble_config config) {
-  uint8_t command[15];
-  command[0] = SET_DETUMBLE_PARAM_ID;
-  memcpy(&command[1], &config, 8);
-  int16_t raw_spin_rate;
-  float coef = 0.001;
-  raw_spin_rate = config.spin_rate / coef;
-  memcpy(&command[9], &raw_spin_rate, 2);
-  memcpy(&command[11], &config.fast_bDot, 4);
-  return adcs_telecommand(command, 15);
+    uint8_t command[15];
+    command[0] = SET_DETUMBLE_PARAM_ID;
+    memcpy(&command[1], &config, 8);
+    int16_t raw_spin_rate;
+    float coef = 0.001;
+    raw_spin_rate = config.spin_rate / coef;
+    memcpy(&command[9], &raw_spin_rate, 2);
+    memcpy(&command[11], &config.fast_bDot, 4);
+    return adcs_telecommand(command, 15);
 }
 
 /**
@@ -2491,10 +2442,10 @@ ADCS_returnState ADCS_set_detumble_config(detumble_config config) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_ywheel_config(ywheel_ctrl_config params) {
-  uint8_t command[21];
-  command[0] = SET_YWHEEL_CTRL_PARAM_ID;
-  memcpy(&command[1], &params, 20);
-  return adcs_telecommand(command, 21);
+    uint8_t command[21];
+    command[0] = SET_YWHEEL_CTRL_PARAM_ID;
+    memcpy(&command[1], &params, 20);
+    return adcs_telecommand(command, 21);
 }
 
 /**
@@ -2505,11 +2456,11 @@ ADCS_returnState ADCS_set_ywheel_config(ywheel_ctrl_config params) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_rwheel_config(rwheel_ctrl_config params) {
-  uint8_t command[14];
-  command[0] = SET_RWHEEL_CTRL_PARAM_ID;
-  memcpy(&command[1], &params, 12);
-  command[13] = (params.auto_transit << 7) | params.sun_point_facet;
-  return adcs_telecommand(command, 14);
+    uint8_t command[14];
+    command[0] = SET_RWHEEL_CTRL_PARAM_ID;
+    memcpy(&command[1], &params, 12);
+    command[13] = (params.auto_transit << 7) | params.sun_point_facet;
+    return adcs_telecommand(command, 14);
 }
 
 /**
@@ -2520,10 +2471,10 @@ ADCS_returnState ADCS_set_rwheel_config(rwheel_ctrl_config params) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_tracking_config(track_ctrl_config params) {
-  uint8_t command[14];
-  command[0] = SET_TRACK_CTRL_ID;
-  memcpy(&command[1], &params, 13);
-  return adcs_telecommand(command, 14);
+    uint8_t command[14];
+    command[0] = SET_TRACK_CTRL_ID;
+    memcpy(&command[1], &params, 13);
+    return adcs_telecommand(command, 14);
 }
 
 /**
@@ -2537,10 +2488,10 @@ ADCS_returnState ADCS_set_tracking_config(track_ctrl_config params) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_MoI_mat(moment_inertia_config cell) {
-  uint8_t command[25];
-  command[0] = SET_MOMENT_INERTIA_MAT_ID;
-  memcpy(&command[1], &cell, 24);
-  return adcs_telecommand(command, 25);
+    uint8_t command[25];
+    command[0] = SET_MOMENT_INERTIA_MAT_ID;
+    memcpy(&command[1], &cell, 24);
+    return adcs_telecommand(command, 25);
 }
 
 /**
@@ -2553,18 +2504,18 @@ ADCS_returnState ADCS_set_MoI_mat(moment_inertia_config cell) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_estimation_config(estimation_config config) {
-  uint8_t command[32];
-  command[0] = SET_ESTIMATE_PARAM;
-  memcpy(&command[1], &config, 28);
-  command[29] = 0;
-  for (int i = 0; i < 6; i++) {
-    command[29] |= (config.select_arr[i] << i);
-  }
-  command[29] |= (config.MTM_mode << 6);
-  command[30] = config.MTM_select | (config.select_arr[7] << 2);
-  command[31] = config.cam_sample_period;
-  return adcs_telecommand(command,
-                          32);  //* Tested.  + command[29] and  + command[30]
+    uint8_t command[32];
+    command[0] = SET_ESTIMATE_PARAM;
+    memcpy(&command[1], &config, 28);
+    command[29] = 0;
+    for (int i = 0; i < 6; i++) {
+        command[29] |= (config.select_arr[i] << i);
+    }
+    command[29] |= (config.MTM_mode << 6);
+    command[30] = config.MTM_select | (config.select_arr[7] << 2);
+    command[31] = config.cam_sample_period;
+    return adcs_telecommand(command,
+                            32); //* Tested.  + command[29] and  + command[30]
 }
 
 /**
@@ -2577,10 +2528,10 @@ ADCS_returnState ADCS_set_estimation_config(estimation_config config) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_usercoded_setting(usercoded_setting setting) {
-  uint8_t command[97];
-  command[0] = SET_USERCODED_PARAM_ID;
-  memcpy(&command[1], &setting, 96);
-  return adcs_telecommand(command, 97);
+    uint8_t command[97];
+    command[0] = SET_USERCODED_PARAM_ID;
+    memcpy(&command[1], &setting, 96);
+    return adcs_telecommand(command, 97);
 }
 
 /**
@@ -2591,50 +2542,49 @@ ADCS_returnState ADCS_set_usercoded_setting(usercoded_setting setting) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_asgp4_setting(aspg4_setting setting) {
-  if ((setting.inclination < 0) | (setting.RAAN < 0) | (setting.ECC < 0) |
-      (setting.AoP < 0) | (setting.time < 0) | (setting.pos < 0) |
-      (setting.max_pos_err < 0) | (setting.pos_sd < 0) | (setting.vel_sd < 0) |
-      (setting.time_gain < 0) | (setting.max_lag < 0)) {
-    return ADCS_INVALID_PARAMETERS;
-  }
-  uint8_t command[31];
-  command[0] = SET_ASGP4_PARAM_ID;
-  float coef = 0.001;
-  uint16_t inclination = setting.inclination / coef;
-  memcpy(&command[1], &inclination, 2);
-  uint16_t RAAN = setting.RAAN / coef;
-  memcpy(&command[3], &RAAN, 2);
-  uint16_t ECC = setting.ECC / coef;
-  memcpy(&command[5], &ECC, 2);
-  uint16_t AoP = setting.AoP / coef;
-  memcpy(&command[7], &AoP, 2);
-  uint16_t time = setting.time / coef;
-  memcpy(&command[9], &time, 2);
-  uint16_t pos = setting.pos / coef;
-  memcpy(&command[11], &pos, 2);
-  coef = 0.1;
-  uint8_t max_pos_err = setting.max_pos_err / coef;
-  command[13] = max_pos_err;
-  command[14] = setting.asgp4_filter;
-  coef = 0.0000001;
-  int32_t xp = setting.xp / coef;
-  memcpy(&command[15], &xp, 4);
-  int32_t yp = setting.yp / coef;
-  memcpy(&command[19], &yp, 4);
-  command[23] = setting.gps_rollover;
-  coef = 0.1;
-  uint8_t pos_sd = setting.pos_sd / coef;
-  command[24] = pos_sd;
-  coef = 0.01;
-  uint8_t vel_sd = setting.vel_sd / coef;
-  command[25] = vel_sd;
-  command[26] = setting.min_sat;
-  uint8_t time_gain = setting.time_gain / coef;
-  command[27] = time_gain;
-  uint8_t max_lag = setting.max_lag / coef;
-  command[28] = max_lag;
-  memcpy(&command[29], &setting.min_samples, 2);
-  return adcs_telecommand(command, 31);
+    if ((setting.inclination < 0) | (setting.RAAN < 0) | (setting.ECC < 0) | (setting.AoP < 0) |
+        (setting.time < 0) | (setting.pos < 0) | (setting.max_pos_err < 0) | (setting.pos_sd < 0) |
+        (setting.vel_sd < 0) | (setting.time_gain < 0) | (setting.max_lag < 0)) {
+        return ADCS_INVALID_PARAMETERS;
+    }
+    uint8_t command[31];
+    command[0] = SET_ASGP4_PARAM_ID;
+    float coef = 0.001;
+    uint16_t inclination = setting.inclination / coef;
+    memcpy(&command[1], &inclination, 2);
+    uint16_t RAAN = setting.RAAN / coef;
+    memcpy(&command[3], &RAAN, 2);
+    uint16_t ECC = setting.ECC / coef;
+    memcpy(&command[5], &ECC, 2);
+    uint16_t AoP = setting.AoP / coef;
+    memcpy(&command[7], &AoP, 2);
+    uint16_t time = setting.time / coef;
+    memcpy(&command[9], &time, 2);
+    uint16_t pos = setting.pos / coef;
+    memcpy(&command[11], &pos, 2);
+    coef = 0.1;
+    uint8_t max_pos_err = setting.max_pos_err / coef;
+    command[13] = max_pos_err;
+    command[14] = setting.asgp4_filter;
+    coef = 0.0000001;
+    int32_t xp = setting.xp / coef;
+    memcpy(&command[15], &xp, 4);
+    int32_t yp = setting.yp / coef;
+    memcpy(&command[19], &yp, 4);
+    command[23] = setting.gps_rollover;
+    coef = 0.1;
+    uint8_t pos_sd = setting.pos_sd / coef;
+    command[24] = pos_sd;
+    coef = 0.01;
+    uint8_t vel_sd = setting.vel_sd / coef;
+    command[25] = vel_sd;
+    command[26] = setting.min_sat;
+    uint8_t time_gain = setting.time_gain / coef;
+    command[27] = time_gain;
+    uint8_t max_lag = setting.max_lag / coef;
+    command[28] = max_lag;
+    memcpy(&command[29], &setting.min_samples, 2);
+    return adcs_telecommand(command, 31);
 }
 
 /**
@@ -2645,90 +2595,85 @@ ADCS_returnState ADCS_set_asgp4_setting(aspg4_setting setting) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_full_config(adcs_config* config) {
-  uint8_t telemetry[504];
-  float coef;
-  ADCS_returnState state;
-  state = adcs_telemetry(GET_FULL_CONFIG_ID, telemetry, 504);
-  memcpy(&config->MTQ, &telemetry[0], 3);
-  memcpy(&config->RW[0], &telemetry[3], 4);
-  memcpy(&config->rate_gyro, &telemetry[7], 3);
-  get_xyz(&config->rate_gyro.sensor_offset, &telemetry[10], 0.001);
-  config->rate_gyro.rate_sensor_mult = telemetry[16];
-  memcpy(&config->css, &telemetry[17], 10);
-  coef = 0.01;
-  for (int i = 0; i < 10; i++) {
-    config->css.rel_scale[i] = telemetry[27 + i] * coef;
-  }
-  config->css.threshold = telemetry[37];
-  get_xyz(&config->cubesense.cam1_sense.mounting_angle, &telemetry[38], 0.01);
-  config->cubesense.cam1_sense.detect_th = telemetry[44];
-  config->cubesense.cam1_sense.auto_adjust = telemetry[45] & 1;
-  memcpy(&config->cubesense.cam1_sense.exposure_t, &telemetry[46], 2);
-  config->cubesense.cam1_sense.boresight_x =
-      ((telemetry[49] << 8) | telemetry[48]) * coef;
-  config->cubesense.cam1_sense.boresight_y =
-      ((telemetry[51] << 8) | telemetry[50]) * coef;
-  get_xyz(&config->cubesense.cam2_sense.mounting_angle, &telemetry[52], 0.01);
-  config->cubesense.cam2_sense.detect_th = telemetry[58];
-  config->cubesense.cam2_sense.auto_adjust = telemetry[59] & 1;
-  memcpy(&config->cubesense.cam2_sense.exposure_t, &telemetry[60], 2);
-  config->cubesense.cam2_sense.boresight_x =
-      ((telemetry[63] << 8) | telemetry[62]) * coef;
-  config->cubesense.cam2_sense.boresight_y =
-      ((telemetry[65] << 8) | telemetry[64]) * coef;
-  memcpy(&config->cubesense.nadir_max_deviate, &telemetry[66], 84);
-  get_xyz(&config->MTM1.mounting_angle, &telemetry[150], 0.01);
-  get_xyz(&config->MTM1.channel_offset, &telemetry[156], 0.001);
-  get_3x3(config->MTM1.sensitivity_mat, &telemetry[162], 0.001);
-  get_xyz(&config->MTM2.mounting_angle, &telemetry[180], 0.01);
-  get_xyz(&config->MTM2.channel_offset, &telemetry[186], 0.001);
-  get_3x3(config->MTM2.sensitivity_mat, &telemetry[192], 0.001);
-  get_xyz(&config->star_tracker.mounting_angle, &telemetry[210], 0.01);
-  memcpy(&config->star_tracker.exposure_t, &telemetry[216], 45);
-  config->star_tracker.module_en = telemetry[261] & 0x1;
-  config->star_tracker.loc_predict_en = telemetry[261] & 0x2;  // second bit
-  config->star_tracker.search_wid = telemetry[262] / 5;
-  memcpy(&config->detumble, &telemetry[263], 8);
-  coef = 0.001;
-  config->detumble.spin_rate =
-      uint82int16(telemetry[271], telemetry[272]) * coef;
-  memcpy(&config->detumble.fast_bDot, &telemetry[273], 4);
-  memcpy(&config->ywheel, &telemetry[277], 20);
-  memcpy(&config->rwheel, &telemetry[297], 12);
-  config->rwheel.sun_point_facet = telemetry[309] & 0x7F;  // 7 bits
-  config->rwheel.auto_transit = telemetry[309] & 0x80;     // 8th bit
-  memcpy(&config->tracking, &telemetry[310],
-         65);  // tracking + MoI + partially estimation
-  for (int i = 0; i < 6; i++) {
-    config->estimation.select_arr[i] = (telemetry[375] >> i) & 1;
-  }
-  config->estimation.MTM_mode = (telemetry[375] >> 6) & 0x3;
-  config->estimation.MTM_select = telemetry[376] & 0x3;
-  config->estimation.select_arr[7] = (telemetry[376] >> 2) & 1;
-  config->estimation.cam_sample_period = telemetry[377];
-  coef = 0.001;
-  config->aspg4.inclination = ((telemetry[379] << 8) | telemetry[378]) * coef;
-  config->aspg4.RAAN = ((telemetry[381] << 8) | telemetry[380]) * coef;
-  config->aspg4.ECC = ((telemetry[383] << 8) | telemetry[382]) * coef;
-  config->aspg4.AoP = ((telemetry[385] << 8) | telemetry[384]) * coef;
-  config->aspg4.time = ((telemetry[387] << 8) | telemetry[386]) * coef;
-  config->aspg4.pos = ((telemetry[389] << 8) | telemetry[388]) * coef;
-  coef = 0.1;
-  config->aspg4.max_pos_err = telemetry[390] * coef;
-  config->aspg4.asgp4_filter = telemetry[391];
-  coef = 0.0000001;
-  config->aspg4.xp = uint82int32(&telemetry[392]) * coef;
-  config->aspg4.yp = uint82int32(&telemetry[396]) * coef;
-  config->aspg4.gps_rollover = telemetry[400];
-  coef = 0.1;
-  config->aspg4.pos_sd = telemetry[401] * coef;
-  coef = 0.01;
-  config->aspg4.vel_sd = telemetry[402] * coef;
-  config->aspg4.min_sat = telemetry[403];
-  config->aspg4.time_gain = telemetry[404] * coef;
-  config->aspg4.max_lag = telemetry[405] * coef;
-  config->aspg4.min_samples = (telemetry[407] << 8) | telemetry[406];
-  memcpy(&config->usercoded, &telemetry[408], 96);
-  return state;
+ADCS_returnState ADCS_get_full_config(adcs_config *config) {
+    uint8_t telemetry[504];
+    float coef;
+    ADCS_returnState state;
+    state = adcs_telemetry(GET_FULL_CONFIG_ID, telemetry, 504);
+    memcpy(&config->MTQ, &telemetry[0], 3);
+    memcpy(&config->RW[0], &telemetry[3], 4);
+    memcpy(&config->rate_gyro, &telemetry[7], 3);
+    get_xyz(&config->rate_gyro.sensor_offset, &telemetry[10], 0.001);
+    config->rate_gyro.rate_sensor_mult = telemetry[16];
+    memcpy(&config->css, &telemetry[17], 10);
+    coef = 0.01;
+    for (int i = 0; i < 10; i++) {
+        config->css.rel_scale[i] = telemetry[27 + i] * coef;
+    }
+    config->css.threshold = telemetry[37];
+    get_xyz(&config->cubesense.cam1_sense.mounting_angle, &telemetry[38], 0.01);
+    config->cubesense.cam1_sense.detect_th = telemetry[44];
+    config->cubesense.cam1_sense.auto_adjust = telemetry[45] & 1;
+    memcpy(&config->cubesense.cam1_sense.exposure_t, &telemetry[46], 2);
+    config->cubesense.cam1_sense.boresight_x = ((telemetry[49] << 8) | telemetry[48]) * coef;
+    config->cubesense.cam1_sense.boresight_y = ((telemetry[51] << 8) | telemetry[50]) * coef;
+    get_xyz(&config->cubesense.cam2_sense.mounting_angle, &telemetry[52], 0.01);
+    config->cubesense.cam2_sense.detect_th = telemetry[58];
+    config->cubesense.cam2_sense.auto_adjust = telemetry[59] & 1;
+    memcpy(&config->cubesense.cam2_sense.exposure_t, &telemetry[60], 2);
+    config->cubesense.cam2_sense.boresight_x = ((telemetry[63] << 8) | telemetry[62]) * coef;
+    config->cubesense.cam2_sense.boresight_y = ((telemetry[65] << 8) | telemetry[64]) * coef;
+    memcpy(&config->cubesense.nadir_max_deviate, &telemetry[66], 84);
+    get_xyz(&config->MTM1.mounting_angle, &telemetry[150], 0.01);
+    get_xyz(&config->MTM1.channel_offset, &telemetry[156], 0.001);
+    get_3x3(config->MTM1.sensitivity_mat, &telemetry[162], 0.001);
+    get_xyz(&config->MTM2.mounting_angle, &telemetry[180], 0.01);
+    get_xyz(&config->MTM2.channel_offset, &telemetry[186], 0.001);
+    get_3x3(config->MTM2.sensitivity_mat, &telemetry[192], 0.001);
+    get_xyz(&config->star_tracker.mounting_angle, &telemetry[210], 0.01);
+    memcpy(&config->star_tracker.exposure_t, &telemetry[216], 45);
+    config->star_tracker.module_en = telemetry[261] & 0x1;
+    config->star_tracker.loc_predict_en = telemetry[261] & 0x2; // second bit
+    config->star_tracker.search_wid = telemetry[262] / 5;
+    memcpy(&config->detumble, &telemetry[263], 8);
+    coef = 0.001;
+    config->detumble.spin_rate = uint82int16(telemetry[271], telemetry[272]) * coef;
+    memcpy(&config->detumble.fast_bDot, &telemetry[273], 4);
+    memcpy(&config->ywheel, &telemetry[277], 20);
+    memcpy(&config->rwheel, &telemetry[297], 12);
+    config->rwheel.sun_point_facet = telemetry[309] & 0x7F; // 7 bits
+    config->rwheel.auto_transit = telemetry[309] & 0x80;    // 8th bit
+    memcpy(&config->tracking, &telemetry[310],
+           65); // tracking + MoI + partially estimation
+    for (int i = 0; i < 6; i++) {
+        config->estimation.select_arr[i] = (telemetry[375] >> i) & 1;
+    }
+    config->estimation.MTM_mode = (telemetry[375] >> 6) & 0x3;
+    config->estimation.MTM_select = telemetry[376] & 0x3;
+    config->estimation.select_arr[7] = (telemetry[376] >> 2) & 1;
+    config->estimation.cam_sample_period = telemetry[377];
+    coef = 0.001;
+    config->aspg4.inclination = ((telemetry[379] << 8) | telemetry[378]) * coef;
+    config->aspg4.RAAN = ((telemetry[381] << 8) | telemetry[380]) * coef;
+    config->aspg4.ECC = ((telemetry[383] << 8) | telemetry[382]) * coef;
+    config->aspg4.AoP = ((telemetry[385] << 8) | telemetry[384]) * coef;
+    config->aspg4.time = ((telemetry[387] << 8) | telemetry[386]) * coef;
+    config->aspg4.pos = ((telemetry[389] << 8) | telemetry[388]) * coef;
+    coef = 0.1;
+    config->aspg4.max_pos_err = telemetry[390] * coef;
+    config->aspg4.asgp4_filter = telemetry[391];
+    coef = 0.0000001;
+    config->aspg4.xp = uint82int32(&telemetry[392]) * coef;
+    config->aspg4.yp = uint82int32(&telemetry[396]) * coef;
+    config->aspg4.gps_rollover = telemetry[400];
+    coef = 0.1;
+    config->aspg4.pos_sd = telemetry[401] * coef;
+    coef = 0.01;
+    config->aspg4.vel_sd = telemetry[402] * coef;
+    config->aspg4.min_sat = telemetry[403];
+    config->aspg4.time_gain = telemetry[404] * coef;
+    config->aspg4.max_lag = telemetry[405] * coef;
+    config->aspg4.min_samples = (telemetry[407] << 8) | telemetry[406];
+    memcpy(&config->usercoded, &telemetry[408], 96);
+    return state;
 }

@@ -18,20 +18,18 @@
  */
 
 #include "uart_i2c.h"
-#include "HL_i2c.h"             // HalCoGen generated i2c driver
+#include "HL_i2c.h" // HalCoGen generated i2c driver
 
 #include <stdint.h>
 
 // TODO: Define these values before testing
-#define I2C_BASE_ADDR                   // i2c module base address
-#define ADCS_I2C_SLAVE_ADDR             // slave address of ADCS module
+#define I2C_BASE_ADDR       // i2c module base address
+#define ADCS_I2C_SLAVE_ADDR // slave address of ADCS module
 
 const uint8_t ADCS_I2C_WRITE_NODE = 0xAE;
 const uint8_t ADCS_I2C_READ_NODE = 0xAF;
 
-
 // TODO: implement uart_send() and uart_receive()
-
 
 /**
  * @brief
@@ -44,9 +42,9 @@ const uint8_t ADCS_I2C_READ_NODE = 0xAF;
  * @attention
  *      This function has not been tested and may need modifications
  *      when testing on hardware is done.
- * 
+ *
  */
-void i2c_send(uint8_t *data, uint32_t length){
+void i2c_send(uint8_t *data, uint32_t length) {
     i2cSetSlaveAdd(I2C_BASE_ADDR, ADCS_I2C_SLAVE_ADDR);
     i2cSetDirection(I2C_BASE_ADDR, I2C_TRANSMITTER);
     i2cSetCount(I2C_BASE_ADDR, length + 1);
@@ -56,11 +54,12 @@ void i2c_send(uint8_t *data, uint32_t length){
     i2cSetStart(I2C_BASE_ADDR);
     i2cSendByte(I2C_BASE_ADDR, ADCS_I2C_WRITE_NODE);
     i2cSend(I2C_BASE_ADDR, length, data);
-    while(i2cIsBusBusy(I2C_BASE_ADDR));
-    while(i2cIsStopDetected(I2C_BASE_ADDR) == 0);
+    while (i2cIsBusBusy(I2C_BASE_ADDR))
+        ;
+    while (i2cIsStopDetected(I2C_BASE_ADDR) == 0)
+        ;
     i2cClearSCD(I2C_BASE_ADDR);
 }
-
 
 /**
  * @brief
@@ -75,15 +74,15 @@ void i2c_send(uint8_t *data, uint32_t length){
  * @attention
  *      This function has not been tested and may need modifications
  *      when testing on hardware is done.
- * 
+ *
  */
-void i2c_receive(uint8_t *data, uint8_t reg, uint32_t length){
+void i2c_receive(uint8_t *data, uint8_t reg, uint32_t length) {
     // Select TLM register
     i2cSetSlaveAdd(I2C_BASE_ADDR, ADCS_I2C_SLAVE_ADDR);
     i2cSetDirection(I2C_BASE_ADDR, I2C_TRANSMITTER);
     i2cSetCount(I2C_BASE_ADDR, length + 3);
     i2cSetMode(I2C_BASE_ADDR, I2C_MASTER);
-    
+
     i2cSetStop(I2C_BASE_ADDR);
     i2cSetStart(I2C_BASE_ADDR);
     i2cSendByte(I2C_BASE_ADDR, ADCS_I2C_WRITE_NODE);
@@ -92,7 +91,8 @@ void i2c_receive(uint8_t *data, uint8_t reg, uint32_t length){
     // send read node address
     i2cSetStart(I2C_BASE_ADDR);
     i2cSendByte(I2C_BASE_ADDR, ADCS_I2C_READ_NODE);
-    while(i2cIsTxReady(I2C_BASE_ADDR) == 0);    // make sure all bytes are sent
+    while (i2cIsTxReady(I2C_BASE_ADDR) == 0)
+        ; // make sure all bytes are sent
 
     // recevie data
     i2cSetSlaveAdd(I2C_BASE_ADDR, ADCS_I2C_SLAVE_ADDR);
@@ -100,7 +100,9 @@ void i2c_receive(uint8_t *data, uint8_t reg, uint32_t length){
     i2cSetMode(I2C_BASE_ADDR, I2C_MASTER);
     i2cReceive(I2C_BASE_ADDR, length, data);
 
-    while(i2cIsBusBusy(I2C_BASE_ADDR));
-    while(i2cIsStopDetected() == 0);
+    while (i2cIsBusBusy(I2C_BASE_ADDR))
+        ;
+    while (i2cIsStopDetected() == 0)
+        ;
     i2cClearSCD();
 }

@@ -21,14 +21,14 @@
 #include "adcs_types.h"
 
 #include "FreeRTOS.h"
-#include <string.h>
-#include <stdbool.h>
-#include "os_queue.h"
-#include "os_task.h"
-#include "os_semphr.h"
-#include "system.h"
 #include "HL_sci.h"
 #include "i2c_io.h"
+#include "os_queue.h"
+#include "os_semphr.h"
+#include "os_task.h"
+#include "system.h"
+#include <stdbool.h>
+#include <string.h>
 
 #define QUEUE_LENGTH 32
 #define ITEM_SIZE 1
@@ -45,11 +45,10 @@ static SemaphoreHandle_t uart_mutex;
 void init_adcs_io() {
     tx_semphr = xSemaphoreCreateBinary();
     adcsQueue = xQueueCreate(QUEUE_LENGTH, ITEM_SIZE);
-    uart_mutex  = xSemaphoreCreateMutex();
+    uart_mutex = xSemaphoreCreateMutex();
     adcsBuffer = 0;
     sciReceive(ADCS_SCI, 1, &adcsBuffer);
 }
-
 
 void adcs_sciNotification(sciBASE_t *sci, int flags) {
     portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
@@ -64,7 +63,8 @@ void adcs_sciNotification(sciBASE_t *sci, int flags) {
         xSemaphoreGiveFromISR(tx_semphr, &xHigherPriorityTaskWoken);
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         break;
-    default: break;
+    default:
+        break;
     }
 }
 
@@ -72,12 +72,12 @@ void adcs_sciNotification(sciBASE_t *sci, int flags) {
  * @brief
  * 		Send telecommand via UART protocol
  * @param command
- * 		Telecommand frame 
+ * 		Telecommand frame
  * @param length
  * 		Length of the data (in bytes)
- * 
+ *
  */
-ADCS_returnState send_uart_telecommand(uint8_t* command, uint32_t length) {
+ADCS_returnState send_uart_telecommand(uint8_t *command, uint32_t length) {
     xSemaphoreTake(uart_mutex, portMAX_DELAY); //  TODO: make this a reasonable timeout
     uint8_t frame[length + 4];
     frame[0] = ADCS_ESC_CHAR;
@@ -105,21 +105,19 @@ ADCS_returnState send_uart_telecommand(uint8_t* command, uint32_t length) {
  * @brief
  * 		Send telecommand via I2C protocol
  * @param command
- * 		Telecommand frame 
+ * 		Telecommand frame
  * @param length
  * 		Length of the data (in bytes)
- * 
+ *
  */
-ADCS_returnState send_i2c_telecommand(uint8_t *command, uint32_t length)
-{
+ADCS_returnState send_i2c_telecommand(uint8_t *command, uint32_t length) {
     // Send telecommand
     i2c_Send(ADCS_I2C, ADCS_ADDR, length, command);
 
     // Poll TC Acknowledge Telemetry Format until the Processed flag equals 1.
     bool processed = false;
     uint8_t tc_ack[4];
-    while (!processed)
-    {
+    while (!processed) {
         request_i2c_telemetry(LAST_TC_ACK_ID, tc_ack, 4);
         processed = tc_ack[1] & 1;
     }
@@ -140,10 +138,9 @@ ADCS_returnState send_i2c_telecommand(uint8_t *command, uint32_t length)
  *    Received telemetry data
  * @param length
  * 		Length of the data (in bytes)
- * 
+ *
  */
-ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t* telemetry,
-                                        uint32_t length) {
+ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint32_t length) {
     xSemaphoreTake(uart_mutex, portMAX_DELAY); //  TODO: make this a reasonable timeout
 
     uint8_t frame[5];
@@ -157,9 +154,9 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t* telemetry,
     xSemaphoreTake(tx_semphr, portMAX_DELAY); // TODO: make a reasonable timeout
 
     int received = 0;
-    uint8_t reply[length+5];
+    uint8_t reply[length + 5];
 
-    while (received < length+5) {
+    while (received < length + 5) {
         xQueueReceive(adcsQueue, reply[received], portMAX_DELAY); // TODO: make a reasonable timeout
         received++;
     }
@@ -181,21 +178,21 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t* telemetry,
  *    Received telemetry data
  * @param length
  * 		Length of the data (in bytes)
- * 
+ *
  */
 ADCS_returnState request_i2c_telemetry(uint8_t TM_ID, uint8_t *telemetry,
                                        uint32_t length)
 {
     i2c_Receive(ADCS_I2C, TM_ID, length, telemetry);
 
-  // Read error flag from Communication Status telemetry frame
-  // to determine if an incorrect number of bytes are read. 
-  // Should this check be done here?
-  // (Refer to CubeADCS Firmware Manual section 5.3.1)
+    // Read error flag from Communication Status telemetry frame
+    // to determine if an incorrect number of bytes are read.
+    // Should this check be done here?
+    // (Refer to CubeADCS Firmware Manual section 5.3.1)
 
-  // uint8_t err_reply[6];
-  // i2c_receive(err_reply, COMMS_STAT_ID, 6);
-  // uint8_t TL_err_flag = (err_reply[4] >> 3) & 1;
+    // uint8_t err_reply[6];
+    // i2c_receive(err_reply, COMMS_STAT_ID, 6);
+    // uint8_t TL_err_flag = (err_reply[4] >> 3) & 1;
 
-  return ADCS_OK;
+    return ADCS_OK;
 }

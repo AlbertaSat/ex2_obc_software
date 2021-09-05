@@ -26,8 +26,7 @@
 #include "mock_uart_i2c.h"
 #include "unity.h"
 
-uint8_t TC_ID_array[] = {1,   4,   5,   6,   33,  108, 112,
-                         113, 114, 115, 116, 117, 118, 119};
+uint8_t TC_ID_array[] = {1, 4, 5, 6, 33, 108, 112, 113, 114, 115, 116, 117, 118, 119};
 
 void setUp(void) {}
 
@@ -39,22 +38,20 @@ void test_ADCS_I2C_send(void) {
     tc_ack_frame[1] = 1;
     tc_ack_frame[2] = ADCS_OK;
     tc_ack_frame[3] = 0;
-    
-    i2c_send_Ignore();
-    i2c_receive_ExpectAnyArgs();
-    i2c_receive_ReturnArrayThruPtr_data(tc_ack_frame, 4);
-    i2c_receive_ExpectAnyArgs();
-    i2c_receive_ReturnArrayThruPtr_data(tc_ack_frame, 4);
-    TEST_ASSERT_EQUAL_INT(ADCS_OK,
-                        ADCS_load_file_download_block(2, 17, 6324, 145));
 
     i2c_send_Ignore();
     i2c_receive_ExpectAnyArgs();
     i2c_receive_ReturnArrayThruPtr_data(tc_ack_frame, 4);
     i2c_receive_ExpectAnyArgs();
     i2c_receive_ReturnArrayThruPtr_data(tc_ack_frame, 4);
-    TEST_ASSERT_EQUAL_INT(ADCS_OK,
-                        ADCS_file_upload_packet(145, "This is test file"));
+    TEST_ASSERT_EQUAL_INT(ADCS_OK, ADCS_load_file_download_block(2, 17, 6324, 145));
+
+    i2c_send_Ignore();
+    i2c_receive_ExpectAnyArgs();
+    i2c_receive_ReturnArrayThruPtr_data(tc_ack_frame, 4);
+    i2c_receive_ExpectAnyArgs();
+    i2c_receive_ReturnArrayThruPtr_data(tc_ack_frame, 4);
+    TEST_ASSERT_EQUAL_INT(ADCS_OK, ADCS_file_upload_packet(145, "This is test file"));
 }
 
 void test_ADCS_I2C_request(void) {
@@ -79,9 +76,9 @@ void test_ADCS_I2C_request(void) {
     uint16_t runtime_s_f, runtime_ms_f;
     i2c_receive_ExpectAnyArgs();
     i2c_receive_ReturnArrayThruPtr_data(reply, 8);
-    ADCS_get_node_identification(&node_type_f, &interface_ver_f, &major_firm_ver_f, 
-                    &minor_firm_ver_f, &runtime_s_f, &runtime_ms_f);
-    
+    ADCS_get_node_identification(&node_type_f, &interface_ver_f, &major_firm_ver_f, &minor_firm_ver_f,
+                                 &runtime_s_f, &runtime_ms_f);
+
     TEST_ASSERT_EQUAL_UINT8(node_type, node_type_f);
     TEST_ASSERT_EQUAL_UINT8(interface_ver, interface_ver_f);
     TEST_ASSERT_EQUAL_UINT8(major_firm_ver, major_firm_ver_f);

@@ -15,8 +15,8 @@
 #ifndef UART_I2C_H
 #define UART_I2C_H
 
-void uart_send(uint8_t* data, uint32_t length);
-void uart_receive(uint8_t* data, uint32_t length);
+void uart_send(uint8_t *data, uint32_t length);
+void uart_receive(uint8_t *data, uint32_t length);
 
 void i2c_send(uint8_t *data, uint32_t length);
 void i2c_receive(uint8_t *data, uint8_t reg, uint32_t length); // reg: the register to read (TLM ID)
