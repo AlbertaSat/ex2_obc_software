@@ -36,11 +36,11 @@ ATTENTION:
     e.g.
     char *string, struct {} dataSet;
 */
-typedef struct __attribute__((packed)){
-  long temparray[6];                     //Athena temperature array
+typedef struct __attribute__((packed)) {
+    long temparray[6]; // Athena temperature array
 } athena_housekeeping;
 
-int Athena_getHK(athena_housekeeping* athena_hk);
-int Athena_hk_convert_endianness(athena_housekeeping* athena_hk);
+int Athena_getHK(athena_housekeeping *athena_hk);
+int Athena_hk_convert_endianness(athena_housekeeping *athena_hk);
 
 #endif

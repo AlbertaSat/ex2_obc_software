@@ -19,9 +19,7 @@
 
 #include "HL_gio.h"
 
-
-typedef enum
-{
+typedef enum {
     Port = 0,
     UHF_P = 1,
     UHF_Z = 2,
