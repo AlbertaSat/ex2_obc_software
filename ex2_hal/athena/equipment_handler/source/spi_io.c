@@ -1,4 +1,5 @@
 #include "spi_io.h"
+#include "FreeRTOS.h"
 #include "HL_gio.h"
 #include "HL_het.h"
 #include "HL_mibspi.h"

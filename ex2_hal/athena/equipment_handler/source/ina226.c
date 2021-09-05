@@ -17,30 +17,30 @@
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
 
-/***************************************************************************/ /**
-                                                                               * @brief
-                                                                               *   Set content of a register.
-                                                                               *
-                                                                               * @param[in] i2c
-                                                                               *   Pointer to I2C peripheral
-                                                                               *register block.
-                                                                               *
-                                                                               * @param[in] addr
-                                                                               *   I2C address, in 8 bit format,
-                                                                               *where LSB is reserved for R/W bit.
-                                                                               *
-                                                                               * @param[in] reg
-                                                                               *   Register to write (input
-                                                                               *register cannot be written).
-                                                                               *
-                                                                               * @param[in] val
-                                                                               *   Value used when writing to
-                                                                               *register.
-                                                                               *
-                                                                               * @return
-                                                                               *   Returns 0 if register written,
-                                                                               *<0 if unable to write to register.
-                                                                               ******************************************************************************/
+/**
+ * @brief
+ *   Set content of a register.
+ *
+ * @param[in] i2c
+ *   Pointer to I2C peripheral
+ *register block.
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format,
+ *where LSB is reserved for R/W bit.
+ *
+ * @param[in] reg
+ *   Register to write (input
+ *register cannot be written).
+ *
+ * @param[in] val
+ *   Value used when writing to
+ *register.
+ *
+ * @return
+ *   Returns 0 if register written,
+ *<0 if unable to write to register.
+ ******************************************************************************/
 int INA226_RegisterSet(i2cBASE_t *i2c, uint8_t addr, INA226_Register_TypeDef reg, uint16_t val) {
     // I2C_TransferSeq_TypeDef seq;
     uint8_t data[2] = {0};
@@ -50,30 +50,30 @@ int INA226_RegisterSet(i2cBASE_t *i2c, uint8_t addr, INA226_Register_TypeDef reg
     return i2c_Send(i2c, addr, 2, &data);
 }
 
-/***************************************************************************/ /**
-                                                                               * @brief
-                                                                               *   Get current content of a
-                                                                               *register.
-                                                                               *
-                                                                               * @param[in] i2c
-                                                                               *   Pointer to I2C peripheral
-                                                                               *register block.
-                                                                               *
-                                                                               * @param[in] addr
-                                                                               *   I2C address, in 8 bit format,
-                                                                               *where LSB is reserved for R/W bit.
-                                                                               *
-                                                                               * @param[in] reg
-                                                                               *   Register to read.
-                                                                               *
-                                                                               * @param[out] val
-                                                                               *   Reference to place register
-                                                                               *read.
-                                                                               *
-                                                                               * @return
-                                                                               *   Returns 0 if register read, <0
-                                                                               *if unable to read register.
-                                                                               ******************************************************************************/
+/**
+ * @brief
+ *   Get current content of a
+ *register.
+ *
+ * @param[in] i2c
+ *   Pointer to I2C peripheral
+ *register block.
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format,
+ *where LSB is reserved for R/W bit.
+ *
+ * @param[in] reg
+ *   Register to read.
+ *
+ * @param[out] val
+ *   Reference to place register
+ *read.
+ *
+ * @return
+ *   Returns 0 if register read, <0
+ *if unable to read register.
+ ******************************************************************************/
 int INA226_RegisterGet(i2cBASE_t *i2c, uint8_t addr, INA226_Register_TypeDef reg, uint16_t *val) {
 
     uint8_t data[2];

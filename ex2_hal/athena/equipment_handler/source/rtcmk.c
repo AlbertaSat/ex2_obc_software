@@ -18,43 +18,43 @@
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
 
-/***************************************************************************/ /**
-                                                                               * @brief
-                                                                               *   Convert 8 bit binary to 8 bit
-                                                                               *BCD
-                                                                               *
-                                                                               * @param[in] val
-                                                                               *   binary value to convert
-                                                                               *
-                                                                               * @return
-                                                                               *   Input represented as BCD
-                                                                               ******************************************************************************/
+/**
+ * @brief
+ *   Convert 8 bit binary to 8 bit
+ *BCD
+ *
+ * @param[in] val
+ *   binary value to convert
+ *
+ * @return
+ *   Input represented as BCD
+ ******************************************************************************/
 unsigned int toBCD(unsigned int val) { return val + 6 * (val / 10); }
 
-/***************************************************************************/ /**
-                                                                               * @brief
-                                                                               *   Convert 8 bit BCD to 8 bit
-                                                                               *binary
-                                                                               *
-                                                                               * @param[in] val
-                                                                               *   BCD value to convert
-                                                                               *
-                                                                               * @return
-                                                                               *   Input represented as binary
-                                                                               ******************************************************************************/
+/**
+ * @brief
+ *   Convert 8 bit BCD to 8 bit
+ *binary
+ *
+ * @param[in] val
+ *   BCD value to convert
+ *
+ * @return
+ *   Input represented as binary
+ ******************************************************************************/
 unsigned int toBIN(unsigned int val) { return val - 6 * (val >> 4); }
 
-/***************************************************************************/ /**
-                                                                               * @brief
-                                                                               *   Set time to unix time
-                                                                               *
-                                                                               * @param[in] new_time
-                                                                               *   unix time to set
-                                                                               *
-                                                                               * @return
-                                                                               *   Returns 0 if time updated, <0 if
-                                                                               *unable to update time.
-                                                                               ******************************************************************************/
+/**
+ * @brief
+ *   Set time to unix time
+ *
+ * @param[in] new_time
+ *   unix time to set
+ *
+ * @return
+ *   Returns 0 if time updated, <0 if
+ *unable to update time.
+ ******************************************************************************/
 int RTCMK_SetUnix(time_t new_time) {
     // TODO: Make these use a single array
     struct tm t;
@@ -74,18 +74,18 @@ int RTCMK_SetUnix(time_t new_time) {
     return 0;
 }
 
-/***************************************************************************/ /**
-                                                                               * @brief
-                                                                               *   Get time represented as unix
-                                                                               *time
-                                                                               *
-                                                                               * @param[in] *unix_time
-                                                                               *   Variable to store time
-                                                                               *
-                                                                               * @return
-                                                                               *   Returns 0 if time updated, <0 if
-                                                                               *unable to update time.
-                                                                               ******************************************************************************/
+/**
+ * @brief
+ *   Get time represented as unix
+ *time
+ *
+ * @param[in] *unix_time
+ *   Variable to store time
+ *
+ * @return
+ *   Returns 0 if time updated, <0 if
+ *unable to update time.
+ ******************************************************************************/
 int RTCMK_GetUnix(time_t *unix_time) {
     // TODO: make these use a single array
     struct tm t = {0};
@@ -125,26 +125,26 @@ int RTCMK_GetUnix(time_t *unix_time) {
     return 0;
 }
 
-/***************************************************************************/ /**
-                                                                               * @brief
-                                                                               *   Set content of a register.
-                                                                               *
-                                                                               * @param[in] addr
-                                                                               *   I2C address, in 8 bit format,
-                                                                               *where LSB is reserved for R/W bit.
-                                                                               *
-                                                                               * @param[in] reg
-                                                                               *   Register to write (input
-                                                                               *register cannot be written).
-                                                                               *
-                                                                               * @param[in] val
-                                                                               *   Value used when writing to
-                                                                               *register.
-                                                                               *
-                                                                               * @return
-                                                                               *   Returns 0 if register written,
-                                                                               *<0 if unable to write to register.
-                                                                               ******************************************************************************/
+/**
+ * @brief
+ *   Set content of a register.
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format,
+ *where LSB is reserved for R/W bit.
+ *
+ * @param[in] reg
+ *   Register to write (input
+ *register cannot be written).
+ *
+ * @param[in] val
+ *   Value used when writing to
+ *register.
+ *
+ * @return
+ *   Returns 0 if register written,
+ *<0 if unable to write to register.
+ ******************************************************************************/
 int RTCMK_RegisterSet(uint8_t addr, RTCMK_Register_TypeDef reg, uint8_t val) {
     uint8_t data[2];
 
@@ -154,26 +154,26 @@ int RTCMK_RegisterSet(uint8_t addr, RTCMK_Register_TypeDef reg, uint8_t val) {
     return i2c_Send(RTCMK_PORT, addr, 2, &data);
 }
 
-/***************************************************************************/ /**
-                                                                               * @brief
-                                                                               *   Get current content of a
-                                                                               *register.
-                                                                               *
-                                                                               * @param[in] addr
-                                                                               *   I2C address, in 8 bit format,
-                                                                               *where LSB is reserved for R/W bit.
-                                                                               *
-                                                                               * @param[in] reg
-                                                                               *   Register to read.
-                                                                               *
-                                                                               * @param[out] val
-                                                                               *   Reference to place register
-                                                                               *read.
-                                                                               *
-                                                                               * @return
-                                                                               *   Returns 0 if register read, <0
-                                                                               *if unable to read register.
-                                                                               ******************************************************************************/
+/**
+ * @brief
+ *   Get current content of a
+ *register.
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format,
+ *where LSB is reserved for R/W bit.
+ *
+ * @param[in] reg
+ *   Register to read.
+ *
+ * @param[out] val
+ *   Reference to place register
+ *read.
+ *
+ * @return
+ *   Returns 0 if register read, <0
+ *if unable to read register.
+ ******************************************************************************/
 int RTCMK_RegisterGet(uint8_t addr, RTCMK_Register_TypeDef reg, uint8_t *val) {
     uint8_t data;
 
@@ -186,19 +186,19 @@ int RTCMK_RegisterGet(uint8_t addr, RTCMK_Register_TypeDef reg, uint8_t *val) {
     return (int)i2c_Receive(RTCMK_PORT, addr, 1, val);
 }
 
-/***************************************************************************/ /**
-                                                                               * @brief
-                                                                               *   Write 0's to time and calender
-                                                                               *registors (0x00 to 0x06).
-                                                                               *
-                                                                               * @param[in] addr
-                                                                               *   I2C address, in 8 bit format,
-                                                                               *where LSB is reserved for R/W bit.
-                                                                               *
-                                                                               * @return
-                                                                               *   Returns 0 if registers written,
-                                                                               *<0 if unable to write to registers.
-                                                                               ******************************************************************************/
+/**
+ * @brief
+ *   Write 0's to time and calender
+ *registors (0x00 to 0x06).
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format,
+ *where LSB is reserved for R/W bit.
+ *
+ * @return
+ *   Returns 0 if registers written,
+ *<0 if unable to write to registers.
+ ******************************************************************************/
 int RTCMK_ResetTime(uint8_t addr) {
 
     uint8_t data[8] = {0};
@@ -208,22 +208,22 @@ int RTCMK_ResetTime(uint8_t addr) {
     return i2c_Send(RTCMK_PORT, addr, 8, &data);
 }
 
-/***************************************************************************/ /**
-                                                                               * @brief
-                                                                               *   Returns current content of
-                                                                               *seconds register in decimal.
-                                                                               *
-                                                                               * @param[in] addr
-                                                                               *   I2C address, in 8 bit format,
-                                                                               *where LSB is reserved for R/W bit.
-                                                                               *
-                                                                               * @param[out] val
-                                                                               *   Reference to place result.
-                                                                               *
-                                                                               * @return
-                                                                               *   Returns 0 if registers written,
-                                                                               *<0 if unable to write to registers.
-                                                                               ******************************************************************************/
+/**
+ * @brief
+ *   Returns current content of
+ *seconds register in decimal.
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format,
+ *where LSB is reserved for R/W bit.
+ *
+ * @param[out] val
+ *   Reference to place result.
+ *
+ * @return
+ *   Returns 0 if registers written,
+ *<0 if unable to write to registers.
+ ******************************************************************************/
 int RTCMK_ReadSeconds(uint8_t addr, uint8_t *val) {
     int ret = -1;
 
@@ -241,22 +241,22 @@ int RTCMK_ReadSeconds(uint8_t addr, uint8_t *val) {
     return (ret);
 }
 
-/***************************************************************************/ /**
-                                                                               * @brief
-                                                                               *   Returns current content of
-                                                                               *minutes register in decimal.
-                                                                               *
-                                                                               * @param[in] addr
-                                                                               *   I2C address, in 8 bit format,
-                                                                               *where LSB is reserved for R/W bit.
-                                                                               *
-                                                                               * @param[out] val
-                                                                               *   Reference to place result.
-                                                                               *
-                                                                               * @return
-                                                                               *   Returns 0 if registers written,
-                                                                               *<0 if unable to write to registers.
-                                                                               ******************************************************************************/
+/**
+ * @brief
+ *   Returns current content of
+ *minutes register in decimal.
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format,
+ *where LSB is reserved for R/W bit.
+ *
+ * @param[out] val
+ *   Reference to place result.
+ *
+ * @return
+ *   Returns 0 if registers written,
+ *<0 if unable to write to registers.
+ ******************************************************************************/
 int RTCMK_ReadMinutes(uint8_t addr, uint8_t *val) {
     int ret = -1;
 
@@ -274,22 +274,22 @@ int RTCMK_ReadMinutes(uint8_t addr, uint8_t *val) {
     return (ret);
 }
 
-/***************************************************************************/ /**
-                                                                               * @brief
-                                                                               *   Returns current content of hours
-                                                                               *register in decimal.
-                                                                               *
-                                                                               * @param[in] addr
-                                                                               *   I2C address, in 8 bit format,
-                                                                               *where LSB is reserved for R/W bit.
-                                                                               *
-                                                                               * @param[out] val
-                                                                               *   Reference to place result.
-                                                                               *
-                                                                               * @return
-                                                                               *   Returns 0 if registers written,
-                                                                               *<0 if unable to write to registers.
-                                                                               ******************************************************************************/
+/**
+ * @brief
+ *   Returns current content of hours
+ *register in decimal.
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format,
+ *where LSB is reserved for R/W bit.
+ *
+ * @param[out] val
+ *   Reference to place result.
+ *
+ * @return
+ *   Returns 0 if registers written,
+ *<0 if unable to write to registers.
+ ******************************************************************************/
 int RTCMK_ReadHours(uint8_t addr, uint8_t *val) {
     int ret = -1;
 
@@ -307,22 +307,22 @@ int RTCMK_ReadHours(uint8_t addr, uint8_t *val) {
     return (ret);
 }
 
-/***************************************************************************/ /**
-                                                                               * @brief
-                                                                               *   Returns current content of hours
-                                                                               *register in decimal.
-                                                                               *
-                                                                               * @param[in] addr
-                                                                               *   I2C address, in 8 bit format,
-                                                                               *where LSB is reserved for R/W bit.
-                                                                               *
-                                                                               * @param[out] val
-                                                                               *   Reference to place result.
-                                                                               *
-                                                                               * @return
-                                                                               *   Returns 0 if registers written,
-                                                                               *<0 if unable to write to registers.
-                                                                               ******************************************************************************/
+/**
+ * @brief
+ *   Returns current content of hours
+ *register in decimal.
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format,
+ *where LSB is reserved for R/W bit.
+ *
+ * @param[out] val
+ *   Reference to place result.
+ *
+ * @return
+ *   Returns 0 if registers written,
+ *<0 if unable to write to registers.
+ ******************************************************************************/
 int RTCMK_ReadWeek(uint8_t addr, uint8_t *val) {
     int ret = -1;
 
@@ -340,22 +340,22 @@ int RTCMK_ReadWeek(uint8_t addr, uint8_t *val) {
     return (ret);
 }
 
-/***************************************************************************/ /**
-                                                                               * @brief
-                                                                               *   Returns current content of hours
-                                                                               *register in decimal.
-                                                                               *
-                                                                               * @param[in] addr
-                                                                               *   I2C address, in 8 bit format,
-                                                                               *where LSB is reserved for R/W bit.
-                                                                               *
-                                                                               * @param[out] val
-                                                                               *   Reference to place result.
-                                                                               *
-                                                                               * @return
-                                                                               *   Returns 0 if registers written,
-                                                                               *<0 if unable to write to registers.
-                                                                               ******************************************************************************/
+/**
+ * @brief
+ *   Returns current content of hours
+ *register in decimal.
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format,
+ *where LSB is reserved for R/W bit.
+ *
+ * @param[out] val
+ *   Reference to place result.
+ *
+ * @return
+ *   Returns 0 if registers written,
+ *<0 if unable to write to registers.
+ ******************************************************************************/
 int RTCMK_ReadMonth(uint8_t addr, uint8_t *val) {
     int ret = -1;
 
@@ -373,22 +373,22 @@ int RTCMK_ReadMonth(uint8_t addr, uint8_t *val) {
     return (ret);
 }
 
-/***************************************************************************/ /**
-                                                                               * @brief
-                                                                               *   Returns current content of hours
-                                                                               *register in decimal.
-                                                                               *
-                                                                               * @param[in] addr
-                                                                               *   I2C address, in 8 bit format,
-                                                                               *where LSB is reserved for R/W bit.
-                                                                               *
-                                                                               * @param[out] val
-                                                                               *   Reference to place result.
-                                                                               *
-                                                                               * @return
-                                                                               *   Returns 0 if registers written,
-                                                                               *<0 if unable to write to registers.
-                                                                               ******************************************************************************/
+/**
+ * @brief
+ *   Returns current content of hours
+ *register in decimal.
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format,
+ *where LSB is reserved for R/W bit.
+ *
+ * @param[out] val
+ *   Reference to place result.
+ *
+ * @return
+ *   Returns 0 if registers written,
+ *<0 if unable to write to registers.
+ ******************************************************************************/
 int RTCMK_ReadYear(uint8_t addr, uint8_t *val) {
     int ret = -1;
 
@@ -406,22 +406,22 @@ int RTCMK_ReadYear(uint8_t addr, uint8_t *val) {
     return (ret);
 }
 
-/***************************************************************************/ /**
-                                                                               * @brief
-                                                                               *   Returns current content of hours
-                                                                               *register in decimal.
-                                                                               *
-                                                                               * @param[in] addr
-                                                                               *   I2C address, in 8 bit format,
-                                                                               *where LSB is reserved for R/W bit.
-                                                                               *
-                                                                               * @param[out] val
-                                                                               *   Reference to place result.
-                                                                               *
-                                                                               * @return
-                                                                               *   Returns 0 if registers written,
-                                                                               *<0 if unable to write to registers.
-                                                                               ******************************************************************************/
+/**
+ * @brief
+ *   Returns current content of hours
+ *register in decimal.
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format,
+ *where LSB is reserved for R/W bit.
+ *
+ * @param[out] val
+ *   Reference to place result.
+ *
+ * @return
+ *   Returns 0 if registers written,
+ *<0 if unable to write to registers.
+ ******************************************************************************/
 int RTCMK_ReadDay(uint8_t addr, uint8_t *val) {
     int ret = -1;
 
@@ -439,22 +439,22 @@ int RTCMK_ReadDay(uint8_t addr, uint8_t *val) {
     return (ret);
 }
 
-/***************************************************************************/ /**
-                                                                               * @brief
-                                                                               *   Sets the content of day register
-                                                                               *register in decimal.
-                                                                               *
-                                                                               * @param[in] addr
-                                                                               *   I2C address, in 8 bit format,
-                                                                               *where LSB is reserved for R/W bit.
-                                                                               *
-                                                                               * @param[in] val
-                                                                               *   Value to set to
-                                                                               *
-                                                                               * @return
-                                                                               *   Returns 0 if registers written,
-                                                                               *<0 if unable to write to registers.
-                                                                               ******************************************************************************/
+/**
+ * @brief
+ *   Sets the content of day register
+ *register in decimal.
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format,
+ *where LSB is reserved for R/W bit.
+ *
+ * @param[in] val
+ *   Value to set to
+ *
+ * @return
+ *   Returns 0 if registers written,
+ *<0 if unable to write to registers.
+ ******************************************************************************/
 int RTCMK_SetDay(uint8_t addr, uint8_t val) {
     int ret = -1;
     int day = toBCD(val);
@@ -469,22 +469,22 @@ int RTCMK_SetDay(uint8_t addr, uint8_t val) {
     return (ret);
 }
 
-/***************************************************************************/ /**
-                                                                               * @brief
-                                                                               *   Sets the content of hour
-                                                                               *register register in decimal.
-                                                                               *
-                                                                               * @param[in] addr
-                                                                               *   I2C address, in 8 bit format,
-                                                                               *where LSB is reserved for R/W bit.
-                                                                               *
-                                                                               * @param[in] val
-                                                                               *   Value to set to
-                                                                               *
-                                                                               * @return
-                                                                               *   Returns 0 if registers written,
-                                                                               *<0 if unable to write to registers.
-                                                                               ******************************************************************************/
+/**
+ * @brief
+ *   Sets the content of hour
+ *register register in decimal.
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format,
+ *where LSB is reserved for R/W bit.
+ *
+ * @param[in] val
+ *   Value to set to
+ *
+ * @return
+ *   Returns 0 if registers written,
+ *<0 if unable to write to registers.
+ ******************************************************************************/
 int RTCMK_SetHour(uint8_t addr, uint8_t val) {
     int ret = -1;
     int bcdVal = toBCD(val);
@@ -496,22 +496,22 @@ int RTCMK_SetHour(uint8_t addr, uint8_t val) {
 
     return (ret);
 }
-/***************************************************************************/ /**
-                                                                               * @brief
-                                                                               *   Sets the content of minute
-                                                                               *register register in decimal.
-                                                                               *
-                                                                               * @param[in] addr
-                                                                               *   I2C address, in 8 bit format,
-                                                                               *where LSB is reserved for R/W bit.
-                                                                               *
-                                                                               * @param[in] val
-                                                                               *   Value to set to
-                                                                               *
-                                                                               * @return
-                                                                               *   Returns 0 if registers written,
-                                                                               *<0 if unable to write to registers.
-                                                                               ******************************************************************************/
+/**
+ * @brief
+ *   Sets the content of minute
+ *register register in decimal.
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format,
+ *where LSB is reserved for R/W bit.
+ *
+ * @param[in] val
+ *   Value to set to
+ *
+ * @return
+ *   Returns 0 if registers written,
+ *<0 if unable to write to registers.
+ ******************************************************************************/
 int RTCMK_SetMinute(uint8_t addr, uint8_t val) {
     int ret = -1;
     int bcdVal = toBCD(val);
@@ -524,22 +524,22 @@ int RTCMK_SetMinute(uint8_t addr, uint8_t val) {
     return (ret);
 }
 
-/***************************************************************************/ /**
-                                                                               * @brief
-                                                                               *   Sets the content of minute
-                                                                               *register register in decimal.
-                                                                               *
-                                                                               * @param[in] addr
-                                                                               *   I2C address, in 8 bit format,
-                                                                               *where LSB is reserved for R/W bit.
-                                                                               *
-                                                                               * @param[in] val
-                                                                               *   Value to set to
-                                                                               *
-                                                                               * @return
-                                                                               *   Returns 0 if registers written,
-                                                                               *<0 if unable to write to registers.
-                                                                               ******************************************************************************/
+/**
+ * @brief
+ *   Sets the content of minute
+ *register register in decimal.
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format,
+ *where LSB is reserved for R/W bit.
+ *
+ * @param[in] val
+ *   Value to set to
+ *
+ * @return
+ *   Returns 0 if registers written,
+ *<0 if unable to write to registers.
+ ******************************************************************************/
 int RTCMK_SetMonth(uint8_t addr, uint8_t val) {
     int ret = -1;
 
@@ -553,22 +553,22 @@ int RTCMK_SetMonth(uint8_t addr, uint8_t val) {
     return (ret);
 }
 
-/***************************************************************************/ /**
-                                                                               * @brief
-                                                                               *   Sets the content of second
-                                                                               *register register in decimal.
-                                                                               *
-                                                                               * @param[in] addr
-                                                                               *   I2C address, in 8 bit format,
-                                                                               *where LSB is reserved for R/W bit.
-                                                                               *
-                                                                               * @param[in] val
-                                                                               *   Value to set to
-                                                                               *
-                                                                               * @return
-                                                                               *   Returns 0 if registers written,
-                                                                               *<0 if unable to write to registers.
-                                                                               ******************************************************************************/
+/**
+ * @brief
+ *   Sets the content of second
+ *register register in decimal.
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format,
+ *where LSB is reserved for R/W bit.
+ *
+ * @param[in] val
+ *   Value to set to
+ *
+ * @return
+ *   Returns 0 if registers written,
+ *<0 if unable to write to registers.
+ ******************************************************************************/
 int RTCMK_SetSecond(uint8_t addr, uint8_t val) {
     int ret = -1;
     int bcdVal = toBCD(val);
@@ -581,22 +581,22 @@ int RTCMK_SetSecond(uint8_t addr, uint8_t val) {
     return (ret);
 }
 
-/***************************************************************************/ /**
-                                                                               * @brief
-                                                                               *   Sets the content of year
-                                                                               *register register in decimal.
-                                                                               *
-                                                                               * @param[in] addr
-                                                                               *   I2C address, in 8 bit format,
-                                                                               *where LSB is reserved for R/W bit.
-                                                                               *
-                                                                               * @param[in] val
-                                                                               *   Value to set to
-                                                                               *
-                                                                               * @return
-                                                                               *   Returns 0 if registers written,
-                                                                               *<0 if unable to write to registers.
-                                                                               ******************************************************************************/
+/**
+ * @brief
+ *   Sets the content of year
+ *register register in decimal.
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format,
+ *where LSB is reserved for R/W bit.
+ *
+ * @param[in] val
+ *   Value to set to
+ *
+ * @return
+ *   Returns 0 if registers written,
+ *<0 if unable to write to registers.
+ ******************************************************************************/
 int RTCMK_SetYear(uint8_t addr, uint8_t val) {
     int ret = -1;
 
@@ -610,22 +610,22 @@ int RTCMK_SetYear(uint8_t addr, uint8_t val) {
     return (ret);
 }
 
-/***************************************************************************/ /**
-                                                                               * @brief
-                                                                               *   Sets the content of week
-                                                                               *register register in decimal.
-                                                                               *
-                                                                               * @param[in] addr
-                                                                               *   I2C address, in 8 bit format,
-                                                                               *where LSB is reserved for R/W bit.
-                                                                               *
-                                                                               * @param[in] val
-                                                                               *   Value to set to
-                                                                               *
-                                                                               * @return
-                                                                               *   Returns 0 if registers written,
-                                                                               *<0 if unable to write to registers.
-                                                                               ******************************************************************************/
+/**
+ * @brief
+ *   Sets the content of week
+ *register register in decimal.
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format,
+ *where LSB is reserved for R/W bit.
+ *
+ * @param[in] val
+ *   Value to set to
+ *
+ * @return
+ *   Returns 0 if registers written,
+ *<0 if unable to write to registers.
+ ******************************************************************************/
 int RTCMK_SetWeek(uint8_t addr, uint8_t val) {
     int ret = -1;
 
@@ -639,22 +639,22 @@ int RTCMK_SetWeek(uint8_t addr, uint8_t val) {
     return (ret);
 }
 
-/***************************************************************************/ /**
-                                                                               * @brief
-                                                                               *   Returns current content of
-                                                                               *minutes alarm register in decimal.
-                                                                               *
-                                                                               * @param[in] addr
-                                                                               *   I2C address, in 8 bit format,
-                                                                               *where LSB is reserved for R/W bit.
-                                                                               *
-                                                                               * @param[out] val
-                                                                               *   Reference to place result.
-                                                                               *
-                                                                               * @return
-                                                                               *   Returns 0 if registers written,
-                                                                               *<0 if unable to write to registers.
-                                                                               ******************************************************************************/
+/**
+ * @brief
+ *   Returns current content of
+ *minutes alarm register in decimal.
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format,
+ *where LSB is reserved for R/W bit.
+ *
+ * @param[out] val
+ *   Reference to place result.
+ *
+ * @return
+ *   Returns 0 if registers written,
+ *<0 if unable to write to registers.
+ ******************************************************************************/
 int RTCMK_ReadMinutesAlarm(uint8_t addr, uint8_t *val) {
     int ret = -1;
 
@@ -672,22 +672,22 @@ int RTCMK_ReadMinutesAlarm(uint8_t addr, uint8_t *val) {
     return (ret);
 }
 
-/***************************************************************************/ /**
-                                                                               * @brief
-                                                                               *   Returns current content of hour
-                                                                               *alarm register in decimal.
-                                                                               *
-                                                                               * @param[in] addr
-                                                                               *   I2C address, in 8 bit format,
-                                                                               *where LSB is reserved for R/W bit.
-                                                                               *
-                                                                               * @param[out] val
-                                                                               *   Reference to place result.
-                                                                               *
-                                                                               * @return
-                                                                               *   Returns 0 if registers written,
-                                                                               *<0 if unable to write to registers.
-                                                                               ******************************************************************************/
+/**
+ * @brief
+ *   Returns current content of hour
+ *alarm register in decimal.
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format,
+ *where LSB is reserved for R/W bit.
+ *
+ * @param[out] val
+ *   Reference to place result.
+ *
+ * @return
+ *   Returns 0 if registers written,
+ *<0 if unable to write to registers.
+ ******************************************************************************/
 int RTCMK_ReadHourAlarm(uint8_t addr, uint8_t *val) {
     int ret = -1;
 
@@ -705,22 +705,22 @@ int RTCMK_ReadHourAlarm(uint8_t addr, uint8_t *val) {
     return (ret);
 }
 
-/***************************************************************************/ /**
-                                                                               * @brief
-                                                                               *   Returns current content of week
-                                                                               *day alarm register in decimal.
-                                                                               *
-                                                                               * @param[in] addr
-                                                                               *   I2C address, in 8 bit format,
-                                                                               *where LSB is reserved for R/W bit.
-                                                                               *
-                                                                               * @param[out] val
-                                                                               *   Reference to place result.
-                                                                               *
-                                                                               * @return
-                                                                               *   Returns 0 if registers written,
-                                                                               *<0 if unable to write to registers.
-                                                                               ******************************************************************************/
+/**
+ * @brief
+ *   Returns current content of week
+ *day alarm register in decimal.
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format,
+ *where LSB is reserved for R/W bit.
+ *
+ * @param[out] val
+ *   Reference to place result.
+ *
+ * @return
+ *   Returns 0 if registers written,
+ *<0 if unable to write to registers.
+ ******************************************************************************/
 int RTCMK_ReadWeekAlarm(uint8_t addr, uint8_t *val) {
     int ret = -1;
 
@@ -738,22 +738,22 @@ int RTCMK_ReadWeekAlarm(uint8_t addr, uint8_t *val) {
     return (ret);
 }
 
-/***************************************************************************/ /**
-                                                                               * @brief
-                                                                               *   Returns current content of
-                                                                               *select register.
-                                                                               *
-                                                                               * @param[in] addr
-                                                                               *   I2C address, in 8 bit format,
-                                                                               *where LSB is reserved for R/W bit.
-                                                                               *
-                                                                               * @param[out] val
-                                                                               *   Reference to place result.
-                                                                               *
-                                                                               * @return
-                                                                               *   Returns 0 if registers written,
-                                                                               *<0 if unable to write to registers.
-                                                                               ******************************************************************************/
+/**
+ * @brief
+ *   Returns current content of
+ *select register.
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format,
+ *where LSB is reserved for R/W bit.
+ *
+ * @param[out] val
+ *   Reference to place result.
+ *
+ * @return
+ *   Returns 0 if registers written,
+ *<0 if unable to write to registers.
+ ******************************************************************************/
 int RTCMK_ReadSelect(uint8_t addr, uint8_t *val) {
     int ret = -1;
 
@@ -770,22 +770,22 @@ int RTCMK_ReadSelect(uint8_t addr, uint8_t *val) {
 
     return (ret);
 }
-/***************************************************************************/ /**
-                                                                               * @brief
-                                                                               *   Returns current content of flag
-                                                                               *register.
-                                                                               *
-                                                                               * @param[in] addr
-                                                                               *   I2C address, in 8 bit format,
-                                                                               *where LSB is reserved for R/W bit.
-                                                                               *
-                                                                               * @param[out] val
-                                                                               *   Reference to place result.
-                                                                               *
-                                                                               * @return
-                                                                               *   Returns 0 if registers written,
-                                                                               *<0 if unable to write to registers.
-                                                                               ******************************************************************************/
+/**
+ * @brief
+ *   Returns current content of flag
+ *register.
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format,
+ *where LSB is reserved for R/W bit.
+ *
+ * @param[out] val
+ *   Reference to place result.
+ *
+ * @return
+ *   Returns 0 if registers written,
+ *<0 if unable to write to registers.
+ ******************************************************************************/
 int RTCMK_ReadFlag(uint8_t addr, uint8_t *val) {
     int ret = -1;
 
@@ -801,22 +801,22 @@ int RTCMK_ReadFlag(uint8_t addr, uint8_t *val) {
     return (ret);
 }
 
-/***************************************************************************/ /**
-                                                                               * @brief
-                                                                               *   Returns current content of
-                                                                               *control register.
-                                                                               *
-                                                                               * @param[in] addr
-                                                                               *   I2C address, in 8 bit format,
-                                                                               *where LSB is reserved for R/W bit.
-                                                                               *
-                                                                               * @param[out] val
-                                                                               *   Reference to place result.
-                                                                               *
-                                                                               * @return
-                                                                               *   Returns 0 if registers written,
-                                                                               *<0 if unable to write to registers.
-                                                                               ******************************************************************************/
+/**
+ * @brief
+ *   Returns current content of
+ *control register.
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format,
+ *where LSB is reserved for R/W bit.
+ *
+ * @param[out] val
+ *   Reference to place result.
+ *
+ * @return
+ *   Returns 0 if registers written,
+ *<0 if unable to write to registers.
+ ******************************************************************************/
 int RTCMK_ReadControl(uint8_t addr, uint8_t *val) {
     int ret = -1;
 
@@ -832,22 +832,22 @@ int RTCMK_ReadControl(uint8_t addr, uint8_t *val) {
     return (ret);
 }
 
-/***************************************************************************/ /**
-                                                                               * @brief
-                                                                               *   Sets the content of week alarm
-                                                                               *register in decimal.
-                                                                               *
-                                                                               * @param[in] addr
-                                                                               *   I2C address, in 8 bit format,
-                                                                               *where LSB is reserved for R/W bit.
-                                                                               *
-                                                                               * @param[in] val
-                                                                               *   Value to set to
-                                                                               *
-                                                                               * @return
-                                                                               *   Returns 0 if registers written,
-                                                                               *<0 if unable to write to registers.
-                                                                               ******************************************************************************/
+/**
+ * @brief
+ *   Sets the content of week alarm
+ *register in decimal.
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format,
+ *where LSB is reserved for R/W bit.
+ *
+ * @param[in] val
+ *   Value to set to
+ *
+ * @return
+ *   Returns 0 if registers written,
+ *<0 if unable to write to registers.
+ ******************************************************************************/
 int RTCMK_SetWeekAlarm(uint8_t addr, uint8_t val) {
     int ret = -1;
 
@@ -859,22 +859,22 @@ int RTCMK_SetWeekAlarm(uint8_t addr, uint8_t val) {
     return (ret);
 }
 
-/***************************************************************************/ /**
-                                                                               * @brief
-                                                                               *   Sets the content of minute alarm
-                                                                               *register in decimal.
-                                                                               *
-                                                                               * @param[in] addr
-                                                                               *   I2C address, in 8 bit format,
-                                                                               *where LSB is reserved for R/W bit.
-                                                                               *
-                                                                               * @param[in] val
-                                                                               *   Value to set to
-                                                                               *
-                                                                               * @return
-                                                                               *   Returns 0 if registers written,
-                                                                               *<0 if unable to write to registers.
-                                                                               ******************************************************************************/
+/**
+ * @brief
+ *   Sets the content of minute alarm
+ *register in decimal.
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format,
+ *where LSB is reserved for R/W bit.
+ *
+ * @param[in] val
+ *   Value to set to
+ *
+ * @return
+ *   Returns 0 if registers written,
+ *<0 if unable to write to registers.
+ ******************************************************************************/
 int RTCMK_SetMinAlarm(uint8_t addr, uint8_t val) {
     int ret = -1;
 
@@ -886,22 +886,22 @@ int RTCMK_SetMinAlarm(uint8_t addr, uint8_t val) {
     return (ret);
 }
 
-/***************************************************************************/ /**
-                                                                               * @brief
-                                                                               *   Sets the content of hour alarm
-                                                                               *register in decimal.
-                                                                               *
-                                                                               * @param[in] addr
-                                                                               *   I2C address, in 8 bit format,
-                                                                               *where LSB is reserved for R/W bit.
-                                                                               *
-                                                                               * @param[in] val
-                                                                               *   Value to set to
-                                                                               *
-                                                                               * @return
-                                                                               *   Returns 0 if registers written,
-                                                                               *<0 if unable to write to registers.
-                                                                               ******************************************************************************/
+/**
+ * @brief
+ *   Sets the content of hour alarm
+ *register in decimal.
+ *
+ * @param[in] addr
+ *   I2C address, in 8 bit format,
+ *where LSB is reserved for R/W bit.
+ *
+ * @param[in] val
+ *   Value to set to
+ *
+ * @return
+ *   Returns 0 if registers written,
+ *<0 if unable to write to registers.
+ ******************************************************************************/
 int RTCMK_SetHourAlarm(uint8_t addr, uint8_t val) {
     int ret = -1;
 
