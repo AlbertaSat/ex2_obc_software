@@ -1,17 +1,17 @@
 #include "skytraq_binary.h"
-#include "HL_sci.h"
-#include "skytraq_binary_types.h"
-#include <string.h>
 #include "FreeRTOS.h"
-#include "os_queue.h"
+#include "HL_sci.h"
 #include "NMEAParser.h"
+#include "os_queue.h"
+#include "skytraq_binary_types.h"
 #include "system.h"
+#include <string.h>
 
-//TODO: implement software download
-//TODO: determine if CNR mask will need to be configured
-//TODO: determine if ephemeris needs to be uploaded manually
-//TODO: determine if (and which) almanacs need to be uploaded manually
-//TODO: find what the 3 timing modes mean
+// TODO: implement software download
+// TODO: determine if CNR mask will need to be configured
+// TODO: determine if ephemeris needs to be uploaded manually
+// TODO: determine if (and which) almanacs need to be uploaded manually
+// TODO: find what the 3 timing modes mean
 
 /* not implemented:
                     configure position pinning parameters
@@ -27,12 +27,7 @@
                     anything related to beidou
 */
 
-
-enum current_sentence {
-    none,
-    binary,
-    nmea
-} line_type;
+enum current_sentence { none, binary, nmea } line_type;
 
 #define BUFSIZE 100
 #define ITEM_SIZE BUFSIZE
@@ -53,7 +48,7 @@ int current_line_type = none;
 
 /**
  * @brief initialises important skytraq variables
- * 
+ *
  * @return true success
  * @return false failure
  */
@@ -68,7 +63,8 @@ bool skytraq_binary_init() {
     }
 
     // initialise sci
-    while ((GPS_SCI->FLR & 0x4) == 4);
+    while ((GPS_SCI->FLR & 0x4) == 4)
+        ;
 
     sciEnableNotification(GPS_SCI, SCI_RX_INT);
     sciReceive(GPS_SCI, 1, &byte);
@@ -78,8 +74,9 @@ bool skytraq_binary_init() {
 
 /**
  * @brief Sends message to skytraq and waits for ACK or NACK
- * 
- * @param paylod pointer to data to send to skytraq. Contains only data unique to that message. I.E not the start symbol, end symbol, or checksum
+ *
+ * @param paylod pointer to data to send to skytraq. Contains only data unique to that message. I.E not the start
+ * symbol, end symbol, or checksum
  * @param size size of the message to send, not including start symbol, checksum, or end symbol
  * @return GPS_RETURNSTATE Error explaining why the failure occurred
  */
@@ -88,17 +85,16 @@ GPS_RETURNSTATE skytraq_send_message(uint8_t *paylod, uint16_t size) {
         return RESOURCE_BUSY;
     }
     sci_busy = true;
-    int total_size = size+header_size+footer_size;
+    int total_size = size + header_size + footer_size;
     uint8_t *message = pvPortMalloc(total_size);
     memset(message, 0, total_size);
     message[0] = 0xA0;
     message[1] = 0xA1;
-    *(uint16_t *) &(message[2]) = size;
+    *(uint16_t *)&(message[2]) = size;
     memcpy(&(message[4]), paylod, size);
-    message[total_size-3] = calc_checksum(message, size);
-    message[total_size-1] = 0x0A;
-    message[total_size-2] = 0x0D;
-
+    message[total_size - 3] = calc_checksum(message, size);
+    message[total_size - 1] = 0x0A;
+    message[total_size - 2] = 0x0D;
 
     sciSend(GPS_SCI, total_size, message);
     vPortFree(message);
@@ -106,8 +102,8 @@ GPS_RETURNSTATE skytraq_send_message(uint8_t *paylod, uint16_t size) {
     uint8_t sentence[BUFSIZE];
 
     // Will wait 1 second for a response
-    BaseType_t success = xQueueReceive(binary_queue, sentence, 1000*portTICK_PERIOD_MS);
-    if (success  != pdPASS) {
+    BaseType_t success = xQueueReceive(binary_queue, sentence, 1000 * portTICK_PERIOD_MS);
+    if (success != pdPASS) {
         sci_busy = false;
         return UNKNOWN_ERROR;
     }
@@ -115,9 +111,13 @@ GPS_RETURNSTATE skytraq_send_message(uint8_t *paylod, uint16_t size) {
     bool cs_success = skytraq_verify_checksum(sentence);
     cs_success = true;
     if (cs_success) {
-        switch(sentence[4]){
-        case 0x83: sci_busy = false; return SUCCESS;
-        case 0x84: sci_busy = false; return MESSAGE_INVALID;
+        switch (sentence[4]) {
+        case 0x83:
+            sci_busy = false;
+            return SUCCESS;
+        case 0x84:
+            sci_busy = false;
+            return MESSAGE_INVALID;
         }
     } else {
         sci_busy = false;
@@ -130,10 +130,12 @@ GPS_RETURNSTATE skytraq_send_message(uint8_t *paylod, uint16_t size) {
 
 /**
  * @brief Sends message to skytraq and waits for ACK or NACK, then waits for reply
- * 
- * @param paylod pointer to data to send to skytraq. Contains only data unique to that message. I.E not the start symbol, end symbol, or checksum
+ *
+ * @param paylod pointer to data to send to skytraq. Contains only data unique to that message. I.E not the start
+ * symbol, end symbol, or checksum
  * @param size size of the message to send, not including start symbol, checksum, or end symbol
- * @param reply Pointer to location to put the reply. Must be of correct size for the reply expected including all start/end symbols
+ * @param reply Pointer to location to put the reply. Must be of correct size for the reply expected including all
+ * start/end symbols
  * @return GPS_RETURNSTATE Error explaining why the failure occurred
  */
 GPS_RETURNSTATE skytraq_send_message_with_reply(uint8_t *payload, uint16_t size, uint8_t *reply) {
@@ -150,9 +152,9 @@ GPS_RETURNSTATE skytraq_send_message_with_reply(uint8_t *payload, uint16_t size,
     uint8_t sentence[BUFSIZE];
 
     // will wait for 1 second for a reply
-    BaseType_t success = xQueueReceive(binary_queue, sentence, 1000*portTICK_PERIOD_MS);
+    BaseType_t success = xQueueReceive(binary_queue, sentence, 1000 * portTICK_PERIOD_MS);
 
-    if (success  != pdPASS) {
+    if (success != pdPASS) {
         sci_busy = false;
         return UNKNOWN_ERROR;
     }
@@ -169,27 +171,30 @@ GPS_RETURNSTATE skytraq_send_message_with_reply(uint8_t *payload, uint16_t size,
 }
 
 // TODO: should I really keep this?
-static inline increment_buffer(int *buf) {
-    *buf += 1;
-}
+static inline increment_buffer(int *buf) { *buf += 1; }
 
 /**
  * @brief interrupt handler for receiving byte from skytraq
- * 
+ *
  * Will send data to appropriate queue, be it binary queue for communication messages or NMEA task queue
- * 
+ *
  */
 void get_byte() {
     uint8_t in = byte;
 
     if (current_line_type == none) {
-        switch(in){
-        case '$': current_line_type = nmea; break;
-        case 0xA0: current_line_type = binary; break;
+        switch (in) {
+        case '$':
+            current_line_type = nmea;
+            break;
+        case 0xA0:
+            current_line_type = binary;
+            break;
         };
     }
 
-    binary_message_buffer[bin_buff_loc] = in; increment_buffer(&bin_buff_loc);
+    binary_message_buffer[bin_buff_loc] = in;
+    increment_buffer(&bin_buff_loc);
     if (in == '\n') {
         if (current_line_type == binary) {
             if (binary_queue != NULL)
@@ -206,21 +211,25 @@ void get_byte() {
 
 /**
  * @brief HalCoGen sci notification. Calls get_byte()
- * 
+ *
  * @param sci sci port the interruput is from
  * @param flags interrupt flags
  */
 void gps_sciNotification(sciBASE_t *sci, unsigned flags) {
-    switch(flags) {
-    case SCI_RX_INT: get_byte(); sciReceive(sci, 1, &byte); break;
+    switch (flags) {
+    case SCI_RX_INT:
+        get_byte();
+        sciReceive(sci, 1, &byte);
+        break;
 
-    case SCI_TX_INT: break;
+    case SCI_TX_INT:
+        break;
     }
 }
 
 /**
  * @brief calculates checksum. Must take full message from start symbol to end of payload length
- * 
+ *
  * @param message message to calculate checksum on
  * @param payload_length length to calculate checksum over
  * @return uint8_t checksum
@@ -230,8 +239,8 @@ uint8_t calc_checksum(uint8_t *message, uint16_t payload_length) {
     message += 4;
     uint8_t checksum = 0;
     uint16_t i = 0;
-    for (i; i<payload_length; i++) {
-        checksum ^= *(message+i);
+    for (i; i < payload_length; i++) {
+        checksum ^= *(message + i);
     }
     return checksum;
 }
@@ -253,23 +262,25 @@ bool skytraq_verify_checksum(uint8_t *message) {
     return false;
 }
 
-GPS_RETURNSTATE skytraq_restart_receiver(StartMode start_mode, uint16_t utc_year, uint8_t utc_month, uint8_t utc_day, uint8_t utc_hour, uint8_t utc_minute, uint8_t utc_second, int16_t latitude, int16_t longitude, int16_t altitude) {
-        uint16_t length = 15;
-        uint8_t payload[15];
-        
-        payload[0] = SYSTEM_RESTART;
-        payload[1] = start_mode;
-        *(uint16_t *) &(payload[2]) = utc_year;
-        payload[4] = utc_month;
-        payload[5] = utc_day;
-        payload[6] = utc_hour;
-        payload[7] = utc_minute;
-        payload[8] = utc_second;
-        *(int16_t *) &(payload[9]) = latitude;
-        *(int16_t *) &(payload[11]) = longitude;
-        *(int16_t *) &(payload[13]) = altitude;
+GPS_RETURNSTATE skytraq_restart_receiver(StartMode start_mode, uint16_t utc_year, uint8_t utc_month,
+                                         uint8_t utc_day, uint8_t utc_hour, uint8_t utc_minute, uint8_t utc_second,
+                                         int16_t latitude, int16_t longitude, int16_t altitude) {
+    uint16_t length = 15;
+    uint8_t payload[15];
 
-        return skytraq_send_message(payload, length);
+    payload[0] = SYSTEM_RESTART;
+    payload[1] = start_mode;
+    *(uint16_t *)&(payload[2]) = utc_year;
+    payload[4] = utc_month;
+    payload[5] = utc_day;
+    payload[6] = utc_hour;
+    payload[7] = utc_minute;
+    payload[8] = utc_second;
+    *(int16_t *)&(payload[9]) = latitude;
+    *(int16_t *)&(payload[11]) = longitude;
+    *(int16_t *)&(payload[13]) = altitude;
+
+    return skytraq_send_message(payload, length);
 }
 
 GPS_RETURNSTATE skytraq_query_software_version() {
@@ -309,10 +320,12 @@ GPS_RETURNSTATE skytraq_configure_serial_port(skytraq_baud_rate rate, skytraq_up
     payload[3] = attribute;
 
     return skytraq_send_message(payload, length);
-    
 }
 
-GPS_RETURNSTATE skytraq_configure_nmea_output_rate(uint8_t GGA_interval, uint8_t GSA_interval, uint8_t GSV_interval, uint8_t GLL_interval, uint8_t RMC_interval, uint8_t VTG_interval, uint8_t ZDA_interval, skytraq_update_attributes attribute) {
+GPS_RETURNSTATE skytraq_configure_nmea_output_rate(uint8_t GGA_interval, uint8_t GSA_interval,
+                                                   uint8_t GSV_interval, uint8_t GLL_interval,
+                                                   uint8_t RMC_interval, uint8_t VTG_interval,
+                                                   uint8_t ZDA_interval, skytraq_update_attributes attribute) {
     uint16_t length = 9;
     uint8_t payload[9];
     payload[0] = CONFIGURE_NMEA;
@@ -354,19 +367,19 @@ GPS_RETURNSTATE skytraq_get_gps_time(uint8_t *reply) {
     uint16_t length = 2;
     uint8_t payload[2];
 
-    * (uint16_t *) &(payload[0]) = QUERY_GPS_TIME;
-    
+    *(uint16_t *)&(payload[0]) = QUERY_GPS_TIME;
 
     return skytraq_send_message_with_reply(payload, length, reply);
 }
 
-GPS_RETURNSTATE skytraq_configure_utc_reference(enable_disable status, uint16_t utc_year, uint8_t utc_month, uint8_t utc_day, skytraq_update_attributes attribute) {
+GPS_RETURNSTATE skytraq_configure_utc_reference(enable_disable status, uint16_t utc_year, uint8_t utc_month,
+                                                uint8_t utc_day, skytraq_update_attributes attribute) {
     uint16_t length = 8;
     uint8_t payload[8];
 
-    * (uint16_t *) &(payload[0]) = CONFIGURE_UTC_REFERENCE;
+    *(uint16_t *)&(payload[0]) = CONFIGURE_UTC_REFERENCE;
     payload[2] = status;
-    *(uint16_t *) &(payload[3]) = utc_year;
+    *(uint16_t *)&(payload[3]) = utc_year;
     payload[5] = utc_month;
     payload[6] = utc_day;
     payload[7] = attribute;
