@@ -20,8 +20,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "subsystems_ids.h"
 #include "main/system.h"
+#include "subsystems_ids.h"
 
 /* PACKETS */
 #define TM_TC_BUFF_SIZE 256
@@ -31,15 +31,15 @@
 #define OUT_DATA_BYTE 2
 
 /* SERVICES */
-#define MAX_APP_ID 32     // number of CSP nodes (5-bits)
-#define MAX_SERVICES 64   // number of CSP ports (6-bits)
-#define MAX_SUBTYPES 256  // an 8-bit integer
+#define MAX_APP_ID 32    // number of CSP nodes (5-bits)
+#define MAX_SERVICES 64  // number of CSP ports (6-bits)
+#define MAX_SUBTYPES 256 // an 8-bit integer
 #define SERVICE_BACKLOG_LEN 3
 
 #define NORMAL_TICKS_TO_WAIT 1
 #define SERVICE_QUEUE_LEN 3
 #define RESPONSE_QUEUE_LEN 3
-#define CSP_PKT_QUEUE_SIZE sizeof(csp_packet_t*)
+#define CSP_PKT_QUEUE_SIZE sizeof(csp_packet_t *)
 
 /* SERVICE SOCKETS */
 // HOUSEKEEPING SERVICE
@@ -57,26 +57,24 @@
 // LOGGING SERVICE
 #define TC_LOGGER_SERVICE 13
 
-
 typedef enum {
-  OBC_APP_ID = _OBC_APP_ID_,
-  EPS_APP_ID = _EPS_APP_ID_,
-  ADCS_APP_ID = _ADCS_APP_ID_,
-  COMMS_APP_ID = _COMMS_APP_ID_,
-  GND_APP_ID = _GND_APP_ID_,
-  DEMO_APP_ID = _DEMO_APP_ID_,
-  LAST_APP_ID = _LAST_APP_ID_
+    OBC_APP_ID = _OBC_APP_ID_,
+    EPS_APP_ID = _EPS_APP_ID_,
+    ADCS_APP_ID = _ADCS_APP_ID_,
+    COMMS_APP_ID = _COMMS_APP_ID_,
+    GND_APP_ID = _GND_APP_ID_,
+    DEMO_APP_ID = _DEMO_APP_ID_,
+    LAST_APP_ID = _LAST_APP_ID_
 } TC_TM_app_id;
 
 /* Utility definitions */
 union _cnv {
-  double cnvD;
-  float cnvF;
-  uint32_t cnv32;
-  uint16_t cnv16[4];
-  uint8_t cnv8[8];
+    double cnvD;
+    float cnvF;
+    uint32_t cnv32;
+    uint16_t cnv16[4];
+    uint8_t cnv8[8];
 };
-
 
 SAT_returnState start_service_server(void);
 
