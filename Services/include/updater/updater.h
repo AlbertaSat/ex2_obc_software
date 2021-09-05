@@ -33,6 +33,6 @@ typedef enum {
     ERASE_APP,
     VERIFY_APPLICATION_IMAGE,
     VERIFY_GOLDEN_IMAGE
-} updater_subtype;  // shared with EPS!
+} updater_subtype; // shared with EPS!
 
 #endif /* UPDATER_H_ */

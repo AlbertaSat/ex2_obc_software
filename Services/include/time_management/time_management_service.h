@@ -21,11 +21,7 @@
 
 #define TIMESTAMP_ISOK(x) (x > MIN_YEAR && x < MAX_YEAR) ? 1 : 0
 
-
-typedef enum {
-  GET_TIME = 10,
-  SET_TIME = 11
-} Time_Management_Subtype;  // shared with EPS!
+typedef enum { GET_TIME = 10, SET_TIME = 11 } Time_Management_Subtype; // shared with EPS!
 
 SAT_returnState start_time_management_service(void);
 
