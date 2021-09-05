@@ -23,12 +23,13 @@
  * @brief
  * 		Get the data from a panel and its corresponding channel
  * @details
- * 		Temperature, photodiodes, voltage, and current values of a panel can be obtained via this function 
+ * 		Temperature, photodiodes, voltage, and current values of a panel can be obtained via this function
  *      Refer to Hyperion Detailed Design document
  * @attention
- * 		This function is used for config 1, which only includes Port, Port Deployable, Starboard, Startboard Deployable and Zenith
+ * 		This function is used for config 1, which only includes Port, Port Deployable, Starboard, Startboard
+ * Deployable and Zenith
  * @param panel
- * 		The panel that we want to retrieve data from 
+ * 		The panel that we want to retrieve data from
  * @param channel
  * 		voltage channel corresponding to that panel
  * @param param
@@ -41,8 +42,7 @@ void hyperion_config_1_value(config_1_panel_t panel, config_1_channel_type_t cha
     unsigned char ch = 0; // channel
     uint8_t slave_addr = 0;
 
-    switch (panel)
-    {
+    switch (panel) {
     case CONFIG_1_PANEL_P:
         slave_addr = PANEL_SLAVE_ADDR_PORT;
         break;
@@ -135,12 +135,12 @@ void hyperion_config_1_value(config_1_panel_t panel, config_1_channel_type_t cha
  * @brief
  * 		Get the data from a panel and its corresponding channel
  * @details
- * 		Temperature, photodiodes, voltage, and current values of a panel can be obtained via this function 
+ * 		Temperature, photodiodes, voltage, and current values of a panel can be obtained via this function
  *      Refer to Hyperion Detailed Design document
  * @attention
  * 		This function is used for config 2, which only includes Arke, Nadir, and Nadir 2U
  * @param panel
- * 		The panel that we want to retrieve data from 
+ * 		The panel that we want to retrieve data from
  * @param channel
  * 		voltage channel corresponding to that panel
  * @param param
@@ -154,8 +154,7 @@ void hyperion_config_2_value(config_2_panel_t panel, config_2_channel_type_t cha
     int i=0;
     uint8_t slave_addr = 0;
 
-    switch (panel)
-    {
+    switch (panel) {
     case CONFIG_2_PANEL_ARKE:
         slave_addr = PANEL_SLAVE_ADDR_ARKE;
         break;
@@ -202,12 +201,13 @@ void hyperion_config_2_value(config_2_panel_t panel, config_2_channel_type_t cha
  * @brief
  * 		Get the data from a panel and its corresponding channel
  * @details
- * 		Temperature, photodiodes, voltage, and current values of a panel can be obtained via this function 
+ * 		Temperature, photodiodes, voltage, and current values of a panel can be obtained via this function
  *      Refer to Hyperion Detailed Design document
  * @attention
- * 		This function is used for config 3, which only includes Port2U, Port Deployable 2U, Starboard 2U, Startboard Deployable 2U and Zenith 2U
+ * 		This function is used for config 3, which only includes Port2U, Port Deployable 2U, Starboard 2U,
+ * Startboard Deployable 2U and Zenith 2U
  * @param panel
- * 		The panel that we want to retrieve data from 
+ * 		The panel that we want to retrieve data from
  * @param channel
  * 		voltage channel corresponding to that panel
  * @param param
@@ -220,8 +220,7 @@ void hyperion_config_2_value(config_2_panel_t panel, config_2_channel_type_t cha
     unsigned char ch = 0; // channel
     uint8_t slave_addr = 0;
 
-    switch (panel)
-    {
+    switch (panel) {
     case CONFIG_3_PANEL_P2U:
         slave_addr = PANEL_SLAVE_ADDR_PORT2U;
         break;
@@ -295,7 +294,7 @@ void hyperion_config_2_value(config_2_panel_t panel, config_2_channel_type_t cha
     }
 }
 
-void Hyperion_config1_getHK(Hyperion_HouseKeeping* hyperion_hk) {
+void Hyperion_config1_getHK(Hyperion_HouseKeeping *hyperion_hk) {
     // NADIR TEMP 1
     hyperion_config_2_value(CONFIG_2_PANEL_NADIR, CONFIG_2_CHANNEL_PD_1, &hyperion_hk->Nadir_Temp1);
 
@@ -401,7 +400,7 @@ void Hyperion_config1_getHK(Hyperion_HouseKeeping* hyperion_hk) {
     hyperion_config_1_value(CONFIG_1_PANEL_Z, CONFIG_1_CHANNEL_CURR, &hyperion_hk->Zenith_Current);
 }
 
-void Hyperion_config3_getHK(Hyperion_HouseKeeping* hyperion_hk) {
+void Hyperion_config3_getHK(Hyperion_HouseKeeping *hyperion_hk) {
     // NADIR TEMP 1
     hyperion_config_2_value(CONFIG_2_PANEL_NADIR, CONFIG_2_CHANNEL_PD_1, &hyperion_hk->Nadir_Pd1);
 
