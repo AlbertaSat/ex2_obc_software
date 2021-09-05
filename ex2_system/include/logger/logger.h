@@ -15,12 +15,12 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
 #include "FreeRTOS.h"
 #include "os_task.h"
 #include "system.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 
 #define PRINT_BUF_LEN 65
 
@@ -34,11 +34,11 @@ int8_t load_logger_file_size(void);
 
 int8_t set_logger_file_size(uint32_t file_size);
 
-int8_t get_logger_file_size(uint32_t* file_size);
+int8_t get_logger_file_size(uint32_t *file_size);
 
-char * get_logger_file();
+char *get_logger_file();
 
-char * get_logger_old_file();
+char *get_logger_old_file();
 
 void ex2_log(const char *format, ...);
 

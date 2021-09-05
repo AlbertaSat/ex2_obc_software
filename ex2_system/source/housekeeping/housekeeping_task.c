@@ -25,7 +25,7 @@
 
 #include "housekeeping_service.h"
 
-static void * housekeeping_daemon(void *pvParameters);
+static void *housekeeping_daemon(void *pvParameters);
 SAT_returnState start_housekeeping_daemon(void);
 
 /**
@@ -34,10 +34,10 @@ SAT_returnState start_housekeeping_daemon(void);
  * @param pvParameters
  *    task parameters (not used)
  */
-static void * housekeeping_daemon(void *pvParameters) {
+static void *housekeeping_daemon(void *pvParameters) {
     TickType_t hk_delay = pdMS_TO_TICKS(1000);
     uint32_t seconds_delay = 30;
-    for ( ;; ) {
+    for (;;) {
         // Call housekeeping and have them collect and store data to SD card
         populate_and_store_hk_data();
 
@@ -53,9 +53,8 @@ static void * housekeeping_daemon(void *pvParameters) {
  *   error report of task creation
  */
 SAT_returnState start_housekeeping_daemon(void) {
-    if (xTaskCreate((TaskFunction_t)housekeeping_daemon,
-                  "housekeeping_daemon", 2048, NULL, HOUSEKEEPING_TASK_PRIO,
-                  NULL) != pdPASS) {
+    if (xTaskCreate((TaskFunction_t)housekeeping_daemon, "housekeeping_daemon", 2048, NULL, HOUSEKEEPING_TASK_PRIO,
+                    NULL) != pdPASS) {
         ex2_log("FAILED TO CREATE TASK housekeeping_daemon\n");
         return SATR_ERROR;
     }

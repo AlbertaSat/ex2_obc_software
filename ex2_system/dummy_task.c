@@ -5,32 +5,26 @@
  *      Author: robert
  */
 
-#include <FreeRTOS.h>
-#include "task_manager/task_manager.h"
 #include "os_task.h"
 #include "task_manager/task_manager.h"
+#include <FreeRTOS.h>
 
 uint32_t delay = 1000;
 
-void dummy_task(void * pvParameters) {
-    for(;;) {
+void dummy_task(void *pvParameters) {
+    for (;;) {
         ex2_log("Dummy Task Running");
         TaskHandle_t myHandle = xTaskGetCurrentTaskHandle();
-        ex2_set_task_delay(myHandle, delay+10);
+        ex2_set_task_delay(myHandle, delay + 10);
         uint32_t myDelay = ex2_get_task_delay(myHandle);
         ex2_log("My delay is: %d", myDelay);
         vTaskDelay(pdMS_TO_TICKS(delay));
     }
-
 }
 
-uint32_t getDelay() {
-    return delay;
-}
+uint32_t getDelay() { return delay; }
 
-void setDelay(uint32_t _delay) {
-    delay = _delay;
-}
+void setDelay(uint32_t _delay) { delay = _delay; }
 
 void start_dummy_task() {
     TaskHandle_t hand = NULL;
@@ -43,7 +37,3 @@ void start_dummy_task() {
         ex2_register(hand, funcs, true);
     }
 }
-
-
-
-

@@ -24,5 +24,4 @@
 
 SAT_returnState start_diagnostic_daemon(void);
 
-
 #endif /* EX2_SYSTEM_INCLUDE_DIAGNOSTIC_DIAGNOSTIC_H_ */

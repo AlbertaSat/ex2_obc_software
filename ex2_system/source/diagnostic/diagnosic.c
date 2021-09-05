@@ -21,7 +21,7 @@
 #include <FreeRTOS.h>
 #include <os_task.h>
 
-static void * diagnostic_daemon(void *pvParameters);
+static void *diagnostic_daemon(void *pvParameters);
 SAT_returnState start_diagnostic_daemon(void);
 
 /**
@@ -31,9 +31,9 @@ SAT_returnState start_diagnostic_daemon(void);
  * @param pvParameters
  *    task parameters (not used)
  */
-static void * diagnostic_daemon(void *pvParameters) {
+static void *diagnostic_daemon(void *pvParameters) {
     TickType_t delay = pdMS_TO_TICKS(1000);
-    for ( ;; ) {
+    for (;;) {
         // TODO Run subsystem diagnosics
 
         vTaskDelay(delay);
@@ -47,13 +47,11 @@ static void * diagnostic_daemon(void *pvParameters) {
  *   error report of task creation
  */
 SAT_returnState start_diagnostic_daemon(void) {
-    if (xTaskCreate((TaskFunction_t)diagnostic_daemon,
-                  "coordinate_management_daemon", 2048, NULL, DIAGNOSTIC_TASK_PRIO,
-                  NULL) != pdPASS) {
+    if (xTaskCreate((TaskFunction_t)diagnostic_daemon, "coordinate_management_daemon", 2048, NULL,
+                    DIAGNOSTIC_TASK_PRIO, NULL) != pdPASS) {
         ex2_log("FAILED TO CREATE TASK coordinate_management_daemon\n");
         return SATR_ERROR;
     }
     ex2_log("Coordinate management started\n");
     return SATR_OK;
 }
-
