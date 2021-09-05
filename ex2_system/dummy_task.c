@@ -4,10 +4,9 @@
  *  Created on: Jul. 6, 2021
  *      Author: robert
  */
-
+#include <FreeRTOS.h>
 #include "os_task.h"
 #include "task_manager/task_manager.h"
-#include <FreeRTOS.h>
 
 uint32_t delay = 1000;
 
