@@ -20,6 +20,7 @@
 #include <ex2_hal/ex2_hyperion_solar_panel_software/equipment_handler/include/adc_handler.h>
 #include <stdint.h>
 #include "i2c_io.h"
+#include <stdint.h>
 
 /**
  * @brief
@@ -83,39 +84,27 @@ int adc_read(uint8_t *buf, uint32_t size, uint8_t slave_addr) {
  * 		0: success
  *      -1: fail
  */
-int adc_set_command_reg(uint8_t slave_addr,
-                            uint8_t channel,
-                            uint8_t ext_ref,
-                            uint8_t tsense,
-                            uint8_t noise_delay,
-                            uint8_t reset,
-                            uint8_t autocycle)
-{
+int adc_set_command_reg(uint8_t slave_addr, uint8_t channel, uint8_t ext_ref, uint8_t tsense, uint8_t noise_delay,
+                        uint8_t reset, uint8_t autocycle) {
     int return_val;
-    uint8_t buffer[3] = {0,0,0};
+    uint8_t buffer[3] = {0, 0, 0};
 
     uint8_t control_reg_value = 0;
     buffer[1] = channel;
 
-    control_reg_value = (ext_ref * AD7291_EXT_REF) |
-                        (tsense * AD7291_TSENSE)   |
-                        (reset * AD7291_RESET)     |
-                        (noise_delay * AD7291_NOISE_DELAY) |
-                        (autocycle * AD7291_REPEAT);
+    control_reg_value = (ext_ref * AD7291_EXT_REF) | (tsense * AD7291_TSENSE) | (reset * AD7291_RESET) |
+                        (noise_delay * AD7291_NOISE_DELAY) | (autocycle * AD7291_REPEAT);
 
     buffer[2] = control_reg_value;
-  
-    //i2c data send
-    return_val = adc_write(buffer, 3, slave_addr);
 
+    // i2c data send
+    return_val = adc_write(buffer, 3, slave_addr);
 
     control_reg_val = control_reg_value;
     return return_val;
 }
 
-int adc_set_register_pointer(uint8_t slave_addr, uint8_t reg_sel) {
-    return adc_write(&reg_sel, 1, slave_addr);
-}
+int adc_set_register_pointer(uint8_t slave_addr, uint8_t reg_sel) { return adc_write(&reg_sel, 1, slave_addr); }
 
 /**
  * @brief
@@ -134,24 +123,22 @@ int adc_set_register_pointer(uint8_t slave_addr, uint8_t reg_sel) {
  * 		0: success
  *      -1: fail
  */
-int adc_get_raw(uint8_t slave_addr, unsigned short *data, unsigned char *ch)
-{  
+int adc_get_raw(uint8_t slave_addr, unsigned short *data, unsigned char *ch) {
     int ret;
-    unsigned char buffer[2] = {0,0};
+    unsigned char buffer[2] = {0, 0};
 
-    //i2c slave read
+    // i2c slave read
     ret = adc_read(buffer, 2, slave_addr);
 
     unsigned short value = (buffer[0] << 8) | buffer[1];
 
-    //get current channel (first 4 bits)
-    *ch   = (value >> 12);
+    // get current channel (first 4 bits)
+    *ch = (value >> 12);
 
-    //remove channel information from the 16 bit read.
+    // remove channel information from the 16 bit read.
     value = value - (*ch << 12);
-    //get current data channel as well.
+    // get current data channel as well.
 
-    
     *data = value;
     return ret;
 }
@@ -193,7 +180,7 @@ float adc_calculate_sensor_temp(unsigned short value, float vref) {
     float celsius = 0;
     int i = 0;
 
-    //change into mv
+    // change into mv
     float temp_voltage = adc_calculate_vin(value, vref);
 
     // Conversion parameters from temperature sensor datasheet
@@ -226,21 +213,19 @@ float adc_calculate_sensor_temp(unsigned short value, float vref) {
 
     //interpolates between the previously defined voltage to temperature conversions for the second temperature sensor.
 
-    if (temp_voltage >= voltage_vect[38]) {                     // If above the highest piecewise voltage
-        celsius = temps[38]+ (temp_voltage-voltage_vect[38])/10;
-    } else if (temp_voltage <= voltage_vect[0]) {               // If beneath the lowest piecewise voltage
-        celsius = temps[0]+ (temp_voltage-voltage_vect[0])/10;
+    if (temp_voltage >= voltage_vect[38]) { // If above the highest piecewise voltage
+        celsius = temps[38] + (temp_voltage - voltage_vect[38]) / 10;
+    } else if (temp_voltage <= voltage_vect[0]) { // If beneath the lowest piecewise voltage
+        celsius = temps[0] + (temp_voltage - voltage_vect[0]) / 10;
     } else {
-        for (i=1; i<37; i++) {
-            if ((temp_voltage <= voltage_vect[i+1]) && (temp_voltage > voltage_vect[i])) {
-                celsius =  temps[i] + (temp_voltage-voltage_vect[i])/10;
+        for (i = 1; i < 37; i++) {
+            if ((temp_voltage <= voltage_vect[i + 1]) && (temp_voltage > voltage_vect[i])) {
+                celsius = temps[i] + (temp_voltage - voltage_vect[i]) / 10;
                 break;
             }
         }
     }
     
-
-
     return celsius;
 }
 
@@ -259,7 +244,7 @@ float adc_calculate_sensor_temp(unsigned short value, float vref) {
 float adc_calculate_sensor_voltage(unsigned short value, float vref) {
     float val = adc_calculate_vin(value, vref);
 
-    val = val * ((VOLT_MAX - VOLT_MIN) / (ADC_VOLT_MAX - ADC_VOLT_MIN)); 
+    val = val * ((VOLT_MAX - VOLT_MIN) / (ADC_VOLT_MAX - ADC_VOLT_MIN));
 
     return val;
 }
@@ -276,11 +261,10 @@ float adc_calculate_sensor_voltage(unsigned short value, float vref) {
  * @return
  * 		Value in mA.
  */
-float adc_calculate_sensor_current(unsigned short value, float vref)
-{
+float adc_calculate_sensor_current(unsigned short value, float vref) {
     float val = adc_calculate_vin(value, vref);
 
-    val = val * ((CURR_MAX - CURR_MIN) / (ADC_VOLT_MAX - ADC_VOLT_MIN)); 
+    val = val * ((CURR_MAX - CURR_MIN) / (ADC_VOLT_MAX - ADC_VOLT_MIN));
 
     return val;
 }
@@ -306,7 +290,7 @@ float adc_calculate_sensor_pd(unsigned short value, float vref)
 
 /**
  * @brief
- * 		Converts given raw ADC temperature value (from internal temp sensor) to celsius 
+ * 		Converts given raw ADC temperature value (from internal temp sensor) to celsius
  *      (relative to reference voltage)
  * @details
  * 		The raw ADC value is retrieved from the TSENSE channel on the ADC
@@ -329,27 +313,23 @@ float adc_get_tsense_temp(uint8_t slave_addr, float vref) {
     int delay;
     unsigned short data = 0;
     unsigned char ch = 0;
-    //printf("\n ADC TEMP RESULTS: \r\n Channel    Result \r\n");
-    //loops through and requests conversion results from all channels
+    // printf("\n ADC TEMP RESULTS: \r\n Channel    Result \r\n");
+    // loops through and requests conversion results from all channels
     uint8_t reg_sel = 2;
     adc_set_register_pointer(slave_addr, reg_sel);
-    for(delay=0;delay<200000;delay++);
+    for (delay = 0; delay < 200000; delay++)
+        ;
     adc_get_raw(slave_addr, &data, &ch);
     float temp_celsius = 0;
     unsigned short value = data;
-    temp_celsius = (float)(value >> 11)*(float)(-512)
-    +(float)((value-((value >>11)<<11))>>10)*(float)(256)
-    +(float)((value-((value >>10)<<10))>>9)*(128)
-    +(float)((value-((value >>9)<<9))>>8)*(64)
-    +(float)((value-((value >>8)<<8))>>7)*(32)
-    +(float)((value-((value >>7)<<7))>>6)*(16)
-    +(float)((value-((value >>6)<<6))>>5)*(8)
-    +(float)((value-((value >>5)<<5))>>4)*(4)
-    +(float)((value-((value >>4)<<4))>>3)*(2)
-    +(float)((value-((value >>3)<<3))>>2)*(1)
-    +(float)((value-((value >>2)<<2))>>1)*(0.5)
-    +(float)((value-((value >>1)<<1))>>0)*(0.25);
-    //printf("%d          %.2f \r\n", ch, temp_celsius);
+    temp_celsius =
+        (float)(value >> 11) * (float)(-512) + (float)((value - ((value >> 11) << 11)) >> 10) * (float)(256) +
+        (float)((value - ((value >> 10) << 10)) >> 9) * (128) +
+        (float)((value - ((value >> 9) << 9)) >> 8) * (64) + (float)((value - ((value >> 8) << 8)) >> 7) * (32) +
+        (float)((value - ((value >> 7) << 7)) >> 6) * (16) + (float)((value - ((value >> 6) << 6)) >> 5) * (8) +
+        (float)((value - ((value >> 5) << 5)) >> 4) * (4) + (float)((value - ((value >> 4) << 4)) >> 3) * (2) +
+        (float)((value - ((value >> 3) << 3)) >> 2) * (1) + (float)((value - ((value >> 2) << 2)) >> 1) * (0.5) +
+        (float)((value - ((value >> 1) << 1)) >> 0) * (0.25);
+    // printf("%d          %.2f \r\n", ch, temp_celsius);
     return temp_celsius;
 }
-
