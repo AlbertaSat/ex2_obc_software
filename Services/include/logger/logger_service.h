@@ -12,7 +12,6 @@
  * GNU General Public License for more details.
  */
 
-
 /**
  * @file logger_service.h
  * @author Dustin Wagner
@@ -24,12 +23,7 @@
 
 #include "services.h"
 
-typedef enum {
-   GET_FILE = 0,
-   GET_OLD_FILE = 1,
-   GET_FILE_SIZE = 2,
-   SET_FILE_SIZE = 3 
-} logger_subservice;
+typedef enum { GET_FILE = 0, GET_OLD_FILE = 1, GET_FILE_SIZE = 2, SET_FILE_SIZE = 3 } logger_subservice;
 
 SAT_returnState start_logger_service(void);
 
