@@ -500,7 +500,9 @@ ADCS_returnState ADCS_get_node_identification(
 ADCS_returnState ADCS_get_boot_program_stat(uint8_t* mcu_reset_cause,
                                             uint8_t* boot_cause,
                                             uint16_t* boot_count,
-                                            uint8_t* boot_idx);
+                                            uint8_t* boot_idx,
+                                            uint8_t* major_firm_ver,
+                                            uint8_t* minor_firm_ver);
 ADCS_returnState ADCS_get_boot_index(uint8_t* program_idx, uint8_t* boot_stat);
 ADCS_returnState ADCS_get_last_logged_event(uint32_t* time, uint8_t* event_id,
                                             uint8_t* event_param);

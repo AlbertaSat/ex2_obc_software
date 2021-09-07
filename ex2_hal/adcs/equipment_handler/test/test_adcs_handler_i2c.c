@@ -12,6 +12,8 @@
  * GNU General Public License for more details.
  */
 
+//Basic I2C functionality test
+
 // Make sure to define "USE_I2C" in adcs_handler.c to pass tests
 
 #include <stdbool.h>

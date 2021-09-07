@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  */
 
-// Make sure to define "USE_UART" in adcs_handler.c to pass tests
+// Make sure to define "USE_I2C" in adcs_handler.c to pass tests
 
 #include <stdbool.h>
 #include <stdint.h>

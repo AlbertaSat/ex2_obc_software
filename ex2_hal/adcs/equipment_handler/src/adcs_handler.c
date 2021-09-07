@@ -24,8 +24,8 @@
 #include "adcs_io.h"
 #include "adcs_types.h"
 
-//#define USE_UART
-#define USE_I2C
+#define USE_UART
+//#define USE_I2C
 
 /*************************** General functions ***************************/
 /**
@@ -452,16 +452,15 @@ ADCS_returnState ADCS_get_node_identification(
  * 		Possible values: 0-5. Refer to Table 30
  * @param boot_cause
  * 		Possible values: 1,2. Refer to Table 31
- * @attention
- * 		The firmware version is not included since it can be requested
- * in the previous function
  * @return
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_get_boot_program_stat(uint8_t* mcu_reset_cause,
                                             uint8_t* boot_cause,
                                             uint16_t* boot_count,
-                                            uint8_t* boot_idx) {
+                                            uint8_t* boot_idx,
+                                            uint8_t* major_firm_ver,
+                                            uint8_t* minor_firm_ver) {
   uint8_t telemetry[6];
   ADCS_returnState state;
   state = adcs_telemetry(BOOT_RUNNING_STAT, telemetry, 6);
@@ -469,6 +468,8 @@ ADCS_returnState ADCS_get_boot_program_stat(uint8_t* mcu_reset_cause,
   *boot_cause = (telemetry[0] >> 4) & 0xF;
   *boot_count = telemetry[2] << 8 | telemetry[1];
   *boot_idx = telemetry[3];
+  *major_firm_ver = telemetry[4];
+  *minor_firm_ver = telemetry[5];
   return state;
 }
 
@@ -990,7 +991,7 @@ ADCS_returnState ADCS_copy_program_internal_flash(uint8_t index,
  * 		Gets the BootLoader state.
  * @param uptime
  * @param flags_arr
- * 		11 boolean flags from Table 69
+ * 		12 boolean flags from Table 69
  * 		sram1, sram2, sram_latch_not_recovered, sram_latch_recovered,
  * 		sd_initial_err, sd_read_err, sd_write_err, external_flash_err,
  * 		internal_flash_err, eeprom_err, bad_boot_reg, comms_radio_err
@@ -1005,7 +1006,7 @@ ADCS_returnState ADCS_get_bootloader_state(uint16_t* uptime,
   *uptime = (telemetry[1] << 8) + telemetry[0];
   uint32_t flags;
   memcpy(&flags, &telemetry[2], 4);
-  for (int i = 0; i < 11; i++) {
+  for (int i = 0; i < 12; i++) {
     *(flags_arr + i) = (flags >> i) & 1;
   }
   return state;
@@ -1906,7 +1907,7 @@ ADCS_returnState ADCS_set_power_control(uint8_t* control) {
  * @brief
  * 		Gets the power state of some components (Table 184).
  * @param control
- * 		an array with the values defined in Table 185:
+ * 		a 10-value array with the values defined in Table 185:
  * 		0 : off
  * 		1 : on
  * 		2 : keep the same
