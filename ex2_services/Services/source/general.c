@@ -18,20 +18,20 @@
  *  Created on: May 14, 2021
  *      Author: Robert Taylor
  */
+#include "HL_reg_system.h"
 #include <FreeRTOS.h>
 #include <os_task.h>
-#include "HL_reg_system.h"
 
+#include "general.h"
+#include "privileged_functions.h"
+#include "services.h"
+#include "util/service_utilities.h"
 #include <csp/csp.h>
 #include <csp/csp_endian.h>
 #include <main/system.h>
-#include "general.h"
-#include "services.h"
-#include "util/service_utilities.h"
-#include "privileged_functions.h"
 
 SAT_returnState general_app(csp_packet_t *packet);
-void general_service(void * param);
+void general_service(void *param);
 
 csp_conn_t *conn;
 
@@ -46,14 +46,13 @@ csp_conn_t *conn;
  *      success report
  */
 SAT_returnState start_general_service(void) {
-  if (xTaskCreate((TaskFunction_t)general_service,
-                  "general_service", 300, NULL, NORMAL_SERVICE_PRIO,
-                  NULL) != pdPASS) {
-    ex2_log("FAILED TO CREATE TASK general_service\n");
-    return SATR_ERROR;
-  }
+    if (xTaskCreate((TaskFunction_t)general_service, "general_service", 300, NULL, NORMAL_SERVICE_PRIO, NULL) !=
+        pdPASS) {
+        ex2_log("FAILED TO CREATE TASK general_service\n");
+        return SATR_ERROR;
+    }
 
-  return SATR_OK;
+    return SATR_OK;
 }
 
 /**
@@ -64,27 +63,27 @@ SAT_returnState start_general_service(void) {
  * @param void* param
  * @return None
  */
-void general_service(void * param) {
+void general_service(void *param) {
     csp_socket_t *sock;
     sock = csp_socket(CSP_SO_RDPREQ); // require RDP connection
     csp_bind(sock, TC_GENERAL_SERVICE);
     csp_listen(sock, SERVICE_BACKLOG_LEN);
 
-    for(;;) {
+    for (;;) {
         csp_packet_t *packet;
         if ((conn = csp_accept(sock, CSP_MAX_TIMEOUT)) == NULL) {
-          /* timeout */
-          continue;
+            /* timeout */
+            continue;
         }
         while ((packet = csp_read(conn, 50)) != NULL) {
-          if (general_app(packet) != SATR_OK) {
-            // something went wrong, this shouldn't happen
-            csp_buffer_free(packet);
-          } else {
-              if (!csp_send(conn, packet, 50)) {
-                  csp_buffer_free(packet);
-              }
-          }
+            if (general_app(packet) != SATR_OK) {
+                // something went wrong, this shouldn't happen
+                csp_buffer_free(packet);
+            } else {
+                if (!csp_send(conn, packet, 50)) {
+                    csp_buffer_free(packet);
+                }
+            }
         }
         csp_close(conn);
     }
@@ -103,38 +102,38 @@ void general_service(void * param) {
  *      success report
  */
 SAT_returnState general_app(csp_packet_t *packet) {
-  uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
-  int8_t status;
-  char reboot_type;
+    uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
+    int8_t status;
+    char reboot_type;
 
-  switch (ser_subtype) {
+    switch (ser_subtype) {
     case REBOOT:
 
-      reboot_type = packet->data[IN_DATA_BYTE];
+        reboot_type = packet->data[IN_DATA_BYTE];
 
-      switch(reboot_type) {
-      case 'A':
-      case 'B':
-      case 'G':
-          status = 0;
-          break;
-      default:
-          status = -1;
-          break;
-      }
-      memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-      set_packet_length(packet, sizeof(int8_t) + 1);  // +1 for subservice
-      csp_send(conn, packet, 50);
+        switch (reboot_type) {
+        case 'A':
+        case 'B':
+        case 'G':
+            status = 0;
+            break;
+        default:
+            status = -1;
+            break;
+        }
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        set_packet_length(packet, sizeof(int8_t) + 1); // +1 for subservice
+        csp_send(conn, packet, 50);
 
-      if (status == 0) {
-          reboot_system(reboot_type);
-      }
+        if (status == 0) {
+            reboot_system(reboot_type);
+        }
 
-      break;
+        break;
 
     default:
-      ex2_log("No such subservice\n");
-      return SATR_PKT_ILLEGAL_SUBSERVICE;
-  }
-  return SATR_OK;
+        ex2_log("No such subservice\n");
+        return SATR_PKT_ILLEGAL_SUBSERVICE;
+    }
+    return SATR_OK;
 }

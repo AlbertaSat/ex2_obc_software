@@ -20,14 +20,13 @@
 #ifndef EX2_SERVICES_SERVICES_INCLUDE_ADCS_ADCS_SERVICE_H_
 #define EX2_SERVICES_SERVICES_INCLUDE_ADCS_ADCS_SERVICE_H_
 
-#include <FreeRTOS.h>
+#include "adcs.h"
+#include "service_utilities.h"
 #include "services.h"
+#include <FreeRTOS.h>
 #include <csp/csp.h>
 #include <csp/csp_endian.h>
 #include <main/system.h>
-#include "services.h"
-#include "adcs.h"
-#include "service_utilities.h"
 
 typedef enum {
     ADCS_RESET,
