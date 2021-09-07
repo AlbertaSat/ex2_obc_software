@@ -10,9 +10,10 @@
 
 #define GPS_SYSTEM
 
-#include <stdbool.h>
-#include <time.h>
 #include "skytraq_binary_types.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <time.h>
 
 bool gps_get_altitude(uint32_t *alt);
 
@@ -20,7 +21,8 @@ GPS_RETURNSTATE gps_configure_message_types(uint8_t GGA, uint8_t GSA, uint8_t GS
 
 GPS_RETURNSTATE gps_disable_NMEA_output();
 
-bool gps_get_position(int32_t *latitude_upper, int32_t *latitude_lower, int32_t *longitude_upper, int32_t *longitude_lower);
+bool gps_get_position(int32_t *latitude_upper, int32_t *latitude_lower, int32_t *longitude_upper,
+                      int32_t *longitude_lower);
 
 bool gps_get_visible_satellite_count(uint8_t *numsats);
 
