@@ -14,10 +14,10 @@
 
 #ifndef HAL_H
 #define HAL_H
-#include <stdint.h>
 #include "FreeRTOS.h"
 #include "os_task.h"
 #include "time_struct.h"
+#include <stdint.h>
 
 void mock_RTC_set_unix_time(uint32_t unix_timestamp);
 

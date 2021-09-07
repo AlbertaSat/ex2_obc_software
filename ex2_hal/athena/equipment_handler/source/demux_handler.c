@@ -17,19 +17,12 @@
  * @date    2020-06-17
  */
 
-
+#include "demux_handler.h"
 #include "HL_gio.h"
 #include "HL_het.h"
-#include "demux_handler.h"
 
-void demux_enable()
-{
-    gioSetBit(gioPORTB, 2, HIGH);
-}
-void demux_disable()
-{
-    gioSetBit(gioPORTB, 2, LOW);
-}
+void demux_enable() { gioSetBit(gioPORTB, 2, HIGH); }
+void demux_disable() { gioSetBit(gioPORTB, 2, LOW); }
 
 /**
  * @brief
@@ -39,64 +32,62 @@ void demux_disable()
  * @param pin
  *      Select which output pin to use. (OUT_Y0...OUT_Y7)
  */
-void demux_select_pin(enum demux_out_pins pin)
-{
-    //gioInit(); //initialising gio ports
-    switch(pin)
-    {
-        case OUT_Y0:
-            gioSetBit(hetPORT1, 11, LOW);
-            gioSetBit(gioPORTB, 7, LOW);
-            gioSetBit(gioPORTA, 3, LOW);
-            break;
+void demux_select_pin(enum demux_out_pins pin) {
+    // gioInit(); //initialising gio ports
+    switch (pin) {
+    case OUT_Y0:
+        gioSetBit(hetPORT1, 11, LOW);
+        gioSetBit(gioPORTB, 7, LOW);
+        gioSetBit(gioPORTA, 3, LOW);
+        break;
 
-        case OUT_Y1:
-            gioSetBit(hetPORT1, 11, HIGH);
-            gioSetBit(gioPORTB, 7, LOW);
-            gioSetBit(gioPORTA, 3, LOW);
-            break;
+    case OUT_Y1:
+        gioSetBit(hetPORT1, 11, HIGH);
+        gioSetBit(gioPORTB, 7, LOW);
+        gioSetBit(gioPORTA, 3, LOW);
+        break;
 
-        case OUT_Y2:
-            gioSetBit(hetPORT1, 11, LOW);
-            gioSetBit(gioPORTB, 7, HIGH);
-            gioSetBit(gioPORTA, 3, LOW);
-            break;
+    case OUT_Y2:
+        gioSetBit(hetPORT1, 11, LOW);
+        gioSetBit(gioPORTB, 7, HIGH);
+        gioSetBit(gioPORTA, 3, LOW);
+        break;
 
-        case OUT_Y3:
-            gioSetBit(hetPORT1, 11, HIGH);
-            gioSetBit(gioPORTB, 7, HIGH);
-            gioSetBit(gioPORTA, 3, LOW);
-            break;
+    case OUT_Y3:
+        gioSetBit(hetPORT1, 11, HIGH);
+        gioSetBit(gioPORTB, 7, HIGH);
+        gioSetBit(gioPORTA, 3, LOW);
+        break;
 
-        case OUT_Y4:
-            gioSetBit(hetPORT1, 11, LOW);
-            gioSetBit(gioPORTB, 7, LOW);
-            gioSetBit(gioPORTA, 3, HIGH);
-            break;
+    case OUT_Y4:
+        gioSetBit(hetPORT1, 11, LOW);
+        gioSetBit(gioPORTB, 7, LOW);
+        gioSetBit(gioPORTA, 3, HIGH);
+        break;
 
-        case OUT_Y5:
-            gioSetBit(hetPORT1, 11, HIGH);
-            gioSetBit(gioPORTB, 7, LOW);
-            gioSetBit(gioPORTA, 3, HIGH);
-            break;
+    case OUT_Y5:
+        gioSetBit(hetPORT1, 11, HIGH);
+        gioSetBit(gioPORTB, 7, LOW);
+        gioSetBit(gioPORTA, 3, HIGH);
+        break;
 
-        case OUT_Y6:
-            gioSetBit(hetPORT1, 11, LOW);
-            gioSetBit(gioPORTB, 7, HIGH);
-            gioSetBit(gioPORTA, 3, HIGH);
-            break;
+    case OUT_Y6:
+        gioSetBit(hetPORT1, 11, LOW);
+        gioSetBit(gioPORTB, 7, HIGH);
+        gioSetBit(gioPORTA, 3, HIGH);
+        break;
 
-        case OUT_Y7:
-            gioSetBit(hetPORT1, 11, HIGH);
-            gioSetBit(gioPORTB, 7, HIGH);
-            gioSetBit(gioPORTA, 3, HIGH);
-            break;
+    case OUT_Y7:
+        gioSetBit(hetPORT1, 11, HIGH);
+        gioSetBit(gioPORTB, 7, HIGH);
+        gioSetBit(gioPORTA, 3, HIGH);
+        break;
 
-        default:
-            //OUT_Y0 default
-            gioSetBit(hetPORT1, 11, LOW);
-            gioSetBit(gioPORTB, 7, LOW);
-            gioSetBit(gioPORTA, 3, LOW);
-            break;
+    default:
+        // OUT_Y0 default
+        gioSetBit(hetPORT1, 11, LOW);
+        gioSetBit(gioPORTB, 7, LOW);
+        gioSetBit(gioPORTA, 3, LOW);
+        break;
     }
 }

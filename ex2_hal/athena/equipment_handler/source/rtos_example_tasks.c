@@ -1,24 +1,24 @@
 
 #include "rtos_example_tasks.h"
 
-#include "HL_het.h"
 #include "HL_gio.h"
+#include "HL_het.h"
 
-#include <redfs.h>
-#include <redposix.h>
-#include <redfse.h>
 #include <redconf.h>
-#include <redvolume.h>
+#include <redfs.h>
+#include <redfse.h>
+#include <redposix.h>
 #include <redtests.h>
+#include <redvolume.h>
 
 #include "FreeRTOS.h"
-#include "os_task.h"
 #include "integer.h"
+#include "os_task.h"
 #include "sd_io.h"
 #include "stdio.h"
 
 ///* Task1 */
-//void vBlinkyTask(void *pvParameters)
+// void vBlinkyTask(void *pvParameters)
 //{
 //    for(;;)
 //    {
@@ -30,7 +30,7 @@
 //    }
 //}
 //
-//void vTaskFileSys(void *pvParameters)
+// void vTaskFileSys(void *pvParameters)
 //{
 //
 //    int32_t iErr;

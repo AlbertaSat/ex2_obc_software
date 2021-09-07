@@ -23,21 +23,19 @@
 /**
  * @brief
  *      Getter to supply data from temperature sensors on athena
- * 
+ *
  * @param temparray
  * 		  the array to store temperature readings
  * @return
  * 		0 for success. other for failure
  */
-int HAL_get_temp_all(long* temparray) {
-  #ifdef ATHENA_IS_STUBBED
-        return 0;
-    #else
-        return gettemp_all(temparray);
-    #endif
+int HAL_get_temp_all(long *temparray) {
+#ifdef ATHENA_IS_STUBBED
+    return 0;
+#else
+    return gettemp_all(temparray);
+#endif
 }
-
-
 
 /**
  * @brief
@@ -53,34 +51,34 @@ int HAL_get_temp_all(long* temparray) {
  * @return
  * 		Last found error will be returned. else no error returned
  */
-int Athena_getHK(athena_housekeeping* athena_hk) {
-  int temporary;
-  int return_code = 0;
+int Athena_getHK(athena_housekeeping *athena_hk) {
+    int temporary;
+    int return_code = 0;
 
-  /*Add athena HAL housekeeping getters here and put fields in h file
-  create HAL functions here following format of existing
-  also add endianness conversion in Athena_hk_convert_endianness*/
-  temporary = HAL_get_temp_all(&athena_hk->temparray);
+    /*Add athena HAL housekeeping getters here and put fields in h file
+    create HAL functions here following format of existing
+    also add endianness conversion in Athena_hk_convert_endianness*/
+    temporary = HAL_get_temp_all(&athena_hk->temparray);
 
-  if (temporary != 0) return_code = temporary;
+    if (temporary != 0)
+        return_code = temporary;
 
-  return return_code;
+    return return_code;
 }
 
 /**
  * @brief
  *      Converts endianness of values in athena_housekeeping struct
- * 
+ *
  * @param athena_hk
  * 		  struct of athena housekeeping data
  * @return
  * 		0 for success. other for failure
  */
-int Athena_hk_convert_endianness(athena_housekeeping* athena_hk) {
-  uint8_t i;
-  for (i = 0; i < 6; i++) {
-    athena_hk->temparray[i] = (long)csp_hton32((uint32_t)athena_hk->temparray[i]);
-  }
-  return 0;
+int Athena_hk_convert_endianness(athena_housekeeping *athena_hk) {
+    uint8_t i;
+    for (i = 0; i < 6; i++) {
+        athena_hk->temparray[i] = (long)csp_hton32((uint32_t)athena_hk->temparray[i]);
+    }
+    return 0;
 }
-
