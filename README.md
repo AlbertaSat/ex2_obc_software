@@ -20,12 +20,8 @@ The software in this repository reflects the designs found in the Ex-Alta 2 Crit
 ## Getting Started
 1. Set up an SSH key with GitHub. [Instructions](https://docs.github.com/en/github/authenticating-to-github/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account)
 
-2. Clone this repository and all submodules:
-```git clone git@github.com:AlbertaSat/ex2_obc_software.git ``` 
-```git submodule init ```
-```git submodule update```
-then, assuming you wish to work on the latest version of all submodules, run
-```git submodule foreach git checkout master```
+2. Clone this repository and run the auto configure script:
+```./configre_repo.sh```
 Note: Just `cd` into the submodule and change branches from there if you need some branch other than `master`
 
 3. [Download](https://software-dl.ti.com/ccs/esd/documents/ccs_downloads.html) Code Composer Studio v10 

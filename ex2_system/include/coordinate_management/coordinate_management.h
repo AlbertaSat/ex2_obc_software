@@ -24,5 +24,4 @@
 
 SAT_returnState start_coordinate_management_daemon(void);
 
-
 #endif /* EX2_SYSTEM_INCLUDE_COORDINATE_MANAGEMENT_COORDINATE_MANAGEMENT_H_ */

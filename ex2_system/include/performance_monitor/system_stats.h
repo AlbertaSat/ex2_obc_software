@@ -24,5 +24,4 @@
 
 SAT_returnState start_system_stats_daemon(void);
 
-
 #endif /* EX2_SYSTEM_SYSTEM_STATS_H_ */

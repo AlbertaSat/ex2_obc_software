@@ -22,7 +22,7 @@
 #include <os_task.h>
 #include <stdio.h>
 
-static void system_stats_daemon(void * param);
+static void system_stats_daemon(void *param);
 SAT_returnState start_system_stats_daemon(void);
 
 /**
@@ -32,14 +32,14 @@ SAT_returnState start_system_stats_daemon(void);
  * @param param
  *  any task parameters (not used)
  */
-static void system_stats_daemon(void * param) {
-  const TickType_t xDelay = 10000 / portTICK_PERIOD_MS;
-  for(;;) {
-    vTaskDelay(xDelay);
-    char buf[1024];
-    vTaskGetRunTimeStats(buf);
-//    fprintf(stderr, "%s\n", buf);
-  }
+static void system_stats_daemon(void *param) {
+    const TickType_t xDelay = 10000 / portTICK_PERIOD_MS;
+    for (;;) {
+        vTaskDelay(xDelay);
+        char buf[1024];
+        vTaskGetRunTimeStats(buf);
+        //    fprintf(stderr, "%s\n", buf);
+    }
 }
 
 /**
@@ -49,13 +49,11 @@ static void system_stats_daemon(void * param) {
  *  error report
  */
 SAT_returnState start_system_stats_daemon(void) {
-  if (xTaskCreate((TaskFunction_t)system_stats_daemon,
-                "task_stats", 512, NULL, SYSTEM_STATS_TASK_PRIO,
-                NULL) != pdPASS) {
-    ex2_log("FAILED TO CREATE TASK task_stats\n");
-    return SATR_ERROR;
-  }
-  ex2_log("Stats task started\n");
-  return SATR_OK;
+    if (xTaskCreate((TaskFunction_t)system_stats_daemon, "task_stats", 512, NULL, SYSTEM_STATS_TASK_PRIO, NULL) !=
+        pdPASS) {
+        ex2_log("FAILED TO CREATE TASK task_stats\n");
+        return SATR_ERROR;
+    }
+    ex2_log("Stats task started\n");
+    return SATR_OK;
 }
-

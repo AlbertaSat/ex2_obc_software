@@ -18,14 +18,14 @@
  */
 #include "logger/logger.h"
 
-#include <assert.h>
-#include <HL_hal_stdtypes.h>
-#include <FreeRTOS.h>
 #include "os_queue.h"
 #include "printf.h"
+#include <FreeRTOS.h>
+#include <HL_hal_stdtypes.h>
+#include <assert.h>
+#include <redposix.h>
 #include <stdbool.h>
 #include <string.h>
-#include <redposix.h>
 
 #define XSTR_(X) STR_(X)
 #define STR_(X) #X
@@ -45,9 +45,9 @@ char logger_file[] = "VOL0:/syslog.log";
 char old_logger_file[] = "VOL0:/syslog.log.old";
 uint32_t logger_file_handle = 0;
 
-//uint32_t next_swap = LOGGER_SWAP_PERIOD_MS;
+// uint32_t next_swap = LOGGER_SWAP_PERIOD_MS;
 
-uint32_t next_swap = 800; //I picked a random number of bytes
+uint32_t next_swap = 800; // I picked a random number of bytes
 uint32_t current_size = 0;
 const char logger_config[] = "VOL0:/syslog.config";
 static bool config_loaded = false;
@@ -63,26 +63,26 @@ static void test_logger_daemon(void *pvParameters);
  */
 static bool exists(const char *filename) {
     int32_t file;
-    file = red_open(filename, RED_O_CREAT | RED_O_EXCL | RED_O_RDWR); //attempt to create file
-    if (red_errno == RED_EEXIST){ //does file already exist?
-        return true;   
+    file = red_open(filename, RED_O_CREAT | RED_O_EXCL | RED_O_RDWR); // attempt to create file
+    if (red_errno == RED_EEXIST) {                                    // does file already exist?
+        return true;
     }
-    red_close(file); //didn't exist. was created. now close it
-    red_unlink(filename); //delete file. file creation would be a side affect
+    red_close(file);      // didn't exist. was created. now close it
+    red_unlink(filename); // delete file. file creation would be a side affect
     return false;
 }
 
 /**
  * @brief
- *      The maximum file size is a global variable that is stored, and used 
+ *      The maximum file size is a global variable that is stored, and used
  *      when the system reboots to avoid having the value reset. This function
  *      stores the size that the old and new logger file should be.
- * 
+ *
  * @return int8_t
  *      1 signifies an error. 0 signifies success
  */
 int8_t store_logger_file_size(void) {
-    int32_t fout = red_open(logger_config, RED_O_CREAT | RED_O_RDWR); //open or create file to write binary
+    int32_t fout = red_open(logger_config, RED_O_CREAT | RED_O_RDWR); // open or create file to write binary
     if (fout == -1) {
         return 1;
     }
@@ -93,7 +93,7 @@ int8_t store_logger_file_size(void) {
 
 /**
  * @brief
- *      The maximum file size is a global variable that is stored, and used 
+ *      The maximum file size is a global variable that is stored, and used
  *      when the system reboots to avoid having the value reset. This function
  *      loads the size that the old and new logger file should be.
  * @return int8_t
@@ -103,7 +103,7 @@ int8_t load_logger_file_size(void) {
     if (exists(logger_config) == false) {
         return 1;
     }
-    int32_t fin = red_open(logger_config, RED_O_CREAT | RED_O_RDWR); //open or create file to write binary
+    int32_t fin = red_open(logger_config, RED_O_CREAT | RED_O_RDWR); // open or create file to write binary
     if (fin == -1) {
         return 1;
     }
@@ -135,9 +135,9 @@ int8_t set_logger_file_size(uint32_t file_size) {
  *      uint32_t pointer that will hold the value of the file size
  * @return int8_t
  *      error code. 0 means success
- * 
+ *
  */
-int8_t get_logger_file_size(uint32_t* file_size) {
+int8_t get_logger_file_size(uint32_t *file_size) {
     load_logger_file_size();
     *file_size = next_swap;
     return 0;
@@ -150,9 +150,7 @@ int8_t get_logger_file_size(uint32_t* file_size) {
  * @return char*
  *      pointer to the char array holding the filename
  */
-char * get_logger_file() {
-    return &logger_file;
-}
+char *get_logger_file() { return &logger_file; }
 
 /**
  * @brief
@@ -161,10 +159,7 @@ char * get_logger_file() {
  * @return char*
  *      pointer to the char array holding the filename
  */
-char * get_logger_old_file() {
-    return &old_logger_file;
-}
-
+char *get_logger_old_file() { return &old_logger_file; }
 
 /**
  * @brief
@@ -181,7 +176,7 @@ char * get_logger_old_file() {
 static void do_output(const char *str) {
     char output_string[STRING_MAX_LEN] = {0};
 
-    uint32_t uptime = (uint32_t)(xTaskGetTickCount()/configTICK_RATE_HZ);
+    uint32_t uptime = (uint32_t)(xTaskGetTickCount() / configTICK_RATE_HZ);
 
     snprintf(output_string, STRING_MAX_LEN, "[%010d]%s\r\n", uptime, str);
     size_t string_length = strlen(output_string);
@@ -206,7 +201,7 @@ static void do_output(const char *str) {
 /**
  * @brief
  * Logs a string
- * 
+ *
  * @details
  * Will either log a string to the filesystem or the UART
  * Will log to filesystem if it can
@@ -233,13 +228,14 @@ void ex2_log(const char *format, ...) {
     va_start(arg, format);
     vsnprintf(buffer + TASK_NAME_SIZE, PRINT_BUF_LEN, format, arg);
     va_end(arg);
-    snprintf(buffer, PRINT_BUF_LEN + TASK_NAME_SIZE, "[%." XSTR_(configMAX_TASK_NAME_LEN) "s]%s", task_name, buffer + TASK_NAME_SIZE);
+    snprintf(buffer, PRINT_BUF_LEN + TASK_NAME_SIZE, "[%." XSTR_(configMAX_TASK_NAME_LEN) "s]%s", task_name,
+             buffer + TASK_NAME_SIZE);
 
     int string_len = strlen(buffer);
     if (buffer[string_len - 1] == '\n') {
         buffer[string_len - 1] = '\0';
         if (buffer[string_len - 2] == '\r') {
-            buffer[string_len -2] = '\0';
+            buffer[string_len - 2] = '\0';
         }
     }
 
@@ -256,7 +252,7 @@ void ex2_log(const char *format, ...) {
 /**
  * @brief
  * Initialize filesystem related contructs for logger
- * 
+ *
  * @details
  * Opens syslog file and sets fs_init to true on success
  */
@@ -298,7 +294,7 @@ bool init_logger_fs() {
 /**
  * @brief
  * Shut down filesystem related constructs for logger
- * 
+ *
  * @details
  * Closes syslog file and sets fs_init to false
  */
@@ -328,7 +324,7 @@ static void logger_daemon(void *pvParameters) {
 
     init_logger_queue();
 
-    for ( ;; ) {
+    for (;;) {
         xQueueReceive(input_queue, buffer, portMAX_DELAY);
         if (!fs_init) {
             init_logger_fs(); // just keep trying
@@ -352,7 +348,7 @@ void test_logger_daemon(void *pvParameters) {
 /**
  * @brief
  * Start the logger daemon
- * 
+ *
  * @param handle
  *    Pointer as a return for the task handle
  *
@@ -360,9 +356,7 @@ void test_logger_daemon(void *pvParameters) {
  *   error report of task creation
  */
 SAT_returnState start_logger_daemon(TaskHandle_t *handle) {
-    if (xTaskCreate((TaskFunction_t)logger_daemon,
-                  "logger", 1000, NULL, LOGGER_TASK_PRIO,
-                  handle) != pdPASS) {
+    if (xTaskCreate((TaskFunction_t)logger_daemon, "logger", 1000, NULL, LOGGER_TASK_PRIO, handle) != pdPASS) {
         ex2_log("FAILED TO CREATE TASK logger\n");
         return SATR_ERROR;
     }

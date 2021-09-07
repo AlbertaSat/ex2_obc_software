@@ -22,12 +22,12 @@
 #ifndef EX2_SYSTEM_INCLUDE_TASK_MANAGER_H_
 #define EX2_SYSTEM_INCLUDE_TASK_MANAGER_H_
 
-#include <FreeRTOS.h>
+#include "logger/logger.h"
 #include "os_task.h"
+#include "system.h"
+#include <FreeRTOS.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "logger/logger.h"
-#include "system.h"
 
 typedef struct taskFunctions {
     uint32_t (*getDelayFunction)(void);
@@ -52,7 +52,7 @@ typedef struct task_info_node {
 
 TaskHandle_t ex2_get_task_handle_by_name(char *name);
 
-char * ex2_get_task_name_by_handle(TaskHandle_t handle);
+char *ex2_get_task_name_by_handle(TaskHandle_t handle);
 
 void ex2_get_task_list(user_info **task_lst, uint32_t *size);
 
