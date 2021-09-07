@@ -7,8 +7,8 @@
 #include "nmea_service.h"
 #include "FreeRTOS.h"
 #include "os_task.h"
-#include <string.h>
 #include "util/service_utilities.h"
+#include <string.h>
 
 static char NMEA_buf[NMEASENTENCE_MAXLENGTH];
 
@@ -29,6 +29,5 @@ void NMEA_service() {
             NMEAParser_encode(NMEA_buf[i]);
         }
         ex2_log("NMEA message received: %s", NMEA_buf);
-
     }
 }
