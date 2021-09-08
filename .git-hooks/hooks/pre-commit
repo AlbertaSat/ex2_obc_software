@@ -1,0 +1,36 @@
+#!/bin/bash
+
+echo "Running pre-commit hook: Clang-format"
+
+# Check if clang-format is installed
+if ! which clang-format > /dev/null; then
+    echo "clang-format not installed, installing now..."
+    sudo apt-get install --no-install-recommends -y clang-format
+fi
+
+STYLE=$(git config --get hooks.clangformat.style)
+if [ -n "${STYLE}" ] ; then
+  STYLEARG="-style=${STYLE}"
+else
+  STYLEARG=""
+fi
+
+format_file() {
+  file="${1}"
+  if [ -f $file ]; then
+    echo "RUNNING FORMAT"
+    clang-format -i ${STYLEARG} ${1}
+    git add ${1}
+  fi
+}
+
+case "${1}" in
+  --about )
+    echo "Runs clang-format on source files"
+    ;;
+  * )
+    for file in `git diff-index --cached --name-only HEAD | grep -iE '\.(cpp|c|h|hpp)$' ` ; do
+      format_file "${file}"
+    done
+    ;;
+esac
