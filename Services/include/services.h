@@ -57,6 +57,8 @@
 // LOGGING SERVICE
 #define TC_LOGGER_SERVICE 13
 
+#define DELAY_WAIT_TIMEOUT 8000
+
 typedef enum {
     OBC_APP_ID = _OBC_APP_ID_,
     EPS_APP_ID = _EPS_APP_ID_,
