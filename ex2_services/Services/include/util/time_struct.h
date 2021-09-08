@@ -37,4 +37,3 @@ typedef struct date_t {
 } date_t;
 
 #endif /* TIME_STRUCT_H_ */
-
