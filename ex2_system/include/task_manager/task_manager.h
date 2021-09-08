@@ -32,11 +32,12 @@
 typedef struct taskFunctions {
     uint32_t (*getDelayFunction)(void);
     void (*setDelayFunction)(uint32_t delay);
+    uint32_t (*getCounterFunction)(void);
 } taskFunctions;
 
 typedef struct {
     TaskHandle_t task;
-    bool persistent;
+    uint32_t prev_counter;
     taskFunctions funcs;
 } task_info;
 
@@ -58,7 +59,7 @@ void ex2_get_task_list(user_info **task_lst, uint32_t *size);
 
 void ex2_deregister(TaskHandle_t task);
 
-void ex2_register(TaskHandle_t task, taskFunctions funcs, bool persistent);
+void ex2_register(TaskHandle_t task, taskFunctions funcs);
 
 bool ex2_set_task_delay(TaskHandle_t task, uint32_t delay);
 
@@ -69,5 +70,7 @@ UBaseType_t dev_ex2_get_task_high_watermark(TaskHandle_t task);
 bool ex2_task_exists(TaskHandle_t task);
 
 void ex2_task_init_mutex();
+
+SAT_returnState start_watchdog();
 
 #endif /* EX2_SYSTEM_INCLUDE_TASK_MANAGER_H_ */

@@ -47,6 +47,7 @@
 #include "services.h"
 #include "subsystems_ids.h"
 #include "system_tasks.h"
+#include "task_manager/task_manager.h"
 
 /**
  * The main function must:
@@ -102,6 +103,7 @@ int ex2_main(void) {
  * Initialize service and system tasks
  */
 void init_software() {
+    start_watchdog();
     /* start system tasks and service listeners */
     if (start_service_server() != SATR_OK || start_system_tasks() != SATR_OK) {
         ex2_log("Initialization error\n");

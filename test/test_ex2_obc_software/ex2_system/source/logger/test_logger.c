@@ -8,105 +8,69 @@
 #include <cgreen/cgreen.h>
 #include <cgreen/mocks.h>
 
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
 #include "FreeRTOS.h"
-#include "os_task.h"
-#include "os_queue.h"
-#include <redposix.h>
 #include "logger/logger.h"
+#include "os_queue.h"
+#include "os_task.h"
+#include <redposix.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
-
-
+#include <stdlib.h>
 
 Describe(logger);
-BeforeEach(logger) {};
-AfterEach(logger) {};
+BeforeEach(logger){};
+AfterEach(logger){};
 
-int32_t red_open( const char *pszPath, uint32_t ulOpenMode) {
-    return mock(pszPath, ulOpenMode);
-}
-int32_t red_rename(
-    const char *pszOldPath,
-    const char *pszNewPath) {
-    return mock(pszOldPath, pszNewPath);
-    }
+int32_t red_open(const char *pszPath, uint32_t ulOpenMode) { return mock(pszPath, ulOpenMode); }
+int32_t red_rename(const char *pszOldPath, const char *pszNewPath) { return mock(pszOldPath, pszNewPath); }
 
-
-int32_t red_write(
-    int32_t     iFildes,
-    const void *pBuffer,
-    uint32_t    ulLength) {
-        return mock(iFildes, pBuffer, ulLength);
-    }
-
-int32_t red_close(
-    int32_t     iFildes) {
-        return mock(iFildes);
-    }
-
-int32_t red_transact(const char * pszVolume) {
-    return mock(pszVolume);
-}
-
-int32_t red_read(int32_t iFildes, void *pBuffer, uint32_t ulLength) {
+int32_t red_write(int32_t iFildes, const void *pBuffer, uint32_t ulLength) {
     return mock(iFildes, pBuffer, ulLength);
 }
 
-int32_t red_unlink(const char * pszPath) {
-    return mock(pszPath);
-}
+int32_t red_close(int32_t iFildes) { return mock(iFildes); }
 
-int32_t red_fstat(int32_t iFildes, REDSTAT * pStat) {
-    return mock(iFildes, pStat);
-}
+int32_t red_transact(const char *pszVolume) { return mock(pszVolume); }
 
-TickType_t xTaskGetTickCount() {
-    return mock();
-}
+int32_t red_read(int32_t iFildes, void *pBuffer, uint32_t ulLength) { return mock(iFildes, pBuffer, ulLength); }
 
-BaseType_t xTaskGetSchedulerState() {
-    return mock();
-}
+int32_t red_unlink(const char *pszPath) { return mock(pszPath); }
 
-char *pcTaskGetName(TaskHandle_t task) {
-    return (char *)mock(task);
-}
+int32_t red_fstat(int32_t iFildes, REDSTAT *pStat) { return mock(iFildes, pStat); }
 
-BaseType_t MPU_xQueueGenericReceive(QueueHandle_t	xQueue, void *pvBuffer, TickType_t xTicksToWait, const BaseType_t xJustPeek ) {
+TickType_t xTaskGetTickCount() { return mock(); }
+
+BaseType_t xTaskGetSchedulerState() { return mock(); }
+
+char *pcTaskGetName(TaskHandle_t task) { return (char *)mock(task); }
+
+BaseType_t MPU_xQueueGenericReceive(QueueHandle_t xQueue, void *pvBuffer, TickType_t xTicksToWait,
+                                    const BaseType_t xJustPeek) {
     return mock(xQueue, pvBuffer, xTicksToWait, xJustPeek);
 }
 
-BaseType_t xQueueGenericSend( QueueHandle_t xQueue, const void * const pvItemToQueue, TickType_t xTicksToWait, const BaseType_t xCopyPosition ) {
+BaseType_t xQueueGenericSend(QueueHandle_t xQueue, const void *const pvItemToQueue, TickType_t xTicksToWait,
+                             const BaseType_t xCopyPosition) {
     return mock(xQueue, pvItemToQueue, xTicksToWait, xCopyPosition);
 }
 
-REDSTATUS *red_errnoptr() {
-    return (REDSTATUS *)mock();
-}
+REDSTATUS *red_errnoptr() { return (REDSTATUS *)mock(); }
 
-void vTaskDelay( const TickType_t xTicksToDelay ) {
-    mock(xTicksToDelay);
-}
+void vTaskDelay(const TickType_t xTicksToDelay) { mock(xTicksToDelay); }
 
-BaseType_t xTaskCreate(	TaskFunction_t pxTaskCode,
-							const char * const pcName,
-							const uint16_t usStackDepth,
-							void * const pvParameters,
-							UBaseType_t uxPriority,
-							TaskHandle_t * const pxCreatedTask ) { /*lint !e971 Unqualified char types are allowed for strings and single characters only. */
+BaseType_t xTaskCreate(TaskFunction_t pxTaskCode, const char *const pcName, const uint16_t usStackDepth,
+                       void *const pvParameters, UBaseType_t uxPriority,
+                       TaskHandle_t *const pxCreatedTask) { /*lint !e971 Unqualified char types are allowed for
+                                                               strings and single characters only. */
     return mock(pxTaskCode, pcName, usStackDepth, pvParameters, uxPriority, pxCreatedTask);
 }
-void vTaskDelete( TaskHandle_t xTaskToDelete ) {
-    mock(xTaskToDelete);
-}
+void vTaskDelete(TaskHandle_t xTaskToDelete) { mock(xTaskToDelete); }
 
-void vQueueDelete(QueueHandle_t queue) {
-    mock(queue);
-}
+void vQueueDelete(QueueHandle_t queue) { mock(queue); }
 
-QueueHandle_t xQueueGenericCreate( const UBaseType_t uxQueueLength, const UBaseType_t uxItemSize, const uint8_t ucQueueType ) {
+QueueHandle_t xQueueGenericCreate(const UBaseType_t uxQueueLength, const UBaseType_t uxItemSize,
+                                  const uint8_t ucQueueType) {
     return (QueueHandle_t)mock(uxQueueLength, uxItemSize, ucQueueType);
 }
 
@@ -146,7 +110,7 @@ Ensure(logger, notices_file_exists) {
     expect(red_close);
     expect(red_rename);
     expect(red_open, will_return(1));
-   
+
     never_expect(red_open);
     bool open = init_logger_fs();
     assert_that(open, is_true);
@@ -161,7 +125,7 @@ Ensure(logger, sets_internals_when_file_does_not_exist) {
 
     expect(red_open, will_return(-1));
     expect(red_open, will_return(1));
-    
+
     bool open = init_logger_fs();
     assert_that(open, is_true);
     assert_that(logger_file_handle, is_equal_to(1));
@@ -182,7 +146,7 @@ Ensure(logger, sets_internals_when_file_exists) {
     expect(red_close);
     expect(red_rename);
     expect(red_open, will_return(1));
-    
+
     bool open = init_logger_fs();
     assert_that(open, is_true);
     assert_that(logger_file_handle, is_equal_to(1));
@@ -195,7 +159,7 @@ Ensure(logger, init_fs_returns_false_on_failure) {
     expect(red_errnoptr, will_return(&errnum));
     expect(red_close, will_return(0));
     expect(red_unlink, will_return(0));
-    
+
     expect(red_open, will_return(-1));
     expect(red_open, will_return(-1));
     bool fd = init_logger_fs();
@@ -240,7 +204,6 @@ Ensure(logger, ex2_log_returns_when_scheduler_suspended) {
 Ensure(logger, ex2_log_prints_main_when_scheduler_not_running) {
     input_queue = (QueueHandle_t)1;
     expect(xTaskGetSchedulerState, will_return(taskSCHEDULER_NOT_STARTED), times(2));
-
 }
 
 TestSuite *logger_input_tests() {
@@ -251,8 +214,8 @@ TestSuite *logger_input_tests() {
 }
 
 int test_logger() {
-  TestSuite *suite = create_test_suite();
-  add_suite(suite, logger_fs_tests());
-  add_suite(suite, logger_input_tests());
-  return run_test_suite(suite, create_text_reporter());
+    TestSuite *suite = create_test_suite();
+    add_suite(suite, logger_fs_tests());
+    add_suite(suite, logger_input_tests());
+    return run_test_suite(suite, create_text_reporter());
 }

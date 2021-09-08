@@ -4,20 +4,30 @@
  *  Created on: Jul. 6, 2021
  *      Author: robert
  */
+
+/**
+ * This file serves as an example for how to create a task for ex-alta 2
+ * A good task is defined as one that can be watched with the watchdog, uses
+ * the logger properly, and uses FreeRTOS features
+ */
+
 #include <FreeRTOS.h>
 #include "os_task.h"
+#include "system.h"
 #include "task_manager/task_manager.h"
 
 uint32_t delay = 1000;
+static uint32_t wdt_counter = 0;
 
 void dummy_task(void *pvParameters) {
+    uint32_t delayed_time;
+
     for (;;) {
+        delayed_time = 0;
+        wdt_counter++;
         ex2_log("Dummy Task Running");
-        TaskHandle_t myHandle = xTaskGetCurrentTaskHandle();
-        ex2_set_task_delay(myHandle, delay + 10);
-        uint32_t myDelay = ex2_get_task_delay(myHandle);
-        ex2_log("My delay is: %d", myDelay);
-        vTaskDelay(pdMS_TO_TICKS(delay));
+
+        vTaskDelay(delay); // as long as delay is lower than DELAY_WAIT_INTERVAL this is okay
     }
 }
 
@@ -25,14 +35,18 @@ uint32_t getDelay() { return delay; }
 
 void setDelay(uint32_t _delay) { delay = _delay; }
 
-void start_dummy_task() {
+uint32_t getCounter() { return wdt_counter; }
+
+SAT_returnState start_dummy_task() {
     TaskHandle_t hand = NULL;
-    xTaskCreate(dummy_task, "Dummy", 200, NULL, 1, &hand);
+    if (xTaskCreate(dummy_task, "Dummy", 200, NULL, 1, &hand) != pdPASS) {
+        ex2_log("Could not start dummy task");
+        return SATR_ERROR;
+    }
     taskFunctions funcs;
     funcs.setDelayFunction = setDelay;
     funcs.getDelayFunction = getDelay;
-    int i;
-    for (i = 0; i <= 10; i++) {
-        ex2_register(hand, funcs, true);
-    }
+    funcs.getCounterFunction = getCounter;
+    ex2_register(hand, funcs);
+    return SATR_OK;
 }

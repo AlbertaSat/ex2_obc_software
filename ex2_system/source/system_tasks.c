@@ -26,6 +26,7 @@
 #include "logger/logger.h"
 #include "performance_monitor/system_stats.h"
 #include "system_state/state_task.h"
+#include "task_manager/task_manager.h"
 
 SAT_returnState start_system_tasks(void);
 

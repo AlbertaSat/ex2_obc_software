@@ -18,9 +18,9 @@
  */
 #include "performance_monitor/system_stats.h"
 
+#include "printf.h"
 #include <FreeRTOS.h>
 #include <os_task.h>
-#include <stdio.h>
 
 static void system_stats_daemon(void *param);
 SAT_returnState start_system_stats_daemon(void);
@@ -38,7 +38,7 @@ static void system_stats_daemon(void *param) {
         vTaskDelay(xDelay);
         char buf[1024];
         vTaskGetRunTimeStats(buf);
-        //    fprintf(stderr, "%s\n", buf);
+        printf("%s\n", buf);
     }
 }
 
