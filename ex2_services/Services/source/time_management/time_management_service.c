@@ -24,6 +24,7 @@
 #include "rtcmk.h"
 #include "services.h"
 #include "skytraq_gps_driver.h"
+#include "task_manager/task_manager.h"
 #include "time_management/time_management_service.h"
 #include "util/service_utilities.h"
 #include <csp/csp.h>
@@ -42,6 +43,13 @@
 
 SAT_returnState time_management_app(csp_packet_t *packet);
 
+static uint32_t svc_wdt_counter = 0;
+static uint32_t rtc_wdt_counter = 0;
+
+static uint32_t get_svc_wdt_counter() { return svc_wdt_counter; }
+
+uint32_t get_rtc_wdt_counter() { return rtc_wdt_counter; }
+
 /**
  * @brief
  *      FreeRTOS service for disciplining RTC
@@ -58,11 +66,20 @@ void RTC_discipline_service(void) {
 
     if (!gps_skytraq_driver_init()) {
         ex2_log("failed to init skytraq\r\n");
-        vTaskDelete(NULL);
     }
 
+    uint16_t total_delay = 0;
+
+    rtc_wdt_counter++;
+
     for (;;) {
-        vTaskDelay(DISCIPLINE_DELAY);
+        while (total_delay < DISCIPLINE_DELAY) {
+            vTaskDelay(DELAY_WAIT_INTERVAL);
+            total_delay += DELAY_WAIT_INTERVAL;
+            rtc_wdt_counter++;
+        }
+        rtc_wdt_counter++;
+        total_delay = 0;
         if (!(gps_get_utc_time(&utc_time))) {
             ex2_log("Couldn't get gps time");
             continue; // delay wait until gps signal acquired
@@ -70,6 +87,7 @@ void RTC_discipline_service(void) {
             RTCMK_SetUnix(utc_time);
             ex2_log("Current time: %d", utc_time);
         }
+        rtc_wdt_counter++;
     }
 }
 
@@ -88,12 +106,17 @@ SAT_returnState start_gps_services(TaskHandle_t *rtc_handle, TaskHandle_t *nmea_
         pdPASS) {
         return SATR_ERROR;
     }
+    taskFunctions rtc_funcs = {0};
+    rtc_funcs.getCounterFunction = get_rtc_wdt_counter;
+    ex2_register(*rtc_handle, rtc_funcs);
 
     if (xTaskCreate((TaskFunction_t)NMEA_service, "NMEA_service", NMEA_TASK_SIZE, NULL, 1, nmea_handle) !=
         pdPASS) {
         return SATR_ERROR;
     }
-
+    taskFunctions nmea_funcs = {0};
+    nmea_funcs.getCounterFunction = nmea_get_wdt_counter;
+    ex2_register(*nmea_handle, nmea_funcs);
     return SATR_OK;
 }
 
@@ -110,14 +133,17 @@ void time_management_service(void *param) {
     sock = csp_socket(CSP_SO_RDPREQ); // require RDP connection
     csp_bind(sock, TC_TIME_MANAGEMENT_SERVICE);
     csp_listen(sock, SERVICE_BACKLOG_LEN);
-
+    svc_wdt_counter++;
     for (;;) {
+        svc_wdt_counter++;
         csp_conn_t *conn;
         csp_packet_t *packet;
-        if ((conn = csp_accept(sock, CSP_MAX_TIMEOUT)) == NULL) {
+        if ((conn = csp_accept(sock, DELAY_WAIT_TIMEOUT)) == NULL) {
+            svc_wdt_counter++;
             /* timeout */
             continue;
         }
+        svc_wdt_counter++;
         while ((packet = csp_read(conn, 50)) != NULL) {
             if (time_management_app(packet) != SATR_OK) {
                 // something went wrong, this shouldn't happen
@@ -143,11 +169,15 @@ void time_management_service(void *param) {
  *      success report
  */
 SAT_returnState start_time_management_service(void) {
+    TaskHandle_t svc_tsk;
+    taskFunctions svc_funcs = {0};
+    svc_funcs.getCounterFunction = get_svc_wdt_counter;
     if (xTaskCreate((TaskFunction_t)time_management_service, "time_management_service", TIME_MANAGEMENT_SIZE, NULL,
-                    NORMAL_SERVICE_PRIO, NULL) != pdPASS) {
+                    NORMAL_SERVICE_PRIO, &svc_tsk) != pdPASS) {
         ex2_log("FAILED TO CREATE TASK time_management_service\n");
         return SATR_ERROR;
     }
+    ex2_register(svc_tsk, svc_funcs);
     TaskHandle_t _;
     if (start_gps_services(&_, &_) != SATR_OK) {
         return SATR_ERROR;
