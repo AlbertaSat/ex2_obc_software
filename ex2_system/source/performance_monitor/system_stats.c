@@ -20,10 +20,9 @@
 
 #include <FreeRTOS.h>
 #include <os_task.h>
-#include <stdio.h>
 #include "printf.h"
 
-static void system_stats_daemon(void * param);
+static void system_stats_daemon(void *param);
 SAT_returnState start_system_stats_daemon(void);
 
 /**
@@ -50,13 +49,11 @@ static void system_stats_daemon(void * param) {
  *  error report
  */
 SAT_returnState start_system_stats_daemon(void) {
-  if (xTaskCreate((TaskFunction_t)system_stats_daemon,
-                "task_stats", 512, NULL, SYSTEM_STATS_TASK_PRIO,
-                NULL) != pdPASS) {
-    ex2_log("FAILED TO CREATE TASK task_stats\n");
-    return SATR_ERROR;
-  }
-  ex2_log("Stats task started\n");
-  return SATR_OK;
+    if (xTaskCreate((TaskFunction_t)system_stats_daemon, "task_stats", 512, NULL, SYSTEM_STATS_TASK_PRIO, NULL) !=
+        pdPASS) {
+        ex2_log("FAILED TO CREATE TASK task_stats\n");
+        return SATR_ERROR;
+    }
+    ex2_log("Stats task started\n");
+    return SATR_OK;
 }
-

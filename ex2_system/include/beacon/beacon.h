@@ -24,5 +24,4 @@
 
 SAT_returnState start_beacon_daemon(void);
 
-
 #endif /* EX2_SYSTEM_INCLUDE_BEACON_BEACON_H_ */

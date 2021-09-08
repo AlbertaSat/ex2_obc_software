@@ -27,37 +27,37 @@
 #include "main/system.h"
 
 enum SAT_state {
-  hw_critical_state = 0,  // EPS will shut OBC down prior to informing it
-  critical_state = 1,     // EPS will shut OBC down prior to informing it
-  safe_state = 2,
-  operational_state = 3
+    hw_critical_state = 0, // EPS will shut OBC down prior to informing it
+    critical_state = 1,    // EPS will shut OBC down prior to informing it
+    safe_state = 2,
+    operational_state = 3
 };
 
 /* It might be a good idea to replace it with SAT_returnState. */
 typedef enum { SYS_OFF = 0, SYS_ON = 1, SYS_NO_RESPONSE = -1 } SYS_returnState;
 
 typedef enum {
-  batHeater_id = 0,
-  EPS_id,
-  OBC_id,
-  UHF_id,
-  STX_id,
-  Iris_id,
-  DFGM_id,
-  ADCS_id,
-  number_of_systems,  // Do not assign values to the IDs for this to work. Just
-                      // move them up/down.
-} sm_sys_id;          // Local system ID for State Machine
+    batHeater_id = 0,
+    EPS_id,
+    OBC_id,
+    UHF_id,
+    STX_id,
+    Iris_id,
+    DFGM_id,
+    ADCS_id,
+    number_of_systems, // Do not assign values to the IDs for this to work. Just
+                       // move them up/down.
+} sm_sys_id;           // Local system ID for State Machine
 
 typedef struct __attribute__((packed)) {
-  bool batHeater;
-  bool EPS;
-  bool OBC;
-  bool UHF;
-  bool STX;  // S-band Transmitter
-  bool Iris;
-  bool DFGM;
-  bool ADCS;
+    bool batHeater;
+    bool EPS;
+    bool OBC;
+    bool UHF;
+    bool STX; // S-band Transmitter
+    bool Iris;
+    bool DFGM;
+    bool ADCS;
 } systems_status;
 
 typedef enum SAT_state SAT_state_e;

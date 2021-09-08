@@ -12,8 +12,8 @@
  */
 
 #include <FreeRTOS.h>
-#include <os_task.h>
-
+#include "task_manager/task_manager.h"
+#include "os_task.h"
 #include "task_manager/task_manager.h"
 #include "system.h"
 
@@ -30,16 +30,11 @@ void dummy_task(void * pvParameters) {
 
         vTaskDelay(delay); // as long as delay is lower than DELAY_WAIT_INTERVAL this is okay
     }
-
 }
 
-uint32_t getDelay() {
-    return delay;
-}
+uint32_t getDelay() { return delay; }
 
-void setDelay(uint32_t _delay) {
-    delay = _delay;
-}
+void setDelay(uint32_t _delay) { delay = _delay; }
 
 uint32_t getCounter() {
     return wdt_counter;
@@ -58,7 +53,3 @@ SAT_returnState start_dummy_task() {
     ex2_register(hand, funcs);
     return SATR_OK;
 }
-
-
-
-

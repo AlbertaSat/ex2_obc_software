@@ -63,7 +63,6 @@
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/housekeeping}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_sband_software/hardware_interface/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/core/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_eps_software/hardware_interface/include}"/>
