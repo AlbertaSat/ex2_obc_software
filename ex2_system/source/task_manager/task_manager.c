@@ -5,13 +5,13 @@
  *      Author: Robert Taylor
  */
 #include "task_manager/task_manager.h"
+#include "HL_reg_rti.h"
 #include "os_task.h"
 #include "privileged_functions.h"
 #include "semphr.h"
+#include "system.h"
 #include <FreeRTOS.h>
 #include <string.h>
-#include "system.h"
-#include "HL_reg_rti.h"
 
 task_info_node *tasks_start = NULL;
 SemaphoreHandle_t task_mutex = NULL;
@@ -199,7 +199,7 @@ bool check_tasks_health() {
             if (tsk.funcs.getCounterFunction == 0) {
                 continue;
             }
-            uint32_t tsk_counter = tsk.funcs.getCounterFunction ();
+            uint32_t tsk_counter = tsk.funcs.getCounterFunction();
             if (tsk_counter == tsk.prev_counter) {
                 return false;
             }
@@ -233,7 +233,7 @@ void start_dog() {
 }
 
 // the purpose of this software watchdog is to feed the dog if everything is going well
-void sw_watchdog(void * pvParameters) {
+void sw_watchdog(void *pvParameters) {
     TickType_t last_wake_time = xTaskGetTickCount();
     uint32_t delayed_time = 0;
     bool should_feed = true;
@@ -250,7 +250,7 @@ void sw_watchdog(void * pvParameters) {
 #endif
         }
         if (should_feed) {
-            while(delayed_time < 10000) {
+            while (delayed_time < 10000) {
                 feed_dog();
                 vTaskDelayUntil(&last_wake_time, WDT_DELAY);
                 delayed_time += WDT_DELAY;
@@ -264,5 +264,5 @@ void sw_watchdog(void * pvParameters) {
 
 SAT_returnState start_watchdog() {
     ex2_task_init_mutex();
-    xTaskCreate(sw_watchdog, "WDT", 500, NULL, configMAX_PRIORITIES-1, NULL);
+    xTaskCreate(sw_watchdog, "WDT", 500, NULL, configMAX_PRIORITIES - 1, NULL);
 }

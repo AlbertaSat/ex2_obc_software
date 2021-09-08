@@ -28,12 +28,11 @@
 #include <redfse.h>
 #include <redposix.h>
 #include <redvolume.h>
-#include <util/service_utilities.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <os_task.h>
+#include <util/service_utilities.h>
 
 #include "HL_sci.h"
 #include "HL_sys_common.h"
@@ -43,18 +42,11 @@
 #include "file_delivery_app.h"
 #include "logger/logger.h"
 #include "main/system.h"
-#include "board_io_tests.h"
+#include "mocks/mock_eps.h"
+#include "mocks/rtc.h"
 #include "services.h"
 #include "subsystems_ids.h"
-#include "eps.h"
-#include "mocks/mock_eps.h"
-#include "csp/drivers/can.h"
-#include "HL_sci.h"
-#include "HL_sys_common.h"
 #include "system_tasks.h"
-#include "mocks/rtc.h"
-#include "logger/logger.h"
-#include "file_delivery_app.h"
 #include "task_manager/task_manager.h"
 
 /**

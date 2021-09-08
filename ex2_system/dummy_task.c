@@ -12,18 +12,17 @@
  */
 
 #include <FreeRTOS.h>
-#include "task_manager/task_manager.h"
 #include "os_task.h"
-#include "task_manager/task_manager.h"
 #include "system.h"
+#include "task_manager/task_manager.h"
 
 uint32_t delay = 1000;
 static uint32_t wdt_counter = 0;
 
-void dummy_task(void * pvParameters) {
+void dummy_task(void *pvParameters) {
     uint32_t delayed_time;
 
-    for(;;) {
+    for (;;) {
         delayed_time = 0;
         wdt_counter++;
         ex2_log("Dummy Task Running");
@@ -36,9 +35,7 @@ uint32_t getDelay() { return delay; }
 
 void setDelay(uint32_t _delay) { delay = _delay; }
 
-uint32_t getCounter() {
-    return wdt_counter;
-}
+uint32_t getCounter() { return wdt_counter; }
 
 SAT_returnState start_dummy_task() {
     TaskHandle_t hand = NULL;

@@ -115,7 +115,7 @@
 #endif
 
 // watchdog timer expires in 447ms
-#define WDT_DELAY 200 // 200 miliseconds gives a a good window
+#define WDT_DELAY 200            // 200 miliseconds gives a a good window
 #define WDT_CHECK_INTERVAL 10000 // only actually checks the tasks this often
 #define DELAY_WAIT_INTERVAL 8000 // a pretty long time, but lets the watchdog know that the task hasn't failed
 
