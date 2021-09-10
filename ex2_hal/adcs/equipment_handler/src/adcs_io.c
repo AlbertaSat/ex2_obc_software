@@ -112,7 +112,7 @@ ADCS_returnState send_uart_telecommand(uint8_t *command, uint32_t length) {
  */
 ADCS_returnState send_i2c_telecommand(uint8_t *command, uint32_t length) {
     // Send telecommand
-    i2c_Send(ADCS_I2C, ADCS_ADDR, length, command);
+    i2c_Send(ADCS_I2C, ADCS_I2C_ADDR, length, command);
 
     // Poll TC Acknowledge Telemetry Format until the Processed flag equals 1.
     bool processed = false;
