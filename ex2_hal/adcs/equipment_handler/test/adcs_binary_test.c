@@ -91,12 +91,12 @@ void binaryTest_Bootloader(void){
     printf("boot_stat = %d \n", boot_stat);
 
     //Continuing test Section 4.1 Bootloader, Table 4-1 in test plan.
-    uint16_t TC_num = 0;
-    uint16_t TM_num = 0;
-    uint8_t flags_arr = 0;
+    uint8_t TC_num = 0;
+    uint8_t TM_num = 0;
+    memset(&flags_arr, 0 , 12);
 
     printf("Running ADCS_get_comms_stat...\n");
-    test_returnState = ADCS_get_comms_stat(&TC_num, &TM_num, &flags_arr);//should give compile error until function itself is fixed
+    //test_returnState = ADCS_get_comms_stat(&TC_num, &TM_num, &flags_arr); // TODO: fix this
     if(test_returnState != ADCS_OK){
         printf("ADCS_get_comms_stat returned %d \n", test_returnState);
         while(1);
@@ -114,6 +114,7 @@ void binaryTest_CubeACP(void){
     //Test Section 4.2 CubeACP, Table 4-2 in test plan.
     uint16_t time = 0;
     uint8_t execution_point = 0;
+    ADCS_returnState test_returnState = ADCS_OK;
 
     printf("ADCS_get_ACP_loop_stat...\n");
     test_returnState = ADCS_get_ACP_loop_stat(&time, &execution_point);
@@ -150,8 +151,8 @@ void binaryTest_CubeACP(void){
     //Continuing test Section 4.2 CubeACP, Table 4-2 in test plan.
     uint8_t node_type = 0;
     uint8_t interface_ver = 0;
-    uint8_t major_firm_ver = 0;
-    uint8_t minor_firm_ver = 0;
+    major_firm_ver = 0;
+    minor_firm_ver = 0;
     uint16_t runtime_s = 0;
     uint16_t runtime_ms = 0;
 
@@ -187,7 +188,7 @@ void binaryTest_CubeACP(void){
     uint8_t flags_arr = 0;
 
     printf("Running ADCS_get_comms_stat...\n");
-    test_returnState = ADCS_get_comms_stat(&TC_num, &TM_num, &flags_arr);//should give compile error until function itself is fixed
+    //test_returnState = ADCS_get_comms_stat(&TC_num, &TM_num, &flags_arr); // TODO: fix this
     if(test_returnState != ADCS_OK){
         printf("ADCS_get_comms_stat returned %d \n", test_returnState);
         while(1);
@@ -293,12 +294,12 @@ void binaryTest_CubeACP(void){
     }
 
     //Test Section 4.2 CubeACP, Table 4-4 in test plan.
-    uint16_t TC_num = 0;
-    uint16_t TM_num = 0;
-    uint8_t flags_arr = 0;
+    TC_num = 0;
+    TM_num = 0;
+    flags_arr = 0;
 
     printf("Running ADCS_get_comms_stat...\n");
-    test_returnState = ADCS_get_comms_stat(&TC_num, &TM_num, &flags_arr);//should give compile error until function itself is fixed
+    //test_returnState = ADCS_get_comms_stat(&TC_num, &TM_num, &flags_arr); TODO: fix this
     if(test_returnState != ADCS_OK){
         printf("ADCS_get_comms_stat returned %d \n", test_returnState);
         while(1);
@@ -362,7 +363,7 @@ void binaryTest_CubeACP(void){
     }
 
     //Test Section 4.2 CubeACP, Table 4-4 in test plan.
-    test_adcs_state = {0};
+    memset(&test_adcs_state, 0, sizeof(adcs_state));
 
     printf("Running ADCS_get_current_state...\n");
     test_returnState = ADCS_get_current_state(&test_adcs_state);
