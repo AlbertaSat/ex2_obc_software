@@ -26,19 +26,19 @@
  *      Needs to occur after every reset of chip.
  *      Note that chip is reset every time triggerPowerChannelReset() is called.
  * @return
- *      -1 if error, 0 if successful.
+ *      1 if error, 0 if successful.
  */
 uint8_t setuppcal9538a(void){
 
-    if(i2c_Send(PCAL9538A_PORT, PCAL9538A_ADDR, 2, 0x0100)){//set output value register (0x01) to all be logic low = 0
-        return -1
+    if(i2c_Send(PCAL9538A_PORT, PCAL9538A_ADDR, 2, 0x0100) != 0){//set output value register (0x01) to all be logic low = 0
+        return 1;
     }
 
-    if(i2c_Send(PCAL9538A_PORT, PCAL9538A_ADDR, 2, 0x0300)){//set config register (0x03) to make all pins outputs
-        return -1
+    if(i2c_Send(PCAL9538A_PORT, PCAL9538A_ADDR, 2, 0x0300) != 0){//set config register (0x03) to make all pins outputs
+        return 1;
     }
 
-    return 0
+    return 0;
 }
 
 /*
@@ -48,15 +48,15 @@ uint8_t setuppcal9538a(void){
  * @param channel
  *      The power channel that is to be reset.
  * @return
- *      -1 if error, 0 if successful.
+ *      1 if error, 0 if successful.
  */
 uint8_t triggerPowerChannelReset(Power_Channel channel){
 
     uint8_t data[2] = {0b1, 0b0};
     data[1] = 0b1 << channel;
 
-    if(i2c_Send(PCAL9538A_PORT, PCAL9538A_ADDR, 2, data)){
-        return -1;
+    if(i2c_Send(PCAL9538A_PORT, PCAL9538A_ADDR, 2, data) != 0){
+        return 1;
     }
     return 0;
 }
