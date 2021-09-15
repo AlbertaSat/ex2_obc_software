@@ -20,6 +20,7 @@
 
 //No initial configuration, calibration, averaging filter currently implemented
 //01M1002JF 10 kOhm thermistors in series w/ 4.7 kOhm: voltage via https://www.vishay.com/thermistors/ntc-rt-calculator/
+//See TX2-ES-039 Charon Thermistor Calculations for derivation of values in voltageToTemperature()
 
 #include "ads7128.h"
 #include <i2c_io.h>
@@ -30,7 +31,7 @@
  * @param[in] voltage value where LSB = 0.8 mV
  * @param [out] temperature converted from voltage
  */
-void voltageToTemperature(uint16_t voltage, int8_t* temperature){
+void voltageToTemperature(uint16_t voltage, int* temperature){
 
     //Inefficient as balls, currently
     //LUT based off of https://embeddedgurus.com/stack-overflow/2010/01/a-tutorial-on-lookup-tables-in-c/
@@ -52,7 +53,8 @@ void voltageToTemperature(uint16_t voltage, int8_t* temperature){
     for(int i=0; i<126; i++){
         newdelta = abs(voltage - lookup[i]);
         if(newdelta > olddelta){
-            temperature = -40 + (i - 1);//Index 0 in lookup corresponds to -40 deg C. 1 index = +1 deg C
+
+           *temperature = -40 + (i - 1);//Index 0 in lookup corresponds to -40 deg C. 1 index = +1 deg C
         }
         olddelta = newdelta;
     }
@@ -67,7 +69,7 @@ void voltageToTemperature(uint16_t voltage, int8_t* temperature){
  * @return
  *      1 if error, 0 if successful
  */
-uint8_t readSingleTemp(uint8_t channel, int8_t* temperature){//note int8 max = 127
+uint8_t readSingleTemp(uint8_t channel, int* temperature){//note int8 max = 127
 
     uint8_t data[2] = {0x03, 0x00};
     data[1] = 0xA0 + channel*2;
@@ -85,11 +87,9 @@ uint8_t readSingleTemp(uint8_t channel, int8_t* temperature){//note int8 max = 1
 
     uint16_t voltage = (data[0] << 4) | (data[1] >> 4);//1 LSB = 3.3V / 2^12 = 0.806 mV
 
-    if(voltageToTemperature(voltage, &temperature)){
-        return 1;
-    }
+    voltageToTemperature(voltage, temperature);
 
-    return 0
+    return 0;
 }
 
 /*
@@ -99,10 +99,10 @@ uint8_t readSingleTemp(uint8_t channel, int8_t* temperature){//note int8 max = 1
  * @return
  *      1 if error, 0 if successful
  */
-uint8_t readAllTemps(int_t * temperatures){//could rework to read out all 16 registers at once instead of in 8 chunks
+uint8_t readAllTemps(int * temperatures){//could rework to read out all 16 registers at once instead of in 8 chunks
     for(int i = 0; i < 8; i++){
-        if(readSingleTemp(i, temperatures[i])){
-            return 1
+        if(readSingleTemp(i, &temperatures[i])){
+            return 1;
         }
     }
     return 0;

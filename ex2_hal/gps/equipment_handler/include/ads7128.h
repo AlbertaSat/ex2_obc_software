@@ -16,6 +16,7 @@
  * @author Josh Lazaruk
  * @date 2021-09-10
  */
+#include <stdint.h>
 
 #define ADS7128_ADDR              (0x11)
 #ifdef IS_ATHENA
@@ -24,6 +25,6 @@
 #define ADS7128_PORT              i2cREG1 // port used on dev board
 #endif
 
-void voltageToTemperature(uint16_t voltage, int8_t* temperature);
-uint8_t readSingleTemp(uint8_t channel, int8_t* temperature);
-uint8_t readAllTemps(int_t * temperatures);
+void voltageToTemperature(uint16_t voltage, int* temperature);
+uint8_t readSingleTemp(uint8_t channel, int* temperature);
+uint8_t readAllTemps(int* temperatures);

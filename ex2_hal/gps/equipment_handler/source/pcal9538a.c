@@ -16,8 +16,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-
-#include "pcal9538.h"
+#include "pcal9538a.h"
 #include <i2c_io.h>
 
 /*
@@ -30,11 +29,15 @@
  */
 uint8_t setuppcal9538a(void){
 
-    if(i2c_Send(PCAL9538A_PORT, PCAL9538A_ADDR, 2, 0x0100) != 0){//set output value register (0x01) to all be logic low = 0
+    uint16_t data = 0x0100;
+
+    if(i2c_Send(PCAL9538A_PORT, PCAL9538A_ADDR, 2, &data) != 0){//set output value register (0x01) to all be logic low = 0
         return 1;
     }
 
-    if(i2c_Send(PCAL9538A_PORT, PCAL9538A_ADDR, 2, 0x0300) != 0){//set config register (0x03) to make all pins outputs
+    data = 0x0300;
+
+    if(i2c_Send(PCAL9538A_PORT, PCAL9538A_ADDR, 2, &data) != 0){//set config register (0x03) to make all pins outputs
         return 1;
     }
 

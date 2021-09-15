@@ -17,6 +17,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+#include <stdint.h>
 
 #define PCAL9538A_ADDR              (0x70)
 #ifdef IS_ATHENA
