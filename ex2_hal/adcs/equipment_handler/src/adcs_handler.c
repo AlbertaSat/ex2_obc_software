@@ -682,9 +682,10 @@ ADCS_returnState ADCS_get_EDAC_err_count(uint16_t *single_sram, uint16_t *double
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_comms_stat(uint16_t telemetry[6], uint16_t *TC_num, uint16_t *TM_num,
+ADCS_returnState ADCS_get_comms_stat(uint16_t *TC_num, uint16_t *TM_num,
                                      uint8_t *flags_arr) {
     ADCS_returnState state;
+    uint8_t telemetry[6];
     state = adcs_telemetry(COMMS_STAT_ID, telemetry, 6);
     *TC_num = (telemetry[1] << 8) | telemetry[0];
     *TM_num = (telemetry[3] << 8) | telemetry[2];

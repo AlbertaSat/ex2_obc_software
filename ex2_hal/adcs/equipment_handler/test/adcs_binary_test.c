@@ -27,7 +27,8 @@
 
 
 void binaryTest_Bootloader(void){
-    //Test corresponds to Section 4.1 Bootloader, Table 4-1 in test plan.
+    // Test corresponds to Section 4.1 Bootloader, Table 4-1 in test plan.
+    // Test must be executed within 5 seconds of turning on ADCS
     ADCS_returnState test_returnState = ADCS_OK;
     uint16_t uptime = 0;
     uint8_t flags_arr[12];
@@ -91,12 +92,12 @@ void binaryTest_Bootloader(void){
     printf("boot_stat = %d \n", boot_stat);
 
     //Continuing test Section 4.1 Bootloader, Table 4-1 in test plan.
-    uint8_t TC_num = 0;
-    uint8_t TM_num = 0;
+    uint16_t TC_num = 0;
+    uint16_t TM_num = 0;
     memset(&flags_arr, 0 , 12);
 
     printf("Running ADCS_get_comms_stat...\n");
-    //test_returnState = ADCS_get_comms_stat(&TC_num, &TM_num, &flags_arr); // TODO: fix this
+    test_returnState = ADCS_get_comms_stat(&TC_num, &TM_num, &flags_arr); // TODO: fix this
     if(test_returnState != ADCS_OK){
         printf("ADCS_get_comms_stat returned %d \n", test_returnState);
         while(1);
@@ -104,7 +105,7 @@ void binaryTest_Bootloader(void){
 
     printf("TC_num = %d \n", TC_num);
     printf("TM_num = %d \n", TM_num);
-    printf("flags_arr (decimal form, not binary) = %d \n", flags_arr);
+    printf("flags: %d %d %d %d %d %d", flags_arr[0],flags_arr[1],flags_arr[2],flags_arr[3],flags_arr[4],flags_arr[5]);
 
     printf("\n");
 }
@@ -188,7 +189,7 @@ void binaryTest_CubeACP(void){
     uint8_t flags_arr = 0;
 
     printf("Running ADCS_get_comms_stat...\n");
-    //test_returnState = ADCS_get_comms_stat(&TC_num, &TM_num, &flags_arr); // TODO: fix this
+    test_returnState = ADCS_get_comms_stat(&TC_num, &TM_num, &flags_arr);
     if(test_returnState != ADCS_OK){
         printf("ADCS_get_comms_stat returned %d \n", test_returnState);
         while(1);
@@ -299,7 +300,7 @@ void binaryTest_CubeACP(void){
     flags_arr = 0;
 
     printf("Running ADCS_get_comms_stat...\n");
-    //test_returnState = ADCS_get_comms_stat(&TC_num, &TM_num, &flags_arr); TODO: fix this
+    test_returnState = ADCS_get_comms_stat(&TC_num, &TM_num, &flags_arr);
     if(test_returnState != ADCS_OK){
         printf("ADCS_get_comms_stat returned %d \n", test_returnState);
         while(1);
