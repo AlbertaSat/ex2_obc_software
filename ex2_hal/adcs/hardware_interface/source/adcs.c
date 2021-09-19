@@ -106,8 +106,13 @@ ADCS_returnState HAL_ADCS_get_comms_stat(uint16_t *comm_status) {
     ADCS_returnState return_state;
     uint16_t TC_num = 0;
     uint16_t TM_num = 0;
-    uint8_t flags_arr = 0;
-    return_state = ADCS_get_comms_stat(comm_status, &TC_num, &TM_num, &flags_arr);
+    uint8_t flags_arr[6] = {0};
+    return_state = ADCS_get_comms_stat(&TC_num, &TM_num, flags_arr);
+    *(comm_status) = TC_num;
+    *(comm_status+1) = TM_num;
+    *(comm_status+2) = (flags_arr[0] << 8) | flags_arr[1];
+    *(comm_status+3) = (flags_arr[2] << 8) | flags_arr[3];
+    *(comm_status+4) = (flags_arr[4] << 8) | flags_arr[5];
 
     return return_state;
 }
