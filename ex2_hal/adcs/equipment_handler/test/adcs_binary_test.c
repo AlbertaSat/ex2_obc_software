@@ -209,8 +209,22 @@ void binaryTest_CubeACP(void){
         printf("ADCS_get_unix_t returned %d \n", test_returnState);
         while(1);
     }
-
     printf("unix_t = %d \n", unix_t);
+
+    //Setting the current unix time
+    unix_t = 1632275509;
+    count_ms = 999;
+
+    test_returnState = ADCS_set_unix_t(unix_t, count_ms);
+
+    printf("Running ADCS_get_unix_t...\n");
+    test_returnState = ADCS_get_unix_t(&unix_t, &count_ms);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_get_unix_t returned %d \n", test_returnState);
+        while(1);
+    }
+    printf("unix_t = %d \n", unix_t);
+
 
     //Continuing test Section 4.2 CubeACP, Table 4-2 in test plan.
     uint16_t sram1 = 0;
