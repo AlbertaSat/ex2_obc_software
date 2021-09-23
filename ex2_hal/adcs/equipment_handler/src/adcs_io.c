@@ -79,9 +79,14 @@ void adcs_sciNotification(sciBASE_t *sci, int flags) {
  */
 ADCS_returnState send_uart_telecommand(uint8_t *command, uint32_t length) {
     xSemaphoreTake(uart_mutex, portMAX_DELAY); //  TODO: make this a reasonable timeout
-    uint8_t frame[length + 4];
-    frame[0] = ADCS_ESC_CHAR;
-    frame[1] = ADCS_SOM;
+
+    uint8_t *frame = (uint8_t *)pvPortMalloc(sizeof(uint8_t)*(length+4));
+    *frame = ADCS_ESC_CHAR;
+    *(frame+1) = ADCS_SOM;
+    memcpy((frame+2), command, length);
+    *(frame+length+2) = ADCS_ESC_CHAR;
+    *(frame+length+3) = ADCS_EOM;
+
     // Note TC_ID here is included in the command
     memcpy(&frame[2], &command, length);
     frame[length + 2] = ADCS_ESC_CHAR;

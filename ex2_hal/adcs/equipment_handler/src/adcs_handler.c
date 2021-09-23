@@ -771,7 +771,7 @@ ADCS_returnState ADCS_set_hole_map(uint8_t *hole_map, uint8_t num) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_unix_t(uint32_t unix_t, uint16_t count_ms) {
-    uint8_t command[7];
+    uint8_t command[7] = {0};
     command[0] = SET_CURRENT_UNIX_TIME;
     memcpy(&command[1], &unix_t, 4);
     memcpy(&command[5], &count_ms, 2); // [ms]
