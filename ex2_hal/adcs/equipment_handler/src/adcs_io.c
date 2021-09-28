@@ -146,7 +146,7 @@ ADCS_returnState send_i2c_telecommand(uint8_t *command, uint32_t length) {
  *
  */
 ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint32_t length) {
-    xSemaphoreTake(uart_mutex, portMAX_DELAY); //  TODO: make this a reasonable timeout
+    xSemaphoreTake(uart_mutex, UART_TIMEOUT_MS); //  TODO: add error handling
 
     uint8_t frame[5];
     frame[0] = ADCS_ESC_CHAR;
@@ -156,13 +156,12 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint3
     frame[4] = ADCS_EOM;
 
     sciSend(ADCS_SCI, 5, frame);
-    xSemaphoreTake(tx_semphr, portMAX_DELAY); // TODO: make a reasonable timeout
-
+    xSemaphoreTake(tx_semphr, UART_TIMEOUT_MS); //  TODO: add error handling
     int received = 0;
     uint8_t reply[length + 5];
 
     while (received < length + 5) {
-        xQueueReceive(adcsQueue, &reply[received], portMAX_DELAY); // TODO: make a reasonable timeout
+        xQueueReceive(adcsQueue, &reply[received], UART_TIMEOUT_MS); //  TODO: add error handling
         received++;
     }
 

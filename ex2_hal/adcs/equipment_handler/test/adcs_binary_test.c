@@ -384,6 +384,28 @@ void binaryTest_CubeACP(void){
     printf("\n");
 }
 
+void binaryTest_CubeACP(void){
+
+    //Test Section 5.1 CubeSense, Table 4-2 in test plan.
+    uint16_t time = 0;
+    uint8_t execution_point = 0;
+    ADCS_returnState test_returnState = ADCS_OK;
+
+    printf("ADCS_get_ACP_loop_stat...\n");
+    test_returnState = ADCS_get_ACP_loop_stat(&time, &execution_point);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_get_comms_stat returned %d \n", test_returnState);
+        while(1);
+    }
+
+    printf("time = %d \n", time);
+    printf("execution_point = %d \n", execution_point);
+
+    printf("\n");
+
+}
+
+
 void binaryTest(void) {//TODO: add enums for all adcs_handler functions called
 
     printf("Running Bootloader Tests");
