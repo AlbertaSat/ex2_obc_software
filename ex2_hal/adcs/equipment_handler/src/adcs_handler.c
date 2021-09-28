@@ -771,10 +771,20 @@ ADCS_returnState ADCS_set_hole_map(uint8_t *hole_map, uint8_t num) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_unix_t(uint32_t unix_t, uint16_t count_ms) {
+    //TODO: the endianness of the command is wrong, and the attempted fix will not compile.
     uint8_t command[7] = {0};
+    uint8_t command2[7] = {0};
     command[0] = SET_CURRENT_UNIX_TIME;
     memcpy(&command[1], &unix_t, 4);
     memcpy(&command[5], &count_ms, 2); // [ms]
+//    command2 = ((command)  &0xff000000000000) | //keeps byte 0 as is
+//            ((command>>24) &0x00000000ff0000) | // move byte 1 to byte 4
+//            ((command<<24)&0x00ff0000000000) | // move byte 4 to byte 1
+//            ((command>>8)&0x000000ff000000) | // move byte 2 to byte 3
+//            ((command<<8)&0x0000ff00000000) | // move byte 3 to byte 2
+//            ((command>>8)&0x000000000000ff) | // move byte 5 to byte 6
+//            ((command>>8)&0x0000000000ff00); // move byte 6 to byte 5
+
     return adcs_telecommand(command, 7);
 }
 
@@ -859,10 +869,22 @@ ADCS_returnState ADCS_get_hole_map(uint8_t *hole_map, uint8_t num) {
  */
 ADCS_returnState ADCS_get_unix_t(uint32_t *unix_t, uint16_t *count_ms) {
     uint8_t telemetry[6];
+    uint8_t telemetry_little[6];
     ADCS_returnState state;
+    //The endianness of the memory read is little-endian. This is done manually.
     state = adcs_telemetry(GET_CURRENT_UNIX_TIME, telemetry, 6);
-    memcpy(&unix_t, &telemetry[0], 4);
-    memcpy(&count_ms, &telemetry[4], 2); // [ms]
+
+    int i=0;
+
+    for (i=0; i<4; ++i){
+        telemetry_little[i] = telemetry[3-i];
+    }
+    for (i=4; i<6; ++i){
+        telemetry_little[i] = telemetry[5-i+4];
+    }
+
+    memcpy(unix_t, &telemetry_little[0], 4);
+    memcpy(count_ms, &telemetry_little[4], 2); // [ms]
     return state;
 }
 
