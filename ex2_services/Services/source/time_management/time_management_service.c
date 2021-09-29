@@ -212,8 +212,7 @@ SAT_returnState time_management_app(csp_packet_t *packet) {
             status = -1;
             memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         } else {
-            mock_RTC_set_unix_time(temp_time);
-            status = 0;
+            status = RTCMK_SetUnix(temp_time);
             memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         }
 
@@ -223,11 +222,11 @@ SAT_returnState time_management_app(csp_packet_t *packet) {
 
     case GET_TIME:
         // Step 1: get the data
-        mock_RTC_get_unix_time(&temp_time);
+
+        status = RTCMK_GetUnix(&temp_time);
         // Step 2: convert to network order
         temp_time = csp_hton32(temp_time);
         // step3: copy data & status byte into packet
-        status = 0;
         memcpy(&packet->data[STATUS_BYTE], &status,
                sizeof(int8_t)); // 0 for success
         memcpy(&packet->data[OUT_DATA_BYTE], &temp_time, sizeof(uint32_t));
