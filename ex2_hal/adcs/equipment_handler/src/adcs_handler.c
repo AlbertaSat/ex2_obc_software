@@ -1267,7 +1267,7 @@ ADCS_returnState ADCS_save_img(uint8_t camera, uint8_t img_size) {
     uint8_t command[3];
     command[0] = SAVE_IMG_ID;
     command[1] = camera;
-    command[1] = img_size;
+    command[2] = img_size;
     return adcs_telecommand(command, 3);
 }
 
@@ -1870,19 +1870,19 @@ ADCS_returnState ADCS_get_power_temp(adcs_pwr_temp *measurements) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_power_control(uint8_t *control) {
-    uint8_t command[4] = {0};
+    uint8_t command[3] = {0};
     command[0] = SET_POWER_CONTROL_ID;
     for (int i = 0; i < 4; i++) {
-        command[1] = command[1] | (*(control + i) << 2 * i);
+        command[0] = command[0] | (*(control + i) << 2 * i);
     }
     for (int i = 0; i < 4; i++) {
-        command[2] = command[2] | (*(control + 4 + i) << 2 * i);
+        command[1] = command[1] | (*(control + 4 + i) << 2 * i);
     }
     for (int i = 0; i < 2; i++) {
-        command[3] = command[3] | (*(control + 8 + i) << 2 * i);
+        command[2] = command[2] | (*(control + 8 + i) << 2 * i);
     }
     return adcs_telecommand(command,
-                            4); //* + command[1] and  + command[3]. Tested
+                            3); //* + command[1] and  + command[3]. Tested
 }
 
 /**
@@ -2358,6 +2358,104 @@ ADCS_returnState ADCS_set_star_track_config(cubestar_config config) {
 
 /**
  * @brief
+ *      Gets the CubeSense configuration parameters.
+ *      (Table 189)
+ * @return
+ *      Success of function defined in adcs_types.h
+ */
+ADCS_returnState ADCS_get_cubesense_config(cubesense_config *config) {
+    uint8_t telemetry[113];
+    float coef = 0.01;
+    xyz16 raw_val_angle1, raw_val_angle2;
+    uint16_t raw_boresight_x1, raw_boresight_y1;
+    uint16_t raw_boresight_x2, raw_boresight_y2;
+    //request cubsense configuration and store in telemetry
+    ADCS_returnState state;
+    state = adcs_telemetry(GET_CUBESENSE_CONFIG_ID, telemetry, 113);
+
+
+    //point these values to the pre-function structure
+    memcpy(& raw_val_angle1.x, &telemetry[0], 2);
+    memcpy(& raw_val_angle1.y, &telemetry[2], 2);
+    memcpy(& raw_val_angle1.z, &telemetry[4], 2);
+    config->cam1_sense.detect_th = telemetry[6];
+    config->cam1_sense.auto_adjust = telemetry[7];
+    memcpy(& config->cam1_sense.exposure_t, &telemetry[8], 2);
+    memcpy(& raw_boresight_x1, &telemetry[10], 2);
+    memcpy(& raw_boresight_y1, &telemetry[12], 2);
+    memcpy(& raw_val_angle2.x, &telemetry[14], 2);
+    memcpy(& raw_val_angle2.y, &telemetry[16], 2);
+    memcpy(& raw_val_angle2.z, &telemetry[18], 2);
+    config->cam2_sense.detect_th = telemetry[20];
+    config->cam2_sense.auto_adjust = telemetry[21];
+    memcpy(& config->cam2_sense.exposure_t, &telemetry[22], 2);
+    memcpy(& raw_boresight_x2, &telemetry[24], 2);
+    memcpy(& raw_boresight_y2, &telemetry[26], 2);
+
+
+    //convert data as per the ADCS datasheet
+    config->cam1_sense.mounting_angle.x = raw_val_angle1.x * coef;
+    config->cam1_sense.mounting_angle.y = raw_val_angle1.y * coef;
+    config->cam1_sense.mounting_angle.z = raw_val_angle1.z * coef;
+    config->cam1_sense.boresight_x = raw_boresight_x1 * coef;
+    config->cam1_sense.boresight_y = raw_boresight_y1 * coef;
+    config->cam2_sense.mounting_angle.x = raw_val_angle2.x * coef;
+    config->cam2_sense.mounting_angle.y = raw_val_angle2.y * coef;
+    config->cam2_sense.mounting_angle.z = raw_val_angle2.z * coef;
+    config->cam2_sense.boresight_x = raw_boresight_x2 * coef;
+    config->cam2_sense.boresight_y = raw_boresight_y2 * coef;
+
+    //no conversion necessary for the following parameters
+    config->nadir_max_deviate = telemetry[28];
+    config->nadir_max_bad_edge = telemetry[29];
+    config->nadir_max_radius = telemetry[30];
+    config->nadir_min_radius = telemetry[31];
+    memcpy(& config->cam1_area.area1.x.min, &telemetry[33], 2);
+    memcpy(& config->cam1_area.area1.x.max, &telemetry[35], 2);
+    memcpy(& config->cam1_area.area1.y.min, &telemetry[37], 2);
+    memcpy(& config->cam1_area.area1.y.max, &telemetry[39], 2);
+    memcpy(& config->cam1_area.area2.x.min, &telemetry[41], 2);
+    memcpy(& config->cam1_area.area2.x.max, &telemetry[43], 2);
+    memcpy(& config->cam1_area.area2.y.min, &telemetry[45], 2);
+    memcpy(& config->cam1_area.area2.y.max, &telemetry[47], 2);
+    memcpy(& config->cam1_area.area3.x.min, &telemetry[49], 2);
+    memcpy(& config->cam1_area.area3.x.max, &telemetry[51], 2);
+    memcpy(& config->cam1_area.area3.y.min, &telemetry[53], 2);
+    memcpy(& config->cam1_area.area3.y.max, &telemetry[55], 2);
+    memcpy(& config->cam1_area.area4.x.min, &telemetry[57], 2);
+    memcpy(& config->cam1_area.area4.x.max, &telemetry[59], 2);
+    memcpy(& config->cam1_area.area4.y.min, &telemetry[61], 2);
+    memcpy(& config->cam1_area.area4.y.max, &telemetry[63], 2);
+    memcpy(& config->cam1_area.area5.x.min, &telemetry[65], 2);
+    memcpy(& config->cam1_area.area5.x.max, &telemetry[67], 2);
+    memcpy(& config->cam1_area.area5.y.min, &telemetry[69], 2);
+    memcpy(& config->cam1_area.area5.y.max, &telemetry[71], 2);
+
+    memcpy(& config->cam2_area.area1.x.min, &telemetry[73], 2);
+    memcpy(& config->cam2_area.area1.x.max, &telemetry[75], 2);
+    memcpy(& config->cam2_area.area1.y.min, &telemetry[77], 2);
+    memcpy(& config->cam2_area.area1.y.max, &telemetry[79], 2);
+    memcpy(& config->cam2_area.area2.x.min, &telemetry[81], 2);
+    memcpy(& config->cam2_area.area2.x.max, &telemetry[83], 2);
+    memcpy(& config->cam2_area.area2.y.min, &telemetry[85], 2);
+    memcpy(& config->cam2_area.area2.y.max, &telemetry[87], 2);
+    memcpy(& config->cam2_area.area3.x.min, &telemetry[89], 2);
+    memcpy(& config->cam2_area.area3.x.max, &telemetry[91], 2);
+    memcpy(& config->cam2_area.area3.y.min, &telemetry[93], 2);
+    memcpy(& config->cam2_area.area3.y.max, &telemetry[95], 2);
+    memcpy(& config->cam2_area.area4.x.min, &telemetry[97], 2);
+    memcpy(& config->cam2_area.area4.x.max, &telemetry[99], 2);
+    memcpy(& config->cam2_area.area4.y.min, &telemetry[101], 2);
+    memcpy(& config->cam2_area.area4.y.max, &telemetry[103], 2);
+    memcpy(& config->cam2_area.area5.x.min, &telemetry[105], 2);
+    memcpy(& config->cam2_area.area5.x.max, &telemetry[107], 2);
+    memcpy(& config->cam2_area.area5.y.min, &telemetry[109], 2);
+    memcpy(& config->cam2_area.area5.y.max, &telemetry[111], 2);
+    return state;
+}
+
+/**
+ * @brief
  * 		Sets the CubeSense configuration parameters.
  * 		(Table 189)
  * @return
@@ -2365,7 +2463,9 @@ ADCS_returnState ADCS_set_star_track_config(cubestar_config config) {
  */
 ADCS_returnState ADCS_set_cubesense_config(cubesense_config params) {
     uint8_t command[113];
+
     command[0] = SET_CUBESENSE_CONFIG_ID;
+
     xyz16 raw_val_angle1, raw_val_angle2;
     uint16_t raw_boresight_x1, raw_boresight_y1;
     uint16_t raw_boresight_x2, raw_boresight_y2;
@@ -2374,28 +2474,78 @@ ADCS_returnState ADCS_set_cubesense_config(cubesense_config params) {
     raw_val_angle1.x = params.cam1_sense.mounting_angle.x / coef;
     raw_val_angle1.y = params.cam1_sense.mounting_angle.y / coef;
     raw_val_angle1.z = params.cam1_sense.mounting_angle.z / coef;
+
     memcpy(&command[1], &raw_val_angle1, 6);
+
     command[7] = params.cam1_sense.detect_th;
     command[8] = params.cam1_sense.auto_adjust;
     memcpy(&command[9], &params.cam1_sense.exposure_t, 2);
+
     raw_boresight_x1 = params.cam1_sense.boresight_x / coef;
     raw_boresight_y1 = params.cam1_sense.boresight_y / coef;
+
     memcpy(&command[11], &raw_boresight_x1, 2);
-    memcpy(&command[12], &raw_boresight_y1, 2);
+    memcpy(&command[13], &raw_boresight_y1, 2);
+
     raw_val_angle2.x = params.cam2_sense.mounting_angle.x / coef;
     raw_val_angle2.y = params.cam2_sense.mounting_angle.y / coef;
     raw_val_angle2.z = params.cam2_sense.mounting_angle.z / coef;
-    memcpy(&command[14], &raw_val_angle2, 6);
-    command[20] = params.cam2_sense.detect_th;
-    command[21] = params.cam2_sense.auto_adjust;
-    memcpy(&command[22], &params.cam2_sense.exposure_t, 2);
+
+    memcpy(&command[15], &raw_val_angle2, 6);
+    command[21] = params.cam2_sense.detect_th;
+    command[22] = params.cam2_sense.auto_adjust;
+    memcpy(&command[23], &params.cam2_sense.exposure_t, 2);
+
     raw_boresight_x2 = params.cam2_sense.boresight_x / coef;
     raw_boresight_y2 = params.cam2_sense.boresight_y / coef;
-    memcpy(&command[23], &raw_boresight_x2, 2);
-    memcpy(&command[25], &raw_boresight_y2, 2);
 
-    memcpy(&command[27], &params.nadir_max_deviate,
-           84); // copy the rest of the struct directly
+    memcpy(&command[25], &raw_boresight_x2, 2);
+    memcpy(&command[27], &raw_boresight_y2, 2);
+    command[29] = params.nadir_max_deviate;
+    command[30] = params.nadir_max_bad_edge;
+    command[31] = params.nadir_max_radius;
+    command[32] = params.nadir_min_radius;
+    memcpy(&command[33], &params.cam1_area.area1.x.min, 2);
+    memcpy(&command[35], &params.cam1_area.area1.x.max, 2);
+    memcpy(&command[37], &params.cam1_area.area1.y.min, 2);
+    memcpy(&command[39], &params.cam1_area.area1.y.max, 2);
+    memcpy(&command[41], &params.cam1_area.area2.x.min, 2);
+    memcpy(&command[43], &params.cam1_area.area2.x.max, 2);
+    memcpy(&command[45], &params.cam1_area.area2.y.min, 2);
+    memcpy(&command[47], &params.cam1_area.area2.y.max, 2);
+    memcpy(&command[49], &params.cam1_area.area3.x.min, 2);
+    memcpy(&command[51], &params.cam1_area.area3.x.max, 2);
+    memcpy(&command[53], &params.cam1_area.area3.y.min, 2);
+    memcpy(&command[55], &params.cam1_area.area3.y.max, 2);
+    memcpy(&command[57], &params.cam1_area.area4.x.min, 2);
+    memcpy(&command[59], &params.cam1_area.area4.x.max, 2);
+    memcpy(&command[61], &params.cam1_area.area4.y.min, 2);
+    memcpy(&command[63], &params.cam1_area.area4.y.max, 2);
+    memcpy(&command[65], &params.cam1_area.area5.x.min, 2);
+    memcpy(&command[67], &params.cam1_area.area5.x.max, 2);
+    memcpy(&command[69], &params.cam1_area.area5.y.min, 2);
+    memcpy(&command[71], &params.cam1_area.area5.y.max, 2);
+    memcpy(&command[73], &params.cam2_area.area1.x.min, 2);
+    memcpy(&command[75], &params.cam2_area.area1.x.max, 2);
+    memcpy(&command[77], &params.cam2_area.area1.y.min, 2);
+    memcpy(&command[79], &params.cam2_area.area1.y.max, 2);
+    memcpy(&command[81], &params.cam2_area.area2.x.min, 2);
+    memcpy(&command[83], &params.cam2_area.area2.x.max, 2);
+    memcpy(&command[85], &params.cam2_area.area2.y.min, 2);
+    memcpy(&command[87], &params.cam2_area.area2.y.max, 2);
+    memcpy(&command[89], &params.cam2_area.area3.x.min, 2);
+    memcpy(&command[91], &params.cam2_area.area3.x.max, 2);
+    memcpy(&command[93], &params.cam2_area.area3.y.min, 2);
+    memcpy(&command[95], &params.cam2_area.area3.y.max, 2);
+    memcpy(&command[97], &params.cam2_area.area4.x.min, 2);
+    memcpy(&command[99], &params.cam2_area.area4.x.max, 2);
+    memcpy(&command[101], &params.cam2_area.area4.y.min, 2);
+    memcpy(&command[103], &params.cam2_area.area4.y.max, 2);
+    memcpy(&command[105], &params.cam2_area.area5.x.min, 2);
+    memcpy(&command[107], &params.cam2_area.area5.x.max, 2);
+    memcpy(&command[109], &params.cam2_area.area5.y.min, 2);
+    memcpy(&command[111], &params.cam2_area.area5.y.max, 2);
+
     return adcs_telecommand(command, 113);
 }
 
