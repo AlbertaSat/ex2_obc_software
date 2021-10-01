@@ -486,6 +486,7 @@ ADCS_returnState ADCS_finalize_upload_block(uint8_t file_dest, uint32_t offset, 
 ADCS_returnState ADCS_reset_upload_block(void);
 ADCS_returnState ADCS_reset_file_list_read_pointer(void);
 ADCS_returnState ADCS_initiate_download_burst(uint8_t msg_length, bool ignore_hole_map);
+void ADCS_receive_download_burst(uint8_t *hole_map, uint8_t *image_bytes, uint16_t length_bytes);
 
 // Common Telemetry
 ADCS_returnState ADCS_get_node_identification(

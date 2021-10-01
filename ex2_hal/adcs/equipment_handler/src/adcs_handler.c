@@ -402,6 +402,17 @@ ADCS_returnState ADCS_initiate_download_burst(uint8_t msg_length, bool ignore_ho
     return adcs_telecommand(command, 3);
 }
 
+void ADCS_receive_download_burst(uint8_t *hole_map, uint8_t *image_bytes, uint16_t length_bytes) {
+#if defined(USE_UART)
+    for(int i = 0; i < length_bytes/20; i++) {
+        receieve_uart_packet(hole_map, image_bytes);
+    }
+#elif defined(USE_I2C)
+    //TODO: write receive function for I2C
+#endif
+
+}
+
 /*************************** Common TMs ***************************/
 /**
  * @brief

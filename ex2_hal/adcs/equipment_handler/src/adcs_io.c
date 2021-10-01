@@ -78,7 +78,7 @@ void adcs_sciNotification(sciBASE_t *sci, int flags) {
  *
  */
 ADCS_returnState send_uart_telecommand(uint8_t *command, uint32_t length) {
-    xSemaphoreTake(uart_mutex, portMAX_DELAY); //  TODO: make this a reasonable timeout
+    xSemaphoreTake(uart_mutex, UART_TIMEOUT_MS); //  TODO: create response if it times out.
 
     uint8_t *frame = (uint8_t *)pvPortMalloc(sizeof(uint8_t)*(length+4));
     *frame = ADCS_ESC_CHAR;
@@ -98,7 +98,7 @@ ADCS_returnState send_uart_telecommand(uint8_t *command, uint32_t length) {
     uint8_t reply[6];
 
     while (received < 6) {
-        xQueueReceive(adcsQueue, &(reply[received]), portMAX_DELAY); // TODO: make a reasonable timeout
+        xQueueReceive(adcsQueue, &(reply[received]), UART_TIMEOUT_MS); // TODO: create response if it times out.
         received++;
     }
     ADCS_returnState TC_err_flag = reply[3];
@@ -171,6 +171,32 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint3
     xSemaphoreGive(uart_mutex);
 
     return ADCS_OK;
+}
+
+/**
+ * @brief
+ *      Receive packet sent by ADCS from file download request
+ * @param hole_map
+ *      Map that captures which packets have been sent, and which have not
+ * @param image_bytes
+ *    the actual image data
+ *
+ */
+void receieve_uart_packet(uint8_t *hole_map, uint8_t *image_bytes) {
+    int received = 0;
+    uint16_t pixel = 0;
+    uint8_t reply[22+5] = {0};
+
+    while (received < (22+5)) {
+        xQueueReceive(adcsQueue, &(reply[received]), UART_TIMEOUT_MS); // TODO: exit function once timeout finishes
+        received++;
+    }
+    pixel = reply[2] << 8 | reply[3];
+    *hole_map = *hole_map | 0x1 << pixel;
+    for (int i = 0; i < 20; i++) {
+        *(image_bytes + pixel + i) = reply[4 + i];
+    }
+    xSemaphoreGive(uart_mutex);
 }
 
 /**
