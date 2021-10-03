@@ -1881,19 +1881,20 @@ ADCS_returnState ADCS_get_power_temp(adcs_pwr_temp *measurements) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_power_control(uint8_t *control) {
-    uint8_t command[3] = {0};
+    uint8_t command[4] = {0}; //TODO: FIX power control setting bytes. Right now it only works for cubesense 1
     command[0] = SET_POWER_CONTROL_ID;
-    for (int i = 0; i < 4; i++) {
-        command[0] = command[0] | (*(control + i) << 2 * i);
-    }
-    for (int i = 0; i < 4; i++) {
-        command[1] = command[1] | (*(control + 4 + i) << 2 * i);
-    }
-    for (int i = 0; i < 2; i++) {
-        command[2] = command[2] | (*(control + 8 + i) << 2 * i);
-    }
+    command[1] = 0x10; //sets the cubesense 1 on
+//    for (int i = 0; i < 4; i++) {
+//        command[1] = command[1] | (*(control + i) << 6-2*i);
+//    }
+//    for (int i = 0; i < 4; i++) {
+//        command[2] = command[2] | (*(control + 4 + i) << 6-2*i);
+//    }
+//    for (int i = 0; i < 2; i++) {
+//        command[3] = command[3] | (*(control + 8 + i) << 6-2*i);
+//    }
     return adcs_telecommand(command,
-                            3); //* + command[1] and  + command[3]. Tested
+                            4); //* + command[1] and  + command[3]. Tested
 }
 
 /**
@@ -2421,46 +2422,46 @@ ADCS_returnState ADCS_get_cubesense_config(cubesense_config *config) {
     config->nadir_max_bad_edge = telemetry[29];
     config->nadir_max_radius = telemetry[30];
     config->nadir_min_radius = telemetry[31];
-    memcpy(& config->cam1_area.area1.x.min, &telemetry[33], 2);
-    memcpy(& config->cam1_area.area1.x.max, &telemetry[35], 2);
-    memcpy(& config->cam1_area.area1.y.min, &telemetry[37], 2);
-    memcpy(& config->cam1_area.area1.y.max, &telemetry[39], 2);
-    memcpy(& config->cam1_area.area2.x.min, &telemetry[41], 2);
-    memcpy(& config->cam1_area.area2.x.max, &telemetry[43], 2);
-    memcpy(& config->cam1_area.area2.y.min, &telemetry[45], 2);
-    memcpy(& config->cam1_area.area2.y.max, &telemetry[47], 2);
-    memcpy(& config->cam1_area.area3.x.min, &telemetry[49], 2);
-    memcpy(& config->cam1_area.area3.x.max, &telemetry[51], 2);
-    memcpy(& config->cam1_area.area3.y.min, &telemetry[53], 2);
-    memcpy(& config->cam1_area.area3.y.max, &telemetry[55], 2);
-    memcpy(& config->cam1_area.area4.x.min, &telemetry[57], 2);
-    memcpy(& config->cam1_area.area4.x.max, &telemetry[59], 2);
-    memcpy(& config->cam1_area.area4.y.min, &telemetry[61], 2);
-    memcpy(& config->cam1_area.area4.y.max, &telemetry[63], 2);
-    memcpy(& config->cam1_area.area5.x.min, &telemetry[65], 2);
-    memcpy(& config->cam1_area.area5.x.max, &telemetry[67], 2);
-    memcpy(& config->cam1_area.area5.y.min, &telemetry[69], 2);
-    memcpy(& config->cam1_area.area5.y.max, &telemetry[71], 2);
+    memcpy(& config->cam1_area.area1.x.min, &telemetry[32], 2);
+    memcpy(& config->cam1_area.area1.x.max, &telemetry[36], 2);
+    memcpy(& config->cam1_area.area1.y.min, &telemetry[38], 2);
+    memcpy(& config->cam1_area.area1.y.max, &telemetry[40], 2);
+    memcpy(& config->cam1_area.area2.x.min, &telemetry[42], 2);
+    memcpy(& config->cam1_area.area2.x.max, &telemetry[44], 2);
+    memcpy(& config->cam1_area.area2.y.min, &telemetry[46], 2);
+    memcpy(& config->cam1_area.area2.y.max, &telemetry[48], 2);
+    memcpy(& config->cam1_area.area3.x.min, &telemetry[50], 2);
+    memcpy(& config->cam1_area.area3.x.max, &telemetry[52], 2);
+    memcpy(& config->cam1_area.area3.y.min, &telemetry[54], 2);
+    memcpy(& config->cam1_area.area3.y.max, &telemetry[56], 2);
+    memcpy(& config->cam1_area.area4.x.min, &telemetry[58], 2);
+    memcpy(& config->cam1_area.area4.x.max, &telemetry[60], 2);
+    memcpy(& config->cam1_area.area4.y.min, &telemetry[62], 2);
+    memcpy(& config->cam1_area.area4.y.max, &telemetry[62], 2);
+    memcpy(& config->cam1_area.area5.x.min, &telemetry[64], 2);
+    memcpy(& config->cam1_area.area5.x.max, &telemetry[66], 2);
+    memcpy(& config->cam1_area.area5.y.min, &telemetry[68], 2);
+    memcpy(& config->cam1_area.area5.y.max, &telemetry[72], 2);
 
-    memcpy(& config->cam2_area.area1.x.min, &telemetry[73], 2);
-    memcpy(& config->cam2_area.area1.x.max, &telemetry[75], 2);
-    memcpy(& config->cam2_area.area1.y.min, &telemetry[77], 2);
-    memcpy(& config->cam2_area.area1.y.max, &telemetry[79], 2);
-    memcpy(& config->cam2_area.area2.x.min, &telemetry[81], 2);
-    memcpy(& config->cam2_area.area2.x.max, &telemetry[83], 2);
-    memcpy(& config->cam2_area.area2.y.min, &telemetry[85], 2);
-    memcpy(& config->cam2_area.area2.y.max, &telemetry[87], 2);
-    memcpy(& config->cam2_area.area3.x.min, &telemetry[89], 2);
-    memcpy(& config->cam2_area.area3.x.max, &telemetry[91], 2);
-    memcpy(& config->cam2_area.area3.y.min, &telemetry[93], 2);
-    memcpy(& config->cam2_area.area3.y.max, &telemetry[95], 2);
-    memcpy(& config->cam2_area.area4.x.min, &telemetry[97], 2);
-    memcpy(& config->cam2_area.area4.x.max, &telemetry[99], 2);
-    memcpy(& config->cam2_area.area4.y.min, &telemetry[101], 2);
-    memcpy(& config->cam2_area.area4.y.max, &telemetry[103], 2);
-    memcpy(& config->cam2_area.area5.x.min, &telemetry[105], 2);
-    memcpy(& config->cam2_area.area5.x.max, &telemetry[107], 2);
-    memcpy(& config->cam2_area.area5.y.min, &telemetry[109], 2);
+    memcpy(& config->cam2_area.area1.x.min, &telemetry[74], 2);
+    memcpy(& config->cam2_area.area1.x.max, &telemetry[76], 2);
+    memcpy(& config->cam2_area.area1.y.min, &telemetry[78], 2);
+    memcpy(& config->cam2_area.area1.y.max, &telemetry[80], 2);
+    memcpy(& config->cam2_area.area2.x.min, &telemetry[82], 2);
+    memcpy(& config->cam2_area.area2.x.max, &telemetry[84], 2);
+    memcpy(& config->cam2_area.area2.y.min, &telemetry[86], 2);
+    memcpy(& config->cam2_area.area2.y.max, &telemetry[88], 2);
+    memcpy(& config->cam2_area.area3.x.min, &telemetry[90], 2);
+    memcpy(& config->cam2_area.area3.x.max, &telemetry[92], 2);
+    memcpy(& config->cam2_area.area3.y.min, &telemetry[94], 2);
+    memcpy(& config->cam2_area.area3.y.max, &telemetry[96], 2);
+    memcpy(& config->cam2_area.area4.x.min, &telemetry[98], 2);
+    memcpy(& config->cam2_area.area4.x.max, &telemetry[100], 2);
+    memcpy(& config->cam2_area.area4.y.min, &telemetry[102], 2);
+    memcpy(& config->cam2_area.area4.y.max, &telemetry[104], 2);
+    memcpy(& config->cam2_area.area5.x.min, &telemetry[106], 2);
+    memcpy(& config->cam2_area.area5.x.max, &telemetry[108], 2);
+    memcpy(& config->cam2_area.area5.y.min, &telemetry[110], 2);
     memcpy(& config->cam2_area.area5.y.max, &telemetry[111], 2);
     return state;
 }
