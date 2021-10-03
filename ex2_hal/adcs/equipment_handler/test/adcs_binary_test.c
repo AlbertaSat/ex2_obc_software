@@ -488,10 +488,11 @@ void binaryTest_CubeSense1(void){
 
     //Using Command ADCS_set_power_control() - Table 184, switch on CubeSense1 by selecting PowOn.
     //Section Variables
-    control[Set_CubeSense1_Power] = 1;
+    uint8_t control_set[10] = {0};
+    control_set[Set_CubeSense1_Power] = 1;
 
     printf("Running ADCS_set_power_control...\n");
-    test_returnState = ADCS_set_power_control(&control);
+    test_returnState = ADCS_set_power_control(&control_set);
     if(test_returnState != ADCS_OK){
         printf("ADCS_get_power_control returned %d \n", test_returnState);
         while(1);
@@ -534,15 +535,22 @@ void binaryTest_CubeSense1(void){
         while(1);
     }
 
-//    // Verify the following values in Table 5-1:
-//    adcs_state test_adcs_state;//init as 0?
-//
-//    printf("Running ADCS_get_current_state...\n");
-//    test_returnState = ADCS_get_current_state(&test_adcs_state);
-//    if(test_returnState != ADCS_OK){
-//        printf("ADCS_get_current_state returned %d \n", test_returnState);
-//        while(1);
-//    }
+    printf("Running ADCS_get_cubesense_config...\n");
+    test_returnState = ADCS_get_cubesense_config(&params); //this function should be tested and checked before the command is sent
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_set_cubesense_config returned %d \n", test_returnState);
+        while(1);
+    }
+
+    // Verify the following values in Table 5-1:
+    adcs_state test_adcs_state;//init as 0?
+
+    printf("Running ADCS_get_current_state...\n");
+    test_returnState = ADCS_get_current_state(&test_adcs_state);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_get_current_state returned %d \n", test_returnState);
+        while(1);
+    }
 //
 //    printf("att_estimate mode = %d \n", test_adcs_state.att_estimate_mode);
 //    printf("att_ctrl_mode = %d \n", test_adcs_state.att_ctrl_mode);

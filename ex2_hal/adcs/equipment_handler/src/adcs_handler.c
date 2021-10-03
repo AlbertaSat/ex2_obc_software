@@ -1883,16 +1883,16 @@ ADCS_returnState ADCS_get_power_temp(adcs_pwr_temp *measurements) {
 ADCS_returnState ADCS_set_power_control(uint8_t *control) {
     uint8_t command[4] = {0}; //TODO: FIX power control setting bytes. Right now it only works for cubesense 1
     command[0] = SET_POWER_CONTROL_ID;
-    command[1] = 0x10; //sets the cubesense 1 on
-//    for (int i = 0; i < 4; i++) {
-//        command[1] = command[1] | (*(control + i) << 6-2*i);
-//    }
-//    for (int i = 0; i < 4; i++) {
-//        command[2] = command[2] | (*(control + 4 + i) << 6-2*i);
-//    }
-//    for (int i = 0; i < 2; i++) {
-//        command[3] = command[3] | (*(control + 8 + i) << 6-2*i);
-//    }
+    //command[1] = 0x10; //sets the cubesense 1 on
+    for (int i = 0; i < 4; i++) {
+        command[1] = command[1] | (*(control + i) << 2*i);
+    }
+    for (int i = 0; i < 4; i++) {
+        command[2] = command[2] | (*(control + 4 + i) << 2*i);
+    }
+    for (int i = 0; i < 2; i++) {
+        command[3] = command[3] | (*(control + 8 + i) << 2*i);
+    }
     return adcs_telecommand(command,
                             4); //* + command[1] and  + command[3]. Tested
 }
@@ -2387,23 +2387,38 @@ ADCS_returnState ADCS_get_cubesense_config(cubesense_config *config) {
 
 
     //point these values to the pre-function structure
-    memcpy(& raw_val_angle1.x, &telemetry[0], 2);
-    memcpy(& raw_val_angle1.y, &telemetry[2], 2);
-    memcpy(& raw_val_angle1.z, &telemetry[4], 2);
+    raw_val_angle1.x = ((telemetry[1] << 8) & 0xFF00) | telemetry[0];
+    raw_val_angle1.y = ((telemetry[3] << 8) & 0xFF00) | telemetry[2];
+    raw_val_angle1.z = ((telemetry[5] << 8) & 0xFF00) | telemetry[4];
     config->cam1_sense.detect_th = telemetry[6];
     config->cam1_sense.auto_adjust = telemetry[7];
-    memcpy(& config->cam1_sense.exposure_t, &telemetry[8], 2);
-    memcpy(& raw_boresight_x1, &telemetry[10], 2);
+    config->cam1_sense.exposure_t = ((telemetry[9] << 8) & 0xFF00) | telemetry[8];
+    raw_boresight_x1 = ((telemetry[11] << 8) & 0xFF00) | telemetry[10];
+
+    //The following code does not set the endianness right
+    /*
     memcpy(& raw_boresight_y1, &telemetry[12], 2);
     memcpy(& raw_val_angle2.x, &telemetry[14], 2);
     memcpy(& raw_val_angle2.y, &telemetry[16], 2);
     memcpy(& raw_val_angle2.z, &telemetry[18], 2);
+    */
+    //This code does set the endianness right (le)
+    raw_boresight_y1 = ((telemetry[13] << 8) & 0xFF00) | telemetry[12];
+    raw_val_angle2.x = ((telemetry[15] << 8) & 0xFF00) | telemetry[14];
+    raw_val_angle2.y = ((telemetry[17] << 8) & 0xFF00) | telemetry[16];
+    raw_val_angle2.z = ((telemetry[19] << 8) & 0xFF00) | telemetry[18];
+
     config->cam2_sense.detect_th = telemetry[20];
     config->cam2_sense.auto_adjust = telemetry[21];
+
+    /*
     memcpy(& config->cam2_sense.exposure_t, &telemetry[22], 2);
     memcpy(& raw_boresight_x2, &telemetry[24], 2);
     memcpy(& raw_boresight_y2, &telemetry[26], 2);
-
+    */
+    config->cam2_sense.exposure_t = ((telemetry[23] << 8) & 0xFF00) | telemetry[22];
+    raw_boresight_x2 = ((telemetry[25] << 8) & 0xFF00) | telemetry[24];
+    raw_boresight_y2 = ((telemetry[27] << 8) & 0xFF00) | telemetry[26];
 
     //convert data as per the ADCS datasheet
     config->cam1_sense.mounting_angle.x = raw_val_angle1.x * coef;
@@ -2422,6 +2437,7 @@ ADCS_returnState ADCS_get_cubesense_config(cubesense_config *config) {
     config->nadir_max_bad_edge = telemetry[29];
     config->nadir_max_radius = telemetry[30];
     config->nadir_min_radius = telemetry[31];
+    /*
     memcpy(& config->cam1_area.area1.x.min, &telemetry[32], 2);
     memcpy(& config->cam1_area.area1.x.max, &telemetry[36], 2);
     memcpy(& config->cam1_area.area1.y.min, &telemetry[38], 2);
@@ -2463,6 +2479,48 @@ ADCS_returnState ADCS_get_cubesense_config(cubesense_config *config) {
     memcpy(& config->cam2_area.area5.x.max, &telemetry[108], 2);
     memcpy(& config->cam2_area.area5.y.min, &telemetry[110], 2);
     memcpy(& config->cam2_area.area5.y.max, &telemetry[111], 2);
+    */
+    config->cam1_area.area1.x.min = ((telemetry[33] << 8) & 0xFF00) | telemetry[32];
+    config->cam1_area.area1.x.max = ((telemetry[35] << 8) & 0xFF00) | telemetry[34];
+    config->cam1_area.area1.y.min = ((telemetry[37] << 8) & 0xFF00) | telemetry[36];
+    config->cam1_area.area1.y.max = ((telemetry[39] << 8) & 0xFF00) | telemetry[38];
+    config->cam1_area.area2.x.min = ((telemetry[41] << 8) & 0xFF00) | telemetry[40];
+    config->cam1_area.area2.x.max = ((telemetry[43] << 8) & 0xFF00) | telemetry[42];
+    config->cam1_area.area2.y.min = ((telemetry[45] << 8) & 0xFF00) | telemetry[44];
+    config->cam1_area.area2.y.max = ((telemetry[47] << 8) & 0xFF00) | telemetry[46];
+    config->cam1_area.area3.x.min = ((telemetry[49] << 8) & 0xFF00) | telemetry[48];
+    config->cam1_area.area3.x.max = ((telemetry[51] << 8) & 0xFF00) | telemetry[50];
+    config->cam1_area.area3.y.min = ((telemetry[53] << 8) & 0xFF00) | telemetry[52];
+    config->cam1_area.area3.y.max = ((telemetry[55] << 8) & 0xFF00) | telemetry[54];
+    config->cam1_area.area4.x.min = ((telemetry[57] << 8) & 0xFF00) | telemetry[56];
+    config->cam1_area.area4.x.max = ((telemetry[59] << 8) & 0xFF00) | telemetry[58];
+    config->cam1_area.area4.y.min = ((telemetry[61] << 8) & 0xFF00) | telemetry[60];
+    config->cam1_area.area4.y.max = ((telemetry[63] << 8) & 0xFF00) | telemetry[62];
+    config->cam1_area.area5.x.min = ((telemetry[65] << 8) & 0xFF00) | telemetry[64];
+    config->cam1_area.area5.x.max = ((telemetry[67] << 8) & 0xFF00) | telemetry[66];
+    config->cam1_area.area5.y.min = ((telemetry[69] << 8) & 0xFF00) | telemetry[68];
+    config->cam1_area.area5.y.max = ((telemetry[71] << 8) & 0xFF00) | telemetry[70];
+
+    config->cam2_area.area1.x.min = ((telemetry[73] << 8) & 0xFF00) | telemetry[72];
+    config->cam2_area.area1.x.max = ((telemetry[75] << 8) & 0xFF00) | telemetry[74];
+    config->cam2_area.area1.y.min = ((telemetry[77] << 8) & 0xFF00) | telemetry[76];
+    config->cam2_area.area1.y.max = ((telemetry[79] << 8) & 0xFF00) | telemetry[78];
+    config->cam2_area.area2.x.min = ((telemetry[81] << 8) & 0xFF00) | telemetry[80];
+    config->cam2_area.area2.x.max = ((telemetry[83] << 8) & 0xFF00) | telemetry[82];
+    config->cam2_area.area2.y.min = ((telemetry[85] << 8) & 0xFF00) | telemetry[84];
+    config->cam2_area.area2.y.max = ((telemetry[87] << 8) & 0xFF00) | telemetry[86];
+    config->cam2_area.area3.x.min = ((telemetry[89] << 8) & 0xFF00) | telemetry[88];
+    config->cam2_area.area3.x.max = ((telemetry[91] << 8) & 0xFF00) | telemetry[90];
+    config->cam2_area.area3.y.min = ((telemetry[93] << 8) & 0xFF00) | telemetry[92];
+    config->cam2_area.area3.y.max = ((telemetry[95] << 8) & 0xFF00) | telemetry[94];
+    config->cam2_area.area4.x.min = ((telemetry[97] << 8) & 0xFF00) | telemetry[96];
+    config->cam2_area.area4.x.max = ((telemetry[99] << 8) & 0xFF00) | telemetry[98];
+    config->cam2_area.area4.y.min = ((telemetry[101] << 8) & 0xFF00) | telemetry[100];
+    config->cam2_area.area4.y.max = ((telemetry[103] << 8) & 0xFF00) | telemetry[102];
+    config->cam2_area.area5.x.min = ((telemetry[105] << 8) & 0xFF00) | telemetry[104];
+    config->cam2_area.area5.x.max = ((telemetry[107] << 8) & 0xFF00) | telemetry[106];
+    config->cam2_area.area5.y.min = ((telemetry[109] << 8) & 0xFF00) | telemetry[108];
+    config->cam2_area.area5.y.max = ((telemetry[111] << 8) & 0xFF00) | telemetry[110];
     return state;
 }
 
@@ -2486,79 +2544,128 @@ ADCS_returnState ADCS_set_cubesense_config(cubesense_config params) {
     raw_val_angle1.x = params.cam1_sense.mounting_angle.x / coef;
     raw_val_angle1.y = params.cam1_sense.mounting_angle.y / coef;
     raw_val_angle1.z = params.cam1_sense.mounting_angle.z / coef;
-
-    memcpy(&command[1], &raw_val_angle1, 6);
-
-    command[7] = params.cam1_sense.detect_th;
-    command[8] = params.cam1_sense.auto_adjust;
-    memcpy(&command[9], &params.cam1_sense.exposure_t, 2);
-
     raw_boresight_x1 = params.cam1_sense.boresight_x / coef;
     raw_boresight_y1 = params.cam1_sense.boresight_y / coef;
-
-    memcpy(&command[11], &raw_boresight_x1, 2);
-    memcpy(&command[13], &raw_boresight_y1, 2);
-
     raw_val_angle2.x = params.cam2_sense.mounting_angle.x / coef;
     raw_val_angle2.y = params.cam2_sense.mounting_angle.y / coef;
     raw_val_angle2.z = params.cam2_sense.mounting_angle.z / coef;
-
-    memcpy(&command[15], &raw_val_angle2, 6);
-    command[21] = params.cam2_sense.detect_th;
-    command[22] = params.cam2_sense.auto_adjust;
-    memcpy(&command[23], &params.cam2_sense.exposure_t, 2);
-
     raw_boresight_x2 = params.cam2_sense.boresight_x / coef;
     raw_boresight_y2 = params.cam2_sense.boresight_y / coef;
 
-    memcpy(&command[25], &raw_boresight_x2, 2);
-    memcpy(&command[27], &raw_boresight_y2, 2);
+    command[1] = (raw_val_angle1.x) & 0x00FF;
+    command[2] = (raw_val_angle1.x >> 8) & 0x00FF;
+    command[3] = (raw_val_angle1.y) & 0x00FF;
+    command[4] = (raw_val_angle1.y) & 0x00FF;
+    command[5] = (raw_val_angle1.z) & 0x00FF;
+    command[6] = (raw_val_angle1.z >> 8) & 0x00FF;
+    command[7] = params.cam1_sense.detect_th;
+    command[8] = params.cam1_sense.auto_adjust;
+    command[9] = (params.cam1_sense.exposure_t) & 0x00FF;
+    command[10] = (params.cam1_sense.exposure_t >> 8) & 0x00FF;
+    command[12] = (raw_boresight_x1) & 0x00FF;
+    command[12] = (raw_boresight_x1 >> 8) & 0x00FF;
+    command[13] = (raw_boresight_y1) & 0x00FF;
+    command[14] = (raw_boresight_y1 >> 8) & 0x00FF;
+    command[15] = (raw_val_angle2.x) & 0x00FF;
+    command[16] = (raw_val_angle2.x >> 8) & 0x00FF;
+    command[17] = (raw_val_angle2.y) & 0x00FF;
+    command[18] = (raw_val_angle2.y >> 8) & 0x00FF;
+    command[19] = (raw_val_angle2.z) & 0x00FF;
+    command[20] = (raw_val_angle2.z >> 8) & 0x00FF;
+    command[21] = params.cam2_sense.detect_th;
+    command[22] = params.cam2_sense.auto_adjust;
+    command[23] = (params.cam2_sense.exposure_t) & 0x00FF;
+    command[24] = (params.cam2_sense.exposure_t >> 8) & 0x00FF;
+    command[25] = (raw_boresight_x2) & 0x00FF;
+    command[26] = (raw_boresight_x2 >> 8) & 0x00FF;
+    command[27] = (raw_boresight_y2) & 0x00FF;
+    command[28] = (raw_boresight_y2 >> 8) & 0x00FF;
     command[29] = params.nadir_max_deviate;
     command[30] = params.nadir_max_bad_edge;
     command[31] = params.nadir_max_radius;
     command[32] = params.nadir_min_radius;
-    memcpy(&command[33], &params.cam1_area.area1.x.min, 2);
-    memcpy(&command[35], &params.cam1_area.area1.x.max, 2);
-    memcpy(&command[37], &params.cam1_area.area1.y.min, 2);
-    memcpy(&command[39], &params.cam1_area.area1.y.max, 2);
-    memcpy(&command[41], &params.cam1_area.area2.x.min, 2);
-    memcpy(&command[43], &params.cam1_area.area2.x.max, 2);
-    memcpy(&command[45], &params.cam1_area.area2.y.min, 2);
-    memcpy(&command[47], &params.cam1_area.area2.y.max, 2);
-    memcpy(&command[49], &params.cam1_area.area3.x.min, 2);
-    memcpy(&command[51], &params.cam1_area.area3.x.max, 2);
-    memcpy(&command[53], &params.cam1_area.area3.y.min, 2);
-    memcpy(&command[55], &params.cam1_area.area3.y.max, 2);
-    memcpy(&command[57], &params.cam1_area.area4.x.min, 2);
-    memcpy(&command[59], &params.cam1_area.area4.x.max, 2);
-    memcpy(&command[61], &params.cam1_area.area4.y.min, 2);
-    memcpy(&command[63], &params.cam1_area.area4.y.max, 2);
-    memcpy(&command[65], &params.cam1_area.area5.x.min, 2);
-    memcpy(&command[67], &params.cam1_area.area5.x.max, 2);
-    memcpy(&command[69], &params.cam1_area.area5.y.min, 2);
-    memcpy(&command[71], &params.cam1_area.area5.y.max, 2);
-    memcpy(&command[73], &params.cam2_area.area1.x.min, 2);
-    memcpy(&command[75], &params.cam2_area.area1.x.max, 2);
-    memcpy(&command[77], &params.cam2_area.area1.y.min, 2);
-    memcpy(&command[79], &params.cam2_area.area1.y.max, 2);
-    memcpy(&command[81], &params.cam2_area.area2.x.min, 2);
-    memcpy(&command[83], &params.cam2_area.area2.x.max, 2);
-    memcpy(&command[85], &params.cam2_area.area2.y.min, 2);
-    memcpy(&command[87], &params.cam2_area.area2.y.max, 2);
-    memcpy(&command[89], &params.cam2_area.area3.x.min, 2);
-    memcpy(&command[91], &params.cam2_area.area3.x.max, 2);
-    memcpy(&command[93], &params.cam2_area.area3.y.min, 2);
-    memcpy(&command[95], &params.cam2_area.area3.y.max, 2);
-    memcpy(&command[97], &params.cam2_area.area4.x.min, 2);
-    memcpy(&command[99], &params.cam2_area.area4.x.max, 2);
-    memcpy(&command[101], &params.cam2_area.area4.y.min, 2);
-    memcpy(&command[103], &params.cam2_area.area4.y.max, 2);
-    memcpy(&command[105], &params.cam2_area.area5.x.min, 2);
-    memcpy(&command[107], &params.cam2_area.area5.x.max, 2);
-    memcpy(&command[109], &params.cam2_area.area5.y.min, 2);
-    memcpy(&command[111], &params.cam2_area.area5.y.max, 2);
+    command[33] = (params.cam1_area.area1.x.min) & 0x00FF;
+    command[34] = (params.cam1_area.area1.x.min >> 8) & 0x00FF;
+    command[35] = (params.cam1_area.area1.x.max) & 0x00FF;
+    command[36] = (params.cam1_area.area1.x.max >> 8) & 0x00FF;
+    command[37] = (params.cam1_area.area1.y.min ) & 0x00FF;
+    command[38] = (params.cam1_area.area1.y.min >> 8) & 0x00FF;
+    command[39] = (params.cam1_area.area1.y.max) & 0x00FF;
+    command[40] = (params.cam1_area.area1.y.max >> 8) & 0x00FF;
+    command[41] = (params.cam1_area.area2.x.min ) & 0x00FF;
+    command[42] = (params.cam1_area.area2.x.min >> 8) & 0x00FF;
+    command[43] = (params.cam1_area.area2.x.max ) & 0x00FF;
+    command[44] = (params.cam1_area.area2.x.max >> 8) & 0x00FF;
+    command[45] = (params.cam1_area.area2.y.min ) & 0x00FF;
+    command[46] = (params.cam1_area.area2.y.min >> 8) & 0x00FF;
+    command[47] = (params.cam1_area.area2.y.max ) & 0x00FF;
+    command[48] = (params.cam1_area.area2.y.max >> 8) & 0x00FF;
+    command[49] = (params.cam1_area.area3.x.min ) & 0x00FF;
+    command[50] = (params.cam1_area.area3.x.min >> 8) & 0x00FF;
+    command[51] = (params.cam1_area.area3.x.max  ) & 0x00FF;
+    command[52] = (params.cam1_area.area3.x.max >> 8) & 0x00FF;
+    command[53] = (params.cam1_area.area3.y.min ) & 0x00FF;
+    command[54] = (params.cam1_area.area3.y.min >> 8) & 0x00FF;
+    command[55] = (params.cam1_area.area3.y.max  ) & 0x00FF;
+    command[56] = (params.cam1_area.area3.y.max >> 8) & 0x00FF;
+    command[57] = (params.cam1_area.area4.x.min ) & 0x00FF;
+    command[58] = (params.cam1_area.area4.x.min >> 8) & 0x00FF;
+    command[59] = (params.cam1_area.area4.x.max ) & 0x00FF;
+    command[60] = (params.cam1_area.area4.x.max >> 8) & 0x00FF;
+    command[61] = (params.cam1_area.area4.y.min) & 0x00FF;
+    command[62] = (params.cam1_area.area4.y.min >> 8) & 0x00FF;
+    command[63] = (params.cam1_area.area4.y.max ) & 0x00FF;
+    command[64] = (params.cam1_area.area4.y.max >> 8) & 0x00FF;
+    command[65] = (params.cam1_area.area5.x.min ) & 0x00FF;
+    command[66] = (params.cam1_area.area5.x.min >> 8) & 0x00FF;
+    command[67] = (params.cam1_area.area5.x.max ) & 0x00FF;
+    command[68] = (params.cam1_area.area5.x.max >> 8) & 0x00FF;
+    command[69] = (params.cam1_area.area5.y.min ) & 0x00FF;
+    command[70] = (params.cam1_area.area5.y.min >> 8) & 0x00FF;
+    command[71] = (params.cam1_area.area5.y.max ) & 0x00FF;
+    command[72] = (params.cam1_area.area5.y.max >> 8) & 0x00FF;
+    command[73] = (params.cam2_area.area1.x.min ) & 0x00FF;
+    command[74] = (params.cam2_area.area1.x.min >> 8) & 0x00FF;
+    command[75] = (params.cam2_area.area1.x.max ) & 0x00FF;
+    command[76] = (params.cam2_area.area1.x.max >> 8) & 0x00FF;
+    command[77] = (params.cam2_area.area1.y.min ) & 0x00FF;
+    command[78] = (params.cam2_area.area1.y.min >> 8) & 0x00FF;
+    command[79] = (params.cam2_area.area1.y.max ) & 0x00FF;
+    command[80] = (params.cam2_area.area1.y.max >> 8) & 0x00FF;
+    command[81] = (params.cam2_area.area2.x.min ) & 0x00FF;
+    command[82] = (params.cam2_area.area2.x.min >> 8) & 0x00FF;
+    command[83] = (params.cam2_area.area2.x.max ) & 0x00FF;
+    command[84] = (params.cam2_area.area2.x.max >> 8) & 0x00FF;
+    command[85] = (params.cam2_area.area2.y.min ) & 0x00FF;
+    command[86] = (params.cam2_area.area2.y.min >> 8) & 0x00FF;
+    command[87] = (params.cam2_area.area2.y.max ) & 0x00FF;
+    command[88] = (params.cam2_area.area2.y.max >> 8) & 0x00FF;
+    command[89] = (params.cam2_area.area3.x.min ) & 0x00FF;
+    command[90] = (params.cam2_area.area3.x.min >> 8) & 0x00FF;
+    command[91] = (params.cam2_area.area3.x.max ) & 0x00FF;
+    command[92] = (params.cam2_area.area3.x.max >> 8) & 0x00FF;
+    command[93] = (params.cam2_area.area3.y.min ) & 0x00FF;
+    command[94] = (params.cam2_area.area3.y.min >> 8) & 0x00FF;
+    command[95] = (params.cam2_area.area3.y.max ) & 0x00FF;
+    command[96] = (params.cam2_area.area3.y.max >> 8) & 0x00FF;
+    command[97] = (params.cam2_area.area4.x.min ) & 0x00FF;
+    command[98] = (params.cam2_area.area4.x.min >> 8) & 0x00FF;
+    command[99] = (params.cam2_area.area4.x.max ) & 0x00FF;
+    command[100] = (params.cam2_area.area4.x.max >> 8) & 0x00FF;
+    command[101] = (params.cam2_area.area4.y.min ) & 0x00FF;
+    command[102] = (params.cam2_area.area4.y.min >> 8) & 0x00FF;
+    command[103] = (params.cam2_area.area4.y.max ) & 0x00FF;
+    command[104] = (params.cam2_area.area4.y.max >> 8) & 0x00FF;
+    command[105] = (params.cam2_area.area5.x.min ) & 0x00FF;
+    command[106] = (params.cam2_area.area5.x.min >> 8) & 0x00FF;
+    command[107] = (params.cam2_area.area5.x.max ) & 0x00FF;
+    command[108] = (params.cam2_area.area5.x.max >> 8) & 0x00FF;
+    command[109] = (params.cam2_area.area5.y.min ) & 0x00FF;
+    command[110] = (params.cam2_area.area5.y.min >> 8) & 0x00FF;
+    command[111] = (params.cam2_area.area5.y.max ) & 0x00FF;
+    command[112] = (params.cam2_area.area5.y.max >> 8) & 0x00FF;
 
-    return adcs_telecommand(command, 113);
+//    return adcs_telecommand(command, 113);
 }
 
 /**
