@@ -10,6 +10,16 @@
 
 unsigned short crc16();
 
+void sw_reset(SW_RESET_REASON reason) {
+    boot_info info;
+    eeprom_init();
+    info = eeprom_get_boot_info();
+    info.reason.swr_reason =  reason;
+    eeprom_set_boot_info(info);
+    eeprom_shutdown();
+    systemREG1->SYSECR = (0x10) << 14;
+}
+
 // Returns false on failure
 bool eeprom_init() {
     int delayCount = 0;
@@ -61,6 +71,18 @@ image_info eeprom_get_golden_info() {
     TI_Fee_ReadSync(GOLD_STATUS_BLOCKNUMBER, GOLD_STATUS_OFFSET, (uint8_t *)(&out), GOLD_STATUS_LEN);
     TI_FeeJobResultType res = TI_Fee_GetJobResult(0);
     return out;
+}
+
+boot_info eeprom_get_boot_info() {
+    boot_info out = {0};
+    TI_Fee_ReadSync(BOOT_INFO_BLOCKNUMBER, BOOT_INFO_OFFSET, (uint8_t *)(&out), BOOT_INFO_LEN);
+    TI_FeeJobResultType res = TI_Fee_GetJobResult(0);
+    return out;
+}
+
+void eeprom_set_boot_info(boot_info b) {
+    TI_Fee_WriteSync(BOOT_INFO_BLOCKNUMBER, (uint8_t *)&b);
+    TI_FeeJobResultType res = TI_Fee_GetJobResult(0);
 }
 
 bool verify_application() {

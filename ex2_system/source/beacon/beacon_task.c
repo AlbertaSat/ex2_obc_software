@@ -92,42 +92,40 @@ static TickType_t beacon_delay = pdMS_TO_TICKS(1000);
  *    task parameters (not used)
  */
 static void *beacon_daemon(void *pvParameters) {
-  for (;;) {
-    int8_t uhf_status = -1;
-    /* Constructing the system beacon content */
-    // Refer to table 3 of MOP
-    UHF_configStruct beacon_msg;
-    beacon_msg.len = 0xBC;
-    // TODO: call the appropriate HAL functions to get the most updated or
-    // cached information of the components + state machine, RTC, etc.
-    // Then uncomment the next line:
-    //uhf_status = HAL_UHF_setBeaconMsg(beacon_msg);
+    for (;;) {
+        int8_t uhf_status = -1;
+        /* Constructing the system beacon content */
+        // Refer to table 3 of MOP
+        UHF_configStruct beacon_msg;
+        // TODO: call the appropriate HAL functions to get the most updated or
+        // cached information of the components + state machine, RTC, etc.
+        // Then uncomment the next line:
+        // uhf_status = HAL_UHF_setBeaconMsg(beacon_msg);
 
-    /* Sending the beacon */
-    // The beacon transmission period is configurable through comms service
-    // by the operator or here through HAL_UHF_getBeaconT().
-    uint8_t scw[SCW_LEN];
+        /* Sending the beacon */
+        // The beacon transmission period is configurable through comms service
+        // by the operator or here through HAL_UHF_getBeaconT().
+        uint8_t scw[SCW_LEN];
 #ifndef UHF_IS_STUBBED
-    uhf_status = HAL_UHF_getSCW(scw);
+        uhf_status = HAL_UHF_getSCW(scw);
 
-    if (uhf_status == U_GOOD_CONFIG) {
-      scw[SCW_BCN_FLAG] = SCW_BCN_ON;
-      uhf_status = HAL_UHF_setSCW(scw);
-    }
+        if (uhf_status == U_GOOD_CONFIG) {
+            scw[SCW_BCN_FLAG] = SCW_BCN_ON;
+            uhf_status = HAL_UHF_setSCW(scw);
+        }
 #endif
 #ifndef EPS_IS_STUBBED
-    if (uhf_status != U_GOOD_CONFIG) {
+        if (uhf_status != U_GOOD_CONFIG) {
 
-      if (eps_get_pwr_chnl(UHF_PWR_CHNL) == 1 &&
-          gioGetBit(UHF_GIO_PORT, UHF_GIO_PIN) == 1) {
-        printf("Beacon failed");
-      } else
-        printf("UHF is off.");
-    }
+            if (eps_get_pwr_chnl(UHF_PWR_CHNL) == 1 && gioGetBit(UHF_GIO_PORT, UHF_GIO_PIN) == 1) {
+                printf("Beacon failed");
+            } else
+                printf("UHF is off.");
+        }
 #endif
 
-    vTaskDelay(beacon_delay);
-  }
+        vTaskDelay(beacon_delay);
+    }
 }
 
 /**
@@ -137,11 +135,11 @@ static void *beacon_daemon(void *pvParameters) {
  *   error report of task creation
  */
 SAT_returnState start_beacon_daemon(void) {
-  if (xTaskCreate((TaskFunction_t)beacon_daemon, "beacon_daemon", 2048, NULL,
-                  BEACON_TASK_PRIO, NULL) != pdPASS) {
-    ex2_log("FAILED TO CREATE TASK coordinate_management_daemon\n");
-    return SATR_ERROR;
-  }
-  ex2_log("Coordinate management started\n");
-  return SATR_OK;
+    if (xTaskCreate((TaskFunction_t)beacon_daemon, "beacon_daemon", 2048, NULL, BEACON_TASK_PRIO, NULL) !=
+        pdPASS) {
+        ex2_log("FAILED TO CREATE TASK coordinate_management_daemon\n");
+        return SATR_ERROR;
+    }
+    ex2_log("Coordinate management started\n");
+    return SATR_OK;
 }

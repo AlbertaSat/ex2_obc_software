@@ -48,6 +48,10 @@ void reboot_system_(char reboot_type) {
         ex2_log("Invalid reboot type");
         return;
     }
+    boot_info b_inf;
+    b_inf = eeprom_get_boot_info();
+    b_inf.reason.swr_reason = REQUESTED;
+    eeprom_set_boot_info(b_inf);
     eeprom_shutdown();
     systemREG1->SYSECR = (0x10) << 14;
     RESET_PRIVILEGE;
@@ -120,6 +124,14 @@ uint32_t priv_Fapi_BlockProgram_( uint32_t Bank, uint32_t Flash_Address, uint32_
     RAISE_PRIVILEGE;
     uint32_t ret;
     ret = Fapi_BlockProgram(Bank, Flash_Address, Data_Address, SizeInBytes);
+    RESET_PRIVILEGE;
+    return ret;
+}
+
+boot_info priv_eeprom_get_boot_info_() {
+    RAISE_PRIVILEGE;
+    boot_info ret = {0};
+    ret = eeprom_get_boot_info();
     RESET_PRIVILEGE;
     return ret;
 }

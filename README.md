@@ -18,22 +18,23 @@ The software in this repository reflects the designs found in the Ex-Alta 2 Crit
 	* HalCoGEN generated source files including hardware drivers, and configurations
 
 ## Getting Started
-1. Clone this repository and all submodules:
-```git clone --recursive https://github.com/AlbertaSat/ex2_obc_software.git ``` 
-then, assuming you wish to work on the latest version of all submodules, run
-```git submodule foreach git pull origin master```
+1. Set up an SSH key with GitHub. [Instructions](https://docs.github.com/en/github/authenticating-to-github/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account)
+
+2. Clone this repository and run the auto configure script:
+```./configre_repo.sh```
 Note: Just `cd` into the submodule and change branches from there if you need some branch other than `master`
 
-2. [Download](https://software-dl.ti.com/ccs/esd/documents/ccs_downloads.html) Code Composer Studio v10 
+3. [Download](https://software-dl.ti.com/ccs/esd/documents/ccs_downloads.html) Code Composer Studio v10 
 
-3. Create a new empty workspace folder on your computer (wherever you want, but name it differently than the repository name, so not 'ex2_obc_software')
+4. Create a new empty workspace folder on your computer (wherever you want, but name it differently than the repository name, so not 'ex2_obc_software')
 
-4. Open Code Composer Studio to your workspace file
+5. Open Code Composer Studio to your workspace file
 
-5. Import this code as a CCS Project:
+6. Import this code as a CCS Project:
 	Select `File > Import`
 	Select `Code Composer Studio` as your import wizard
 	Choose `CCS Projects`
 	Then browse the this repository, and select the discovered project
 	Select `Finish`
-1. You  can now build and debug, and flash this project to a Texas Instruments development board!
+
+7. You  can now build and debug, and flash this project to a Texas Instruments development board!

@@ -1,30 +1,30 @@
 [submodule "libcsp"]
 	path = libcsp
-	url = https://github.com/AlbertaSat/libcsp.git
+	url = git@github.com:AlbertaSat/libcsp.git
 [submodule "ex2_services"]
 	path = ex2_services
-	url = https://github.com/AlbertaSat/ex2_services.git
+	url = git@github.com:AlbertaSat/ex2_services.git
 [submodule "ex2_gps_software"]
 	path = ex2_hal/ex2_gps_software
-	url = https://github.com/AlbertaSat/ex2_gps_software
+	url = git@github.com:AlbertaSat/ex2_gps_software
 [submodule "ex2_hal/ex2_eps_software"]
 	path = ex2_hal/ex2_eps_software
-	url = https://github.com/AlbertaSat/ex2_eps_software.git
+	url = git@github.com:AlbertaSat/ex2_eps_software.git
 [submodule "ex2_hal/ex2_sband_software"]
 	path = ex2_hal/ex2_sband_software
-	url = https://github.com/AlbertaSat/ex2_sband_software.git
+	url = git@github.com:AlbertaSat/ex2_sband_software.git
 [submodule "ex2_hal/ex2_uhf_software"]
 	path = ex2_hal/ex2_uhf_software
-	url = https://github.com/AlbertaSat/ex2_uhf_software.git
+	url = git@github.com:AlbertaSat/ex2_uhf_software.git
 [submodule "ex2_hal/ex2_athena_software"]
 	path = ex2_hal/ex2_athena_software
-	url = https://github.com/AlbertaSat/ex2_athena_software.git
+	url = git@github.com:AlbertaSat/ex2_athena_software.git
 [submodule "ex2_hal/ex2_hyperion_solar_panel_software"]
 	path = ex2_hal/ex2_hyperion_solar_panel_software
-	url = https://github.com/AlbertaSat/ex2_hyperion_solar_panel_software
+	url = git@github.com:AlbertaSat/ex2_hyperion_solar_panel_software
 [submodule "ex2_ftp"]
 	path = ex2_ftp
-	url = https://github.com/AlbertaSat/CCSDS_FileDeliveryProtocol.git
+	url = git@github.com:AlbertaSat/CCSDS_FileDeliveryProtocol.git
 [submodule "ex2_hal/ex2_adcs_software"]
 	path = ex2_hal/ex2_adcs_software
 	url = git@github.com:AlbertaSat/ex2_adcs_software.git
