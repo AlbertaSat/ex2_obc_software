@@ -31,6 +31,29 @@
  * @param[in] voltage value where LSB = 0.8 mV
  * @param [out] temperature converted from voltage
  */
+bool ads7128Init(void){
+
+    uint8_t data[3] = {0b00001000, 0x05, 0x00};
+
+    if(i2c_Send(ADS7128_PORT, ADS7128_ADDR, 3, data) != 0){//Set all channels as analog inputs
+            return 1;
+        }
+
+    data[1] = 0x10;
+
+    if(i2c_Send(ADS7128_PORT, ADS7128_ADDR, 3, data) != 0){//Set SEQ_MODE to manual mode
+            return 1;
+        }
+
+    data[1] = 0x04;
+
+    if(i2c_Send(ADS7128_PORT, ADS7128_ADDR, 3, data) != 0){//Set CONV_MODE to manual mode
+            return 1;
+        }
+    return 0;
+
+}
+
 void voltageToTemperature(uint16_t voltage, int* temperature){
 
     //Inefficient as balls, currently
@@ -55,6 +78,7 @@ void voltageToTemperature(uint16_t voltage, int* temperature){
         if(newdelta > olddelta){
 
            *temperature = -40 + (i - 1);//Index 0 in lookup corresponds to -40 deg C. 1 index = +1 deg C
+           break;
         }
         olddelta = newdelta;
     }
@@ -71,21 +95,20 @@ void voltageToTemperature(uint16_t voltage, int* temperature){
  */
 uint8_t readSingleTemp(uint8_t channel, int* temperature){//note int8 max = 127
 
-    uint8_t data[2] = {0x03, 0x00};
-    data[1] = 0xA0 + channel*2;
+    uint8_t txdata[3] = {0b00001000, 0x11, (0x00 + channel)};
 
-    if(i2c_Send(ADS7128_PORT, ADS7128_ADDR, 2, data) != 0){//select correct register to read out
+    if(i2c_Send(ADS7128_PORT, ADS7128_ADDR, 3, txdata) != 0){//set channel ID for readout
+            return 1;
+        }
+
+    int8_t rxdata[2] = {0x00, 0x00};
+
+    if(i2c_Receive(ADS7128_PORT, ADS7128_ADDR, 2, &rxdata) != 0){//Conversion Start and Read Frames
         return 1;
     }
-    //Need to account for "clock stretching for conversion time"? Don't think so
-    data[0] = 0;
-    data[1] = 0;
 
-    if(i2c_Receive(ADS7128_PORT, ADS7128_ADDR, 2, data) != 0){//get data
-        return 1;
-    }
-
-    uint16_t voltage = (data[0] << 4) | (data[1] >> 4);//1 LSB = 3.3V / 2^12 = 0.806 mV
+    uint16_t voltage = 0;
+    voltage = ((uint16_t)(rxdata[0] << 8) | (uint16_t)(rxdata[1])) >> 4 ;//1 LSB = 3.3V / 2^12 = 0.806 mV
 
     voltageToTemperature(voltage, temperature);
 
