@@ -614,7 +614,7 @@ ADCS_returnState ADCS_set_rate_gyro(rate_gyro_config params);
 ADCS_returnState ADCS_set_css_config(css_config config);
 ADCS_returnState ADCS_set_star_track_config(cubestar_config config);
 ADCS_returnState ADCS_get_cubesense_config(cubesense_config *config);
-ADCS_returnState ADCS_set_cubesense_config(cubesense_config params);
+ADCS_returnState ADCS_set_cubesense_config(cubesense_config *params);
 ADCS_returnState ADCS_set_mtm_config(mtm_config params, uint8_t mtm);
 ADCS_returnState ADCS_set_detumble_config(detumble_config config);
 ADCS_returnState ADCS_set_ywheel_config(ywheel_ctrl_config params);
