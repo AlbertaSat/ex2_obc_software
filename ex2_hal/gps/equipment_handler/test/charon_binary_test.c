@@ -5,16 +5,25 @@
 
 bool charon_binary_test(void){
 
-    if(setuppcal9538a()){
-        return 1;
-    }
     if(ads7128Init()){
         return 1;
     }
 
-    Power_Channel channel_to_reset = ADCS;
+    Power_Channel channel_to_reset = UHF;
+    if(setuppcal9538a()){
+        return 1;
+    }
+    printf("Resetting power channel %d for 2.2 s \n", channel_to_reset);
+    if(triggerPowerChannelReset(channel_to_reset)){
+        return 1;
+    }
+
+
 
     for(int i = 0; i<6; i++){
+        if(setuppcal9538a()){
+            return 1;
+        }
         printf("Resetting power channel %d for 2.2 s \n", channel_to_reset);
         if(triggerPowerChannelReset(channel_to_reset)){
             return 1;
@@ -44,6 +53,8 @@ bool charon_binary_test(void){
         printf("\n");
         for(int j = 0; j<1000000; j++);//not using freeRTOS delay for basic testing
     }
+
+
 
     return 0;
 }
