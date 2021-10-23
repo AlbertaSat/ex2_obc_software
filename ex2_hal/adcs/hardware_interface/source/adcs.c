@@ -310,7 +310,7 @@ ADCS_returnState HAL_ADCS_set_star_track_config(cubestar_config config) {
     return ADCS_set_star_track_config(config);
 }
 
-ADCS_returnState HAL_ADCS_set_cubesense_config(cubesense_config *params) {
+ADCS_returnState HAL_ADCS_set_cubesense_config(cubesense_config params) {
     return ADCS_set_cubesense_config(params);
 }
 
