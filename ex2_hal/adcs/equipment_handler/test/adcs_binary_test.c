@@ -531,16 +531,11 @@ void binaryTest_CubeSense1(void){
     //Using Command ADCS_set_cubesense_config() - Table 189, ensure that the Cam1 detection threshold is set to 150.
     //Next, ensure that the Cam1 sensor exposure time is set to 35 if Cam1 is a nadir  sensor, or 100 if Cam1 is a Sun sensor. Set the NadirMaxBadEdges to 30 to make  ground testing easier.
     //Section Variables]
-    cubesense_config *params;
-    params = (cubesense_config *)pvPortMalloc(sizeof(cubesense_config));
-    if(params==NULL) {
-        printf("Malloc error /n");
-        while(1);
-    }
-    ; //TODO:check how many bytes we need to take for this function
+    cubesense_config params;
+
     //Get all the current configuration parameters from the ADCS so that incorrect parameters aren't sent while testing.
     printf("Running ADCS_get_cubesense_config...\n");
-    test_returnState = ADCS_get_cubesense_config(params); //this function should be tested and checked before the command is sent
+    test_returnState = ADCS_get_cubesense_config(&params); //this function should be tested and checked before the command is sent
     if(test_returnState != ADCS_OK){
         printf("ADCS_set_cubesense_config returned %d \n", test_returnState);
         while(1);
@@ -548,11 +543,11 @@ void binaryTest_CubeSense1(void){
 
 
     //now set the parameters
-    params->cam1_sense.detect_th = 150;
-    params->cam1_sense.exposure_t = 100; //assuming Cam1 is a nadir sensor. If a sun sensor, use 100.
-    params->nadir_max_bad_edge = 30;
-    params->cam1_sense.boresight_x = 512;
-    params->cam1_sense.boresight_y = 512;
+    params.cam1_sense.detect_th = 150;
+    params.cam1_sense.exposure_t = 100; //assuming Cam1 is a nadir sensor. If a sun sensor, use 100.
+    params.nadir_max_bad_edge = 30;
+    params.cam1_sense.boresight_x = 512;
+    params.cam1_sense.boresight_y = 512;
 //
     printf("Running ADCS_set_cubesense_config...\n");
 
@@ -563,7 +558,7 @@ void binaryTest_CubeSense1(void){
     }
 
     printf("Running ADCS_get_cubesense_config...\n");
-    test_returnState = ADCS_get_cubesense_config(params); //this function should be tested and checked before the command is sent
+    test_returnState = ADCS_get_cubesense_config(&params); //this function should be tested and checked before the command is sent
     if(test_returnState != ADCS_OK){
         printf("ADCS_set_cubesense_config returned %d \n", test_returnState);
         while(1);
@@ -600,8 +595,6 @@ void binaryTest_CubeSense1(void){
 //        printf("all other states (frame offsets 12 to 47) != 0... halting code execution\n");
 //        while(1);
 //    }
-
-    vPortFree(params);
 
     //ADCS_get_power_temp()
     adcs_pwr_temp *power_temp_measurements;
