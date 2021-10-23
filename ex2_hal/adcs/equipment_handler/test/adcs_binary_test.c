@@ -486,6 +486,7 @@ void binaryTest_CubeSense1(void){
     //enable the ADCS
     ADCS_set_enabled_state(1);
 
+    ADCS_set_unix_t(0,0);
 
     printf("Running ADCS_get_power_control...\n");
     test_returnState = ADCS_get_power_control(control);
@@ -709,7 +710,6 @@ void binaryTest_CubeSense1(void){
     printf("cam1.centroid_y = %d \n", raw_sensor_measurements->cam1.centroid_y);
 
     vPortFree(raw_sensor_measurements);
-    vPortFree(power_temp_measurements);
     //
 //
 //    //While keeping the light in the field of view of CubeSense1, use Command ADCS_save_img() - Table 94 and select Cam1.
@@ -969,7 +969,7 @@ void binaryTest_CubeSense2(void){
     params.nadir_max_bad_edge = 30;
 
     printf("Running ADCS_set_cubesense_config...\n");
-    test_returnState = ADCS_set_cubesense_config(&params); //this function should be tested and checked before the command is sent
+    test_returnState = ADCS_set_cubesense_config(params); //this function should be tested and checked before the command is sent
     if(test_returnState != ADCS_OK){
         printf("ADCS_set_cubesense_config returned %d \n", test_returnState);
         while(1);
