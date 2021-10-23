@@ -478,7 +478,7 @@ void binaryTest_CubeSense1(void){
     }
 
     //Section Variables
-    uint8_t *control = pvPortMalloc(10);
+    uint8_t *control = (uint8_t*)pvPortMalloc(10);
     if (control == NULL) {
         return ADCS_MALLOC_FAILED;
     }
@@ -532,7 +532,7 @@ void binaryTest_CubeSense1(void){
     //Next, ensure that the Cam1 sensor exposure time is set to 35 if Cam1 is a nadir  sensor, or 100 if Cam1 is a Sun sensor. Set the NadirMaxBadEdges to 30 to make  ground testing easier.
     //Section Variables]
     cubesense_config *params;
-    params = (cubesense_config *)malloc(sizeof(cubesense_config));
+    params = (cubesense_config *)pvPortMalloc(sizeof(cubesense_config));
     if(params==NULL) {
         printf("Malloc error /n");
         while(1);
@@ -553,7 +553,8 @@ void binaryTest_CubeSense1(void){
     params->cam1_sense.boresight_x = 512;
     params->cam1_sense.boresight_y = 512;
 //
-    printf("Running ADCS_set_cubesense_config...\n");
+    printf("Running ADCS_set_cubesense_config...\n");\
+
     test_returnState = ADCS_set_cubesense_config(params); //this function should be tested and checked before the command is sent
     if(test_returnState != ADCS_OK){
         printf("ADCS_set_cubesense_config returned %d \n", test_returnState);
@@ -564,7 +565,7 @@ void binaryTest_CubeSense1(void){
     test_returnState = ADCS_get_cubesense_config(params); //this function should be tested and checked before the command is sent
     if(test_returnState != ADCS_OK){
         printf("ADCS_set_cubesense_config returned %d \n", test_returnState);
-//        while(1);
+        while(1);
     }
     //this is commented out because the dev board reads the wrong error state
 
@@ -599,9 +600,11 @@ void binaryTest_CubeSense1(void){
 //        while(1);
 //    }
 
+    vPortFree(params);
+
     //ADCS_get_power_temp()
     adcs_pwr_temp *power_temp_measurements;
-    power_temp_measurements = (adcs_pwr_temp *)malloc(sizeof(adcs_pwr_temp));
+    power_temp_measurements = (adcs_pwr_temp *)pvPortMalloc(sizeof(adcs_pwr_temp));
     if (power_temp_measurements == NULL) {
         printf("malloc issues");
         while(1);
@@ -621,7 +624,7 @@ void binaryTest_CubeSense1(void){
 
     //ADCS_get_raw_sensor()
     adcs_raw_sensor *raw_sensor_measurements;
-    raw_sensor_measurements = (adcs_raw_sensor *)malloc(sizeof(adcs_raw_sensor));
+    raw_sensor_measurements = (adcs_raw_sensor *)pvPortMalloc(sizeof(adcs_raw_sensor));
     if (raw_sensor_measurements == NULL) {
         printf("malloc issues");
         while(1);
@@ -711,7 +714,7 @@ void binaryTest_CubeSense1(void){
     printf("cam1.centroid_x = %d \n", raw_sensor_measurements->cam1.centroid_x);
     printf("cam1.centroid_y = %d \n", raw_sensor_measurements->cam1.centroid_y);
 
-
+    vPortFree(raw_sensor_measurements);
     vPortFree(power_temp_measurements);
     //
 //
@@ -905,6 +908,9 @@ void binaryTest_CubeSense1(void){
 //
 //    //send the file over uart to the computer.
 //    //sciSend(sciREG1, 20480, image_bytes)
+//
+//    vPortFree(hole_map);
+//    vPortFree(image_bytes);
 //
 //
 //    //TODO: Receive all sent bytes from the download burst command. Check to see if the file is complete and if not,

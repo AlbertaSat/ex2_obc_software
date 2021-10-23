@@ -23,6 +23,8 @@
 
 #include "adcs_io.h"
 #include "adcs_types.h"
+#include "FreeRTOS.h"
+#include "os_queue.h"
 
 #define USE_UART
 //#define USE_I2C
@@ -1893,8 +1895,7 @@ ADCS_returnState ADCS_set_power_control(uint8_t *control) {
     for (int i = 0; i < 2; i++) {
         command[3] = command[3] | (*(control + 8 + i) << 2*i);
     }
-    return adcs_telecommand(command,
-                            4); //* + command[1] and  + command[3]. Tested
+    return adcs_telecommand(command, 4); //* + command[1] and  + command[3]. Tested
 }
 
 /**
@@ -2377,7 +2378,7 @@ ADCS_returnState ADCS_set_star_track_config(cubestar_config config) {
  */
 ADCS_returnState ADCS_get_cubesense_config(cubesense_config *config) {
 
-    uint8_t *telemetry = pvPortMalloc(113);
+    uint8_t *telemetry = (uint8_t*)pvPortMalloc(112);
     if (telemetry == NULL) {
         return ADCS_MALLOC_FAILED;
     }
@@ -2388,7 +2389,7 @@ ADCS_returnState ADCS_get_cubesense_config(cubesense_config *config) {
     uint16_t raw_boresight_x2, raw_boresight_y2;
     //request cubsense configuration and store in telemetry
     ADCS_returnState state;
-    state = adcs_telemetry(GET_CUBESENSE_CONFIG_ID, telemetry, 113);
+    state = adcs_telemetry(GET_CUBESENSE_CONFIG_ID, telemetry, 112);
 
 
     //point these values to the pre-function structure
@@ -2539,11 +2540,10 @@ ADCS_returnState ADCS_get_cubesense_config(cubesense_config *config) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_cubesense_config(cubesense_config *params) {
-    uint8_t *command = pvPortMalloc(113);
+    uint8_t *command = (uint8_t*)pvPortMalloc(113);
     if (command == NULL) {
         return ADCS_MALLOC_FAILED;
     }
-
 
     command[0] = SET_CUBESENSE_CONFIG_ID;
 
