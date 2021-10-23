@@ -30,7 +30,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-#define QUEUE_LENGTH 65
+#define ADCS_QUEUE_LENGTH 100
 #define ITEM_SIZE 1
 
 static QueueHandle_t adcsQueue;
@@ -44,7 +44,7 @@ static SemaphoreHandle_t uart_mutex;
  */
 void init_adcs_io() {
     tx_semphr = xSemaphoreCreateBinary();
-    adcsQueue = xQueueCreate(QUEUE_LENGTH, ITEM_SIZE);
+    adcsQueue = xQueueCreate(ADCS_QUEUE_LENGTH, ITEM_SIZE);
     uart_mutex = xSemaphoreCreateMutex();
     adcsBuffer = 0;
     sciReceive(ADCS_SCI, 1, &adcsBuffer);
@@ -78,7 +78,9 @@ void adcs_sciNotification(sciBASE_t *sci, int flags) {
  *
  */
 ADCS_returnState send_uart_telecommand(uint8_t *command, uint32_t length) {
-    xSemaphoreTake(uart_mutex, UART_TIMEOUT_MS); //  TODO: create response if it times out.
+    if(xSemaphoreTake(uart_mutex, UART_TIMEOUT_MS) != pdTRUE) {
+          return ADCS_UART_FAILED;
+    } //  TODO: create response if it times out.
 
     uint8_t *frame = (uint8_t *)pvPortMalloc(sizeof(uint8_t)*(length+4));
     *frame = ADCS_ESC_CHAR;
@@ -95,10 +97,9 @@ ADCS_returnState send_uart_telecommand(uint8_t *command, uint32_t length) {
     xSemaphoreTake(tx_semphr, portMAX_DELAY); // TODO: make a reasonable timeout
 
     int received = 0;
-    uint8_t *reply = (uint8_t*)pvPortMalloc(6);
-    if (reply == NULL) {
-        return ADCS_MALLOC_FAILED;
-    }
+    uint8_t reply[6];
+
+    xQueueReset(adcsQueue);
 
     while (received < 6) {
         xQueueReceive(adcsQueue, &(reply[received]), UART_TIMEOUT_MS); // TODO: create response if it times out.
@@ -150,7 +151,9 @@ ADCS_returnState send_i2c_telecommand(uint8_t *command, uint32_t length) {
  *
  */
 ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint32_t length) {
-    xSemaphoreTake(uart_mutex, UART_TIMEOUT_MS); //  TODO: add error handling
+    if(xSemaphoreTake(uart_mutex, UART_TIMEOUT_MS) != pdTRUE){
+        return ADCS_UART_FAILED;
+    }
 
     uint8_t frame[5];
     frame[0] = ADCS_ESC_CHAR;
@@ -160,7 +163,10 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint3
     frame[4] = ADCS_EOM;
 
     sciSend(ADCS_SCI, 5, frame);
-    xSemaphoreTake(tx_semphr, UART_TIMEOUT_MS); //  TODO: add error handling
+    if(xSemaphoreTake(tx_semphr, UART_TIMEOUT_MS) != pdTRUE){
+        return ADCS_UART_FAILED;
+    }
+
     int received = 0;
     uint8_t reply[length + 5];
 

@@ -23,8 +23,6 @@
 
 #include "adcs_io.h"
 #include "adcs_types.h"
-#include "FreeRTOS.h"
-#include "os_queue.h"
 
 #define USE_UART
 //#define USE_I2C

@@ -546,6 +546,7 @@ void binaryTest_CubeSense1(void){
         while(1);
     }
 
+
     //now set the parameters
     params->cam1_sense.detect_th = 150;
     params->cam1_sense.exposure_t = 100; //assuming Cam1 is a nadir sensor. If a sun sensor, use 100.
@@ -553,12 +554,12 @@ void binaryTest_CubeSense1(void){
     params->cam1_sense.boresight_x = 512;
     params->cam1_sense.boresight_y = 512;
 //
-    printf("Running ADCS_set_cubesense_config...\n");\
+    printf("Running ADCS_set_cubesense_config...\n");
 
     test_returnState = ADCS_set_cubesense_config(params); //this function should be tested and checked before the command is sent
     if(test_returnState != ADCS_OK){
         printf("ADCS_set_cubesense_config returned %d \n", test_returnState);
-//        while(1);
+        while(1);
     }
 
     printf("Running ADCS_get_cubesense_config...\n");
@@ -620,7 +621,7 @@ void binaryTest_CubeSense1(void){
     printf("cubesense1_3v3_I = %f \n", power_temp_measurements->cubesense1_3v3_I);
     printf("cubesense1_camSram_I = %f \n", power_temp_measurements->cubesense1_camSram_I);
 
-    //vPortFree(power_temp_measurements);
+    vPortFree(power_temp_measurements);
 
     //ADCS_get_raw_sensor()
     adcs_raw_sensor *raw_sensor_measurements;
