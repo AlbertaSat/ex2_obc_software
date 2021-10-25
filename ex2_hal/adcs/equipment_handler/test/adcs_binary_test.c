@@ -1270,7 +1270,7 @@ void binaryTest_CubeControl_Sgn_MCU(void) {
 
     vPortFree(power_temp_measurements);
 
-    for(int iteration = 0; iteration++; iteration<2){
+    for(int iteration = 0; iteration++; iteration<12){
         //ADCS_get_raw_sensor()
 
         //Second time around, expose the coarse Sun sensors to a bright light, one by one.
@@ -1295,12 +1295,32 @@ void binaryTest_CubeControl_Sgn_MCU(void) {
 }
 
 void binaryTest_CubeMag_Sgn_MCU(void) {
+
+    ADCS_returnState test_returnState = ADCS_OK;
+    adcs_state test_adcs_state;
     //Test Section 6.1.1 CubeControl, Table 6-3,4 in test plan.
     //Using Command ADCS_get_current_state() - Table 89, select SigMainMag.
+    printf("Running ADCS_set_MTM_op_mode to set mode = Main MTM Sampled Through Signal...\n");
+    test_returnState = ADCS_set_MTM_op_mode(0);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_set_MTM_op_mode returned %d \n", test_returnState);
+        while(1);
+    }
+
     //Using Command ADCS_get_current_state() - Table 98,  ensure that the  Magnetometer Range Error is not checked.
     //If it is checked, then the magnetometer is  unable to measure a sufficient/overpowering magnetic field.
     //This can be solved by  ensuring that there is no contact to an anti-static mat or by placing the magnetometers
     //away from motors, power supplies, large ferromagnetic objects, etc.
+    //Run ADCS_get_current_state()
+    printf("Running ADCS_get_current_state...\n");
+    test_returnState = ADCS_get_current_state(&test_adcs_state);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_get_current_state returned %d \n", test_returnState);
+        while(1);
+    }
+
+    printf("Magnetometer Range Error = %d \n", test_adcs_state.flags_arr[10]);
+
 
     // Familiarise the axes of both magnetometers, as shown in Appendix A at the end of  this document.
 
@@ -1310,10 +1330,58 @@ void binaryTest_CubeMag_Sgn_MCU(void) {
     //(north) to align the axis with the magnetic vector. Now rotate the main magnetometer around  this axis.
     //The chosen axis must remain positive while the other two axes will both go  negative and positive through the rotation.
     //Repeat this for all three axes to verify  polarities.
+    adcs_raw_sensor *raw_sensor_measurements;
+    raw_sensor_measurements = (adcs_raw_sensor *)pvPortMalloc(sizeof(adcs_raw_sensor));
+    if (raw_sensor_measurements == NULL) {
+        printf("malloc issues");
+        while(1);
+    }
+    xyz16 mtm2;
+    for(int i = 0; i++; i<15){//repeating 5 times for each axis = 15 times
+
+        //ADCS_get_raw_sensor()
+        printf("Running ADCS_get_raw_sensor...\n");
+        test_returnState = ADCS_get_raw_sensor(raw_sensor_measurements);
+        if(test_returnState != ADCS_OK){
+            printf("ADCS_get_raw_sensor returned %d \n", test_returnState);
+            while(1);
+        }
+
+        printf("Raw Magnetometer X = %d \n", raw_sensor_measurements->MTM.x);//not 100% sure if this will print the sign of the float
+        printf("Raw Magnetometer Y = %d \n", raw_sensor_measurements->MTM.y);
+        printf("Raw Magnetometer Z = %d \n", raw_sensor_measurements->MTM.z);
+
+        //ADCS_get_raw_sensor()
+        printf("Running ADCS_get_MTM2_measurement...\n");
+        test_returnState = ADCS_get_MTM2_measurements(&mtm2);
+        if(test_returnState != ADCS_OK){
+            printf("ADCS_get_MTM2_measurement returned %d \n", test_returnState);
+            while(1);
+        }
+
+        printf("Raw Secondary Mag X = %d \n", mtm2.x);//not 100% sure if this will print the sign of the float
+        printf("Raw Secondary Mag Y = %d \n", mtm2.y);
+        printf("Raw Secondary Mag Z = %d \n", mtm2.z);
+    }
+
+
+    vPortFree(raw_sensor_measurements);
+
 
     //Rotate the  main magnetometer and verify in Table 6-4 that the magnetic field vector displays both positive
     //and negative in X, Y, and Z directions correctly. Fill the following table accordingly:
-
+    adcs_measures measurements;//TODO: change to malloc?
+    for(int i = 0; i++; i<15){//repeating 4 times for each axis = 15 times
+        printf("Running ADCS_get_measurements...\n");
+        test_returnState = ADCS_get_measurements(&measurements);
+        if(test_returnState != ADCS_OK){
+            printf("ADCS_get_measurements returned %d \n", test_returnState);
+            while(1);
+        }
+        printf("Magnetic Field X = %+f \n", measurements.magnetic_field.x);//not 100% sure if this will print the sign of the float
+        printf("Magnetic Field Y = %+f \n", measurements.magnetic_field.y);
+        printf("Magnetic Field Z = %+f \n", measurements.magnetic_field.z);
+    }
 }
 
 
