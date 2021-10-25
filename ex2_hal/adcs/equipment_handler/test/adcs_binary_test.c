@@ -1164,13 +1164,134 @@ void binaryTest_CubeSense2(void){
 }
 
 void binaryTest_CubeControl_Sgn_MCU(void) {
+
+    ADCS_returnState test_returnState = ADCS_OK;
     //Test Section 6.1 CubeControl, Table 6-1,2 in test plan.
+    uint8_t *control = (uint8_t*)pvPortMalloc(10);
+    if (control == NULL) {
+        return ADCS_MALLOC_FAILED;
+    }
+
+    //enable the ADCS
+    ADCS_set_enabled_state(1);
+
+    ADCS_set_unix_t(0,0);
+
     // Using Command ADCS_get_power_control() - Table 184, ensure that all nodes are selected PowOff before proceeding.
+    printf("Running ADCS_get_power_control...\n");
+    test_returnState = ADCS_get_power_control(&control);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_get_power_control returned %d \n", test_returnState);
+        while(1);
+    }
+    for(int i = 0; i<10; i++){
+        printf("control[%d] = %d \n", i, control[i]);
+    }
+
     // Using Command ADCS_set_power_control() - Table 184, switch on CubeControl Signal MCU by selecting PowOn.
+    //Section Variables
+    if (control == NULL) {
+        return ADCS_MALLOC_FAILED;
+    }
+    control[Set_CubeCTRLSgn_Power] = 1;
 
-    //Expose the coarse Sun sensors to a bright light, one by one.
-    //Verify the following in Table 6-2:
+    printf("Running ADCS_set_power_control...\n");
+    test_returnState = ADCS_set_power_control(control);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_set_power_control returned %d \n", test_returnState);
+        while(1);
+    }
 
+    //another read to make sure we are in the right state
+    printf("Running ADCS_get_power_control...\n");
+    test_returnState = ADCS_get_power_control(control);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_get_power_control returned %d \n", test_returnState);
+        while(1);
+    }
+    for(int i = 0; i<10; i++){
+        printf("control[%d] = %d \n", i, control[i]);
+    }
+
+    vPortFree(control);
+
+    adcs_state test_adcs_state;
+    //Run ADCS_get_current_state()
+    printf("Running ADCS_get_current_state...\n");
+    test_returnState = ADCS_get_current_state(&test_adcs_state);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_get_current_state returned %d \n", test_returnState);
+        while(1);
+    }
+
+    printf("att_estimate mode = %d \n", test_adcs_state.att_estimate_mode);
+    printf("att_ctrl_mode = %d \n", test_adcs_state.att_ctrl_mode);
+    printf("run_mode = %d \n", test_adcs_state.run_mode);
+    printf("CubeControl Signal Enabled = %d \n", test_adcs_state.flags_arr[0]);
+
+    //need to test if all other flags == 0. Simpler to do in code than via human.
+    uint8_t all_other_adcs_states_equal_zero = 0;
+    for(int i = 0; i<36; i++){//I think this is the right range.
+        if(test_adcs_state.flags_arr[i] != 0){
+            break;
+        }
+        if(i == 35){
+            all_other_adcs_states_equal_zero = 1;
+        }
+    }
+    if(all_other_adcs_states_equal_zero == 1){
+        printf("all other states (frame offsets 12 to 47) == 0 \n");
+    } else {
+        printf("all other states (frame offsets 12 to 47) != 0... halting code execution\n");
+        while(1);
+    }
+
+    //ADCS_get_power_temp()
+    adcs_pwr_temp *power_temp_measurements;
+    power_temp_measurements = (adcs_pwr_temp *)pvPortMalloc(sizeof(adcs_pwr_temp));
+    if (power_temp_measurements == NULL) {
+        printf("malloc issues");
+        while(1);
+    }
+
+    printf("Running ADCS_get_power_temp...\n");
+    test_returnState = ADCS_get_power_temp(power_temp_measurements);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_get_power_temp returned %d \n", test_returnState);
+        while(1);
+    }
+
+    printf("cubecontrol_3v3_I = %f \n", power_temp_measurements->cubecontrol_3v3_I);
+    printf("cubecontrol_5v_I = %f \n", power_temp_measurements->cubecontrol_5v_I);
+    printf("cubecontrol_vBat_I = %f \n", power_temp_measurements->cubecontrol_vBat_I);
+    printf("MCU_temp = %f \n", power_temp_measurements->MCU_temp);
+    printf("MTM_temp = %f \n", power_temp_measurements->MTM_temp);
+    printf("MTM2_temp = %f \n", power_temp_measurements->MTM2_temp);
+
+    vPortFree(power_temp_measurements);
+
+    for(int iteration = 0; iteration++; iteration<2){
+        //ADCS_get_raw_sensor()
+
+        //Second time around, expose the coarse Sun sensors to a bright light, one by one.
+        //Verify the following in Table 6-2:
+        adcs_raw_sensor *raw_sensor_measurements;
+        raw_sensor_measurements = (adcs_raw_sensor *)pvPortMalloc(sizeof(adcs_raw_sensor));
+        if (raw_sensor_measurements == NULL) {
+            printf("malloc issues");
+            while(1);
+        }
+        printf("Running ADCS_get_raw_sensor...\n");
+        test_returnState = ADCS_get_raw_sensor(raw_sensor_measurements);
+        if(test_returnState != ADCS_OK){
+            printf("ADCS_get_raw_sensor returned %d \n", test_returnState);
+            while(1);
+        }
+
+        for(int i = 0; i++; i<10){
+            printf("CSS%d = %d \n", i, raw_sensor_measurements->css[i]);
+        }
+    }
 }
 
 void binaryTest_CubeMag_Sgn_MCU(void) {
