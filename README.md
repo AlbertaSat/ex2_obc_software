@@ -1,5 +1,5 @@
 # EX2_OBC_SOFTWARE  [![CircleCI](https://circleci.com/gh/AlbertaSat/ex2_obc_software.svg?style=svg)](https://circleci.com/gh/AlbertaSat/ex2_obc_software)
-Welcome 👋 - this is the central repository for the Ex-alta 2 OBC, dubbed 'Athena'. 
+Welcome 👋 - this is the central repository for the Ex-Alta 2 OBC, dubbed 'Athena'. 
 
 The software in this repository reflects the designs found in the Ex-Alta 2 Critical Design Review document, and separate folders contain software submodules for the Equipment Handlers (EH), Hardware Interface (HIL) and On-board services.
 
@@ -23,6 +23,7 @@ The software in this repository reflects the designs found in the Ex-Alta 2 Crit
 2. Clone this repository and run the auto configure script:
 ```./configre_repo.sh```
 Note: Just `cd` into the submodule and change branches from there if you need some branch other than `master`
+Note: You must have git version 2.23 or greater in order for the git switch command to work. Check your version using ```git --version```
 
 3. [Download](https://software-dl.ti.com/ccs/esd/documents/ccs_downloads.html) Code Composer Studio v10 
 
