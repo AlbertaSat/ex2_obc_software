@@ -30,6 +30,11 @@
 
 #include "adcs_handler.h"
 #include "adcs_io.h"
+#include "FreeRTOS.h"
+
+void CubeMag_Common_Test(bool);
+void CubeTorquers_Common_Test(void);
+void binaryTest_CubeSense1(void);
 
 void binaryTest(void) {//TODO: add enums for all adcs_handler functions called
 
@@ -176,7 +181,7 @@ void binaryTest_Bootloader(void){
     memset(&flags_arr, 0 , 12);
 
     printf("Running ADCS_get_comms_stat...\n");
-    test_returnState = ADCS_get_comms_stat(&TC_num, &TM_num, &flags_arr); // TODO: fix this
+    test_returnState = ADCS_get_comms_stat(&TC_num, &TM_num, flags_arr); // TODO: fix this
     if(test_returnState != ADCS_OK){
         printf("ADCS_get_comms_stat returned %d \n", test_returnState);
         while(1);
@@ -324,10 +329,13 @@ void binaryTest_CubeACP(void){
     printf("multi_sram = %d \n", multi_sram);
 
     //Test Section 4.2 CubeACP, Table 4-3 in test plan.
-    uint8_t control[10] = {0};
+    uint8_t *control = (uint8_t*)pvPortMalloc(10);
+    if (control == NULL) {
+        return ADCS_MALLOC_FAILED;
+    }
 
     printf("Running ADCS_get_power_control...\n");
-    test_returnState = ADCS_get_power_control(&control);
+    test_returnState = ADCS_get_power_control(control);
     if(test_returnState != ADCS_OK){
         printf("ADCS_get_power_control returned %d \n", test_returnState);
         while(1);
@@ -335,6 +343,8 @@ void binaryTest_CubeACP(void){
     for(int i = 0; i<10; i++){
         printf("control[%d] = %d \n", i, control[i]);
     }
+
+    vPortFree(control);
 
     //Test Section 4.2 CubeACP, Table 4-3 in test plan.
     adcs_state test_adcs_state;//init as 0?
@@ -923,10 +933,13 @@ void binaryTest_CubeSense2(void){
     ADCS_returnState test_returnState = ADCS_OK;
 
     //Section Variables
-    uint8_t control[10] = {2};
+    uint8_t *control = (uint8_t*)pvPortMalloc(10);
+    if (control == NULL) {
+        return ADCS_MALLOC_FAILED;
+    }
 
     printf("Running ADCS_get_power_control...\n");
-    test_returnState = ADCS_get_power_control(&control);
+    test_returnState = ADCS_get_power_control(control);
     if(test_returnState != ADCS_OK){
         printf("ADCS_get_power_control returned %d \n", test_returnState);
         while(1);
@@ -936,17 +949,20 @@ void binaryTest_CubeSense2(void){
     }
 
 
+
     //Using Command ADCS_set_power_control() - Table 184, switch on CubeSense2 by selecting PowOn.
     //Section Variables
     control[Set_CubeSense1_Power] = 0;//ensures that cam1 is off
     control[Set_CubeSense2_Power] = 1;
 
     printf("Running ADCS_set_power_control...\n");
-    test_returnState = ADCS_set_power_control(&control);
+    test_returnState = ADCS_set_power_control(control);
     if(test_returnState != ADCS_OK){
         printf("ADCS_get_power_control returned %d \n", test_returnState);
         while(1);
     }
+
+    vPortFree(control);
 
     //Ensure that the lens cap is on.
 
@@ -1179,7 +1195,7 @@ void binaryTest_CubeControl_Sgn_MCU(void) {
 
     // Using Command ADCS_get_power_control() - Table 184, ensure that all nodes are selected PowOff before proceeding.
     printf("Running ADCS_get_power_control...\n");
-    test_returnState = ADCS_get_power_control(&control);
+    test_returnState = ADCS_get_power_control(control);
     if(test_returnState != ADCS_OK){
         printf("ADCS_get_power_control returned %d \n", test_returnState);
         while(1);
@@ -1270,7 +1286,7 @@ void binaryTest_CubeControl_Sgn_MCU(void) {
 
     vPortFree(power_temp_measurements);
 
-    for(int iteration = 0; iteration++; iteration<12){
+    for(int iteration = 0; iteration<12; iteration++){
         //ADCS_get_raw_sensor()
 
         //Second time around, expose the coarse Sun sensors to a bright light, one by one.
@@ -1288,7 +1304,7 @@ void binaryTest_CubeControl_Sgn_MCU(void) {
             while(1);
         }
 
-        for(int i = 0; i++; i<10){
+        for(int i = 0; i<10; i++){
             printf("CSS%d = %d \n", i, raw_sensor_measurements->css[i]);
         }
     }
@@ -1296,21 +1312,102 @@ void binaryTest_CubeControl_Sgn_MCU(void) {
 
 void binaryTest_CubeMag_Sgn_MCU(void) {
 
+    CubeMag_Common_Test(0);
+}
+
+
+
+void binaryTest_CubeTorquers_Sgn_MCU(void) {
+
+    //Test Section 6.1.3 CubeMag, Table 6-5 in test plan.
+
+    //Using Command ADCS_set_magnetorquer_output() - Table 81. Command the magnetorquer coil (X-axis) to maximum positive value.
     ADCS_returnState test_returnState = ADCS_OK;
-    adcs_state test_adcs_state;
-    //Test Section 6.1.1 CubeControl, Table 6-3,4 in test plan.
-    //Using Command ADCS_get_current_state() - Table 89, select SigMainMag.
-    printf("Running ADCS_set_MTM_op_mode to set mode = Main MTM Sampled Through Signal...\n");
-    test_returnState = ADCS_set_MTM_op_mode(0);
+    printf("Running ADCS_set_attitude_ctrl_mode...\n");
+    test_returnState = ADCS_set_attitude_ctrl_mode(0, 0XFFFF);//no timeout (infinite time)
     if(test_returnState != ADCS_OK){
-        printf("ADCS_set_MTM_op_mode returned %d \n", test_returnState);
+        printf("ADCS_set_attitude_ctrl_mode returned %d \n", test_returnState);
         while(1);
     }
 
-    //Using Command ADCS_get_current_state() - Table 98,  ensure that the  Magnetometer Range Error is not checked.
-    //If it is checked, then the magnetometer is  unable to measure a sufficient/overpowering magnetic field.
-    //This can be solved by  ensuring that there is no contact to an anti-static mat or by placing the magnetometers
-    //away from motors, power supplies, large ferromagnetic objects, etc.
+    CubeTorquers_Common_Test();
+
+    //Using Command ADCS_set_power_control() - Table 184, switch off CubeControl Signal MCU by selecting PowOff.
+    uint8_t *control = (uint8_t*)pvPortMalloc(10);
+    if (control == NULL) {
+        return ADCS_MALLOC_FAILED;
+    }
+
+    for(int i = 0; i<10; i++){
+       control[i] = 0;
+    }
+    //I assume 0 = PowOff?
+
+    printf("Running ADCS_set_power_control...\n");
+    test_returnState = ADCS_set_power_control(control);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_set_power_control returned %d \n", test_returnState);
+        while(1);
+    }
+
+
+}
+
+void binaryTest_CubeControl_Motor_MCU(void) {
+    //Test Section 6.2 CubeControl, Table 6-6 in test plan.
+
+    ADCS_returnState test_returnState = ADCS_OK;
+
+    //Using Command ADCS_get_power_control() - Table 184, ensure that all nodes are selected PowOff before proceeding.
+    //Section Variables
+    uint8_t *control = (uint8_t*)pvPortMalloc(10);
+    if (control == NULL) {
+        return ADCS_MALLOC_FAILED;
+    }
+
+
+    printf("Running ADCS_get_power_control...\n");
+    test_returnState = ADCS_get_power_control(control);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_get_power_control returned %d \n", test_returnState);
+        while(1);
+    }
+    for(int i = 0; i<10; i++){
+        printf("control[%d] = %d \n", i, control[i]);
+    }
+
+
+    //Using Command ADCS_set_power_control() - Table 184, switch on CubeControl’s Motor MCU by selecting PowOn.
+    //Section Variables
+    if (control == NULL) {
+        return ADCS_MALLOC_FAILED;
+    }
+    control[Set_CubeCTRLMtr_Power] = 1;
+
+    printf("Running ADCS_set_power_control...\n");
+    test_returnState = ADCS_set_power_control(control);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_set_power_control returned %d \n", test_returnState);
+        while(1);
+    }
+
+    //another read to make sure we are in the right state
+    printf("Running ADCS_get_power_control...\n");
+    test_returnState = ADCS_get_power_control(control);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_get_power_control returned %d \n", test_returnState);
+        while(1);
+    }
+    for(int i = 0; i<10; i++){
+        printf("control[%d] = %d \n", i, control[i]);
+    }
+
+    vPortFree(control);
+
+
+    //Verify the following in Table 6-6:
+
+    adcs_state test_adcs_state;
     //Run ADCS_get_current_state()
     printf("Running ADCS_get_current_state...\n");
     test_returnState = ADCS_get_current_state(&test_adcs_state);
@@ -1319,8 +1416,152 @@ void binaryTest_CubeMag_Sgn_MCU(void) {
         while(1);
     }
 
-    printf("Magnetometer Range Error = %d \n", test_adcs_state.flags_arr[10]);
+    printf("att_estimate mode = %d \n", test_adcs_state.att_estimate_mode);
+    printf("att_ctrl_mode = %d \n", test_adcs_state.att_ctrl_mode);
+    printf("run_mode = %d \n", test_adcs_state.run_mode);
+    printf("CubeControl Motor Enabled = %d \n", test_adcs_state.flags_arr[1]);
 
+    //need to test if all other flags == 0. Simpler to do in code than via human.
+    uint8_t all_other_adcs_states_equal_zero = 0;
+    for(int i = 0; i<36; i++){//I think this is the right range.
+        if(test_adcs_state.flags_arr[i] != 0){
+            break;
+        }
+        if(i == 35){
+            all_other_adcs_states_equal_zero = 1;
+        }
+    }
+    if(all_other_adcs_states_equal_zero == 1){
+        printf("all other states (frame offsets 12 to 47) == 0 \n");
+    } else {
+        printf("all other states (frame offsets 12 to 47) != 0... halting code execution\n");
+        while(1);
+    }
+
+    //ADCS_get_power_temp()
+    adcs_pwr_temp *power_temp_measurements;
+    power_temp_measurements = (adcs_pwr_temp *)pvPortMalloc(sizeof(adcs_pwr_temp));
+    if (power_temp_measurements == NULL) {
+        printf("malloc issues");
+        while(1);
+    }
+
+    printf("Running ADCS_get_power_temp...\n");
+    test_returnState = ADCS_get_power_temp(power_temp_measurements);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_get_power_temp returned %d \n", test_returnState);
+        while(1);
+    }
+
+    printf("X-Rate Sensor Temperature = %f \n", power_temp_measurements->rate_sensor_temp.x);
+    printf("Y-Rate Sensor Temperature = %f \n", power_temp_measurements->rate_sensor_temp.y);
+    printf("Z-Rate Sensor Temperature = %f \n", power_temp_measurements->rate_sensor_temp.z);
+
+    vPortFree(power_temp_measurements);
+
+
+    adcs_measures *measurements;
+    measurements = (adcs_measures *)pvPortMalloc(sizeof(adcs_measures));
+    if (power_temp_measurements == NULL) {
+        printf("malloc issues");
+        while(1);
+    }
+
+    for(int i = 0; i<15; i++){//repeating 5 times for each axis = 15 times
+        printf("Running ADCS_get_measurements...\n");
+        test_returnState = ADCS_get_measurements(measurements);
+        if(test_returnState != ADCS_OK){
+            printf("ADCS_get_measurements returned %d \n", test_returnState);
+            while(1);
+        }
+        printf("Angular Rate X = %+f \n", measurements->angular_rate.x);//not 100% sure if this will print the sign of the float
+        printf("Angular Rate Y = %+f \n", measurements->angular_rate.y);
+        printf("Angular Rate Z = %+f \n", measurements->angular_rate.z);
+    }
+
+    vPortFree(measurements);
+
+}
+
+void binaryTest_CubeMag_Motor_MCU(void) {
+    //Test Section 6.2.1 CubeMag, Table 6-7,8 in test plan.
+
+    CubeMag_Common_Test(0);
+
+}
+
+void binaryTest_CubeTorquers_Motor_MCU(void) {
+    //Test Section 6.2.2 CubeTorquers, Table 6-9 in test plan.
+
+    CubeTorquers_Common_Test();
+
+}
+
+void binaryTest_CubeWheel_BurnIn_MCU(void) {
+    //Test Section 7 CubeControl, Table 7-1 in test plan.
+
+    //Using Command ADCS_get_power_control() - Table 184, ensure that all nodes are selected PowOff before proceeding.
+
+    //Using Command ADCS_set_power_control() - Table 184, switch on CubeWheel1Power, CubeWheel2Power, and CubeWheel3Power Power Selection by selecting PowOn.
+
+    //Verify the following in Table 7-1
+}
+
+void binaryTest_CubeWheel1_MCU(void) {
+    //Test Section 6.1 CubeControl, Table 6-1,2 in test plan.
+}
+
+void binaryTest_CubeWheel2_MCU(void) {
+    //Test Section 6.1 CubeControl, Table 6-1,2 in test plan.
+}
+
+void binaryTest_CubeWheel3_MCU(void) {
+    //Test Section 6.1 CubeControl, Table 6-1,2 in test plan.
+}
+
+
+
+//BELOW HERE LIES CODE THAT IS COMMON FOR MULTIPLE PARTS OF BINARY TEST PLAN. THESE FUNCTIONS
+//ARE CALLED BY FUNCTIONS ABOVE HERE, AND SHOULD NOT BE RUN IN ISOLATION
+
+void CubeMag_Common_Test(bool signalMCU){
+
+    ADCS_returnState test_returnState = ADCS_OK;
+    adcs_state test_adcs_state;
+
+    uint8_t MTM_op_mode;
+    //Test Section 6.1.1 CubeControl, Table 6-3,4 in test plan.
+    //Using Command ADCS_get_current_state() - Table 89, select SigMainMag.
+    if(signalMCU == 1){
+        printf("Running ADCS_set_MTM_op_mode to Main MTM Sampled Through Signal...\n");
+        MTM_op_mode = 0;
+    }
+    else if (signalMCU ==0){
+        printf("Running ADCS_set_MTM_op_mode to Main MTM Sampled Through motor...\n");
+        MTM_op_mode = 2;
+    }
+
+    test_returnState = ADCS_set_MTM_op_mode(MTM_op_mode);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_set_MTM_op_mode returned %d \n", test_returnState);
+        while(1);
+    }
+
+    if(signalMCU == 1){
+        //Using Command ADCS_get_current_state() - Table 98,  ensure that the  Magnetometer Range Error is not checked.
+        //If it is checked, then the magnetometer is  unable to measure a sufficient/overpowering magnetic field.
+        //This can be solved by  ensuring that there is no contact to an anti-static mat or by placing the magnetometers
+        //away from motors, power supplies, large ferromagnetic objects, etc.
+        //Run ADCS_get_current_state()
+        printf("Running ADCS_get_current_state...\n");
+        test_returnState = ADCS_get_current_state(&test_adcs_state);
+        if(test_returnState != ADCS_OK){
+            printf("ADCS_get_current_state returned %d \n", test_returnState);
+            while(1);
+        }
+
+        printf("Magnetometer Range Error = %d \n", test_adcs_state.flags_arr[10]);
+    }
 
     // Familiarise the axes of both magnetometers, as shown in Appendix A at the end of  this document.
 
@@ -1337,7 +1578,7 @@ void binaryTest_CubeMag_Sgn_MCU(void) {
         while(1);
     }
     xyz16 mtm2;
-    for(int i = 0; i++; i<15){//repeating 5 times for each axis = 15 times
+    for(int i = 0; i<15; i++){//repeating 5 times for each axis = 15 times
 
         //ADCS_get_raw_sensor()
         printf("Running ADCS_get_raw_sensor...\n");
@@ -1370,104 +1611,135 @@ void binaryTest_CubeMag_Sgn_MCU(void) {
 
     //Rotate the  main magnetometer and verify in Table 6-4 that the magnetic field vector displays both positive
     //and negative in X, Y, and Z directions correctly. Fill the following table accordingly:
-    adcs_measures measurements;//TODO: change to malloc?
-    for(int i = 0; i++; i<15){//repeating 4 times for each axis = 15 times
+
+    adcs_measures *measurements;
+    measurements = (adcs_measures *)pvPortMalloc(sizeof(adcs_measures));
+    if (measurements == NULL) {
+        printf("malloc issues");
+        while(1);
+    }
+
+    for(int i = 0; i<15; i++){//repeating 5 times for each axis = 15 times
         printf("Running ADCS_get_measurements...\n");
-        test_returnState = ADCS_get_measurements(&measurements);
+        test_returnState = ADCS_get_measurements(measurements);
         if(test_returnState != ADCS_OK){
             printf("ADCS_get_measurements returned %d \n", test_returnState);
             while(1);
         }
-        printf("Magnetic Field X = %+f \n", measurements.magnetic_field.x);//not 100% sure if this will print the sign of the float
-        printf("Magnetic Field Y = %+f \n", measurements.magnetic_field.y);
-        printf("Magnetic Field Z = %+f \n", measurements.magnetic_field.z);
+        printf("Magnetic Field X = %+f \n", measurements->magnetic_field.x);//not 100% sure if this will print the sign of the float
+        printf("Magnetic Field Y = %+f \n", measurements->magnetic_field.y);
+        printf("Magnetic Field Z = %+f \n", measurements->magnetic_field.z);
     }
-}
 
-
-
-void binaryTest_CubeTorquers_Sgn_MCU(void) {
-    //Test Section 6.1.3 CubeMag, Table 6-5 in test plan.
-
-    //Using Command ADCS_set_magnetorquer_output() - Table 81. Command the magnetorquer coil (X-axis) to maximum positive value.
-
-    //Confirm the current measurement and the direction of the magnetic field in the table  below.
-    //The direction can be confirmed by either placing a compass directly in line with  the magnetorquer and observing the field
-    //direction or by using an external  magnetometer. Note that the magnetorquer pulses on for a maximum of 0.8 seconds  and then switches off.
-
-    //Change the command to maximum negative and confirm the current and direction  again.
-
-    //Command the magnetorquer to zero to turn off the magnetorquer.
-    //Repeat these steps for the Y and Z magnetorquer rods and record the required values in table 6-5.
+    vPortFree(measurements);
 
 }
 
-void binaryTest_CubeControl_Motor_MCU(void) {
-    //Test Section 6.2 CubeControl, Table 6-6 in test plan.
+void CubeTorquers_Common_Test(void){
 
-    //Using Command ADCS_get_power_control() - Table 184, ensure that all nodes are selected PowOff before proceeding.
+    ADCS_returnState test_returnState = ADCS_OK;
 
-    //Using Command ADCS_set_power_control() - Table 184, switch on CubeControl’s Motor MCU by selecting PowOn.
+    adcs_pwr_temp *power_temp_measurements;
+    power_temp_measurements = (adcs_pwr_temp *)pvPortMalloc(sizeof(adcs_pwr_temp));
+    if (power_temp_measurements == NULL) {
+        printf("malloc issues");
+        while(1);
+    }
 
-    //Verify the following in Table 6-6:
+    xyz16 dutycycle = {1000, 0, 0};//TODO Verify this!
+    for (int i = 0; i<3; i++){
+
+        switch (i) {
+            case 0:
+                printf("Testing X-axis magnetorquer");
+                break;
+            case 1:
+                dutycycle.x = 0;
+                dutycycle.y = 1000;
+                dutycycle.z = 0;
+                printf("Testing Y-axis magnetorquer");
+                break;
+            case 2:
+                dutycycle.x = 0;
+                dutycycle.y = 0;
+                dutycycle.z = 1000;
+                printf("Testing Z-axis magnetorquer");
+                break;
+        }
+
+        //ADCS_set_magnetorquer_output
+        printf("Running ADCS_set_magnetorquer_output -POSITIVE DIRECTION-...\n");
+        test_returnState = ADCS_set_magnetorquer_output(dutycycle);
+        if(test_returnState != ADCS_OK){
+            printf("ADCS_set_magnetorquer_output returned %d \n", test_returnState);
+            while(1);
+        }
+        //Confirm the current measurement and the direction of the magnetic field in the table  below.
+        //The direction can be confirmed by either placing a compass directly in line with  the magnetorquer and observing the field
+        //direction or by using an external  magnetometer. Note that the magnetorquer pulses on for a maximum of 0.8 seconds  and then switches off.
+
+        //ADCS_get_power_temp()
+        printf("Running ADCS_get_power_temp...\n");
+        test_returnState = ADCS_get_power_temp(power_temp_measurements);
+        if(test_returnState != ADCS_OK){
+            printf("ADCS_get_power_temp returned %d \n", test_returnState);
+            while(1);
+        }
+
+        printf("magnetorquer_I = %f \n", power_temp_measurements->magnetorquer_I);
+
+        //Change the command to maximum negative and confirm the current and direction  again.
+        dutycycle.x = -(dutycycle.x);
+        dutycycle.y = -(dutycycle.y);
+        dutycycle.z = -(dutycycle.z);
+        //ADCS_set_magnetorquer_output
+        printf("Running ADCS_set_magnetorquer_output (NEGATIVE DIRECTION)...\n");
+        test_returnState = ADCS_set_magnetorquer_output(dutycycle);
+        if(test_returnState != ADCS_OK){
+            printf("ADCS_set_magnetorquer_output returned %d \n", test_returnState);
+            while(1);
+        }
+        //Confirm the current measurement and the direction of the magnetic field in the table  below.
+        //The direction can be confirmed by either placing a compass directly in line with  the magnetorquer and observing the field
+        //direction or by using an external  magnetometer. Note that the magnetorquer pulses on for a maximum of 0.8 seconds  and then switches off.
+
+        //ADCS_get_power_temp()
+        printf("Running ADCS_get_power_temp...\n");
+        test_returnState = ADCS_get_power_temp(power_temp_measurements);
+        if(test_returnState != ADCS_OK){
+            printf("ADCS_get_power_temp returned %d \n", test_returnState);
+            while(1);
+        }
+
+        printf("magnetorquer_I = %f \n", power_temp_measurements->magnetorquer_I);
+
+        //Command the magnetorquer to zero to turn off the magnetorquer.
+        dutycycle.x = 0;
+        dutycycle.y = 0;
+        dutycycle.z = 0;
+        //ADCS_set_magnetorquer_output
+        printf("Running ADCS_set_magnetorquer_output (OFF)...\n");
+        test_returnState = ADCS_set_magnetorquer_output(dutycycle);
+        if(test_returnState != ADCS_OK){
+            printf("ADCS_set_magnetorquer_output returned %d \n", test_returnState);
+            while(1);
+        }
+
+        //Ensure all magnetorquers are turned off before continuing
+
+        //ADCS_get_power_temp()
+        printf("Running ADCS_get_power_temp...\n");
+        test_returnState = ADCS_get_power_temp(power_temp_measurements);
+        if(test_returnState != ADCS_OK){
+            printf("ADCS_get_power_temp returned %d \n", test_returnState);
+            while(1);
+        }
+
+        printf("magnetorquer_I = %f \n", power_temp_measurements->magnetorquer_I);
+
+        //Repeat these steps for the Y and Z magnetorquer rods and record the required values in table 6-5.
+    }
+
+    vPortFree(power_temp_measurements);
 
 }
-
-void binaryTest_CubeMag_Motor_MCU(void) {
-    //Test Section 6.2.1 CubeMag, Table 6-7,8 in test plan.
-
-    //Using Command ADCS_set_MTM_op_mode() - Table 89,  select MotorMainMag.
-
-    //Rotate the main magnetometer and confirm the values using Command ADCS_get_raw_sensor() - Table 128.
-
-    //Verify the operation of the  magnetometer(s) in Table 6-7 by using the Commands ADCS_get_raw_sensor()/ADCS_get_MTM2_measurements() -
-    //Table 128 and Table 163. Choose an axis on the main magnetometer and  point it in the positive direction of the
-    //magnetic field lines (north) to align the axis with  the magnetic vector. Now rotate the main magnetometer around this axis.
-    //The chosen  axis must remain positive while the other two axes will both go negative and positive through the rotation.
-    //Repeat this for all three axes to verify polarities.
-
-    //Rotate the  main magnetometer and verify that the magnetic field vector displays both positive  and negative in X, Y, and Z directions correctly.
-    //Once complete, fill in the following Table 6-8 accordingly:
-
-}
-
-void binaryTest_CubeTorquers_Motor_MCU(void) {
-    //Test Section 6.2.2 CubeTorquers, Table 6-9 in test plan.
-
-    //Using Command ADCS_set_magnetorquer_output() - Table 81, command the magnetorquer coil (X-axis) to maximum positive value.
-
-    //Confirm the current measurement and the direction of the magnetic field in the table  below. The direction can be confirmed
-    //by either placing a compass directly in line with  the magnetorquer and observing the field direction or by using an external  magnetometer.
-    //Note that the magnetorquer pulses on for a maximum of 0.8 seconds  and then switches off.
-
-    //Change the command to maximum negative and confirm the current and direction  again.
-
-    //Command the magnetorquer to zero to turn off the magnetorquer.
-    //Repeat these steps for the Y and Z magnetorquer rods and record the required values  in Table 6-9.
-
-    //Ensure that all the magnetorquer duty cycles are set to zero (turned off) before  continuing the health check.
-}
-
-void binaryTest_CubeWheel_BurnIn_MCU(void) {
-    //Test Section 7 CubeControl, Table 7-1 in test plan.
-
-    //Using Command ADCS_get_power_control() - Table 184, ensure that all nodes are selected PowOff before proceeding.
-
-    //Using Command ADCS_set_power_control() - Table 184, switch on CubeWheel1Power, CubeWheel2Power, and CubeWheel3Power Power Selection by selecting PowOn.
-
-    //Verify the following in Table 7-1
-}
-
-void binaryTest_CubeWheel1_MCU(void) {
-    //Test Section 6.1 CubeControl, Table 6-1,2 in test plan.
-}
-
-void binaryTest_CubeWheel2_MCU(void) {
-    //Test Section 6.1 CubeControl, Table 6-1,2 in test plan.
-}
-
-void binaryTest_CubeWheel3_MCU(void) {
-    //Test Section 6.1 CubeControl, Table 6-1,2 in test plan.
-}
-
-
