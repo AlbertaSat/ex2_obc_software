@@ -25,6 +25,8 @@ SAT_returnState start_leop_daemon(void);
 
 Deployable_t sw;
 
+Deployable_TypeDef sw;
+
 //LEOP Sequence
 
 /**
