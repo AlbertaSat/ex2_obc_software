@@ -1252,7 +1252,7 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
     case ADCS_SET_CUBESENSE_CONFIG: {
         cubesense_config config;
         memcpy(&config, packet->data[IN_DATA_BYTE], sizeof(cubesense_config));
-        status = ADCS_set_cubesense_config(config);
+        status = ADCS_set_cubesense_config(&config);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         set_packet_length(packet, sizeof(int8_t) + 1);
         break;
