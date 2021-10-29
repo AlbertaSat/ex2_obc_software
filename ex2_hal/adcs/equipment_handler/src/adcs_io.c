@@ -102,8 +102,11 @@ ADCS_returnState send_uart_telecommand(uint8_t *command, uint32_t length) {
     xQueueReset(adcsQueue);
 
     while (received < 6) {
-        if(!xQueueReceive(adcsQueue, reply+received, UART_TIMEOUT_MS))return ADCS_UART_FAILED;
-        received++;
+        if(xQueueReceive(adcsQueue, reply+received, UART_TIMEOUT_MS) == pdFAIL){
+            return ADCS_UART_FAILED;
+        }else{
+            received++;
+        }
     }
     ADCS_returnState TC_err_flag = reply[3];
     xSemaphoreGive(uart_mutex);
@@ -172,8 +175,11 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint3
     xQueueReset(adcsQueue);
 
     while (received < length + 5) {
-        if(!xQueueReceive(adcsQueue, reply+received, UART_TIMEOUT_MS))return ADCS_UART_FAILED;
-        received++;
+        if(xQueueReceive(adcsQueue, reply+received, UART_TIMEOUT_MS) == pdFAIL){
+            return ADCS_UART_FAILED;
+        }else{
+            received++;
+        }
     }
 
     for (int i = 0; i < length; i++) {
@@ -199,8 +205,11 @@ void receieve_uart_packet(uint8_t *hole_map, uint8_t *image_bytes) {
     uint8_t reply[22+5] = {0};
 
     while (received < (22+5)) {
-        xQueueReceive(adcsQueue, reply+received, UART_TIMEOUT_MS); // TODO: exit function once timeout finishes
-        received++;
+        if(xQueueReceive(adcsQueue, reply+received, UART_TIMEOUT_MS) == pdFAIL){
+            return ADCS_UART_FAILED;
+        }else{
+            received++;
+        }
     }
     pixel = reply[4]*256 + reply[3];
     *hole_map = *hole_map | 0x1 << pixel;
