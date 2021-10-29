@@ -102,9 +102,8 @@ ADCS_returnState send_uart_telecommand(uint8_t *command, uint32_t length) {
     xQueueReset(adcsQueue);
 
     while (received < 6) {
-        if(xQueueReceive(adcsQueue, reply+received, UART_TIMEOUT_MS) != 0){ // TODO: create response if it times out.
-            received++;
-        }
+        if(!xQueueReceive(adcsQueue, reply+received, UART_TIMEOUT_MS))return ADCS_UART_FAILED;
+        received++;
     }
     ADCS_returnState TC_err_flag = reply[3];
     xSemaphoreGive(uart_mutex);
@@ -173,9 +172,8 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint3
     xQueueReset(adcsQueue);
 
     while (received < length + 5) {
-        if(xQueueReceive(adcsQueue, reply+received, UART_TIMEOUT_MS) != 0){
-            received++;
-        }
+        if(!xQueueReceive(adcsQueue, reply+received, UART_TIMEOUT_MS))return ADCS_UART_FAILED;
+        received++;
     }
 
     for (int i = 0; i < length; i++) {
