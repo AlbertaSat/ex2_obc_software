@@ -36,11 +36,11 @@ static void uhf_watchdog_daemon(void *pvParameters) {
     TickType_t delay = pdMS_TO_TICKS(3 * 60 * 1000); // 3 minutes
     for (;;) {
         // Get status word from UHF
-        uint8_t status[32];
+        char status[32];
         const unsigned int retries = 3;
         UHF_return err;
         for (int i = 0; i < retries; i++) {
-            err = UHF_get_status(status);
+            err = HAL_UHF_getSCW(status);
             if (err == U_GOOD_CONFIG) {
                 break;
             }
@@ -49,7 +49,7 @@ static void uhf_watchdog_daemon(void *pvParameters) {
         if (err != U_GOOD_CONFIG) {
             ex2_log("UHF was not responsive - attempting to toggle power.");
             // Toggle the UHF.
-            unsigned int timeout = pdMS_TO_TICKS(30 * 1000); // 30 seconds
+            const unsigned int timeout = pdMS_TO_TICKS(30 * 1000); // 30 seconds
             eps_set_pwr_chnl(UHF_PWR_CHNL, OFF);
             TickType_t start = xTaskGetTickCount();
 
