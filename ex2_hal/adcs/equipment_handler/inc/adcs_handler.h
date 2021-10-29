@@ -588,8 +588,8 @@ ADCS_returnState ADCS_get_raw_GPS(adcs_raw_gps *measurements);
 void get_star_data(star_data *coordinate, uint8_t *address, uint8_t i);
 ADCS_returnState ADCS_get_star_tracker(adcs_star_track *measurements);
 ADCS_returnState ADCS_get_MTM2_measurements(xyz16 *Mag);
-void get_current(float *measurement, uint8_t *address, float coef);
-void get_temp(float *measurement, uint8_t *address, float coef);
+void get_current(float *measurement, uint16_t raw, float coef);
+void get_temp(float *measurement, uint16_t raw, float coef);
 ADCS_returnState ADCS_get_power_temp(adcs_pwr_temp *measurements);
 
 // ACP Config Msgs

@@ -281,11 +281,14 @@ ADCS_returnState ADCS_load_file_download_block(uint8_t file_type, uint8_t counte
     command[0] = LOAD_FILE_DOWNLOAD_BLOCK_ID;
     command[1] = file_type;
     command[2] = counter;
-    memcpy(&command[3], &offset, 4);
-    command[7] = block_length & 0xFF;
-    command[8] = block_length >> 8;
+    command[3] = offset & 0x000000FF;
+    command[4] = (offset >> 8) & 0x000000FF;
+    command[5] = (offset >> 16) & 0x000000FF;
+    command[6] = (offset >> 24) & 0x000000FF;
+    command[7] = block_length & 0x00FF;
+    command[8] = (block_length >> 8) & 0x00FF;
 
-    return adcs_telecommand(command, 5); //* tested + (command[6] * 256 * 256 * 256 + command[5] *
+    return adcs_telecommand(command, 9); //* tested + (command[6] * 256 * 256 * 256 + command[5] *
                                          // 256 * 256 + command[4] * 256 + command[3])
 }
 
@@ -575,8 +578,8 @@ ADCS_returnState ADCS_get_file_download_block_stat(bool *ready, bool *param_err,
     state = adcs_telemetry(DL_BLOCK_STAT_ID, telemetry, 5);
     *ready = telemetry[0] & 0x1;
     *param_err = telemetry[0] & 0x2;
-    *crc16_checksum = (telemetry[2] << 8) + telemetry[1];
-    *length = (telemetry[4] << 8) | telemetry[3];
+    *crc16_checksum = ((telemetry[2] << 8) & 0xFF00) | telemetry[1];
+    *length = ((telemetry[4] << 8) & 0xFF00) | telemetry[3];
     return state;
 }
 
@@ -1810,8 +1813,8 @@ ADCS_returnState ADCS_get_MTM2_measurements(xyz16 *Mag) {
  * @param coef
  * 		formatted value = rawval * coef;
  */
-void get_current(float *measurement, uint8_t *address, float coef) {
-    *measurement = coef * uint82uint16(*address, *(address+1));
+void get_current(float *measurement, uint16_t raw, float coef) {
+    *measurement = coef * raw;
 }
 
 /**
@@ -1824,8 +1827,8 @@ void get_current(float *measurement, uint8_t *address, float coef) {
  * @param coef
  * 		formatted value = rawval * coef;
  */
-void get_temp(float *measurement, uint8_t *address, float coef) {
-    *measurement = coef * uint82int16(*address, *(address + 1));
+void get_temp(float *measurement, uint16_t raw, float coef) {
+    *measurement = coef * raw;
 }
 
 /**
@@ -1842,27 +1845,29 @@ ADCS_returnState ADCS_get_power_temp(adcs_pwr_temp *measurements) {
     ADCS_returnState state;
     state = adcs_telemetry(POWER_TEMP_ID, telemetry, 38);
 
-    get_current(&measurements->cubesense1_3v3_I, &telemetry[0], 0.1);     // [mA]
-    get_current(&measurements->cubesense1_camSram_I, &telemetry[2], 0.1); // [mA]
-    get_current(&measurements->cubesense2_3v3_I, &telemetry[4], 0.1);     // [mA]
-    get_current(&measurements->cubesense2_camSram_I, &telemetry[6], 0.1); // [mA]
-    get_current(&measurements->cubecontrol_3v3_I, &telemetry[8],
+    get_current(&measurements->cubesense1_3v3_I, ((telemetry[1] << 8) & 0xFF00) | telemetry[0], 0.1);     // [mA]
+    get_current(&measurements->cubesense1_camSram_I, ((telemetry[3] << 8) & 0xFF00) | telemetry[2], 0.1); // [mA]
+    get_current(&measurements->cubesense2_3v3_I, ((telemetry[5] << 8) & 0xFF00) | telemetry[4], 0.1);     // [mA]
+    get_current(&measurements->cubesense2_camSram_I, ((telemetry[7] << 8) & 0xFF00) | telemetry[6], 0.1); // [mA]
+    get_current(&measurements->cubecontrol_3v3_I, ((telemetry[9] << 8) & 0xFF00) | telemetry[8],
                 0.48828125); // [mA]
-    get_current(&measurements->cubecontrol_5v_I, &telemetry[10],
+    get_current(&measurements->cubecontrol_5v_I, ((telemetry[11] << 8) & 0xFF00) | telemetry[10],
                 0.48828125); // [mA]
-    get_current(&measurements->cubecontrol_vBat_I, &telemetry[12],
+    get_current(&measurements->cubecontrol_vBat_I, ((telemetry[13] << 8) & 0xFF00) | telemetry[12],
                 0.48828125);                                         // [mA]
-    get_current(&measurements->wheel1_I, &telemetry[14], 0.01);      // [mA]
-    get_current(&measurements->wheel2_I, &telemetry[16], 0.01);      // [mA]
-    get_current(&measurements->wheel3_I, &telemetry[18], 0.01);      // [mA]
-    get_current(&measurements->cubestar_I, &telemetry[20], 0.01);    // [mA]
-    get_current(&measurements->magnetorquer_I, &telemetry[20], 0.1); // [mA]
+    get_current(&measurements->wheel1_I, ((telemetry[15] << 8) & 0xFF00) | telemetry[14], 0.01);      // [mA]
+    get_current(&measurements->wheel2_I, ((telemetry[17] << 8) & 0xFF00) | telemetry[16], 0.01);      // [mA]
+    get_current(&measurements->wheel3_I, ((telemetry[19] << 8) & 0xFF00) | telemetry[18], 0.01);      // [mA]
+    get_current(&measurements->cubestar_I, ((telemetry[21] << 8) & 0xFF00) | telemetry[20], 0.01);    // [mA]
+    get_current(&measurements->magnetorquer_I, ((telemetry[23] << 8) & 0xFF00) | telemetry[22], 0.1); // [mA]
 
-    get_temp(&measurements->cubestar_temp, &telemetry[22], 0.01); // [C]
-    get_temp(&measurements->MCU_temp, &telemetry[24], 1);         // [C]
-    get_temp(&measurements->MTM_temp, &telemetry[26], 0.1);       // [C]
-    get_temp(&measurements->MTM2_temp, &telemetry[28], 0.1);      // [C]
-    get_xyz16(&measurements->rate_sensor_temp, &telemetry[30]);   // [C]
+    get_temp(&measurements->cubestar_temp, ((telemetry[25] << 8) & 0xFF00) | telemetry[24], 0.01); // [C]
+    get_temp(&measurements->MCU_temp, ((telemetry[27] << 8) & 0xFF00) | telemetry[26], 1);         // [C]
+    get_temp(&measurements->MTM_temp, ((telemetry[29] << 8) & 0xFF00) | telemetry[28], 0.1);       // [C]
+    get_temp(&measurements->MTM2_temp, ((telemetry[31] << 8) & 0xFF00) | telemetry[30], 0.1);      // [C]
+    measurements->rate_sensor_temp.x = ((telemetry[33] << 8) & 0xFF00) | telemetry[32];   // [C]
+    measurements->rate_sensor_temp.y = ((telemetry[35] << 8) & 0xFF00) | telemetry[34];   // [C]
+    measurements->rate_sensor_temp.z = ((telemetry[37] << 8) & 0xFF00) | telemetry[36];   // [C]
 
     return state;
 }
