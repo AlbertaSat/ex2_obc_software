@@ -23,18 +23,10 @@
 #include <stdint.h>
 #include "FreeRTOS.h"
 
-#define config_IS_ATHENA 0
-#define config_IS_FLATSAT 0
-
-#if config_IS_ATHENA == 1
-#define IS_ATHENA
-#endif
-
-#if config_IS_FLATSAT == 1
+#ifdef IS_FLATSAT
     #ifndef IS_ATHENA
-    #error If config_IS_FLATSAT is set to 1 IS_ATHENA must be defined
+    #error If IS_FLATSAT is defined then IS_ATHENA must be defined
     #endif
-#define IS_FLATSAT
 #endif
 
 #define SYSTEM_APP_ID _OBC_APP_ID_
@@ -55,21 +47,21 @@
 #endif
 
 #if defined(IS_ATHENA)
-    #define CSP_SCI sciREG2
-    #define ADCS_SCI sciREG4
-    #define DFGM_SCI sciREG1
-    #define UHF_SCI CSP_SCI
+    #define CSP_SCI sciREG2  //UART2
+    #define ADCS_SCI sciREG3 //UART4
+    #define DFGM_SCI sciREG4 //UART1
+    #define UHF_SCI CSP_SCI  //UART2
 #if defined(IS_3U)
-    #define GPS_SCI sciREG3
+    #define GPS_SCI sciREG1  //UART3
 #else if defined(IS_2U)
-    #define PAYLOAD_SCI sciREG3
+    #define PAYLOAD_SCI sciREG1  //UART3
 #endif
 #else // These values are expected to be adjusted based on what the developer is working on
-    #define CSP_SCI sciREG4
-    #define GPS_SCI sciREG2
+    #define CSP_SCI sciREG2
+    #define GPS_SCI sciREG1
     #define ADCS_SCI sciREG3
-    #define PAYLOAD_SCI 0
-    #define DFGM_SCI 0
+    #define PAYLOAD_SCI sciREG1
+    #define DFGM_SCI sciREG4
 #endif
 
 #ifndef IS_FLATSAT
@@ -83,15 +75,15 @@
 #endif
 
 #if defined(IS_ATHENA)
-    #define IRIS_CONFIG_SPI spiREG1
-    #define IRIS_SPI spiREG3
-    #define SBAND_SPI spiREG2
-    #define SD_SPI spiREG3
+    #define IRIS_CONFIG_SPI spiREG4 //SPI1
+    #define IRIS_SPI spiREG5        //SPI3
+    #define SBAND_SPI spiREG3       //SPI2
+    #define SD_SPI spiREG1          //?
 #else // These values are expected to be adjusted based on what the developer is working on
-    #define IRIS_CONFIG_SPI spiREG1
-    #define IRIS_SPI spiREG4
-    #define SBAND_SPI spiREG2
-    #define SD_SPI spiREG3
+    #define IRIS_CONFIG_SPI spiREG4 //SPI1
+    #define IRIS_SPI spiREG5        //SPI3
+    #define SBAND_SPI spiREG3       //SPI2
+    #define SD_SPI spiREG1          //?
 #endif
 
 #if defined(IS_ATHENA)
