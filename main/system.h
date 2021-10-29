@@ -21,6 +21,7 @@
 #define SYSTEM_H
 
 #include "FreeRTOS.h"
+#include "os_task.h"
 #include <stdint.h>
 
 #define config_IS_ATHENA 0
@@ -39,16 +40,17 @@
 
 #define SYSTEM_APP_ID _OBC_APP_ID_
 
-#define NORMAL_SERVICE_PRIO 1
-#define STATE_TASK_PRIO 1
-#define HOUSEKEEPING_TASK_PRIO 1
-#define COORDINATE_MANAGEMENT_TASK_PRIO 1
-#define BEACON_TASK_PRIO 1
-#define DIAGNOSTIC_TASK_PRIO 1
-#define SYSTEM_STATS_TASK_PRIO 1
-#define LOGGER_TASK_PRIO 2
-#define MOCK_RTC_TASK_PRIO configMAX_PRIORITIES - 1
-#define TASK_MANAGER_PRIO 3
+#define DIAGNOSICS_TASK_PRIORITY (tskIDLE_PRIORITY)
+#define NORMAL_SERVICE_PRIO (tskIDLE_PRIORITY + 1)
+#define STATE_TASK_PRIO (tskIDLE_PRIORITY + 1)
+#define HOUSEKEEPING_TASK_PRIO (tskIDLE_PRIORITY + 1)
+#define COORDINATE_MANAGEMENT_TASK_PRIO (tskIDLE_PRIORITY + 1)
+#define BEACON_TASK_PRIO (tskIDLE_PRIORITY + 1)
+#define DIAGNOSTIC_TASK_PRIO (tskIDLE_PRIORITY + 1)
+#define SYSTEM_STATS_TASK_PRIO (tskIDLE_PRIORITY + 1)
+#define LOGGER_TASK_PRIO (tskIDLE_PRIORITY + 2)
+#define MOCK_RTC_TASK_PRIO (configMAX_PRIORITIES - 1)
+#define TASK_MANAGER_PRIO (tskIDLE_PRIORITY + 3)
 
 #if defined(IS_3U) && defined(IS_2U)
 #error "Can not be both 2U and 3U sized satellites"
