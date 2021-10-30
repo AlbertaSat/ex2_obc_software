@@ -53,7 +53,7 @@ static void uhf_watchdog_daemon(void *pvParameters) {
             eps_set_pwr_chnl(UHF_PWR_CHNL, OFF);
             TickType_t start = xTaskGetTickCount();
 
-            while (eps_get_pwr_chnl(UHF_PWR_CHNL) != OFF || xTaskGetTickCount() - start < timeout) {
+            while (eps_get_pwr_chnl(UHF_PWR_CHNL) != OFF && xTaskGetTickCount() - start < timeout) {
                 vTaskDelay(pdMS_TO_TICKS(1000));
             }
 
@@ -64,7 +64,7 @@ static void uhf_watchdog_daemon(void *pvParameters) {
             eps_set_pwr_chnl(UHF_PWR_CHNL, ON);
             start = xTaskGetTickCount();
 
-            while (eps_get_pwr_chnl(UHF_PWR_CHNL) != ON || xTaskGetTickCount() - start < timeout) {
+            while (eps_get_pwr_chnl(UHF_PWR_CHNL) != ON && xTaskGetTickCount() - start < timeout) {
                 vTaskDelay(pdMS_TO_TICKS(1000));
             }
 
