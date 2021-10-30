@@ -20,6 +20,7 @@
 
 #include <FreeRTOS.h>
 #include <os_task.h>
+#include <os_semphr.h>
 #include "uhf.h"
 #include "eps.h"
 #include "system.h"
@@ -27,13 +28,17 @@
 static void uhf_watchdog_daemon(void *pvParameters);
 SAT_returnState start_diagnostic_daemon(void);
 
+const unsigned int mutex_timeout = pdMS_TO_TICKS(100);
+
+static TickType_t prv_watchdog_delay = 3 * ONE_MINUTE; // 3 minutes
+static SemaphoreHandle_t uhf_watchdog_mtx = NULL;
 /**
  * @brief Check that the UHF is responsive. If not, toggle power.
- * 
+ *
  * @param pvParameters Task parameters (not used)
  */
 static void uhf_watchdog_daemon(void *pvParameters) {
-    TickType_t delay = pdMS_TO_TICKS(3 * 60 * 1000); // 3 minutes
+    TickType_t delay = prv_watchdog_delay;
     for (;;) {
         // Get status word from UHF
         char status[32];
@@ -49,12 +54,12 @@ static void uhf_watchdog_daemon(void *pvParameters) {
         if (err != U_GOOD_CONFIG) {
             ex2_log("UHF was not responsive - attempting to toggle power.");
             // Toggle the UHF.
-            const unsigned int timeout = pdMS_TO_TICKS(30 * 1000); // 30 seconds
+            const unsigned int timeout = 30 * ONE_SECOND; // 30 seconds
             eps_set_pwr_chnl(UHF_PWR_CHNL, OFF);
             TickType_t start = xTaskGetTickCount();
 
             while (eps_get_pwr_chnl(UHF_PWR_CHNL) != OFF && xTaskGetTickCount() - start < timeout) {
-                vTaskDelay(pdMS_TO_TICKS(1000));
+                vTaskDelay(ONE_SECOND);
             }
 
             if (eps_get_pwr_chnl(UHF_PWR_CHNL) != OFF) {
@@ -65,7 +70,7 @@ static void uhf_watchdog_daemon(void *pvParameters) {
             start = xTaskGetTickCount();
 
             while (eps_get_pwr_chnl(UHF_PWR_CHNL) != ON && xTaskGetTickCount() - start < timeout) {
-                vTaskDelay(pdMS_TO_TICKS(1000));
+                vTaskDelay(ONE_SECOND);
             }
 
             if (eps_get_pwr_chnl(UHF_PWR_CHNL) != ON) {
@@ -75,8 +80,31 @@ static void uhf_watchdog_daemon(void *pvParameters) {
             }
         }
 
+        if (xSemaphoreTake(uhf_watchdog_mtx, mutex_timeout) == pdPASS) {
+            delay = prv_watchdog_delay;
+            xSemaphoreGive(uhf_watchdog_mtx);
+        }
         vTaskDelay(delay);
     }
+}
+
+TickType_t get_uhf_watchdog_delay(void) {
+    if (xSemaphoreTake(uhf_watchdog_mtx, mutex_timeout) == pdPASS) {
+        TickType_t delay = prv_watchdog_delay;
+        xSemaphoreGive(uhf_watchdog_mtx);
+        return delay;
+    } else {
+        return 0;
+    }
+}
+
+SAT_returnState set_uhf_watchdog_delay(const TickType_t delay) {
+    if (xSemaphoreTake(uhf_watchdog_mtx, mutex_timeout) == pdPASS) {
+        prv_watchdog_delay = delay;
+        xSemaphoreGive(uhf_watchdog_mtx);
+        return SATR_OK;
+    }
+    return SATR_ERROR;
 }
 
 /**
@@ -86,11 +114,16 @@ static void uhf_watchdog_daemon(void *pvParameters) {
  *   error report of task creation
  */
 SAT_returnState start_diagnostic_daemon(void) {
-    if (xTaskCreate((TaskFunction_t)uhf_watchdog_daemon, "uhf_watchdog_daemon", 2048, NULL,
-                    DIAGNOSTIC_TASK_PRIO, NULL) != pdPASS) {
+    if (xTaskCreate((TaskFunction_t)uhf_watchdog_daemon, "uhf_watchdog_daemon", 2048, NULL, DIAGNOSTIC_TASK_PRIO,
+                    NULL) != pdPASS) {
         ex2_log("FAILED TO CREATE TASK uhf_watchdog_daemon.\n");
         return SATR_ERROR;
     }
     ex2_log("UHF watchdog task started.\n");
+    uhf_watchdog_mtx = xSemaphoreCreateMutex();
+    if (uhf_watchdog_mtx == NULL) {
+        ex2_log("FAILED TO CREATE MUTEX uhf_watchdog_mtx.\n");
+        return SATR_ERROR;
+    }
     return SATR_OK;
 }
