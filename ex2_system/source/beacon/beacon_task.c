@@ -13,7 +13,7 @@
  */
 /**
  * @file beacon_task.c
- * @author Andrew R. Rooney
+ * @author Andrew R. Rooney, Grace Yi
  * @date Mar. 6, 2021
  */
 
