@@ -13,77 +13,19 @@
  */
 /**
  * @file beacon_task.c
- * @author Andrew R. Rooney
+ * @author Andrew R. Rooney, Grace Yi
  * @date Mar. 6, 2021
  */
 
-#include <FreeRTOS.h>
-#include <os_task.h>
-
-#include "HL_gio.h"
-#include "HL_het.h"
-#include "beacon/beacon.h"
-#include "eps.h"
-#include "uhf.h"
+#include "beacon/beacon_task.h"
 
 #define SCW_BCN_FLAG 5
 #define SCW_BCN_ON 1
 
-typedef struct __attribute__((packed)) {
-    uint32_t time;
-    uint8_t eps_mode;
-    uint16_t battery_voltage;
-    uint16_t battery_input_current;
-    uint16_t current_channels[10];
-    uint16_t output_states;
-    uint8_t output_faults[10];
-    uint16_t EPS_boot_count;
-    uint8_t eps_last_reset_reason;
-    uint16_t gs_wdt;
-    uint8_t obc_wdt;
-    uint16_t gs_wdt_expr;
-    uint16_t obc_wdt_expr;
-    int8_t temps[18];
-} beacon_common;
-
-typedef struct __attribute__((packed)) {
-    beacon_common common;
-    int8_t angular_rate;
-    int8_t adcs_control_mode;
-    uint16_t uhf_uptime;
-    uint8_t payload_software_version;
-    uint16_t obc_boot_count;
-    uint8_t obc_last_reset_reason;
-    uint8_t obc_mode;
-    uint16_t obc_uptime;
-    uint8_t solar_panel_current;
-    uint16_t mcu_core_current;
-    uint8_t obc_software_version;
-    uint16_t commands_received;
-    uint16_t fec_recovered_packets;
-    uint8_t logged_items_count;
-    uint32_t log1_timestamp;
-    uint8_t log1_code;
-} beacon_packet_1;
-
-typedef struct __attribute__((packed)) {
-    beacon_common common;
-    uint32_t log2_timestamp;
-    uint8_t log2_code;
-    uint32_t log3_timestamp;
-    uint8_t log3_code;
-    uint32_t log4_timestamp;
-    uint8_t log4_code;
-    uint32_t log5_timestamp;
-    uint8_t log5_code;
-    uint32_t log6_timestamp;
-    uint8_t log6_code;
-} beacon_packet_2;
-
 static void *beacon_daemon(void *pvParameters);
 SAT_returnState start_beacon_daemon(void);
+static TickType_t beacon_delay = pdMS_TO_TICKS(1000); //converts 1000 ms to number of ticks
 
-static TickType_t beacon_delay = pdMS_TO_TICKS(1000);
 
 /**
  * Construct and send out the system beacon at the required frequency.
@@ -97,15 +39,28 @@ static void *beacon_daemon(void *pvParameters) {
         /* Constructing the system beacon content */
         // Refer to table 3 of MOP
         UHF_configStruct beacon_msg;
+        All_systems_housekeeping all_hk_data;
+
+        //Testing purposes only, passing 1s to the UHF
+        beacon_t beacon_packet = {
+            //define each element as 1 for testing purposes
+            1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+
+        update_beacon(&all_hk_data);
+
+        memcpy(&(beacon_msg.message), &beacon_packet, sizeof(beacon_t));
+        uint8_t length = 97;
+        memcpy(&(beacon_msg.len), &length, sizeof(length));
         // TODO: call the appropriate HAL functions to get the most updated or
         // cached information of the components + state machine, RTC, etc.
         // Then uncomment the next line:
-        // uhf_status = HAL_UHF_setBeaconMsg(beacon_msg);
 
+        uhf_status = HAL_UHF_setBeaconMsg(beacon_msg);
         /* Sending the beacon */
         // The beacon transmission period is configurable through comms service
         // by the operator or here through HAL_UHF_getBeaconT().
         uint8_t scw[SCW_LEN];
+
 #ifndef UHF_IS_STUBBED
         uhf_status = HAL_UHF_getSCW(scw);
 
