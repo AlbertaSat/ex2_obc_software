@@ -35,6 +35,7 @@
 void CubeMag_Common_Test(bool);
 void CubeTorquers_Common_Test(void);
 void binaryTest_CubeSense1(void);
+void ReactionWheels_Common_Test(uint8_t wheel_number);
 
 void binaryTest(void) {//TODO: add enums for all adcs_handler functions called
 
@@ -1478,7 +1479,7 @@ void binaryTest_CubeControl_Motor_MCU(void) {
 
     adcs_measures *measurements;
     measurements = (adcs_measures *)pvPortMalloc(sizeof(adcs_measures));
-    if (power_temp_measurements == NULL) {
+    if (measurements == NULL) {
         printf("malloc issues");
         while(1);
     }
@@ -1513,7 +1514,7 @@ void binaryTest_CubeTorquers_Motor_MCU(void) {
 
 }
 
-void binaryTest_CubeWheel_BurnIn_MCU(void) {
+void binaryTest_CubeWheel_BurnIn_MCU(void) {//Omitted for current binary testing plan
     //Test Section 7 CubeControl, Table 7-1 in test plan.
 
     //Using Command ADCS_get_power_control() - Table 184, ensure that all nodes are selected PowOff before proceeding.
@@ -1525,14 +1526,19 @@ void binaryTest_CubeWheel_BurnIn_MCU(void) {
 
 void binaryTest_CubeWheel1_MCU(void) {
     //Test Section 6.1 CubeControl, Table 6-1,2 in test plan.
+    ReactionWheels_Common_Test(1);
 }
 
 void binaryTest_CubeWheel2_MCU(void) {
     //Test Section 6.1 CubeControl, Table 6-1,2 in test plan.
+    ReactionWheels_Common_Test(2);
+
 }
 
 void binaryTest_CubeWheel3_MCU(void) {
     //Test Section 6.1 CubeControl, Table 6-1,2 in test plan.
+    ReactionWheels_Common_Test(3);
+
 }
 
 
@@ -1758,4 +1764,207 @@ void CubeTorquers_Common_Test(void){
 
     vPortFree(power_temp_measurements);
 
+}
+
+void ReactionWheels_Common_Test(uint8_t wheel_number){
+    ADCS_returnState test_returnState = ADCS_OK;
+
+    //Using Command ADCS_get_power_control() - Table 184, ensure that all nodes are selected PowOff before proceeding.
+    //Section Variables
+    uint8_t *control = (uint8_t*)pvPortMalloc(10);
+    if (control == NULL) {
+        return ADCS_MALLOC_FAILED;
+    }
+
+
+    printf("Running ADCS_get_power_control...\n");
+    test_returnState = ADCS_get_power_control(control);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_get_power_control returned %d \n", test_returnState);
+        while(1);
+    }
+    for(int i = 0; i<10; i++){
+        printf("control[%d] = %d \n", i, control[i]);
+    }
+
+    if(wheel_number == 1){
+        control[Set_CubeWheel1_Power] = 1;
+    }
+    else if(wheel_number == 2){
+        control[Set_CubeWheel2_Power] = 1;
+    }
+    else if(wheel_number == 3){
+        control[Set_CubeWheel3_Power] = 1;
+    }
+
+
+    printf("Running ADCS_set_power_control...\n");
+    test_returnState = ADCS_set_power_control(control);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_set_power_control returned %d \n", test_returnState);
+        while(1);
+    }
+
+    //another read to make sure we are in the right state
+    printf("Running ADCS_get_power_control...\n");
+    test_returnState = ADCS_get_power_control(control);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_get_power_control returned %d \n", test_returnState);
+        while(1);
+    }
+    for(int i = 0; i<10; i++){
+        printf("control[%d] = %d \n", i, control[i]);
+    }
+
+
+
+
+    adcs_state test_adcs_state;
+    //Run ADCS_get_current_state()
+    printf("Running ADCS_get_current_state...\n");
+    test_returnState = ADCS_get_current_state(&test_adcs_state);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_get_current_state returned %d \n", test_returnState);
+        while(1);
+    }
+
+    printf("att_estimate mode = %d \n", test_adcs_state.att_estimate_mode);
+    printf("att_ctrl_mode = %d \n", test_adcs_state.att_ctrl_mode);
+    printf("run_mode = %d \n", test_adcs_state.run_mode);
+
+    if(wheel_number == 1){
+        printf("CubeWheel1 Signal Enabled = %d \n", test_adcs_state.flags_arr[4]);
+    }
+    else if(wheel_number == 2){
+        printf("CubeWheel2 Signal Enabled = %d \n", test_adcs_state.flags_arr[5]);
+    }
+    else if(wheel_number == 3){
+        printf("CubeWheel3 Signal Enabled = %d \n", test_adcs_state.flags_arr[6]);
+    }
+
+
+    //need to test if all other flags == 0. Simpler to do in code than via human.
+//    uint8_t all_other_adcs_states_equal_zero = 0;
+//    for(int i = 0; i<36; i++){//I think this is the right range.
+//        if(test_adcs_state.flags_arr[i] != 0){
+//            break;
+//        }
+//        if(i == 35){
+//            all_other_adcs_states_equal_zero = 1;
+//        }
+//    }
+//    if(all_other_adcs_states_equal_zero == 1){
+//        printf("all other states (frame offsets 12 to 47) == 0 \n");
+//    } else {
+//        printf("all other states (frame offsets 12 to 47) != 0... halting code execution\n");
+//        while(1);
+//    }
+
+    xyz16 speed;
+    speed.x = 0;
+    speed.y = 0;
+    speed.z = 0;
+    int16_t rpm = 0;
+
+    adcs_measures *measurements;
+    measurements = (adcs_measures *)pvPortMalloc(sizeof(adcs_measures));
+    if (measurements == NULL) {
+        printf("malloc issues");
+        while(1);
+    }
+
+    adcs_pwr_temp *power_temp_measurements;
+    power_temp_measurements = (adcs_pwr_temp *)pvPortMalloc(sizeof(adcs_pwr_temp));
+    if (power_temp_measurements == NULL) {
+        printf("malloc issues");
+        while(1);
+    }
+
+    for (int i = 0; i<3; i++){
+
+        if(i == 0){
+            rpm = 4000;
+        }
+        else if(i == 1){
+            rpm = -2000;
+        }
+        else if(i == 2){
+            rpm = 0;
+        }
+
+        if(wheel_number == 1){
+            speed.x = rpm;
+        }
+        else if(wheel_number == 2){
+            speed.y = rpm;
+        }
+        else if(wheel_number == 3){
+            speed.z = rpm;
+        }
+
+        //Using command ADCS_set_wheel_speed() - Table 82. Set the  commanded X speed to 4000 rpm.
+        printf("Running ADCS_set_wheel_speed...\n");
+        test_returnState = ADCS_set_wheel_speed(speed);
+        if(test_returnState != ADCS_OK){
+            printf("ADCS_get_current_state returned %d \n", test_returnState);
+            while(1);
+        }
+
+        // After 10 seconds the wheel will settle to the commanded speed. Listen to the wheel to  ensure that the correct one is spinning up and that the other two wheels are silent.
+        // Verify the following in Table 7-5
+
+        for(int i = 0; i<15; i++){//repeating 5 times for each axis = 15 times
+            printf("Running ADCS_get_measurements...\n");
+            test_returnState = ADCS_get_measurements(measurements);
+            if(test_returnState != ADCS_OK){
+                printf("ADCS_get_measurements returned %d \n", test_returnState);
+                while(1);
+            }
+            printf("X Wheel Speed = %+f \n", measurements->wheel_speed.x);//not 100% sure if this will print the sign of the float
+            printf("Y Wheel Speed = %+f \n", measurements->wheel_speed.y);
+            printf("Z Wheel Speed = %+f \n", measurements->wheel_speed.z);
+        }
+
+
+
+        //ADCS_get_power_temp()
+
+        printf("Running ADCS_get_power_temp...\n");
+        test_returnState = ADCS_get_power_temp(power_temp_measurements);
+        if(test_returnState != ADCS_OK){
+            printf("ADCS_get_power_temp returned %d \n", test_returnState);
+            while(1);
+        }
+
+        printf("Wheel 1 Current [mA] = %f \n", power_temp_measurements->wheel1_I);
+        printf("Wheel 2 Current [mA] = %f \n", power_temp_measurements->wheel2_I);
+        printf("Wheel 3 Current [mA] = %f \n", power_temp_measurements->wheel3_I);
+
+        speed.x = 0;
+        speed.y = 0;
+        speed.z = 0;
+
+
+    }
+    vPortFree(measurements);
+    vPortFree(power_temp_measurements);
+
+    if(wheel_number == 1){
+        control[Set_CubeWheel1_Power] = 0;
+    }
+    else if(wheel_number == 2){
+        control[Set_CubeWheel2_Power] = 0;
+    }
+    else if(wheel_number == 3){
+        control[Set_CubeWheel3_Power] = 0;
+    }
+
+
+    printf("Running ADCS_set_power_control...\n");
+    test_returnState = ADCS_set_power_control(control);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_set_power_control returned %d \n", test_returnState);
+        while(1);
+    }
+    vPortFree(control);
 }
