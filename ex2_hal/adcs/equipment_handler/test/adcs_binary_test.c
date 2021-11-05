@@ -478,7 +478,7 @@ void binaryTest_CubeSense1(void){
 
 //    //Test Section 5.1 CubeSense, Table 5-1 in test plan.
 //    //Using Command ADCS_get_power_control() - Table 184, ensure that all nodes are selected PowOff before proceeding.
-//    ADCS_returnState test_returnState = ADCS_OK;
+    ADCS_returnState test_returnState = ADCS_OK;
 //    adcs_state test_adcs_state;//init as 0?
 //    printf("Running ADCS_get_current_state...\n");
 //    test_returnState = ADCS_get_current_state(&test_adcs_state);
@@ -769,165 +769,165 @@ void binaryTest_CubeSense1(void){
 //    printf("percentage = %d \n", percentage);
 //    printf("status = %d \n", status);
 //
-//    // Steps to take to download the image file that was just created:
-//
-//    // 1. Send Reset File List Read Point command.
-//    printf("Running ADCS_reset_file_list_read_pointer...\n");
-//    test_returnState = ADCS_reset_file_list_read_pointer();
-//    if(test_returnState != ADCS_OK){
-//        printf("ADCS_reset_file_list_read_pointer returned %d \n", test_returnState);
-//        while(1);
-//    }
-//
-//    //variables:
-//    uint8_t counter=0;
-//    uint32_t size=0;
-//    uint32_t time=0;
-//    uint16_t crc16_checksum=0;
-//    uint8_t type=0;
-//    uint8_t counter_f=0;
-//    uint32_t size_f=0;
-//    uint32_t time_f=0;
-//    uint16_t crc16_checksum_f=0;
-//    uint8_t type_f=0;
-//    bool updating = true;
-//    while(true) {
-//        while(updating == true) {
-//            // 2. Request File Information until update
-//            printf("Running ADCS_get_file_info...\n");
-//            test_returnState = ADCS_get_file_info(&type, &updating, &counter, &size, &time, &crc16_checksum);
-//            if(test_returnState != ADCS_OK){
-//                printf("ADCS_get_file_info returned %d \n", test_returnState);
-//                while(1);
-//            }
-//        }
-//
-//        printf("counter = %d \n", counter);
-//        printf("size = %d \n", size);
-//        printf("time = %d \n", time);
-//        printf("crc16_checksum = %d \n", crc16_checksum);
-//        printf("type = %d \n", type);
-//
-//        if(counter == 0 & size == 0 & time == 0 & crc16_checksum == 0) {
-//            printf("File download is complete.\n");
-//            break;
-//        } else {
-//            printf("Another file will be downloaded.\n");
-//            updating = true;
-//            counter_f = counter;
-//            size_f = size;
-//            time_f = time;
-//            crc16_checksum_f = crc16_checksum;
-//            type_f = type;
-//            test_returnState = ADCS_advance_file_list_read_pointer();
-//        }
-//    }
-//
-//    // 4. Load the image file that was just saved:
-//    //Variables:
-//    uint32_t offset = 0;
-//    uint16_t block_length = 1024; //this is the max length of the block to be sent - this is the number of packets sent in a single block (each packet is 20 Bytes)
-//
-//    printf("Running ADCS_load_file_download_block...\n");
-//    test_returnState = ADCS_load_file_download_block(type_f, counter_f, offset, block_length);
-//    if(test_returnState != ADCS_OK){
-//        printf("ADCS_load_file_download_block returned %d \n", test_returnState);
-//        while(1);
-//    }
-//
-//    // 5. Check to see if the blocks just loaded are ready to download
-//    //Variables:
-//    bool ready = 0;
-//    bool param_err;
-//
-//    while(ready == false) {
-//        printf("Running ADCS_get_file_download_block_stat...\n");
-//        test_returnState = ADCS_get_file_download_block_stat(&ready, &param_err, &crc16_checksum, &block_length);
-//        if(test_returnState != ADCS_OK){
-//            printf("ADCS_get_file_download_block_stat returned %d \n", test_returnState);
-//            while(1);
-//        }
-//    }
-//
-//
-//    // 6. Set Ignore Hole Map to true
-//
-//    //Initiate saving to a file
-//    int32_t iErr;
-//    char buf[1024] = "";
-//
-//    //Get the current working directory
-//    red_getcwd(buf, 1024);
-//
-//    printf("CWD = %s\r\n", buf);
-//
-//    //make the home directory
-//    iErr = red_mkdir("home");
-//    if (iErr == -1)
-//    {
-//        printf("Unexpected error %d from red_mkdir()\r\n", (int)red_errno);
-//        exit(red_errno);
-//    }
-//
-//    //change directory to home
-//    iErr = red_chdir("home");
-//    if (iErr == -1)
-//    {
-//        printf("Unexpected error %d from red_chdir()\r\n", (int)red_errno);
-//        exit(red_errno);
-//    }
-//
-//    //get the current working directory
-//    red_getcwd(buf, 1024);
-//
-//    printf(stderr, "CWD = %s\r\n", buf);
-//
-//    int32_t file1;
-//
-//    //open a text file
-//    file1 = red_open("image.txt", RED_O_RDWR | RED_O_CREAT);
-//    if (file1 == -1)
-//    {
-//        printf("Unexpected error %d from red_open()\r\n", (int)red_errno);
-//        exit(red_errno);
-//    }
-//
-//    iErr = red_write(file1, "8 7 6 5 4 3 2 1\r\n", strlen("8 7 6 5 4 3 2 1\r\n"));
-//    if (iErr == -1)
-//    {
-//        printf("Unexpected error %d from red_write()\r\n", (int)red_errno);
-//        exit(red_errno);
-//    }
-//
-//
-//    bool ignore_hole_map = true;
-//    uint8_t msg_length = 20; //I think this is the length of the packet in Bytes - not sure
-//    uint8_t *hole_map = (uint8_t *)pvPortMalloc(sizeof(uint8_t)*(128));
-//    for(int i = 0; i<128; ++i) {
-//        *(hole_map + i) = 0; //This byte array counts which packets have been received.
-//    } //This byte array counts which packets have been received.
-//
-//    uint16_t length_bytes = 20480;
-//    uint8_t *image_bytes = (uint8_t *)pvPortMalloc(sizeof(uint8_t)*(length_bytes));
-//    for(int i = 0; i<length_bytes; ++i) {
-//        *(image_bytes + i) = 0; //This byte array counts which packets have been received.
-//    } //This byte array counts which packets have been received.
-//
-//
-//    // 7. Send Initiate Download Burst
-//    printf("Running ADCS_initiate_download_burst...\n");
-//    test_returnState = ADCS_initiate_download_burst(msg_length, ignore_hole_map);
-//    ADCS_receive_download_burst(&hole_map, &image_bytes, length_bytes);
-//
-//
-//    printf("hole_map = %x\r\n", *hole_map);
-//    printf("image_bytes = %x\r\n", *image_bytes);
-//
-//    //send the file over uart to the computer.
-//    //sciSend(sciREG1, 20480, image_bytes)
-//
-//    vPortFree(hole_map);
-//    vPortFree(image_bytes);
+    // Steps to take to download the image file that was just created:
+
+    // 1. Send Reset File List Read Point command.
+    printf("Running ADCS_reset_file_list_read_pointer...\n");
+    test_returnState = ADCS_reset_file_list_read_pointer();
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_reset_file_list_read_pointer returned %d \n", test_returnState);
+        while(1);
+    }
+
+    //variables:
+    uint8_t counter=0;
+    uint32_t size=0;
+    uint32_t time=0;
+    uint16_t crc16_checksum=0;
+    uint8_t type=0;
+    uint8_t counter_f=0;
+    uint32_t size_f=0;
+    uint32_t time_f=0;
+    uint16_t crc16_checksum_f=0;
+    uint8_t type_f=0;
+    bool updating = true;
+    while(true) {
+        while(updating == true) {
+            // 2. Request File Information until update
+            printf("Running ADCS_get_file_info...\n");
+            test_returnState = ADCS_get_file_info(&type, &updating, &counter, &size, &time, &crc16_checksum);
+            if(test_returnState != ADCS_OK){
+                printf("ADCS_get_file_info returned %d \n", test_returnState);
+                while(1);
+            }
+        }
+
+        printf("counter = %d \n", counter);
+        printf("size = %d \n", size);
+        printf("time = %d \n", time);
+        printf("crc16_checksum = %d \n", crc16_checksum);
+        printf("type = %d \n", type);
+
+        if(counter == 0 & size == 0 & time == 0 & crc16_checksum == 0) {
+            printf("File download is complete.\n");
+            break;
+        } else {
+            printf("Another file will be downloaded.\n");
+            updating = true;
+            counter_f = counter;
+            size_f = size;
+            time_f = time;
+            crc16_checksum_f = crc16_checksum;
+            type_f = type;
+            test_returnState = ADCS_advance_file_list_read_pointer();
+        }
+    }
+
+    // 4. Load the image file that was just saved:
+    //Variables:
+    uint32_t offset = 0;
+    uint16_t block_length = 1024; //this is the max length of the block to be sent - this is the number of packets sent in a single block (each packet is 20 Bytes)
+
+    printf("Running ADCS_load_file_download_block...\n");
+    test_returnState = ADCS_load_file_download_block(type_f, counter_f, offset, block_length);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_load_file_download_block returned %d \n", test_returnState);
+        while(1);
+    }
+
+    // 5. Check to see if the blocks just loaded are ready to download
+    //Variables:
+    bool ready = 0;
+    bool param_err;
+
+    while(ready == false) {
+        printf("Running ADCS_get_file_download_block_stat...\n");
+        test_returnState = ADCS_get_file_download_block_stat(&ready, &param_err, &crc16_checksum, &block_length);
+        if(test_returnState != ADCS_OK){
+            printf("ADCS_get_file_download_block_stat returned %d \n", test_returnState);
+            while(1);
+        }
+    }
+
+
+    // 6. Set Ignore Hole Map to true
+
+    //Initiate saving to a file
+    int32_t iErr;
+    char buf[1024] = "";
+
+    //Get the current working directory
+    red_getcwd(buf, 1024);
+
+    printf("CWD = %s\r\n", buf);
+
+    //make the home directory
+    iErr = red_mkdir("home");
+    if (iErr == -1)
+    {
+        printf("Unexpected error %d from red_mkdir()\r\n", (int)red_errno);
+        exit(red_errno);
+    }
+
+    //change directory to home
+    iErr = red_chdir("home");
+    if (iErr == -1)
+    {
+        printf("Unexpected error %d from red_chdir()\r\n", (int)red_errno);
+        exit(red_errno);
+    }
+
+    //get the current working directory
+    red_getcwd(buf, 1024);
+
+    printf(stderr, "CWD = %s\r\n", buf);
+
+    int32_t file1;
+
+    //open a text file
+    file1 = red_open("image.txt", RED_O_RDWR | RED_O_CREAT);
+    if (file1 == -1)
+    {
+        printf("Unexpected error %d from red_open()\r\n", (int)red_errno);
+        exit(red_errno);
+    }
+
+    iErr = red_write(file1, "8 7 6 5 4 3 2 1\r\n", strlen("8 7 6 5 4 3 2 1\r\n"));
+    if (iErr == -1)
+    {
+        printf("Unexpected error %d from red_write()\r\n", (int)red_errno);
+        exit(red_errno);
+    }
+
+
+    bool ignore_hole_map = true;
+    uint8_t msg_length = 20; //I think this is the length of the packet in Bytes - not sure
+    uint8_t *hole_map = (uint8_t *)pvPortMalloc(sizeof(uint8_t)*(128));
+    for(int i = 0; i<128; ++i) {
+        *(hole_map + i) = 0; //This byte array counts which packets have been received.
+    } //This byte array counts which packets have been received.
+
+    uint16_t length_bytes = 20480;
+    uint8_t *image_bytes = (uint8_t *)pvPortMalloc(sizeof(uint8_t)*(length_bytes));
+    for(int i = 0; i<length_bytes; ++i) {
+        *(image_bytes + i) = 0; //This byte array counts which packets have been received.
+    } //This byte array counts which packets have been received.
+
+
+    // 7. Send Initiate Download Burst
+    printf("Running ADCS_initiate_download_burst...\n");
+    test_returnState = ADCS_initiate_download_burst(msg_length, ignore_hole_map);
+    ADCS_receive_download_burst(&hole_map, &image_bytes, length_bytes);
+
+
+    printf("hole_map = %x\r\n", *hole_map);
+    printf("image_bytes = %x\r\n", *image_bytes);
+
+    //send the file over uart to the computer.
+    //sciSend(sciREG1, 20480, image_bytes)
+
+    vPortFree(hole_map);
+    vPortFree(image_bytes);
 //
 //
 //    //TODO: Receive all sent bytes from the download burst command. Check to see if the file is complete and if not,
@@ -941,147 +941,147 @@ void binaryTest_CubeSense1(void){
 
 void binaryTest_CubeSense2(void){
 
-//    //Test Section 5.2 CubeSense, Table 5-2 in test plan.
-//    //Using Command ADCS_get_power_control() - Table 184, ensure that all nodes are selected PowOff before proceeding.
-//    ADCS_returnState test_returnState = ADCS_OK;
-//
-//    //Section Variables
-//    uint8_t *control = (uint8_t*)pvPortMalloc(10);
-//    if (control == NULL) {
-//        return ADCS_MALLOC_FAILED;
-//    }
-//
-//    //enable the ADCS
-//    ADCS_set_enabled_state(1);
-//    ADCS_set_unix_t(0,0);
-//
-//    printf("Running ADCS_get_power_control...\n");
-//    test_returnState = ADCS_get_power_control(control);
-//    if(test_returnState != ADCS_OK){
-//        printf("ADCS_get_power_control returned %d \n", test_returnState);
-//        while(1);
-//    }
-//    for(int i = 0; i<10; i++){
-//        printf("control[%d] = %d \n", i, control[i]);
-//    }
-//
-//
-//    //Using Command ADCS_set_power_control() - Table 184, switch on CubeSense2 by selecting PowOn.
-//    //Section Variables
-//    control[Set_CubeSense1_Power] = 0;//ensures that cam1 is off
-//    control[Set_CubeSense2_Power] = 1;
-//
-//    printf("Running ADCS_set_power_control...\n");
-//    test_returnState = ADCS_set_power_control(control);
-//    if(test_returnState != ADCS_OK){
-//        printf("ADCS_get_power_control returned %d \n", test_returnState);
-//        while(1);
-//    }
-//
-//    vPortFree(control);
-//
-//    //Ensure that the lens cap is on.
-//
-//
-//    //Using Command ADCS_set_cubesense_config() - Table 189, ensure that the cam2 detection threshold is set to 150.
-//    //Next, ensure that the cam2 sensor exposure time is set to 35 if Cam2 is a nadir  sensor, or 100 if Cam2 is a Sun sensor. Set the NadirMaxBadEdges to 30 to make  ground testing easier.
-//    //Section Variables
-//    cubesense_config params;
-//    //Get all the current configuration parameters from the ADCS so that incorrect parameters aren't sent while testing.
-//    printf("Running ADCS_get_cubesense_config...\n");
-//    test_returnState = ADCS_get_cubesense_config(&params);
-//    if(test_returnState != ADCS_OK){
-//        printf("ADCS_set_cubesense_config returned %d \n", test_returnState);
-//        while(1);
-//    }
-//
-//    //now set the parameters
-//    params.cam2_sense.detect_th = 150;
-//    params.cam2_sense.exposure_t = 35; //assuming Cam2 is a nadir sensor. If a sun sensor, use 100.
-//    params.nadir_max_bad_edge = 30;
-//
-//    printf("Running ADCS_set_cubesense_config...\n");
-//    test_returnState = ADCS_set_cubesense_config(params); //this function should be tested and checked before the command is sent
-//    if(test_returnState != ADCS_OK){
-//        printf("ADCS_set_cubesense_config returned %d \n", test_returnState);
-//        while(1);
-//    }
-//
-//    // Verify the following values in Table 5-1:
-//    adcs_state test_adcs_state;//init as 0?
-//
-//    printf("Running ADCS_get_current_state...\n");
-//    test_returnState = ADCS_get_current_state(&test_adcs_state);
-//    if(test_returnState != ADCS_OK){
-//        printf("ADCS_get_current_state returned %d \n", test_returnState);
-//        while(1);
-//    }
-//
-//    printf("att_estimate mode = %d \n", test_adcs_state.att_estimate_mode);
-//    printf("att_ctrl_mode = %d \n", test_adcs_state.att_ctrl_mode);
-//    printf("run_mode = %d \n", test_adcs_state.run_mode);
-//    printf("CubeSense2 Enabled = %d \n", test_adcs_state.flags_arr[2]);
-//    printf("Sun is Above Local Horizon = %d \n", test_adcs_state.flags_arr[11]);
-//    //need to test if all flags other than CubeSense2 Enabled and Sun is Above Local Horizon are == 0. Simpler to do in code than via human.
-//    uint8_t all_other_adcs_states_equal_zero = 0;
-//    for(int i = 0; i<36; i++){//I think this is the right range.
-//        if(((i == 2) | (i == 11)) & (test_adcs_state.flags_arr[i] != 0)){
-//            break;
-//        }
-//        if(i == 35){
-//            all_other_adcs_states_equal_zero = 1;
-//        }
-//    }
-//    if(all_other_adcs_states_equal_zero == 1){
-//        printf("all other states (frame offsets 12 to 47) == 0 \n");
-//    } else {
-//        printf("all other states (frame offsets 12 to 47) != 0... halting code execution\n");
-//        while(1);
-//    }
-//
-//    //ADCS_get_power_temp()
-//    adcs_pwr_temp power_temp_measurements;
-//
-//    printf("Running ADCS_get_power_temp...\n");
-//    test_returnState = ADCS_get_power_temp(&power_temp_measurements);
-//    if(test_returnState != ADCS_OK){
-//        printf("ADCS_get_power_temp returned %d \n", test_returnState);
-//        while(1);
-//    }
-//
-//    printf("cubesense2_3v3_I = %f \n", power_temp_measurements.cubesense2_3v3_I);
-//    printf("cubesense2_camSram_I = %f \n", power_temp_measurements.cubesense2_camSram_I);
-//
-//
-//    //ADCS_get_raw_sensor()
-//    adcs_raw_sensor raw_sensor_measurements;
-//
-//    printf("Running ADCS_get_raw_sensor...\n");
-//    test_returnState = ADCS_get_raw_sensor(&raw_sensor_measurements);
-//    if(test_returnState != ADCS_OK){
-//        printf("ADCS_get_raw_sensor returned %d \n", test_returnState);
-//        while(1);
-//    }
-//
-//    printf("cam2.centroid_x = %d \n", raw_sensor_measurements.cam2.centroid_x);
-//    printf("cam2.centroid_y = %d \n", raw_sensor_measurements.cam2.centroid_y);
-//    printf("cam2.capture_stat = %d \n", raw_sensor_measurements.cam2.capture_stat);
-//    printf("cam2.detect_result = %d \n", raw_sensor_measurements.cam2.detect_result);
-//
-//    //Take off the cam2 camera’s lens cap.
-//    //Verify the following in Table 5-2 by testing the sensor with a light source (a dark n environment will prevent  false detections).
-//    //If cam2 is a nadir sensor then a large light source should be used  (e.g. a desk lamp), or if cam2 is a Sun sensor then a small light
-//    //source should be used  (e.g. narrow beam flashlight). Vary the distance between the light source and the sensor  until consistent measurements
-//    //are observed (normally ±150mm). If difficulties are  experienced with the nadir sensor, the light source can be covered with white  paper/cloth
-//    //to create a more uniform light source. Finally, if no results are obtained for  the nadir or Sun sensors, the exposure value can be adjusted.
-//
-//    //ADCS_get_raw_sensor() LIGHT BROUGHT CLOSE TO THE CAMERA
-//    printf("Running ADCS_get_raw_sensor...\n");
-//    test_returnState = ADCS_get_raw_sensor(&raw_sensor_measurements);
-//    if(test_returnState != ADCS_OK){
-//        printf("ADCS_get_raw_sensor returned %d \n", test_returnState);
-//        while(1);
-//    }
+    //Test Section 5.2 CubeSense, Table 5-2 in test plan.
+    //Using Command ADCS_get_power_control() - Table 184, ensure that all nodes are selected PowOff before proceeding.
+    ADCS_returnState test_returnState = ADCS_OK;
+
+    //Section Variables
+    uint8_t *control = (uint8_t*)pvPortMalloc(10);
+    if (control == NULL) {
+        return ADCS_MALLOC_FAILED;
+    }
+
+    //enable the ADCS
+    ADCS_set_enabled_state(1);
+    ADCS_set_unix_t(0,0);
+
+    printf("Running ADCS_get_power_control...\n");
+    test_returnState = ADCS_get_power_control(control);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_get_power_control returned %d \n", test_returnState);
+        while(1);
+    }
+    for(int i = 0; i<10; i++){
+        printf("control[%d] = %d \n", i, control[i]);
+    }
+
+
+    //Using Command ADCS_set_power_control() - Table 184, switch on CubeSense2 by selecting PowOn.
+    //Section Variables
+    control[Set_CubeSense1_Power] = 0;//ensures that cam1 is off
+    control[Set_CubeSense2_Power] = 1;
+
+    printf("Running ADCS_set_power_control...\n");
+    test_returnState = ADCS_set_power_control(control);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_get_power_control returned %d \n", test_returnState);
+        while(1);
+    }
+
+    vPortFree(control);
+
+    //Ensure that the lens cap is on.
+
+
+    //Using Command ADCS_set_cubesense_config() - Table 189, ensure that the cam2 detection threshold is set to 150.
+    //Next, ensure that the cam2 sensor exposure time is set to 35 if Cam2 is a nadir  sensor, or 100 if Cam2 is a Sun sensor. Set the NadirMaxBadEdges to 30 to make  ground testing easier.
+    //Section Variables
+    cubesense_config params;
+    //Get all the current configuration parameters from the ADCS so that incorrect parameters aren't sent while testing.
+    printf("Running ADCS_get_cubesense_config...\n");
+    test_returnState = ADCS_get_cubesense_config(&params);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_set_cubesense_config returned %d \n", test_returnState);
+        while(1);
+    }
+
+    //now set the parameters
+    params.cam2_sense.detect_th = 150;
+    params.cam2_sense.exposure_t = 35; //assuming Cam2 is a nadir sensor. If a sun sensor, use 100.
+    params.nadir_max_bad_edge = 30;
+
+    printf("Running ADCS_set_cubesense_config...\n");
+    test_returnState = ADCS_set_cubesense_config(params); //this function should be tested and checked before the command is sent
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_set_cubesense_config returned %d \n", test_returnState);
+        while(1);
+    }
+
+    // Verify the following values in Table 5-1:
+    adcs_state test_adcs_state;//init as 0?
+
+    printf("Running ADCS_get_current_state...\n");
+    test_returnState = ADCS_get_current_state(&test_adcs_state);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_get_current_state returned %d \n", test_returnState);
+        while(1);
+    }
+
+    printf("att_estimate mode = %d \n", test_adcs_state.att_estimate_mode);
+    printf("att_ctrl_mode = %d \n", test_adcs_state.att_ctrl_mode);
+    printf("run_mode = %d \n", test_adcs_state.run_mode);
+    printf("CubeSense2 Enabled = %d \n", test_adcs_state.flags_arr[2]);
+    printf("Sun is Above Local Horizon = %d \n", test_adcs_state.flags_arr[11]);
+    //need to test if all flags other than CubeSense2 Enabled and Sun is Above Local Horizon are == 0. Simpler to do in code than via human.
+    uint8_t all_other_adcs_states_equal_zero = 0;
+    for(int i = 0; i<36; i++){//I think this is the right range.
+        if(((i == 2) | (i == 11)) & (test_adcs_state.flags_arr[i] != 0)){
+            break;
+        }
+        if(i == 35){
+            all_other_adcs_states_equal_zero = 1;
+        }
+    }
+    if(all_other_adcs_states_equal_zero == 1){
+        printf("all other states (frame offsets 12 to 47) == 0 \n");
+    } else {
+        printf("all other states (frame offsets 12 to 47) != 0... halting code execution\n");
+        while(1);
+    }
+
+    //ADCS_get_power_temp()
+    adcs_pwr_temp power_temp_measurements;
+
+    printf("Running ADCS_get_power_temp...\n");
+    test_returnState = ADCS_get_power_temp(&power_temp_measurements);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_get_power_temp returned %d \n", test_returnState);
+        while(1);
+    }
+
+    printf("cubesense2_3v3_I = %f \n", power_temp_measurements.cubesense2_3v3_I);
+    printf("cubesense2_camSram_I = %f \n", power_temp_measurements.cubesense2_camSram_I);
+
+
+    //ADCS_get_raw_sensor()
+    adcs_raw_sensor raw_sensor_measurements;
+
+    printf("Running ADCS_get_raw_sensor...\n");
+    test_returnState = ADCS_get_raw_sensor(&raw_sensor_measurements);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_get_raw_sensor returned %d \n", test_returnState);
+        while(1);
+    }
+
+    printf("cam2.centroid_x = %d \n", raw_sensor_measurements.cam2.centroid_x);
+    printf("cam2.centroid_y = %d \n", raw_sensor_measurements.cam2.centroid_y);
+    printf("cam2.capture_stat = %d \n", raw_sensor_measurements.cam2.capture_stat);
+    printf("cam2.detect_result = %d \n", raw_sensor_measurements.cam2.detect_result);
+
+    //Take off the cam2 camera’s lens cap.
+    //Verify the following in Table 5-2 by testing the sensor with a light source (a dark n environment will prevent  false detections).
+    //If cam2 is a nadir sensor then a large light source should be used  (e.g. a desk lamp), or if cam2 is a Sun sensor then a small light
+    //source should be used  (e.g. narrow beam flashlight). Vary the distance between the light source and the sensor  until consistent measurements
+    //are observed (normally ±150mm). If difficulties are  experienced with the nadir sensor, the light source can be covered with white  paper/cloth
+    //to create a more uniform light source. Finally, if no results are obtained for  the nadir or Sun sensors, the exposure value can be adjusted.
+
+    //ADCS_get_raw_sensor() LIGHT BROUGHT CLOSE TO THE CAMERA
+    printf("Running ADCS_get_raw_sensor...\n");
+    test_returnState = ADCS_get_raw_sensor(&raw_sensor_measurements);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_get_raw_sensor returned %d \n", test_returnState);
+        while(1);
+    }
 //    printf("LIGHT HELD CLOSE TO THE CAMERA\n");
 //    printf("cam2.capture_stat = %d \n", raw_sensor_measurements.cam2.capture_stat);
 //    printf("cam2.detect_result = %d \n", raw_sensor_measurements.cam2.detect_result);
