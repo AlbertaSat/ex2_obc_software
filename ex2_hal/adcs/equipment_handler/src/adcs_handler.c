@@ -1454,7 +1454,12 @@ ADCS_returnState ADCS_save_img(uint8_t camera, uint8_t img_size) {
 ADCS_returnState ADCS_set_magnetorquer_output(xyz16 duty_cycle) {
     uint8_t command[7];
     command[0] = SET_MAGNETORQUER_OUTPUT_ID;
-    memcpy(&command[1], &duty_cycle, 6);
+    command[1] = (duty_cycle.x) & 0x00FF;
+    command[2] = (duty_cycle.x >> 8) & 0x00FF;
+    command[3] = (duty_cycle.y) & 0x00FF;
+    command[4] = (duty_cycle.y >> 8) & 0x00FF;
+    command[5] = (duty_cycle.z) & 0x00FF;
+    command[6] = (duty_cycle.z >> 8) & 0x00FF;
     return adcs_telecommand(command, 7); //* + (256*command[6] + command[5])
 }
 

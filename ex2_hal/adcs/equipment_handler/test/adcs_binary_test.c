@@ -58,17 +58,21 @@ void binaryTest(void) {//TODO: add enums for all adcs_handler functions called
 //
     printf("CubeControl Tests");
 
-    printf("CubeControl Signal MCU Tests");
-    binaryTest_CubeControl_Sgn_MCU();
-    printf("CubeControl Signal MCU Tests Complete!");
+//    printf("CubeControl Signal MCU Tests");
+//    binaryTest_CubeControl_Sgn_MCU();
+//    printf("CubeControl Signal MCU Tests Complete!");
+//
+//    printf("CubeMag Signal MCU Tests");
+//    binaryTest_CubeMag_Sgn_MCU();
+//    printf("CubeMag Signal MCU Tests Complete!");
 //
 //    printf("CubeTorquers Signal MCU Tests");
 //    binaryTest_CubeTorquers_Sgn_MCU();
 //    printf("CubeTorquers Signal MCU Tests Complete!");
 //
-//    printf("CubeControl Motor MCU Tests");
-//    binaryTest_CubeControl_Motor_MCU();
-//    printf("CubeControl Motor MCU Tests Complete!");
+    printf("CubeControl Motor MCU Tests");
+    binaryTest_CubeControl_Motor_MCU();
+    printf("CubeControl Motor MCU Tests Complete!");
 //
 //    printf("CubeMag Motor MCU Tests");
 //    binaryTest_CubeMag_Motor_MCU();
@@ -1181,8 +1185,11 @@ void binaryTest_CubeControl_Sgn_MCU(void) {
 }
 
 void binaryTest_CubeMag_Sgn_MCU(void) {
+    //enable the ADCS
+    ADCS_set_enabled_state(1);
+    ADCS_set_unix_t(0,0);
 
-    CubeMag_Common_Test(0);
+    CubeMag_Common_Test(1);
 }
 
 
@@ -1305,7 +1312,7 @@ void binaryTest_CubeControl_Motor_MCU(void) {
         printf("all other states (frame offsets 12 to 47) == 0 \n");
     } else {
         printf("all other states (frame offsets 12 to 47) != 0... halting code execution\n");
-        while(1);
+        //while(1);
     }
 
     //ADCS_get_power_temp()
@@ -1323,9 +1330,9 @@ void binaryTest_CubeControl_Motor_MCU(void) {
         while(1);
     }
 
-    printf("X-Rate Sensor Temperature = %f \n", power_temp_measurements->rate_sensor_temp.x);
-    printf("Y-Rate Sensor Temperature = %f \n", power_temp_measurements->rate_sensor_temp.y);
-    printf("Z-Rate Sensor Temperature = %f \n", power_temp_measurements->rate_sensor_temp.z);
+    printf("X-Rate Sensor Temperature = %d \n", power_temp_measurements->rate_sensor_temp.x);
+    printf("Y-Rate Sensor Temperature = %d \n", power_temp_measurements->rate_sensor_temp.y);
+    printf("Z-Rate Sensor Temperature = %d \n", power_temp_measurements->rate_sensor_temp.z);
 
     vPortFree(power_temp_measurements);
 
@@ -1403,6 +1410,49 @@ void CubeMag_Common_Test(bool signalMCU){
 
     ADCS_returnState test_returnState = ADCS_OK;
     adcs_state test_adcs_state;
+
+// Using Command ADCS_get_power_control() - Table 184, ensure that all nodes are selected PowOff before proceeding.
+    uint8_t *control = (uint8_t*)pvPortMalloc(10);
+    if (control == NULL) {
+        return ADCS_MALLOC_FAILED;
+    }
+
+    printf("Running ADCS_get_power_control...\n");
+    test_returnState = ADCS_get_power_control(control);
+    if(test_returnState != ADCS_OK){
+       printf("ADCS_get_power_control returned %d \n", test_returnState);
+       while(1);
+    }
+    for(int i = 0; i<10; i++){
+       printf("control[%d] = %d \n", i, control[i]);
+    }
+
+    // Using Command ADCS_set_power_control() - Table 184, switch on CubeControl Signal MCU by selecting PowOn.
+    //Section Variables
+    if (control == NULL) {
+       return ADCS_MALLOC_FAILED;
+    }
+    control[Set_CubeCTRLSgn_Power] = 1;
+
+    printf("Running ADCS_set_power_control...\n");
+    test_returnState = ADCS_set_power_control(control);
+    if(test_returnState != ADCS_OK){
+       printf("ADCS_set_power_control returned %d \n", test_returnState);
+       while(1);
+    }
+
+    //another read to make sure we are in the right state
+    printf("Running ADCS_get_power_control...\n");
+    test_returnState = ADCS_get_power_control(control);
+    if(test_returnState != ADCS_OK){
+       printf("ADCS_get_power_control returned %d \n", test_returnState);
+       while(1);
+    }
+    for(int i = 0; i<10; i++){
+       printf("control[%d] = %d \n", i, control[i]);
+    }
+
+    vPortFree(control);
 
     uint8_t MTM_op_mode;
     //Test Section 6.1.1 CubeControl, Table 6-3,4 in test plan.
@@ -1514,14 +1564,54 @@ void CubeTorquers_Common_Test(void){
 
     ADCS_returnState test_returnState = ADCS_OK;
 
+// Using Command ADCS_get_power_control() - Table 184, ensure that all nodes are selected PowOff before proceeding.
+    uint8_t *control = (uint8_t*)pvPortMalloc(10);
+    if (control == NULL) {
+        return ADCS_MALLOC_FAILED;
+    }
+
+    printf("Running ADCS_get_power_control...\n");
+    test_returnState = ADCS_get_power_control(control);
+    if(test_returnState != ADCS_OK){
+       printf("ADCS_get_power_control returned %d \n", test_returnState);
+       while(1);
+    }
+    for(int i = 0; i<10; i++){
+       printf("control[%d] = %d \n", i, control[i]);
+    }
+
+    // Using Command ADCS_set_power_control() - Table 184, switch on CubeControl Signal MCU by selecting PowOn.
+    //Section Variables
+    if (control == NULL) {
+       return ADCS_MALLOC_FAILED;
+    }
+    control[Set_CubeCTRLSgn_Power] = 1;
+
+    printf("Running ADCS_set_power_control...\n");
+    test_returnState = ADCS_set_power_control(control);
+    if(test_returnState != ADCS_OK){
+       printf("ADCS_set_power_control returned %d \n", test_returnState);
+       while(1);
+    }
+
+    printf("Running ADCS_get_power_control...\n");
+    test_returnState = ADCS_get_power_control(control);
+    if(test_returnState != ADCS_OK){
+       printf("ADCS_get_power_control returned %d \n", test_returnState);
+       while(1);
+    }
+    for(int i = 0; i<10; i++){
+       printf("control[%d] = %d \n", i, control[i]);
+    }
+
     adcs_pwr_temp *power_temp_measurements;
     power_temp_measurements = (adcs_pwr_temp *)pvPortMalloc(sizeof(adcs_pwr_temp));
     if (power_temp_measurements == NULL) {
         printf("malloc issues");
         while(1);
     }
-
-    xyz16 dutycycle = {1000, 0, 0};//TODO Verify this!
+    int16_t maxDuty = 800;
+    xyz16 dutycycle = {maxDuty, 0, 0};//TODO Verify this!
     for (int i = 0; i<3; i++){
 
         switch (i) {
@@ -1530,14 +1620,14 @@ void CubeTorquers_Common_Test(void){
                 break;
             case 1:
                 dutycycle.x = 0;
-                dutycycle.y = 1000;
+                dutycycle.y = maxDuty;
                 dutycycle.z = 0;
                 printf("Testing Y-axis magnetorquer");
                 break;
             case 2:
                 dutycycle.x = 0;
                 dutycycle.y = 0;
-                dutycycle.z = 1000;
+                dutycycle.z = maxDuty;
                 printf("Testing Z-axis magnetorquer");
                 break;
         }
