@@ -615,14 +615,11 @@ static inline void prv_give_lock(SemaphoreHandle_t *lock) {
  */
 Result populate_and_store_hk_data(void) {
   All_systems_housekeeping temp_hk_data;
-
-  /*
+ 
   if(collect_hk_from_devices(&temp_hk_data) == FAILURE) {
     ex2_log("Error collecting hk data from peripherals\n");
   }
-  */
-
- 
+  
   //RTC_get_unix_time(&temp_hk_data.hk_timeorder.UNIXtimestamp);
   
   prv_get_lock(&f_count_lock); //lock
@@ -635,7 +632,7 @@ Result populate_and_store_hk_data(void) {
   config_loaded = 1;
 
   //TEMP mock hk
-  mock_everyone(&temp_hk_data); //not permanent
+  //mock_everyone(&temp_hk_data); //not permanent
   
   temp_hk_data.hk_timeorder.dataPosition = current_file;
 
