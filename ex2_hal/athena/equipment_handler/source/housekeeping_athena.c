@@ -37,7 +37,37 @@ int HAL_get_temp_all(long* temparray) {
     #endif
 }
 
+/**
+ * @brief
+ *      Getter to Athena uptime
+ * @return
+ * 		  integer OBC_uptime to store Athena uptime
+ *      Seconds = OBC_uptime*10 
+ *      Max = 655350 seconds (7.6 days)
+ */
+uint16_t Athena_get_OBC_uptime() {
+  TickType_t OBC_ticks = xTaskGetTickCount(); //1 tick/ms
+  uint32_t OBC_uptime_32 = OBC_ticks/1000;
+  if (OBC_uptime_32 > 655350) {
+    OBC_uptime_32 = 655350;
+  }
+  //Seconds = value*10. Max = 655350 seconds (7.6 days)
+  OBC_uptime_32 = OBC_uptime_32/10;
+  //convert OBC_uptime from 32 bit to 16 bit
+  uint16_t OBC_uptime = (OBC_uptime_32 & 255);
 
+  return OBC_uptime;
+}
+
+/**
+ * @brief
+ *      Getter to Athena solar panel supply current
+ * @return
+ * 		  integer solar_panel_supply_curr to store solar panel supply current
+ */
+uint8_t Athena_get_solar_supply_curr() {
+  //insert getter function for solar panel supply current;
+}
 
 /**
  * @brief
@@ -62,6 +92,12 @@ int Athena_getHK(athena_housekeeping* athena_hk) {
   also add endianness conversion in Athena_hk_convert_endianness*/
   temporary = HAL_get_temp_all(&athena_hk->temparray);
 
+  //Get OBC uptime: Seconds = value*10. Max = 655360 seconds (7.6 days)
+  athena_hk->OBC_uptime = Athena_get_OBC_uptime();
+
+  //Get solar panel supply current
+  athena_hk->solar_panel_supply_curr = Athena_get_solar_supply_curr();
+ 
   if (temporary != 0) return_code = temporary;
 
   return return_code;
