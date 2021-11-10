@@ -13,10 +13,9 @@
  */
 /**
  * @file housekeeping_task.c
- * @author Andrew R. Rooney
+ * @author Andrew R. Rooney, Grace Yi
  * @date 2020-07-23
  */
-#include "housekeeping/housekeeping_task.h"
 
 #include <FreeRTOS.h>
 #include <os_queue.h>
@@ -24,6 +23,7 @@
 #include <os_task.h>
 
 #include "housekeeping_service.h"
+#include "housekeeping_task.h"
 
 static void *housekeeping_daemon(void *pvParameters);
 SAT_returnState start_housekeeping_daemon(void);
