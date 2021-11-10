@@ -13,10 +13,9 @@
  */
 /**
  * @file housekeeping_task.c
- * @author Andrew R. Rooney
+ * @author Andrew R. Rooney, Grace Yi
  * @date 2020-07-23
  */
-#include "housekeeping/housekeeping_task.h"
 
 #include <FreeRTOS.h>
 #include <os_queue.h>
@@ -24,6 +23,7 @@
 #include <os_task.h>
 
 #include "housekeeping_service.h"
+#include "housekeeping/housekeeping_task.h"
 
 static void *housekeeping_daemon(void *pvParameters);
 SAT_returnState start_housekeeping_daemon(void);
@@ -37,9 +37,14 @@ SAT_returnState start_housekeeping_daemon(void);
 static void *housekeeping_daemon(void *pvParameters) {
     TickType_t hk_delay = pdMS_TO_TICKS(1000);
     uint32_t seconds_delay = 30;
+    All_systems_housekeeping all_hk_data;
     for (;;) {
         // Call housekeeping and have them collect and store data to SD card
-        populate_and_store_hk_data();
+        //Uncomment the function below to mock all housekeeping data for testing purposes
+        //populate_and_store_hk_data();
+
+        //Call this function to populate all housekeeping data
+        collect_hk_from_devices(&all_hk_data);
 
         hk_delay = pdMS_TO_TICKS(seconds_delay * 1000);
         vTaskDelay(hk_delay);
