@@ -120,6 +120,9 @@
 #define WDT_DELAY 200            // 200 miliseconds gives a a good window
 #define WDT_CHECK_INTERVAL 10000 // only actually checks the tasks this often
 #define DELAY_WAIT_INTERVAL 8000 // a pretty long time, but lets the watchdog know that the task hasn't failed
+#define ONE_SECOND pdMS_TO_TICKS(1000)
+#define ONE_MINUTE pdMS_TO_TICKS(60000)
+#define CSP_TIMEOUT 100
 
 typedef enum {
     SATR_PKT_ILLEGAL_APPID = 0,
