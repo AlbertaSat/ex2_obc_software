@@ -28,6 +28,8 @@
 #define EPS_REQUEST_TIMEOUT 1000
 #define EPS_INSTANTANEOUS_TELEMETRY 7
 #define EPS_POWER_CONTROL 14
+#define OFF 0
+#define ON 1
 
 QueueHandle_t eps_gatekeeper_q;
 
