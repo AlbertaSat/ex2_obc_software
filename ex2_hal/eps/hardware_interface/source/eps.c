@@ -54,9 +54,9 @@ static eps_t prvEps;
 SAT_returnState eps_refresh_instantaneous_telemetry() {
     uint8_t cmd = 0; // 'subservice' command
     eps_instantaneous_telemetry_t telembuf;
-    int res = csp_ping(EPS_APP_ID, 10000, 100, CSP_O_NONE);
+    int res = csp_ping(EPS_APP_ID, EPS_REQUEST_TIMEOUT, 100, CSP_O_NONE);
 
-    csp_transaction_w_opts(CSP_PRIO_LOW, EPS_APP_ID, EPS_INSTANTANEOUS_TELEMETRY, 10000, &cmd, sizeof(cmd),
+    csp_transaction_w_opts(CSP_PRIO_LOW, EPS_APP_ID, EPS_INSTANTANEOUS_TELEMETRY, EPS_REQUEST_TIMEOUT, &cmd, sizeof(cmd),
                            &telembuf, sizeof(eps_instantaneous_telemetry_t), CSP_O_CRC32);
     // data is little endian, must convert to host order
     // refer to the NanoAvionics datasheet for details
@@ -214,7 +214,7 @@ int8_t eps_set_pwr_chnl(uint8_t pwr_chnl_port, bool status) {
     cmd[1] = pwr_chnl_port;
     cmd[2] = status;
     // delay = 0 so cmd{4] = cmd[5] = 0
-    csp_transaction_w_opts(CSP_PRIO_LOW, EPS_APP_ID, EPS_POWER_CONTROL, 10000, &cmd, sizeof(cmd), &response,
+    csp_transaction_w_opts(CSP_PRIO_LOW, EPS_APP_ID, EPS_POWER_CONTROL, EPS_REQUEST_TIMEOUT, &cmd, sizeof(cmd), &response,
                            sizeof(response), CSP_O_CRC32);
     return response[1];
 }
