@@ -114,9 +114,17 @@ int Athena_getHK(athena_housekeeping* athena_hk) {
  */
 int Athena_hk_convert_endianness(athena_housekeeping* athena_hk) {
   uint8_t i;
-  for (i = 0; i < 6; i++) {
+  for (i = 0; i < 2; i++) {
     athena_hk->temparray[i] = (long)csp_hton32((uint32_t)athena_hk->temparray[i]);
   }
+  athena_hk->boot_cnt = (uint16_t)csp_hton16((uint16_t)athena_hk->boot_cnt);
+  athena_hk->last_reset_reason = (uint8_t)csp_hton16((uint8_t)athena_hk->last_reset_reason);
+  athena_hk->OBC_mode = (uint8_t)csp_hton16((uint8_t)athena_hk->OBC_mode);
+  athena_hk->OBC_uptime = (uint16_t)csp_hton16((uint16_t)athena_hk->OBC_uptime);
+  athena_hk->solar_panel_supply_curr = (uint8_t)csp_hton16((uint8_t)athena_hk->solar_panel_supply_curr);
+  athena_hk->OBC_software_ver = (uint8_t)csp_hton16((uint8_t)athena_hk->OBC_software_ver);
+  athena_hk->cmds_received = (uint16_t)csp_hton16((uint16_t)athena_hk->cmds_received);
+  athena_hk->pckts_uncovered_by_FEC = (uint16_t)csp_hton16((uint16_t)athena_hk->pckts_uncovered_by_FEC);
   return 0;
 }
 
