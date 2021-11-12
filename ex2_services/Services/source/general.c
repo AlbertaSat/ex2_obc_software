@@ -29,6 +29,7 @@
 #include <csp/csp_endian.h>
 #include <main/system.h>
 #include <os_task.h>
+#include "diagnostic.h"
 
 SAT_returnState general_app(csp_packet_t *packet);
 void general_service(void *param);
@@ -88,12 +89,12 @@ void general_service(void *param) {
             continue;
         }
         svc_wdt_counter++;
-        while ((packet = csp_read(conn, 50)) != NULL) {
+        while ((packet = csp_read(conn, CSP_TIMEOUT)) != NULL) {
             if (general_app(packet) != SATR_OK) {
                 // something went wrong, this shouldn't happen
                 csp_buffer_free(packet);
             } else {
-                if (!csp_send(conn, packet, 50)) {
+                if (!csp_send(conn, packet, CSP_TIMEOUT)) {
                     csp_buffer_free(packet);
                 }
             }
@@ -136,12 +137,30 @@ SAT_returnState general_app(csp_packet_t *packet) {
         }
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         set_packet_length(packet, sizeof(int8_t) + 1); // +1 for subservice
-        csp_send(conn, packet, 50);
+        csp_send(conn, packet, CSP_TIMEOUT);
 
         if (status == 0) {
             reboot_system(reboot_type);
         }
 
+        break;
+
+    case GET_UHF_WATCHDOG_TIMEOUT:
+        status = 0;
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        unsigned int timeout = get_uhf_watchdog_delay();
+        memcpy(&packet->data[OUT_DATA_BYTE], &timeout, sizeof(unsigned int));
+        set_packet_length(packet, sizeof(int8_t) + sizeof(unsigned int) + 1); // +1 for subservice
+        csp_send(conn, packet, CSP_TIMEOUT);
+        break;
+
+    case SET_UHF_WATCHDOG_TIMEOUT:
+        unsigned int timeout_new = 0;
+        memcpy(&timeout_new, &packet->data[IN_DATA_BYTE], sizeof(unsigned int));
+        status = set_uhf_watchdog_delay(timeout_new);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        set_packet_length(packet, sizeof(int8_t) + 1); // +1 for subservice
+        csp_send(conn, packet, CSP_TIMEOUT);
         break;
 
     default:
