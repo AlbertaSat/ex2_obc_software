@@ -13,7 +13,7 @@
  */
 /**
  * @file housekeeping_service.c
- * @author Haoran Qi, Andrew Rooney, Yuan Wang, Dustin Wagner
+ * @author Haoran Qi, Andrew Rooney, Yuan Wang, Dustin Wagner, Grace Yi
  * @date 2020-07-07
  */
 
@@ -41,8 +41,6 @@
 #define HK_PR_ERR -1
 #define HK_PR_OK 0
 
-#define IS_EXALTA2
-
 typedef enum { TM_HK_PARAMETERS_REPORT = 0 } Housekeeping_Subtype;
 
 typedef enum {
@@ -69,15 +67,15 @@ typedef enum { EPS, ADCS, OBC, COMMS } hardware;
 typedef struct __attribute__((packed)){
   /*placeholder timestamp structure. Not sure if we use UNIX time*/
   uint8_t final;                        //indicator to tell if more datasets will be sent
-  uint32_t UNIXtimestamp;              //Note when this data was collected
-  uint16_t dataPosition;                  //Use to place datasets in chronological order
+  uint32_t UNIXtimestamp;               //Note when this data was collected
+  uint16_t dataPosition;                //Use to place datasets in chronological order
 } hk_time_and_order;
 
 typedef struct __attribute__((packed)){
   hk_time_and_order hk_timeorder;        //debugging time and file order
 
   //TODO:
-  ADCS_HouseKeeping adcs_hk;           //ADCS housekeeping struct
+  ADCS_HouseKeeping adcs_hk;             //ADCS housekeeping struct
   athena_housekeeping Athena_hk;         //Athena housekeeping struct
   eps_instantaneous_telemetry_t EPS_hk;  //EPS telemetry struct
   eps_startup_telemetry_t EPS_startup_hk;//EPS startup telemetry struct 
