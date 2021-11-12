@@ -23,5 +23,7 @@
 #include "main/system.h"
 
 SAT_returnState start_diagnostic_daemon(void);
+TickType_t get_uhf_watchdog_delay(void);
+SAT_returnState set_uhf_watchdog_delay(const TickType_t delay);
 
 #endif /* EX2_SYSTEM_INCLUDE_DIAGNOSTIC_DIAGNOSTIC_H_ */
