@@ -31,7 +31,7 @@
 #include "sband.h"
 #include "hyperion.h"
 #include "adcs.h"
-#include "ex2_hal/ex2_payload_software/hardware_interface/include/payload.h"
+#include "payload.h"
 
 /* Housekeeping service address & port*/
 

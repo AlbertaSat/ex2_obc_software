@@ -374,7 +374,7 @@ Result mock_everyone(All_systems_housekeeping* all_hk_data) {
 Result collect_hk_from_devices(All_systems_housekeeping* all_hk_data) {
   /*populate struct by calling appropriate functions*/
   #ifndef ADCS_IS_STUBBED
-    ADCS_returnState ADCS_return_code = HAL_ADCS_getHK(&all_hk_data->adcs_hk);             //ADCS get housekeeeing
+    ADCS_returnState ADCS_return_code = HAL_ADCS_getHK(&all_hk_data->adcs_hk); //ADCS get housekeeeing
   #endif /* ADCS Housekeeping */
 
   #ifndef ATHENA_IS_STUBBED
@@ -382,7 +382,7 @@ Result collect_hk_from_devices(All_systems_housekeeping* all_hk_data) {
   #endif /* ADCS Housekeeping */
   
   #ifndef EPS_IS_STUBBED
-    EPS_getHK(&all_hk_data->EPS_hk,&all_hk_data->EPS_startup_hk);                                   //EPS get housekeeping
+    EPS_getHK(&all_hk_data->EPS_hk, &all_hk_data->EPS_startup_hk);     //EPS get housekeeping
   #endif /* EPS Housekeeping */
 
   #ifndef UHF_IS_STUBBED
