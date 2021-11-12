@@ -22,18 +22,21 @@
 
 typedef enum
 {
-    Port = 0,
+    //DFGM
+    DFGM = 0,
+    //UHF antennas
     UHF_P = 1,
     UHF_Z = 2,
-    Payload = 3,
-    UHF_S = 4,
-    UHF_N = 5,
-    Starboard = 6,
-    DFGM = 7,
-} Deployable_TypeDef;
+    UHF_S = 3,
+    UHF_N = 4,
+    //solar panels
+    Port = 5,
+    Payload = 6,
+    Starboard = 7,
+} Deployable_t;
 
-void activate(Deployable_TypeDef knife);
+void activate(Deployable_t knife);
 
-bool switchstatus(Deployable_TypeDef sw);
+bool switchstatus(Deployable_t sw);
 
-bool deploy(Deployable_TypeDef deployable);
+bool deploy(Deployable_t deployable);
