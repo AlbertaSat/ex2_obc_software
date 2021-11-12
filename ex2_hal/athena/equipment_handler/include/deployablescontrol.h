@@ -19,24 +19,19 @@
 
 #include "HL_gio.h"
 
-
-typedef enum
-{
-    //DFGM
-    DFGM = 0,
-    //UHF antennas
+typedef enum {
+    Port = 0,
     UHF_P = 1,
     UHF_Z = 2,
-    UHF_S = 3,
-    UHF_N = 4,
-    //solar panels
-    Port = 5,
-    Payload = 6,
-    Starboard = 7,
-} Deployable_t;
+    Payload = 3,
+    UHF_S = 4,
+    UHF_N = 5,
+    Starboard = 6,
+    DFGM = 7,
+} Deployable_TypeDef;
 
-void activate(Deployable_t knife);
+void activate(Deployable_TypeDef knife);
 
-bool switchstatus(Deployable_t sw);
+bool switchstatus(Deployable_TypeDef sw);
 
-bool deploy(Deployable_t deployable);
+bool deploy(Deployable_TypeDef deployable);

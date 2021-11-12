@@ -23,23 +23,25 @@
 #define CHANNEL_LOCAL 0
 #define CHANNEL_REMOTE 1
 
-uint8_t tmp_addr[6] = {0x49, 0x4A};
+uint8_t tmp_addr[6] = {0x1D, 0x1E, 0x2A, 0x4C, 0x4F, 0x4E};
 
-void inittemp_all(void){
+void inittemp_all(void) {
     int i;
     int delay;
-    for(i=0;i<2;i++){
+    for (i = 0; i < 6; i++) {
         tmp421_init_client(tmp_addr[i]);
-        for (delay = 0; delay < 0x1000; delay++);//temporary fix... don't want delay down the road
+        for (delay = 0; delay < 0x1000; delay++)
+            ; // temporary fix... don't want delay down the road
     }
 }
 
-int gettemp_all(long temparray[2]){
+int gettemp_all(long temparray[6]) {
     int i;
     int delay;
-    for(i=0;i<2;i++){
-        tmp421_read(tmp_addr[i], CHANNEL_LOCAL, &temparray[i]);//assuming we want to read remote channel
-        for (delay = 0; delay < 0x1000; delay++);//temporary fix... don't want delay down the road
+    for (i = 0; i < 6; i++) {
+        tmp421_read(tmp_addr[i], CHANNEL_LOCAL, &temparray[i]); // assuming we want to read remote channel
+        for (delay = 0; delay < 0x1000; delay++)
+            ; // temporary fix... don't want delay down the road
     }
     return 0;
 }

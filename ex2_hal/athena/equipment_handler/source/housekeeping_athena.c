@@ -23,50 +23,18 @@
 /**
  * @brief
  *      Getter to supply data from temperature sensors on athena
- * 
+ *
  * @param temparray
  * 		  the array to store temperature readings
  * @return
  * 		0 for success. other for failure
  */
-int HAL_get_temp_all(long* temparray) {
-  #ifdef ATHENA_IS_STUBBED
-        return 0;
-    #else
-        return gettemp_all(temparray);
-    #endif
-}
-
-/**
- * @brief
- *      Getter to Athena uptime
- * @return
- * 		  integer OBC_uptime to store Athena uptime
- *      Seconds = OBC_uptime*10 
- *      Max = 655350 seconds (7.6 days)
- */
-uint16_t Athena_get_OBC_uptime() {
-  TickType_t OBC_ticks = xTaskGetTickCount(); //1 tick/ms
-  uint32_t OBC_uptime_32 = OBC_ticks/1000;
-  if (OBC_uptime_32 > 655350) {
-    OBC_uptime_32 = 655350;
-  }
-  //Seconds = value*10. Max = 655350 seconds (7.6 days)
-  OBC_uptime_32 = OBC_uptime_32/10;
-  //convert OBC_uptime from 32 bit to 16 bit
-  uint16_t OBC_uptime = (OBC_uptime_32 & 255);
-
-  return OBC_uptime;
-}
-
-/**
- * @brief
- *      Getter to Athena solar panel supply current
- * @return
- * 		  integer solar_panel_supply_curr to store solar panel supply current
- */
-uint8_t Athena_get_solar_supply_curr() {
-  //insert getter function for solar panel supply current;
+int HAL_get_temp_all(long *temparray) {
+#ifdef ATHENA_IS_STUBBED
+    return 0;
+#else
+    return gettemp_all(temparray);
+#endif
 }
 
 /**
@@ -83,48 +51,34 @@ uint8_t Athena_get_solar_supply_curr() {
  * @return
  * 		Last found error will be returned. else no error returned
  */
-int Athena_getHK(athena_housekeeping* athena_hk) {
-  int temporary;
-  int return_code = 0;
+int Athena_getHK(athena_housekeeping *athena_hk) {
+    int temporary;
+    int return_code = 0;
 
-  /*Add athena HAL housekeeping getters here and put fields in h file
-  create HAL functions here following format of existing
-  also add endianness conversion in Athena_hk_convert_endianness*/
-  temporary = HAL_get_temp_all(&athena_hk->temparray);
+    /*Add athena HAL housekeeping getters here and put fields in h file
+    create HAL functions here following format of existing
+    also add endianness conversion in Athena_hk_convert_endianness*/
+    temporary = HAL_get_temp_all(&athena_hk->temparray);
 
-  //Get OBC uptime: Seconds = value*10. Max = 655360 seconds (7.6 days)
-  athena_hk->OBC_uptime = Athena_get_OBC_uptime();
+    if (temporary != 0)
+        return_code = temporary;
 
-  //Get solar panel supply current
-  athena_hk->solar_panel_supply_curr = Athena_get_solar_supply_curr();
- 
-  if (temporary != 0) return_code = temporary;
-
-  return return_code;
+    return return_code;
 }
 
 /**
  * @brief
  *      Converts endianness of values in athena_housekeeping struct
- * 
+ *
  * @param athena_hk
  * 		  struct of athena housekeeping data
  * @return
  * 		0 for success. other for failure
  */
-int Athena_hk_convert_endianness(athena_housekeeping* athena_hk) {
-  uint8_t i;
-  for (i = 0; i < 2; i++) {
-    athena_hk->temparray[i] = (long)csp_hton32((uint32_t)athena_hk->temparray[i]);
-  }
-  athena_hk->boot_cnt = (uint16_t)csp_hton16((uint16_t)athena_hk->boot_cnt);
-  athena_hk->last_reset_reason = (uint8_t)csp_hton16((uint8_t)athena_hk->last_reset_reason);
-  athena_hk->OBC_mode = (uint8_t)csp_hton16((uint8_t)athena_hk->OBC_mode);
-  athena_hk->OBC_uptime = (uint16_t)csp_hton16((uint16_t)athena_hk->OBC_uptime);
-  athena_hk->solar_panel_supply_curr = (uint8_t)csp_hton16((uint8_t)athena_hk->solar_panel_supply_curr);
-  athena_hk->OBC_software_ver = (uint8_t)csp_hton16((uint8_t)athena_hk->OBC_software_ver);
-  athena_hk->cmds_received = (uint16_t)csp_hton16((uint16_t)athena_hk->cmds_received);
-  athena_hk->pckts_uncovered_by_FEC = (uint16_t)csp_hton16((uint16_t)athena_hk->pckts_uncovered_by_FEC);
-  return 0;
+int Athena_hk_convert_endianness(athena_housekeeping *athena_hk) {
+    uint8_t i;
+    for (i = 0; i < 6; i++) {
+        athena_hk->temparray[i] = (long)csp_hton32((uint32_t)athena_hk->temparray[i]);
+    }
+    return 0;
 }
-
