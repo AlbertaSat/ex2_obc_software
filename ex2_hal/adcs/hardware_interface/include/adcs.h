@@ -137,15 +137,6 @@ typedef struct __attribute__((packed)) {
 } ADCS_file_download_block_stat;
 
 typedef struct __attribute__((packed)) {
-    uint8_t type;
-    bool updating;
-    uint8_t counter;
-    uint32_t size;
-    uint32_t time;
-    uint16_t crc16_checksum;
-} ADCS_file_info;
-
-typedef struct __attribute__((packed)) {
     bool busy;
     bool err;
 } ADCS_finalize_upload_stat;
