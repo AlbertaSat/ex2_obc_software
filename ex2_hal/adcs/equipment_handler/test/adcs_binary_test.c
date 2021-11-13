@@ -646,11 +646,11 @@ void binaryTest_CubeSense1(void){
 //    printf("cam1.capture_stat = %d \n", raw_sensor_measurements->cam1.capture_stat);
 //    printf("cam1.detect_result = %d \n", raw_sensor_measurements->cam1.detect_result);
 //
-//    //Take off the Cam1 camera’s lens cap.
+//    //Take off the Cam1 cameraï¿½s lens cap.
 //    //Verify the following in Table 5-2 by testing the sensor with a light source (a dark n environment will prevent  false detections).
 //    //If Cam1 is a nadir sensor then a large light source should be used  (e.g. a desk lamp), or if Cam1 is a Sun sensor then a small light
 //    //source should be used  (e.g. narrow beam flashlight). Vary the distance between the light source and the sensor  until consistent measurements
-//    //are observed (normally ±150mm). If difficulties are  experienced with the nadir sensor, the light source can be covered with white  paper/cloth
+//    //are observed (normally ï¿½150mm). If difficulties are  experienced with the nadir sensor, the light source can be covered with white  paper/cloth
 //    //to create a more uniform light source. Finally, if no results are obtained for  the nadir or Sun sensors, the exposure value can be adjusted.
 //
 //    //ADCS_get_raw_sensor() LIGHT BROUGHT CLOSE TO THE CAMERA
@@ -739,7 +739,7 @@ void binaryTest_CubeSense1(void){
 //    }
 //
 //    //Using Command ADCS_get_img_save_progress() - Table 176, refresh Percentage Complete, which will increase slowly and indicate the progress of
-//    //the image being saved to the SD card from CubeSense’s memory.
+//    //the image being saved to the SD card from CubeSenseï¿½s memory.
 //
 //    //ADCS_get_img_save_progress() - to run almost immediately after the image is taken
 //    uint8_t percentage = 0;
@@ -770,58 +770,7 @@ void binaryTest_CubeSense1(void){
 //    printf("status = %d \n", status);
 //
     // Steps to take to download the image file that was just created:
-
-    // 1. Send Reset File List Read Point command.
-    printf("Running ADCS_reset_file_list_read_pointer...\n");
-    test_returnState = ADCS_reset_file_list_read_pointer();
-    if(test_returnState != ADCS_OK){
-        printf("ADCS_reset_file_list_read_pointer returned %d \n", test_returnState);
-        while(1);
-    }
-
-    //variables:
-    uint8_t counter=0;
-    uint32_t size=0;
-    uint32_t time=0;
-    uint16_t crc16_checksum=0;
-    uint8_t type=0;
-    uint8_t counter_f=0;
-    uint32_t size_f=0;
-    uint32_t time_f=0;
-    uint16_t crc16_checksum_f=0;
-    uint8_t type_f=0;
-    bool updating = true;
-    while(true) {
-        while(updating == true) {
-            // 2. Request File Information until update
-            printf("Running ADCS_get_file_info...\n");
-            test_returnState = ADCS_get_file_info(&type, &updating, &counter, &size, &time, &crc16_checksum);
-            if(test_returnState != ADCS_OK){
-                printf("ADCS_get_file_info returned %d \n", test_returnState);
-                while(1);
-            }
-        }
-
-        printf("counter = %d \n", counter);
-        printf("size = %d \n", size);
-        printf("time = %d \n", time);
-        printf("crc16_checksum = %d \n", crc16_checksum);
-        printf("type = %d \n", type);
-
-        if(counter == 0 & size == 0 & time == 0 & crc16_checksum == 0) {
-            printf("File download is complete.\n");
-            break;
-        } else {
-            printf("Another file will be downloaded.\n");
-            updating = true;
-            counter_f = counter;
-            size_f = size;
-            time_f = time;
-            crc16_checksum_f = crc16_checksum;
-            type_f = type;
-            test_returnState = ADCS_advance_file_list_read_pointer();
-        }
-    }
+    test_returnState = ADCS_get_file_list();
 
     // 4. Load the image file that was just saved:
     //Variables:
@@ -1068,11 +1017,11 @@ void binaryTest_CubeSense2(void){
     printf("cam2.capture_stat = %d \n", raw_sensor_measurements.cam2.capture_stat);
     printf("cam2.detect_result = %d \n", raw_sensor_measurements.cam2.detect_result);
 
-    //Take off the cam2 camera’s lens cap.
+    //Take off the cam2 cameraï¿½s lens cap.
     //Verify the following in Table 5-2 by testing the sensor with a light source (a dark n environment will prevent  false detections).
     //If cam2 is a nadir sensor then a large light source should be used  (e.g. a desk lamp), or if cam2 is a Sun sensor then a small light
     //source should be used  (e.g. narrow beam flashlight). Vary the distance between the light source and the sensor  until consistent measurements
-    //are observed (normally ±150mm). If difficulties are  experienced with the nadir sensor, the light source can be covered with white  paper/cloth
+    //are observed (normally ï¿½150mm). If difficulties are  experienced with the nadir sensor, the light source can be covered with white  paper/cloth
     //to create a more uniform light source. Finally, if no results are obtained for  the nadir or Sun sensors, the exposure value can be adjusted.
 
     //ADCS_get_raw_sensor() LIGHT BROUGHT CLOSE TO THE CAMERA
@@ -1159,7 +1108,7 @@ void binaryTest_CubeSense2(void){
 //    }
 //
 //    //Using Command ADCS_get_img_save_progress() - Table 176, refresh Percentage Complete, which will increase slowly and indicate the progress of
-//    //the image being saved to the SD card from CubeSense’s memory.
+//    //the image being saved to the SD card from CubeSenseï¿½s memory.
 //
 //    //ADCS_get_img_save_progress() - to run almost immediately after the image is taken
 //    uint8_t percentage = 0;
@@ -1394,7 +1343,7 @@ void binaryTest_CubeControl_Motor_MCU(void) {
     }
 
 
-    //Using Command ADCS_set_power_control() - Table 184, switch on CubeControl’s Motor MCU by selecting PowOn.
+    //Using Command ADCS_set_power_control() - Table 184, switch on CubeControlï¿½s Motor MCU by selecting PowOn.
     //Section Variables
     if (control == NULL) {
         return ADCS_MALLOC_FAILED;

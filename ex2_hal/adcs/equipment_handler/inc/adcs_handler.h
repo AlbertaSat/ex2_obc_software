@@ -458,6 +458,15 @@ typedef struct {
     usercoded_setting usercoded;
 } adcs_config;
 
+typedef struct {
+    uint8_t type;
+    uint8_t counter;
+    bool updating;
+    uint32_t size;
+    uint32_t time;
+    uint16_t crc16_checksum;    
+} adcs_file_info;
+
 // General functions
 int16_t uint82int16(uint8_t b1, uint8_t b2);
 int32_t uint82int32(uint8_t *address);

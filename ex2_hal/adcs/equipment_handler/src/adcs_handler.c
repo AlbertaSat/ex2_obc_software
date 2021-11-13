@@ -174,6 +174,28 @@ void get_3x3(float *matrix, uint8_t *address, float coef) {
     }
 }
 
+/*************************** File Management TC/TM Sequences ***************************/
+ADCS_returnState ADCS_get_file_list(adcs_file_info **list){
+    ADCS_reset_file_list_read_pointer();
+
+    uint8_t offset = 0;
+    while(true) {
+        *(list + offset) = (adcs_file_info *)pvPortMalloc(sizeof(adcs_file_info));
+        // vPortFree ??
+        adcs_file_info * temp = *(list + offset)
+        while(updating == true) {
+            // 2. Request file information until busy updating flag is not set
+            ADCS_get_file_info(*temp);
+        }
+        if(temp->counter == 0 & temp->size == 0 & temp->time == 0 & temp->crc16_checksum == 0) {
+            break;
+        } else {
+            ADCS_advance_file_list_read_pointer();
+            updating = true;
+        }
+    }
+}
+
 /*************************** Common TCs ***************************/
 /**
  * @brief
@@ -593,17 +615,17 @@ ADCS_returnState ADCS_get_file_download_block_stat(bool *ready, bool *param_err,
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_file_info(uint8_t *type, bool *updating, uint8_t *counter, uint32_t *size,
-                                    uint32_t *time, uint16_t *crc16_checksum) {
+ADCS_returnState ADCS_get_file_info(adcs_file_info *info) {
+
     uint8_t telemetry[12];
     ADCS_returnState state;
     state = adcs_telemetry(FILE_INFO_ID, telemetry, 12);
-    *type = telemetry[0] & 0xF;
-    *updating = (telemetry[0] >> 4) & 1;
-    *counter = telemetry[1];
-    *size = (telemetry[5] << 24) | (telemetry[4] << 16) | (telemetry[3] << 8) | telemetry[2];
-    *time = (telemetry[9] << 24) | (telemetry[8] << 16) | (telemetry[7] << 8) | telemetry[6];
-    *crc16_checksum = (telemetry[11] << 8) | telemetry[10];
+    info->type = telemetry[0] & 0xF;
+    info->updating = (telemetry[0] >> 4) & 1;
+    info->counter = telemetry[1];
+    info->size = (telemetry[5] << 24) | (telemetry[4] << 16) | (telemetry[3] << 8) | telemetry[2];
+    info->time = (telemetry[9] << 24) | (telemetry[8] << 16) | (telemetry[7] << 8) | telemetry[6];
+    info->crc16_checksum = (telemetry[11] << 8) | telemetry[10];
     return state;
 }
 
