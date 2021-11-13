@@ -12,8 +12,8 @@
  * GNU General Public License for more details.
  */
 /**
- * @file adcs_commands.c
- * @author Andrew Rooney, Vasu Gupta, Arash Yazdani
+ * @file adcs_handler.c
+ * @author Andrew Rooney, Vasu Gupta, Arash Yazdani, Thomas Ganley, Nick Sorensen, Pundeep Hundal
  * @date 2020-08-09
  */
 

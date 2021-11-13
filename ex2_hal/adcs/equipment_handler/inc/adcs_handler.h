@@ -11,6 +11,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+/**
+ * @file adcs_handler.h
+ * @author Andrew Rooney, Vasu Gupta, Arash Yazdani, Thomas Ganley, Nick Sorensen, Pundeep Hundal
+ * @date 2020-08-09
+ */
 
 #ifndef ADCS_HANDLER_H
 #define ADCS_HANDLER_H
