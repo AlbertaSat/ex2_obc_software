@@ -1522,29 +1522,49 @@ ADCS_returnState ADCS_save_orbit_params(void) {
 ADCS_returnState ADCS_get_current_state(adcs_state *data) {
     uint8_t telemetry[54];
     ADCS_returnState state;
+
     state = adcs_telemetry(ADCS_STATE, telemetry, 54);
     data->att_estimate_mode = telemetry[0] & 0xF;    // Refer to table 80
     data->att_ctrl_mode = (telemetry[0] >> 4) & 0xF; // Refer to table 78
     data->run_mode = telemetry[1] & 0x3;             // Refer to table 75
     data->ASGP4_mode = (telemetry[1] >> 2) & 0x3;    // Refer to table 87
+
+    // Offset: 12 (Table 149)
     for (int i = 0; i < 4; i++) {
         *(data->flags_arr + i) = (telemetry[1] >> (i + 4)) & 1;
     }
-    uint32_t flags1;
-    memcpy(&flags1, &telemetry[2], 4);
-    for (int i = 0; i < 32; i++) {
-        *(data->flags_arr + i + 4) = (flags1 >> i) & 1;
+
+    // Offset: 16 (Table 149)
+    for(int k = 0; k < 4; k++){
+        // Offset: 16 + 8*k (Table 149)
+        for (int i = 0; i < 8; i++) {
+            *(data->flags_arr + k*8 + i + 4) = (telemetry[2+k] >> i) & 1;
+        }
     }
-    uint32_t flags2;
-    memcpy(&flags2, &telemetry[6], 4);
-    for (int i = 0; i < 3; i++) {
-        *(data->flags_arr + i + 36) = (flags2 >> i) & 1;
+
+    // Offset: 48 (Table 149)
+    for (int i = 0; i < 4; i++) {
+        *(data->flags_arr + i + 36) = (telemetry[6] >> i) & 1;
     }
-    // position:52
-    data->MTM_sample_mode = (flags2 >> 4) & 0x3; // Refer to table 90
-    for (int i = 6; i < 18; i++) {
-        *(data->flags_arr + i + 34) = (flags2 >> i) & 1; // 34 because 2 were for sample mode
+
+    // Offset: 52 (Table 149)
+    data->MTM_sample_mode = (telemetry[6] >> 4) & 0x3; // Refer to table 90
+
+    // Offset: 54 (Table 149)
+    for (int i = 0; i < 2; i++) {
+        *(data->flags_arr + i + 40) = (telemetry[6] >> (i + 6)) & 1;
     }
+
+    // Offset: 56 (Table 149)
+    for (int i = 0; i < 8; i++) {
+        *(data->flags_arr + i + 42) = (telemetry[7] >> i) & 1;
+    }
+
+    // Offset: 64 (Table 149)
+    for (int i = 0; i < 2; i++) {
+        *(data->flags_arr + i + 50) = (telemetry[8] >> i) & 1;
+    }
+
     get_xyz(&data->est_angle, &telemetry[12], 0.01); // [deg]
     get_xyz16(&data->est_quaternion, &telemetry[18]);
     get_xyz(&data->est_angular_rate, &telemetry[24], 0.01); // [deg/s]

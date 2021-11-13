@@ -56,8 +56,8 @@ void binaryTest(void) {//TODO: add enums for all adcs_handler functions called
 //    printf("CubeSense 2 Tests Complete!");
 //
 //
-    printf("CubeControl Tests");
-
+//    printf("CubeControl Tests");
+//
 //    printf("CubeControl Signal MCU Tests");
 //    binaryTest_CubeControl_Sgn_MCU();
 //    printf("CubeControl Signal MCU Tests Complete!");
@@ -92,22 +92,20 @@ void binaryTest(void) {//TODO: add enums for all adcs_handler functions called
 //    binaryTest_CubeWheel_BurnIn_MCU();
 //    printf("CubeWheel BurnIn Tests Complete!");
 //
-    printf("CubeWheel 1  Tests");
-    binaryTest_CubeWheel1_MCU();
-    printf("CubeWheel 1 Tests Complete!");
+//    printf("CubeWheel 1  Tests");
+//    binaryTest_CubeWheel1_MCU();
+//    printf("CubeWheel 1 Tests Complete!");
 //
-//    printf("CubeWheel 2  Tests");
-//    binaryTest_CubeWheel2_MCU();
-//    printf("CubeWheel 2 Tests Complete!");
-//
-//    printf("CubeWheel 3  Tests");
-//    binaryTest_CubeWheel3_MCU();
-//    printf("CubeWheel 3 Tests Complete!");
-//
-//    printf("CubeWheel  Tests Complete!");
+    printf("CubeWheel 2  Tests");
+    binaryTest_CubeWheel2_MCU();
+    printf("CubeWheel 2 Tests Complete!");
 
+    printf("CubeWheel 3  Tests");
+    binaryTest_CubeWheel3_MCU();
+    printf("CubeWheel 3 Tests Complete!");
 
-    //TODO: all the rest of test plan, including pause points for manual work done in test plan (including before this point)
+    printf("CubeWheel  Tests Complete!");
+
     //TODO: add checks for "incrementing" and "idle" type values, since those are only checked once instantaneously now
 
 }
@@ -1568,6 +1566,10 @@ void CubeTorquers_Common_Test(void){
 
     ADCS_returnState test_returnState = ADCS_OK;
 
+    ADCS_set_enabled_state(1);
+
+    ADCS_set_unix_t(0,0);
+
 // Using Command ADCS_get_power_control() - Table 184, ensure that all nodes are selected PowOff before proceeding.
     uint8_t *control = (uint8_t*)pvPortMalloc(10);
     if (control == NULL) {
@@ -1736,11 +1738,17 @@ void ReactionWheels_Common_Test(uint8_t wheel_number){
 
     if(wheel_number == 1){
         control[Set_CubeWheel1_Power] = 1;
+        control[Set_CubeWheel2_Power] = 0;
+        control[Set_CubeWheel3_Power] = 0;
     }
     else if(wheel_number == 2){
+        control[Set_CubeWheel1_Power] = 0;
         control[Set_CubeWheel2_Power] = 1;
+        control[Set_CubeWheel3_Power] = 0;
     }
     else if(wheel_number == 3){
+        control[Set_CubeWheel1_Power] = 0;
+        control[Set_CubeWheel2_Power] = 0;
         control[Set_CubeWheel3_Power] = 1;
     }
 
@@ -1751,6 +1759,12 @@ void ReactionWheels_Common_Test(uint8_t wheel_number){
         printf("ADCS_set_power_control returned %d \n", test_returnState);
         while(1);
     }
+
+    // Delay so that the get isn't too soon after the set
+    for(int k = 0; k < 100000; k++){
+
+    }
+
 
     //another read to make sure we are in the right state
     printf("Running ADCS_get_power_control...\n");
