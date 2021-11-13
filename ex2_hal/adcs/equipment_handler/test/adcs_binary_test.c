@@ -70,9 +70,9 @@ void binaryTest(void) {//TODO: add enums for all adcs_handler functions called
 //    binaryTest_CubeTorquers_Sgn_MCU();
 //    printf("CubeTorquers Signal MCU Tests Complete!");
 //
-    printf("CubeControl Motor MCU Tests");
-    binaryTest_CubeControl_Motor_MCU();
-    printf("CubeControl Motor MCU Tests Complete!");
+//    printf("CubeControl Motor MCU Tests");
+//    binaryTest_CubeControl_Motor_MCU();
+//    printf("CubeControl Motor MCU Tests Complete!");
 //
 //    printf("CubeMag Motor MCU Tests");
 //    binaryTest_CubeMag_Motor_MCU();
@@ -92,9 +92,9 @@ void binaryTest(void) {//TODO: add enums for all adcs_handler functions called
 //    binaryTest_CubeWheel_BurnIn_MCU();
 //    printf("CubeWheel BurnIn Tests Complete!");
 //
-//    printf("CubeWheel 1  Tests");
-//    binaryTest_CubeWheel1_MCU();
-//    printf("CubeWheel 1 Tests Complete!");
+    printf("CubeWheel 1  Tests");
+    binaryTest_CubeWheel1_MCU();
+    printf("CubeWheel 1 Tests Complete!");
 //
 //    printf("CubeWheel 2  Tests");
 //    binaryTest_CubeWheel2_MCU();
@@ -1234,6 +1234,10 @@ void binaryTest_CubeControl_Motor_MCU(void) {
     //Test Section 6.2 CubeControl, Table 6-6 in test plan.
 
     ADCS_returnState test_returnState = ADCS_OK;
+
+    ADCS_set_enabled_state(1);
+
+    ADCS_set_unix_t(0,0);
 
     //Using Command ADCS_get_power_control() - Table 184, ensure that all nodes are selected PowOff before proceeding.
     //Section Variables

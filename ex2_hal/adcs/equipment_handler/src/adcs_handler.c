@@ -1477,7 +1477,12 @@ ADCS_returnState ADCS_set_magnetorquer_output(xyz16 duty_cycle) {
 ADCS_returnState ADCS_set_wheel_speed(xyz16 speed) {
     uint8_t command[7];
     command[0] = SET_WHEEL_SPEED_ID;
-    memcpy(&command[1], &speed, 6);
+    command[1] = (speed.x) & 0x00FF;
+    command[2] = (speed.x >> 8) & 0x00FF;
+    command[3] = (speed.y) & 0x00FF;
+    command[4] = (speed.y >> 8) & 0x00FF;
+    command[5] = (speed.z) & 0x00FF;
+    command[6] = (speed.z >> 8) & 0x00FF;
     return adcs_telecommand(command, 7);
 }
 
