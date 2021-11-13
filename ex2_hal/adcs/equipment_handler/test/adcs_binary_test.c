@@ -39,9 +39,9 @@ void ReactionWheels_Common_Test(uint8_t wheel_number);
 
 void binaryTest(void) {//TODO: add enums for all adcs_handler functions called
 
-//    printf("Running Bootloader Tests");
-//    binaryTest_Bootloader();
-//    printf("Bootloader Tests Complete!");
+    printf("Running Bootloader Tests");
+    binaryTest_Bootloader();
+    printf("Bootloader Tests Complete!");
 //
 //    printf("Running CubeACP Tests");
 //    binaryTest_CubeACP();
@@ -96,15 +96,15 @@ void binaryTest(void) {//TODO: add enums for all adcs_handler functions called
 //    binaryTest_CubeWheel1_MCU();
 //    printf("CubeWheel 1 Tests Complete!");
 //
-    printf("CubeWheel 2  Tests");
-    binaryTest_CubeWheel2_MCU();
-    printf("CubeWheel 2 Tests Complete!");
-
-    printf("CubeWheel 3  Tests");
-    binaryTest_CubeWheel3_MCU();
-    printf("CubeWheel 3 Tests Complete!");
-
-    printf("CubeWheel  Tests Complete!");
+//    printf("CubeWheel 2  Tests");
+//    binaryTest_CubeWheel2_MCU();
+//    printf("CubeWheel 2 Tests Complete!");
+//
+//    printf("CubeWheel 3  Tests");
+//    binaryTest_CubeWheel3_MCU();
+//    printf("CubeWheel 3 Tests Complete!");
+//
+//    printf("CubeWheel  Tests Complete!");
 
     //TODO: add checks for "incrementing" and "idle" type values, since those are only checked once instantaneously now
 

@@ -1271,8 +1271,8 @@ ADCS_returnState ADCS_clear_latched_errs(bool adcs_flag, bool hk_flag) {
     uint8_t command[2];
     command[0] = CLEAR_LATCHED_ERRS_ID;
     command[1] = adcs_flag + 2 * hk_flag;
-    return adcs_telecommand(command,
-                            2); //* add "+ command[1]" for test and let it fail and check the value
+    return adcs_telecommand(command, 2);
+    //* add "+ command[1]" for test and let it fail and check the value
 }
 
 /**
