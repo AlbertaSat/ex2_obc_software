@@ -22,10 +22,9 @@
 #define SCW_BCN_FLAG 5
 #define SCW_BCN_ON 1
 
-static void *beacon_daemon(void *pvParameters);
-SAT_returnState start_beacon_daemon(void);
+static void *beacon_daemon(All_systems_housekeeping* all_hk_data);
+SAT_returnState start_beacon_daemon();
 static TickType_t beacon_delay = pdMS_TO_TICKS(1000); //converts 1000 ms to number of ticks
-
 
 /**
  * Construct and send out the system beacon at the required frequency.
@@ -33,13 +32,15 @@ static TickType_t beacon_delay = pdMS_TO_TICKS(1000); //converts 1000 ms to numb
  * @param pvParameters
  *    task parameters (not used)
  */
-static void *beacon_daemon(void *pvParameters) {
+static void *beacon_daemon(All_systems_housekeeping* all_hk_data) {
+    TickType_t beacon_update_delay = pdMS_TO_TICKS(1000);
+    uint32_t seconds_delay = 30;
     for (;;) {
         int8_t uhf_status = -1;
         /* Constructing the system beacon content */
         // Refer to table 3 of MOP
         UHF_configStruct beacon_msg;
-        All_systems_housekeeping all_hk_data;
+        //All_systems_housekeeping all_hk_data;
 
         //Testing purposes only, passing 1s to the UHF
         beacon_t beacon_packet = {
@@ -60,6 +61,9 @@ static void *beacon_daemon(void *pvParameters) {
         // The beacon transmission period is configurable through comms service
         // by the operator or here through HAL_UHF_getBeaconT().
         uint8_t scw[SCW_LEN];
+
+        beacon_update_delay = pdMS_TO_TICKS(seconds_delay * 1000);
+        vTaskDelay(beacon_update_delay);
 
 #ifndef UHF_IS_STUBBED
         uhf_status = HAL_UHF_getSCW(scw);
@@ -89,8 +93,9 @@ static void *beacon_daemon(void *pvParameters) {
  * @returns status
  *   error report of task creation
  */
-SAT_returnState start_beacon_daemon(void) {
-    if (xTaskCreate((TaskFunction_t)beacon_daemon, "beacon_daemon", 2048, NULL, BEACON_TASK_PRIO, NULL) !=
+SAT_returnState start_beacon_daemon() {
+    All_systems_housekeeping all_hk_data;
+    if (xTaskCreate((TaskFunction_t)beacon_daemon(&all_hk_data), "beacon_daemon", 2048, NULL, BEACON_TASK_PRIO, NULL) !=
         pdPASS) {
         ex2_log("FAILED TO CREATE TASK coordinate_management_daemon\n");
         return SATR_ERROR;
