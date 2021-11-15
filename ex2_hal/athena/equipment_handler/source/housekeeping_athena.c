@@ -47,16 +47,11 @@ int HAL_get_temp_all(long* temparray) {
  */
 uint16_t Athena_get_OBC_uptime() {
   TickType_t OBC_ticks = xTaskGetTickCount(); //1 tick/ms
-  uint32_t OBC_uptime_32 = OBC_ticks/1000;
-  if (OBC_uptime_32 > 655350) {
-    OBC_uptime_32 = 655350;
-  }
-  //Seconds = value*10. Max = 655350 seconds (7.6 days)
-  OBC_uptime_32 = OBC_uptime_32/10;
-  //convert OBC_uptime from 32 bit to 16 bit
-  uint16_t OBC_uptime = (OBC_uptime_32 & 255);
-
-  return OBC_uptime;
+  uint32_t OBC_uptime_s = (OBC_ticks * portTICK_PERIOD_MS) / 1000;
+  
+  //convert OBC_uptime from 32 bit to 16 bit. Max = 655350 seconds (7.6 days)
+  //Unit will be deca-seconds due to size restraint, seconds = OBC_uptime*10
+  return (uint16_t) OBC_uptime_s/10;
 }
 
 /**
@@ -64,7 +59,7 @@ uint16_t Athena_get_OBC_uptime() {
  *      Getter to Athena solar panel supply current
  * @return
  * 		  integer solar_panel_supply_curr to store solar panel supply current
- */
+ */ 
 uint8_t Athena_get_solar_supply_curr() {
   //insert getter function for solar panel supply current;
 }
@@ -114,17 +109,17 @@ int Athena_getHK(athena_housekeeping* athena_hk) {
  */
 int Athena_hk_convert_endianness(athena_housekeeping* athena_hk) {
   uint8_t i;
-  for (i = 0; i < 2; i++) {
-    athena_hk->temparray[i] = (long)csp_hton32((uint32_t)athena_hk->temparray[i]);
+  for (i = 0; i < NUM_TEMP_SENSOR; i++) {
+    athena_hk->temparray[i] = (long)csp_ntoh32((uint32_t)athena_hk->temparray[i]);
   }
-  athena_hk->boot_cnt = (uint16_t)csp_hton16((uint16_t)athena_hk->boot_cnt);
-  athena_hk->last_reset_reason = (uint8_t)csp_hton16((uint8_t)athena_hk->last_reset_reason);
-  athena_hk->OBC_mode = (uint8_t)csp_hton16((uint8_t)athena_hk->OBC_mode);
-  athena_hk->OBC_uptime = (uint16_t)csp_hton16((uint16_t)athena_hk->OBC_uptime);
-  athena_hk->solar_panel_supply_curr = (uint8_t)csp_hton16((uint8_t)athena_hk->solar_panel_supply_curr);
-  athena_hk->OBC_software_ver = (uint8_t)csp_hton16((uint8_t)athena_hk->OBC_software_ver);
-  athena_hk->cmds_received = (uint16_t)csp_hton16((uint16_t)athena_hk->cmds_received);
-  athena_hk->pckts_uncovered_by_FEC = (uint16_t)csp_hton16((uint16_t)athena_hk->pckts_uncovered_by_FEC);
+  athena_hk->boot_cnt = csp_ntoh16(athena_hk->boot_cnt);
+  athena_hk->last_reset_reason = csp_ntoh8(athena_hk->last_reset_reason);
+  athena_hk->OBC_mode = csp_ntoh8(athena_hk->OBC_mode);
+  athena_hk->OBC_uptime = csp_ntoh16(athena_hk->OBC_uptime);
+  athena_hk->solar_panel_supply_curr = csp_ntoh8(athena_hk->solar_panel_supply_curr);
+  athena_hk->OBC_software_ver = csp_ntoh8(athena_hk->OBC_software_ver);
+  athena_hk->cmds_received = csp_ntoh16(athena_hk->cmds_received);
+  athena_hk->pckts_uncovered_by_FEC = csp_ntoh16(athena_hk->pckts_uncovered_by_FEC);
   return 0;
 }
 

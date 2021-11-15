@@ -31,6 +31,8 @@
 #include "tempsense_athena.h"
 #endif
 
+#define int NUM_TEMP_SENSOR = 2;
+
 /*Add housekeeping fields to this struct to be included in hk reports
 ATTENTION:
   Basic data types and fixed arrays allowed
@@ -41,7 +43,7 @@ ATTENTION:
     char *string, struct {} dataSet;
 */
 typedef struct __attribute__((packed)){
-  long      temparray[2];           //Athena temperature array
+  long      temparray[NUM_TEMP_SENSOR];           //Athena temperature array
   uint16_t  boot_cnt;               //Total # of OBC boots
   uint8_t   last_reset_reason;
   uint8_t   OBC_mode;           

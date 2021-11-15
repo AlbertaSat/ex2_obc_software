@@ -19,25 +19,26 @@
 
 #include "tempsense_athena.h"
 #include "tmp421.h"
+#include "housekeeping_athena.h"
 
 #define CHANNEL_LOCAL 0
 #define CHANNEL_REMOTE 1
 
-uint8_t tmp_addr[6] = {0x49, 0x4A};
+uint8_t tmp_addr[NUM_TEMP_SENSOR] = {0x49, 0x4A};
 
 void inittemp_all(void){
     int i;
     int delay;
-    for(i=0;i<2;i++){
+    for(i=0;i<NUM_TEMP_SENSOR;i++){
         tmp421_init_client(tmp_addr[i]);
         for (delay = 0; delay < 0x1000; delay++);//temporary fix... don't want delay down the road
     }
 }
 
-int gettemp_all(long temparray[2]){
+int gettemp_all(long temparray[NUM_TEMP_SENSOR]){
     int i;
     int delay;
-    for(i=0;i<2;i++){
+    for(i=0;i<NUM_TEMP_SENSOR;i++){
         tmp421_read(tmp_addr[i], CHANNEL_LOCAL, &temparray[i]);//assuming we want to read remote channel
         for (delay = 0; delay < 0x1000; delay++);//temporary fix... don't want delay down the road
     }
