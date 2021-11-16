@@ -20,24 +20,95 @@
 
 #include <FreeRTOS.h>
 #include <os_task.h>
+#include <os_semphr.h>
+#include "uhf.h"
+#include "eps.h"
+#include "system.h"
 
-static void *diagnostic_daemon(void *pvParameters);
+static void uhf_watchdog_daemon(void *pvParameters);
 SAT_returnState start_diagnostic_daemon(void);
 
-/**
- * Run subsystem diagnositc periodically at a low priority. Any corrective
- * action should be handled in the hardware interface layer.
- *
- * @param pvParameters
- *    task parameters (not used)
- */
-static void *diagnostic_daemon(void *pvParameters) {
-    TickType_t delay = pdMS_TO_TICKS(1000);
-    for (;;) {
-        // TODO Run subsystem diagnosics
+const unsigned int mutex_timeout = pdMS_TO_TICKS(100);
+const unsigned int ONE_SECOND = pdMS_TO_TICKS(1000);
+const unsigned int ONE_MINUTE = 60 * ONE_SECOND;
+static TickType_t prv_watchdog_delay = 1 * ONE_MINUTE; // 3 minutes
 
+static SemaphoreHandle_t uhf_watchdog_mtx = NULL;
+/**
+ * @brief Check that the UHF is responsive. If not, toggle power.
+ *
+ * @param pvParameters Task parameters (not used)
+ */
+static void uhf_watchdog_daemon(void *pvParameters) {
+    TickType_t delay = prv_watchdog_delay;
+    for (;;) {
+        // Get status word from UHF
+        char status[32];
+        const unsigned int retries = 3;
+        UHF_return err;
+        for (int i = 0; i < retries; i++) {
+            err = HAL_UHF_getSCW(status);
+            if (err == U_GOOD_CONFIG) {
+                break;
+            }
+        }
+
+        if (err != U_GOOD_CONFIG) {
+            ex2_log("UHF was not responsive - attempting to toggle power.");
+            // Toggle the UHF.
+            const unsigned int timeout = 5 * ONE_SECOND; // 30 seconds
+            unsigned int attempts = 0;
+            eps_set_pwr_chnl(UHF_PWR_CHNL, 0);
+            TickType_t start = xTaskGetTickCount();
+
+            while ((eps_get_pwr_chnl(UHF_PWR_CHNL) != 0) || ((xTaskGetTickCount() - start) < timeout)) {
+                vTaskDelay(ONE_SECOND);
+                if(attempts >= 10){
+                    ex2_log("UHF failed to power off.");
+                    break;
+                }
+                attempts++;
+            }
+
+            eps_set_pwr_chnl(UHF_PWR_CHNL, 1);
+            start = xTaskGetTickCount();
+
+            while ((eps_get_pwr_chnl(UHF_PWR_CHNL) != 1) && ((xTaskGetTickCount() - start) < timeout)) {
+                vTaskDelay(ONE_SECOND);
+            }
+
+            if (eps_get_pwr_chnl(UHF_PWR_CHNL) != 1) {
+                ex2_log("UHF failed to power on.");
+            } else {
+                ex2_log("UHF powered back on.");
+            }
+        }
+
+        if (xSemaphoreTake(uhf_watchdog_mtx, mutex_timeout) == pdPASS) {
+            delay = prv_watchdog_delay;
+            xSemaphoreGive(uhf_watchdog_mtx);
+        }
         vTaskDelay(delay);
     }
+}
+
+TickType_t get_uhf_watchdog_delay(void) {
+    if (xSemaphoreTake(uhf_watchdog_mtx, mutex_timeout) == pdPASS) {
+        TickType_t delay = prv_watchdog_delay;
+        xSemaphoreGive(uhf_watchdog_mtx);
+        return delay;
+    } else {
+        return 0;
+    }
+}
+
+SAT_returnState set_uhf_watchdog_delay(const TickType_t delay) {
+    if (xSemaphoreTake(uhf_watchdog_mtx, mutex_timeout) == pdPASS) {
+        prv_watchdog_delay = delay;
+        xSemaphoreGive(uhf_watchdog_mtx);
+        return SATR_OK;
+    }
+    return SATR_ERROR;
 }
 
 /**
@@ -47,11 +118,17 @@ static void *diagnostic_daemon(void *pvParameters) {
  *   error report of task creation
  */
 SAT_returnState start_diagnostic_daemon(void) {
-    if (xTaskCreate((TaskFunction_t)diagnostic_daemon, "coordinate_management_daemon", 2048, NULL,
-                    DIAGNOSTIC_TASK_PRIO, NULL) != pdPASS) {
-        ex2_log("FAILED TO CREATE TASK coordinate_management_daemon\n");
+    if (xTaskCreate((TaskFunction_t)uhf_watchdog_daemon, "uhf_watchdog_daemon", 2048, NULL, DIAGNOSTIC_TASK_PRIO,
+                    NULL) != pdPASS) {
+        ex2_log("FAILED TO CREATE TASK uhf_watchdog_daemon.\n");
         return SATR_ERROR;
     }
-    ex2_log("Coordinate management started\n");
+    ex2_log("UHF watchdog task started.\n");
+    uhf_watchdog_mtx = xSemaphoreCreateMutex();
+    if (uhf_watchdog_mtx == NULL) {
+        ex2_log("FAILED TO CREATE MUTEX uhf_watchdog_mtx.\n");
+        return SATR_ERROR;
+    }
     return SATR_OK;
 }
+

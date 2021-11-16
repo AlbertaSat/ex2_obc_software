@@ -95,7 +95,7 @@ void sciInit(void)
                   | (uint32)((uint32)1U << 1U);  /* asynchronous timing mode */
 
     /** - set baudrate */
-    sciREG1->BRS = 487U;  /* baudrate */
+    sciREG1->BRS = 40U;  /* baudrate */
 
     /** - transmission length */
     sciREG1->FORMAT = 8U - 1U;  /* length */
@@ -142,7 +142,7 @@ void sciInit(void)
                    | (uint32)((uint32)0U << 0U);  /* Break detect */
 
     /** - initialize global transfer variables */
-    g_sciTransfer_t[0U].mode   = (uint32)0U << 8U;
+    g_sciTransfer_t[0U].mode   = (uint32)1U << 8U;
     g_sciTransfer_t[0U].tx_length = 0U;
 	g_sciTransfer_t[0U].rx_length = 0U;
 
@@ -171,7 +171,7 @@ void sciInit(void)
                   | (uint32)((uint32)1U << 1U);  /* asynchronous timing mode */
 
     /** - set baudrate */
-    sciREG2->BRS = 487U;  /* baudrate */
+    sciREG2->BRS = 40U;  /* baudrate */
 
     /** - transmission length */
     sciREG2->FORMAT = 8U - 1U;  /* length */
@@ -248,7 +248,7 @@ void sciInit(void)
                   | (uint32)((uint32)1U << 1U);  /* asynchronous timing mode */
 
     /** - set baudrate */
-    sciREG3->BRS = 487U;  /* baudrate */
+    sciREG3->BRS = 40U;  /* baudrate */
 
     /** - transmission length */
     sciREG3->FORMAT = 8U - 1U;  /* length */
@@ -324,7 +324,7 @@ void sciInit(void)
                   | (uint32)((uint32)1U << 1U);  /* asynchronous timing mode */
 
     /** - set baudrate */
-    sciREG4->BRS = 487U;  /* baudrate */
+    sciREG4->BRS = 40U;  /* baudrate */
 
     /** - transmission length */
     sciREG4->FORMAT = 8U - 1U;  /* length */
@@ -381,6 +381,10 @@ void sciInit(void)
 
 
 /* USER CODE BEGIN (3) */
+    sciSetBaudrate(sciREG2,19200);
+    sciSetBaudrate(sciREG3,19200);
+    sciSetBaudrate(sciREG4,19200);
+    sciSetBaudrate(sciREG1,19200);
 /* USER CODE END */
 }
 

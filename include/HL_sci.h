@@ -138,7 +138,7 @@ typedef struct sci_config_reg
                                    |(uint32)((uint32)0U << 0U))
                                    
 #define SCI1_FORMAT_CONFIGVALUE     (8U - 1U)
-#define SCI1_BRS_CONFIGVALUE        (487U)
+#define SCI1_BRS_CONFIGVALUE        (40U)
 #define SCI1_PIO0_CONFIGVALUE       ((uint32)((uint32)1U << 2U ) | (uint32)((uint32)1U << 1U))
 #define SCI1_PIO1_CONFIGVALUE       ((uint32)((uint32)1U << 2U ) | (uint32)((uint32)0U << 1U))
 #define SCI1_PIO6_CONFIGVALUE       ((uint32)((uint32)0U << 2U ) | (uint32)((uint32)0U << 1U))
@@ -173,7 +173,7 @@ typedef struct sci_config_reg
                                    |(uint32)((uint32)0U << 0U))
                                    
 #define SCI2_FORMAT_CONFIGVALUE     (8U - 1U)
-#define SCI2_BRS_CONFIGVALUE        (487U)
+#define SCI2_BRS_CONFIGVALUE        (40U)
 #define SCI2_PIO0_CONFIGVALUE       ((uint32)((uint32)1U << 2U ) | (uint32)((uint32)1U << 1U))
 #define SCI2_PIO1_CONFIGVALUE       ((uint32)((uint32)1U << 2U ) | (uint32)((uint32)0U << 1U))
 #define SCI2_PIO6_CONFIGVALUE       ((uint32)((uint32)0U << 2U ) | (uint32)((uint32)0U << 1U))
@@ -208,7 +208,7 @@ typedef struct sci_config_reg
                                    |(uint32)((uint32)0U << 0U))
                                    
 #define SCI3_FORMAT_CONFIGVALUE     (8U - 1U)
-#define SCI3_BRS_CONFIGVALUE        (487U)
+#define SCI3_BRS_CONFIGVALUE        (40U)
 #define SCI3_PIO0_CONFIGVALUE       ((uint32)((uint32)1U << 2U ) | (uint32)((uint32)1U << 1U))
 #define SCI3_PIO1_CONFIGVALUE       ((uint32)((uint32)1U << 2U ) | (uint32)((uint32)0U << 1U))
 #define SCI3_PIO6_CONFIGVALUE       ((uint32)((uint32)0U << 2U ) | (uint32)((uint32)0U << 1U))
@@ -243,7 +243,7 @@ typedef struct sci_config_reg
                                    |(uint32)((uint32)0U << 0U))
                                    
 #define SCI4_FORMAT_CONFIGVALUE     (8U - 1U)
-#define SCI4_BRS_CONFIGVALUE        (487U)
+#define SCI4_BRS_CONFIGVALUE        (40U)
 #define SCI4_PIO0_CONFIGVALUE       ((uint32)((uint32)1U << 2U ) | (uint32)((uint32)1U << 1U))
 #define SCI4_PIO1_CONFIGVALUE       ((uint32)((uint32)1U << 2U ) | (uint32)((uint32)0U << 1U))
 #define SCI4_PIO6_CONFIGVALUE       ((uint32)((uint32)0U << 2U ) | (uint32)((uint32)0U << 1U))

@@ -46,6 +46,7 @@
 
 /* USER CODE BEGIN (1) */
 #ifdef DO_NOT_COMPILE
+#error "The error was up here!'
 /* USER CODE END */
 
 /*----------------------------------------------------------------------------*/
@@ -107,7 +108,6 @@ SECTIONS
 /* Misc                                                                       */
 
 /* USER CODE BEGIN (6) */
-#define GOLDEN_IMAGE
 //#define WORKING_IMAGE
 //#define BOOTLOADER_PRESENT
 /*----------------------------------------------------------------------------*/
@@ -115,6 +115,8 @@ SECTIONS
 
 --retain="*(.intvecs)"
 
+#define GOLDEN_IMAGE
+//#define BOOTLOADER_PRESENT
 
 /*----------------------------------------------------------------------------*/
 /* Memory Map                                                                 */
