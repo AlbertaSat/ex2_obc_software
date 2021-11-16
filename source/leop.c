@@ -19,7 +19,7 @@
 
 #include "../include/leop.h"
 
-Deployable_TypeDef sw;
+Deployable_t sw;
 
 //LEOP Sequence
 
