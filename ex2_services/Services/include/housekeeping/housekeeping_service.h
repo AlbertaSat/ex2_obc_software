@@ -31,7 +31,6 @@
 #include "hyperion.h"
 #include "sband.h"
 #include "uhf.h"
-
 /* Housekeeping service address & port*/
 
 #define HK_PARAMETERS_REPORT 25
@@ -71,7 +70,9 @@ typedef struct __attribute__((packed)) {
     UHF_housekeeping UHF_hk;              // UHF status struct
     Sband_Housekeeping S_band_hk;         // S-band housekeeping struct
     Hyperion_HouseKeeping hyperion_hk;    // Hyperion housekeeping
+
 } All_systems_housekeeping;
+
 
 SAT_returnState start_housekeeping_service(void);
 
