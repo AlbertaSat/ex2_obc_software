@@ -19,6 +19,10 @@
 
 #include "../include/leop.h"
 
+static void *leop_daemon(void *pvParameters);
+SAT_returnState start_leop_daemon(void);
+
+
 Deployable_t sw;
 
 //LEOP Sequence
@@ -32,12 +36,15 @@ Deployable_t sw;
  *      Returns FALSE otherwise
  */
 bool hard_switch_status() {
+    TickType_t seconds_delay = pdMS_TO_TICKS(1000);
+    uint32_t two_min_delay = 120;
+    uint32_t four_min_delay = 240;
     int getStatus_retries;
     int successful_deployment = 0;
-    //int i = 0;
-    //char hard_switches[8] = {Port, UHF_P, UHF_Z, Payload, UHF_S, UHF_N, Starboard, DFGM};
+    //sw = {Port, UHF_P, UHF_Z, Payload, UHF_S, UHF_N, Starboard, DFGM};
     for (getStatus_retries = 1; getStatus_retries <= 3; getStatus_retries++) {
-        for (sw = 0; sw < 8; sw++) {
+        sw = 0;
+        //Deploy DFGM
             if (switchstatus(sw) != 1) {
                 ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);           
                 ex2_log("Manually activated %c\n", sw); 
@@ -45,6 +52,33 @@ bool hard_switch_status() {
             }
             else if (getStatus_retries == 3 && switchstatus(sw == 1)) {
                 successful_deployment++;
+            }
+            seconds_delay = pdMS_TO_TICKS(two_min_delay * 1000);
+            vTaskDelay(seconds_delay);
+        //Deploy UHF
+        for (sw = 1; sw < 5; sw++) {
+            if (switchstatus(sw) != 1) {
+                ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);           
+                ex2_log("Manually activated %c\n", sw); 
+                activate(sw);
+            }
+            else if (getStatus_retries == 3 && switchstatus(sw == 1)) {
+                successful_deployment++;
+            }
+            seconds_delay = pdMS_TO_TICKS(four_min_delay * 1000);
+            vTaskDelay(seconds_delay);
+        }
+        //Deploy solar panels
+        if (successful_deployment = 5) {
+            for (sw = 5; sw < 8; sw++) {
+                if (switchstatus(sw) != 1) {
+                    ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);           
+                    ex2_log("Manually activated %c\n", sw); 
+                    activate(sw);
+                }
+                else if (getStatus_retries == 3 && switchstatus(sw == 1)) {
+                    successful_deployment++;
+                }
             }
         }
     } 
@@ -60,7 +94,7 @@ bool hard_switch_status() {
  * @brief
  *      Set an eeprom flag so LEOP only gets executed once
  * @details
- *      Checks if LEOP sequence has been successfully executed before
+ *      Checks if LEOP sequence has been successfully executed 
  *      If not, execute LEOP sequence
  *      Otherwise, skip LEOP sequence
  * @return void
@@ -74,4 +108,39 @@ void leop_init() {
             eeprom_set_leop_status();
         }
     }
+}
+
+
+/**
+ * @brief
+ *    leop task
+ *
+ * @param pvParameters
+ *    task parameters (not used)
+ */
+static void *leop_daemon(void *pvParameters) {
+   
+    //for (;;) {
+        leop_init();
+    //}
+}
+
+/**
+ * @brief
+ *      Start LEOP
+ * @details
+ *      Starts the FreeRTOS task responsible for LEOP
+ * @param None
+ * @return SAT_returnState
+ *      success report
+ */
+SAT_returnState start_leop_daemon(void) {
+  if (xTaskCreate((TaskFunction_t)leop_daemon,
+                  "start_leop", 600, NULL, NORMAL_SERVICE_PRIO,
+                  NULL) != pdPASS) {
+    ex2_log("FAILED TO CREATE TASK start_leop\n");
+    return SATR_ERROR;
+  }
+  ex2_log("leop started\n");
+  return SATR_OK;
 }
