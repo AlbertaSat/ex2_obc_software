@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <system.h>
 
 #include "leop.h"
 #include "../ex2_hal/ex2_athena_software/equipment_handler/include/deployablescontrol.h"
