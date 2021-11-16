@@ -41,10 +41,7 @@ static void *housekeeping_daemon(void *pvParameters) {
     for (;;) {
         // Call housekeeping and have them collect and store data to SD card
         //Uncomment the function below to mock all housekeeping data for testing purposes
-        //populate_and_store_hk_data();
-
-        //Call this function to populate all housekeeping data
-        collect_hk_from_devices(&all_hk_data);
+        populate_and_store_hk_data();
 
         hk_delay = pdMS_TO_TICKS(seconds_delay * 1000);
         vTaskDelay(hk_delay);
