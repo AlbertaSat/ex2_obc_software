@@ -62,9 +62,6 @@ static void *beacon_daemon(All_systems_housekeeping* all_hk_data) {
         // by the operator or here through HAL_UHF_getBeaconT().
         uint8_t scw[SCW_LEN];
 
-        beacon_update_delay = pdMS_TO_TICKS(seconds_delay * 1000);
-        vTaskDelay(beacon_update_delay);
-
 #ifndef UHF_IS_STUBBED
         uhf_status = HAL_UHF_getSCW(scw);
 
@@ -83,7 +80,7 @@ static void *beacon_daemon(All_systems_housekeeping* all_hk_data) {
         }
 #endif
 
-        vTaskDelay(beacon_delay);
+        vTaskDelay(seconds_delay * beacon_delay);
     }
 }
 
