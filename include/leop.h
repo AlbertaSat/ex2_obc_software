@@ -10,6 +10,8 @@
 
 #include <FreeRTOS.h>
 #include <os_task.h>
+#include <os_queue.h>
+#include <os_timer.h>
 #include <performance_monitor/system_stats.h>
 #include <stdint.h>
 #include <stdio.h>
