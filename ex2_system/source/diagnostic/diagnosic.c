@@ -29,8 +29,6 @@ static void uhf_watchdog_daemon(void *pvParameters);
 SAT_returnState start_diagnostic_daemon(void);
 
 const unsigned int mutex_timeout = pdMS_TO_TICKS(100);
-const unsigned int ONE_SECOND = pdMS_TO_TICKS(1000);
-const unsigned int ONE_MINUTE = 60 * ONE_SECOND;
 static TickType_t prv_watchdog_delay = 1 * ONE_MINUTE; // 3 minutes
 
 static SemaphoreHandle_t uhf_watchdog_mtx = NULL;

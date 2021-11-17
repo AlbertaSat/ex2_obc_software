@@ -97,8 +97,6 @@ void ex2_init(void *pvParameters) {
 }
 
 void init_UHF_PIPE(void *pvParameters) {
-    unsigned int ONE_SECOND = pdMS_TO_TICKS(1000);
-    unsigned int ONE_MINUTE = 60 * ONE_SECOND;
 
 //    vTaskDelay(0*ONE_MINUTE);
 //    //Read from the UHF
