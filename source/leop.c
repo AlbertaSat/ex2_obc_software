@@ -50,11 +50,11 @@ bool hard_switch_status() {
                 ex2_log("Manually activated %c\n", sw); 
                 activate(sw);
             }
-            else if (getStatus_retries == 3 && switchstatus(sw == 1)) {
+            else if (getStatus_retries == 3 && switchstatus(sw) == 1) {
                 successful_deployment++;
             }
             seconds_delay = pdMS_TO_TICKS(two_min_delay * 1000);
-            vTaskDelay(seconds_delay);
+            //vTaskDelay(seconds_delay);
         //Deploy UHF
         for (sw = 1; sw < 5; sw++) {
             if (switchstatus(sw) != 1) {
@@ -62,11 +62,11 @@ bool hard_switch_status() {
                 ex2_log("Manually activated %c\n", sw); 
                 activate(sw);
             }
-            else if (getStatus_retries == 3 && switchstatus(sw == 1)) {
+            else if (getStatus_retries == 3 && switchstatus(sw) == 1) {
                 successful_deployment++;
             }
             seconds_delay = pdMS_TO_TICKS(four_min_delay * 1000);
-            vTaskDelay(seconds_delay);
+            //vTaskDelay(seconds_delay);
         }
         //Deploy solar panels
         if (successful_deployment = 5) {
@@ -76,7 +76,7 @@ bool hard_switch_status() {
                     ex2_log("Manually activated %c\n", sw); 
                     activate(sw);
                 }
-                else if (getStatus_retries == 3 && switchstatus(sw == 1)) {
+                else if (getStatus_retries == 3 && switchstatus(sw) == 1) {
                     successful_deployment++;
                 }
             }
@@ -99,7 +99,7 @@ bool hard_switch_status() {
  *      Otherwise, skip LEOP sequence
  * @return void
  */
-void leop_init() {
+bool leop_init() {
     if (eeprom_get_leop_status() != true) {
         //If leop sequence was never executed, check that all hard switches have been deployed
         hard_switch_status();
@@ -107,7 +107,9 @@ void leop_init() {
             //If all hard switch have been deployed, set eeprom flag to TRUE
             eeprom_set_leop_status();
         }
+        return 1;
     }
+    return 0;
 }
 
 

@@ -21,7 +21,7 @@
 //#include "deployablescontrol.h"
 #include "leop_eeprom.h"
 
-void leop_init();
+bool leop_init();
 bool hard_switch_status();
 
 #endif /* LEOP_H_ */
