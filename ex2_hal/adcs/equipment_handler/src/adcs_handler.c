@@ -27,6 +27,9 @@
 #define USE_UART
 //#define USE_I2C
 
+adcs_file_info *adcs_file_list = {NULL};
+uint8_t adcs_file_list_length = 0;
+
 /*************************** General functions ***************************/
 /**
  * @brief
@@ -175,26 +178,55 @@ void get_3x3(float *matrix, uint8_t *address, float coef) {
 }
 
 /*************************** File Management TC/TM Sequences ***************************/
-ADCS_returnState ADCS_get_file_list(adcs_file_info **list){
-    ADCS_reset_file_list_read_pointer();
+ADCS_returnState ADCS_get_file_list(){
+    ADCS_returnState ret;
 
-    uint8_t offset = 0;
-    while(true) {
-        *(list + offset) = (adcs_file_info *)pvPortMalloc(sizeof(adcs_file_info));
-        // vPortFree ??
-        adcs_file_info * temp = *(list + offset)
-        while(updating == true) {
-            // 2. Request file information until busy updating flag is not set
-            ADCS_get_file_info(*temp);
-        }
-        if(temp->counter == 0 & temp->size == 0 & temp->time == 0 & temp->crc16_checksum == 0) {
-            break;
-        } else {
-            ADCS_advance_file_list_read_pointer();
-            updating = true;
-        }
+    // Clear the file list
+    uint8_t index = adcs_file_list_length;
+    while(index--){
+        vPortFree(adcs_file_list[index]);
     }
-}
+
+    // Fill the file list
+    ret = ADCS_reset_file_list_read_pointer();
+    if(ret != ADCS_OK) return ret;
+    adcs_file_info info;
+    while(true) {
+
+        while(info.updating == true) {
+            // Request file info until busy updating flag is not set
+            ret = ADCS_get_file_info(*info);
+            if(ret != ADCS_OK) return ret;
+        }
+
+        if((info.counter == 0)) && (info.size == 0) && (info.time == 0) && (info.crc16_checksum == 0)) {
+            // No more files on the ADCS
+            break;
+        }
+
+        adcs_file_list[index] = (adcs_file_info *)pvPortMalloc(sizeof(adcs_file_info))
+        if(adcs_file_list[index] == NULL){
+            adcs_file_list_length = index - 1;
+            return ADCS_MALLOC_FAILED;
+        }
+
+        adcs_file_list[index]->type = info.type;
+        adcs_file_list[index]->counter = info.counter;
+        adcs_file_list[index]->updating = info.updating;
+        adcs_file_list[index]->size = info.size;
+        adcs_file_list[index]->time = info.time;
+        adcs_file_list[index]->crc16_checksum = info.crc16_checksum;
+
+        ret = ADCS_advance_file_list_read_pointer();
+        if(ret != ADCS_OK) return ret;
+        index++;
+        info.updating = true;
+        }
+
+    adcs_file_list_length = index;
+    return ret;
+    }
+
 
 /*************************** Common TCs ***************************/
 /**

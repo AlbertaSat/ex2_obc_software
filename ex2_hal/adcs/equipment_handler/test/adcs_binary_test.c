@@ -476,301 +476,307 @@ void binaryTest_CubeACP(void){
 void binaryTest_CubeSense1(void){
 
 
-//    //Test Section 5.1 CubeSense, Table 5-1 in test plan.
-//    //Using Command ADCS_get_power_control() - Table 184, ensure that all nodes are selected PowOff before proceeding.
+    //Test Section 5.1 CubeSense, Table 5-1 in test plan.
+    //Using Command ADCS_get_power_control() - Table 184, ensure that all nodes are selected PowOff before proceeding.
     ADCS_returnState test_returnState = ADCS_OK;
-//    adcs_state test_adcs_state;//init as 0?
-//    printf("Running ADCS_get_current_state...\n");
-//    test_returnState = ADCS_get_current_state(&test_adcs_state);
-//    if(test_returnState != ADCS_OK){
-//        printf("ADCS_get_current_state returned %d \n", test_returnState);
-//        while(1);
-//    }
+    adcs_state test_adcs_state;//init as 0?
+    printf("Running ADCS_get_current_state...\n");
+    test_returnState = ADCS_get_current_state(&test_adcs_state);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_get_current_state returned %d \n", test_returnState);
+        while(1);
+    }
+
+    //Section Variables
+    uint8_t *control = (uint8_t*)pvPortMalloc(10);
+    if (control == NULL) {
+        return ADCS_MALLOC_FAILED;
+    }
+
+    //enable the ADCS
+    ADCS_set_enabled_state(1);
+
+    ADCS_set_unix_t(0,0);
+
+    printf("Running ADCS_get_power_control...\n");
+    test_returnState = ADCS_get_power_control(control);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_get_power_control returned %d \n", test_returnState);
+        while(1);
+    }
+    for(int i = 0; i<10; i++){
+        printf("control[%d] = %d \n", i, control[i]);
+    }
+
+
+    //Using Command ADCS_set_power_control() - Table 184, switch on CubeSense1 by selecting PowOn.
+    //Section Variables
+    if (control == NULL) {
+        return ADCS_MALLOC_FAILED;
+    }
+    control[Set_CubeSense1_Power] = 1;
+
+    printf("Running ADCS_set_power_control...\n");
+    test_returnState = ADCS_set_power_control(control);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_set_power_control returned %d \n", test_returnState);
+        while(1);
+    }
+
+    //another read to make sure we are in the right state
+    printf("Running ADCS_get_power_control...\n");
+    test_returnState = ADCS_get_power_control(control);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_get_power_control returned %d \n", test_returnState);
+        while(1);
+    }
+    for(int i = 0; i<10; i++){
+        printf("control[%d] = %d \n", i, control[i]);
+    }
+
+    vPortFree(control);
+
+    //Ensure that the lens cap is on.
+
+
+    //Using Command ADCS_set_cubesense_config() - Table 189, ensure that the Cam1 detection threshold is set to 150.
+    //Next, ensure that the Cam1 sensor exposure time is set to 35 if Cam1 is a nadir  sensor, or 100 if Cam1 is a Sun sensor. Set the NadirMaxBadEdges to 30 to make  ground testing easier.
+    //Section Variables]
+    cubesense_config params;
+
+    //Get all the current configuration parameters from the ADCS so that incorrect parameters aren't sent while testing.
+    printf("Running ADCS_get_cubesense_config...\n");
+    test_returnState = ADCS_get_cubesense_config(&params); //this function should be tested and checked before the command is sent
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_set_cubesense_config returned %d \n", test_returnState);
+        while(1);
+    }
+
+
+    //now set the parameters
+    params.cam1_sense.detect_th = 150;
+    params.cam1_sense.exposure_t = 100; //assuming Cam1 is a nadir sensor. If a sun sensor, use 100.
+    params.nadir_max_bad_edge = 30;
+    params.cam1_sense.boresight_x = 512;
+    params.cam1_sense.boresight_y = 512;
 //
-//    //Section Variables
-//    uint8_t *control = (uint8_t*)pvPortMalloc(10);
-//    if (control == NULL) {
-//        return ADCS_MALLOC_FAILED;
-//    }
-//
-//    //enable the ADCS
-//    ADCS_set_enabled_state(1);
-//
-//    ADCS_set_unix_t(0,0);
-//
-//    printf("Running ADCS_get_power_control...\n");
-//    test_returnState = ADCS_get_power_control(control);
-//    if(test_returnState != ADCS_OK){
-//        printf("ADCS_get_power_control returned %d \n", test_returnState);
-//        while(1);
-//    }
-//    for(int i = 0; i<10; i++){
-//        printf("control[%d] = %d \n", i, control[i]);
-//    }
-//
-//
-//    //Using Command ADCS_set_power_control() - Table 184, switch on CubeSense1 by selecting PowOn.
-//    //Section Variables
-//    if (control == NULL) {
-//        return ADCS_MALLOC_FAILED;
-//    }
-//    control[Set_CubeSense1_Power] = 1;
-//
-//    printf("Running ADCS_set_power_control...\n");
-//    test_returnState = ADCS_set_power_control(control);
-//    if(test_returnState != ADCS_OK){
-//        printf("ADCS_set_power_control returned %d \n", test_returnState);
-//        while(1);
-//    }
-//
-//    //another read to make sure we are in the right state
-//    printf("Running ADCS_get_power_control...\n");
-//    test_returnState = ADCS_get_power_control(control);
-//    if(test_returnState != ADCS_OK){
-//        printf("ADCS_get_power_control returned %d \n", test_returnState);
-//        while(1);
-//    }
-//    for(int i = 0; i<10; i++){
-//        printf("control[%d] = %d \n", i, control[i]);
-//    }
-//
-//    vPortFree(control);
-//
-//    //Ensure that the lens cap is on.
-//
-//
-//    //Using Command ADCS_set_cubesense_config() - Table 189, ensure that the Cam1 detection threshold is set to 150.
-//    //Next, ensure that the Cam1 sensor exposure time is set to 35 if Cam1 is a nadir  sensor, or 100 if Cam1 is a Sun sensor. Set the NadirMaxBadEdges to 30 to make  ground testing easier.
-//    //Section Variables]
-//    cubesense_config params;
-//
-//    //Get all the current configuration parameters from the ADCS so that incorrect parameters aren't sent while testing.
-//    printf("Running ADCS_get_cubesense_config...\n");
-//    test_returnState = ADCS_get_cubesense_config(&params); //this function should be tested and checked before the command is sent
-//    if(test_returnState != ADCS_OK){
-//        printf("ADCS_set_cubesense_config returned %d \n", test_returnState);
-//        while(1);
-//    }
-//
-//
-//    //now set the parameters
-//    params.cam1_sense.detect_th = 150;
-//    params.cam1_sense.exposure_t = 100; //assuming Cam1 is a nadir sensor. If a sun sensor, use 100.
-//    params.nadir_max_bad_edge = 30;
-//    params.cam1_sense.boresight_x = 512;
-//    params.cam1_sense.boresight_y = 512;
-////
-//    printf("Running ADCS_set_cubesense_config...\n");
-//
-//    test_returnState = ADCS_set_cubesense_config(params); //this function should be tested and checked before the command is sent
-//    if(test_returnState != ADCS_OK){
-//        printf("ADCS_set_cubesense_config returned %d \n", test_returnState);
-//        while(1);
-//    }
-//
-//    printf("Running ADCS_get_cubesense_config...\n");
-//    test_returnState = ADCS_get_cubesense_config(&params); //this function should be tested and checked before the command is sent
-//    if(test_returnState != ADCS_OK){
-//        printf("ADCS_set_cubesense_config returned %d \n", test_returnState);
-//        while(1);
-//    }
-//    //this is commented out because the dev board reads the wrong error state
-//
-//    // Verify the following values in Table 5-1:
-//
-//    printf("Running ADCS_get_current_state...\n");
-//    test_returnState = ADCS_get_current_state(&test_adcs_state);
-//    if(test_returnState != ADCS_OK){
-//        printf("ADCS_get_current_state returned %d \n", test_returnState);
-//        while(1);
-//    }
-//
-//    printf("att_estimate mode = %d \n", test_adcs_state.att_estimate_mode);
-//    printf("att_ctrl_mode = %d \n", test_adcs_state.att_ctrl_mode);
-//    printf("run_mode = %d \n", test_adcs_state.run_mode);
-//    printf("CubeSense1 Enabled = %d \n", test_adcs_state.flags_arr[2]);
-//    printf("Sun is Above Local Horizon = %d \n", test_adcs_state.flags_arr[11]);
-//    //need to test if all flags other than CubeSense1 Enabled and Sun is Above Local Horizon are == 0. Simpler to do in code than via human.
-//    uint8_t all_other_adcs_states_equal_zero = 0;
-//    for(int i = 0; i<36; i++){//I think this is the right range.
-//        if(((i == 2) | (i == 11)) & (test_adcs_state.flags_arr[i] != 0)){
-//            break;
-//        }
-//        if(i == 35){
-//            all_other_adcs_states_equal_zero = 1;
-//        }
-//    }
-//    if(all_other_adcs_states_equal_zero == 1){
-//        printf("all other states (frame offsets 12 to 47) == 0 \n");
-//    } else {
-//        printf("all other states (frame offsets 12 to 47) != 0... halting code execution\n");
-//        while(1);
-//    }
-//
-//    //ADCS_get_power_temp()
-//    adcs_pwr_temp *power_temp_measurements;
-//    power_temp_measurements = (adcs_pwr_temp *)pvPortMalloc(sizeof(adcs_pwr_temp));
-//    if (power_temp_measurements == NULL) {
-//        printf("malloc issues");
-//        while(1);
-//    }
-//
-//    printf("Running ADCS_get_power_temp...\n");
-//    test_returnState = ADCS_get_power_temp(power_temp_measurements);
-//    if(test_returnState != ADCS_OK){
-//        printf("ADCS_get_power_temp returned %d \n", test_returnState);
-//        while(1);
-//    }
-//
-//    printf("cubesense1_3v3_I = %f \n", power_temp_measurements->cubesense1_3v3_I);
-//    printf("cubesense1_camSram_I = %f \n", power_temp_measurements->cubesense1_camSram_I);
-//
-//    vPortFree(power_temp_measurements);
-//
-//    //ADCS_get_raw_sensor()
-//    adcs_raw_sensor *raw_sensor_measurements;
-//    raw_sensor_measurements = (adcs_raw_sensor *)pvPortMalloc(sizeof(adcs_raw_sensor));
-//    if (raw_sensor_measurements == NULL) {
-//        printf("malloc issues");
-//        while(1);
-//    }
-//    printf("Running ADCS_get_raw_sensor...\n");
-//    test_returnState = ADCS_get_raw_sensor(raw_sensor_measurements);
-//    if(test_returnState != ADCS_OK){
-//        printf("ADCS_get_raw_sensor returned %d \n", test_returnState);
-//        while(1);
-//    }
-//
-//    printf("cam1.centroid_x = %d \n", raw_sensor_measurements->cam1.centroid_x);
-//    printf("cam1.centroid_y = %d \n", raw_sensor_measurements->cam1.centroid_y);
-//    printf("cam1.capture_stat = %d \n", raw_sensor_measurements->cam1.capture_stat);
-//    printf("cam1.detect_result = %d \n", raw_sensor_measurements->cam1.detect_result);
-//
-//    //Take off the Cam1 camera�s lens cap.
-//    //Verify the following in Table 5-2 by testing the sensor with a light source (a dark n environment will prevent  false detections).
-//    //If Cam1 is a nadir sensor then a large light source should be used  (e.g. a desk lamp), or if Cam1 is a Sun sensor then a small light
-//    //source should be used  (e.g. narrow beam flashlight). Vary the distance between the light source and the sensor  until consistent measurements
-//    //are observed (normally �150mm). If difficulties are  experienced with the nadir sensor, the light source can be covered with white  paper/cloth
-//    //to create a more uniform light source. Finally, if no results are obtained for  the nadir or Sun sensors, the exposure value can be adjusted.
-//
-//    //ADCS_get_raw_sensor() LIGHT BROUGHT CLOSE TO THE CAMERA
-//    printf("Running ADCS_get_raw_sensor...\n");
-//    test_returnState = ADCS_get_raw_sensor(raw_sensor_measurements);
-//    if(test_returnState != ADCS_OK){
-//        printf("ADCS_get_raw_sensor returned %d \n", test_returnState);
-//        while(1);
-//    }
-//    printf("LIGHT HELD CLOSE TO THE CAMERA");
-//    printf("cam1.capture_stat = %d \n", raw_sensor_measurements->cam1.capture_stat);
-//    printf("cam1.detect_result = %d \n", raw_sensor_measurements->cam1.detect_result);
-//    printf("cam1.centroid_x = %d \n", raw_sensor_measurements->cam1.centroid_x);
-//    printf("cam1.centroid_y = %d \n", raw_sensor_measurements->cam1.centroid_y);
-//
-//    //ADCS_get_raw_sensor() MOVING THE LIGHT UP
-//    printf("Running ADCS_get_raw_sensor...\n");
-//    test_returnState = ADCS_get_raw_sensor(raw_sensor_measurements);
-//     if(test_returnState != ADCS_OK){
-//        printf("ADCS_get_raw_sensor returned %d \n", test_returnState);
-//        while(1);
-//    }
-//    printf("LIGHT MOVING UP");
-//    printf("cam1.capture_stat = %d \n", raw_sensor_measurements->cam1.capture_stat);
-//    printf("cam1.detect_result = %d \n", raw_sensor_measurements->cam1.detect_result);
-//    printf("cam1.centroid_x = %d \n", raw_sensor_measurements->cam1.centroid_x);
-//    printf("cam1.centroid_y = %d \n", raw_sensor_measurements->cam1.centroid_y);
-//
-//    //ADCS_get_raw_sensor() MOVING THE LIGHT DOWN
-//    printf("Running ADCS_get_raw_sensor...\n");
-//    test_returnState = ADCS_get_raw_sensor(raw_sensor_measurements);
-//    if(test_returnState != ADCS_OK){
-//        printf("ADCS_get_raw_sensor returned %d \n", test_returnState);
-//        while(1);
-//    }
-//    printf("LIGHT MOVING DOWN");
-//    printf("cam1.capture_stat = %d \n", raw_sensor_measurements->cam1.capture_stat);
-//    printf("cam1.detect_result = %d \n", raw_sensor_measurements->cam1.detect_result);
-//    printf("cam1.centroid_x = %d \n", raw_sensor_measurements->cam1.centroid_x);
-//    printf("cam1.centroid_y = %d \n", raw_sensor_measurements->cam1.centroid_y);
-//
-//    //ADCS_get_raw_sensor() MOVING THE LIGHT RIGHT
-//    printf("Running ADCS_get_raw_sensor...\n");
-//    test_returnState = ADCS_get_raw_sensor(raw_sensor_measurements);
-//    if(test_returnState != ADCS_OK){
-//        printf("ADCS_get_raw_sensor returned %d \n", test_returnState);
-//        while(1);
-//    }
-//    printf("LIGHT MOVING RIGHT");
-//    printf("cam1.capture_stat = %d \n", raw_sensor_measurements->cam1.capture_stat);
-//    printf("cam1.detect_result = %d \n", raw_sensor_measurements->cam1.detect_result);
-//    printf("cam1.centroid_x = %d \n", raw_sensor_measurements->cam1.centroid_x);
-//    printf("cam1.centroid_y = %d \n", raw_sensor_measurements->cam1.centroid_y);
-//
-//
-//    //ADCS_get_raw_sensor() MOVING THE LIGHT RIGHT
-//    printf("Running ADCS_get_raw_sensor...\n");
-//    test_returnState = ADCS_get_raw_sensor(raw_sensor_measurements);
-//    if(test_returnState != ADCS_OK){
-//        printf("ADCS_get_raw_sensor returned %d \n", test_returnState);
-//        while(1);
-//    }
-//    printf("LIGHT MOVING LEFT");
-//    printf("cam1.capture_stat = %d \n", raw_sensor_measurements->cam1.capture_stat);
-//    printf("cam1.detect_result = %d \n", raw_sensor_measurements->cam1.detect_result);
-//    printf("cam1.centroid_x = %d \n", raw_sensor_measurements->cam1.centroid_x);
-//    printf("cam1.centroid_y = %d \n", raw_sensor_measurements->cam1.centroid_y);
-//
-//    vPortFree(raw_sensor_measurements);
-//
-//
-//    //While keeping the light in the field of view of CubeSense1, use Command ADCS_save_img() - Table 94 and select Cam1.
-//    //Select any desired size for Image size, but not selecting Size0 will reduce the downloading time by lowering the image quality (Size3 recommended).
-//    //Capture the image by sending the command by clicking on the green arrow. The camera will  capture an image after a delay of three seconds.
-//    //Continue to hold the light in front of  the camera for this duration.
-//
-//    //ADCS_save_img()
-//    uint8_t camera = 0;
-//    uint8_t img_size = 3;
-//
-//    printf("Running ADCS_save_img...\n");
-//    test_returnState = ADCS_save_img(camera, img_size);
-//    if(test_returnState != ADCS_OK){
-//        printf("ADCS_save_img returned %d \n", test_returnState);
-//        while(1);
-//    }
-//
-//    //Using Command ADCS_get_img_save_progress() - Table 176, refresh Percentage Complete, which will increase slowly and indicate the progress of
-//    //the image being saved to the SD card from CubeSense�s memory.
-//
-//    //ADCS_get_img_save_progress() - to run almost immediately after the image is taken
-//    uint8_t percentage = 0;
-//    uint8_t status = 0;
-//
-//    printf("Running ADCS_get_img_save_progress...\n");
-//    test_returnState = ADCS_get_img_save_progress(&percentage, &status);
-//    if(test_returnState != ADCS_OK){
-//        printf("ADCS_get_img_save_progress returned %d \n", test_returnState);
-//        while(1);
-//    }
-//
-//    printf("percentage = %d \n", percentage);
-//    printf("status = %d \n", status);
-//
-//    //ADCS_get_img_save_progress() - to run a little while after the previous function call.
-//    percentage = 0;
-//    status = 0;
-//
-//    printf("Running ADCS_get_img_save_progress...\n");
-//    test_returnState = ADCS_get_img_save_progress(&percentage, &status);
-//    if(test_returnState != ADCS_OK){
-//        printf("ADCS_get_img_save_progress returned %d \n", test_returnState);
-//        while(1);
-//    }
-//
-//    printf("percentage = %d \n", percentage);
-//    printf("status = %d \n", status);
-//
+    printf("Running ADCS_set_cubesense_config...\n");
+
+    test_returnState = ADCS_set_cubesense_config(params); //this function should be tested and checked before the command is sent
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_set_cubesense_config returned %d \n", test_returnState);
+        while(1);
+    }
+
+    printf("Running ADCS_get_cubesense_config...\n");
+    test_returnState = ADCS_get_cubesense_config(&params); //this function should be tested and checked before the command is sent
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_set_cubesense_config returned %d \n", test_returnState);
+        while(1);
+    }
+    //this is commented out because the dev board reads the wrong error state
+
+    // Verify the following values in Table 5-1:
+
+    printf("Running ADCS_get_current_state...\n");
+    test_returnState = ADCS_get_current_state(&test_adcs_state);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_get_current_state returned %d \n", test_returnState);
+        while(1);
+    }
+
+    printf("att_estimate mode = %d \n", test_adcs_state.att_estimate_mode);
+    printf("att_ctrl_mode = %d \n", test_adcs_state.att_ctrl_mode);
+    printf("run_mode = %d \n", test_adcs_state.run_mode);
+    printf("CubeSense1 Enabled = %d \n", test_adcs_state.flags_arr[2]);
+    printf("Sun is Above Local Horizon = %d \n", test_adcs_state.flags_arr[11]);
+    //need to test if all flags other than CubeSense1 Enabled and Sun is Above Local Horizon are == 0. Simpler to do in code than via human.
+    uint8_t all_other_adcs_states_equal_zero = 0;
+    for(int i = 0; i<36; i++){//I think this is the right range.
+        if(((i == 2) | (i == 11)) & (test_adcs_state.flags_arr[i] != 0)){
+            break;
+        }
+        if(i == 35){
+            all_other_adcs_states_equal_zero = 1;
+        }
+    }
+    if(all_other_adcs_states_equal_zero == 1){
+        printf("all other states (frame offsets 12 to 47) == 0 \n");
+    } else {
+        printf("all other states (frame offsets 12 to 47) != 0... halting code execution\n");
+        while(1);
+    }
+
+    //ADCS_get_power_temp()
+    adcs_pwr_temp *power_temp_measurements;
+    power_temp_measurements = (adcs_pwr_temp *)pvPortMalloc(sizeof(adcs_pwr_temp));
+    if (power_temp_measurements == NULL) {
+        printf("malloc issues");
+        while(1);
+    }
+
+    printf("Running ADCS_get_power_temp...\n");
+    test_returnState = ADCS_get_power_temp(power_temp_measurements);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_get_power_temp returned %d \n", test_returnState);
+        while(1);
+    }
+
+    printf("cubesense1_3v3_I = %f \n", power_temp_measurements->cubesense1_3v3_I);
+    printf("cubesense1_camSram_I = %f \n", power_temp_measurements->cubesense1_camSram_I);
+
+    vPortFree(power_temp_measurements);
+
+    //ADCS_get_raw_sensor()
+    adcs_raw_sensor *raw_sensor_measurements;
+    raw_sensor_measurements = (adcs_raw_sensor *)pvPortMalloc(sizeof(adcs_raw_sensor));
+    if (raw_sensor_measurements == NULL) {
+        printf("malloc issues");
+        while(1);
+    }
+    printf("Running ADCS_get_raw_sensor...\n");
+    test_returnState = ADCS_get_raw_sensor(raw_sensor_measurements);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_get_raw_sensor returned %d \n", test_returnState);
+        while(1);
+    }
+
+    printf("cam1.centroid_x = %d \n", raw_sensor_measurements->cam1.centroid_x);
+    printf("cam1.centroid_y = %d \n", raw_sensor_measurements->cam1.centroid_y);
+    printf("cam1.capture_stat = %d \n", raw_sensor_measurements->cam1.capture_stat);
+    printf("cam1.detect_result = %d \n", raw_sensor_measurements->cam1.detect_result);
+
+    //Take off the Cam1 camera�s lens cap.
+    //Verify the following in Table 5-2 by testing the sensor with a light source (a dark n environment will prevent  false detections).
+    //If Cam1 is a nadir sensor then a large light source should be used  (e.g. a desk lamp), or if Cam1 is a Sun sensor then a small light
+    //source should be used  (e.g. narrow beam flashlight). Vary the distance between the light source and the sensor  until consistent measurements
+    //are observed (normally �150mm). If difficulties are  experienced with the nadir sensor, the light source can be covered with white  paper/cloth
+    //to create a more uniform light source. Finally, if no results are obtained for  the nadir or Sun sensors, the exposure value can be adjusted.
+
+    //ADCS_get_raw_sensor() LIGHT BROUGHT CLOSE TO THE CAMERA
+    printf("Running ADCS_get_raw_sensor...\n");
+    test_returnState = ADCS_get_raw_sensor(raw_sensor_measurements);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_get_raw_sensor returned %d \n", test_returnState);
+        while(1);
+    }
+    printf("LIGHT HELD CLOSE TO THE CAMERA");
+    printf("cam1.capture_stat = %d \n", raw_sensor_measurements->cam1.capture_stat);
+    printf("cam1.detect_result = %d \n", raw_sensor_measurements->cam1.detect_result);
+    printf("cam1.centroid_x = %d \n", raw_sensor_measurements->cam1.centroid_x);
+    printf("cam1.centroid_y = %d \n", raw_sensor_measurements->cam1.centroid_y);
+
+    //ADCS_get_raw_sensor() MOVING THE LIGHT UP
+    printf("Running ADCS_get_raw_sensor...\n");
+    test_returnState = ADCS_get_raw_sensor(raw_sensor_measurements);
+     if(test_returnState != ADCS_OK){
+        printf("ADCS_get_raw_sensor returned %d \n", test_returnState);
+        while(1);
+    }
+    printf("LIGHT MOVING UP");
+    printf("cam1.capture_stat = %d \n", raw_sensor_measurements->cam1.capture_stat);
+    printf("cam1.detect_result = %d \n", raw_sensor_measurements->cam1.detect_result);
+    printf("cam1.centroid_x = %d \n", raw_sensor_measurements->cam1.centroid_x);
+    printf("cam1.centroid_y = %d \n", raw_sensor_measurements->cam1.centroid_y);
+
+    //ADCS_get_raw_sensor() MOVING THE LIGHT DOWN
+    printf("Running ADCS_get_raw_sensor...\n");
+    test_returnState = ADCS_get_raw_sensor(raw_sensor_measurements);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_get_raw_sensor returned %d \n", test_returnState);
+        while(1);
+    }
+    printf("LIGHT MOVING DOWN");
+    printf("cam1.capture_stat = %d \n", raw_sensor_measurements->cam1.capture_stat);
+    printf("cam1.detect_result = %d \n", raw_sensor_measurements->cam1.detect_result);
+    printf("cam1.centroid_x = %d \n", raw_sensor_measurements->cam1.centroid_x);
+    printf("cam1.centroid_y = %d \n", raw_sensor_measurements->cam1.centroid_y);
+
+    //ADCS_get_raw_sensor() MOVING THE LIGHT RIGHT
+    printf("Running ADCS_get_raw_sensor...\n");
+    test_returnState = ADCS_get_raw_sensor(raw_sensor_measurements);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_get_raw_sensor returned %d \n", test_returnState);
+        while(1);
+    }
+    printf("LIGHT MOVING RIGHT");
+    printf("cam1.capture_stat = %d \n", raw_sensor_measurements->cam1.capture_stat);
+    printf("cam1.detect_result = %d \n", raw_sensor_measurements->cam1.detect_result);
+    printf("cam1.centroid_x = %d \n", raw_sensor_measurements->cam1.centroid_x);
+    printf("cam1.centroid_y = %d \n", raw_sensor_measurements->cam1.centroid_y);
+
+
+    //ADCS_get_raw_sensor() MOVING THE LIGHT RIGHT
+    printf("Running ADCS_get_raw_sensor...\n");
+    test_returnState = ADCS_get_raw_sensor(raw_sensor_measurements);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_get_raw_sensor returned %d \n", test_returnState);
+        while(1);
+    }
+    printf("LIGHT MOVING LEFT");
+    printf("cam1.capture_stat = %d \n", raw_sensor_measurements->cam1.capture_stat);
+    printf("cam1.detect_result = %d \n", raw_sensor_measurements->cam1.detect_result);
+    printf("cam1.centroid_x = %d \n", raw_sensor_measurements->cam1.centroid_x);
+    printf("cam1.centroid_y = %d \n", raw_sensor_measurements->cam1.centroid_y);
+
+    vPortFree(raw_sensor_measurements);
+
+
+    //While keeping the light in the field of view of CubeSense1, use Command ADCS_save_img() - Table 94 and select Cam1.
+    //Select any desired size for Image size, but not selecting Size0 will reduce the downloading time by lowering the image quality (Size3 recommended).
+    //Capture the image by sending the command by clicking on the green arrow. The camera will  capture an image after a delay of three seconds.
+    //Continue to hold the light in front of  the camera for this duration.
+
+    //ADCS_save_img()
+    uint8_t camera = 0;
+    uint8_t img_size = 3;
+
+    printf("Running ADCS_save_img...\n");
+    test_returnState = ADCS_save_img(camera, img_size);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_save_img returned %d \n", test_returnState);
+        while(1);
+    }
+
+    //Using Command ADCS_get_img_save_progress() - Table 176, refresh Percentage Complete, which will increase slowly and indicate the progress of
+    //the image being saved to the SD card from CubeSense�s memory.
+
+    //ADCS_get_img_save_progress() - to run almost immediately after the image is taken
+    uint8_t percentage = 0;
+    uint8_t status = 0;
+
+    printf("Running ADCS_get_img_save_progress...\n");
+    test_returnState = ADCS_get_img_save_progress(&percentage, &status);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_get_img_save_progress returned %d \n", test_returnState);
+        while(1);
+    }
+
+    printf("percentage = %d \n", percentage);
+    printf("status = %d \n", status);
+
+    //ADCS_get_img_save_progress() - to run a little while after the previous function call.
+    percentage = 0;
+    status = 0;
+
+    printf("Running ADCS_get_img_save_progress...\n");
+    test_returnState = ADCS_get_img_save_progress(&percentage, &status);
+    if(test_returnState != ADCS_OK){
+        printf("ADCS_get_img_save_progress returned %d \n", test_returnState);
+        while(1);
+    }
+
+    printf("percentage = %d \n", percentage);
+    printf("status = %d \n", status);
+
     // Steps to take to download the image file that was just created:
+    // First, get the file list
     test_returnState = ADCS_get_file_list();
+    if(test_returnState != ADCS_OK){
+            printf("ADCS_get_file_list returned %d \n", test_returnState);
+            while(1);
+    }
+
 
     // 4. Load the image file that was just saved:
     //Variables:

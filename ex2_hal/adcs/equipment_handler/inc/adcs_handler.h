@@ -479,6 +479,9 @@ void get_3x3(float *matrix, uint8_t *address, float coef);
 ADCS_returnState adcs_telecommand(uint8_t *command, uint32_t length);
 ADCS_returnState adcs_telemetry(uint8_t TM_ID, uint8_t *reply, uint32_t length);
 
+// File management TC/TM sequences
+ADCS_returnState ADCS_get_file_list(uint8_t file_number, adcs_file_info *list);
+
 // Common Telecommands
 ADCS_returnState ADCS_reset(void);
 ADCS_returnState ADCS_reset_log_pointer(void);
