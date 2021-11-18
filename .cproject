@@ -84,6 +84,7 @@
 									<listOptionValue builtIn="false" value="IS_ATHENA"/>
 									<listOptionValue builtIn="false" value="IS_FLATSAT"/>
 									<listOptionValue builtIn="false" value="ADCS_IS_STUBBED"/>
+									<listOptionValue builtIn="false" value="UHF_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="WATCHDOG_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="SBAND_IS_STUBBED"/>
 								</option>
