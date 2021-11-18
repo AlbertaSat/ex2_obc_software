@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include "i2c.h"
 
 #include <semphr.h> //for semaphore lock
 
@@ -379,7 +380,6 @@ Result collect_hk_from_devices(All_systems_housekeeping *all_hk_data) {
     STX_return STX_return_code = HAL_S_getHK(&all_hk_data->S_band_hk); // S_band get housekeeping
 
 #ifdef HYPERION_PANEL_3U
-
     Hyperion_config1_getHK(&all_hk_data->hyperion_hk);
 #endif /* HYPERION_PANEL_3U */
 
