@@ -108,7 +108,7 @@ int32_t uint82int32(uint8_t *address) {
  * @return
  * 		the appended float
  */
-uint16_t uint82uint16(uint8_t b1, uint8_t b2) { //* improve
+uint16_t uint82uint16(uint8_t b1, uint8_t b2) {
     uint16_t b;
     b = (b2 << 8) | b1;
     return b;
@@ -419,8 +419,7 @@ ADCS_returnState ADCS_load_file_download_block(uint8_t file_type, uint8_t counte
     command[7] = block_length & 0x00FF;
     command[8] = (block_length >> 8) & 0x00FF;
 
-    return adcs_telecommand(command, 9); //* tested + (command[6] * 256 * 256 * 256 + command[5] *
-                                         // 256 * 256 + command[4] * 256 + command[3])
+    return adcs_telecommand(command, 9);
 }
 
 /**
@@ -470,8 +469,7 @@ ADCS_returnState ADCS_file_upload_packet(uint16_t packet_number, char *file_byte
     command[1] = packet_number & 0xFF;
     command[2] = packet_number >> 8;
     memcpy(&command[3], file_bytes, 22);
-    return adcs_telecommand(command,
-                            3); //* Tested. returns ascii value of the string test: +command[6]
+    return adcs_telecommand(command, 3);
 }
 
 /**
@@ -731,8 +729,8 @@ ADCS_returnState ADCS_get_file_download_block_stat(bool *ready, bool *param_err,
     state = adcs_telemetry(DL_BLOCK_STAT_ID, telemetry, 5);
     *ready = telemetry[0] & 0x1;
     *param_err = telemetry[0] & 0x2;
-    *crc16_checksum = ((telemetry[2] << 8) & 0xFF00) | telemetry[1];
-    *length = ((telemetry[4] << 8) & 0xFF00) | telemetry[3];
+    *crc16_checksum = (telemetry[2] << 8) | telemetry[1];
+    *length = (telemetry[4] << 8) | telemetry[3];
     return state;
 }
 
@@ -926,7 +924,7 @@ ADCS_returnState ADCS_set_hole_map(uint8_t *hole_map, uint8_t num) {
     uint8_t command[17];
     command[0] = SET_HOLE_MAP_ID + num;
     memcpy(&command[1], hole_map, 16);
-    return adcs_telecommand(command, 17); //* + command[9]. Tested
+    return adcs_telecommand(command, 17);
 }
 
 /**
@@ -1272,7 +1270,6 @@ ADCS_returnState ADCS_clear_latched_errs(bool adcs_flag, bool hk_flag) {
     command[0] = CLEAR_LATCHED_ERRS_ID;
     command[1] = adcs_flag + 2 * hk_flag;
     return adcs_telecommand(command, 2);
-    //* add "+ command[1]" for test and let it fail and check the value
 }
 
 /**
@@ -1289,7 +1286,7 @@ ADCS_returnState ADCS_set_attitude_ctrl_mode(uint8_t ctrl_mode, uint16_t timeout
     command[1] = ctrl_mode;
     command[2] = timeout & 0xFF;
     command[3] = timeout >> 8;
-    return adcs_telecommand(command, 4); //*  + (256*command[3]+command[2])
+    return adcs_telecommand(command, 4);
 }
 
 /**
@@ -1460,7 +1457,7 @@ ADCS_returnState ADCS_set_magnetorquer_output(xyz16 duty_cycle) {
     command[4] = (duty_cycle.y >> 8) & 0x00FF;
     command[5] = (duty_cycle.z) & 0x00FF;
     command[6] = (duty_cycle.z >> 8) & 0x00FF;
-    return adcs_telecommand(command, 7); //* + (256*command[6] + command[5])
+    return adcs_telecommand(command, 7);
 }
 
 /**
@@ -2028,29 +2025,29 @@ ADCS_returnState ADCS_get_power_temp(adcs_pwr_temp *measurements) {
     ADCS_returnState state;
     state = adcs_telemetry(POWER_TEMP_ID, telemetry, 38);
 
-    get_current(&measurements->cubesense1_3v3_I, ((telemetry[1] << 8) & 0xFF00) | telemetry[0], 0.1);     // [mA]
-    get_current(&measurements->cubesense1_camSram_I, ((telemetry[3] << 8) & 0xFF00) | telemetry[2], 0.1); // [mA]
-    get_current(&measurements->cubesense2_3v3_I, ((telemetry[5] << 8) & 0xFF00) | telemetry[4], 0.1);     // [mA]
-    get_current(&measurements->cubesense2_camSram_I, ((telemetry[7] << 8) & 0xFF00) | telemetry[6], 0.1); // [mA]
-    get_current(&measurements->cubecontrol_3v3_I, ((telemetry[9] << 8) & 0xFF00) | telemetry[8],
+    get_current(&measurements->cubesense1_3v3_I, (telemetry[1] << 8) | telemetry[0], 0.1);     // [mA]
+    get_current(&measurements->cubesense1_camSram_I, (telemetry[3] << 8) | telemetry[2], 0.1); // [mA]
+    get_current(&measurements->cubesense2_3v3_I, (telemetry[5] << 8) | telemetry[4], 0.1);     // [mA]
+    get_current(&measurements->cubesense2_camSram_I, ((telemetry[7] << 8) | telemetry[6], 0.1); // [mA]
+    get_current(&measurements->cubecontrol_3v3_I, (telemetry[9] << 8) | telemetry[8],
                 0.48828125); // [mA]
-    get_current(&measurements->cubecontrol_5v_I, ((telemetry[11] << 8) & 0xFF00) | telemetry[10],
+    get_current(&measurements->cubecontrol_5v_I, (telemetry[11] << 8) | telemetry[10],
                 0.48828125); // [mA]
-    get_current(&measurements->cubecontrol_vBat_I, ((telemetry[13] << 8) & 0xFF00) | telemetry[12],
+    get_current(&measurements->cubecontrol_vBat_I, (telemetry[13] << 8) | telemetry[12],
                 0.48828125);                                         // [mA]
-    get_current(&measurements->wheel1_I, ((telemetry[15] << 8) & 0xFF00) | telemetry[14], 0.01);      // [mA]
-    get_current(&measurements->wheel2_I, ((telemetry[17] << 8) & 0xFF00) | telemetry[16], 0.01);      // [mA]
-    get_current(&measurements->wheel3_I, ((telemetry[19] << 8) & 0xFF00) | telemetry[18], 0.01);      // [mA]
-    get_current(&measurements->cubestar_I, ((telemetry[21] << 8) & 0xFF00) | telemetry[20], 0.01);    // [mA]
-    get_current(&measurements->magnetorquer_I, ((telemetry[23] << 8) & 0xFF00) | telemetry[22], 0.1); // [mA]
+    get_current(&measurements->wheel1_I, (telemetry[15] << 8) | telemetry[14], 0.01);      // [mA]
+    get_current(&measurements->wheel2_I, (telemetry[17] << 8) | telemetry[16], 0.01);      // [mA]
+    get_current(&measurements->wheel3_I, (telemetry[19] << 8) | telemetry[18], 0.01);      // [mA]
+    get_current(&measurements->cubestar_I, (telemetry[21] << 8) | telemetry[20], 0.01);    // [mA]
+    get_current(&measurements->magnetorquer_I, (telemetry[23] << 8) | telemetry[22], 0.1); // [mA]
 
-    get_temp(&measurements->cubestar_temp, ((telemetry[25] << 8) & 0xFF00) | telemetry[24], 0.01); // [C]
-    get_temp(&measurements->MCU_temp, ((telemetry[27] << 8) & 0xFF00) | telemetry[26], 1);         // [C]
-    get_temp(&measurements->MTM_temp, ((telemetry[29] << 8) & 0xFF00) | telemetry[28], 0.1);       // [C]
-    get_temp(&measurements->MTM2_temp, ((telemetry[31] << 8) & 0xFF00) | telemetry[30], 0.1);      // [C]
-    measurements->rate_sensor_temp.x = ((telemetry[33] << 8) & 0xFF00) | telemetry[32];   // [C]
-    measurements->rate_sensor_temp.y = ((telemetry[35] << 8) & 0xFF00) | telemetry[34];   // [C]
-    measurements->rate_sensor_temp.z = ((telemetry[37] << 8) & 0xFF00) | telemetry[36];   // [C]
+    get_temp(&measurements->cubestar_temp, (telemetry[25] << 8) | telemetry[24], 0.01); // [C]
+    get_temp(&measurements->MCU_temp, (telemetry[27] << 8) | telemetry[26], 1);         // [C]
+    get_temp(&measurements->MTM_temp, (telemetry[29] << 8) | telemetry[28], 0.1);       // [C]
+    get_temp(&measurements->MTM2_temp, (telemetry[31] << 8) | telemetry[30], 0.1);      // [C]
+    measurements->rate_sensor_temp.x = (telemetry[33] << 8) | telemetry[32];   // [C]
+    measurements->rate_sensor_temp.y = (telemetry[35] << 8) | telemetry[34];   // [C]
+    measurements->rate_sensor_temp.z = (telemetry[37] << 8) | telemetry[36];   // [C]
 
     return state;
 }
@@ -2081,7 +2078,7 @@ ADCS_returnState ADCS_set_power_control(uint8_t *control) {
     for (int i = 0; i < 2; i++) {
         command[3] = command[3] | (*(control + 8 + i) << 2*i);
     }
-    return adcs_telecommand(command, 4); //* + command[1] and  + command[3]. Tested
+    return adcs_telecommand(command, 4);
 }
 
 /**
@@ -2129,8 +2126,7 @@ ADCS_returnState ADCS_set_attitude_angle(xyz att_angle) {
     raw_val.y = att_angle.y / coef;
     raw_val.z = att_angle.z / coef;
     memcpy(&command[1], &raw_val, 6);
-    return adcs_telecommand(command,
-                            7); //* Tested. + (command[2]<<8 | command[1])
+    return adcs_telecommand(command, 7);
 }
 
 /**
@@ -2220,8 +2216,7 @@ ADCS_returnState ADCS_set_log_config(uint8_t *flags_arr, uint16_t period, uint8_
     } else {
         state = adcs_telecommand(command, 14);
     }
-    return state; //* Tested. + command[8] or + command[13] or (+ command[12] <<
-                  // 8) | command[11]
+    return state;
 }
 
 /**
@@ -2326,7 +2321,7 @@ ADCS_returnState ADCS_set_sgp4_orbit_params(adcs_sgp4 params) {
     uint8_t command[65];
     command[0] = SET_SGP4_ORBIT_PARAMS_ID;
     memcpy(&command[1], &params, 64);
-    return adcs_telecommand(command, 65); //* Tested  + params.epoch*10
+    return adcs_telecommand(command, 65);
 }
 
 /**
@@ -2389,8 +2384,7 @@ ADCS_returnState ADCS_set_system_config(adcs_sysConfig config) {
     command[171] = (config.CW1.pin << 4) | config.CW1.port;
     command[172] = (config.CW2.pin << 4) | config.CW2.port;
     command[173] = (config.CW3.pin << 4) | config.CW3.port;
-    return adcs_telecommand(command,
-                            174); //* Tested + command[8] and +command[165]
+    return adcs_telecommand(command, 174);
 }
 
 /**
@@ -2579,38 +2573,25 @@ ADCS_returnState ADCS_get_cubesense_config(cubesense_config *config) {
 
 
     //point these values to the pre-function structure
-    raw_val_angle1.x = ((telemetry[1] << 8) & 0xFF00) | telemetry[0];
-    raw_val_angle1.y = ((telemetry[3] << 8) & 0xFF00) | telemetry[2];
-    raw_val_angle1.z = ((telemetry[5] << 8) & 0xFF00) | telemetry[4];
+    raw_val_angle1.x = (telemetry[1] << 8) | telemetry[0];
+    raw_val_angle1.y = (telemetry[3] << 8) | telemetry[2];
+    raw_val_angle1.z = (telemetry[5] << 8) | telemetry[4];
     config->cam1_sense.detect_th = telemetry[6];
     config->cam1_sense.auto_adjust = telemetry[7];
-    config->cam1_sense.exposure_t = ((telemetry[9] << 8) & 0xFF00) | telemetry[8];
-    raw_boresight_x1 = ((telemetry[11] << 8) & 0xFF00) | telemetry[10];
+    config->cam1_sense.exposure_t = (telemetry[9] << 8) | telemetry[8];
+    raw_boresight_x1 = (telemetry[11] << 8) | telemetry[10];
 
-    //The following code does not set the endianness right
-    /*
-    memcpy(& raw_boresight_y1, &telemetry[12], 2);
-    memcpy(& raw_val_angle2.x, &telemetry[14], 2);
-    memcpy(& raw_val_angle2.y, &telemetry[16], 2);
-    memcpy(& raw_val_angle2.z, &telemetry[18], 2);
-    */
-    //This code does set the endianness right (le)
-    raw_boresight_y1 = ((telemetry[13] << 8) & 0xFF00) | telemetry[12];
-    raw_val_angle2.x = ((telemetry[15] << 8) & 0xFF00) | telemetry[14];
-    raw_val_angle2.y = ((telemetry[17] << 8) & 0xFF00) | telemetry[16];
-    raw_val_angle2.z = ((telemetry[19] << 8) & 0xFF00) | telemetry[18];
+    raw_boresight_y1 = (telemetry[13] << 8) | telemetry[12];
+    raw_val_angle2.x = (telemetry[15] << 8) | telemetry[14];
+    raw_val_angle2.y = (telemetry[17] << 8) | telemetry[16];
+    raw_val_angle2.z = (telemetry[19] << 8) | telemetry[18];
 
     config->cam2_sense.detect_th = telemetry[20];
     config->cam2_sense.auto_adjust = telemetry[21];
 
-    /*
-    memcpy(& config->cam2_sense.exposure_t, &telemetry[22], 2);
-    memcpy(& raw_boresight_x2, &telemetry[24], 2);
-    memcpy(& raw_boresight_y2, &telemetry[26], 2);
-    */
-    config->cam2_sense.exposure_t = ((telemetry[23] << 8) & 0xFF00) | telemetry[22];
-    raw_boresight_x2 = ((telemetry[25] << 8) & 0xFF00) | telemetry[24];
-    raw_boresight_y2 = ((telemetry[27] << 8) & 0xFF00) | telemetry[26];
+    config->cam2_sense.exposure_t = (telemetry[23] << 8) | telemetry[22];
+    raw_boresight_x2 = (telemetry[25] << 8) | telemetry[24];
+    raw_boresight_y2 = (telemetry[27] << 8) | telemetry[26];
 
     //convert data as per the ADCS datasheet
     config->cam1_sense.mounting_angle.x = raw_val_angle1.x * coef;
@@ -2629,89 +2610,47 @@ ADCS_returnState ADCS_get_cubesense_config(cubesense_config *config) {
     config->nadir_max_bad_edge = telemetry[29];
     config->nadir_max_radius = telemetry[30];
     config->nadir_min_radius = telemetry[31];
-    /*
-    memcpy(& config->cam1_area.area1.x.min, &telemetry[32], 2);
-    memcpy(& config->cam1_area.area1.x.max, &telemetry[36], 2);
-    memcpy(& config->cam1_area.area1.y.min, &telemetry[38], 2);
-    memcpy(& config->cam1_area.area1.y.max, &telemetry[40], 2);
-    memcpy(& config->cam1_area.area2.x.min, &telemetry[42], 2);
-    memcpy(& config->cam1_area.area2.x.max, &telemetry[44], 2);
-    memcpy(& config->cam1_area.area2.y.min, &telemetry[46], 2);
-    memcpy(& config->cam1_area.area2.y.max, &telemetry[48], 2);
-    memcpy(& config->cam1_area.area3.x.min, &telemetry[50], 2);
-    memcpy(& config->cam1_area.area3.x.max, &telemetry[52], 2);
-    memcpy(& config->cam1_area.area3.y.min, &telemetry[54], 2);
-    memcpy(& config->cam1_area.area3.y.max, &telemetry[56], 2);
-    memcpy(& config->cam1_area.area4.x.min, &telemetry[58], 2);
-    memcpy(& config->cam1_area.area4.x.max, &telemetry[60], 2);
-    memcpy(& config->cam1_area.area4.y.min, &telemetry[62], 2);
-    memcpy(& config->cam1_area.area4.y.max, &telemetry[62], 2);
-    memcpy(& config->cam1_area.area5.x.min, &telemetry[64], 2);
-    memcpy(& config->cam1_area.area5.x.max, &telemetry[66], 2);
-    memcpy(& config->cam1_area.area5.y.min, &telemetry[68], 2);
-    memcpy(& config->cam1_area.area5.y.max, &telemetry[72], 2);
 
-    memcpy(& config->cam2_area.area1.x.min, &telemetry[74], 2);
-    memcpy(& config->cam2_area.area1.x.max, &telemetry[76], 2);
-    memcpy(& config->cam2_area.area1.y.min, &telemetry[78], 2);
-    memcpy(& config->cam2_area.area1.y.max, &telemetry[80], 2);
-    memcpy(& config->cam2_area.area2.x.min, &telemetry[82], 2);
-    memcpy(& config->cam2_area.area2.x.max, &telemetry[84], 2);
-    memcpy(& config->cam2_area.area2.y.min, &telemetry[86], 2);
-    memcpy(& config->cam2_area.area2.y.max, &telemetry[88], 2);
-    memcpy(& config->cam2_area.area3.x.min, &telemetry[90], 2);
-    memcpy(& config->cam2_area.area3.x.max, &telemetry[92], 2);
-    memcpy(& config->cam2_area.area3.y.min, &telemetry[94], 2);
-    memcpy(& config->cam2_area.area3.y.max, &telemetry[96], 2);
-    memcpy(& config->cam2_area.area4.x.min, &telemetry[98], 2);
-    memcpy(& config->cam2_area.area4.x.max, &telemetry[100], 2);
-    memcpy(& config->cam2_area.area4.y.min, &telemetry[102], 2);
-    memcpy(& config->cam2_area.area4.y.max, &telemetry[104], 2);
-    memcpy(& config->cam2_area.area5.x.min, &telemetry[106], 2);
-    memcpy(& config->cam2_area.area5.x.max, &telemetry[108], 2);
-    memcpy(& config->cam2_area.area5.y.min, &telemetry[110], 2);
-    memcpy(& config->cam2_area.area5.y.max, &telemetry[111], 2);
-    */
-    config->cam1_area.area1.x.min = ((telemetry[33] << 8) & 0xFF00) | telemetry[32];
-    config->cam1_area.area1.x.max = ((telemetry[35] << 8) & 0xFF00) | telemetry[34];
-    config->cam1_area.area1.y.min = ((telemetry[37] << 8) & 0xFF00) | telemetry[36];
-    config->cam1_area.area1.y.max = ((telemetry[39] << 8) & 0xFF00) | telemetry[38];
-    config->cam1_area.area2.x.min = ((telemetry[41] << 8) & 0xFF00) | telemetry[40];
-    config->cam1_area.area2.x.max = ((telemetry[43] << 8) & 0xFF00) | telemetry[42];
-    config->cam1_area.area2.y.min = ((telemetry[45] << 8) & 0xFF00) | telemetry[44];
-    config->cam1_area.area2.y.max = ((telemetry[47] << 8) & 0xFF00) | telemetry[46];
-    config->cam1_area.area3.x.min = ((telemetry[49] << 8) & 0xFF00) | telemetry[48];
-    config->cam1_area.area3.x.max = ((telemetry[51] << 8) & 0xFF00) | telemetry[50];
-    config->cam1_area.area3.y.min = ((telemetry[53] << 8) & 0xFF00) | telemetry[52];
-    config->cam1_area.area3.y.max = ((telemetry[55] << 8) & 0xFF00) | telemetry[54];
-    config->cam1_area.area4.x.min = ((telemetry[57] << 8) & 0xFF00) | telemetry[56];
-    config->cam1_area.area4.x.max = ((telemetry[59] << 8) & 0xFF00) | telemetry[58];
-    config->cam1_area.area4.y.min = ((telemetry[61] << 8) & 0xFF00) | telemetry[60];
-    config->cam1_area.area4.y.max = ((telemetry[63] << 8) & 0xFF00) | telemetry[62];
-    config->cam1_area.area5.x.min = ((telemetry[65] << 8) & 0xFF00) | telemetry[64];
-    config->cam1_area.area5.x.max = ((telemetry[67] << 8) & 0xFF00) | telemetry[66];
-    config->cam1_area.area5.y.min = ((telemetry[69] << 8) & 0xFF00) | telemetry[68];
-    config->cam1_area.area5.y.max = ((telemetry[71] << 8) & 0xFF00) | telemetry[70];
-    config->cam2_area.area1.x.min = ((telemetry[73] << 8) & 0xFF00) | telemetry[72];
-    config->cam2_area.area1.x.max = ((telemetry[75] << 8) & 0xFF00) | telemetry[74];
-    config->cam2_area.area1.y.min = ((telemetry[77] << 8) & 0xFF00) | telemetry[76];
-    config->cam2_area.area1.y.max = ((telemetry[79] << 8) & 0xFF00) | telemetry[78];
-    config->cam2_area.area2.x.min = ((telemetry[81] << 8) & 0xFF00) | telemetry[80];
-    config->cam2_area.area2.x.max = ((telemetry[83] << 8) & 0xFF00) | telemetry[82];
-    config->cam2_area.area2.y.min = ((telemetry[85] << 8) & 0xFF00) | telemetry[84];
-    config->cam2_area.area2.y.max = ((telemetry[87] << 8) & 0xFF00) | telemetry[86];
-    config->cam2_area.area3.x.min = ((telemetry[89] << 8) & 0xFF00) | telemetry[88];
-    config->cam2_area.area3.x.max = ((telemetry[91] << 8) & 0xFF00) | telemetry[90];
-    config->cam2_area.area3.y.min = ((telemetry[93] << 8) & 0xFF00) | telemetry[92];
-    config->cam2_area.area3.y.max = ((telemetry[95] << 8) & 0xFF00) | telemetry[94];
-    config->cam2_area.area4.x.min = ((telemetry[97] << 8) & 0xFF00) | telemetry[96];
-    config->cam2_area.area4.x.max = ((telemetry[99] << 8) & 0xFF00) | telemetry[98];
-    config->cam2_area.area4.y.min = ((telemetry[101] << 8) & 0xFF00) | telemetry[100];
-    config->cam2_area.area4.y.max = ((telemetry[103] << 8) & 0xFF00) | telemetry[102];
-    config->cam2_area.area5.x.min = ((telemetry[105] << 8) & 0xFF00) | telemetry[104];
-    config->cam2_area.area5.x.max = ((telemetry[107] << 8) & 0xFF00) | telemetry[106];
-    config->cam2_area.area5.y.min = ((telemetry[109] << 8) & 0xFF00) | telemetry[108];
-    config->cam2_area.area5.y.max = ((telemetry[111] << 8) & 0xFF00) | telemetry[110];
+    config->cam1_area.area1.x.min = (telemetry[33] << 8) | telemetry[32];
+    config->cam1_area.area1.x.max = (telemetry[35] << 8) | telemetry[34];
+    config->cam1_area.area1.y.min = (telemetry[37] << 8) | telemetry[36];
+    config->cam1_area.area1.y.max = (telemetry[39] << 8) | telemetry[38];
+    config->cam1_area.area2.x.min = (telemetry[41] << 8) | telemetry[40];
+    config->cam1_area.area2.x.max = (telemetry[43] << 8) | telemetry[42];
+    config->cam1_area.area2.y.min = (telemetry[45] << 8) | telemetry[44];
+    config->cam1_area.area2.y.max = (telemetry[47] << 8) | telemetry[46];
+    config->cam1_area.area3.x.min = (telemetry[49] << 8) | telemetry[48];
+    config->cam1_area.area3.x.max = (telemetry[51] << 8) | telemetry[50];
+    config->cam1_area.area3.y.min = (telemetry[53] << 8) | telemetry[52];
+    config->cam1_area.area3.y.max = (telemetry[55] << 8) | telemetry[54];
+    config->cam1_area.area4.x.min = (telemetry[57] << 8) | telemetry[56];
+    config->cam1_area.area4.x.max = (telemetry[59] << 8) | telemetry[58];
+    config->cam1_area.area4.y.min = (telemetry[61] << 8) | telemetry[60];
+    config->cam1_area.area4.y.max = (telemetry[63] << 8) | telemetry[62];
+    config->cam1_area.area5.x.min = (telemetry[65] << 8) | telemetry[64];
+    config->cam1_area.area5.x.max = (telemetry[67] << 8) | telemetry[66];
+    config->cam1_area.area5.y.min = (telemetry[69] << 8) | telemetry[68];
+    config->cam1_area.area5.y.max = (telemetry[71] << 8) | telemetry[70];
+    config->cam2_area.area1.x.min = (telemetry[73] << 8) | telemetry[72];
+    config->cam2_area.area1.x.max = (telemetry[75] << 8) | telemetry[74];
+    config->cam2_area.area1.y.min = (telemetry[77] << 8) | telemetry[76];
+    config->cam2_area.area1.y.max = (telemetry[79] << 8) | telemetry[78];
+    config->cam2_area.area2.x.min = (telemetry[81] << 8) | telemetry[80];
+    config->cam2_area.area2.x.max = (telemetry[83] << 8) | telemetry[82];
+    config->cam2_area.area2.y.min = (telemetry[85] << 8) | telemetry[84];
+    config->cam2_area.area2.y.max = (telemetry[87] << 8) | telemetry[86];
+    config->cam2_area.area3.x.min = (telemetry[89] << 8) | telemetry[88];
+    config->cam2_area.area3.x.max = (telemetry[91] << 8) | telemetry[90];
+    config->cam2_area.area3.y.min = (telemetry[93] << 8) | telemetry[92];
+    config->cam2_area.area3.y.max = (telemetry[95] << 8) | telemetry[94];
+    config->cam2_area.area4.x.min = (telemetry[97] << 8) | telemetry[96];
+    config->cam2_area.area4.x.max = (telemetry[99] << 8) | telemetry[98];
+    config->cam2_area.area4.y.min = (telemetry[101] << 8) | telemetry[100];
+    config->cam2_area.area4.y.max = (telemetry[103] << 8) | telemetry[102];
+    config->cam2_area.area5.x.min = (telemetry[105] << 8) | telemetry[104];
+    config->cam2_area.area5.x.max = (telemetry[107] << 8) | telemetry[106];
+    config->cam2_area.area5.y.min = (telemetry[109] << 8) | telemetry[108];
+    config->cam2_area.area5.y.max = (telemetry[111] << 8) | telemetry[110];
 
     vPortFree(telemetry);
 
@@ -2907,8 +2846,7 @@ ADCS_returnState ADCS_set_mtm_config(mtm_config params, uint8_t mtm) {
         cell[6 + i] = params.sensitivity_mat[5 + i] / coef;
     }
     memcpy(&command[13], &cell[0], 18);
-    return adcs_telecommand(command, 31); //* Tested but not completely exact!  +
-                                          //(command[16] << 8 | command[15])
+    return adcs_telecommand(command, 31);
 }
 
 /**
@@ -3010,8 +2948,7 @@ ADCS_returnState ADCS_set_estimation_config(estimation_config config) {
     command[29] |= (config.MTM_mode << 6);
     command[30] = config.MTM_select | (config.select_arr[7] << 2);
     command[31] = config.cam_sample_period;
-    return adcs_telecommand(command,
-                            32); //* Tested.  + command[29] and  + command[30]
+    return adcs_telecommand(command, 32);
 }
 
 /**
