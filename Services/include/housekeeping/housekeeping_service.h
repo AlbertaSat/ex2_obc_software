@@ -43,21 +43,11 @@
 
 typedef enum { TM_HK_PARAMETERS_REPORT = 0 } Housekeeping_Subtype;
 
-typedef enum {
-  FILE_EXISTS = 1,
-  FILE_NOT_EXIST = 0
-} Found_file;
+typedef enum { FILE_EXISTS = 1, FILE_NOT_EXIST = 0 } Found_file;
 
-typedef enum {
-  SUCCESS = 0,
-  FAILURE = 1
-} Result;
+typedef enum { SUCCESS = 0, FAILURE = 1 } Result;
 
-typedef enum {
-  GET_HK = 0,
-  SET_MAX_FILES = 1,
-  GET_MAX_FILES = 2
-} subservice;
+typedef enum { GET_HK = 0, SET_MAX_FILES = 1, GET_MAX_FILES = 2 } subservice;
 
 /*hk data sample*/
 typedef enum { EPS, ADCS, OBC, COMMS } hardware;

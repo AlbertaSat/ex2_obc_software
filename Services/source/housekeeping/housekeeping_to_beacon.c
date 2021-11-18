@@ -20,8 +20,9 @@
 #include "housekeeping_service.h" //contains all housekeeping data
 #include "rtcmk.h" //to get time from RTC
 #include "services.h"
-#include "ex2_hal/ex2_adcs_software/equipment_handler/inc/adcs_handler.h"
-#include "ex2_system/include/beacon/beacon_task.h" //contains beacon packets (ie. a summary of housekeeping data)
+#include "adcs_handler.h"
+#include "beacon_task.h" //contains beacon packets (ie. a summary of housekeeping data)
+
 
 /**
  * @brief
@@ -44,13 +45,15 @@ void update_beacon(All_systems_housekeeping* all_hk_data) {
   memcpy(&(beacon_packet.eps_mode), &(all_hk_data->EPS_hk.battMode), sizeof(beacon_packet.eps_mode));
   memcpy(&(beacon_packet.battery_voltage), &(all_hk_data->EPS_hk.vBatt), sizeof(beacon_packet.battery_voltage));
   memcpy(&(beacon_packet.battery_input_current), &(all_hk_data->EPS_hk.curBattIn), sizeof(beacon_packet.battery_input_current));
-  for (i = 0; i < 10; i++) {
-    memcpy(&(beacon_packet.current_channels[i]), &(all_hk_data->EPS_hk.curOutput[i]), sizeof(uint16_t));
-  }  
+  
+  uint16_t current_channels_array_length[10];
+  memcpy(&(beacon_packet.current_channels), &(all_hk_data->EPS_hk.curOutput), sizeof(current_channels_array_length));
+
   memcpy(&(beacon_packet.output_states), &(all_hk_data->EPS_hk.outputStatus), sizeof(uint16_t));
-  for (i = 0; i < 10; i++) {
-    memcpy(&(beacon_packet.output_faults[i]), &(all_hk_data->EPS_hk.outputFaultCnt[i]), sizeof(uint8_t));
-  }  
+
+  uint16_t output_faults_array_length[10];
+  memcpy(&(beacon_packet.output_faults), &(all_hk_data->EPS_hk.outputFaultCnt), sizeof(output_faults_array_length));
+   
   memcpy(&(beacon_packet.EPS_boot_count), &(all_hk_data->EPS_hk.bootCnt), sizeof(beacon_packet.EPS_boot_count));
   
   //Last EPS reset reason
@@ -62,11 +65,20 @@ void update_beacon(All_systems_housekeeping* all_hk_data) {
   } EPS_reset_TypeDef;
 
   EPS_reset_TypeDef EPS_last_reset_reason;
-  if (all_hk_data->EPS_startup_hk.last_reset_reason_reg = 0x0C800000) {EPS_last_reset_reason = Power_on;}
-  if (all_hk_data->EPS_startup_hk.last_reset_reason_reg = 0x24000000) {EPS_last_reset_reason = IWDG;}
-  if (all_hk_data->EPS_startup_hk.last_reset_reason_reg = 0x24000000) {EPS_last_reset_reason = NRST;}
-  if (all_hk_data->EPS_startup_hk.last_reset_reason_reg = 0x14000000) {EPS_last_reset_reason = Software;}
-
+  switch (all_hk_data->EPS_startup_hk.last_reset_reason_reg) {
+    case 0x0C800000:
+    EPS_last_reset_reason = Power_on;
+    break;
+    case 0x24000000:
+    EPS_last_reset_reason = IWDG;
+    break;
+    case 0x04000000:
+    EPS_last_reset_reason = NRST;
+    break;
+    case 0x14000000:
+    EPS_last_reset_reason = Software;
+    break;
+  }
   //TEST: eps_last_reset_reason added, define the function based on EPS ICD manual
   memcpy(&(beacon_packet.eps_last_reset_reason), &EPS_last_reset_reason, sizeof(uint8_t));
   
@@ -105,7 +117,7 @@ void update_beacon(All_systems_housekeeping* all_hk_data) {
   memcpy(&(beacon_packet.temps[2]), &(all_hk_data->UHF_hk.temperature), sizeof(int8_t));
 
   //TODO: write a function/preprocesor to determine 2U or 3U, and then fetch payload temp with CAN protocol
-  memcpy(&(beacon_packet.temps[3]), &(all_hk_data->payload_hk.payload_temp), sizeof(int8_t));
+  //memcpy(&(beacon_packet.temps[3]), &(all_hk_data->payload_hk.payload_temp), sizeof(int8_t));
 
   memcpy(&(beacon_packet.temps[4]), &(all_hk_data->hyperion_hk.Nadir_Temp1), sizeof(int8_t));
   memcpy(&(beacon_packet.temps[5]), &(all_hk_data->hyperion_hk.Zenith_Temp1), sizeof(int8_t));
@@ -130,14 +142,17 @@ void update_beacon(All_systems_housekeeping* all_hk_data) {
 
   /*-------Payload-------*/
   //TODO: Write payload driver to get payload software version and temp
-  memcpy(&(beacon_packet.payload_software_ver), &(all_hk_data->payload_hk.payload_software_ver), sizeof(uint8_t));
+  //memcpy(&(beacon_packet.payload_software_ver), &(all_hk_data->payload_hk.payload_software_ver), sizeof(uint8_t));
 
   /*-------OBC-------*/
   //TODO: write missing drivers and functions for OBC/athena housekeeping
   memcpy(&(beacon_packet.obc_boot_count), &(all_hk_data->Athena_hk.boot_cnt), sizeof(uint16_t));
   memcpy(&(beacon_packet.obc_last_reset_reason), &(all_hk_data->Athena_hk.last_reset_reason), sizeof(uint8_t));
   memcpy(&(beacon_packet.obc_mode), &(all_hk_data->Athena_hk.OBC_mode), sizeof(uint8_t));
+
+  //Unit will be deca-seconds due to size restraint, seconds = OBC_uptime*10
   memcpy(&(beacon_packet.obc_uptime), &(all_hk_data->Athena_hk.OBC_uptime), sizeof(uint16_t));
+
   memcpy(&(beacon_packet.solar_panel_supply_curr), &(all_hk_data->Athena_hk.solar_panel_supply_curr), sizeof(uint8_t));
   memcpy(&(beacon_packet.obc_software_ver), &(all_hk_data->Athena_hk.OBC_software_ver), sizeof(uint8_t));
   memcpy(&(beacon_packet.obc_cmds_received), &(all_hk_data->Athena_hk.cmds_received), sizeof(uint16_t));
