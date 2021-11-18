@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include "i2c.h"
 
 #include <semphr.h> //for semaphore lock
 
@@ -478,7 +479,10 @@ Result collect_hk_from_devices(All_systems_housekeeping* all_hk_data) {
   #endif /* EPS Housekeeping */
 
   #ifndef UHF_IS_STUBBED
-    UHF_return UHF_return_code = UHF_getHK(&all_hk_data->UHF_hk);      //UHF get housekeeping
+    if (xSemaphoreTake(uTransceiver_semaphore, 0) == pdTRUE) {
+        xSemaphoreGive(uTransceiver_semaphore);
+        UHF_return UHF_return_code = UHF_getHK(&all_hk_data->UHF_hk);      //UHF get housekeeping
+    }
   #endif /* UHF Housekeeping */
 
   #ifndef SBAND_IS_STUBBED
