@@ -77,15 +77,14 @@ static inline SAT_returnState init_csp_interface();
 static void init_system_tasks();
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
 static FTP ftp_app;
-bool uhf_i2c_init();
 
 void ex2_init(void *pvParameters) {
 
     /* Initialization routine */
     init_filesystem();
     init_csp();
-    //uhf_i2c_init();
     /* Start service server, and response server */
+    uhf_i2c_init();
     init_software();
 
   //  start_eps_mock();
@@ -100,7 +99,7 @@ void ex2_init(void *pvParameters) {
 
 void init_UHF_PIPE(void *pvParameters) {
 
-    vTaskDelay(0*ONE_MINUTE);
+    vTaskDelay(0.1*ONE_MINUTE);
     //Read from the UHF
     uint8_t UHF_return;
     uint8_t scw[12] = {0};
@@ -114,7 +113,7 @@ void init_UHF_PIPE(void *pvParameters) {
     scw[UHF_SCW_RFMODE_INDEX] = UHF_RFMODE7;
     scw[UHF_SCW_BCN_INDEX] = UHF_BCN_OFF;
     scw[UHF_SCW_PIPE_INDEX] = UHF_PIPE_ON;
-    pipe_timeout = 180;
+    pipe_timeout = 20;
 
     UHF_return = UHF_genericWrite(6, &pipe_timeout);
     UHF_return = UHF_genericWrite(0, scw);
