@@ -494,6 +494,7 @@ Result collect_hk_from_devices(All_systems_housekeeping* all_hk_data) {
   #endif /* HYPERION_PANEL_3U */
 
   #ifdef HYPERION_PANEL_2U
+    i2cSetBaudrate(I2C_BUS_REG, 100);
     Hyperion_config3_getHK(&all_hk_data->hyperion_hk);
   #endif /* HYPERION_PANEL_2U */
 
