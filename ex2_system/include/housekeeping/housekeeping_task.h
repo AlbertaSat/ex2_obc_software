@@ -21,7 +21,7 @@
 
 #define HK_DAEMON_STACK_SIZE 12000
 
-#include "main/system.h"
+#include "system.h"
 
 SAT_returnState start_housekeeping_daemon(void);
 
