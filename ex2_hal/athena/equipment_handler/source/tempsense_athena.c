@@ -25,8 +25,6 @@
 #define CHANNEL_REMOTE 1
 
 uint8_t tmp_addr[NUM_TEMP_SENSOR] = {0x49, 0x4A};
-int delay;
-TickType_t seconds_delay = pdMS_TO_TICKS(1000);
 
 void inittemp_all(void) {
     int i;
