@@ -17,13 +17,7 @@
 
 #include <inttypes.h>
 
-#ifdef SBAND_IS_STUBBED
-typedef enum {
-    IS_STUBBED = 0,
-} STX_return;
-#else
 #include "sTransmitter.h"
-#endif
 
 typedef enum {
     COUNT = 0,
