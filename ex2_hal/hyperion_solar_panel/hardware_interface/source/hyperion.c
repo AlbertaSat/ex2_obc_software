@@ -77,44 +77,44 @@ void hyperion_config_1_value(config_1_panel_t panel, config_1_channel_type_t cha
         adc_get_raw(slave_addr, &data, &ch);
         *param = adc_calculate_sensor_temp(data, ADC_VREF);
         break;
-
-    case CONFIG_1_CHANNEL_TEMP_2:
+    }
+    case CONFIG_1_CHANNEL_TEMP_2:{
         adc_init(slave_addr, 1 << 6);
         adc_get_raw(slave_addr, &data, &ch);
         *param = adc_calculate_sensor_temp(data, ADC_VREF);
         break;
-
-    case CONFIG_1_CHANNEL_TEMP_3:
+    }
+    case CONFIG_1_CHANNEL_TEMP_3:{
         adc_init(slave_addr, 1 << 5);
         adc_get_raw(slave_addr, &data, &ch);
         *param = adc_calculate_sensor_temp(data, ADC_VREF);
         break;
-
-    case CONFIG_1_CHANNEL_PD_1:
+    }
+    case CONFIG_1_CHANNEL_PD_1:{
         adc_init(slave_addr, 1 << 4);
         adc_get_raw(slave_addr, &data, &ch);
         *param = adc_calculate_sensor_pd(data, ADC_VREF);
         break;
-
-    case CONFIG_1_CHANNEL_PD_2:
+    }
+    case CONFIG_1_CHANNEL_PD_2:{
         adc_init(slave_addr, 1 << 3);
         adc_get_raw(slave_addr, &data, &ch);
         *param = adc_calculate_sensor_pd(data, ADC_VREF);
         break;
-
-    case CONFIG_1_CHANNEL_PD_3:
+    }
+    case CONFIG_1_CHANNEL_PD_3:{
         adc_init(slave_addr, 1 << 2);
         adc_get_raw(slave_addr, &data, &ch);
         *param = adc_calculate_sensor_pd(data, ADC_VREF);
         break;
-
-    case CONFIG_1_CHANNEL_VOLT:
+    }
+    case CONFIG_1_CHANNEL_VOLT:{
         adc_init(slave_addr, 1 << 1);
         adc_get_raw(slave_addr, &data, &ch);
         *param = adc_calculate_sensor_voltage(data, ADC_VREF);
         break;
-
-    case CONFIG_1_CHANNEL_CURR:
+    }
+    case CONFIG_1_CHANNEL_CURR:{
         adc_init(slave_addr, 1 << 0);
         adc_get_raw(slave_addr, &data, &ch);
         *param = adc_calculate_sensor_current(data, ADC_VREF);
@@ -174,13 +174,13 @@ void hyperion_config_2_value(config_2_panel_t panel, config_2_channel_type_t cha
 
     switch (channel)
     {
-    case CONFIG_2_CHANNEL_TEMP_1:
+    case CONFIG_2_CHANNEL_TEMP_1:{
         adc_init(slave_addr, 1 << 7);
         adc_get_raw(slave_addr, &data, &ch);
         *param = (float) adc_calculate_sensor_temp(data, ADC_VREF);
         break;
-
-    case CONFIG_2_CHANNEL_PD_1:
+    }
+    case CONFIG_2_CHANNEL_PD_1:{
         adc_init(slave_addr, 1 << 6);
         adc_get_raw(slave_addr, &data, &ch);
         *param = adc_calculate_sensor_pd(data, ADC_VREF);
@@ -188,7 +188,8 @@ void hyperion_config_2_value(config_2_panel_t panel, config_2_channel_type_t cha
 
     case CONFIG_2_ADC_TEMP:
         adc_init(slave_addr, 1 << 7);
-        *param = adc_get_tsense_temp(slave_addr, ADC_VREF);
+        int8_t *result = (int8_t *)param;
+        *result = (int8_t) adc_get_tsense_temp(slave_addr, ADC_VREF);
          break;
 
     default:
@@ -247,45 +248,46 @@ void hyperion_config_2_value(config_2_panel_t panel, config_2_channel_type_t cha
 
     switch (channel)
     {
-    case CONFIG_3_CHANNEL_TEMP_1:
+    case CONFIG_3_CHANNEL_TEMP_1:{
         adc_init(slave_addr, 1 << 7);
         adc_get_raw(slave_addr, &data, &ch);
         *param = adc_calculate_sensor_temp(data, ADC_VREF);
         break;
-
-    case CONFIG_3_CHANNEL_TEMP_2:
+    }
+    case CONFIG_3_CHANNEL_TEMP_2:{
         adc_init(slave_addr, 1 << 6);
         adc_get_raw(slave_addr, &data, &ch);
         *param = adc_calculate_sensor_temp(data, ADC_VREF);
         break;
-
-    case CONFIG_3_CHANNEL_PD_1:
+    }
+    case CONFIG_3_CHANNEL_PD_1:{
         adc_init(slave_addr, 1 << 5);
         adc_get_raw(slave_addr, &data, &ch);
         *param = adc_calculate_sensor_pd(data, ADC_VREF);
         break;
-
-    case CONFIG_3_CHANNEL_PD_2:
+    }
+    case CONFIG_3_CHANNEL_PD_2:{
         adc_init(slave_addr, 1 << 4);
         adc_get_raw(slave_addr, &data, &ch);
         *param = adc_calculate_sensor_pd(data, ADC_VREF);
         break;
-
-    case CONFIG_3_CHANNEL_VOLT:
+    }
+    case CONFIG_3_CHANNEL_VOLT:{
         adc_init(slave_addr, 1 << 3);
         adc_get_raw(slave_addr, &data, &ch);
         *param = adc_calculate_sensor_voltage(data, ADC_VREF);
         break;
-
-    case CONFIG_3_CHANNEL_CURR:
+    }
+    case CONFIG_3_CHANNEL_CURR:{
         adc_init(slave_addr, 1 << 2);
         adc_get_raw(slave_addr, &data, &ch);
         *param = adc_calculate_sensor_current(data, ADC_VREF);
         break;
-
-    case CONFIG_3_ADC_TEMP:
+    }
+    case CONFIG_3_ADC_TEMP:{
         adc_init(slave_addr, 1 << 7);
-        *param = adc_get_tsense_temp(slave_addr, ADC_VREF);
+        int8_t *result = (int8_t *)param;
+        *result = (int8_t) adc_get_tsense_temp(slave_addr, ADC_VREF);
          break;
     
     default:
@@ -295,12 +297,15 @@ void hyperion_config_2_value(config_2_panel_t panel, config_2_channel_type_t cha
 
 void Hyperion_config1_getHK(Hyperion_HouseKeeping* hyperion_hk) {
     // NADIR TEMP 1
-    hyperion_config_2_value(CONFIG_2_PANEL_NADIR, CONFIG_2_CHANNEL_PD_1, &hyperion_hk->Nadir_Pd1);
+    hyperion_config_2_value(CONFIG_2_PANEL_NADIR, CONFIG_2_CHANNEL_PD_1, &hyperion_hk->Nadir_Temp1);
+
+    // NADIR Temp Adc
+    hyperion_hk->Nadir_Temp_Adc = adc_get_tsense_temp(PANEL_SLAVE_ADDR_NADIR, ADC_VREF);
 
     // Port TEMP 1 2 3
     hyperion_config_1_value(CONFIG_1_PANEL_P, CONFIG_1_CHANNEL_TEMP_1, &hyperion_hk->Port_Temp1);
     hyperion_config_1_value(CONFIG_1_PANEL_P, CONFIG_1_CHANNEL_TEMP_2, &hyperion_hk->Port_Temp2);
-    //hyperion_config_1_value(CONFIG_1_PANEL_P, CONFIG_1_CHANNEL_TEMP_3, &hyperion_hk->Port_Temp3);
+    hyperion_config_1_value(CONFIG_1_PANEL_P, CONFIG_1_CHANNEL_TEMP_3, &hyperion_hk->Port_Temp3);
 
     // Port Temp Adc
     hyperion_hk->Port_Temp_Adc = adc_get_tsense_temp(PANEL_SLAVE_ADDR_PORT, ADC_VREF);
@@ -400,42 +405,45 @@ void Hyperion_config3_getHK(Hyperion_HouseKeeping* hyperion_hk) {
     // NADIR TEMP 1
     hyperion_config_2_value(CONFIG_2_PANEL_NADIR, CONFIG_2_CHANNEL_PD_1, &hyperion_hk->Nadir_Pd1);
 
-    // Port 2U TEMP 1 2 3
+    // NADIR Temp Adc
+    hyperion_hk->Nadir_Temp_Adc = adc_get_tsense_temp(PANEL_SLAVE_ADDR_NADIR2U, ADC_VREF);
+
+    // Port 2U TEMP 1 2
     hyperion_config_3_value(CONFIG_3_PANEL_P2U, CONFIG_3_CHANNEL_TEMP_1, &hyperion_hk->Port_Temp1);
     hyperion_config_3_value(CONFIG_3_PANEL_P2U, CONFIG_3_CHANNEL_TEMP_2, &hyperion_hk->Port_Temp2);
-    // hyperion_config_3_value(CONFIG_3_PANEL_P2U, CONFIG_3_CHANNEL_TEMP_3, &hyperion_hk->Port_Temp3); // reserved
+    hyperion_hk->Port_Temp3 = HYPERION_2U_TEMP_PLACEHOLDER;
 
     // Port 2U Temp Adc
     hyperion_config_3_value(CONFIG_3_PANEL_P2U, CONFIG_3_ADC_TEMP, &hyperion_hk->Port_Temp_Adc);
 
-    // Port Dep Temp 1 2 3
-    hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_TEMP_1, &hyperion_hk->Port_Dep_Temp1);
-    hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_TEMP_2, &hyperion_hk->Port_Dep_Temp2);
-    // hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_TEMP_3, &hyperion_hk->Port_Dep_Temp3); // reserved
+    // Port Dep Temp 1 2
+    //hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_TEMP_1, &hyperion_hk->Port_Dep_Temp1);
+    //hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_TEMP_2, &hyperion_hk->Port_Dep_Temp2);
+    hyperion_hk->Port_Dep_Temp3 = HYPERION_2U_TEMP_PLACEHOLDER;
 
     // Port Dep Temp Adc
-    hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_ADC_TEMP, &hyperion_hk->Port_Dep_Temp_Adc);
+    //hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_ADC_TEMP, &hyperion_hk->Port_Dep_Temp_Adc);
 
-    // Star Temp 1 2 3
+    // Star Temp 1 2
     hyperion_config_3_value(CONFIG_3_PANEL_S2U, CONFIG_3_CHANNEL_TEMP_1, &hyperion_hk->Star_Temp1);
     hyperion_config_3_value(CONFIG_3_PANEL_S2U, CONFIG_3_CHANNEL_TEMP_2, &hyperion_hk->Star_Temp2);
-    // hyperion_config_3_value(CONFIG_3_PANEL_S, CONFIG_3_CHANNEL_TEMP_3, &hyperion_hk->Star_Temp3); // reserved
+    hyperion_hk->Star_Temp3 = HYPERION_2U_TEMP_PLACEHOLDER;
 
     // Star Temp Adc
     hyperion_config_3_value(CONFIG_3_PANEL_S2U, CONFIG_3_ADC_TEMP, &hyperion_hk->Star_Temp_Adc);
 
-    // Star Dep Temp 1 2 3
+    // Star Dep Temp 1 2
     hyperion_config_3_value(CONFIG_3_PANEL_SD2U, CONFIG_3_CHANNEL_TEMP_1, &hyperion_hk->Star_Dep_Temp1);
     hyperion_config_3_value(CONFIG_3_PANEL_SD2U, CONFIG_3_CHANNEL_TEMP_2, &hyperion_hk->Star_Dep_Temp2);
-    // hyperion_config_3_value(CONFIG_3_PANEL_SD2U, CONFIG_3_CHANNEL_TEMP_3, &hyperion_hk->Star_Dep_Temp3); //reserved
+    hyperion_hk->Star_Dep_Temp3 = HYPERION_2U_TEMP_PLACEHOLDER;
 
     // Star Dep Adc
     hyperion_config_3_value(CONFIG_3_PANEL_SD2U, CONFIG_3_ADC_TEMP, &hyperion_hk->Star_Dep_Temp_Adc);
 
-    // Zenith Temp 1 2 3
+    // Zenith Temp 1 2
     hyperion_config_3_value(CONFIG_3_PANEL_Z2U, CONFIG_3_CHANNEL_TEMP_1, &hyperion_hk->Zenith_Temp1);
     hyperion_config_3_value(CONFIG_3_PANEL_Z2U, CONFIG_3_CHANNEL_TEMP_2, &hyperion_hk->Zenith_Temp2);
-    // hyperion_config_3_value(CONFIG_3_PANEL_Z2U, CONFIG_3_CHANNEL_TEMP_3, &hyperion_hk->Zenith_Temp3); // reserved
+    hyperion_hk->Zenith_Temp3 = HYPERION_2U_TEMP_PLACEHOLDER;
 
     // Zenith Temp Adc
     hyperion_config_3_value(CONFIG_3_PANEL_Z2U, CONFIG_3_ADC_TEMP, &hyperion_hk->Zenith_Temp_Adc);
@@ -443,36 +451,36 @@ void Hyperion_config3_getHK(Hyperion_HouseKeeping* hyperion_hk) {
     // Nadir Pd 1
     hyperion_config_2_value(CONFIG_2_PANEL_NADIR, CONFIG_2_CHANNEL_PD_1, &hyperion_hk->Nadir_Pd1);
 
-    // Port 2U Pd 1 2 3
+    // Port 2U Pd 1 2
     hyperion_config_3_value(CONFIG_3_PANEL_P2U, CONFIG_3_CHANNEL_PD_1, &hyperion_hk->Port_Pd1);
     hyperion_config_3_value(CONFIG_3_PANEL_P2U, CONFIG_3_CHANNEL_PD_2, &hyperion_hk->Port_Pd2);
-    // hyperion_config_3_value(CONFIG_3_PANEL_P2U, CONFIG_3_CHANNEL_PD_3, &hyperion_hk->Port_Pd3); // reserved
+    hyperion_hk->Port_Pd3 = HYPERION_2U_PD_PLACEHOLDER;
 
     // Port 2U Dep Pd 1 2 3
-    hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_PD_1, &hyperion_hk->Port_Dep_Pd1);
-    hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_PD_2, &hyperion_hk->Port_Dep_Pd2);
-    // hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_PD_3, &hyperion_hk->Port_Dep_Pd3);
+//    hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_PD_1, &hyperion_hk->Port_Dep_Pd1);
+//    hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_PD_2, &hyperion_hk->Port_Dep_Pd2);
+    // &hyperion_hk->Port_Dep_Pd3 = HYPERION_2U_PD_PLACEHOLDER;
 
-    // Star 2U Pd 1 2 3
+    // Star 2U Pd 1 2
     hyperion_config_3_value(CONFIG_3_PANEL_S2U, CONFIG_3_CHANNEL_PD_1, &hyperion_hk->Star_Pd1);
     hyperion_config_3_value(CONFIG_3_PANEL_S2U, CONFIG_3_CHANNEL_PD_2, &hyperion_hk->Star_Pd2);
-    // hyperion_config_3_value(CONFIG_3_PANEL_S2U, CONFIG_1_CHANNEL_PD_3, &hyperion_hk->Star_Pd3); // reserved
+    hyperion_hk->Star_Pd3 = HYPERION_2U_PD_PLACEHOLDER;
 
-    // Star Dep 2U Pd 1 2 3
+    // Star Dep 2U Pd 1 2
     hyperion_config_3_value(CONFIG_3_PANEL_SD2U, CONFIG_3_CHANNEL_PD_1, &hyperion_hk->Star_Dep_Pd1);
     hyperion_config_3_value(CONFIG_3_PANEL_SD2U, CONFIG_3_CHANNEL_PD_2, &hyperion_hk->Star_Dep_Pd2);
-    // hyperion_config_3_value(CONFIG_3_PANEL_SD2U, CONFIG_1_CHANNEL_PD_3, &hyperion_hk->Star_Dep_Pd3); // reserved
+    hyperion_hk->Star_Dep_Pd3 = HYPERION_2U_PD_PLACEHOLDER;
 
-    // Zenith 2U Pd 1 2 3
+    // Zenith 2U Pd 1 2
     hyperion_config_3_value(CONFIG_3_PANEL_Z2U, CONFIG_3_CHANNEL_PD_1, &hyperion_hk->Zenith_Pd1);
     hyperion_config_3_value(CONFIG_3_PANEL_Z2U, CONFIG_3_CHANNEL_PD_2, &hyperion_hk->Zenith_Pd2);
-    // hyperion_config_3_value(CONFIG_3_PANEL_Z2U, CONFIG_3_CHANNEL_PD_3, &hyperion_hk->Zenith_Pd3); // reserved
+    hyperion_hk->Zenith_Pd3 = HYPERION_2U_PD_PLACEHOLDER;
 
     // Port 2U Voltage
     hyperion_config_3_value(CONFIG_3_PANEL_P2U, CONFIG_3_CHANNEL_VOLT, &hyperion_hk->Port_Voltage);
 
     // Port Dep 2U Voltage
-    hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_VOLT, &hyperion_hk->Port_Dep_Voltage);
+//    hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_VOLT, &hyperion_hk->Port_Dep_Voltage);
 
     // Star 2U Voltage
     hyperion_config_3_value(CONFIG_3_PANEL_S2U, CONFIG_3_CHANNEL_VOLT, &hyperion_hk->Star_Voltage);
@@ -487,7 +495,7 @@ void Hyperion_config3_getHK(Hyperion_HouseKeeping* hyperion_hk) {
     hyperion_config_3_value(CONFIG_3_PANEL_P2U, CONFIG_3_CHANNEL_CURR, &hyperion_hk->Port_Current);
 
     // Port Dep 2U Current
-    hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_CURR, &hyperion_hk->Port_Dep_Current);
+//    hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_CURR, &hyperion_hk->Port_Dep_Current);
 
     // Star 2U Current
     hyperion_config_3_value(CONFIG_3_PANEL_S2U, CONFIG_3_CHANNEL_CURR, &hyperion_hk->Star_Current);

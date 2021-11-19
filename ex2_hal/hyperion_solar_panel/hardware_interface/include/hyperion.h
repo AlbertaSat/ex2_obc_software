@@ -25,4 +25,5 @@
 void hyperion_config_1_value(enum config_1_panel_t panel, enum config_1_channel_type_t channel, float* param);
 void hyperion_config_2_value(config_2_panel_t panel, config_2_channel_type_t channel, float* param);
 void hyperion_config_3_value(config_3_panel_t panel, config_3_channel_type_t channel, float* param);
+pdated 2U hyperion hk.)
 #endif /* EX2_HAL_EX2_HYPERION_SOLAR_PANEL_SOFTWARE_HARDWARE_INTERFACE_INCLUDE_HYPERION_H_ */
