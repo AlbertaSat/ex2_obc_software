@@ -1,7 +1,7 @@
 /*
  *
  * Copyright (C) 2015  University of Alberta
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -39,7 +39,7 @@
 #include "ex2_services/Services/include/time_management/time_management_service.h"
 #include "ex2_system/include/beacon/beacon_task.h"
 
-//Beacon packet is split into two different packets, hence will be updated separately
-void update_beacon(All_systems_housekeeping* all_hk_data);
+// Beacon packet is split into two different packets, hence will be updated separately
+void update_beacon(All_systems_housekeeping *all_hk_data);
 
 #endif /* HOUSEKEEPING_TO_BEACON_H */

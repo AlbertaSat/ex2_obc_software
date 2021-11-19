@@ -62,18 +62,18 @@ typedef struct __attribute__((packed)) {
 } hk_time_and_order;
 
 typedef struct __attribute__((packed)) {
-    hk_time_and_order hk_timeorder; //debugging time and file order
+    hk_time_and_order hk_timeorder; // debugging time and file order
 
     // TODO:
-    ADCS_HouseKeeping adcs_hk;             // ADCS housekeeping struct
-    athena_housekeeping Athena_hk;         // Athena housekeeping struct
-    eps_instantaneous_telemetry_t EPS_hk;  // EPS telemetry struct
-    eps_startup_telemetry_t EPS_startup_hk;// EPS startup telemetry struct 
-    UHF_housekeeping UHF_hk;               // UHF status struct
-    Sband_Housekeeping S_band_hk;          // S-band housekeeping struct
-    Hyperion_HouseKeeping hyperion_hk;     // Hyperion housekeeping
-    //TODO: write drivers for payload housekeeping
-    //Payload_HouseKeeping payload_hk;     // Payload housekeeping
+    ADCS_HouseKeeping adcs_hk;              // ADCS housekeeping struct
+    athena_housekeeping Athena_hk;          // Athena housekeeping struct
+    eps_instantaneous_telemetry_t EPS_hk;   // EPS telemetry struct
+    eps_startup_telemetry_t EPS_startup_hk; // EPS startup telemetry struct
+    UHF_housekeeping UHF_hk;                // UHF status struct
+    Sband_Housekeeping S_band_hk;           // S-band housekeeping struct
+    Hyperion_HouseKeeping hyperion_hk;      // Hyperion housekeeping
+    // TODO: write drivers for payload housekeeping
+    // Payload_HouseKeeping payload_hk;     // Payload housekeeping
 } All_systems_housekeeping;
 
 SAT_returnState start_housekeeping_service(void);
@@ -81,10 +81,10 @@ SAT_returnState start_housekeeping_service(void);
 /*This function called every interval to collect data periodically*/
 Result populate_and_store_hk_data(void);
 
-uint16_t get_size_of_housekeeping(All_systems_housekeeping* all_hk_data);
+uint16_t get_size_of_housekeeping(All_systems_housekeeping *all_hk_data);
 
 uint16_t get_file_id_from_timestamp(uint32_t timestamp);
-Result load_historic_hk_data(uint16_t file_num, All_systems_housekeeping* all_hk_data);
+Result load_historic_hk_data(uint16_t file_num, All_systems_housekeeping *all_hk_data);
 Result set_max_files(uint16_t new_max);
 
 #endif /* HOUSEKEEPING_SERVICE_H */
