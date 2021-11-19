@@ -17,6 +17,6 @@
  * @date    2020-08-16
  */
 
-//#define NUM_TEMP_SENSOR 2
+#define NUM_TEMP_SENSOR 2
 void inittemp_all(void);
-int gettemp_all(long temparray[2]);
+int gettemp_all(long *temparray);
