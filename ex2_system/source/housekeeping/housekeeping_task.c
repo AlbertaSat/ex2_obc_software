@@ -23,7 +23,7 @@
 #include <os_task.h>
 
 #include "housekeeping_service.h"
-#include "housekeeping/housekeeping_task.h"
+#include "housekeeping_task.h"
 
 static void *housekeeping_daemon(void *pvParameters);
 SAT_returnState start_housekeeping_daemon(void);
