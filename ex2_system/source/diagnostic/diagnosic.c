@@ -22,23 +22,29 @@
 #include <os_task.h>
 #include <os_semphr.h>
 #include "uhf.h"
+#include "sband.h"
 #include "eps.h"
 #include "system.h"
 
 static void uhf_watchdog_daemon(void *pvParameters);
+static void sband_watchdog_daemon(void *pvParameters);
 SAT_returnState start_diagnostic_daemon(void);
 
 const unsigned int mutex_timeout = pdMS_TO_TICKS(100);
 
+static TickType_t uhf_prv_watchdog_delay = 0.25 * ONE_MINUTE;
+static TickType_t sband_prv_watchdog_delay = 0.25 * ONE_MINUTE;
+
 static TickType_t prv_watchdog_delay = 3 * ONE_MINUTE; // 3 minutes
 static SemaphoreHandle_t uhf_watchdog_mtx = NULL;
+static SemaphoreHandle_t sband_watchdog_mtx = NULL;
 /**
  * @brief Check that the UHF is responsive. If not, toggle power.
  *
  * @param pvParameters Task parameters (not used)
  */
 static void uhf_watchdog_daemon(void *pvParameters) {
-    TickType_t delay = prv_watchdog_delay;
+    TickType_t delay = get_uhf_watchdog_delay();
     for (;;) {
         // Get status word from UHF
         char status[32];
@@ -48,10 +54,14 @@ static void uhf_watchdog_daemon(void *pvParameters) {
             err = HAL_UHF_getSCW(status);
             if (err == U_GOOD_CONFIG) {
                 break;
+            } else if (err == U_I2C_IN_PIPE){
+                break;
             }
         }
 
-        if (err != U_GOOD_CONFIG) {
+        if (err == U_I2C_IN_PIPE){
+            ex2_log("UHF in PIPE Mode - power not toggled.");
+        } else if (err != U_GOOD_CONFIG) {
             ex2_log("UHF was not responsive - attempting to toggle power.");
             // Toggle the UHF.
             const unsigned int timeout = 5 * ONE_SECOND; // 5 seconds
@@ -80,8 +90,46 @@ static void uhf_watchdog_daemon(void *pvParameters) {
         }
 
         if (xSemaphoreTake(uhf_watchdog_mtx, mutex_timeout) == pdPASS) {
-            delay = prv_watchdog_delay;
+            delay = uhf_prv_watchdog_delay;
             xSemaphoreGive(uhf_watchdog_mtx);
+        }
+        vTaskDelay(delay);
+    }
+}
+
+static void sband_watchdog_daemon(void *pvParameters) {
+    TickType_t delay = get_sband_watchdog_delay();
+    for (;;) {
+        // Get SBAND control values
+        uint8_t pa;
+        uint8_t mode;
+        const unsigned int retries = 3;
+        STX_return err;
+        for (int i = 0; i < retries; i++) {
+            err = STX_getControl(&pa, &mode);
+            if (err == FUNC_PASS) {
+                break;
+            }
+        }
+        if (err != U_GOOD_CONFIG) {
+            // TODO: Currently no way for this to fail
+            ex2_log("SBAND was not responsive - attempting to toggle power.");
+
+            // Disable the SBAND
+            STX_Disable();
+
+            vTaskDelay(5 * ONE_SECOND);
+
+            // Enable the S-band
+            STX_Enable();
+
+            ex2_log("SBAND power toggled");
+
+        }
+
+        if (xSemaphoreTake(sband_watchdog_mtx, mutex_timeout) == pdPASS) {
+            delay = sband_prv_watchdog_delay;
+            xSemaphoreGive(sband_watchdog_mtx);
         }
         vTaskDelay(delay);
     }
@@ -89,8 +137,18 @@ static void uhf_watchdog_daemon(void *pvParameters) {
 
 TickType_t get_uhf_watchdog_delay(void) {
     if (xSemaphoreTake(uhf_watchdog_mtx, mutex_timeout) == pdPASS) {
-        TickType_t delay = prv_watchdog_delay;
+        TickType_t delay = uhf_prv_watchdog_delay;
         xSemaphoreGive(uhf_watchdog_mtx);
+        return delay;
+    } else {
+        return 0;
+    }
+}
+
+TickType_t get_sband_watchdog_delay(void) {
+    if (xSemaphoreTake(sband_watchdog_mtx, mutex_timeout) == pdPASS) {
+        TickType_t delay = sband_prv_watchdog_delay;
+        xSemaphoreGive(sband_watchdog_mtx);
         return delay;
     } else {
         return 0;
@@ -99,8 +157,17 @@ TickType_t get_uhf_watchdog_delay(void) {
 
 SAT_returnState set_uhf_watchdog_delay(const TickType_t delay) {
     if (xSemaphoreTake(uhf_watchdog_mtx, mutex_timeout) == pdPASS) {
-        prv_watchdog_delay = delay;
+        uhf_prv_watchdog_delay = delay;
         xSemaphoreGive(uhf_watchdog_mtx);
+        return SATR_OK;
+    }
+    return SATR_ERROR;
+}
+
+SAT_returnState set_sband_watchdog_delay(const TickType_t delay) {
+    if (xSemaphoreTake(sband_watchdog_mtx, mutex_timeout) == pdPASS) {
+        sband_prv_watchdog_delay = delay;
+        xSemaphoreGive(sband_watchdog_mtx);
         return SATR_OK;
     }
     return SATR_ERROR;
@@ -122,6 +189,18 @@ SAT_returnState start_diagnostic_daemon(void) {
     uhf_watchdog_mtx = xSemaphoreCreateMutex();
     if (uhf_watchdog_mtx == NULL) {
         ex2_log("FAILED TO CREATE MUTEX uhf_watchdog_mtx.\n");
+        return SATR_ERROR;
+    }
+
+    if (xTaskCreate((TaskFunction_t)sband_watchdog_daemon, "sband_watchdog_daemon", 2048, NULL, DIAGNOSTIC_TASK_PRIO,
+                    NULL) != pdPASS) {
+        ex2_log("FAILED TO CREATE TASK sband_watchdog_daemon.\n");
+        return SATR_ERROR;
+    }
+    ex2_log("SBAND watchdog task started.\n");
+    sband_watchdog_mtx = xSemaphoreCreateMutex();
+    if (sband_watchdog_mtx == NULL) {
+        ex2_log("FAILED TO CREATE MUTEX sband_watchdog_mtx.\n");
         return SATR_ERROR;
     }
     return SATR_OK;

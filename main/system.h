@@ -130,7 +130,7 @@ typedef enum {
 #define UHF_GIO_PIN     22
 // TODO: Numbers to be set
 #define UHF_PWR_CHNL    8
-#define STX_PWR_CHNL    1
+//SBAND_PWR_CHNL does not exist as there is no power channel, it is on 5V_AO (always on)
 #define IRIS_PWR_CHNL   1
 #define DFGM_PWR_CHNL   1
 #define ADCS_PWR_CHNL   1

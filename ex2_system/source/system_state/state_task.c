@@ -190,19 +190,19 @@ SYS_returnState power_switch_uhf(bool *uhf_status) {
  * e.g., We might need to initiate a procedure for a subsystem before
  * disconnecting power.
  */
-SYS_returnState power_switch_stx(bool *stx_status) {
-    int8_t current_status = eps_get_pwr_chnl(STX_PWR_CHNL);
-    if (current_status != *stx_status) {
-        eps_set_pwr_chnl(STX_PWR_CHNL, *stx_status);
-        current_status = eps_get_pwr_chnl(STX_PWR_CHNL);
-    }
-    if (current_status == *stx_status) {
-        return (SYS_returnState)current_status;
-    } else {
-        printf("Switching S-band transmitter's power failed.");
-        return SYS_NO_RESPONSE;
-    }
-}
+//SYS_returnState power_switch_stx(bool *stx_status) {
+//    int8_t current_status = eps_get_pwr_chnl(STX_PWR_CHNL);
+//    if (current_status != *stx_status) {
+//        eps_set_pwr_chnl(STX_PWR_CHNL, *stx_status);
+//        current_status = eps_get_pwr_chnl(STX_PWR_CHNL);
+//    }
+//    if (current_status == *stx_status) {
+//        return (SYS_returnState)current_status;
+//    } else {
+//        printf("Switching S-band transmitter's power failed.");
+//        return SYS_NO_RESPONSE;
+//    }
+//}
 
 SYS_returnState power_switch_iris(bool *iris_status) {
     int8_t current_status = eps_get_pwr_chnl(IRIS_PWR_CHNL);
