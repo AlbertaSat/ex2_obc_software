@@ -17,7 +17,7 @@
  * @date Mar. 6, 2021
  */
 
-#include "beacon/beacon_task.h"
+#include "beacon_task.h"
 
 #define SCW_BCN_FLAG 5
 #define SCW_BCN_ON 1
