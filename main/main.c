@@ -113,7 +113,7 @@ void init_UHF_PIPE(void *pvParameters) {
     scw[UHF_SCW_RFMODE_INDEX] = UHF_RFMODE7;
     scw[UHF_SCW_BCN_INDEX] = UHF_BCN_OFF;
     scw[UHF_SCW_PIPE_INDEX] = UHF_PIPE_ON;
-    pipe_timeout = 20;
+    pipe_timeout = 40;
 
     UHF_return = UHF_genericWrite(6, &pipe_timeout);
     UHF_return = UHF_genericWrite(0, scw);
