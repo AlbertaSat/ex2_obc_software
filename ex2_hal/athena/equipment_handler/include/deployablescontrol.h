@@ -22,17 +22,15 @@
 
 #include "HL_gio.h"
 
-
-typedef enum
-{
-    //DFGM
+typedef enum {
+    // DFGM
     DFGM = 0,
-    //UHF antennas
+    // UHF antennas
     UHF_P = 1,
     UHF_Z = 2,
     UHF_S = 3,
     UHF_N = 4,
-    //solar panels
+    // solar panels
     Port = 5,
     Payload = 6,
     Starboard = 7,
