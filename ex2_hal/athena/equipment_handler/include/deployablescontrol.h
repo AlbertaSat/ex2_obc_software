@@ -17,6 +17,9 @@
  * @date    2020-08-13
  */
 
+#ifndef DEPLOYABLES_H_
+#define DEPLOYABLES_H_
+
 #include "HL_gio.h"
 
 
@@ -40,3 +43,5 @@ void activate(Deployable_t knife);
 bool switchstatus(Deployable_t sw);
 
 bool deploy(Deployable_t deployable);
+
+#endif /* DEPLOYABLES_H_ */
