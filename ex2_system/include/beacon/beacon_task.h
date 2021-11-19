@@ -28,9 +28,9 @@
 #include "eps.h"
 #include "uhf.h"
 
-#include "main/system.h"
-#include "ex2_services/Services/include/housekeeping/housekeeping_service.h"
-#include "ex2_services/Services/include/housekeeping/housekeeping_to_beacon.h"
+#include "system.h"
+#include "housekeeping_service.h"
+#include "housekeeping_to_beacon.h"
 
 typedef struct __attribute__((packed)) {
     //EPS
