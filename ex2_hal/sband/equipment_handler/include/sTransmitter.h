@@ -24,6 +24,7 @@
 #include <stdint.h>
 
 #include "i2c.h"
+#include "HL_het.h"
 
 // S-band i2c address
 #define SBAND_I2C_ADD 0x26
@@ -78,6 +79,7 @@ typedef enum {
     BAD_READ = 1,
     BAD_WRITE = 1,
     BAD_PARAM = 2,
+    IS_STUBBED = 0,
 } STX_return;
 
 typedef struct {
@@ -91,7 +93,6 @@ typedef struct {
     float paVoltage;
 } sBand_housekeeping;
 
-//* Simulated register functions
 STX_return read_reg(uint8_t, uint8_t *);
 STX_return write_reg(uint8_t, uint8_t);
 
@@ -100,6 +101,10 @@ uint16_t append_bytes(uint8_t, uint8_t);
 float calculateTemp(uint16_t);
 
 // External access/control functions
+
+void STX_Enable(void);
+
+void STX_Disable(void);
 
 STX_return STX_getControl(uint8_t *pa, uint8_t *mode);
 

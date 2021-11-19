@@ -103,6 +103,26 @@ float calculateTemp(uint16_t b) {
 
 /**
  * @brief
+ *         Enable the S-band transmitter
+ * @return void
+ */
+void STX_Enable(void) {
+    gioSetBit(hetPORT2, 23, 1); // 23 is the S-band enable pin on hetPort2
+}
+
+/**
+ * @brief
+ *         Disable the S-band transmitter
+ * @return void
+ */
+void STX_Disable(void) {
+    gioSetBit(hetPORT2, 23, 0); // 23 is the S-band enable pin on hetPort2
+}
+
+
+
+/**
+ * @brief
  *              Register 0x00: Get the power amplifier and mode values
  * @param pa
  *              Where the read value for the power amplifier will be stored
