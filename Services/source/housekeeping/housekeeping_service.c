@@ -16,7 +16,7 @@
  * @author Haoran Qi, Andrew Rooney, Yuan Wang, Dustin Wagner, Grace Yi
  * @date 2020-07-07
  */
-#include "housekeeping/housekeeping_service.h"
+#include "housekeeping_service.h"
 
 #include <FreeRTOS.h>
 #include <os_task.h>

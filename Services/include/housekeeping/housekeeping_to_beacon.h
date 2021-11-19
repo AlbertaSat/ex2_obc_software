@@ -35,9 +35,9 @@
 #include <string.h>
 #include <time.h>
 
-#include "ex2_hal/ex2_gps_software/equipment_handler/include/skytraq_gps_driver.h"
-#include "ex2_services/Services/include/time_management/time_management_service.h"
-#include "ex2_system/include/beacon/beacon_task.h"
+#include "skytraq_gps_driver.h"
+#include "time_management_service.h"
+#include "beacon_task.h"
 
 // Beacon packet is split into two different packets, hence will be updated separately
 void update_beacon(All_systems_housekeeping *all_hk_data);
