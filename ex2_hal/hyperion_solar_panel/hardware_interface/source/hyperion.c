@@ -417,12 +417,12 @@ void Hyperion_config3_getHK(Hyperion_HouseKeeping* hyperion_hk) {
     hyperion_config_3_value(CONFIG_3_PANEL_P2U, CONFIG_3_ADC_TEMP, &hyperion_hk->Port_Temp_Adc);
 
     // Port Dep Temp 1 2
-    //hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_TEMP_1, &hyperion_hk->Port_Dep_Temp1);
-    //hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_TEMP_2, &hyperion_hk->Port_Dep_Temp2);
+    hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_TEMP_1, &hyperion_hk->Port_Dep_Temp1);
+    hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_TEMP_2, &hyperion_hk->Port_Dep_Temp2);
     hyperion_hk->Port_Dep_Temp3 = HYPERION_2U_TEMP_PLACEHOLDER;
 
     // Port Dep Temp Adc
-    //hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_ADC_TEMP, &hyperion_hk->Port_Dep_Temp_Adc);
+    hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_ADC_TEMP, &hyperion_hk->Port_Dep_Temp_Adc);
 
     // Star Temp 1 2
     hyperion_config_3_value(CONFIG_3_PANEL_S2U, CONFIG_3_CHANNEL_TEMP_1, &hyperion_hk->Star_Temp1);
@@ -457,9 +457,9 @@ void Hyperion_config3_getHK(Hyperion_HouseKeeping* hyperion_hk) {
     hyperion_hk->Port_Pd3 = HYPERION_2U_PD_PLACEHOLDER;
 
     // Port 2U Dep Pd 1 2 3
-//    hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_PD_1, &hyperion_hk->Port_Dep_Pd1);
-//    hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_PD_2, &hyperion_hk->Port_Dep_Pd2);
-    // &hyperion_hk->Port_Dep_Pd3 = HYPERION_2U_PD_PLACEHOLDER;
+    hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_PD_1, &hyperion_hk->Port_Dep_Pd1);
+    hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_PD_2, &hyperion_hk->Port_Dep_Pd2);
+    hyperion_hk->Port_Dep_Pd3 = HYPERION_2U_PD_PLACEHOLDER;
 
     // Star 2U Pd 1 2
     hyperion_config_3_value(CONFIG_3_PANEL_S2U, CONFIG_3_CHANNEL_PD_1, &hyperion_hk->Star_Pd1);
@@ -480,7 +480,7 @@ void Hyperion_config3_getHK(Hyperion_HouseKeeping* hyperion_hk) {
     hyperion_config_3_value(CONFIG_3_PANEL_P2U, CONFIG_3_CHANNEL_VOLT, &hyperion_hk->Port_Voltage);
 
     // Port Dep 2U Voltage
-//    hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_VOLT, &hyperion_hk->Port_Dep_Voltage);
+    hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_VOLT, &hyperion_hk->Port_Dep_Voltage);
 
     // Star 2U Voltage
     hyperion_config_3_value(CONFIG_3_PANEL_S2U, CONFIG_3_CHANNEL_VOLT, &hyperion_hk->Star_Voltage);
@@ -495,7 +495,7 @@ void Hyperion_config3_getHK(Hyperion_HouseKeeping* hyperion_hk) {
     hyperion_config_3_value(CONFIG_3_PANEL_P2U, CONFIG_3_CHANNEL_CURR, &hyperion_hk->Port_Current);
 
     // Port Dep 2U Current
-//    hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_CURR, &hyperion_hk->Port_Dep_Current);
+    hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_CURR, &hyperion_hk->Port_Dep_Current);
 
     // Star 2U Current
     hyperion_config_3_value(CONFIG_3_PANEL_S2U, CONFIG_3_CHANNEL_CURR, &hyperion_hk->Star_Current);
