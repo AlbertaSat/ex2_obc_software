@@ -19,6 +19,7 @@
 
 #ifndef HOUSEKEEPING_ATHENA_H
 #define HOUSEKEEPING_ATHENA_H
+#define ATHENA_TEMP_ARRAY_SIZE 2
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -40,7 +41,7 @@ ATTENTION:
 */
 
 typedef struct __attribute__((packed)){
-  long      temparray[2];           //Athena temperature array
+  long      temparray[ATHENA_TEMP_ARRAY_SIZE];           //Athena temperature array
   uint16_t  boot_cnt;               //Total # of OBC boots
   uint8_t   last_reset_reason;
   uint8_t   OBC_mode;
