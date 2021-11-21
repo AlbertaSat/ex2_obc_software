@@ -240,7 +240,7 @@ ADCS_returnState HAL_ADCS_get_SD_format_progress(bool *format_busy, bool *erase_
 ADCS_returnState HAL_ADCS_get_TC_ack(ADCS_TC_ack *TC_ack);
 ADCS_returnState HAL_ADCS_get_file_download_buffer(uint16_t *packet_count, uint8_t *file[20]);
 ADCS_returnState HAL_ADCS_get_file_download_block_stat(ADCS_file_download_block_stat *file_download_block_stat);
-ADCS_returnState HAL_ADCS_get_file_info(ADCS_file_info *file_info);
+ADCS_returnState HAL_ADCS_get_file_info(adcs_file_info *file_info);
 ADCS_returnState HAL_ADCS_get_init_upload_stat(bool *busy);
 ADCS_returnState HAL_ADCS_get_finalize_upload_stat(bool *busy, bool *err);
 ADCS_returnState HAL_ADCS_get_upload_crc16_checksum(uint16_t *checksum);
