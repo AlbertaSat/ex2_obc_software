@@ -480,7 +480,7 @@ ADCS_returnState adcs_telecommand(uint8_t *command, uint32_t length);
 ADCS_returnState adcs_telemetry(uint8_t TM_ID, uint8_t *reply, uint32_t length);
 
 // File management TC/TM sequences
-ADCS_returnState ADCS_get_file_list(uint8_t file_number, adcs_file_info *list);
+ADCS_returnState ADCS_get_file_list();
 
 // Common Telecommands
 ADCS_returnState ADCS_reset(void);
@@ -523,9 +523,7 @@ ADCS_returnState ADCS_get_file_download_buffer(uint16_t* packet_count,
 ADCS_returnState ADCS_get_file_download_block_stat(bool* ready, bool* param_err,
                                                    uint16_t* crc16_checksum,
                                                    uint16_t* length);
-ADCS_returnState ADCS_get_file_info(uint8_t* type, bool* updating,
-                                    uint8_t* counter, uint32_t* size,
-                                    uint32_t* time, uint16_t* crc16_checksum);
+ADCS_returnState ADCS_get_file_info(adcs_file_info *info);
 ADCS_returnState ADCS_get_init_upload_stat(bool* busy);
 ADCS_returnState ADCS_get_finalize_upload_stat(bool* busy, bool* err);
 ADCS_returnState ADCS_get_upload_crc16_checksum(uint16_t* checksum);
