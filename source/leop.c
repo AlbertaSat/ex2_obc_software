@@ -17,7 +17,7 @@
  * @date Oct. 2021
  */
 
-#include "../include/leop.h"
+#include "leop.h"
 
 static void *leop_daemon(void *pvParameters);
 SAT_returnState start_leop_daemon(void);
@@ -36,9 +36,9 @@ Deployable_t sw;
  *      Returns FALSE otherwise
  */
 bool hard_switch_status() {
-    TickType_t seconds_delay = pdMS_TO_TICKS(1000);
-    uint32_t two_min_delay = 120;
-    uint32_t four_min_delay = 240;
+    TickType_t two_min_delay = pdMS_TO_TICKS(120 * 1000);
+    TickType_t four_min_delay = pdMS_TO_TICKS(240 * 1000);
+    TickType_t twenty_sec_delay = pdMS_TO_TICKS(20 * 1000);
     int getStatus_retries;
     int successful_deployment = 0;
     //sw = {Port, UHF_P, UHF_Z, Payload, UHF_S, UHF_N, Starboard, DFGM};
@@ -49,24 +49,24 @@ bool hard_switch_status() {
                 ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);           
                 ex2_log("Manually activated %c\n", sw); 
                 activate(sw);
+                vTaskDelay(twenty_sec_delay);
             }
             else if (getStatus_retries == 3 && switchstatus(sw == 1)) {
                 successful_deployment++;
             }
-            seconds_delay = pdMS_TO_TICKS(two_min_delay * 1000);
-            vTaskDelay(seconds_delay);
+            vTaskDelay(two_min_delay);
         //Deploy UHF
         for (sw = 1; sw < 5; sw++) {
             if (switchstatus(sw) != 1) {
                 ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);           
                 ex2_log("Manually activated %c\n", sw); 
                 activate(sw);
+                vTaskDelay(twenty_sec_delay);
             }
             else if (getStatus_retries == 3 && switchstatus(sw == 1)) {
                 successful_deployment++;
             }
-            seconds_delay = pdMS_TO_TICKS(four_min_delay * 1000);
-            vTaskDelay(seconds_delay);
+            vTaskDelay(four_min_delay);
         }
         //Deploy solar panels
         if (successful_deployment = 5) {
@@ -75,6 +75,7 @@ bool hard_switch_status() {
                     ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);           
                     ex2_log("Manually activated %c\n", sw); 
                     activate(sw);
+                    vTaskDelay(twenty_sec_delay);
                 }
                 else if (getStatus_retries == 3 && switchstatus(sw == 1)) {
                     successful_deployment++;
