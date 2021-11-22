@@ -115,7 +115,7 @@ bool hard_switch_status() {
  *      Otherwise, skip LEOP sequence
  * @return void
  */
-bool leop_init() {
+void leop_init() {
     if (eeprom_get_leop_status() != true) {
         //If leop sequence was never executed, check that all hard switches have been deployed
         if (hard_switch_status() == true) {
