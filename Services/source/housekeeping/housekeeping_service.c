@@ -35,8 +35,8 @@
 #include <redposix.h> //include for file system
 
 #include "rtcmk.h" //to get time from RTC
-#include "task_manager/task_manager.h"
-#include "util/service_utilities.h"
+#include "task_manager.h"
+#include "service_utilities.h"
 #include "services.h"
 #include "beacon_task.h"
 
@@ -379,23 +379,23 @@ Result collect_hk_from_devices(All_systems_housekeeping *all_hk_data) {
 /*populate struct by calling appropriate functions*/
 #ifndef ADCS_IS_STUBBED
     ADCS_returnState ADCS_return_code = HAL_ADCS_getHK(&all_hk_data->adcs_hk); // ADCS get housekeeeing
-#endif                                                                         /* ADCS Housekeeping */
+#endif                                                                         /* ADCS_IS_STUBBED */
 
 #ifndef ATHENA_IS_STUBBED
     int Athena_return_code = Athena_getHK(&all_hk_data->Athena_hk); // Athena get temperature
-#endif                                                              /* ADCS Housekeeping */
+#endif                                                              /* ATHENA_IS_STUBBED */
 
 #ifndef EPS_IS_STUBBED
     EPS_getHK(&all_hk_data->EPS_hk, &all_hk_data->EPS_startup_hk); // EPS get housekeeping
-#endif                                                             /* EPS Housekeeping */
+#endif                                                             /* EPS_IS_STUBBED */
 
 #ifndef UHF_IS_STUBBED
     UHF_return UHF_return_code = UHF_getHK(&all_hk_data->UHF_hk); // UHF get housekeeping
-#endif                                                            /* UHF Housekeeping */
+#endif                                                            /* UHF_IS_STUBBED */
 
 #ifndef SBAND_IS_STUBBED
     STX_return STX_return_code = HAL_S_getHK(&all_hk_data->S_band_hk); // S_band get housekeeping
-#endif                                                                 /* SBAND Housekeeping */
+#endif                                                                 /* SBAND_IS_STUBBED */
 
 #ifdef HYPERION_PANEL_3U
     Hyperion_config1_getHK(&all_hk_data->hyperion_hk);
@@ -404,8 +404,6 @@ Result collect_hk_from_devices(All_systems_housekeeping *all_hk_data) {
 #ifdef HYPERION_PANEL_2U
     Hyperion_config3_getHK(&all_hk_data->hyperion_hk);
 #endif /* HYPERION_PANEL_2U */
-
-    start_beacon_daemon(&all_hk_data);
 
     /*consider if struct should hold error codes returned from these functions*/
     return SUCCESS;
