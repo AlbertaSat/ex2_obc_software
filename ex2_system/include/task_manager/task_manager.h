@@ -73,4 +73,6 @@ void ex2_task_init_mutex();
 
 SAT_returnState start_watchdog();
 
+SAT_returnState start_task_manager(void);
+
 #endif /* EX2_SYSTEM_INCLUDE_TASK_MANAGER_H_ */

@@ -107,9 +107,9 @@ void remove_task_from_list(TaskHandle_t task) {
     xSemaphoreGiveRecursive(task_mutex);
 }
 
-void start_task_manager() {
+SAT_returnState start_task_manager() {
     ex2_task_init_mutex();
-    // tasks_start = pvPortMalloc(sizeof(task_info_node));
+    return SATR_OK;
 }
 
 TaskHandle_t ex2_get_task_handle_by_name(char *name) { return xTaskGetHandle(name); }
