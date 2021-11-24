@@ -66,14 +66,15 @@ static void init_filesystem();
 static void init_csp();
 static void init_software();
 static inline SAT_returnState init_csp_interface();
-static void init_system_tasks();
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
 static FTP ftp_app;
 
 void ex2_init(void *pvParameters) {
 
     /* Initialization routine */
-    // init_filesystem();
+#if defined(HAS_SD_CARD) // TODO: tolerate non-existent SD Card
+    init_filesystem();
+#endif
     init_csp();
     /* Start service server, and response server */
     init_software();
