@@ -44,6 +44,10 @@ static SemaphoreHandle_t sband_watchdog_mtx = NULL;
 static void uhf_watchdog_daemon(void *pvParameters) {
     TickType_t delay = get_uhf_watchdog_delay();
     for (;;) {
+        if (eps_get_pwr_chnl(UHF_PWR_CHNL) == 0) {
+            ex2_log("UHF not on - power not toggled");
+            return;
+        }
         // Get status word from UHF
         char status[32];
         const unsigned int retries = 3;
@@ -101,6 +105,10 @@ static void uhf_watchdog_daemon(void *pvParameters) {
 static void sband_watchdog_daemon(void *pvParameters) {
     TickType_t delay = get_sband_watchdog_delay();
     for (;;) {
+        if (gioGetBit(hetPORT2, 23) == 0) {
+            ex2_log("SBAND not enabled - power not toggled");
+            return;
+        }
         // Get SBAND control values
         uint8_t pa;
         uint8_t mode;
@@ -112,17 +120,21 @@ static void sband_watchdog_daemon(void *pvParameters) {
                 break;
             }
         }
-        if (err != U_GOOD_CONFIG) {
+        if (err != FUNC_PASS) {
             // TODO: Currently no way for this to fail
             ex2_log("SBAND was not responsive - attempting to toggle power.");
 
+            // Reset the SBAND
+            gioSetBit(hetPORT2, 21, 0); // Het2 21 is the S-band nRESET pin
+            vTaskDelay(2 * ONE_SECOND);
+            gioSetBit(hetPORT2, 21, 1); // Het2 21 is the S-band nRESET pin
+
             // Disable the SBAND
             STX_Disable();
-
-            vTaskDelay(5 * ONE_SECOND);
-
+            vTaskDelay(ONE_SECOND);
             // Enable the S-band
             STX_Enable();
+            vTaskDelay(ONE_SECOND);
 
             ex2_log("SBAND power toggled");
 
@@ -181,6 +193,7 @@ SAT_returnState set_sband_watchdog_delay(const TickType_t delay) {
  *   error report of task creation
  */
 SAT_returnState start_diagnostic_daemon(void) {
+#ifndef UHF_IS_STUBBED
     if (xTaskCreate((TaskFunction_t)uhf_watchdog_daemon, "uhf_watchdog_daemon", 2048, NULL, DIAGNOSTIC_TASK_PRIO,
                     NULL) != pdPASS) {
         ex2_log("FAILED TO CREATE TASK uhf_watchdog_daemon.\n");
@@ -192,7 +205,9 @@ SAT_returnState start_diagnostic_daemon(void) {
         ex2_log("FAILED TO CREATE MUTEX uhf_watchdog_mtx.\n");
         return SATR_ERROR;
     }
+#endif
 
+#ifndef SBAND_IS_STUBBED
     if (xTaskCreate((TaskFunction_t)sband_watchdog_daemon, "sband_watchdog_daemon", 2048, NULL, DIAGNOSTIC_TASK_PRIO,
                     NULL) != pdPASS) {
         ex2_log("FAILED TO CREATE TASK sband_watchdog_daemon.\n");
@@ -205,5 +220,6 @@ SAT_returnState start_diagnostic_daemon(void) {
         return SATR_ERROR;
     }
     return SATR_OK;
+#endif
 }
 
