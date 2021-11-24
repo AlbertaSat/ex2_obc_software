@@ -55,8 +55,7 @@ static void uhf_watchdog_daemon(void *pvParameters) {
             ex2_log("UHF was not responsive - attempting to toggle power.");
             // Toggle the UHF.
             const unsigned int timeout = 5 * ONE_SECOND; // 5 seconds
-            unsigned int attempts = 0;
-            eps_set_pwr_chnl(UHF_PWR_CHNL, OFF); // Turn off the UHF.
+            eps_set_pwr_chnl(UHF_PWR_CHNL, OFF);         // Turn off the UHF.
             TickType_t start = xTaskGetTickCount();
 
             vTaskDelay(timeout); // Allow the system to fully power off. Wait 5 seconds.
