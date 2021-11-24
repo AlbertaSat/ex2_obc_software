@@ -56,19 +56,17 @@ static void uhf_watchdog_daemon(void *pvParameters) {
             // Toggle the UHF.
             const unsigned int timeout = 5 * ONE_SECOND; // 5 seconds
             unsigned int attempts = 0;
-            eps_set_pwr_chnl(UHF_PWR_CHNL, OFF);
+            eps_set_pwr_chnl(UHF_PWR_CHNL, OFF); // Turn off the UHF.
             TickType_t start = xTaskGetTickCount();
 
-            while ((eps_get_pwr_chnl(UHF_PWR_CHNL) != OFF) || ((xTaskGetTickCount() - start) < timeout)) {
-                vTaskDelay(ONE_SECOND);
-                if(attempts >= 10){
-                    ex2_log("UHF failed to power off.");
-                    break;
-                }
-                attempts++;
+            vTaskDelay(timeout); // Allow the system to fully power off. Wait 5 seconds.
+
+            if (eps_get_pwr_chnl(UHF_PWR_CHNL) != OFF) { // Check to see that the UHF has been turned off.
+                ex2_log("UHF failed to power off.");
+                break;
             }
 
-            eps_set_pwr_chnl(UHF_PWR_CHNL, ON);
+            eps_set_pwr_chnl(UHF_PWR_CHNL, ON); // Turn the UHF back on.
             start = xTaskGetTickCount();
 
             while ((eps_get_pwr_chnl(UHF_PWR_CHNL) != ON) && ((xTaskGetTickCount() - start) < timeout)) {
