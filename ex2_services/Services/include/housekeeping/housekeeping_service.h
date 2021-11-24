@@ -67,6 +67,7 @@ typedef struct __attribute__((packed)) {
     ADCS_HouseKeeping adcs_hk;            // ADCS housekeeping struct
     athena_housekeeping Athena_hk;        // Athena housekeeping struct
     eps_instantaneous_telemetry_t EPS_hk; // EPS telemetry struct
+    eps_startup_telemetry_t EPS_startup_hk;
     UHF_housekeeping UHF_hk;              // UHF status struct
     Sband_Housekeeping S_band_hk;         // S-band housekeeping struct
     Hyperion_HouseKeeping hyperion_hk;    // Hyperion housekeeping

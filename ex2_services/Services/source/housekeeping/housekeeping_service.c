@@ -373,7 +373,8 @@ Result collect_hk_from_devices(All_systems_housekeeping *all_hk_data) {
     ADCS_returnState ADCS_return_code = HAL_ADCS_getHK(&all_hk_data->adcs_hk); // ADCS get housekeeeing
     int Athena_return_code = Athena_getHK(&all_hk_data->Athena_hk);            // Athena get temperature
 
-    EPS_getHK(&all_hk_data->EPS_hk);                                   // EPS get housekeeping
+    // EPS get housekeeping
+    EPS_getHK(&all_hk_data->EPS_hk, &all_hk_data->EPS_startup_hk);
     UHF_return UHF_return_code = UHF_getHK(&all_hk_data->UHF_hk);      // UHF get housekeeping
     STX_return STX_return_code = HAL_S_getHK(&all_hk_data->S_band_hk); // S_band get housekeeping
 
