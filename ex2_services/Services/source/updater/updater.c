@@ -70,9 +70,7 @@ uint32_t get_buffer(void **buf) {
  */
 SAT_returnState updater_app(csp_packet_t *packet) {
     uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
-    int32_t fp;
     int8_t status;
-    uint8_t *buf;
 
     if (init_eeprom()) {
         switch (ser_subtype) {
@@ -133,18 +131,21 @@ SAT_returnState updater_app(csp_packet_t *packet) {
             break;
 
         case GET_GOLDEN_INFO:
-
-            image_info golden_info = priv_eeprom_get_golden_info();
-            status = 0;
-            memcpy(&packet->data[OUT_DATA_BYTE], &golden_info, sizeof(golden_info));
-            set_packet_length(packet, sizeof(int8_t) + sizeof(golden_info) + 1);
+            {
+                image_info golden_info = priv_eeprom_get_golden_info();
+                status = 0;
+                memcpy(&packet->data[OUT_DATA_BYTE], &golden_info, sizeof(golden_info));
+                set_packet_length(packet, sizeof(int8_t) + sizeof(golden_info) + 1);
+            }
             break;
 
         case GET_APP_INFO:
-            image_info application_info = priv_eeprom_get_app_info();
-            status = 0;
-            memcpy(&packet->data[OUT_DATA_BYTE], &application_info, sizeof(application_info));
-            set_packet_length(packet, sizeof(int8_t) + sizeof(application_info) + 1);
+            {
+                image_info application_info = priv_eeprom_get_app_info();
+                status = 0;
+                memcpy(&packet->data[OUT_DATA_BYTE], &application_info, sizeof(application_info));
+                set_packet_length(packet, sizeof(int8_t) + sizeof(application_info) + 1);
+            }
             break;
 
         case SET_APP_ADDRESS:
