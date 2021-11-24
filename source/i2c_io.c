@@ -55,9 +55,11 @@ void init_i2c_driver() {
  * @return
  *   Returns 0 data read, <0 if unable to read data.
  **/
-int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
-    int ret = 0;
+
+int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, uint8_t *buf) {
+    uint8 ret = 0;
     uint32 index = i2c == i2cREG1 ? 0U : 1U;
+    uint32 i2c_mutex_timeout = pdMS_TO_TICKS(20);
 
     if (xSemaphoreTake(i2csemphr_t[index].i2c_mutex, I2C_TIMEOUT_MS) != pdTRUE) {
         return -1;
@@ -79,6 +81,7 @@ int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
 
     /* Clear the Stop condition */
     i2cClearSCD(i2c);
+    vTaskDelay(i2c_mutex_timeout);
     xSemaphoreGive(i2csemphr_t[index].i2c_mutex);
     return ret;
 }
@@ -101,9 +104,12 @@ int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
  * @return
  *   Returns 0 data written, <0 if unable to write data.
  **/
-int i2c_Send(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
-    int ret = 0;
+
+int i2c_Send(i2cBASE_t *i2c, uint8_t addr, uint16_t size, uint8_t *buf) {
+    uint8 ret = 0;
     uint32 index = i2c == i2cREG1 ? 0U : 1U;
+    uint32 i2c_mutex_timeout = pdMS_TO_TICKS(6);
+
     if (xSemaphoreTake(i2csemphr_t[index].i2c_mutex, I2C_TIMEOUT_MS) != pdTRUE) {
         return -1;
     }
@@ -129,6 +135,7 @@ int i2c_Send(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
 
     /* Clear the Stop condition */
     i2cClearSCD(i2c);
+    vTaskDelay(i2c_mutex_timeout);
     xSemaphoreGive(i2csemphr_t[index].i2c_mutex);
     return ret;
 }
