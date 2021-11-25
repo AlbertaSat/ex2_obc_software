@@ -25,8 +25,8 @@
 
 #include "i2c.h"
 #include "HL_het.h"
+#include "system.h"
 
-// S-band i2c address
 #define SBAND_I2C_ADD 0x26
 
 // Max Lenghts for S-band commands and responses

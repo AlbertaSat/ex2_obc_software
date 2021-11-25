@@ -19,7 +19,6 @@
  */
 
 #include "sTransmitter.h"
-
 #include <stdint.h>
 
 /**
@@ -36,7 +35,10 @@
  */
 STX_return read_reg(uint8_t internal_address, uint8_t *answer) {
     uint8_t command = internal_address;
-    i2c_sendAndReceive(SBAND_I2C_ADD, &command, MAX_SBAND_R_CMDLEN, answer, MAX_SBAND_R_ANSLEN);
+
+    i2c_Send(SBAND_I2C, SBAND_I2C_ADD, MAX_SBAND_R_CMDLEN, &command);
+    i2c_Receive(SBAND_I2C, SBAND_I2C_ADD, MAX_SBAND_R_ANSLEN, answer);
+
     return FUNC_PASS;
 }
 
@@ -54,7 +56,7 @@ STX_return read_reg(uint8_t internal_address, uint8_t *answer) {
  */
 STX_return write_reg(uint8_t internal_address, uint8_t val) {
     uint8_t command[2] = {internal_address, val};
-    i2c_sendCommand(SBAND_I2C_ADD, command, MAX_SBAND_W_CMDLEN);
+    i2c_Send(SBAND_I2C, SBAND_I2C_ADD, MAX_SBAND_R_CMDLEN, command);
     return FUNC_PASS;
 }
 
@@ -107,7 +109,8 @@ float calculateTemp(uint16_t b) {
  * @return void
  */
 void STX_Enable(void) {
-    gioSetBit(hetPORT2, 23, 1); // 23 is the S-band enable pin on hetPort2
+    gioSetBit(hetPORT2, 23, 1); // Het2 23 is the S-band enable pin
+    gioSetBit(hetPORT2, 21, 1); // Het2 21 is the S-band nRESET pin
 }
 
 /**
