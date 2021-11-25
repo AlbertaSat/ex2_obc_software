@@ -36,12 +36,17 @@ SAT_returnState start_housekeeping_daemon(void);
  */
 static void *housekeeping_daemon(void *pvParameters) {
     TickType_t hk_delay = pdMS_TO_TICKS(1000);
-    uint32_t seconds_delay = 30;
+    uint32_t seconds_delay = 2;
     for (;;) {
         // Call housekeeping and have them collect and store data to SD card
         populate_and_store_hk_data();
 
         hk_delay = pdMS_TO_TICKS(seconds_delay * 1000);
+
+        portGET_RUN_TIME_COUNTER_VALUE();
+        static char cbuffer[40];
+        vTaskGetRunTimeStats(cbuffer);
+
         vTaskDelay(hk_delay);
     }
 }
