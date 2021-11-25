@@ -19,13 +19,6 @@
 
 #include "adcs_handler.h"
 
-#include <string.h>
-#include <stdio.h>
-
-#include "adcs_io.h"
-#include "adcs_types.h"
-#include "redposix.h"
-
 #define USE_UART
 //#define USE_I2C
 
@@ -223,11 +216,11 @@ ADCS_returnState ADCS_get_file_list(){
         if(ret != ADCS_OK) return ret;
         index++;
         info.updating = true;
-        }
+    }
 
     adcs_file_list_length = index;
     return ret;
-    }
+}
 
 ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f){
     uint32_t offset = 0;
@@ -243,8 +236,7 @@ ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f){
         ADCS_get_file_download_block_stat(&ready, &param_err, &crc16_checksum, &block_length);
     }
 
-
-    // 6. Set Ignore Hole Map to true
+    // Does the file need to be created every time?
 
     //Initiate saving to a file
     int32_t iErr;
@@ -293,22 +285,23 @@ ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f){
         exit(red_errno);
     }
 
+    // Set Ignore Hole Map to true
     bool ignore_hole_map = true;
 
     uint8_t msg_length = 20; //I think this is the length of the packet in Bytes - not sure
-    uint8_t hole_map[128] = {0};
-
+    uint8_t hole_map[ADCS_HOLE_MAP_SIZE] = {0};
     uint16_t length_bytes = 20480;
-    uint8_t image_bytes[20480] = {0};
-    for(int i = 0; i<length_bytes; ++i) {
-        *(image_bytes + i) = 0;
-    }
-
 
     ADCS_initiate_download_burst(msg_length, ignore_hole_map);
 
-    ADCS_receive_download_burst(hole_map, &image_bytes, length_bytes);
+    ADCS_receive_download_burst(hole_map, file1, length_bytes);
 
+    iErr = red_close(file1);
+    if (iErr == -1)
+        {
+            printf("Unexpected error %d from red_write()\r\n", (int)red_errno);
+            exit(red_errno);
+        }
 }
 
 
@@ -543,10 +536,32 @@ ADCS_returnState ADCS_initiate_download_burst(uint8_t msg_length, bool ignore_ho
     return adcs_telecommand(command, 3);
 }
 
-void ADCS_receive_download_burst(uint8_t *hole_map, uint8_t *image_bytes, uint16_t length_bytes) {
+void ADCS_receive_download_burst(uint8_t *hole_map, int32_t file_des, uint16_t length_bytes) {
 #if defined(USE_UART)
+    ADCS_returnState err = ADCS_OK;
     for(int i = 0; i < length_bytes/20; i++) {
-        receieve_uart_packet(hole_map, image_bytes);
+        uint8_t pckt[20] = {0};
+        uint16_t pckt_counter;
+        err = receive_file_download_uart_packet(pckt, &pckt_counter);
+
+        if(err = ADCS_UART_FAILED){
+            // End of file
+            break;
+        }else if(pckt_counter != i){
+            // Missed a packet (or more) somewhere - fill with zeroes
+            for(int j = 0; j < (pckt_counter - i); j++){
+                write_pckt_to_file(file_des, "00000000000000000000", ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN);
+            }
+        }else{
+            // Packet received. Write to file
+            write_pckt_to_file(file_des, pckt, ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN);
+
+            // Fill hole map with a 1 indicating packet received
+            // Note hole map is stored little-endian
+            uint8_t hole_map_byte_index = pckt_counter / 8;
+            uint8_t hole_map_bit_index = pckt_counter % 8;
+            *(hole_map + hole_map_byte_index) |= (0x1 << hole_map_bit_index);
+        }
     }
 #elif defined(USE_I2C)
     //TODO: write receive function for I2C
