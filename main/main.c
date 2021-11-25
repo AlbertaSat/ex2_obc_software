@@ -109,7 +109,7 @@ void init_UHF_PIPE(void *pvParameters) {
 //
 //    UHF_genericWrite(1, &freq);
 
-    STX_Enable();
+    //STX_Enable();
 
 //    UHF_return = UHF_genericRead(0, scw);
 //    UHF_return = UHF_genericRead(6, &pipe_timeout);
@@ -143,6 +143,11 @@ void init_UHF_PIPE(void *pvParameters) {
     // Send the new configuration (write to pipe mode)
     //    UHF_return = UHF_genericWrite(0, scw);
 
+
+    portGET_RUN_TIME_COUNTER_VALUE();
+    static char cbuffer[40];
+    vTaskGetRunTimeStats(cbuffer);
+
     vTaskDelete(NULL);
 }
 
@@ -154,6 +159,10 @@ int ex2_main(void) {
     xTaskCreate(ex2_init, "init", INIT_STACK_SIZE, NULL, INIT_PRIO, NULL);
 
     xTaskCreate(init_UHF_PIPE, "init_UHF_PIPE", 2000, NULL, 4, NULL);
+
+    //configGENERATE_RUN_TIME_STATS;
+    //portCONFIGURE_TIMER_FOR_RUN_TIME_STATS();
+    //portGET_RUN_TIME_COUNTER_VALUE();
 
     /* Start FreeRTOS! */
     vTaskStartScheduler();
@@ -329,3 +338,4 @@ void SciSendBuf(char *buf, uint32_t bufSize) {
         bufSize--;
     }
 }
+
