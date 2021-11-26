@@ -18,5 +18,8 @@
  */
 
 #define NUM_TEMP_SENSOR 2
+#define TEMP_ADDRESS_1 0x49
+#define TEMP_ADDRESS_2 0x4A
+
 void inittemp_all(void);
 int gettemp_all(long *temparray);

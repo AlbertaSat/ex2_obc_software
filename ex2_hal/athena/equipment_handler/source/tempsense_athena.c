@@ -24,7 +24,7 @@
 #define CHANNEL_LOCAL 0
 #define CHANNEL_REMOTE 1
 
-uint8_t tmp_addr[NUM_TEMP_SENSOR] = {0x49, 0x4A};
+uint8_t tmp_addr[NUM_TEMP_SENSOR] = {TEMP_ADDRESS_1, TEMP_ADDRESS_2};
 
 void inittemp_all(void) {
     int i;
