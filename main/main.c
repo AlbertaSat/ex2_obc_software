@@ -118,29 +118,6 @@ void init_UHF_PIPE(void *pvParameters) {
     UHF_return = UHF_genericWrite(6, &pipe_timeout);
     UHF_return = UHF_genericWrite(0, scw);
 
-//    uint8_t data[18] = {1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9};
-//    for (uint8_t i = 0; i < 0x1000; i++);
-//    sciSend(UHF_SCI, 18, data);
-//    for (uint8_t i = 0; i < 0x100000; i++);
-//    sciSend(UHF_SCI, 18, data);
-//    for (uint8_t i = 0; i < 0x100000; i++);
-//    sciSend(UHF_SCI, 18, data);
-//    for (uint8_t i = 0; i < 0x100000; i++);
-
-
-
-//    int res = csp_ping(EPS_APP_ID, 10000, 100, CSP_O_NONE);
-//    uint32 returned = sciReceiveByte(UHF_SCI);
-//
-//    int counter = 0;
-//    for(counter; counter < 0x800000; counter++);
-
-    //Change to pipe mode
-    //scw[UHF_SCW_PIPE_INDEX] = UHF_PIPE_ON;
-
-    //Send the new configuration (write to pipe mode)
-//    UHF_return = UHF_genericWrite(0, scw);
-
     vTaskDelete(NULL);
 }
 
