@@ -754,35 +754,35 @@ void binaryTest_CubeSense1(void){
         while(1);
     }
 
-    printf("percentage = %d \n", percentage);
-    printf("status = %d \n", status);
 
-    //ADCS_get_img_save_progress() - to run a little while after the previous function call.
-    percentage = 0;
-    status = 0;
+    bool ignore_hole_map = true;
+    uint8_t msg_length = 20; //I think this is the length of the packet in Bytes - not sure
+    uint8_t *hole_map = (uint8_t *)pvPortMalloc(sizeof(uint8_t)*(128));
+    for(int i = 0; i<128; ++i) {
+        *(hole_map + i) = 0; //This byte array counts which packets have been received.
+    } //This byte array counts which packets have been received.
 
-    printf("Running ADCS_get_img_save_progress...\n");
-    test_returnState = ADCS_get_img_save_progress(&percentage, &status);
-    if(test_returnState != ADCS_OK){
-        printf("ADCS_get_img_save_progress returned %d \n", test_returnState);
-        while(1);
-    }
-
-    printf("percentage = %d \n", percentage);
-    printf("status = %d \n", status);
-
-    // Steps to take to download the image file that was just created:
-    // First, get the file list
-    test_returnState = ADCS_get_file_list();
-    if(test_returnState != ADCS_OK){
-            printf("ADCS_get_file_list returned %d \n", test_returnState);
-            while(1);
-    }
+    uint16_t length_bytes = 20480;
+    uint8_t *image_bytes = (uint8_t *)pvPortMalloc(sizeof(uint8_t)*(length_bytes));
+    for(int i = 0; i<length_bytes; ++i) {
+        *(image_bytes + i) = 0; //This byte array counts which packets have been received.
+    } //This byte array counts which packets have been received.
 
 
-    // 4. Load the image file that was just saved:
-    //Variables:
+    // 7. Send Initiate Download Burst
+    printf("Running ADCS_initiate_download_burst...\n");
+    test_returnState = ADCS_initiate_download_burst(msg_length, ignore_hole_map);
+    ADCS_receive_download_burst(&hole_map, &image_bytes, length_bytes);
 
+
+    printf("hole_map = %x\r\n", *hole_map);
+    printf("image_bytes = %x\r\n", *image_bytes);
+
+    //send the file over uart to the computer.
+    //sciSend(sciREG1, 20480, image_bytes)
+
+    vPortFree(hole_map);
+    vPortFree(image_bytes);
 //
 //
 //    //TODO: Receive all sent bytes from the download burst command. Check to see if the file is complete and if not,
@@ -1257,6 +1257,7 @@ void binaryTest_CubeControl_Motor_MCU(void) {
 
 
     //Using Command ADCS_set_power_control() - Table 184, switch on CubeControl�s Motor MCU by selecting PowOn.
+
     //Section Variables
     if (control == NULL) {
         return ADCS_MALLOC_FAILED;

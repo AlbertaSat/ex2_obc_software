@@ -19,11 +19,13 @@
 
 #include "adcs_handler.h"
 
+#include <string.h>
+
+#include "adcs_io.h"
+#include "adcs_types.h"
+
 #define USE_UART
 //#define USE_I2C
-
-adcs_file_info *adcs_file_list[255] = {NULL};
-uint8_t adcs_file_list_length = 0;
 
 /*************************** General functions ***************************/
 /**
@@ -171,139 +173,6 @@ void get_3x3(float *matrix, uint8_t *address, float coef) {
         matrix[5 + i] = coef * uint82int16(*(address + 2 * (i + 6)), *(address + 2 * (i + 5) + 1));
     }
 }
-
-/*************************** File Management TC/TM Sequences ***************************/
-ADCS_returnState ADCS_get_file_list(){
-    ADCS_returnState ret;
-
-    // Clear the file list
-    uint8_t index = adcs_file_list_length;
-    while(index--){
-        vPortFree(adcs_file_list[index]);
-    }
-
-    // Fill the file list
-    ret = ADCS_reset_file_list_read_pointer();
-    if(ret != ADCS_OK) return ret;
-    adcs_file_info info;
-    while(true) {
-
-        while(info.updating == true) {
-            // Request file info until busy updating flag is not set
-            ret = ADCS_get_file_info(&info);
-            if(ret != ADCS_OK) return ret;
-        }
-
-        if((info.counter == 0) && (info.size == 0) && (info.time == 0) && (info.crc16_checksum == 0)) {
-            // No more files on the ADCS
-            break;
-        }
-
-        adcs_file_list[index] = (adcs_file_info *)pvPortMalloc(sizeof(adcs_file_info));
-        if(adcs_file_list[index] == NULL){
-            adcs_file_list_length = index - 1;
-            return ADCS_MALLOC_FAILED;
-        }
-
-        adcs_file_list[index]->type = info.type;
-        adcs_file_list[index]->counter = info.counter;
-        adcs_file_list[index]->updating = info.updating;
-        adcs_file_list[index]->size = info.size;
-        adcs_file_list[index]->time = info.time;
-        adcs_file_list[index]->crc16_checksum = info.crc16_checksum;
-
-        ret = ADCS_advance_file_list_read_pointer();
-        if(ret != ADCS_OK) return ret;
-        index++;
-        info.updating = true;
-    }
-
-    adcs_file_list_length = index;
-    return ret;
-}
-
-ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f){
-    uint32_t offset = 0;
-    uint16_t block_length = 1024; //this is the max length of the block to be sent - this is the number of packets sent in a single block (each packet is 20 Bytes)
-    ADCS_load_file_download_block(type_f, counter_f, offset, block_length);
-
-    bool ready = 0;
-    bool param_err;
-
-    uint16_t crc16_checksum;
-
-    while(ready == false) {
-        ADCS_get_file_download_block_stat(&ready, &param_err, &crc16_checksum, &block_length);
-    }
-
-    // Does the file need to be created every time?
-
-    //Initiate saving to a file
-    int32_t iErr;
-    char buf[1024] = "";
-
-    //Get the current working directory
-    red_getcwd(buf, 1024);
-
-    printf("CWD = %s\r\n", buf);
-
-    //make the home directory
-    iErr = red_mkdir("home");
-    if (iErr == -1)
-    {
-        printf("Unexpected error %d from red_mkdir()\r\n", (int)red_errno);
-        exit(red_errno);
-    }
-
-    //change directory to home
-    iErr = red_chdir("home");
-    if (iErr == -1)
-    {
-        printf("Unexpected error %d from red_chdir()\r\n", (int)red_errno);
-        exit(red_errno);
-    }
-
-    //get the current working directory
-    red_getcwd(buf, 1024);
-
-    printf(stderr, "CWD = %s\r\n", buf);
-
-    int32_t file1;
-
-    //open a text file
-    file1 = red_open("adcs_file.txt", RED_O_RDWR | RED_O_CREAT);
-    if (file1 == -1)
-    {
-        printf("Unexpected error %d from red_open()\r\n", (int)red_errno);
-        exit(red_errno);
-    }
-
-    iErr = red_write(file1, "8 7 6 5 4 3 2 1\r\n", strlen("8 7 6 5 4 3 2 1\r\n"));
-    if (iErr == -1)
-    {
-        printf("Unexpected error %d from red_write()\r\n", (int)red_errno);
-        exit(red_errno);
-    }
-
-    // Set Ignore Hole Map to true
-    bool ignore_hole_map = true;
-
-    uint8_t msg_length = 20; //I think this is the length of the packet in Bytes - not sure
-    uint8_t hole_map[ADCS_HOLE_MAP_SIZE] = {0};
-    uint16_t length_bytes = 20480;
-
-    ADCS_initiate_download_burst(msg_length, ignore_hole_map);
-
-    ADCS_receive_download_burst(hole_map, file1, length_bytes);
-
-    iErr = red_close(file1);
-    if (iErr == -1)
-        {
-            printf("Unexpected error %d from red_write()\r\n", (int)red_errno);
-            exit(red_errno);
-        }
-}
-
 
 /*************************** Common TCs ***************************/
 /**
@@ -534,32 +403,10 @@ ADCS_returnState ADCS_initiate_download_burst(uint8_t msg_length, bool ignore_ho
     return adcs_telecommand(command, 3);
 }
 
-void ADCS_receive_download_burst(uint8_t *hole_map, int32_t file_des, uint16_t length_bytes) {
+void ADCS_receive_download_burst(uint8_t *hole_map, uint8_t *image_bytes, uint16_t length_bytes) {
 #if defined(USE_UART)
-    ADCS_returnState err = ADCS_OK;
     for(int i = 0; i < length_bytes/20; i++) {
-        uint8_t pckt[20] = {0};
-        uint16_t pckt_counter;
-        err = receive_file_download_uart_packet(pckt, &pckt_counter);
-
-        if(err = ADCS_UART_FAILED){
-            // End of file
-            break;
-        }else if(pckt_counter != i){
-            // Missed a packet (or more) somewhere - fill with zeroes
-            for(int j = 0; j < (pckt_counter - i); j++){
-                write_pckt_to_file(file_des, "00000000000000000000", ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN);
-            }
-        }else{
-            // Packet received. Write to file
-            write_pckt_to_file(file_des, pckt, ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN);
-
-            // Fill hole map with a 1 indicating packet received
-            // Note hole map is stored little-endian
-            uint8_t hole_map_byte_index = pckt_counter / 8;
-            uint8_t hole_map_bit_index = pckt_counter % 8;
-            *(hole_map + hole_map_byte_index) |= (0x1 << hole_map_bit_index);
-        }
+        receieve_uart_packet(hole_map, image_bytes);
     }
 #elif defined(USE_I2C)
     //TODO: write receive function for I2C
@@ -744,17 +591,17 @@ ADCS_returnState ADCS_get_file_download_block_stat(bool *ready, bool *param_err,
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_file_info(adcs_file_info *info) {
-
+ADCS_returnState ADCS_get_file_info(uint8_t *type, bool *updating, uint8_t *counter, uint32_t *size,
+                                    uint32_t *time, uint16_t *crc16_checksum) {
     uint8_t telemetry[12];
     ADCS_returnState state;
     state = adcs_telemetry(FILE_INFO_ID, telemetry, 12);
-    info->type = telemetry[0] & 0xF;
-    info->updating = (telemetry[0] >> 4) & 1;
-    info->counter = telemetry[1];
-    info->size = (telemetry[5] << 24) | (telemetry[4] << 16) | (telemetry[3] << 8) | telemetry[2];
-    info->time = (telemetry[9] << 24) | (telemetry[8] << 16) | (telemetry[7] << 8) | telemetry[6];
-    info->crc16_checksum = (telemetry[11] << 8) | telemetry[10];
+    *type = telemetry[0] & 0xF;
+    *updating = (telemetry[0] >> 4) & 1;
+    *counter = telemetry[1];
+    *size = (telemetry[5] << 24) | (telemetry[4] << 16) | (telemetry[3] << 8) | telemetry[2];
+    *time = (telemetry[9] << 24) | (telemetry[8] << 16) | (telemetry[7] << 8) | telemetry[6];
+    *crc16_checksum = (telemetry[11] << 8) | telemetry[10];
     return state;
 }
 

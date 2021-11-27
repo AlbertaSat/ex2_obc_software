@@ -30,7 +30,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-#define ADCS_QUEUE_LENGTH 200
+#define ADCS_QUEUE_LENGTH 100
 #define ITEM_SIZE 1
 
 static QueueHandle_t adcsQueue;
@@ -199,42 +199,24 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint3
  *    the actual image data
  *
  */
-ADCS_returnState receive_file_download_uart_packet(uint8_t * pckt, uint16_t * pckt_counter) {
-    if(xSemaphoreTake(uart_mutex, UART_TIMEOUT_MS) != pdTRUE){
-        return ADCS_UART_FAILED;
-    }
-
+void receieve_uart_packet(uint8_t *hole_map, uint8_t *image_bytes) {
     int received = 0;
-    uint8_t reply[ADCS_UART_FILE_DOWNLOAD_PKT_LEN] = {0};
+    uint16_t pixel = 0;
+    uint8_t reply[22+5] = {0};
 
-    // Receive a UART file download packet
-    while (received < (ADCS_UART_FILE_DOWNLOAD_PKT_LEN)) {
-        uint8_t retries = 0;
+    while (received < (22+5)) {
         if(xQueueReceive(adcsQueue, reply+received, UART_TIMEOUT_MS) == pdFAIL){
-            retries++;
-            if(retries >= ADCS_UART_FILE_DOWNLOAD_PKT_RETRIES){
-                return ADCS_UART_FAILED;
-            }
+            return ADCS_UART_FAILED;
         }else{
             received++;
         }
     }
-    // First byte in packet is file download burst ID = 119
-    // Second and third bytes are the packet counter
-    *pckt_counter = (reply[2] << 8) | reply[1];
-
-    memcpy(pckt, &reply[3], ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN);
-
+    pixel = reply[4]*256 + reply[3];
+    *hole_map = *hole_map | 0x1 << pixel;
+//    for (int i = 0; i < 20; i++) {
+//        *(image_bytes + pixel + i) = reply[4 + i];
+//    }
     xSemaphoreGive(uart_mutex);
-}
-
-void write_pckt_to_file(uint32_t file_des, uint8_t * pkt_data, uint8_t length){
-    // Write data to file
-    int32_t iErr = red_write(file_des, pkt_data, length);
-    if (iErr == -1){
-        printf("Unexpected error %d from red_write() in write_pkt_to_file()\r\n", (int)red_errno);
-        exit(red_errno);
-    }
 }
 
 /**
