@@ -193,11 +193,12 @@ ADCS_returnState HAL_ADCS_get_file_download_block_stat(ADCS_file_download_block_
     #endif
 }
 
-ADCS_returnState HAL_ADCS_get_file_info(adcs_file_info *file_info) {
+ADCS_returnState HAL_ADCS_get_file_info(ADCS_file_info *file_info) {
     #ifdef ADCS_IS_STUBBED
         return IS_STUBBED_A;
     #else
-        return ADCS_get_file_info(file_info);
+        return ADCS_get_file_info(&file_info->type, &file_info->updating, &file_info->counter, &file_info->size,
+                              &file_info->time, &file_info->crc16_checksum);
     #endif
 }
 
