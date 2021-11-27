@@ -1373,40 +1373,67 @@ ADCS_returnState ADCS_get_current_state(adcs_state *data) {
     data->run_mode = telemetry[1] & 0x3;             // Refer to table 75
     data->ASGP4_mode = (telemetry[1] >> 2) & 0x3;    // Refer to table 87
 
-    // Offset: 12 (Table 149)
+    /* The next section of code parses all of the ADCS status flags out of the telemetry bytes.
+     * Table 149 in the ADCS Firmware Manual describes the format of this telemetry frame.
+     *
+     * Flags start at the 12th bit in the frame, in the middle of the second byte.
+     *
+     * Particular attention needs to be paid to the order of flags. The first flag within a byte is stored
+     * in the least significant bit.
+     *
+     * At offset 52 (52nd bit, halfway through the 7th byte) there is an enum which takes 2 bits.
+     * After this enum, at offset 54, there are 2 more bits for flags in the 7th byte.
+     *
+     * Flags end at offset 66 (2 bits into the 9th byte in the frame).
+     */
+
+    uint8_t flags_arr_offset = 0;
+    // flags_arr_offset is 12 behind frame offset
+
+    // Frame offset: 12 (Table 149)
     for (int i = 0; i < 4; i++) {
-        *(data->flags_arr + i) = (telemetry[1] >> (i + 4)) & 1;
+        *(data->flags_arr + flags_arr_offset) = (telemetry[1] >> (i + 4)) & 1;
+        flags_arr_offset++;
     }
 
-    // Offset: 16 (Table 149)
+    // Frame offset: 16 (Table 149)
     for(int k = 0; k < 4; k++){
-        // Offset: 16 + 8*k (Table 149)
+        // Frame offset: 16 + 8*k (Table 149)
+
         for (int i = 0; i < 8; i++) {
-            *(data->flags_arr + k*8 + i + 4) = (telemetry[2+k] >> i) & 1;
+            *(data->flags_arr + flags_arr_offset) = (telemetry[2+k] >> i) & 1;
+            flags_arr_offset++;
         }
+
     }
 
-    // Offset: 48 (Table 149)
+    // Frame offset: 48 (Table 149)
     for (int i = 0; i < 4; i++) {
-        *(data->flags_arr + i + 36) = (telemetry[6] >> i) & 1;
+        *(data->flags_arr + flags_arr_offset) = (telemetry[6] >> i) & 1;
+        flags_arr_offset++;
     }
 
-    // Offset: 52 (Table 149)
+    // Frame offset: 52 (Table 149)
     data->MTM_sample_mode = (telemetry[6] >> 4) & 0x3; // Refer to table 90
 
-    // Offset: 54 (Table 149)
+    // flags_arr_offset is now 14 behind frame offset
+
+    // Frame offset: 54 (Table 149)
     for (int i = 0; i < 2; i++) {
-        *(data->flags_arr + i + 40) = (telemetry[6] >> (i + 6)) & 1;
+        *(data->flags_arr + flags_arr_offset) = (telemetry[6] >> (i + 6)) & 1;
+        flags_arr_offset++;
     }
 
-    // Offset: 56 (Table 149)
+    // Frame offset: 56 (Table 149)
     for (int i = 0; i < 8; i++) {
-        *(data->flags_arr + i + 42) = (telemetry[7] >> i) & 1;
+        *(data->flags_arr + flags_arr_offset) = (telemetry[7] >> i) & 1;
+        flags_arr_offset++;
     }
 
-    // Offset: 64 (Table 149)
+    // Frame offset: 64 (Table 149)
     for (int i = 0; i < 2; i++) {
-        *(data->flags_arr + i + 50) = (telemetry[8] >> i) & 1;
+        *(data->flags_arr + flags_arr_offset) = (telemetry[8] >> i) & 1;
+        flags_arr_offset++;
     }
 
     get_xyz(&data->est_angle, &telemetry[12], 0.01); // [deg]
@@ -1854,7 +1881,7 @@ void get_current(float *measurement, uint16_t raw, float coef) {
  * @param coef
  * 		formatted value = rawval * coef;
  */
-void get_temp(float *measurement, uint16_t raw, float coef) {
+void get_temp(float *measurement, int16_t raw, float coef) {
     *measurement = coef * raw;
 }
 
