@@ -1875,7 +1875,7 @@ ADCS_returnState ADCS_get_power_temp(adcs_pwr_temp *measurements) {
     get_current(&measurements->cubesense1_3v3_I, (telemetry[1] << 8) | telemetry[0], 0.1);     // [mA]
     get_current(&measurements->cubesense1_camSram_I, (telemetry[3] << 8) | telemetry[2], 0.1); // [mA]
     get_current(&measurements->cubesense2_3v3_I, (telemetry[5] << 8) | telemetry[4], 0.1);     // [mA]
-    get_current(&measurements->cubesense2_camSram_I, ((telemetry[7] << 8) | telemetry[6], 0.1); // [mA]
+    get_current(&measurements->cubesense2_camSram_I, (telemetry[7] << 8) | telemetry[6], 0.1); // [mA]
     get_current(&measurements->cubecontrol_3v3_I, (telemetry[9] << 8) | telemetry[8],
                 0.48828125); // [mA]
     get_current(&measurements->cubecontrol_5v_I, (telemetry[11] << 8) | telemetry[10],
