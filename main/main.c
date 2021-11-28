@@ -67,7 +67,7 @@
  */
 
 #define INIT_PRIO configMAX_PRIORITIES - 1
-#define INIT_STACK_SIZE 1500
+#define INIT_STACK_SIZE 3000
 
 static void init_filesystem();
 static void init_csp();
@@ -88,6 +88,12 @@ void ex2_init(void *pvParameters) {
     /* Start service server, and response server */
     uhf_i2c_init();
     init_software();
+
+//    portGET_RUN_TIME_COUNTER_VALUE();
+//    portCONFIGURE_TIMER_FOR_RUN_TIME_STATS();
+//    static char cbuffer_main[1024] = "0";
+//    vTaskGetRunTimeStats(cbuffer_main);
+//    printf("%s\n", cbuffer_main);
 
     //  start_eps_mock();
     /*
@@ -111,7 +117,7 @@ void init_UHF_PIPE(void *pvParameters) {
 //
 //    UHF_genericWrite(1, &freq);
 
-    //STX_Enable();
+    STX_Enable();
 
 //    UHF_return = UHF_genericRead(0, scw);
 //    UHF_return = UHF_genericRead(6, &pipe_timeout);
@@ -146,9 +152,10 @@ void init_UHF_PIPE(void *pvParameters) {
     //    UHF_return = UHF_genericWrite(0, scw);
 
 
-    portGET_RUN_TIME_COUNTER_VALUE();
-    static char cbuffer[40];
-    vTaskGetRunTimeStats(cbuffer);
+    //portGET_RUN_TIME_COUNTER_VALUE();
+//    static char cbuffer_main[1024];
+//    vTaskGetRunTimeStats(cbuffer_main);
+//    printf("%s\n", cbuffer_main);
 
     vTaskDelete(NULL);
 }
@@ -160,7 +167,7 @@ int ex2_main(void) {
         ;
     xTaskCreate(ex2_init, "init", INIT_STACK_SIZE, NULL, INIT_PRIO, NULL);
 
-    xTaskCreate(init_UHF_PIPE, "init_UHF_PIPE", 2000, NULL, 4, NULL);
+    xTaskCreate(init_UHF_PIPE, "init_UHF_PIPE", 2000, NULL, 3, NULL);
 
     //configGENERATE_RUN_TIME_STATS;
     //portCONFIGURE_TIMER_FOR_RUN_TIME_STATS();
@@ -178,8 +185,7 @@ int ex2_main(void) {
  */
 void init_software() {
     /* start system tasks and service listeners */
-
-    if (start_service_server() != SATR_OK || start_system_tasks() != SATR_OK) {
+    if (start_system_tasks() != SATR_OK || start_service_server() != SATR_OK) {
         ex2_log("Initialization error\n");
     }
 }
@@ -255,7 +261,7 @@ static void init_csp() {
 /**
  * Initialize CSP interfaces
  * @details
- * 		start the localhost zmq server and add it to the default route
+ *      start the localhost zmq server and add it to the default route
  * with no VIA address
  */
 static inline SAT_returnState init_csp_interface() {

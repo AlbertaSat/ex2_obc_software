@@ -353,7 +353,7 @@ void test_logger_daemon(void *pvParameters) {
  *   error report of task creation
  */
 SAT_returnState start_logger_daemon(TaskHandle_t *handle) {
-    if (xTaskCreate((TaskFunction_t)logger_daemon, "logger", 1000, NULL, LOGGER_TASK_PRIO, handle) != pdPASS) {
+    if (xTaskCreate((TaskFunction_t)logger_daemon, "logger", 2000, NULL, LOGGER_TASK_PRIO, handle) != pdPASS) {
         ex2_log("FAILED TO CREATE TASK logger\n");
         return SATR_ERROR;
     }

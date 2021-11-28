@@ -59,7 +59,9 @@
 #elif defined(IS_2U)
     #define PAYLOAD_SCI sciREG1  //UART3
 #endif
-#else // These values are expected to be adjusted based on what the developer is working on
+#else
+// These values are expected to be adjusted based on what the developer is working on
+// NOTE: Multiple definitions of the same sciREG will cause issues in the interrupt switch() statement
     #define CSP_SCI sciREG2
     #define GPS_SCI sciREG1
     #define ADCS_SCI sciREG3

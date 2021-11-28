@@ -25,6 +25,8 @@
 static void system_stats_daemon(void *param);
 SAT_returnState start_system_stats_daemon(void);
 
+//static char buf[1024];
+
 /**
  * Periodically collect and display system statistics. For
  * performance monitoring.
@@ -35,10 +37,11 @@ SAT_returnState start_system_stats_daemon(void);
 static void system_stats_daemon(void *param) {
     const TickType_t xDelay = 10000 / portTICK_PERIOD_MS;
     for (;;) {
-        vTaskDelay(xDelay);
-        char buf[1024];
+        static char buf[500];
         vTaskGetRunTimeStats(buf);
         printf("%s\n", buf);
+
+        vTaskDelay(xDelay);
     }
 }
 
@@ -49,7 +52,7 @@ static void system_stats_daemon(void *param) {
  *  error report
  */
 SAT_returnState start_system_stats_daemon(void) {
-    if (xTaskCreate((TaskFunction_t)system_stats_daemon, "task_stats", 512, NULL, SYSTEM_STATS_TASK_PRIO, NULL) !=
+    if (xTaskCreate((TaskFunction_t)system_stats_daemon, "task_stats", 1000, NULL, SYSTEM_STATS_TASK_PRIO, NULL) !=
         pdPASS) {
         ex2_log("FAILED TO CREATE TASK task_stats\n");
         return SATR_ERROR;
