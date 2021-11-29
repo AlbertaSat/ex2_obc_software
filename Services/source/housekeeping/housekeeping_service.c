@@ -39,6 +39,7 @@
 #include "service_utilities.h"
 #include "services.h"
 #include "beacon_task.h"
+#include "tempsense_athena.h"
 
 uint16_t MAX_FILES = 20160; // value is 20160 (7 days) based on 30 second period
 char fileName[] = "VOL0:/tempHKdata.TMP";
@@ -231,7 +232,7 @@ Result mock_everyone(All_systems_housekeeping *all_hk_data) {
 
     // Athena
     uint8_t i;
-    for (i = 0; i < 2; i++) {
+    for (i = 0; i < NUM_TEMP_SENSOR; i++) {
         all_hk_data->Athena_hk.temparray[i] = tempLong;
     }
     all_hk_data->Athena_hk.boot_cnt = tempu16;
