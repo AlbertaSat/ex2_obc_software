@@ -166,6 +166,8 @@
 
 /* USER CODE BEGIN (5) */
 void vAssertCalled(unsigned long ulLine, const char * pcFile);
+
+#undef configASSERT // auto defined a few lines back
 #define configASSERT( x ) if( ( x ) == 0 ) vAssertCalled( __LINE__, __FILE__);
 
 #include "HL_sys_pmu.h"
