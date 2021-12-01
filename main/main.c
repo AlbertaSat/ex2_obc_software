@@ -21,33 +21,40 @@
 #include <csp/csp.h>
 #include <csp/drivers/usart.h>
 #include <csp/interfaces/csp_if_can.h>
-#include <os_task.h>
 #include <performance_monitor/system_stats.h>
 #include <redconf.h>
 #include <redfs.h>
 #include <redfse.h>
 #include <redposix.h>
 #include <redvolume.h>
+#include <util/service_utilities.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <util/service_utilities.h>
+#include <os_task.h>
 
-#include "HL_sci.h"
-#include "HL_sys_common.h"
-#include "board_io_tests.h"
-#include "csp/drivers/can.h"
-#include "eps.h"
-#include "file_delivery_app.h"
-#include "logger/logger.h"
 #include "main/system.h"
-#include "mocks/mock_eps.h"
-#include "mocks/rtc.h"
+#include "board_io_tests.h"
 #include "services.h"
 #include "subsystems_ids.h"
+#include "eps.h"
+#include "mocks/mock_eps.h"
+#include "csp/drivers/can.h"
+#include "HL_sci.h"
+#include "HL_sys_common.h"
 #include "system_tasks.h"
-#include "task_manager/task_manager.h"
+#include "mocks/rtc.h"
+#include "logger/logger.h"
+#include "file_delivery_app.h"
+#include "uhf.h"
+
+#include <FreeRTOS.h>
+#include <os_task.h>
+#include <os_semphr.h>
+#include "uhf.h"
+#include "eps.h"
+#include "system.h"
 
 /**
  * The main function must:
@@ -65,6 +72,7 @@
 static void init_filesystem();
 static void init_csp();
 static void init_software();
+static void init_UHF_PIPE();
 static inline SAT_returnState init_csp_interface();
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
 static FTP ftp_app;
@@ -72,11 +80,13 @@ static FTP ftp_app;
 void ex2_init(void *pvParameters) {
 
     /* Initialization routine */
+
 #if defined(HAS_SD_CARD) // TODO: tolerate non-existent SD Card
     init_filesystem();
 #endif
     init_csp();
     /* Start service server, and response server */
+    uhf_i2c_init();
     init_software();
 
     //  start_eps_mock();
@@ -89,10 +99,39 @@ void ex2_init(void *pvParameters) {
     vTaskDelete(0); // delete self to free up heap
 }
 
+void init_UHF_PIPE(void *pvParameters) {
+
+    vTaskDelay(0.1 * ONE_MINUTE);
+    // Read from the UHF
+    uint8_t UHF_return;
+    uint8_t scw[12] = {0};
+    uint32_t pipe_timeout = 0;
+    uint32_t freq = 437875000;
+
+    UHF_genericWrite(1, &freq);
+    UHF_return = UHF_genericRead(0, scw);
+    UHF_return = UHF_genericRead(6, &pipe_timeout);
+    scw[UHF_SCW_UARTBAUD_INDEX] = UHF_UARTBAUD_19200;
+    scw[UHF_SCW_RFMODE_INDEX] = UHF_RFMODE7;
+    scw[UHF_SCW_BCN_INDEX] = UHF_BCN_OFF;
+    scw[UHF_SCW_PIPE_INDEX] = UHF_PIPE_ON;
+    pipe_timeout = 20;
+
+    UHF_return = UHF_genericWrite(6, &pipe_timeout);
+    UHF_return = UHF_genericWrite(0, scw);
+
+    vTaskDelete(NULL);
+}
+
 int ex2_main(void) {
     _enable_IRQ_interrupt_(); // enable inturrupts
     InitIO();
+    for (int i = 0; i < 1000000; i++)
+        ;
     xTaskCreate(ex2_init, "init", INIT_STACK_SIZE, NULL, INIT_PRIO, NULL);
+
+    xTaskCreate(init_UHF_PIPE, "init_UHF_PIPE", 2000, NULL, 5, NULL);
+
     /* Start FreeRTOS! */
     vTaskStartScheduler();
 
@@ -104,7 +143,6 @@ int ex2_main(void) {
  * Initialize service and system tasks
  */
 void init_software() {
-    start_watchdog();
     /* start system tasks and service listeners */
     if (start_system_tasks() != SATR_OK || start_service_server() != SATR_OK) {
         ex2_log("Initialization error\n");
@@ -123,10 +161,14 @@ static void init_filesystem() {
         exit(red_errno);
     }
 
+#ifdef SD_CARD_REFORMAT
+
     iErr = red_format(pszVolume0);
     if (iErr == -1) {
         exit(red_errno);
     }
+
+#endif
 
     iErr = red_mount(pszVolume0);
 
@@ -185,7 +227,7 @@ static inline SAT_returnState init_csp_interface() {
     csp_iface_t *uart_iface = NULL;
     csp_iface_t *can_iface = NULL;
     csp_usart_conf_t conf = {.device = "UART",
-                             .baudrate = 9600, /* supported on all platforms */
+                             .baudrate = 19200, /* supported on all platforms */
                              .databits = 8,
                              .stopbits = 2,
                              .paritysetting = 0,

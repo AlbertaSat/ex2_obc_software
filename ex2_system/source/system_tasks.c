@@ -23,10 +23,9 @@
 #include "coordinate_management/coordinate_management.h"
 #include "diagnostic/diagnostic.h"
 #include "housekeeping/housekeeping_task.h"
-#include "logger/logger.h"
 #include "performance_monitor/system_stats.h"
 #include "system_state/state_task.h"
-#include "task_manager/task_manager.h"
+#include "logger/logger.h"
 
 /**
  * Start all system daemon tasks
