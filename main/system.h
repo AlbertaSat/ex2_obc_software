@@ -72,6 +72,7 @@
 #define PRINTF_SCI sciREG4
 #else
 #define PRINTF_SCI sciREG1
+#endif
 #else
 #define PRINTF_SCI NULL
 #endif
