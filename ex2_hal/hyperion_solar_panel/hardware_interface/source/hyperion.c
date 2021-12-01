@@ -13,7 +13,7 @@
  */
 /**
  * @file    hyperion.c
- * @author  Trung Tran
+ * @author  Trung Tran, Nicholas Sorensen
  * @date    2021-06-04
  */
 #include "hyperion.h"
@@ -78,44 +78,44 @@ void hyperion_config_1_value(config_1_panel_t panel, config_1_channel_type_t cha
         *param = adc_calculate_sensor_temp(data, ADC_VREF);
         break;
     }
-    case CONFIG_1_CHANNEL_TEMP_2:{
-        adc_init(slave_addr, 1 << 6);
+    case CONFIG_1_CHANNEL_TEMP_2: {
+        adc_init(slave_addr, ADC_CHANNEL_1);
         adc_get_raw(slave_addr, &data, &ch);
         *param = adc_calculate_sensor_temp(data, ADC_VREF);
         break;
     }
-    case CONFIG_1_CHANNEL_TEMP_3:{
-        adc_init(slave_addr, 1 << 5);
+    case CONFIG_1_CHANNEL_TEMP_3: {
+        adc_init(slave_addr, ADC_CHANNEL_2);
         adc_get_raw(slave_addr, &data, &ch);
         *param = adc_calculate_sensor_temp(data, ADC_VREF);
         break;
     }
-    case CONFIG_1_CHANNEL_PD_1:{
-        adc_init(slave_addr, 1 << 4);
+    case CONFIG_1_CHANNEL_PD_1: {
+        adc_init(slave_addr, ADC_CHANNEL_3);
         adc_get_raw(slave_addr, &data, &ch);
         *param = adc_calculate_sensor_pd(data, ADC_VREF);
         break;
     }
-    case CONFIG_1_CHANNEL_PD_2:{
-        adc_init(slave_addr, 1 << 3);
+    case CONFIG_1_CHANNEL_PD_2: {
+        adc_init(slave_addr, ADC_CHANNEL_4);
         adc_get_raw(slave_addr, &data, &ch);
         *param = adc_calculate_sensor_pd(data, ADC_VREF);
         break;
     }
-    case CONFIG_1_CHANNEL_PD_3:{
-        adc_init(slave_addr, 1 << 2);
+    case CONFIG_1_CHANNEL_PD_3: {
+        adc_init(slave_addr, ADC_CHANNEL_5);
         adc_get_raw(slave_addr, &data, &ch);
         *param = adc_calculate_sensor_pd(data, ADC_VREF);
         break;
     }
-    case CONFIG_1_CHANNEL_VOLT:{
-        adc_init(slave_addr, 1 << 1);
+    case CONFIG_1_CHANNEL_VOLT: {
+        adc_init(slave_addr, ADC_CHANNEL_6);
         adc_get_raw(slave_addr, &data, &ch);
         *param = adc_calculate_sensor_voltage(data, ADC_VREF);
         break;
     }
-    case CONFIG_1_CHANNEL_CURR:{
-        adc_init(slave_addr, 1 << 0);
+    case CONFIG_1_CHANNEL_CURR: {
+        adc_init(slave_addr, ADC_CHANNEL_7);
         adc_get_raw(slave_addr, &data, &ch);
         *param = adc_calculate_sensor_current(data, ADC_VREF);
         break;
@@ -179,8 +179,8 @@ void hyperion_config_2_value(config_2_panel_t panel, config_2_channel_type_t cha
         *param = (float) adc_calculate_sensor_temp(data, ADC_VREF);
         break;
     }
-    case CONFIG_2_CHANNEL_PD_1:{
-        adc_init(slave_addr, 1 << 6);
+    case CONFIG_2_CHANNEL_PD_1: {
+        adc_init(slave_addr, ADC_CHANNEL_1);
         adc_get_raw(slave_addr, &data, &ch);
         *param = adc_calculate_sensor_pd(data, ADC_VREF);
         break;
@@ -253,38 +253,38 @@ void hyperion_config_2_value(config_2_panel_t panel, config_2_channel_type_t cha
         *param = adc_calculate_sensor_temp(data, ADC_VREF);
         break;
     }
-    case CONFIG_3_CHANNEL_TEMP_2:{
-        adc_init(slave_addr, 1 << 6);
+    case CONFIG_3_CHANNEL_TEMP_2: {
+        adc_init(slave_addr, ADC_CHANNEL_1);
         adc_get_raw(slave_addr, &data, &ch);
         *param = adc_calculate_sensor_temp(data, ADC_VREF);
         break;
     }
-    case CONFIG_3_CHANNEL_PD_1:{
-        adc_init(slave_addr, 1 << 5);
+    case CONFIG_3_CHANNEL_PD_1: {
+        adc_init(slave_addr, ADC_CHANNEL_2);
         adc_get_raw(slave_addr, &data, &ch);
         *param = adc_calculate_sensor_pd(data, ADC_VREF);
         break;
     }
-    case CONFIG_3_CHANNEL_PD_2:{
-        adc_init(slave_addr, 1 << 4);
+    case CONFIG_3_CHANNEL_PD_2: {
+        adc_init(slave_addr, ADC_CHANNEL_3);
         adc_get_raw(slave_addr, &data, &ch);
         *param = adc_calculate_sensor_pd(data, ADC_VREF);
         break;
     }
-    case CONFIG_3_CHANNEL_VOLT:{
-        adc_init(slave_addr, 1 << 3);
+    case CONFIG_3_CHANNEL_VOLT: {
+        adc_init(slave_addr, ADC_CHANNEL_4);
         adc_get_raw(slave_addr, &data, &ch);
         *param = adc_calculate_sensor_voltage(data, ADC_VREF);
         break;
     }
-    case CONFIG_3_CHANNEL_CURR:{
-        adc_init(slave_addr, 1 << 2);
+    case CONFIG_3_CHANNEL_CURR: {
+        adc_init(slave_addr, ADC_CHANNEL_5);
         adc_get_raw(slave_addr, &data, &ch);
         *param = adc_calculate_sensor_current(data, ADC_VREF);
         break;
     }
-    case CONFIG_3_ADC_TEMP:{
-        adc_init(slave_addr, 1 << 7);
+    case CONFIG_3_ADC_TEMP: {
+        adc_init(slave_addr, ADC_CHANNEL_0);
         int8_t *result = (int8_t *)param;
         *result = (int8_t) adc_get_tsense_temp(slave_addr, ADC_VREF);
          break;
