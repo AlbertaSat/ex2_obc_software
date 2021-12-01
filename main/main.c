@@ -74,14 +74,16 @@ static void init_csp();
 static void init_software();
 static void init_UHF_PIPE();
 static inline SAT_returnState init_csp_interface();
-static void init_system_tasks();
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
 static FTP ftp_app;
 
 void ex2_init(void *pvParameters) {
 
     /* Initialization routine */
+
+#if defined(HAS_SD_CARD) // TODO: tolerate non-existent SD Card
     init_filesystem();
+#endif
     init_csp();
     /* Start service server, and response server */
     uhf_i2c_init();
@@ -142,7 +144,7 @@ int ex2_main(void) {
  */
 void init_software() {
     /* start system tasks and service listeners */
-    if (start_service_server() != SATR_OK || start_system_tasks() != SATR_OK) {
+    if (start_system_tasks() != SATR_OK || start_service_server() != SATR_OK) {
         ex2_log("Initialization error\n");
     }
 }

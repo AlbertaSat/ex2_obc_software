@@ -75,6 +75,7 @@
 	#error "include FreeRTOS.h must appear in source files before include timers.h"
 #endif
 
+#include "os_task.h"
 /*lint -e537 This headers are only multiply included if the application code
 happens to also be including task.h. */
 #include "os_list.h"

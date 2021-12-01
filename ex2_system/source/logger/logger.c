@@ -27,9 +27,6 @@
 #include <stdbool.h>
 #include <string.h>
 
-#define XSTR_(X) STR_(X)
-#define STR_(X) #X
-
 //#define LOGGER_SWAP_PERIOD_MS 10000
 
 #define DEFAULT_INPUT_QUEUE_LEN 10
@@ -150,7 +147,7 @@ int8_t get_logger_file_size(uint32_t *file_size) {
  * @return char*
  *      pointer to the char array holding the filename
  */
-char *get_logger_file() { return &logger_file; }
+char *get_logger_file() { return logger_file; }
 
 /**
  * @brief
@@ -159,7 +156,7 @@ char *get_logger_file() { return &logger_file; }
  * @return char*
  *      pointer to the char array holding the filename
  */
-char *get_logger_old_file() { return &old_logger_file; }
+char *get_logger_old_file() { return old_logger_file; }
 
 /**
  * @brief
@@ -209,7 +206,7 @@ static void do_output(const char *str) {
  * Prepends calling task name and timestamp
  */
 void ex2_log(const char *format, ...) {
-    const char main_name[] = "MAIN";
+    const char *main_name = "MAIN";
     char *task_name;
 
     if (xTaskGetSchedulerState() == taskSCHEDULER_SUSPENDED) {
@@ -228,8 +225,8 @@ void ex2_log(const char *format, ...) {
     va_start(arg, format);
     vsnprintf(buffer + TASK_NAME_SIZE, PRINT_BUF_LEN, format, arg);
     va_end(arg);
-    snprintf(buffer, PRINT_BUF_LEN + TASK_NAME_SIZE, "[%." XSTR_(configMAX_TASK_NAME_LEN) "s]%s", task_name,
-             buffer + TASK_NAME_SIZE);
+    snprintf(buffer, PRINT_BUF_LEN + TASK_NAME_SIZE, "[%.*s]%s", TASK_NAME_SIZE,
+             task_name, buffer + TASK_NAME_SIZE);
 
     int string_len = strlen(buffer);
     if (buffer[string_len - 1] == '\n') {

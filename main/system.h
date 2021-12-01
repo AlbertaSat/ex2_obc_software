@@ -67,12 +67,12 @@
     #define DFGM_SCI sciREG4
 #endif
 
-#ifndef IS_FLATSAT
-    #ifdef IS_ATHENA
-    #define PRINTF_SCI sciREG4
-    #else
-    #define PRINTF_SCI sciREG1
-    #endif
+#ifdef IS_ATHENA
+#define HAS_SD_CARD 1
+#define PRINTF_SCI sciREG4
+#else
+#define PRINTF_SCI sciREG1
+#endif
 #else
 #define PRINTF_SCI NULL
 #endif
