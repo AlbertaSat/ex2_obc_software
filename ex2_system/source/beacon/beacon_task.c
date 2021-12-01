@@ -21,6 +21,7 @@
 
 #define SCW_BCN_FLAG 5
 #define SCW_BCN_ON 1
+#define BEACON_PACKET_LENGTH 97
 
 static void *beacon_daemon(All_systems_housekeeping* all_hk_data);
 SAT_returnState start_beacon_daemon();
