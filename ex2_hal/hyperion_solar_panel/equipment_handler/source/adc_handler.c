@@ -13,7 +13,7 @@
  */
 /**
  * @file    adc_handler.c
- * @author  Quoc Trung Tran, Vasu Gupta
+ * @author  Quoc Trung Tran, Vasu Gupta, Nicholas Sorensen
  * @date    2020-06-15
  */
 
