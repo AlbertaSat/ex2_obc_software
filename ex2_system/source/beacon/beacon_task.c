@@ -21,6 +21,7 @@
 
 #define SCW_BCN_FLAG 5
 #define SCW_BCN_ON 1
+#define BEACON_PACKET_LENGTH 97
 
 static void *beacon_daemon(All_systems_housekeeping* all_hk_data);
 SAT_returnState start_beacon_daemon();
@@ -50,7 +51,7 @@ static void *beacon_daemon(All_systems_housekeeping* all_hk_data) {
         update_beacon(&all_hk_data);
 
         memcpy(&(beacon_msg.message), &beacon_packet, sizeof(beacon_t));
-        uint8_t length = 97;
+        uint8_t length = BEACON_PACKET_LENGTH;
         memcpy(&(beacon_msg.len), &length, sizeof(length));
         // TODO: call the appropriate HAL functions to get the most updated or
         // cached information of the components + state machine, RTC, etc.
