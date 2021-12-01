@@ -36,8 +36,11 @@ int i;
 /* Updates Beacon Packet with the latest housekeeping data */
 void update_beacon(All_systems_housekeeping *all_hk_data) {
     // Populate the beacon packet by fetching relevant data from housekeeping_services.c
+
+    //TODO: remove this after testing
     // get the unix time from RTC, and convert it to a struct using RTCMK_GetUnix
     // RTCMK_GetUnix(&(beacon_packet.time));
+
     memcpy(&(beacon_packet.time), &(all_hk_data->hk_timeorder.UNIXtimestamp), sizeof(beacon_packet.time));
 
     /*-------EPS-------*/
@@ -87,9 +90,9 @@ void update_beacon(All_systems_housekeeping *all_hk_data) {
     /*-------Watchdog-------*/
     // TODO: More work to be done on watchdogs
     memcpy(&(beacon_packet.gs_wdt), &(all_hk_data->EPS_hk.outputConverterState), sizeof(uint8_t));
-    memcpy(&(beacon_packet.obc_wdt), &(all_hk_data->EPS_hk.outputConverterState), sizeof(uint16_t));
+    memcpy(&(beacon_packet.obc_wdt), &(all_hk_data->EPS_hk.vBatt), sizeof(uint16_t));
     memcpy(&(beacon_packet.gs_wdt_expr), &(all_hk_data->EPS_hk.outputConverterState), sizeof(uint8_t));
-    memcpy(&(beacon_packet.obc_wdt_expr), &(all_hk_data->EPS_hk.outputConverterState), sizeof(uint16_t));
+    memcpy(&(beacon_packet.obc_wdt_expr), &(all_hk_data->EPS_hk.vBatt), sizeof(uint16_t));
 
     /*-------Temperatures-------*/
     // Onboard battery pack temp location defined in ICD
