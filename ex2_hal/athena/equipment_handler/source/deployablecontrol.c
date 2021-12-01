@@ -21,7 +21,7 @@
 #include "HL_het.h"
 #include "deployablescontrol.h"
 
-void activate(Deployable_TypeDef knife) {
+void activate(Deployable_t knife) {
     int temp;
     switch (knife) {
     case Port:
@@ -78,7 +78,7 @@ void activate(Deployable_TypeDef knife) {
     return 0;
 }
 
-bool switchstatus(Deployable_TypeDef sw) {
+bool switchstatus(Deployable_t sw) {
     switch (sw) {
     case Port:
         return gioGetBit(hetPORT2, 4);
@@ -102,7 +102,7 @@ bool switchstatus(Deployable_TypeDef sw) {
 }
 
 // This should return 1, assuming switches are not connected to ground when undepressed
-bool deploy(Deployable_TypeDef deployable) {
+bool deploy(Deployable_t deployable) {
     activate(deployable);
     return switchstatus(deployable);
 }
