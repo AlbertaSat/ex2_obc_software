@@ -57,7 +57,7 @@ static void *beacon_daemon(All_systems_housekeeping* all_hk_data) {
         // cached information of the components + state machine, RTC, etc.
         // Then uncomment the next line:
 
-        uhf_status = HAL_UHF_setBeaconMsg(beacon_msg);
+        uhf_status = HAL_UHF_setBeaconMsg(&beacon_msg);
         /* Sending the beacon */
         // The beacon transmission period is configurable through comms service
         // by the operator or here through HAL_UHF_getBeaconT().
