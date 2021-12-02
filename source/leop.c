@@ -47,11 +47,11 @@ bool hard_switch_status() {
         //Deploy DFGM
             if (switchstatus(sw) != 1) {
                 ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);           
-                ex2_log("Manually activated %c\n", sw); 
+                ex2_log("Activating %c\n", sw); 
                 activate(sw);
                 vTaskDelay(twenty_sec_delay);
             }
-            else if (getStatus_retries == 3 && switchstatus(sw == 1)) {
+            else if (getStatus_retries == 3 && switchstatus((sw) == 1)) {
                 successful_deployment++;
             }
             vTaskDelay(two_min_delay);
@@ -59,11 +59,11 @@ bool hard_switch_status() {
         for (sw = 1; sw < 5; sw++) {
             if (switchstatus(sw) != 1) {
                 ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);           
-                ex2_log("Manually activated %c\n", sw); 
+                ex2_log("Activating %c\n", sw); 
                 activate(sw);
                 vTaskDelay(twenty_sec_delay);
             }
-            else if (getStatus_retries == 3 && switchstatus(sw == 1)) {
+            else if (getStatus_retries == 3 && switchstatus((sw) == 1)) {
                 successful_deployment++;
             }
             vTaskDelay(four_min_delay);
@@ -73,11 +73,11 @@ bool hard_switch_status() {
             for (sw = 5; sw < 8; sw++) {
                 if (switchstatus(sw) != 1) {
                     ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);           
-                    ex2_log("Manually activated %c\n", sw); 
+                    ex2_log("Activating %c\n", sw); 
                     activate(sw);
                     vTaskDelay(twenty_sec_delay);
                 }
-                else if (getStatus_retries == 3 && switchstatus(sw == 1)) {
+                else if (getStatus_retries == 3 && switchstatus((sw) == 1)) {
                     successful_deployment++;
                 }
             }
