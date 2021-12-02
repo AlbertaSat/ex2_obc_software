@@ -322,9 +322,10 @@ SDRESULTS SD_Read(uint8_t bVolNum, void *dat, DWORD sector, WORD ofs, WORD cnt) 
                 } while (--ofs);
             }
             // I receive the data and I write in user's buffer
+            BYTE *datptr = (BYTE *)dat;
             do {
-                *(BYTE *)dat = SPI_RW(0xFF);
-                dat++;
+                *datptr = SPI_RW(0xFF);
+                datptr++;
             } while (--cnt);
             // Skip remaining
             do {
