@@ -64,21 +64,22 @@ static void *beacon_daemon(All_systems_housekeeping* all_hk_data) {
         uint8_t scw[SCW_LEN];
 
 #ifndef UHF_IS_STUBBED
-        uhf_status = HAL_UHF_getSCW(scw);
+    uhf_status = HAL_UHF_getSCW(scw);
 
-        if (uhf_status == U_GOOD_CONFIG) {
-            scw[SCW_BCN_FLAG] = SCW_BCN_ON;
-            uhf_status = HAL_UHF_setSCW(scw);
-        }
+    if (uhf_status == U_GOOD_CONFIG) {
+      scw[SCW_BCN_FLAG] = SCW_BCN_ON;
+      uhf_status = HAL_UHF_setSCW(scw);
+    }
 #endif
 #ifndef EPS_IS_STUBBED
-        if (uhf_status != U_GOOD_CONFIG) {
+    if (uhf_status != U_GOOD_CONFIG) {
 
-            if (eps_get_pwr_chnl(UHF_PWR_CHNL) == 1 && gioGetBit(UHF_GIO_PORT, UHF_GIO_PIN) == 1) {
-                printf("Beacon failed");
-            } else
-                printf("UHF is off.");
-        }
+      if (eps_get_pwr_chnl(UHF_PWR_CHNL) == 1 &&
+          gioGetBit(UHF_GIO_PORT, UHF_GIO_PIN) == 1) {
+        printf("Beacon failed");
+      } else
+        printf("UHF is off.");
+    }
 #endif
 
         vTaskDelay(seconds_delay * beacon_delay);
