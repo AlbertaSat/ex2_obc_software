@@ -21,7 +21,7 @@
 #include "HL_het.h"
 #include "deployablescontrol.h"
 
-void activate(Deployable_t knife) {
+int activate(Deployable_t knife) {
     int temp;
     switch (knife) {
     case Port:
