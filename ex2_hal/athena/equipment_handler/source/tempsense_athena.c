@@ -28,7 +28,6 @@ uint8_t tmp_addr[NUM_TEMP_SENSOR] = {TEMP_ADDRESS_1, TEMP_ADDRESS_2};
 
 void inittemp_all(void) {
     int i;
-    int delay;
     for (i = 0; i < NUM_TEMP_SENSOR; i++) {
         tmp421_init_client(tmp_addr[i]);
     }
@@ -37,7 +36,7 @@ void inittemp_all(void) {
 int gettemp_all(long *temparray) {
     int i;
     for (i = 0; i < NUM_TEMP_SENSOR; i++) {
-        tmp421_read(tmp_addr[i], CHANNEL_LOCAL, temparray[i]); // assuming we want to read remote channel
+        tmp421_read(tmp_addr[i], CHANNEL_LOCAL, &temparray[i]); // assuming we want to read remote channel
     }
     return 0;
 }
