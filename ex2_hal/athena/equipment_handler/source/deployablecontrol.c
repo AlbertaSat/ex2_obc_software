@@ -21,55 +21,49 @@
 #include "HL_het.h"
 #include "deployablescontrol.h"
 
+#define DEPLOYABLE_BURNWIRE_DELAY_MS 6500 // Delay 6.5 seconds according to systems requirements
+
 void activate(Deployable_t knife) {
     int temp;
     switch (knife) {
     case Port:
         gioSetBit(hetPORT1, 8, 1);
-        for (temp = 0; temp < 0x8000000; temp++)
-            ; //~6.5 seconds at 300 MHz
+        vTaskDelay(DEPLOYABLE_BURNWIRE_DELAY_MS);
         gioSetBit(hetPORT1, 8, 0);
         break;
     case UHF_P:
         gioSetBit(hetPORT2, 5, 1);
-        for (temp = 0; temp < 0x8000000; temp++)
-            ; //~6.5 seconds at 300 MHz
+        vTaskDelay(DEPLOYABLE_BURNWIRE_DELAY_MS);
         gioSetBit(hetPORT2, 5, 0);
         break;
     case UHF_Z:
         gioSetBit(hetPORT1, 26, 1);
-        for (temp = 0; temp < 0x8000000; temp++)
-            ; //~6.5 seconds at 300 MHz
+        vTaskDelay(DEPLOYABLE_BURNWIRE_DELAY_MS);
         gioSetBit(hetPORT1, 26, 0);
         break;
     case Payload:
         gioSetBit(hetPORT1, 14, 1);
-        for (temp = 0; temp < 0x8000000; temp++)
-            ; //~6.5 seconds at 300 MHz
+        vTaskDelay(DEPLOYABLE_BURNWIRE_DELAY_MS);
         gioSetBit(hetPORT1, 14, 0);
         break;
     case UHF_S:
         gioSetBit(gioPORTA, 0, 1);
-        for (temp = 0; temp < 0x8000000; temp++)
-            ; //~6.5 seconds at 300 MHz
+        vTaskDelay(DEPLOYABLE_BURNWIRE_DELAY_MS);
         gioSetBit(gioPORTA, 0, 0);
         break;
     case UHF_N:
         gioSetBit(hetPORT1, 22, 1);
-        for (temp = 0; temp < 0x8000000; temp++)
-            ; //~6.5 seconds at 300 MHz
+        vTaskDelay(DEPLOYABLE_BURNWIRE_DELAY_MS);
         gioSetBit(hetPORT1, 22, 0);
         break;
     case Starboard:
         gioSetBit(hetPORT2, 1, 1);
-        for (temp = 0; temp < 0x8000000; temp++)
-            ; //~6.5 seconds at 300 MHz
+        vTaskDelay(DEPLOYABLE_BURNWIRE_DELAY_MS);
         gioSetBit(hetPORT2, 1, 0);
         break;
     case DFGM:
         gioSetBit(hetPORT1, 16, 1);
-        for (temp = 0; temp < 0x8000000; temp++)
-            ; //~6.5 seconds at 300 MHz
+        vTaskDelay(DEPLOYABLE_BURNWIRE_DELAY_MS);
         gioSetBit(hetPORT1, 16, 0);
         break;
     default:
