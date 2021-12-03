@@ -8,7 +8,7 @@
  */
 
 #include "ina226.h"
-#include "HL_i2c.h"
+#include "i2c_io.h"
 
 // I2C_TypeDef replaced by i2cBASE_t
 // The various INA226s could end up on different ports

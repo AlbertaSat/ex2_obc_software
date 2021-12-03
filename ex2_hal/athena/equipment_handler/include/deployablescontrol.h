@@ -36,7 +36,7 @@ typedef enum {
     Starboard = 7,
 } Deployable_t;
 
-void activate(Deployable_t knife);
+int activate(Deployable_t knife);
 
 bool switchstatus(Deployable_t sw);
 

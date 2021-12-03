@@ -62,6 +62,7 @@ uint16_t Athena_get_OBC_uptime() {
  */
 uint8_t Athena_get_solar_supply_curr() {
     // insert getter function for solar panel supply current;
+    return 0;
 }
 
 /**
@@ -85,7 +86,7 @@ int Athena_getHK(athena_housekeeping *athena_hk) {
     /*Add athena HAL housekeeping getters here and put fields in h file
     create HAL functions here following format of existing
     also add endianness conversion in Athena_hk_convert_endianness*/
-    temporary = HAL_get_temp_all(&athena_hk->temparray);
+    temporary = HAL_get_temp_all(athena_hk->temparray);
 
     // Get OBC uptime: Seconds = value*10. Max = 655360 seconds (7.6 days)
     athena_hk->OBC_uptime = Athena_get_OBC_uptime();
@@ -114,11 +115,7 @@ int Athena_hk_convert_endianness(athena_housekeeping *athena_hk) {
         athena_hk->temparray[i] = (long)csp_ntoh32((uint32_t)athena_hk->temparray[i]);
     }
     athena_hk->boot_cnt = csp_ntoh16(athena_hk->boot_cnt);
-    athena_hk->last_reset_reason = athena_hk->last_reset_reason;
-    athena_hk->OBC_mode = athena_hk->OBC_mode;
     athena_hk->OBC_uptime = csp_ntoh16(athena_hk->OBC_uptime);
-    athena_hk->solar_panel_supply_curr = athena_hk->solar_panel_supply_curr;
-    athena_hk->OBC_software_ver = athena_hk->OBC_software_ver;
     athena_hk->cmds_received = csp_ntoh16(athena_hk->cmds_received);
     athena_hk->pckts_uncovered_by_FEC = csp_ntoh16(athena_hk->pckts_uncovered_by_FEC);
     return 0;
