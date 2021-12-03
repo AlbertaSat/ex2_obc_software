@@ -6,7 +6,9 @@
  *      Author: joshdellaz
  */
 
+#include <stdio.h>
 #include "FreeRTOS.h"
+#include "os_task.h"
 #include "HL_can.h"
 #include "HL_emif.h"
 #include "HL_gio.h"
@@ -67,7 +69,7 @@ void InitIO(void) {
 *   GPIO11 - 1_15 - input
 *   GPIO12 - B1
 *   GPIO13 - B0 */
-uint8_t GPIOSetBit(uint8_t bit, uint8_t value) {
+int GPIOSetBit(uint8_t bit, uint8_t value) {
     switch (bit) {
     case 0:
         gioSetBit(hetPORT2, 23, value);
@@ -75,7 +77,6 @@ uint8_t GPIOSetBit(uint8_t bit, uint8_t value) {
     case 1:
         while (1)
             ; // cannot write to input
-        break;
     case 2:
         gioSetBit(hetPORT2, 21, value);
         break;
@@ -97,18 +98,15 @@ uint8_t GPIOSetBit(uint8_t bit, uint8_t value) {
     case 8:
         while (1)
             ; // cannot write to input
-        break;
     case 9:
         gioSetBit(hetPORT1, 20, value);
         break;
     case 10:
         while (1)
             ; // cannot write to input
-        break;
     case 11:
         while (1)
             ; // cannot write to input
-        break;
     case 12:
         gioSetBit(gioPORTB, 1, value);
         break;
@@ -497,7 +495,6 @@ void CANTxTest(canBASE_t *regset, uint8_t msgbox) {
 uint8_t CANRxTest(canBASE_t *regset, uint8_t msgbox) {
 
     uint8_t data[8] = {0};
-    uint32 sz;
     int i = 0;
     int j = 0;
     int pings = 0;

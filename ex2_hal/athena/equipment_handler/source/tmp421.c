@@ -109,7 +109,7 @@ static const uint8_t TMP421_TEMP_LSB[2] = {0x10, 0x11};
 //};
 
 // CODE TO MAYBE BE ADDED TO I2C DRIVERS BELOW
-void i2cSlaveWriteReg(uint8_t sadd, uint8_t reg, uint8_t data) {
+int i2cSlaveWriteReg(uint8_t sadd, uint8_t reg, uint8_t data) {
     // TODO: make this use error code return instead
     uint8_t buf[2];
     buf[0] = reg;
@@ -338,23 +338,26 @@ int tmp421_detect(uint8_t sadd) {
         kind = tmp421;
         break;
     case TMP422_DEVICE_ID:
-        //		if (addr == 0x2a)
+#if 0
+        if (addr == 0x2a)
+            kind = tmp422;
+#endif
         return 1;
-        kind = tmp422;
-        break;
     case TMP423_DEVICE_ID:
-        //		if (addr != 0x4c && addr != 0x4d)
+#if 0
+        if (addr != 0x4c && addr != 0x4d)
+            kind = tmp423;
+#endif
         return 1;
-        kind = tmp423;
-        break;
     case TMP441_DEVICE_ID:
         kind = tmp441;
         break;
     case TMP442_DEVICE_ID:
-        //		if (addr != 0x4c && addr != 0x4d)
+#if 0
+        if (addr != 0x4c && addr != 0x4d)
+            kind = tmp442;
+#endif
         return 1;
-        kind = tmp442;
-        break;
     default:
         return 1;
     }
