@@ -38,7 +38,7 @@ int activate(Deployable_t knife) {
         break;
     case UHF_Z:
         gioSetBit(hetPORT1, 26, 1);
-        puts vTaskDelay(DEPLOYABLE_BURNWIRE_DELAY_MS);
+        vTaskDelay(DEPLOYABLE_BURNWIRE_DELAY_MS);
         gioSetBit(hetPORT1, 26, 0);
         break;
     case Payload:
