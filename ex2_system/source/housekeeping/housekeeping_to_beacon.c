@@ -16,11 +16,6 @@
  * @author Grace Yi
  * @date 2021-10-27
  */
-#include "housekeeping/housekeeping_to_beacon.h"
-#include "ex2_services/Services/include/housekeeping/housekeeping_service.h" //contains all housekeeping data
-#include "rtcmk.h" //to get time from RTC
-#include "services.h"
-#include "ex2_system/include/beacon/beacon_task.h" //contains beacon packets (ie. a summary of housekeeping data)
 
 /**
  * @brief
