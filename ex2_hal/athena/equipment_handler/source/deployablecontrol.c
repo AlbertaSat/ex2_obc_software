@@ -23,7 +23,7 @@
 
 #define DEPLOYABLE_BURNWIRE_DELAY_MS 6500 // Delay 6.5 seconds according to systems requirements
 
-void activate(Deployable_t knife) {
+int activate(Deployable_t knife) {
     int temp;
     switch (knife) {
     case Port:
@@ -38,7 +38,7 @@ void activate(Deployable_t knife) {
         break;
     case UHF_Z:
         gioSetBit(hetPORT1, 26, 1);
-        vTaskDelay(DEPLOYABLE_BURNWIRE_DELAY_MS);
+        puts vTaskDelay(DEPLOYABLE_BURNWIRE_DELAY_MS);
         gioSetBit(hetPORT1, 26, 0);
         break;
     case Payload:
