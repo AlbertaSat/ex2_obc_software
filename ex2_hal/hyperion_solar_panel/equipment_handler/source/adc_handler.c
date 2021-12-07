@@ -33,6 +33,7 @@
 unsigned char adc_init(uint8_t slave_addr, uint8_t channel) {
     adc_set_command_reg(slave_addr, channel, 0, 1, 1, 0, 1);
     for(delay=0;delay<10000000;delay++);
+
     uint8_t reg_sel = 1; // select read register
     adc_set_register_pointer(slave_addr, reg_sel);
     for(delay=0;delay<1000000;delay++);
@@ -317,7 +318,7 @@ float adc_get_tsense_temp(uint8_t slave_addr, float vref) {
     // printf("\n ADC TEMP RESULTS: \r\n Channel    Result \r\n");
     // loops through and requests conversion results from all channels
     if (AD7291_TSENSE_AVG == true) {
-        reg_sel  = AD7291_T_AVERAGE;
+        reg_sel = AD7291_T_AVERAGE;
     } else {
         reg_sel = AD7291_T_SENSE;
     }
