@@ -441,7 +441,7 @@ void Hyperion_config3_getHK(Hyperion_HouseKeeping *hyperion_hk) {
     // Star Dep Adc
     hyperion_config_3_value(CONFIG_3_PANEL_SD2U, CONFIG_3_ADC_TEMP, &hyperion_hk->Star_Dep_Temp_Adc);
 
-    //Zenith Temp 1 2
+    // Zenith Temp 1 2
     hyperion_config_3_value(CONFIG_3_PANEL_Z2U, CONFIG_3_CHANNEL_TEMP_1, &hyperion_hk->Zenith_Temp1);
     hyperion_config_3_value(CONFIG_3_PANEL_Z2U, CONFIG_3_CHANNEL_TEMP_2, &hyperion_hk->Zenith_Temp2);
     hyperion_hk->Zenith_Temp3 = HYPERION_2U_TEMP_PLACEHOLDER;
