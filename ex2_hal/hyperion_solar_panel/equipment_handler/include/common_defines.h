@@ -28,20 +28,23 @@
 #define ADC_VREF 2.5f // V
 
 // channel offset defines
-#define ADC_CHANNEL_0 1 >> 7
-#define ADC_CHANNEL_1 1 >> 6
-#define ADC_CHANNEL_2 1 >> 5
-#define ADC_CHANNEL_3 1 >> 4
-#define ADC_CHANNEL_4 1 >> 3
-#define ADC_CHANNEL_5 1 >> 2
-#define ADC_CHANNEL_6 1 >> 1
-#define ADC_CHANNEL_7 1 >> 0
+#define ADC_CHANNEL_0 1 << 7
+#define ADC_CHANNEL_1 1 << 6
+#define ADC_CHANNEL_2 1 << 5
+#define ADC_CHANNEL_3 1 << 4
+#define ADC_CHANNEL_4 1 << 3
+#define ADC_CHANNEL_5 1 << 2
+#define ADC_CHANNEL_6 1 << 1
+#define ADC_CHANNEL_7 1 << 0
 
 // Temperature Sensor (LMT70) constants
 #define TEMP_VOLT_MAX 1.375f // V
 #define TEMP_VOLT_MIN 0.302f // V
 #define TEMP_VAL_MAX 150     // celsius
 #define TEMP_VAL_MIN -55     // celsius
+
+// Photodiode Sensor constants
+#define PD_MAX_VOLTAGE 2f // V
 
 // Voltage/Current Sensor Constants
 #define ADC_VOLT_MAX 2.5f // V
