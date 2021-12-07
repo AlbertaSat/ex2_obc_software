@@ -34,12 +34,15 @@
  *              Success of the function defined in sTransmitter.h
  */
 STX_return read_reg(uint8_t internal_address, uint8_t *answer) {
+    i2cSetBaudrate(SBAND_I2C, 400);
     uint8_t command = internal_address;
 
     i2c_Send(SBAND_I2C, SBAND_I2C_ADD, MAX_SBAND_R_CMDLEN, &command);
     i2c_Receive(SBAND_I2C, SBAND_I2C_ADD, MAX_SBAND_R_ANSLEN, answer);
 
     return FUNC_PASS;
+
+    // TODO: Reset I2C speed to what it was previously
 }
 
 /**
@@ -55,9 +58,12 @@ STX_return read_reg(uint8_t internal_address, uint8_t *answer) {
  *              Success of the function defined in sTransmitter.h
  */
 STX_return write_reg(uint8_t internal_address, uint8_t val) {
+    i2cSetBaudrate(SBAND_I2C, 400);
     uint8_t command[2] = {internal_address, val};
-    i2c_Send(SBAND_I2C, SBAND_I2C_ADD, MAX_SBAND_R_CMDLEN, command);
+    i2c_Send(SBAND_I2C, SBAND_I2C_ADD, MAX_SBAND_W_CMDLEN, command);
     return FUNC_PASS;
+
+    // TODO: Reset I2C speed to what it was previously
 }
 
 /**
@@ -354,6 +360,7 @@ STX_return STX_getFrequency(float *freq) {
  *              Success of the function defined in sTransmitter.h
  */
 STX_return STX_setFrequency(float new_frequency) {
+    // TODO: This code will need to be modified for use on FMs which use amateur frequencies
     if (new_frequency >= 2200.0f && new_frequency <= 2300.0f) {
         uint8_t offset = (uint8_t)((new_frequency - 2200.0f) * 2);
 

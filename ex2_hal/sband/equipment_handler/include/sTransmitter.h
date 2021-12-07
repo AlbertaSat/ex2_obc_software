@@ -24,6 +24,7 @@
 #include <stdint.h>
 
 #include "i2c.h"
+#include "spi.h"
 #include "HL_het.h"
 #include "system.h"
 

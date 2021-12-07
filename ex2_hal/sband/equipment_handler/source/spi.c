@@ -21,10 +21,7 @@
 
 #include "spi.h"
 
-#include "HL_spi.h"
-
-// Sends a single 16bit data value
-void SPIMasterTx(spiBASE_t *regset, uint16_t *data, uint8_t format) {
+void SPIMasterTx(spiBASE_t *regset, uint16_t *data, uint32_t length, uint8_t format) {
     spiDAT1_t dataconfig1_t;
 
     dataconfig1_t.CS_HOLD = FALSE;
@@ -32,7 +29,9 @@ void SPIMasterTx(spiBASE_t *regset, uint16_t *data, uint8_t format) {
     dataconfig1_t.DFSEL = format;
     dataconfig1_t.CSNR = 0x00; // no CS lines
 
-    spiTransmitData(regset, &dataconfig1_t, 1, data);
+    spiTransmitData(regset, &dataconfig1_t, length, data);
 }
 
-void SPISbandTx(uint16_t *data) { SPIMasterTx(SPI_SBAND_BUS_REG, data, SPI_SBAND_DEF_FMT); }
+void SPISbandTx(uint16_t *data, uint32_t length) {
+    SPIMasterTx(SBAND_SPI, data, length, SPI_SBAND_DEF_FMT);
+}

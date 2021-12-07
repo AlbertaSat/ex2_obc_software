@@ -11,11 +11,12 @@
 #define SPI_SBAND_DEF_FMT 1 // Defines SPI speed (~8.3 MHz)
 
 #include "HL_spi.h"
+#include "system.h"
 
 void spi_writeData(void);
 
-void SPIMasterTx(spiBASE_t *regset, uint16_t *data, uint8_t format);
+void SPIMasterTx(spiBASE_t *regset, uint16_t *data, uint32_t length, uint8_t format);
 
-void SPISbandTx(uint16_t *data);
+void SPISbandTx(uint16_t *data, uint32_t length);
 
 #endif /* spi_H */
