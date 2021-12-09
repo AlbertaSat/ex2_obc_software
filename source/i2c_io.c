@@ -9,6 +9,7 @@
 #include "HL_i2c.h"
 #include "os_semphr.h"
 #include <stdint.h>
+#include <stdio.h>
 #include "os_task.h"
 
 /** @struct i2Csemphr
@@ -59,13 +60,14 @@ void init_i2c_driver() {
 int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, uint8_t *buf) {
     uint8 ret = 0;
     uint32 index = i2c == i2cREG1 ? 0U : 1U;
-    uint32 i2c_mutex_timeout = pdMS_TO_TICKS(20);
+    uint32 i2c_mutex_timeout = pdMS_TO_TICKS(25);
 
     if (xSemaphoreTake(i2csemphr_t[index].i2c_mutex, I2C_TIMEOUT_MS) != pdTRUE) {
         return -1;
     }
 
     /* Configure address of Slave to talk to */
+    taskENTER_CRITICAL();
     i2cSetSlaveAdd(i2c, addr);
     i2cSetDirection(i2c, I2C_RECEIVER);
     i2cSetCount(i2c, size);
@@ -73,6 +75,7 @@ int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, uint8_t *buf) {
     i2cSetStop(i2c);
     i2cSetStart(i2c);
     i2cReceive(i2c, size, buf);
+    taskEXIT_CRITICAL();
 
     if (xSemaphoreTake(i2csemphr_t[index].i2c_block, I2C_TIMEOUT_MS) != pdTRUE) {
         i2cSetStop(i2c);
@@ -81,7 +84,7 @@ int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, uint8_t *buf) {
 
     /* Clear the Stop condition */
     i2cClearSCD(i2c);
-    //vTaskDelay(i2c_mutex_timeout);
+    vTaskDelay(i2c_mutex_timeout);
     xSemaphoreGive(i2csemphr_t[index].i2c_mutex);
     return ret;
 }
@@ -108,13 +111,20 @@ int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, uint8_t *buf) {
 int i2c_Send(i2cBASE_t *i2c, uint8_t addr, uint16_t size, uint8_t *buf) {
     uint8 ret = 0;
     uint32 index = i2c == i2cREG1 ? 0U : 1U;
-    uint32 i2c_mutex_timeout = pdMS_TO_TICKS(6);
+    uint32 i2c_mutex_timeout = pdMS_TO_TICKS(10);
+
+//    TaskHandle_t holder1 = xSemaphoreGetMutexHolder( i2csemphr_t[0].i2c_mutex );
+//    TaskHandle_t holder2 = xSemaphoreGetMutexHolder( i2csemphr_t[1].i2c_mutex );
+//    printf("Holder1: %d\n", holder1);
+//    printf("Holder2: %d\n", holder2);
 
     if (xSemaphoreTake(i2csemphr_t[index].i2c_mutex, I2C_TIMEOUT_MS) != pdTRUE) {
         return -1;
     }
 
     /* Configure address of Slave to talk to */
+ //   printf("Buf: %x\n", * buf);
+    taskENTER_CRITICAL();
     i2cSetSlaveAdd(i2c, addr);
     i2cSetDirection(i2c, I2C_TRANSMITTER);
     i2cSetCount(i2c, size);
@@ -122,6 +132,7 @@ int i2c_Send(i2cBASE_t *i2c, uint8_t addr, uint16_t size, uint8_t *buf) {
     i2cSetStop(i2c);
     i2cSetStart(i2c);
     i2cSend(i2c, size, buf);
+    taskEXIT_CRITICAL();
 
     if (xSemaphoreTake(i2csemphr_t[index].i2c_block, I2C_TIMEOUT_MS) != pdTRUE) {
         i2cSetStop(i2c);
@@ -135,13 +146,14 @@ int i2c_Send(i2cBASE_t *i2c, uint8_t addr, uint16_t size, uint8_t *buf) {
 
     /* Clear the Stop condition */
     i2cClearSCD(i2c);
-    //vTaskDelay(i2c_mutex_timeout);
+    vTaskDelay(i2c_mutex_timeout);
     xSemaphoreGive(i2csemphr_t[index].i2c_mutex);
     return ret;
 }
 
 void i2cNotification(i2cBASE_t *i2c, uint32 flags) {
     uint32 reg = i2c == i2cREG1 ? 0U : 1U;
+    static BaseType_t xHigherPriorityTaskWoken=pdFALSE;
 
     switch (flags) {
 
@@ -156,7 +168,7 @@ void i2cNotification(i2cBASE_t *i2c, uint32 flags) {
         break;
 
     case I2C_SCD_INT:
-        xSemaphoreGiveFromISR(i2csemphr_t[reg].i2c_block, NULL);
+        xSemaphoreGiveFromISR(i2csemphr_t[reg].i2c_block, &xHigherPriorityTaskWoken);
         i2cClearSCD(i2c);
         break;
 
@@ -172,5 +184,6 @@ void i2cNotification(i2cBASE_t *i2c, uint32 flags) {
     default:
         break;
     }
+    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
 

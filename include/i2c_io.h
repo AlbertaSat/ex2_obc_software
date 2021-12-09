@@ -21,7 +21,7 @@
 #include "HL_i2c.h"
 #include "os_semphr.h"
 
-#define I2C_TIMEOUT_MS 1000
+#define I2C_TIMEOUT_MS 100
 #define I2C_POLLING_TIMEOUT 1000
 #define MAX_I2C_RECV_LEN 20
 

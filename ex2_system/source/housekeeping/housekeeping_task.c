@@ -36,7 +36,7 @@ SAT_returnState start_housekeeping_daemon(void);
  */
 static void *housekeeping_daemon(void *pvParameters) {
     TickType_t hk_delay = pdMS_TO_TICKS(1000);
-    uint32_t seconds_delay = 5;
+    uint32_t seconds_delay = 30;
     for (;;) {
         // Call housekeeping and have them collect and store data to SD card
 
@@ -44,7 +44,7 @@ static void *housekeeping_daemon(void *pvParameters) {
         populate_and_store_hk_data();
         int num_ticks_after_hk = xTaskGetTickCount();
         int ticks_elapsed = num_ticks_after_hk - num_ticks_before_hk;
-        printf("%x\n", ticks_elapsed);
+        //printf("%x\n", ticks_elapsed);
 
 
         hk_delay = pdMS_TO_TICKS(seconds_delay * 1000);
@@ -59,14 +59,14 @@ static void *housekeeping_daemon(void *pvParameters) {
 
         for (int i = 0; i<500; i++) {
             if (cbuffer_hk[i] != 0) {
-                printf("bad time @ %x\n", i);
+                //printf("bad time @ %x\n", i);
                 break;
             }
         }
         int num_ticks_after_runtime = xTaskGetTickCount();
         //printf("%d\n", num_ticks_after);
 
-        printf("%s\n", cbuffer_hk);
+        //printf("%s\n", cbuffer_hk);
 
         memset(cbuffer_hk, 0, 500);
 
@@ -81,7 +81,7 @@ static void *housekeeping_daemon(void *pvParameters) {
  *   error report of task creation
  */
 SAT_returnState start_housekeeping_daemon(void) {
-    if (xTaskCreate((TaskFunction_t)housekeeping_daemon, "housekeeping_daemon", 2000, NULL, 4,
+    if (xTaskCreate((TaskFunction_t)housekeeping_daemon, "housekeeping_daemon", 12000, NULL, 4,
                     NULL) != pdPASS) {
         ex2_log("FAILED TO CREATE TASK housekeeping_daemon\n");
         return SATR_ERROR;

@@ -38,7 +38,6 @@
 #include "board_io_tests.h"
 #include "services.h"
 #include "subsystems_ids.h"
-#include "eps.h"
 #include "mocks/mock_eps.h"
 #include "csp/drivers/can.h"
 #include "HL_sci.h"
@@ -47,14 +46,16 @@
 #include "mocks/rtc.h"
 #include "logger/logger.h"
 #include "file_delivery_app.h"
-#include "uhf.h"
 
 #include <FreeRTOS.h>
 #include <os_task.h>
 #include <os_semphr.h>
 #include "uhf.h"
 #include "eps.h"
+#include "sband.h"
 #include "system.h"
+
+#include "sband_binary_tests.h"
 
 /**
  * The main function must:
@@ -72,7 +73,7 @@
 static void init_filesystem();
 static void init_csp();
 static void init_software();
-static void init_UHF_PIPE();
+static void flatsat_test();
 static inline SAT_returnState init_csp_interface();
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
 static FTP ftp_app;
@@ -105,20 +106,16 @@ void ex2_init(void *pvParameters) {
     vTaskDelete(0); // delete self to free up heap
 }
 
-void init_UHF_PIPE(void *pvParameters) {
-
-    // Enable the SBAND
-
-    // Read from the UHF
+void flatsat_test(void *pvParameters) {
+    sband_binary_test();
+     //Read from the UHF
 //    uint8_t UHF_return;
 //    uint8_t scw[12] = {0};
 //    uint32_t pipe_timeout = 0;
 //    uint32_t freq = 437875000;
 //
 //    UHF_genericWrite(1, &freq);
-
-    STX_Enable();
-
+//
 //    UHF_return = UHF_genericRead(0, scw);
 //    UHF_return = UHF_genericRead(6, &pipe_timeout);
 //    scw[UHF_SCW_UARTBAUD_INDEX] = UHF_UARTBAUD_19200;
@@ -128,7 +125,7 @@ void init_UHF_PIPE(void *pvParameters) {
 //    pipe_timeout = 40;
 //
 //    UHF_return = UHF_genericWrite(6, &pipe_timeout);
-    //    UHF_return = UHF_genericWrite(0, scw);
+//    UHF_return = UHF_genericWrite(0, scw);
 
     //    uint8_t data[18] = {1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9};
     //    for (uint8_t i = 0; i < 0x1000; i++);
@@ -166,8 +163,7 @@ int ex2_main(void) {
     for (int i = 0; i < 1000000; i++)
         ;
     xTaskCreate(ex2_init, "init", INIT_STACK_SIZE, NULL, INIT_PRIO, NULL);
-
-    xTaskCreate(init_UHF_PIPE, "init_UHF_PIPE", 2000, NULL, 3, NULL);
+    xTaskCreate(flatsat_test, "flatsat_test", 5000, NULL, 2, NULL);
 
     //configGENERATE_RUN_TIME_STATS;
     //portCONFIGURE_TIMER_FOR_RUN_TIME_STATS();

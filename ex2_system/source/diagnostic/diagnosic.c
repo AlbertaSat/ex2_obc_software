@@ -109,17 +109,16 @@ static void sband_watchdog_daemon(void *pvParameters) {
             return;
         }
         // Get SBAND control values
-        uint8_t pa;
-        uint8_t mode;
+        float SBAND_version = 0;
         const unsigned int retries = 3;
         STX_return err;
         for (int i = 0; i < retries; i++) {
-            err = STX_getControl(&pa, &mode);
-            if (err == FUNC_PASS) {
+            STX_getFirmwareV(&SBAND_version);
+            if (SBAND_version != 0) {
                 break;
             }
         }
-        if (err != FUNC_PASS) {
+        if (SBAND_version == 0) {
             // TODO: Currently no way for this to fail
             ex2_log("SBAND was not responsive - attempting to toggle power.");
 
@@ -127,10 +126,10 @@ static void sband_watchdog_daemon(void *pvParameters) {
             gioSetBit(hetPORT2, 21, 0); // Het2 21 is the S-band nRESET pin
             vTaskDelay(2 * ONE_SECOND);
             gioSetBit(hetPORT2, 21, 1); // Het2 21 is the S-band nRESET pin
-
+            vTaskDelay(2 * ONE_SECOND);
             // Disable the SBAND
             STX_Disable();
-            vTaskDelay(ONE_SECOND);
+            vTaskDelay(10*ONE_SECOND);
             // Enable the S-band
             STX_Enable();
             vTaskDelay(ONE_SECOND);

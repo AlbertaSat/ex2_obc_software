@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="com.ti.ccstudio.debug.launchType.device.debugging">
 <mapAttribute key="ccs.memoryview.format">
-<mapEntry key="org.eclipse.cdt.debug.ui.memory.memorybrowser.MemoryBrowser@#$Texas Instruments XDS110 USB Debug Probe_0/CortexR5@#$0" value="8-Bit Hex - TI Style"/>
+<mapEntry key="org.eclipse.cdt.debug.ui.memory.memorybrowser.MemoryBrowser@#$Texas Instruments XDS110 USB Debug Probe_0/CortexR5@#$0" value="8-Bit UnSigned Int"/>
 </mapAttribute>
 <mapAttribute key="ccs.memoryview.pageexpr">
 <mapEntry key="org.eclipse.cdt.debug.ui.memory.memorybrowser.MemoryBrowser@#$Texas Instruments XDS110 USB Debug Probe_0/CortexR5" value="@@0x08013424"/>
