@@ -36,10 +36,12 @@
 STX_return read_reg(uint8_t internal_address, uint8_t *answer) {
     i2cSetBaudrate(SBAND_I2C, 400);
     uint8_t command = internal_address;
-
-    i2c_Send(SBAND_I2C, SBAND_I2C_ADD, MAX_SBAND_R_CMDLEN, &command);
-    i2c_Receive(SBAND_I2C, SBAND_I2C_ADD, MAX_SBAND_R_ANSLEN, answer);
-
+    if (i2c_Send(SBAND_I2C, SBAND_I2C_ADD, MAX_SBAND_R_CMDLEN, &command) != 0) {
+        return BAD_READ;
+    }
+    if (i2c_Receive(SBAND_I2C, SBAND_I2C_ADD, MAX_SBAND_R_ANSLEN, answer) != 0) {
+        return BAD_READ;
+    }
     return FUNC_PASS;
 
     // TODO: Reset I2C speed to what it was previously
@@ -60,7 +62,9 @@ STX_return read_reg(uint8_t internal_address, uint8_t *answer) {
 STX_return write_reg(uint8_t internal_address, uint8_t val) {
     i2cSetBaudrate(SBAND_I2C, 400);
     uint8_t command[2] = {internal_address, val};
-    i2c_Send(SBAND_I2C, SBAND_I2C_ADD, MAX_SBAND_W_CMDLEN, command);
+    if (i2c_Send(SBAND_I2C, SBAND_I2C_ADD, MAX_SBAND_W_CMDLEN, command) != 0) {
+        return BAD_WRITE;
+    }
     return FUNC_PASS;
 
     // TODO: Reset I2C speed to what it was previously
