@@ -13,7 +13,7 @@
  */
 /**
  * @file    common_defines.h
- * @author  Vasu Gupta, Trung Tran
+ * @author  Vasu Gupta, Trung Tran, Nicholas Sorensen
  * @date    2020-06-17
  */
 
@@ -44,14 +44,14 @@
 #define TEMP_VAL_MIN -55     // celsius
 
 // Photodiode Sensor constants
-#define PD_MAX_VOLTAGE 2f // V
+#define PD_MAX_VOLTAGE 2.0f // V
 
 // Voltage/Current Sensor Constants
 #define ADC_VOLT_MAX 2.5f // V
 #define ADC_VOLT_MIN 0    // V
-#define VOLT_MAX 16.32f   // V
+#define VOLT_MAX 16.171f  // V
 #define VOLT_MIN 0        // V
-#define CURR_MAX 0.6f     // A
+#define CURR_MAX 0.598f   // A
 #define CURR_MIN 0        // A
 
 // Slave Address for each panel of the hyperion board

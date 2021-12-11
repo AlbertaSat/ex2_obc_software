@@ -311,7 +311,6 @@ float adc_calculate_sensor_pd(unsigned short value, float vref)
  * 		Temperature value in celsius
  */
 float adc_get_tsense_temp(uint8_t slave_addr, float vref) {
-    int delay;
     uint8_t reg_sel;
     unsigned short data = 0;
     unsigned char ch = 0;
