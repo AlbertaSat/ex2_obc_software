@@ -11,7 +11,6 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "os_task.h"
-#include "HL_sci.h"
 
 /** @struct i2Csemphr
 *   @brief Interrupt mode globals
@@ -61,7 +60,6 @@ void init_i2c_driver() {
 int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, uint8_t *buf) {
     uint8 ret = 0;
     uint32 index = i2c == i2cREG1 ? 0U : 1U;
-    uint32 i2c_mutex_timeout = pdMS_TO_TICKS(25);
 
     if (xSemaphoreTake(i2csemphr_t[index].i2c_mutex, I2C_TIMEOUT_MS) != pdTRUE) {
         return -1;
@@ -90,7 +88,6 @@ int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, uint8_t *buf) {
 
     /* Clear the Stop condition */
     i2cClearSCD(i2c);
-    //vTaskDelay(i2c_mutex_timeout);
     xSemaphoreGive(i2csemphr_t[index].i2c_mutex);
     return ret;
 }
@@ -117,20 +114,12 @@ int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, uint8_t *buf) {
 int i2c_Send(i2cBASE_t *i2c, uint8_t addr, uint16_t size, uint8_t *buf) {
     uint8 ret = 0;
     uint32 index = i2c == i2cREG1 ? 0U : 1U;
-    uint32 i2c_mutex_timeout = pdMS_TO_TICKS(10);
-
-//    TaskHandle_t holder1 = xSemaphoreGetMutexHolder( i2csemphr_t[0].i2c_mutex );
-//    TaskHandle_t holder2 = xSemaphoreGetMutexHolder( i2csemphr_t[1].i2c_mutex );
-//    printf("Holder1: %d\n", holder1);
-//    printf("Holder2: %d\n", holder2);
 
     if (xSemaphoreTake(i2csemphr_t[index].i2c_mutex, I2C_TIMEOUT_MS) != pdTRUE) {
         return -1;
     }
-    sciSendByte(sciREG3, addr);
 
     /* Configure address of Slave to talk to */
- //   printf("Buf: %x\n", * buf);
     taskENTER_CRITICAL();
     i2cSetSlaveAdd(i2c, addr);
     i2cSetDirection(i2c, I2C_TRANSMITTER);
