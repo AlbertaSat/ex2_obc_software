@@ -135,9 +135,10 @@ int i2c_Send(i2cBASE_t *i2c, uint8_t addr, uint16_t size, uint8_t *buf) {
         i2cSetStop(i2c);
         ret = -1;
     } else {
-        if (i2csemphr_t[index].hadFailure == true) {
+        if (i2csemphr_t[index].did_transfer == false) {
             ret = -1;
-            i2csemphr_t[index].hadFailure = false; // reset failure flag
+        } else {
+            i2csemphr_t[index].did_transfer = false; // Reset transfer flag
         }
     }
 
