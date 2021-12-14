@@ -20,7 +20,7 @@ static struct i2csemphr
 {
     SemaphoreHandle_t i2c_mutex;
     SemaphoreHandle_t i2c_block;
-    bool hadFailure;
+    bool did_transfer;
 } i2csemphr_t[2U];
 
 /**
@@ -33,8 +33,8 @@ void init_i2c_driver() {
     i2csemphr_t[1].i2c_mutex = xSemaphoreCreateMutex();
     i2csemphr_t[0].i2c_block = xSemaphoreCreateBinary();
     i2csemphr_t[1].i2c_block = xSemaphoreCreateBinary();
-    i2csemphr_t[0].hadFailure = false;
-    i2csemphr_t[1].hadFailure = false;
+    i2csemphr_t[0].did_transfer = false;
+    i2csemphr_t[1].did_transfer = false;
 }
 
 /**
@@ -80,9 +80,10 @@ int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, uint8_t *buf) {
         i2cSetStop(i2c);
         ret = -1;
     } else {
-        if (i2csemphr_t[index].hadFailure == true) {
+        if (i2csemphr_t[index].did_transfer == false) {
             ret = -1;
-            i2csemphr_t[index].hadFailure = false; // reset failure flag
+        } else {
+            i2csemphr_t[index].did_transfer = false; // Reset transfer flag
         }
     }
 
@@ -149,16 +150,17 @@ int i2c_Send(i2cBASE_t *i2c, uint8_t addr, uint16_t size, uint8_t *buf) {
 void i2cNotification(i2cBASE_t *i2c, uint32 flags) {
     uint32 reg = i2c == i2cREG1 ? 0U : 1U;
     static BaseType_t xHigherPriorityTaskWoken=pdFALSE;
+    int interrupt_val;
 
     switch (flags) {
 
     case I2C_NACK_INT: // nack received after start byte. A nack on the start byte does not trigger an SCD interrupt
-        i2c->STR = (uint32)I2C_NACK_INT;
-        i2csemphr_t[reg].hadFailure = true;
+        interrupt_val = i2c->STR;
+        i2cSetStop(i2c);
         break;
 
     case I2C_AL_INT: // arbitration lost, attempt to recover
-        i2c->STR = (uint32)I2C_AL_INT;
+        interrupt_val = i2c->STR;
         i2cSetStop(i2c);
         break;
 
@@ -172,6 +174,13 @@ void i2cNotification(i2cBASE_t *i2c, uint32 flags) {
         break;
 
     case I2C_AAS_INT: // this shouldn't happen since Athena is not configured as a slave device
+        i2cSetStop(i2c);
+        break;
+
+    case I2C_TX_INT:
+    case I2C_RX_INT:
+        i2csemphr_t[reg].did_transfer = true;
+        xSemaphoreGiveFromISR(i2csemphr_t[reg].i2c_block, &xHigherPriorityTaskWoken);
         i2cSetStop(i2c);
         break;
 
