@@ -4,3 +4,4 @@ Debug/**
 /test/main
 /test/*.o
 /test/**/*.o
+/Devel/
