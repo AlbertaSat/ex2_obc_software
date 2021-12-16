@@ -56,7 +56,7 @@ void init_i2c_driver() {
  *   Returns 0 data read, <0 if unable to read data.
  **/
 int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
-    uint8 ret = 0;
+    int ret = 0;
     uint32 index = i2c == i2cREG1 ? 0U : 1U;
 
     if (xSemaphoreTake(i2csemphr_t[index].i2c_mutex, I2C_TIMEOUT_MS) != pdTRUE) {
@@ -102,7 +102,7 @@ int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
  *   Returns 0 data written, <0 if unable to write data.
  **/
 int i2c_Send(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
-    uint8 ret = 0;
+    int ret = 0;
     uint32 index = i2c == i2cREG1 ? 0U : 1U;
     if (xSemaphoreTake(i2csemphr_t[index].i2c_mutex, I2C_TIMEOUT_MS) != pdTRUE) {
         return -1;
