@@ -16,7 +16,7 @@
  * @author Andrew Rooney, Vasu Gupta, Arash Yazdani, Thomas Ganley, Nick Sorensen, Pundeep Hundal
  * @date 2020-08-09
  */
-
+#include <os_portable.h>
 #include "adcs_handler.h"
 
 #include <string.h>
@@ -964,7 +964,7 @@ ADCS_returnState ADCS_run_selected_program(void) {
 ADCS_returnState ADCS_read_program_info(uint8_t index) {
     uint8_t command[2];
     command[0] = READ_PROGRAM_INFO_ID;
-    if (index < 0 || index > 18) {
+    if (index > 18) {
         return ADCS_INVALID_PARAMETERS;
     } else {
         command[1] = index;
@@ -979,7 +979,7 @@ ADCS_returnState ADCS_read_program_info(uint8_t index) {
  * 		Table 66 - Source Program index
  * 		0 : BootLoader, 1 : Internal flash program, 2 : EEPROM,
  * 3-9: External flash program 1-7, 10-17: SD user file 1-8
- * //* not good for services
+ * // not good for services
  * @attention
  * 		flag = 0x5A overwrites the boot segment
  * @return
@@ -988,7 +988,7 @@ ADCS_returnState ADCS_read_program_info(uint8_t index) {
 ADCS_returnState ADCS_copy_program_internal_flash(uint8_t index, uint8_t overwrite_flag) {
     uint8_t command[3];
     command[0] = COPY_PROGRAM_INTERNAL_FLASH_ID;
-    if (index < 0 || index > 18) {
+    if (index > 18) {
         return ADCS_INVALID_PARAMETERS;
     } else {
         command[1] = index;
