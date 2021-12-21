@@ -163,7 +163,7 @@ int ex2_main(void) {
     for (int i = 0; i < 1000000; i++)
         ;
     xTaskCreate(ex2_init, "init", INIT_STACK_SIZE, NULL, INIT_PRIO, NULL);
-    xTaskCreate(flatsat_test, "flatsat_test", 5000, NULL, 2, NULL);
+    xTaskCreate(flatsat_test, "flatsat_test", 5000, NULL, 4, NULL);
 
     //configGENERATE_RUN_TIME_STATS;
     //portCONFIGURE_TIMER_FOR_RUN_TIME_STATS();
