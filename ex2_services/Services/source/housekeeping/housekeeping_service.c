@@ -480,9 +480,10 @@ Result collect_hk_from_devices(All_systems_housekeeping* all_hk_data) {
 
   #ifndef UHF_IS_STUBBED
     if (xSemaphoreTake(uTransceiver_semaphore, 0) == pdTRUE) {
-        UHF_return UHF_return_code = UHF_getHK(&all_hk_data->UHF_hk);      //UHF get housekeeping
         xSemaphoreGive(uTransceiver_semaphore);
+        UHF_return UHF_return_code = UHF_getHK(&all_hk_data->UHF_hk);      //UHF get housekeeping
     }
+    vTaskDelay(ONE_SECOND);
   #endif /* UHF Housekeeping */
 
   #ifndef SBAND_IS_STUBBED
