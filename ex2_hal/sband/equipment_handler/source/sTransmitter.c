@@ -237,7 +237,7 @@ STX_return STX_getEncoder(uint8_t *scrambler, uint8_t *filter, uint8_t *mod, uin
  *              Success of the function defined in sTransmitter.h
  */
 STX_return STX_setEncoder(uint8_t new_scrambler, uint8_t new_filter, uint8_t new_mod, uint8_t new_rate) {
-    if (new_rate > 1 || new_mod > 1 || new_filter > 1 || new_scrambler > 1) {
+    if (new_rate > 2 || new_mod > 1 || new_filter > 1 || new_scrambler > 1) {
         return BAD_PARAM;
     }
 

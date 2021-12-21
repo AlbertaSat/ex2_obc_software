@@ -61,6 +61,7 @@
 // Data rates
 #define S_RATE_FULL 0
 #define S_RATE_HALF 1
+#define S_RATE_QUARTER 2
 
 // Power Amplifier operating status
 #define S_PAPWR_NOTGOOD 0
