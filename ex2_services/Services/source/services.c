@@ -95,8 +95,6 @@ void csp_server(void *parameters) {
         }
         csp_close(conn);
     }
-
-    return;
 }
 
 // for testing only. do hex dump
