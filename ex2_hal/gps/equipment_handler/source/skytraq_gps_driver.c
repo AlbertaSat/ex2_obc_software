@@ -6,7 +6,7 @@
 #include "os_task.h"
 #include <stdbool.h>
 #include <string.h>
-#include <time.h>
+#include "ex2_time.h"
 
 bool GGA_ENABLED = false;
 bool GSA_ENABLED = false;
@@ -27,14 +27,14 @@ struct gps_time {
 };
 
 time_t make_unix(struct gps_time *g_t, struct gps_date *g_d) {
-    struct tm unix_tm;
-    unix_tm.tm_sec = g_t->second;
-    unix_tm.tm_min = g_t->minute;
-    unix_tm.tm_hour = g_t->hour;
-    unix_tm.tm_mday = g_d->day;
-    unix_tm.tm_mon = g_d->month - 1;
-    unix_tm.tm_year = g_d->year + 100;
-    return mktime(&unix_tm);
+    tmElements_t tm;
+    tm.Second = g_t->second;
+    tm.Minute = g_t->minute;
+    tm.Hour = g_t->hour;
+    tm.Day = g_d->day;
+    tm.Month = g_d->month - 1;
+    tm.Year = g_d->year;
+    return makeTime(tm);
 }
 
 /**

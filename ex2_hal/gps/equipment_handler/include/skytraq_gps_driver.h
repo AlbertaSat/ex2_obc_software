@@ -13,7 +13,7 @@
 #include "skytraq_binary_types.h"
 #include <stdbool.h>
 #include <stdint.h>
-#include <time.h>
+#include "ex2_time.h"
 
 bool gps_get_altitude(uint32_t *alt);
 
