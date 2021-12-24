@@ -57,19 +57,19 @@ unsigned int toBIN(unsigned int val) { return val - 6 * (val >> 4); }
  ******************************************************************************/
 int RTCMK_SetUnix(time_t new_time) {
     // TODO: Make these use a single array
-    struct tm t;
-    t = *gmtime(&new_time);
-    if (RTCMK_SetSecond(RTCMK_ADDR, t.tm_sec) == -1)
+    tmElements_t t = {0};
+    breakTime(new_time, &t);
+    if (RTCMK_SetSecond(RTCMK_ADDR, t.Second) == -1)
         return -1;
-    if (RTCMK_SetMinute(RTCMK_ADDR, t.tm_min) == -1)
+    if (RTCMK_SetMinute(RTCMK_ADDR, t.Minute) == -1)
         return -1;
-    if (RTCMK_SetHour(RTCMK_ADDR, t.tm_hour) == -1)
+    if (RTCMK_SetHour(RTCMK_ADDR, t.Hour) == -1)
         return -1;
-    if (RTCMK_SetDay(RTCMK_ADDR, t.tm_mday) == -1)
+    if (RTCMK_SetDay(RTCMK_ADDR, t.Day) == -1)
         return -1;
-    if (RTCMK_SetMonth(RTCMK_ADDR, t.tm_mon) == -1)
+    if (RTCMK_SetMonth(RTCMK_ADDR, t.Month) == -1)
         return -1;
-    if (RTCMK_SetYear(RTCMK_ADDR, (t.tm_year % 100)) == -1)
+    if (RTCMK_SetYear(RTCMK_ADDR, (tmYearToCalendar(t.Year) % 100)) == -1)
         return -1;
     return 0;
 }
@@ -88,40 +88,40 @@ int RTCMK_SetUnix(time_t new_time) {
  ******************************************************************************/
 int RTCMK_GetUnix(time_t *unix_time) {
     // TODO: make these use a single array
-    struct tm t = {0};
+    tmElements_t t = {0};
 
     uint8_t sec;
     if (RTCMK_ReadSeconds(RTCMK_ADDR, &sec) == -1)
         return -1;
-    t.tm_sec = (uint32_t)sec;
+    t.Second = (uint32_t)sec;
 
     uint8_t min;
     if (RTCMK_ReadMinutes(RTCMK_ADDR, &min) == -1)
         return -1;
-    t.tm_min = (uint32_t)min;
+    t.Minute = (uint32_t)min;
 
     uint8_t hour;
     if (RTCMK_ReadHours(RTCMK_ADDR, &hour) == -1)
         return -1;
-    t.tm_hour = (uint32_t)hour;
+    t.Hour = (uint32_t)hour;
 
     uint8_t day;
     if (RTCMK_ReadDay(RTCMK_ADDR, &day) == -1)
         return -1;
-    t.tm_mday = (uint32_t)day;
+    t.Day = (uint32_t)day;
 
     uint8_t mon;
     if (RTCMK_ReadMonth(RTCMK_ADDR, &mon) == -1)
         return -1;
-    t.tm_mon = (uint32_t)mon;
+    t.Month = (uint32_t)mon;
 
     uint8_t year;
     if (RTCMK_ReadYear(RTCMK_ADDR, &year) == -1)
         return -1;
-    t.tm_year = (uint32_t)year;
-    t.tm_year += 100;
-    t.tm_isdst = -1;
-    *unix_time = mktime(&t);
+    t.Year = (uint32_t)year;
+    t.Year += 2000;
+    t.Year = CalendarYrToTm(t.Year);
+    *unix_time = makeTime(t);
     return 0;
 }
 
@@ -599,7 +599,6 @@ int RTCMK_SetSecond(uint8_t addr, uint8_t val) {
  ******************************************************************************/
 int RTCMK_SetYear(uint8_t addr, uint8_t val) {
     int ret = -1;
-
     int bcdVal = toBCD(val);
     bcdVal &= _RTCMK_YEAR_YEAR_MASK;
     ret = RTCMK_RegisterSet(addr, RTCMK_RegYear, bcdVal);
