@@ -77,11 +77,17 @@
 #define S_BUFFER_OVERRUN 2
 
 typedef enum {
-    FUNC_PASS = 0,
-    BAD_READ = 1,
-    BAD_WRITE = 1,
-    BAD_PARAM = 2,
-    IS_STUBBED = 0,
+    S_SUCCESS = 0,
+
+    // Returned if a read or write command fails
+    S_BAD_READ = 1,
+    S_BAD_WRITE = 2,
+
+    // Returned if an invalid parameter is passed to a write command at the EH
+    S_BAD_PARAM = 3,
+
+    // Returned at HAL if S-band is stubbed
+    IS_STUBBED_S = 0,
 } STX_return;
 
 typedef struct {
