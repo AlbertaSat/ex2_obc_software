@@ -26,9 +26,48 @@
 #include "i2c.h"
 #include "spi.h"
 #include "HL_het.h"
+#include "HL_gio.h"
 #include "system.h"
 
 #define SBAND_I2C_ADD 0x26
+
+// Register Values (read-write)
+#define S_CONTROL_REG 0x00
+#define S_ENCODER_REG 0x01
+#define S_PAPOWER_REG 0x03
+#define S_FREQ_REG 0x04
+
+// Register Values (write)
+#define S_SOFTRST_REG 0x05
+
+// Register Values (read)
+#define S_FWVER_REG 0x11
+#define S_STATUS_REG 0x12
+#define S_TXREADY_REG 0x13
+#define S_BUFUND_REG_1 0x14
+#define S_BUFUND_REG_2 0x15
+#define S_BUFOVR_REG_1 0x16
+#define S_BUFOVR_REG_2 0x17
+#define S_BUFCNT_REG_1 0x18
+#define S_BUFCNT_REG_2 0x19
+#define S_OUTPWR_REG_1 0x1A
+#define S_OUTPWR_REG_2 0x1B
+#define S_PATEMP_REG_1 0x1C
+#define S_PATEMP_REG_2 0x1D
+#define S_TOPTEMP_REG_1 0x1E
+#define S_TOPTEMP_REG_2 0x1F
+#define S_BOTTEMP_REG_1 0x20
+#define S_BOTTEMP_REG_2 0x21
+#define S_CURRENT_REG_1 0x22
+#define S_CURRENT_REG_2 0x23
+#define S_VOLTAGE_REG_1 0x24
+#define S_VOLTAGE_REG_2 0x25
+#define S_PACURRENT_REG_1 0x26
+#define S_PACURRENT_REG_2 0x27
+#define S_PAVOLTAGE_REG_1 0x28
+#define S_PAVOLTAGE_REG_2 0x29
+
+#define S_LAST_REG S_VOLTAGE_REG_2
 
 // Max Lenghts for S-band commands and responses
 #define MAX_SBAND_W_CMDLEN 2
@@ -46,22 +85,38 @@
 #define S_PA_DISABLE 0
 #define S_PA_ENABLE 1
 
-// Scrambler status
-#define S_SCRAMBLER_ENABLE 0
-#define S_SCRAMBLER_DISABLE 1
-
-// Filter status
-#define S_FILTER_ENABLE 0
-#define S_FILTER_DISABLE 1
+// Data rates
+#define S_RATE_FULL 0
+#define S_RATE_HALF 1
+#define S_RATE_QUARTER 2
 
 // Modulation type
 #define S_MOD_QPSK 0
 #define S_MOD_OQPSK 1
 
-// Data rates
-#define S_RATE_FULL 0
-#define S_RATE_HALF 1
-#define S_RATE_QUARTER 2
+// Filter status
+#define S_FILTER_ENABLE 0
+#define S_FILTER_DISABLE 1
+
+// Scrambler status
+#define S_SCRAMBLER_ENABLE 0
+#define S_SCRAMBLER_DISABLE 1
+
+// Bit Order
+#define S_BIT_ORDER_MSB 0
+#define S_BIT_ORDER_LSB 1
+
+// Power Amplifier powers
+#define S_PAPWR_24DBM 24
+#define S_PAPWR_26DBM 26
+#define S_PAPWR_28DBM 28
+#define S_PAPWR_30DBM 30
+
+// Frequency maximums/minimums
+#define S_FREQ_COMMERCIAL_MAX 2300.0f
+#define S_FREQ_COMMERCIAL_MIN 2200.0f
+#define S_FREQ_AMATEUR_MAX 2450.0f
+#define S_FREQ_AMATEUR_MIN 2400.0f
 
 // Power Amplifier operating status
 #define S_PAPWR_NOTGOOD 0
@@ -75,6 +130,32 @@
 #define S_BUFFER_COUNT 0
 #define S_BUFFER_UNDERRUN 1
 #define S_BUFFER_OVERRUN 2
+
+// Conversion factors
+#define S_FREQ_OFFSET_SCALING 2
+#define S_OUTPWR_SCALING 0.00114f
+#define S_PATEMP_SCALING 0.07324f
+#define S_PATEMP_OFFSET -50.0f
+#define S_TEMP_SCALING 0.0625f
+#define S_CURRENT_SCALING 0.00004f
+#define S_VOLTAGE_SCALING 0.004F
+
+// Bit masks/shifting
+#define S_CONTROL_MODE_BIT_INDEX 0
+#define S_CONTROL_MODE_BITMASK 0b11
+#define S_CONTROL_PA_BIT_INDEX 7
+#define S_ENCODER_RATE_BIT_INDEX 0
+#define S_ENCODER_RATE_BITMASK 0b11
+#define S_ENCODER_MOD_BIT_INDEX 2
+#define S_ENCODER_FILTER_BIT_INDEX 3
+#define S_ENCODER_SCRAMBLER_BIT_INDEX 4
+#define S_ENCODER_BITORDER_BIT_INDEX 5
+#define S_STATUS_TXL_BIT_INDEX 0
+#define S_STATUS_PWRGD_BIT_INDEX 1
+#define S_TEMP_BITMASK 0x0FFF // Top & bottom temperature are 12-bit values
+#define S_TEMP_BITSHIFT 4 // Temps are stored in the first bits across their two 8-bit registers
+#define S_POWER_BITMASK 0x0FFF // Output power and PA Temp are 12-bit values
+#define S_VOLTAGE_BITMASK 0x1FFF // Voltage is a 13-bit value
 
 typedef enum {
     S_SUCCESS = 0,
@@ -118,9 +199,9 @@ STX_return STX_getControl(uint8_t *pa, uint8_t *mode);
 
 STX_return STX_setControl(uint8_t new_pa, uint8_t new_mode);
 
-STX_return STX_getEncoder(uint8_t *scrambler, uint8_t *filter, uint8_t *mod, uint8_t *rate);
+STX_return STX_getEncoder(uint8_t *bit_order, uint8_t *scrambler, uint8_t *filter, uint8_t *mod, uint8_t *rate);
 
-STX_return STX_setEncoder(uint8_t new_scrambler, uint8_t new_filter, uint8_t new_mod, uint8_t new_rate);
+STX_return STX_setEncoder(uint8_t new_bit_order, uint8_t new_scrambler, uint8_t new_filter, uint8_t new_mod, uint8_t new_rate);
 
 STX_return STX_getPaPower(uint8_t *power);
 

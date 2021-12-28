@@ -43,8 +43,6 @@ STX_return read_reg(uint8_t internal_address, uint8_t *answer) {
         return S_BAD_READ;
     }
     return S_SUCCESS;
-
-    // TODO: Reset I2C speed to what it was previously
 }
 
 /**
@@ -66,8 +64,6 @@ STX_return write_reg(uint8_t internal_address, uint8_t val) {
         return S_BAD_WRITE;
     }
     return S_SUCCESS;
-
-    // TODO: Reset I2C speed to what it was previously
 }
 
 /**
@@ -104,11 +100,13 @@ uint16_t append_bytes(uint8_t b1, uint8_t b2) {
  */
 float calculateTemp(uint16_t b) {
     float temperature = 0;
-    b = b >> 4;
-    if (b & 2048) {
-        temperature = -0.0625f * (float)((~b & 4095) + 1);
+    b = b >> S_TEMP_BITSHIFT;
+
+    // Check signed bit
+    if (b & 0b100000000000) {
+        temperature = -S_TEMP_SCALING * (float)((~b & S_TEMP_BITMASK) + 1);
     } else {
-        temperature = 0.0625f * (float)(b);
+        temperature = S_TEMP_SCALING * (float)(b & S_TEMP_BITMASK);
     }
     return temperature;
 }
@@ -149,11 +147,11 @@ void STX_Disable(void) {
  */
 STX_return STX_getControl(uint8_t *pa, uint8_t *mode) {
     uint8_t rawValue = 0;
-    if (read_reg(0x0, &rawValue) != S_SUCCESS) {
+    if (read_reg(S_CONTROL_REG, &rawValue) != S_SUCCESS) {
         return S_BAD_READ;
     } else {
-        *pa = rawValue >> 7;
-        *mode = rawValue & 3;
+        *pa = rawValue >> S_CONTROL_PA_BIT_INDEX;
+        *mode = rawValue & S_CONTROL_MODE_BITMASK;
         return S_SUCCESS;
     }
 }
@@ -172,13 +170,13 @@ STX_return STX_getControl(uint8_t *pa, uint8_t *mode) {
  *              Success of the function defined in sTransmitter.h
  */
 STX_return STX_setControl(uint8_t new_pa, uint8_t new_mode) {
-    if (new_mode > 3 || new_pa > 1) {
+    if (new_mode > S_TEST_MODE || new_pa > S_PA_ENABLE) {
         return S_BAD_PARAM;
     }
 
-    new_mode |= (new_pa << 7);
+    uint8_t new_control = (new_mode << S_CONTROL_MODE_BIT_INDEX) | (new_pa << S_CONTROL_PA_BIT_INDEX);
 
-    if (write_reg(0x0, new_mode) != S_SUCCESS) {
+    if (write_reg(S_CONTROL_REG, new_control) != S_SUCCESS) {
         return S_BAD_WRITE;
     } else {
         return S_SUCCESS;
@@ -204,15 +202,16 @@ STX_return STX_setControl(uint8_t new_pa, uint8_t new_mode) {
  * @return STX_return
  *              Success of the function defined in sTransmitter.h
  */
-STX_return STX_getEncoder(uint8_t *scrambler, uint8_t *filter, uint8_t *mod, uint8_t *rate) {
+STX_return STX_getEncoder(uint8_t *bit_order, uint8_t *scrambler, uint8_t *filter, uint8_t *mod, uint8_t *rate) {
     uint8_t rawValue = 0;
-    if (read_reg(0x01, &rawValue) != S_SUCCESS) {
+    if (read_reg(S_ENCODER_REG, &rawValue) != S_SUCCESS) {
         return S_BAD_READ;
     } else {
-        *rate = rawValue & 3;
-        *mod = 1 & (rawValue >> 2);
-        *filter = 1 & (rawValue >> 3);
-        *scrambler = 1 & (rawValue >> 4);
+        *rate = (rawValue >> S_ENCODER_RATE_BIT_INDEX) & S_ENCODER_RATE_BITMASK;
+        *mod = (rawValue >> S_ENCODER_MOD_BIT_INDEX) & 0b1;
+        *filter = (rawValue >> S_ENCODER_FILTER_BIT_INDEX) & 0b1;
+        *scrambler = (rawValue >> S_ENCODER_SCRAMBLER_BIT_INDEX) & 0b1;
+        *bit_order = (rawValue >> S_ENCODER_BITORDER_BIT_INDEX) & 0b1;
         return S_SUCCESS;
     }
 }
@@ -236,17 +235,21 @@ STX_return STX_getEncoder(uint8_t *scrambler, uint8_t *filter, uint8_t *mod, uin
  * @return STX_return
  *              Success of the function defined in sTransmitter.h
  */
-STX_return STX_setEncoder(uint8_t new_scrambler, uint8_t new_filter, uint8_t new_mod, uint8_t new_rate) {
-    if (new_rate > 2 || new_mod > 1 || new_filter > 1 || new_scrambler > 1) {
+STX_return STX_setEncoder(uint8_t new_bit_order, uint8_t new_scrambler, uint8_t new_filter, uint8_t new_mod, uint8_t new_rate) {
+    if (new_rate > S_RATE_QUARTER || new_mod > S_MOD_OQPSK ||
+            new_filter > S_FILTER_DISABLE || new_scrambler > S_SCRAMBLER_DISABLE ||
+            new_bit_order > S_BIT_ORDER_LSB) {
         return S_BAD_PARAM;
     }
 
-    new_rate = (new_rate) | (new_mod << 2) | (new_filter << 3) | (new_scrambler << 4);
+    uint8_t new_encoder = (new_rate << S_ENCODER_RATE_BIT_INDEX) | (new_mod << S_ENCODER_MOD_BIT_INDEX) |
+            (new_filter << S_ENCODER_FILTER_BIT_INDEX) | (new_scrambler << S_ENCODER_SCRAMBLER_BIT_INDEX) |
+            (new_bit_order << S_ENCODER_BITORDER_BIT_INDEX);
 
     uint8_t mode = 0, pa = 0;
     if (STX_getControl(&pa, &mode) == S_SUCCESS) {
-        if (mode == 0) {
-            if (write_reg(0x01, new_rate)) {
+        if (mode == S_CONF_MODE) {
+            if (write_reg(S_ENCODER_REG, new_encoder)) {
                 return S_BAD_WRITE;
             } else {
                 return S_SUCCESS;
@@ -273,21 +276,21 @@ STX_return STX_setEncoder(uint8_t new_scrambler, uint8_t new_filter, uint8_t new
 STX_return STX_getPaPower(uint8_t *power) {
     uint8_t rawValue = 0;
 
-    if (read_reg(0x03, &rawValue) != S_SUCCESS) {
+    if (read_reg(S_PAPOWER_REG, &rawValue) != S_SUCCESS) {
         return S_BAD_READ;
     } else {
         switch (rawValue) {
         case 0:
-            *power = 24;
+            *power = S_PAPWR_24DBM;
             break;
         case 1:
-            *power = 26;
+            *power = S_PAPWR_26DBM;
             break;
         case 2:
-            *power = 28;
+            *power = S_PAPWR_28DBM;
             break;
         case 3:
-            *power = 30;
+            *power = S_PAPWR_30DBM;
             break;
         default:
             return S_BAD_PARAM;
@@ -310,23 +313,23 @@ STX_return STX_setPaPower(uint8_t new_paPower) {
     uint8_t rawValue = 0;
 
     switch (new_paPower) {
-    case 24:
+    case S_PAPWR_24DBM:
         rawValue = 0;
         break;
-    case 26:
+    case S_PAPWR_26DBM:
         rawValue = 1;
         break;
-    case 28:
+    case S_PAPWR_28DBM:
         rawValue = 2;
         break;
-    case 30:
+    case S_PAPWR_30DBM:
         rawValue = 3;
         break;
     default:
         return S_BAD_PARAM;
     }
 
-    if (write_reg(0x03, rawValue) != S_SUCCESS) {
+    if (write_reg(S_PAPOWER_REG, rawValue) != S_SUCCESS) {
         return S_BAD_WRITE;
     } else {
         return S_SUCCESS;
@@ -345,10 +348,16 @@ STX_return STX_setPaPower(uint8_t new_paPower) {
  */
 STX_return STX_getFrequency(float *freq) {
     uint8_t offset = 0;
-    if (read_reg(0x04, &offset) != S_SUCCESS) {
+    if (read_reg(S_FREQ_REG, &offset) != S_SUCCESS) {
         return S_BAD_READ;
     } else {
-        *freq = (float)offset / 2 + 2200.0f;
+
+        #ifdef SBAND_COMMERCIAL_FREQUENCY
+        *freq = (float)offset / S_FREQ_OFFSET_SCALING + S_FREQ_COMMERCIAL_MIN;
+        #else
+        *freq = (float)offset / S_FREQ_OFFSET_SCALING + S_FREQ_AMATEUR_MIN;
+        #endif
+
         return S_SUCCESS;
     }
 }
@@ -364,20 +373,39 @@ STX_return STX_getFrequency(float *freq) {
  *              Success of the function defined in sTransmitter.h
  */
 STX_return STX_setFrequency(float new_frequency) {
-    // TODO: This code will need to be modified for use on FMs which use amateur frequencies
-    if (new_frequency >= 2200.0f && new_frequency <= 2300.0f) {
-        uint8_t offset = (uint8_t)((new_frequency - 2200.0f) * 2);
+    #ifdef SBAND_COMMERCIAL_FREQUENCY
 
-        if (write_reg(0x04, offset) != S_SUCCESS) {
+    // Check if commercial frequency is within allowed bounds
+    if ((new_frequency >= S_FREQ_COMMERCIAL_MIN) && (new_frequency <= S_FREQ_COMMERCIAL_MAX)) {
+        uint8_t offset = (uint8_t)((new_frequency - S_FREQ_COMMERCIAL_MIN) * S_FREQ_OFFSET_SCALING);
+
+        if (write_reg(S_FREQ_REG, offset) != S_SUCCESS) {
             return S_BAD_WRITE;
         } else {
-            return S_SUCCESS; // Successful Write
+            return S_SUCCESS;
         }
     } else {
         return S_BAD_PARAM;
     }
-}
 
+    #else
+
+    // Check if amateur frequency is within allowed bounds
+    if (new_frequency >= S_FREQ_AMATEUR_MIN && new_frequency <= S_FREQ_AMATEUR_MAX) {
+        uint8_t offset = (uint8_t)((new_frequency - S_FREQ_AMATEUR_MIN) * S_FREQ_OFFSET_SCALING);
+
+        if (write_reg(S_FREQ_REG, offset) != S_SUCCESS) {
+            return S_BAD_WRITE;
+        } else {
+            return S_SUCCESS;
+        }
+    } else {
+        return S_BAD_PARAM;
+    }
+
+    #endif
+
+}
 /**
  * @brief
  *              Register 0x05: Reset the FPGA logic
@@ -387,7 +415,7 @@ STX_return STX_setFrequency(float new_frequency) {
  *              Success of the function defined in sTransmitter.h
  */
 STX_return STX_softResetFPGA(void) {
-    if (write_reg(0x05, 0x0) != S_SUCCESS) {
+    if (write_reg(S_SOFTRST_REG, 0x0) != S_SUCCESS) {
         return S_BAD_WRITE;
     } else {
         return S_SUCCESS;
@@ -405,8 +433,9 @@ STX_return STX_softResetFPGA(void) {
  *              Success of the function defined in sTransmitter.h
  */
 STX_return STX_getFirmwareV(float *version) {
+    // TODO: make this use an int
     uint8_t rawValue = 0;
-    if (read_reg(0x11, &rawValue) != S_SUCCESS) {
+    if (read_reg(S_FWVER_REG, &rawValue) != S_SUCCESS) {
         return S_BAD_READ;
     } else {
         float major = (float)(rawValue >> 4);
@@ -431,11 +460,11 @@ STX_return STX_getFirmwareV(float *version) {
  */
 STX_return STX_getStatus(uint8_t *pwrgd, uint8_t *txl) {
     uint8_t rawValue = 0;
-    if (read_reg(0x12, &rawValue) != S_SUCCESS) {
+    if (read_reg(S_STATUS_REG, &rawValue) != S_SUCCESS) {
         return S_BAD_READ;
     } else {
-        *pwrgd = (rawValue & 2) >> 1;
-        *txl = rawValue & 1;
+        *pwrgd = (rawValue >> S_STATUS_PWRGD_BIT_INDEX) & 0b1;
+        *txl = (rawValue >> S_STATUS_TXL_BIT_INDEX) & 0b1;
         return S_SUCCESS;
     }
 }
@@ -454,10 +483,10 @@ STX_return STX_getStatus(uint8_t *pwrgd, uint8_t *txl) {
  */
 STX_return STX_getTR(int *transmit) {
     uint8_t rawValue = 0;
-    if (read_reg(0x13, &rawValue) != S_SUCCESS) {
+    if (read_reg(S_TXREADY_REG, &rawValue) != S_SUCCESS) {
         return S_BAD_READ;
     } else {
-        *transmit = rawValue & 1;
+        *transmit = rawValue & 0b1;
         return S_SUCCESS;
     }
 }
@@ -483,13 +512,13 @@ STX_return STX_getBuffer(uint8_t quantity, uint16_t *ptr) {
 
     switch (quantity) {
     case 0: // Buffer Count
-        address = 0x18;
+        address = S_BUFCNT_REG_1;
         break;
     case 1: // Buffer Underrun
-        address = 0x14;
+        address = S_BUFUND_REG_1;
         break;
     case 2: // Buffer Overrun
-        address = 0x16;
+        address = S_BUFOVR_REG_1;
         break;
     default:
         return S_BAD_PARAM;
@@ -522,9 +551,11 @@ STX_return STX_getHK(sBand_housekeeping *hkStruct) {
     uint16_t val = 0;
     int16_t temp = 0;
 
-    uint8_t address = 0x1A;
+    uint8_t address = S_OUTPWR_REG_1; // Output power is the first hk value to collect
 
-    for (address; address < 0x29; address = address + 2) {
+    // Loop to collect all housekeeping. Values are stored across two 8-bit registers
+    //TODO: use ints instead of floats
+    for (; address < S_LAST_REG; address = address + 2) {
         uint8_t val1 = 0, val2 = 0;
 
         if (read_reg(address, &val1) != S_SUCCESS) {
@@ -534,35 +565,42 @@ STX_return STX_getHK(sBand_housekeeping *hkStruct) {
         } else {
             val = append_bytes(val1, val2);
             switch (address) {
-            case 0x1A:
-                val &= 4095;
-                hkStruct->outputPower = ((float)val * (7.0f / 6144.0f));
+            case S_OUTPWR_REG_1:
+                val &= S_POWER_BITMASK;
+                hkStruct->outputPower = (float)val * S_OUTPWR_SCALING;
                 break;
-            case 0x1C:
-                val &= 4095;
-                hkStruct->paTemp = (((float)val * 3.0f / 4096.0f) - 0.5f) * 100.0f;
+
+            case S_PATEMP_REG_1:
+                val &= S_POWER_BITMASK;
+                hkStruct->paTemp = (float)val * S_PATEMP_SCALING + S_PATEMP_OFFSET;
                 break;
-            case 0x1E:
+
+            case S_TOPTEMP_REG_1:
                 hkStruct->topTemp = calculateTemp(val);
                 break;
-            case 0x20:
+
+            case S_BOTTEMP_REG_1:
                 hkStruct->bottomTemp = calculateTemp(val);
                 break;
-            case 0x22:
+
+            case S_CURRENT_REG_1:
                 temp = (int16_t)val;
-                hkStruct->batCurrent = (float)temp * 0.00004f;
+                hkStruct->batCurrent = (float)temp * S_CURRENT_SCALING;
                 break;
-            case 0x24:
-                val &= 8191;
-                hkStruct->batVoltage = (float)val * 0.004f;
+
+            case S_VOLTAGE_REG_1:
+                val &= S_VOLTAGE_BITMASK;
+                hkStruct->batVoltage = (float)val * S_VOLTAGE_SCALING;
                 break;
-            case 0x26:
+
+            case S_PACURRENT_REG_1:
                 temp = (int16_t)val;
-                hkStruct->paCurrent = (float)temp * 0.00004f;
+                hkStruct->paCurrent = (float)temp * S_CURRENT_SCALING;
                 break;
-            case 0x28:
-                val &= 8191;
-                hkStruct->paVoltage = (float)val * 0.004f;
+
+            case S_PAVOLTAGE_REG_1:
+                val &= S_VOLTAGE_BITMASK;
+                hkStruct->paVoltage = (float)val * S_VOLTAGE_SCALING;
                 break;
             }
         }
