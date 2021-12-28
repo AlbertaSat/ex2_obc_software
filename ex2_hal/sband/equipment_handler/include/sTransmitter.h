@@ -133,6 +133,7 @@
 
 // Conversion factors
 #define S_FREQ_OFFSET_SCALING 2
+#define S_FWVER_MAJORNUM_SCALING 100
 #define S_OUTPWR_SCALING 0.00114f
 #define S_PATEMP_SCALING 0.07324f
 #define S_PATEMP_OFFSET -50.0f
@@ -150,6 +151,8 @@
 #define S_ENCODER_FILTER_BIT_INDEX 3
 #define S_ENCODER_SCRAMBLER_BIT_INDEX 4
 #define S_ENCODER_BITORDER_BIT_INDEX 5
+#define S_FWVER_MAJORNUM_BIT_INDEX 4
+#define S_FWVER_MINORNUM_BITMASK 0b1111
 #define S_STATUS_TXL_BIT_INDEX 0
 #define S_STATUS_PWRGD_BIT_INDEX 1
 #define S_TEMP_BITMASK 0x0FFF // Top & bottom temperature are 12-bit values
@@ -213,11 +216,11 @@ STX_return STX_setFrequency(float new_frequency);
 
 STX_return STX_softResetFPGA(void);
 
-STX_return STX_getFirmwareV(float *version);
+STX_return STX_getFirmwareV(uint16_t *version);
 
 STX_return STX_getStatus(uint8_t *pwrgd, uint8_t *txl);
 
-STX_return STX_getTR(int *transmit);
+STX_return STX_getTR(uint8_t *transmit);
 
 STX_return STX_getBuffer(uint8_t quantity, uint16_t *ptr);
 
