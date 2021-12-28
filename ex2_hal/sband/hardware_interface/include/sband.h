@@ -35,6 +35,7 @@ typedef struct __attribute__((packed)) {
     uint8_t filter;
     uint8_t modulation;
     uint8_t rate;
+    uint8_t bit_order;
 } Sband_Encoder;
 
 typedef struct __attribute__((packed)) {

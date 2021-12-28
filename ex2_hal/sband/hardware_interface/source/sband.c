@@ -57,7 +57,7 @@ STX_return HAL_S_getControl(Sband_PowerAmplifier *S_PA) {
 STX_return HAL_S_getEncoder(Sband_Encoder *S_Enc) {
     STX_return status;
 #ifndef SBAND_IS_STUBBED
-    status = STX_getEncoder(&S_config_reg.enc.scrambler, &S_config_reg.enc.filter, &S_config_reg.enc.modulation,
+    status = STX_getEncoder(&S_config_reg.enc.bit_order, &S_config_reg.enc.scrambler, &S_config_reg.enc.filter, &S_config_reg.enc.modulation,
                             &S_config_reg.enc.rate);
 #else
     status = IS_STUBBED_S;
@@ -189,7 +189,7 @@ STX_return HAL_S_setEncoder(Sband_Encoder S_enc_new) {
 #ifdef SBAND_IS_STUBBED
     return IS_STUBBED_S;
 #else
-    return STX_setEncoder(S_config_reg.enc.scrambler, S_config_reg.enc.filter, S_config_reg.enc.modulation,
+    return STX_setEncoder(S_config_reg.enc.bit_order, S_config_reg.enc.scrambler, S_config_reg.enc.filter, S_config_reg.enc.modulation,
                           S_config_reg.enc.rate);
 #endif
 }
