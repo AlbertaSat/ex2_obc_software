@@ -77,6 +77,18 @@ STX_return HAL_S_getPAPower(uint8_t *S_PA_Power) {
     return status;
 };
 
+STX_return HAL_S_getFirmwareV(Sband_FirmwareV *S_firmwareV) {
+    STX_return status;
+#ifndef SBAND_IS_STUBBED
+    status = STX_getFirmwareV(&S_FS.firmware.firmware);
+#else
+    S_FS.firmware.firmware = 111;
+    status = IS_STUBBED_S;
+#endif
+    *S_firmwareV = S_FS.firmware;
+    return status;
+}
+
 STX_return HAL_S_getStatus(Sband_Status *S_status) {
     STX_return status;
 #ifndef SBAND_IS_STUBBED

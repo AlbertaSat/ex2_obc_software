@@ -51,8 +51,12 @@ typedef struct __attribute__((packed)) {
 } Sband_Status;
 
 typedef struct __attribute__((packed)) {
-    int transmit;
+    uint8_t transmit;
 } Sband_TR;
+
+typedef struct __attribute__((packed)) {
+    uint16_t firmware;
+} Sband_FirmwareV;
 
 typedef struct __attribute__((packed)) {
     float Output_Power;
@@ -72,6 +76,7 @@ typedef struct __attribute__((packed)) {
 typedef struct __attribute__((packed)) {
     Sband_Status status;
     Sband_TR transmit;
+    Sband_FirmwareV firmware;
     Sband_Buffer buffer;
     Sband_Housekeeping HK;
 } Sband_Full_Status;
