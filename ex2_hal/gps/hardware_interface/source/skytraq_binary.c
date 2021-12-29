@@ -315,6 +315,8 @@ GPS_RETURNSTATE skytraq_query_software_CRC(uint8_t *reply, uint16_t reply_len) {
     uint8_t payload[2];
     payload[0] = QUERY_SOFTWARE_CRC;
     payload[1] = 1; // system code
+    uint8_t reply[11] = {0};
+    GPS_RETURNSTATE ret;
 
     return skytraq_send_message_with_reply(payload, length, reply, reply_len);
 }
