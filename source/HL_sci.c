@@ -381,10 +381,7 @@ void sciInit(void)
 
 
 /* USER CODE BEGIN (3) */
-    sciSetBaudrate(sciREG2,19200);
-    sciSetBaudrate(sciREG3,19200);
-    sciSetBaudrate(sciREG4,19200);
-    sciSetBaudrate(sciREG1,19200);
+
 /* USER CODE END */
 }
 
