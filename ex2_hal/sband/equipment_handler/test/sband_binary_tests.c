@@ -26,7 +26,7 @@ STX_return sband_binary_test(){
     STX_Enable();
     vTaskDelay(2*ONE_SECOND);
     STX_setControl(S_PA_DISABLE, S_CONF_MODE);
-    STX_setEncoder(S_SCRAMBLER_ENABLE, S_FILTER_ENABLE,S_MOD_QPSK, S_RATE_QUARTER);
+    STX_setEncoder(S_SCRAMBLER_DISABLE, S_FILTER_ENABLE,S_MOD_QPSK, S_RATE_QUARTER);
 
     STX_return ret;
     uint8_t pa_status, mode, pa_power;
