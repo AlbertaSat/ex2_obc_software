@@ -499,8 +499,12 @@ Result collect_hk_from_devices(All_systems_housekeeping* all_hk_data) {
     Hyperion_config3_getHK(&all_hk_data->hyperion_hk);
   #endif /* HYPERION_PANEL_2U */
 
-    /*consider if struct should hold error codes returned from these functions*/
-    return SUCCESS;
+  #ifndef CHARON_IS_STUBBED
+    Charon_getHK(&all_hk_data->charon_hk);
+  #endif /* Charon Housekeeping */
+
+  /*consider if struct should hold error codes returned from these functions*/
+  return SUCCESS;
 }
 
 /**
