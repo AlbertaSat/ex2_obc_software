@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020  University of Alberta
+ * Copyright (C) 2021  University of Alberta
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -12,21 +12,21 @@
  * GNU General Public License for more details.
  */
 /**
- * @file ads7128.h
- * @author Josh Lazaruk
- * @date 2021-09-10
+ * @file    housekeeping_charon.c
+ * @author  Thomas Ganley
+ * @date    2021-12-29
  */
-#include <stdint.h>
-#include <stdbool.h>
 
-#define ADS7128_ADDR              (0x11)
-#ifdef IS_ATHENA
-#define ADS7128_PORT              i2cREG1
-#else
-#define ADS7128_PORT              i2cREG1 // port used on dev board
-#endif
+#include "housekeeping_charon.h"
 
-bool ads7128Init(void);
-void voltageToTemperature(uint16_t voltage, int* temperature);
-uint8_t readSingleTemp(uint8_t channel, int* temperature);
-uint8_t readAllTemps(int* temperatures);
+int Charon_getHK(charon_housekeeping * hk){
+    // Read temperature sensors
+    if(readAllTemps(&hk->temparray[0])){
+        return 1;
+    }
+
+    // Read GPS firmware CRC
+    if(skytraq_query_software_CRC(&hk->crc)){
+        return 1;
+    }
+}
