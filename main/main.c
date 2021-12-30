@@ -46,6 +46,7 @@
 #include "mocks/rtc.h"
 #include "logger/logger.h"
 #include "file_delivery_app.h"
+#include "ads7128.h"
 
 #include <FreeRTOS.h>
 #include <os_task.h>
@@ -90,6 +91,15 @@ void ex2_init(void *pvParameters) {
     uhf_i2c_init();
     init_software();
 
+#ifndef CHARON_IS_STUBBED
+    // TODO: Init of these temp sensors should be within some charon_init function
+    if(ads7128Init()){
+            return 1;
+    }
+#endif
+
+    // TODO: Implement init function for every subsystem and track reboots for each
+
 //    portGET_RUN_TIME_COUNTER_VALUE();
 //    portCONFIGURE_TIMER_FOR_RUN_TIME_STATS();
 //    static char cbuffer_main[1024] = "0";
@@ -108,6 +118,7 @@ void ex2_init(void *pvParameters) {
 
 void flatsat_test(void *pvParameters) {
     sband_binary_test();
+
      //Read from the UHF
 //    uint8_t UHF_return;
 //    uint8_t scw[12] = {0};
