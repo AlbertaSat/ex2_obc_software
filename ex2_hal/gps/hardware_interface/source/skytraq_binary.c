@@ -90,7 +90,7 @@ bool skytraq_binary_init() {
  * @param size size of the message to send, not including start symbol, checksum, or end symbol
  * @return GPS_RETURNSTATE Error explaining why the failure occurred
  */
-GPS_RETURNSTATE skytraq_send_message(uint8_t *paylod, uint16_t size) {
+GPS_RETURNSTATE skytraq_send_message(uint8_t *payload, uint16_t size) {
     if(xSemaphoreTake(uart_mutex, 1000 * portTICK_PERIOD_MS) != pdTRUE) {
           return UNKNOWN_ERROR;
     }
@@ -106,7 +106,7 @@ GPS_RETURNSTATE skytraq_send_message(uint8_t *paylod, uint16_t size) {
     message[0] = 0xA0;
     message[1] = 0xA1;
     *(uint16_t *)&(message[2]) = size;
-    memcpy(&(message[4]), paylod, size);
+    memcpy(&(message[4]), payload, size);
     message[total_size - 3] = calc_checksum(message, size);
     message[total_size - 1] = 0x0A;
     message[total_size - 2] = 0x0D;
@@ -120,11 +120,11 @@ GPS_RETURNSTATE skytraq_send_message(uint8_t *paylod, uint16_t size) {
     vPortFree(message);
 
     uint8_t sentence[BUFSIZE];
-    xQueueReset(binary_queue);
 
     // Will wait 1 second for a response
 
-    if(xQueueReceive(binary_queue, sentence, 1000 * portTICK_PERIOD_MS) == pdFAIL){
+    BaseType_t success = xQueueReceive(binary_queue, sentence, 1000 * portTICK_PERIOD_MS);
+    if (success != pdPASS) {
         sci_busy = false;
         xSemaphoreGive(uart_mutex);
         return RX_TIMEDOUT;
@@ -137,7 +137,7 @@ GPS_RETURNSTATE skytraq_send_message(uint8_t *paylod, uint16_t size) {
         case 0x83:
             sci_busy = false;
             xSemaphoreGive(uart_mutex);
-            return SUCCESS;
+            return GPS_SUCCESS;
         case 0x84:
             sci_busy = false;
             xSemaphoreGive(uart_mutex);
@@ -167,9 +167,10 @@ GPS_RETURNSTATE skytraq_send_message(uint8_t *paylod, uint16_t size) {
  */
 GPS_RETURNSTATE skytraq_send_message_with_reply(uint8_t *payload, uint16_t size, uint8_t *reply,
                                                 uint16_t reply_len) {
+    //skytraq_send_message will receive a confirmation packet from the gps
     GPS_RETURNSTATE worked = skytraq_send_message(payload, size);
 
-    if (worked != SUCCESS) {
+    if (worked != GPS_SUCCESS) {
         return worked;
     }
     // WARNING: possible race condition where another task could get control
@@ -179,7 +180,7 @@ GPS_RETURNSTATE skytraq_send_message_with_reply(uint8_t *payload, uint16_t size,
 
     uint8_t sentence[BUFSIZE];
 
-    // will wait for 1 second for a reply
+    // Wait for 1 second to receive the actual reponse from the GPS
     BaseType_t success = xQueueReceive(binary_queue, sentence, 1000 * portTICK_PERIOD_MS);
 
     if (success != pdPASS) {
@@ -187,11 +188,11 @@ GPS_RETURNSTATE skytraq_send_message_with_reply(uint8_t *payload, uint16_t size,
         return RX_TIMEDOUT;
     }
     bool cs_success = skytraq_verify_checksum(sentence);
-    cs_success = true;
+
     if (cs_success) {
         memcpy((char *)reply, (char *)sentence, reply_len);
         sci_busy = false;
-        return SUCCESS;
+        return GPS_SUCCESS;
     } else {
         sci_busy = false;
         return INVALID_CHECKSUM_RECEIVE;
@@ -222,15 +223,14 @@ void get_byte() {
     }
 
     binary_message_buffer[bin_buff_loc] = in;
-    portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
     increment_buffer(&bin_buff_loc);
     if (in == '\n') {
         if (current_line_type == binary) {
             if (binary_queue != NULL)
-                xQueueSendToBackFromISR(binary_queue, binary_message_buffer, &xHigherPriorityTaskWoken);
+                xQueueSendToBackFromISR(binary_queue, binary_message_buffer, NULL);
         } else if (current_line_type == nmea) {
             if (NMEA_queue != NULL)
-                xQueueSendToBackFromISR(NMEA_queue, binary_message_buffer, &xHigherPriorityTaskWoken);
+                xQueueSendToBackFromISR(NMEA_queue, binary_message_buffer, NULL);
         }
         bin_buff_loc = 0;
         memset(binary_message_buffer, 0, BUFSIZE);
@@ -252,7 +252,6 @@ void gps_sciNotification(sciBASE_t *sci, unsigned flags) {
     case SCI_RX_INT:
         get_byte();
         sciReceive(sci, 1, &byte);
-        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         break;
 
     case SCI_TX_INT:
@@ -333,7 +332,7 @@ GPS_RETURNSTATE skytraq_query_software_CRC(uint8_t *reply, uint16_t reply_len) {
     uint8_t payload[2];
     payload[0] = QUERY_SOFTWARE_CRC;
     payload[1] = 1; // system code
-    uint8_t reply[11] = {0};
+    uint8_t reply[25] = {0};
     GPS_RETURNSTATE ret;
 
     return skytraq_send_message_with_reply(payload, length, reply, reply_len);
