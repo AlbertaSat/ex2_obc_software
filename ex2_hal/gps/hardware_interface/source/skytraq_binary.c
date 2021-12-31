@@ -31,6 +31,7 @@ enum current_sentence { none, binary, nmea } line_type;
 
 #define GPS_TX_TIMEOUT_MS 1000
 SemaphoreHandle_t tx_semphr;
+static SemaphoreHandle_t uart_mutex;
 
 #define BUFSIZE 100
 #define ITEM_SIZE BUFSIZE
@@ -61,6 +62,7 @@ bool skytraq_binary_init() {
     sci_busy = false;
     binary_queue = xQueueCreate(QUEUE_LENGTH, ITEM_SIZE);
     tx_semphr = xSemaphoreCreateBinary();
+    uart_mutex = xSemaphoreCreateMutex();
 
     if (tx_semphr == NULL) {
         return false;
@@ -89,7 +91,12 @@ bool skytraq_binary_init() {
  * @return GPS_RETURNSTATE Error explaining why the failure occurred
  */
 GPS_RETURNSTATE skytraq_send_message(uint8_t *paylod, uint16_t size) {
+    if(xSemaphoreTake(uart_mutex, 1000 * portTICK_PERIOD_MS) != pdTRUE) {
+          return UNKNOWN_ERROR;
+    }
+
     if (sci_busy) {
+        xSemaphoreGive(uart_mutex);
         return RESOURCE_BUSY;
     }
     sci_busy = true;
@@ -106,17 +113,20 @@ GPS_RETURNSTATE skytraq_send_message(uint8_t *paylod, uint16_t size) {
 
     sciSend(GPS_SCI, total_size, message);
     if (xSemaphoreTake(tx_semphr, GPS_TX_TIMEOUT_MS) != pdTRUE) {
+        xSemaphoreGive(uart_mutex);
         return TX_TIMEDOUT;
     }
 
     vPortFree(message);
 
     uint8_t sentence[BUFSIZE];
+    xQueueReset(binary_queue);
 
     // Will wait 1 second for a response
-    BaseType_t success = xQueueReceive(binary_queue, sentence, 1000 * portTICK_PERIOD_MS);
-    if (success != pdPASS) {
+
+    if(xQueueReceive(binary_queue, sentence, 1000 * portTICK_PERIOD_MS) == pdFAIL){
         sci_busy = false;
+        xSemaphoreGive(uart_mutex);
         return RX_TIMEDOUT;
     }
 
@@ -126,17 +136,21 @@ GPS_RETURNSTATE skytraq_send_message(uint8_t *paylod, uint16_t size) {
         switch (sentence[4]) {
         case 0x83:
             sci_busy = false;
+            xSemaphoreGive(uart_mutex);
             return SUCCESS;
         case 0x84:
             sci_busy = false;
+            xSemaphoreGive(uart_mutex);
             return MESSAGE_INVALID;
         }
     } else {
         sci_busy = false;
+        xSemaphoreGive(uart_mutex);
         return INVALID_CHECKSUM_RECEIVE;
     }
     // should never reach here... I pray there is a merciful God
     sci_busy = false;
+    xSemaphoreGive(uart_mutex);
     return UNKNOWN_ERROR;
 }
 
@@ -173,7 +187,7 @@ GPS_RETURNSTATE skytraq_send_message_with_reply(uint8_t *payload, uint16_t size,
         return RX_TIMEDOUT;
     }
     bool cs_success = skytraq_verify_checksum(sentence);
-
+    cs_success = true;
     if (cs_success) {
         memcpy((char *)reply, (char *)sentence, reply_len);
         sci_busy = false;
@@ -208,19 +222,21 @@ void get_byte() {
     }
 
     binary_message_buffer[bin_buff_loc] = in;
+    portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
     increment_buffer(&bin_buff_loc);
     if (in == '\n') {
         if (current_line_type == binary) {
             if (binary_queue != NULL)
-                xQueueSendFromISR(binary_queue, binary_message_buffer, NULL);
+                xQueueSendToBackFromISR(binary_queue, binary_message_buffer, &xHigherPriorityTaskWoken);
         } else if (current_line_type == nmea) {
             if (NMEA_queue != NULL)
-                xQueueSendFromISR(NMEA_queue, binary_message_buffer, NULL);
+                xQueueSendToBackFromISR(NMEA_queue, binary_message_buffer, &xHigherPriorityTaskWoken);
         }
         bin_buff_loc = 0;
         memset(binary_message_buffer, 0, BUFSIZE);
         current_line_type = none;
     }
+
 }
 
 /**
@@ -231,10 +247,12 @@ void get_byte() {
  */
 void gps_sciNotification(sciBASE_t *sci, unsigned flags) {
     portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
-    switch (flags) {
+
+    switch(flags) {
     case SCI_RX_INT:
         get_byte();
         sciReceive(sci, 1, &byte);
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         break;
 
     case SCI_TX_INT:
@@ -386,6 +404,7 @@ GPS_RETURNSTATE skytraq_configure_power_mode(skytraq_power_mode mode, skytraq_up
 GPS_RETURNSTATE skytraq_get_gps_time(uint8_t *reply, uint16_t reply_len) {
     uint16_t length = 2;
     uint8_t payload[2];
+    uint8_t reply[100];
 
     *(uint16_t *)&(payload[0]) = QUERY_GPS_TIME;
 
