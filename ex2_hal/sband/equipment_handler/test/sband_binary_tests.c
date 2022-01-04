@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  */
 /**
- * @file sband_binary_test.c
+ * @file sband_binary_tests.c
  * @author Thomas Ganley
  * @date 2021-12-06
  */
@@ -27,7 +27,8 @@ STX_return sband_binary_test(){
 //    vTaskDelay(2*ONE_SECOND);
 //    STX_setControl(S_PA_DISABLE, S_CONF_MODE);
 //    STX_setEncoder(S_BIT_ORDER_MSB, S_SCRAMBLER_DISABLE, S_FILTER_ENABLE,S_MOD_QPSK, S_RATE_QUARTER);
-//
+//    uint8_t order, scrambler, filter, mod, rate;
+//    STX_getEncoder(&order, &scrambler, &filter, &mod, &rate);
 //    STX_return ret;
 //    uint8_t pa_status, mode, pa_power;
 //    uint16_t count = 0, overrun = 0, underrun = 0;
