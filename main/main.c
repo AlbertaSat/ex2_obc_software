@@ -47,6 +47,7 @@
 #include "logger/logger.h"
 #include "file_delivery_app.h"
 #include "ads7128.h"
+#include "skytraq_gps_driver.h"
 
 #include <FreeRTOS.h>
 #include <os_task.h>
@@ -83,87 +84,55 @@ void ex2_init(void *pvParameters) {
 
     /* Initialization routine */
 
+    /* Hardware Initialization */
+
 #if defined(HAS_SD_CARD) // TODO: tolerate non-existent SD Card
     init_filesystem();
 #endif
-    init_csp();
-    /* Start service server, and response server */
-    uhf_i2c_init();
-    init_software();
 
-#ifndef CHARON_IS_STUBBED
-    // TODO: Init of these temp sensors should be within some charon_init function
-    if(ads7128Init()){
-            return 1;
-    }
+#ifndef ADCS_IS_STUBBED
+    // PLACEHOLDER: adcs hardware init
 #endif
 
-    // TODO: Implement init function for every subsystem and track reboots for each
+#ifndef ATHENA_IS_STUBBED
+    // PLACEHOLDER: athena hardware init
+#endif
 
-//    portGET_RUN_TIME_COUNTER_VALUE();
-//    portCONFIGURE_TIMER_FOR_RUN_TIME_STATS();
-//    static char cbuffer_main[1024] = "0";
-//    vTaskGetRunTimeStats(cbuffer_main);
-//    printf("%s\n", cbuffer_main);
+#ifndef EPS_IS_STUBBED
+    // PLACEHOLDER: eps hardware init
+#endif
 
-    //  start_eps_mock();
-    /*
-        void *task_handler = create_ftp_task(OBC_APP_ID, &ftp_app);
-        if (task_handler == NULL) {
-            return -1;
-        }
-    */
+#ifndef UHF_IS_STUBBED
+    uhf_i2c_init();
+#endif
+
+#ifndef SBAND_IS_STUBBED
+    // PLACEHOLDER: sband hardware init
+#endif
+
+#ifndef CHARON_IS_STUBBED
+    gps_skytraq_driver_init();
+    ads7128Init();
+#endif
+
+
+    /* Software Initialization */
+
+    /* Start service server, and response server */
+    init_csp();
+    init_software();
+    // create_ftp_task(OBC_APP_ID, &ftp_app);
+
+
+    /* Test Task */
+    xTaskCreate(flatsat_test, "flatsat_test", 5000, NULL, 4, NULL);
+
     vTaskDelete(0); // delete self to free up heap
 }
 
 void flatsat_test(void *pvParameters) {
     sband_binary_test();
-
-     //Read from the UHF
-//    uint8_t UHF_return;
-//    uint8_t scw[12] = {0};
-//    uint32_t pipe_timeout = 0;
-//    uint32_t freq = 437875000;
-//
-//    UHF_genericWrite(1, &freq);
-//
-//    UHF_return = UHF_genericRead(0, scw);
-//    UHF_return = UHF_genericRead(6, &pipe_timeout);
-//    scw[UHF_SCW_UARTBAUD_INDEX] = UHF_UARTBAUD_19200;
-//    scw[UHF_SCW_RFMODE_INDEX] = UHF_RFMODE7;
-//    scw[UHF_SCW_BCN_INDEX] = UHF_BCN_OFF;
-//    scw[UHF_SCW_PIPE_INDEX] = UHF_PIPE_ON;
-//    pipe_timeout = 40;
-//
-//    UHF_return = UHF_genericWrite(6, &pipe_timeout);
-//    UHF_return = UHF_genericWrite(0, scw);
-
-    //    uint8_t data[18] = {1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9};
-    //    for (uint8_t i = 0; i < 0x1000; i++);
-    //    sciSend(UHF_SCI, 18, data);
-    //    for (uint8_t i = 0; i < 0x100000; i++);
-    //    sciSend(UHF_SCI, 18, data);
-    //    for (uint8_t i = 0; i < 0x100000; i++);
-    //    sciSend(UHF_SCI, 18, data);
-    //    for (uint8_t i = 0; i < 0x100000; i++);
-
-    //    int res = csp_ping(EPS_APP_ID, 10000, 100, CSP_O_NONE);
-    //    uint32 returned = sciReceiveByte(UHF_SCI);
-    //
-    //    int counter = 0;
-    //    for(counter; counter < 0x800000; counter++);
-
-    // Change to pipe mode
-    // scw[UHF_SCW_PIPE_INDEX] = UHF_PIPE_ON;
-
-    // Send the new configuration (write to pipe mode)
-    //    UHF_return = UHF_genericWrite(0, scw);
-
-
-    //portGET_RUN_TIME_COUNTER_VALUE();
-//    static char cbuffer_main[1024];
-//    vTaskGetRunTimeStats(cbuffer_main);
-//    printf("%s\n", cbuffer_main);
+    uhf_binary_test();
 
     vTaskDelete(NULL);
 }
@@ -171,20 +140,13 @@ void flatsat_test(void *pvParameters) {
 int ex2_main(void) {
     _enable_IRQ_interrupt_(); // enable inturrupts
     InitIO();
-    for (int i = 0; i < 1000000; i++)
-        ;
+    for (int i = 0; i < 1000000; i++);
     xTaskCreate(ex2_init, "init", INIT_STACK_SIZE, NULL, INIT_PRIO, NULL);
-    xTaskCreate(flatsat_test, "flatsat_test", 5000, NULL, 4, NULL);
-
-    //configGENERATE_RUN_TIME_STATS;
-    //portCONFIGURE_TIMER_FOR_RUN_TIME_STATS();
-    //portGET_RUN_TIME_COUNTER_VALUE();
 
     /* Start FreeRTOS! */
     vTaskStartScheduler();
 
-    for (;;)
-        ; // Scheduler didn't start
+    for (;;); // Scheduler didn't start
 }
 
 /**
