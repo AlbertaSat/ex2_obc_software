@@ -35,41 +35,11 @@ SAT_returnState start_housekeeping_daemon(void);
  *    task parameters (not used)
  */
 static void *housekeeping_daemon(void *pvParameters) {
-    TickType_t hk_delay = pdMS_TO_TICKS(1000);
     uint32_t seconds_delay = 30;
+    TickType_t hk_delay = pdMS_TO_TICKS(1000 * seconds_delay);
     for (;;) {
         // Call housekeeping and have them collect and store data to SD card
-
-        int num_ticks_before_hk = xTaskGetTickCount();
         populate_and_store_hk_data();
-        int num_ticks_after_hk = xTaskGetTickCount();
-        int ticks_elapsed = num_ticks_after_hk - num_ticks_before_hk;
-        //printf("%x\n", ticks_elapsed);
-
-
-        hk_delay = pdMS_TO_TICKS(seconds_delay * 1000);
-
-        //portGET_RUN_TIME_COUNTER_VALUE();
-        int num_ticks_before_runtime = xTaskGetTickCount();
-        //printf("%d\n", num_ticks_before);
-
-        static char cbuffer_hk[500];
-        memset(cbuffer_hk, 0, 500);
-        vTaskGetRunTimeStats(cbuffer_hk);
-
-        for (int i = 0; i<500; i++) {
-            if (cbuffer_hk[i] != 0) {
-                //printf("bad time @ %x\n", i);
-                break;
-            }
-        }
-        int num_ticks_after_runtime = xTaskGetTickCount();
-        //printf("%d\n", num_ticks_after);
-
-        //printf("%s\n", cbuffer_hk);
-
-        memset(cbuffer_hk, 0, 500);
-
         vTaskDelay(hk_delay);
     }
 }
