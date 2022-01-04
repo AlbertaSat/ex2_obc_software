@@ -227,10 +227,10 @@ void get_byte() {
     if (in == '\n') {
         if (current_line_type == binary) {
             if (binary_queue != NULL)
-                xQueueSendToBackFromISR(binary_queue, binary_message_buffer, NULL);
+                xQueueSendToBackFromISR(binary_queue, binary_message_buffer, pdFALSE);
         } else if (current_line_type == nmea) {
             if (NMEA_queue != NULL)
-                xQueueSendToBackFromISR(NMEA_queue, binary_message_buffer, NULL);
+                xQueueSendToBackFromISR(NMEA_queue, binary_message_buffer, pdFALSE);
         }
         bin_buff_loc = 0;
         memset(binary_message_buffer, 0, BUFSIZE);
@@ -252,6 +252,7 @@ void gps_sciNotification(sciBASE_t *sci, unsigned flags) {
     case SCI_RX_INT:
         get_byte();
         sciReceive(sci, 1, &byte);
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         break;
 
     case SCI_TX_INT:
