@@ -479,8 +479,7 @@ Result collect_hk_from_devices(All_systems_housekeeping* all_hk_data) {
   #endif /* EPS Housekeeping */
 
   #ifndef UHF_IS_STUBBED
-    if (xSemaphoreTake(uTransceiver_semaphore, 0) == pdTRUE) {
-        xSemaphoreGive(uTransceiver_semaphore);
+    if(!uhf_is_busy()){
         UHF_return UHF_return_code = UHF_getHK(&all_hk_data->UHF_hk);      //UHF get housekeeping
     }
     vTaskDelay(ONE_SECOND);
