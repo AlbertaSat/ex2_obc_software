@@ -367,85 +367,6 @@ Result mock_everyone(All_systems_housekeeping* all_hk_data) {
   return SUCCESS;
 }
 
-    // UHF
-    all_hk_data->UHF_hk.freq = tempu32;
-    all_hk_data->UHF_hk.pipe_t = tempu32;
-    all_hk_data->UHF_hk.beacon_t = tempu32;
-    all_hk_data->UHF_hk.audio_t = tempu32;
-    all_hk_data->UHF_hk.uptime = tempu32;
-    all_hk_data->UHF_hk.pckts_out = tempu32;
-    all_hk_data->UHF_hk.pckts_in = tempu32;
-    all_hk_data->UHF_hk.pckts_in_crc16 = tempu32;
-    all_hk_data->UHF_hk.temperature = tempFloat;
-
-    for (i = 0; i < SCW_LEN; i++) {
-        all_hk_data->UHF_hk.scw[i] = tempu8;
-    }
-
-    // Sband
-    all_hk_data->S_band_hk.Output_Power = tempFloat;
-    all_hk_data->S_band_hk.PA_Temp = tempFloat;
-    all_hk_data->S_band_hk.Top_Temp = tempFloat;
-    all_hk_data->S_band_hk.Bottom_Temp = tempFloat;
-    all_hk_data->S_band_hk.Bat_Current = tempFloat;
-    all_hk_data->S_band_hk.Bat_Voltage = tempFloat;
-    all_hk_data->S_band_hk.PA_Current = tempFloat;
-    all_hk_data->S_band_hk.PA_Voltage = tempFloat;
-
-    // Hyperion
-    all_hk_data->hyperion_hk.Nadir_Temp1 = tempFloat;
-    all_hk_data->hyperion_hk.Port_Temp1 = tempFloat;
-    all_hk_data->hyperion_hk.Port_Temp2 = tempFloat;
-    all_hk_data->hyperion_hk.Port_Temp3 = tempFloat;
-    all_hk_data->hyperion_hk.Port_Temp_Adc = tempFloat;
-    all_hk_data->hyperion_hk.Port_Dep_Temp1 = tempFloat;
-    all_hk_data->hyperion_hk.Port_Dep_Temp2 = tempFloat;
-    all_hk_data->hyperion_hk.Port_Dep_Temp3 = tempFloat;
-    all_hk_data->hyperion_hk.Port_Dep_Temp_Adc = tempFloat;
-    all_hk_data->hyperion_hk.Star_Temp1 = tempFloat;
-    all_hk_data->hyperion_hk.Star_Temp2 = tempFloat;
-    all_hk_data->hyperion_hk.Star_Temp3 = tempFloat;
-    all_hk_data->hyperion_hk.Star_Temp_Adc = tempFloat;
-    all_hk_data->hyperion_hk.Star_Dep_Temp1 = tempFloat;
-    all_hk_data->hyperion_hk.Star_Dep_Temp2 = tempFloat;
-    all_hk_data->hyperion_hk.Star_Dep_Temp3 = tempFloat;
-    all_hk_data->hyperion_hk.Star_Dep_Temp_Adc = tempFloat;
-    all_hk_data->hyperion_hk.Zenith_Temp1 = tempFloat;
-    all_hk_data->hyperion_hk.Zenith_Temp2 = tempFloat;
-    all_hk_data->hyperion_hk.Zenith_Temp3 = tempFloat;
-    all_hk_data->hyperion_hk.Zenith_Temp_Adc = tempFloat;
-    all_hk_data->hyperion_hk.Nadir_Pd1 = tempFloat;
-    all_hk_data->hyperion_hk.Port_Pd1 = tempFloat;
-    all_hk_data->hyperion_hk.Port_Pd2 = tempFloat;
-    all_hk_data->hyperion_hk.Port_Pd3 = tempFloat;
-    all_hk_data->hyperion_hk.Port_Dep_Pd1 = tempFloat;
-    all_hk_data->hyperion_hk.Port_Dep_Pd2 = tempFloat;
-    all_hk_data->hyperion_hk.Port_Dep_Pd3 = tempFloat;
-    all_hk_data->hyperion_hk.Star_Pd1 = tempFloat;
-    all_hk_data->hyperion_hk.Star_Pd2 = tempFloat;
-    all_hk_data->hyperion_hk.Star_Pd3 = tempFloat;
-    all_hk_data->hyperion_hk.Star_Dep_Pd1 = tempFloat;
-    all_hk_data->hyperion_hk.Star_Dep_Pd2 = tempFloat;
-    all_hk_data->hyperion_hk.Star_Dep_Pd3 = tempFloat;
-    all_hk_data->hyperion_hk.Zenith_Pd1 = tempFloat;
-    all_hk_data->hyperion_hk.Zenith_Pd2 = tempFloat;
-    all_hk_data->hyperion_hk.Zenith_Pd3 = tempFloat;
-    all_hk_data->hyperion_hk.Port_Voltage = tempFloat;
-    all_hk_data->hyperion_hk.Port_Dep_Voltage = tempFloat;
-    all_hk_data->hyperion_hk.Star_Voltage = tempFloat;
-    all_hk_data->hyperion_hk.Star_Dep_Voltage = tempFloat;
-    all_hk_data->hyperion_hk.Zenith_Voltage = tempFloat;
-    all_hk_data->hyperion_hk.Port_Current = tempFloat;
-    all_hk_data->hyperion_hk.Port_Dep_Current = tempFloat;
-    all_hk_data->hyperion_hk.Star_Current = tempFloat;
-    all_hk_data->hyperion_hk.Star_Dep_Current = tempFloat;
-    all_hk_data->hyperion_hk.Zenith_Current = tempFloat;
-
-    temp++;
-    tempTime += 30;
-    return SUCCESS;
-}
-
 /**
  * @brief
  *      Private. Collect housekeeping information from each device in system
@@ -640,6 +561,7 @@ Result write_hk_to_file(uint16_t filenumber, All_systems_housekeeping* all_hk_da
     ex2_log("Failed to write to file: '%s'\n", fileName);
     red_close(fout);
     return SUCCESS;
+  }
 }
 
 /**
