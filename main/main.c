@@ -107,6 +107,7 @@ void ex2_init(void *pvParameters) {
 #endif
 
 #ifndef SBAND_IS_STUBBED
+    STX_Enable();
     // PLACEHOLDER: sband hardware init
 #endif
 
