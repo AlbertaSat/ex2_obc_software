@@ -33,7 +33,6 @@ void inittemp_all(void) {
     }
 }
 
-<<<<<<< HEAD
 int gettemp_all(long *temparray) {
     int i;
     for (i = 0; i < NUM_TEMP_SENSOR; i++) {
