@@ -402,7 +402,7 @@ typedef struct {
     float nadir_sensor_noise;
     float MTM_noise;
     float star_track_noise;
-    uint8_t select_arr[7];
+    uint8_t select_arr[8];
     uint8_t MTM_mode;
     uint8_t MTM_select;
     uint8_t cam_sample_period;
@@ -512,7 +512,7 @@ ADCS_returnState ADCS_get_TC_ack(uint8_t* last_tc_id, bool* tc_processed,
                                  ADCS_returnState* tc_err_stat,
                                  uint8_t* tc_err_idx);
 ADCS_returnState ADCS_get_file_download_buffer(uint16_t* packet_count,
-                                               uint8_t* file[20]);
+                                               uint8_t file[20]);
 ADCS_returnState ADCS_get_file_download_block_stat(bool* ready, bool* param_err,
                                                    uint16_t* crc16_checksum,
                                                    uint16_t* length);

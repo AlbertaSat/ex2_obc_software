@@ -550,7 +550,7 @@ ADCS_returnState ADCS_get_TC_ack(uint8_t *last_tc_id, bool *tc_processed, ADCS_r
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_file_download_buffer(uint16_t *packet_count, uint8_t *file[20]) {
+ADCS_returnState ADCS_get_file_download_buffer(uint16_t *packet_count, uint8_t file[20]) {
     uint8_t telemetry[22];
     ADCS_returnState state;
     state = adcs_telemetry(FILE_DL_BUFFER_ID, telemetry, 22);
