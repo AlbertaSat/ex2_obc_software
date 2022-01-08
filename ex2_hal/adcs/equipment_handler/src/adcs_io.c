@@ -199,7 +199,7 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint3
  *    the actual image data
  *
  */
-void receieve_uart_packet(uint8_t *hole_map, uint8_t *image_bytes) {
+ADCS_returnState receive_uart_packet(uint8_t *hole_map, uint8_t *image_bytes) {
     int received = 0;
     uint16_t pixel = 0;
     uint8_t reply[22+5] = {0};
@@ -217,6 +217,7 @@ void receieve_uart_packet(uint8_t *hole_map, uint8_t *image_bytes) {
 //        *(image_bytes + pixel + i) = reply[4 + i];
 //    }
     xSemaphoreGive(uart_mutex);
+    return ADCS_OK;
 }
 
 /**
