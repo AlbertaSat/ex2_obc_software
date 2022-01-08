@@ -16,6 +16,9 @@
  * @author Andrew Rooney, Vasu Gupta, Arash Yazdani, Thomas Ganley, Nick Sorensen, Pundeep Hundal
  * @date 2020-08-09
  */
+#include <stddef.h>
+#include <stdint.h>
+#include <FreeRTOS.h>
 #include <os_portable.h>
 #include "adcs_handler.h"
 
@@ -406,7 +409,7 @@ ADCS_returnState ADCS_initiate_download_burst(uint8_t msg_length, bool ignore_ho
 void ADCS_receive_download_burst(uint8_t *hole_map, uint8_t *image_bytes, uint16_t length_bytes) {
 #if defined(USE_UART)
     for(int i = 0; i < length_bytes/20; i++) {
-        receieve_uart_packet(hole_map, image_bytes);
+        receive_uart_packet(hole_map, image_bytes);
     }
 #elif defined(USE_I2C)
     //TODO: write receive function for I2C
@@ -537,7 +540,7 @@ ADCS_returnState ADCS_get_TC_ack(uint8_t *last_tc_id, bool *tc_processed, ADCS_r
     state = adcs_telemetry(LAST_TC_ACK_ID, telemetry, 4);
     *last_tc_id = telemetry[0];
     *tc_processed = telemetry[1] & 1;
-    *tc_err_stat = telemetry[2];
+    *tc_err_stat = (ADCS_returnState) telemetry[2];
     *tc_err_idx = telemetry[3];
     return state;
 }
@@ -569,7 +572,8 @@ ADCS_returnState ADCS_get_file_download_buffer(uint16_t *packet_count, uint8_t f
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_file_download_block_stat(bool *ready, bool *param_err, uint16_t *crc16_checksum,
+ADCS_returnState ADCS_get_file_download_block_stat(bool *ready, bool *param_err,
+                                                   uint16_t *crc16_checksum,
                                                    uint16_t *length) {
     uint8_t telemetry[5];
     ADCS_returnState state;
@@ -2711,7 +2715,6 @@ ADCS_returnState ADCS_set_mtm_config(mtm_config params, uint8_t mtm) {
     raw_val_offset.z = params.channel_offset.z / coef;
     memcpy(&command[7], &raw_val_offset, 6);
     int16_t cell[9];
-    int j = 0;
     for (int i = 0; i < 3; i++) {
         cell[i] = params.sensitivity_mat[4 * i] / coef; // diagonal
     }
