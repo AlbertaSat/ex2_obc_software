@@ -337,8 +337,8 @@ ADCS_returnState ADCS_file_upload_packet(uint16_t packet_number, char *file_byte
     command[0] = FILE_UPLOAD_PACKET_ID;
     command[1] = packet_number & 0xFF;
     command[2] = packet_number >> 8;
-    memcpy(&command[3], file_bytes, 22);
-    return adcs_telecommand(command, 3);
+    memcpy(&command[3], file_bytes, 20);
+    return adcs_telecommand(command, sizeof(command));
 }
 
 /**
