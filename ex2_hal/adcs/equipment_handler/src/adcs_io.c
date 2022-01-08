@@ -108,7 +108,7 @@ ADCS_returnState send_uart_telecommand(uint8_t *command, uint32_t length) {
             received++;
         }
     }
-    ADCS_returnState TC_err_flag = reply[3];
+    ADCS_returnState TC_err_flag = (ADCS_returnState) reply[3];
     xSemaphoreGive(uart_mutex);
     return TC_err_flag;
 }
@@ -136,7 +136,7 @@ ADCS_returnState send_i2c_telecommand(uint8_t *command, uint32_t length) {
 
     // Confirm telecommand validity by checking the TC Error flag of the last read TC Acknowledge Telemetry Format.
     request_i2c_telemetry(LAST_TC_ACK_ID, tc_ack, 4);
-    ADCS_returnState TC_err_flag = tc_ack[2];
+    ADCS_returnState TC_err_flag = (ADCS_returnState) tc_ack[2];
 
     return TC_err_flag;
 }
