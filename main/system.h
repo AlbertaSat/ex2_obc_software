@@ -56,7 +56,7 @@
     #define UHF_SCI CSP_SCI  //UART2
 #if defined(IS_3U)
     #define GPS_SCI sciREG1  //UART3
-#else if defined(IS_2U)
+#elif defined(IS_2U)
     #define PAYLOAD_SCI sciREG1  //UART3
 #endif
 #else // These values are expected to be adjusted based on what the developer is working on
