@@ -10,7 +10,7 @@ def walkDir(start):
             subf = "../../"+subf
             subf = os.path.abspath(subf);
             if (os.path.isfile(subf)):
-                print(subf, end='');
+                print(subf, end=' ');
     for subfold in subfolders:
         walkDir(subfold);
 
