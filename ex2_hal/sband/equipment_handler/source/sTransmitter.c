@@ -34,7 +34,6 @@
  *      Success of the function defined in sTransmitter.h
  */
 STX_return read_reg(uint8_t internal_address, uint8_t *answer) {
-    i2cSetBaudrate(SBAND_I2C, 400);
     uint8_t command = internal_address;
     if (i2c_Send(SBAND_I2C, SBAND_I2C_ADD, MAX_SBAND_R_CMDLEN, &command) != 0) {
         return S_BAD_READ;
@@ -58,7 +57,6 @@ STX_return read_reg(uint8_t internal_address, uint8_t *answer) {
  *      Success of the function defined in sTransmitter.h
  */
 STX_return write_reg(uint8_t internal_address, uint8_t val) {
-    i2cSetBaudrate(SBAND_I2C, 400);
     uint8_t command[2] = {internal_address, val};
     if (i2c_Send(SBAND_I2C, SBAND_I2C_ADD, MAX_SBAND_W_CMDLEN, command) != 0) {
         return S_BAD_WRITE;
