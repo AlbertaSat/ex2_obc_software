@@ -29,11 +29,9 @@
 #include "eps.h"
 #include "housekeeping_athena.h"
 #include "housekeeping_charon.h"
-#include "housekeeping_athena.h"
 #include "hyperion.h"
 #include "sband.h"
 #include "uhf.h"
-//#include "ex2_hal/ex2_payload_software/hardware_interface/include/payload.h"
 
 /* Housekeeping service address & port*/
 

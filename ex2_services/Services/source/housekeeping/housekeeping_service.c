@@ -410,6 +410,7 @@ Result collect_hk_from_devices(All_systems_housekeeping* all_hk_data) {
     STX_return STX_return_code = HAL_S_getHK(&all_hk_data->S_band_hk); //S_band get housekeeping
   #endif /* SBAND Housekeeping */
 
+#ifndef HYPERION_IS_STUBBED
   #ifdef HYPERION_PANEL_3U
     Hyperion_config1_getHK(&all_hk_data->hyperion_hk);
   #endif /* HYPERION_PANEL_3U */
@@ -418,6 +419,7 @@ Result collect_hk_from_devices(All_systems_housekeeping* all_hk_data) {
     i2cSetBaudrate(I2C_BUS_REG, 400);
     Hyperion_config3_getHK(&all_hk_data->hyperion_hk);
   #endif /* HYPERION_PANEL_2U */
+#endif
 
   #ifndef CHARON_IS_STUBBED
     Charon_getHK(&all_hk_data->charon_hk);
