@@ -234,7 +234,7 @@ Result mock_everyone(All_systems_housekeeping* all_hk_data) {
 
   //Athena
   uint8_t i;
-  for (i = 0; i < 2; i++) {
+  for (i = 0; i < ATHENA_TEMP_ARRAY_SIZE; i++) {
     all_hk_data->Athena_hk.temparray[i] = tempLong;
   }
   all_hk_data->Athena_hk.boot_cnt = tempu16;

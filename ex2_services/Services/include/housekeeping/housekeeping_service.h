@@ -40,6 +40,8 @@
 #define HK_PARAMETERS_REPORT 25
 //#define TM_HK_PARAMETERS_REPORT 21
 
+#define ATHENA_TEMP_ARRAY_SIZE 2
+
 #define HK_PR_ERR -1
 #define HK_PR_OK 0
 
