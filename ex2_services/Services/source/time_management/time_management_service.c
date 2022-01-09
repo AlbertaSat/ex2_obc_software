@@ -64,10 +64,6 @@ void RTC_discipline_service(void) {
 
     time_t utc_time;
 
-    if (!gps_skytraq_driver_init()) {
-        ex2_log("failed to init skytraq\r\n");
-    }
-
     uint16_t total_delay = 0;
 
     rtc_wdt_counter++;

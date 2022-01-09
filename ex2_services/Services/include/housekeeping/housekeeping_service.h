@@ -28,9 +28,13 @@
 #include "adcs.h"
 #include "eps.h"
 #include "housekeeping_athena.h"
+#include "housekeeping_charon.h"
+#include "housekeeping_athena.h"
 #include "hyperion.h"
 #include "sband.h"
 #include "uhf.h"
+//#include "ex2_hal/ex2_payload_software/hardware_interface/include/payload.h"
+
 /* Housekeeping service address & port*/
 
 #define HK_PARAMETERS_REPORT 25
@@ -59,18 +63,19 @@ typedef struct __attribute__((packed)) {
     uint16_t dataPosition;  // Use to place datasets in chronological order
 } hk_time_and_order;
 
-typedef struct __attribute__((packed)) {
-    hk_time_and_order hk_timeorder; // debugging time and file order
+typedef struct __attribute__((packed)){
+  hk_time_and_order hk_timeorder;        //debugging time and file order
 
-    // TODO:
-    ADCS_HouseKeeping adcs_hk;            // ADCS housekeeping struct
-    athena_housekeeping Athena_hk;        // Athena housekeeping struct
-    eps_instantaneous_telemetry_t EPS_hk; // EPS telemetry struct
-    eps_startup_telemetry_t EPS_startup_hk;
-    UHF_housekeeping UHF_hk;              // UHF status struct
-    Sband_Housekeeping S_band_hk;         // S-band housekeeping struct
-    Hyperion_HouseKeeping hyperion_hk;    // Hyperion housekeeping
-
+  //TODO:
+  ADCS_HouseKeeping adcs_hk;           //ADCS housekeeping struct
+  athena_housekeeping Athena_hk;         //Athena housekeeping struct
+  eps_instantaneous_telemetry_t EPS_hk;  //EPS telemetry struct
+  eps_startup_telemetry_t EPS_startup_hk;//EPS startup telemetry struct
+  UHF_housekeeping UHF_hk;               //UHF status struct
+  Sband_Housekeeping S_band_hk;          //S-band housekeeping struct
+  Hyperion_HouseKeeping hyperion_hk;     //Hyperion housekeeping
+  charon_housekeeping charon_hk;         //Charon housekeeping
+  //Payload_HouseKeeping payload_hk;       //Payload housekeeping
 } All_systems_housekeeping;
 
 
