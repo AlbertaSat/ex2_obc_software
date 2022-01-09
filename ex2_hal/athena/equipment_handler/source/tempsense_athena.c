@@ -37,7 +37,7 @@ int gettemp_all(long *temparray) {
     int i;
     for (i = 0; i < NUM_TEMP_SENSOR; i++) {
         tmp421_read(tmp_addr[i], CHANNEL_LOCAL, &temparray[i]); // assuming we want to read remote channel
-        for (delay = 0; delay < 0x1000; delay++);//temporary fix... don't want delay down the road
+        for (int delay = 0; delay < 0x1000; delay++);//temporary fix... don't want delay down the road
     }
     return 0;
 }
