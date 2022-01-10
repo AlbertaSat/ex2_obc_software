@@ -94,6 +94,21 @@ GPS_RETURNSTATE gps_configure_message_types(uint8_t GGA, uint8_t GSA, uint8_t GS
 GPS_RETURNSTATE gps_disable_NMEA_output() { return gps_configure_message_types(0, 0, 0, 0); }
 
 /**
+ * @brief Get CRC of software on the skytraq
+ * @param crc pointer to uint16_t to store crc
+ *
+ * @return GPS_RETURNSTATE
+ */
+GPS_RETURNSTATE gps_skytraq_get_software_crc(uint16_t *crc) {
+    uint8_t reply[11];
+    GPS_RETURNSTATE result = skytraq_query_software_CRC(&reply, 11);
+    if (result != SUCCESS) {
+        return result;
+    }
+    *crc = (reply[6] << 8) | reply[7]; // extract 16 bit CRC
+    return SUCCESS;
+}
+/**
  * @brief takes time as NMEA integer and extracts it to a struct
  *
  * @param _time Integer representing time
