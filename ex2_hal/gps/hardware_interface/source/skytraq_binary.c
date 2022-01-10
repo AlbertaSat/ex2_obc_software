@@ -106,7 +106,7 @@ GPS_RETURNSTATE skytraq_send_message(uint8_t *paylod, uint16_t size) {
 
     sciSend(GPS_SCI, total_size, message);
     if (xSemaphoreTake(tx_semphr, GPS_TX_TIMEOUT_MS) != pdTRUE) {
-        return UNKNOWN_ERROR;
+        return TX_TIMEDOUT;
     }
 
     vPortFree(message);
@@ -117,7 +117,7 @@ GPS_RETURNSTATE skytraq_send_message(uint8_t *paylod, uint16_t size) {
     BaseType_t success = xQueueReceive(binary_queue, sentence, 1000 * portTICK_PERIOD_MS);
     if (success != pdPASS) {
         sci_busy = false;
-        return UNKNOWN_ERROR;
+        return RX_TIMEDOUT;
     }
 
     bool cs_success = skytraq_verify_checksum(sentence);
@@ -147,10 +147,12 @@ GPS_RETURNSTATE skytraq_send_message(uint8_t *paylod, uint16_t size) {
  * symbol, end symbol, or checksum
  * @param size size of the message to send, not including start symbol, checksum, or end symbol
  * @param reply Pointer to location to put the reply. Must be of correct size for the reply expected including all
+ * @param reply_len length of reply expected. If the actual reply is larger it will be truncated
  * start/end symbols
  * @return GPS_RETURNSTATE Error explaining why the failure occurred
  */
-GPS_RETURNSTATE skytraq_send_message_with_reply(uint8_t *payload, uint16_t size, uint8_t *reply) {
+GPS_RETURNSTATE skytraq_send_message_with_reply(uint8_t *payload, uint16_t size, uint8_t *reply,
+                                                uint16_t reply_len) {
     GPS_RETURNSTATE worked = skytraq_send_message(payload, size);
 
     if (worked != SUCCESS) {
@@ -168,12 +170,12 @@ GPS_RETURNSTATE skytraq_send_message_with_reply(uint8_t *payload, uint16_t size,
 
     if (success != pdPASS) {
         sci_busy = false;
-        return UNKNOWN_ERROR;
+        return RX_TIMEDOUT;
     }
     bool cs_success = skytraq_verify_checksum(sentence);
 
     if (cs_success) {
-        strcpy((char *)reply, (char *)sentence);
+        memcpy((char *)reply, (char *)sentence, reply_len);
         sci_busy = false;
         return SUCCESS;
     } else {
@@ -229,7 +231,7 @@ void get_byte() {
  */
 void gps_sciNotification(sciBASE_t *sci, unsigned flags) {
     portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
-    switch(flags) {
+    switch (flags) {
     case SCI_RX_INT:
         get_byte();
         sciReceive(sci, 1, &byte);
@@ -267,9 +269,10 @@ uint8_t calc_checksum(uint8_t *message, uint16_t payload_length) {
  * @return false checksum failed
  */
 bool skytraq_verify_checksum(uint8_t *message) {
-    int checksum_location = strlen((char *)message) - 3; // 3rd to last byte is checksum
-    uint8_t expected = message[checksum_location];
     uint16_t payload_length = (message[2] << 8) | message[3]; // extract 16 bit payload size
+    int checksum_location = 4 + payload_length;
+    uint8_t expected = message[checksum_location];
+
     uint8_t cs = calc_checksum(message, payload_length);
     if (cs == expected) {
         return true;
@@ -307,13 +310,13 @@ GPS_RETURNSTATE skytraq_query_software_version() {
     return skytraq_send_message(payload, length);
 }
 
-GPS_RETURNSTATE skytraq_query_software_CRC(uint8_t *reply) {
+GPS_RETURNSTATE skytraq_query_software_CRC(uint8_t *reply, uint16_t reply_len) {
     uint16_t length = 2;
     uint8_t payload[2];
     payload[0] = QUERY_SOFTWARE_CRC;
     payload[1] = 1; // system code
 
-    return skytraq_send_message_with_reply(payload, length, reply);
+    return skytraq_send_message_with_reply(payload, length, reply, reply_len);
 }
 
 GPS_RETURNSTATE skytraq_restore_factory_defaults(void) {
@@ -378,13 +381,13 @@ GPS_RETURNSTATE skytraq_configure_power_mode(skytraq_power_mode mode, skytraq_up
     return skytraq_send_message(payload, length);
 }
 
-GPS_RETURNSTATE skytraq_get_gps_time(uint8_t *reply) {
+GPS_RETURNSTATE skytraq_get_gps_time(uint8_t *reply, uint16_t reply_len) {
     uint16_t length = 2;
     uint8_t payload[2];
 
     *(uint16_t *)&(payload[0]) = QUERY_GPS_TIME;
 
-    return skytraq_send_message_with_reply(payload, length, reply);
+    return skytraq_send_message_with_reply(payload, length, reply, reply_len);
 }
 
 GPS_RETURNSTATE skytraq_configure_utc_reference(enable_disable status, uint16_t utc_year, uint8_t utc_month,
