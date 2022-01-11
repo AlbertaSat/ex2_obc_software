@@ -21,6 +21,7 @@
 //#include "deployablescontrol.h"
 #include "leop_eeprom.h"
 
+#define MAX_RETRIES 3
 bool leop_init();
 bool hard_switch_status();
 
