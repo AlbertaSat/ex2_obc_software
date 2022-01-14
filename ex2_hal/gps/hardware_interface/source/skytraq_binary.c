@@ -29,7 +29,7 @@
 
 enum current_sentence { none, binary, nmea } line_type;
 
-#define GPS_TX_TIMEOUT_MS 1000
+
 SemaphoreHandle_t tx_semphr;
 static SemaphoreHandle_t uart_mutex;
 
@@ -91,7 +91,7 @@ bool skytraq_binary_init() {
  * @return GPS_RETURNSTATE Error explaining why the failure occurred
  */
 GPS_RETURNSTATE skytraq_send_message(uint8_t *payload, uint16_t size) {
-    if(xSemaphoreTake(uart_mutex, 1000 * portTICK_PERIOD_MS) != pdTRUE) {
+    if(xSemaphoreTake(uart_mutex, GPS_UART_TIMEOUT_MS) != pdTRUE) {
           return UNKNOWN_ERROR;
     }
 
@@ -123,7 +123,7 @@ GPS_RETURNSTATE skytraq_send_message(uint8_t *payload, uint16_t size) {
 
     // Will wait 1 second for a response
 
-    BaseType_t success = xQueueReceive(binary_queue, sentence, 1000 * portTICK_PERIOD_MS);
+    BaseType_t success = xQueueReceive(binary_queue, sentence, GPS_UART_TIMEOUT_MS);
     if (success != pdPASS) {
         sci_busy = false;
         xSemaphoreGive(uart_mutex);
@@ -181,7 +181,7 @@ GPS_RETURNSTATE skytraq_send_message_with_reply(uint8_t *payload, uint16_t size,
     uint8_t sentence[BUFSIZE];
 
     // Wait for 1 second to receive the actual reponse from the GPS
-    BaseType_t success = xQueueReceive(binary_queue, sentence, 1000 * portTICK_PERIOD_MS);
+    BaseType_t success = xQueueReceive(binary_queue, sentence, GPS_UART_TIMEOUT_MS);
 
     if (success != pdPASS) {
         sci_busy = false;
