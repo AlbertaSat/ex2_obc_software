@@ -26,6 +26,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "system.h"
 
 /*Add includes for other athena files to get hk data from*/
 #include "tempsense_athena.h"
@@ -40,20 +41,20 @@ ATTENTION:
     char *string, struct {} dataSet;
 */
 
-typedef struct __attribute__((packed)){
-  long      temparray[ATHENA_TEMP_ARRAY_SIZE];           //Athena temperature array
-  uint16_t  boot_cnt;               //Total # of OBC boots
-  uint8_t   last_reset_reason;
-  uint8_t   OBC_mode;
-  uint16_t  OBC_uptime;             //Seconds=value*10 , Max=655360 sec (7.6 days)
-  uint8_t   solar_panel_supply_curr;
-  uint8_t   OBC_software_ver;
-  uint16_t  cmds_received;          //Total # since last boot
-  uint16_t  pckts_uncovered_by_FEC; //Total # since last boot
+typedef struct __attribute__((packed)) {
+    long temparray[ATHENA_TEMP_ARRAY_SIZE]; // Athena temperature array
+    uint16_t boot_cnt;                      // Total # of OBC boots
+    uint8_t last_reset_reason;              //
+    uint8_t OBC_mode;                       //
+    uint16_t OBC_uptime;                    // Seconds=value*10 , Max=655360 sec (7.6 days)
+    uint8_t solar_panel_supply_curr;        //
+    uint8_t OBC_software_ver;               //
+    uint16_t cmds_received;                 // Total # since last boot
+    uint16_t pckts_uncovered_by_FEC;        // Total # since last boot
 } athena_housekeeping;
 
-int Athena_getHK(athena_housekeeping* athena_hk);
-int Athena_hk_convert_endianness(athena_housekeeping* athena_hk);
+int Athena_getHK(athena_housekeeping *athena_hk);
+int Athena_hk_convert_endianness(athena_housekeeping *athena_hk);
 uint16_t Athena_get_OBC_uptime();
 uint8_t Athena_get_solar_supply_curr();
 
