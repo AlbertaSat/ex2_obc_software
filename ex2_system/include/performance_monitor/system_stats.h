@@ -21,6 +21,9 @@
 #define EX2_SYSTEM_SYSTEM_STATS_H_
 
 #include "main/system.h"
+#include "uhf.h"
+#include "uTransceiver.h"
+#include "housekeeping_service.h"
 
 SAT_returnState start_system_stats_daemon(void);
 

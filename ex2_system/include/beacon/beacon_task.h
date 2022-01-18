@@ -12,13 +12,12 @@
  * GNU General Public License for more details.
  */
 /**
- * @file beacon.h
+ * @file beacon_task.h
  * @author Andrew R. Rooney
  * @date Mar. 6, 2021
  */
-
-#ifndef EX2_SYSTEM_INCLUDE_BEACON_BEACON_TASK_H_
-#define EX2_SYSTEM_INCLUDE_BEACON_BEACON_TASK_H_
+#ifndef EX2_SYSTEM_INCLUDE_BEACON_TASK_H_
+#define EX2_SYSTEM_INCLUDE_BEACON_TASK_H_
 
 #include "main/system.h"
 #include "uhf.h"
@@ -27,4 +26,4 @@
 
 SAT_returnState start_beacon_daemon(void);
 
-#endif /* EX2_SYSTEM_INCLUDE_BEACON_BEACON_TASK_H_ */
+#endif /* EX2_SYSTEM_INCLUDE_BEACON_TASK_H_ */
