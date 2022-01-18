@@ -17,12 +17,12 @@
  * @date Mar. 6, 2021
  */
 
+#include <beacon_task.h>
 #include <FreeRTOS.h>
 #include <os_task.h>
 
 #include "HL_gio.h"
 #include "HL_het.h"
-#include "beacon/beacon.h"
 #include "eps.h"
 #include "uhf.h"
 
@@ -94,10 +94,14 @@ static void *beacon_daemon(void *pvParameters) {
         /* Constructing the system beacon content */
         // Refer to table 3 of MOP
         UHF_configStruct beacon_msg;
+        All_systems_housekeeping all_hk_data;
+
+        //Testing purposes only, passing 1s to the UHF
         beacon_packet_1_t beacon_packet_one = {
             //define each element as 1 for testing purposes
-            1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,BLANK_SPACE};
+            1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
 
+        update_beacon(&all_hk_data);
 
         memcpy(&(beacon_msg.message), &beacon_packet_one, sizeof(beacon_packet_1_t));
         beacon_msg.len = sizeof(beacon_packet_1_t);
