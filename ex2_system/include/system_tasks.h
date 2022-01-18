@@ -21,6 +21,9 @@
 #define EX2_SYSTEM_INCLUDE_SYSTEM_TASKS_H_
 
 #include "main/system.h"
+#include "uhf.h"
+#include "uTransceiver.h"
+#include "housekeeping_service.h"
 
 SAT_returnState start_system_tasks(void);
 
