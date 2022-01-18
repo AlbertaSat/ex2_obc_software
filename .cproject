@@ -84,20 +84,11 @@
 									<listOptionValue builtIn="false" value="SBAND_COMMERCIAL_FREQUENCY"/>
 									<listOptionValue builtIn="false" value="SYSTEM_APP_ID=_OBC_APP_ID_"/>
 									<listOptionValue builtIn="false" value="EPS_IS_STUBBED"/>
-<<<<<<< HEAD
 									<listOptionValue builtIn="false" value="PAYLOAD_IS_STUBBED"/>
-									<listOptionValue builtIn="false" value="IS_3U"/>
 									<listOptionValue builtIn="false" value="IS_ATHENA"/>
 									<listOptionValue builtIn="false" value="IS_FLATSAT"/>
 									<listOptionValue builtIn="false" value="ADCS_IS_STUBBED"/>
-									<listOptionValue builtIn="false" value="PAYLOAD_IS_STUBBED"/>
-=======
->>>>>>> fix include paths so code can compile. Add housekeeping_to_beacon files.
-									<listOptionValue builtIn="false" value="PAYLOAD_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="IS_3U"/>
-									<listOptionValue builtIn="false" value="IS_ATHENA"/>
-									<listOptionValue builtIn="false" value="IS_FLATSAT"/>
-									<listOptionValue builtIn="false" value="ADCS_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="UHF_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="WATCHDOG_IS_STUBBED"/>
 								</option>
