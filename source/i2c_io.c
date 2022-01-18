@@ -79,6 +79,13 @@ int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
     if (xSemaphoreTake(i2csemphr_t[index].i2c_block, I2C_TIMEOUT_MS) != pdTRUE) {
         i2cSetStop(i2c);
         ret = -1;
+    } else {
+        //printf("rec pass\r\n");
+        //printf("%d\r\n", i2csemphr_t[index].hadFailure);
+        if (i2csemphr_t[index].hadFailure == true) {
+            ret = -1;
+            i2csemphr_t[index].hadFailure = false; // reset failure flag
+        }
     }
 
     /* Clear the Stop condition */
@@ -108,7 +115,7 @@ int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
  **/
 
 int i2c_Send(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
-    uint8 ret = 0;
+    int ret = 0;
     uint32 index = i2c == i2cREG1 ? 0U : 1U;
     uint32 i2c_mutex_timeout = pdMS_TO_TICKS(10);
 
@@ -152,6 +159,7 @@ void i2cNotification(i2cBASE_t *i2c, uint32 flags) {
 
     case I2C_NACK_INT: // nack received after start byte. attempt to recover. A nack on the start byte does not trigger an interrupt
         i2c->STR = (uint32)I2C_NACK_INT;
+        i2csemphr_t[reg].hadFailure = true;
         i2cSetStop(i2c);
         break;
 
@@ -164,7 +172,6 @@ void i2cNotification(i2cBASE_t *i2c, uint32 flags) {
         xSemaphoreGiveFromISR(i2csemphr_t[reg].i2c_block, &xHigherPriorityTaskWoken);
         i2cClearSCD(i2c);
         break;
-
 
     case I2C_ARDY_INT:
         i2csemphr_t[reg].hadFailure = true;
@@ -180,3 +187,4 @@ void i2cNotification(i2cBASE_t *i2c, uint32 flags) {
     }
     portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
+
