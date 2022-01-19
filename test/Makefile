@@ -1,9 +1,10 @@
 # makefile for testing obc software
 
 INC=$(addsuffix / ,$(addprefix -I,$(shell find ../ -name 'include' -type d -not -path "../Debug/*")))
+INC+=$(addsuffix / ,$(addprefix -I,$(shell find ../ -name 'inc' -type d)))
 INC += -I../main/
 CC=gcc -std=c99
-SRC=$(shell find test_ex2_obc_software -name "*.c" -type f -not -path "../Debug/*")
+SRC=$(shell find test_ex2_obc_software -name "*.c")
 
 LIB=-Wl,--start-group
 LIB+=-lm
