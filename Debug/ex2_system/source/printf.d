@@ -1,96 +1,96 @@
 # FIXED
 
 ex2_system/source/printf.obj: ../ex2_system/source/printf.c
-ex2_system/source/printf.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/stdbool.h
-ex2_system/source/printf.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/_ti_config.h
-ex2_system/source/printf.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/linkage.h
-ex2_system/source/printf.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/stdint.h
-ex2_system/source/printf.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/_stdint40.h
-ex2_system/source/printf.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/sys/stdint.h
-ex2_system/source/printf.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/sys/cdefs.h
-ex2_system/source/printf.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/sys/_types.h
-ex2_system/source/printf.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/machine/_types.h
-ex2_system/source/printf.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/machine/_stdint.h
-ex2_system/source/printf.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/sys/_stdint.h
-ex2_system/source/printf.obj: C:/Users/danie/Documents/AlbertaSat_Repos/ExAlta2_OBC/ex2_obc_software/ex2_system/include/printf.h
-ex2_system/source/printf.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/stdarg.h
-ex2_system/source/printf.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/stddef.h
-ex2_system/source/printf.obj: C:/Users/danie/Documents/AlbertaSat_Repos/ExAlta2_OBC/ex2_obc_software/main/system.h
-ex2_system/source/printf.obj: C:/Users/danie/Documents/AlbertaSat_Repos/ExAlta2_OBC/ex2_obc_software/include/FreeRTOS.h
-ex2_system/source/printf.obj: C:/Users/danie/Documents/AlbertaSat_Repos/ExAlta2_OBC/ex2_obc_software/include/FreeRTOSConfig.h
-ex2_system/source/printf.obj: C:/Users/danie/Documents/AlbertaSat_Repos/ExAlta2_OBC/ex2_obc_software/include/HL_sys_pmu.h
-ex2_system/source/printf.obj: C:/Users/danie/Documents/AlbertaSat_Repos/ExAlta2_OBC/ex2_obc_software/include/HL_sys_common.h
-ex2_system/source/printf.obj: C:/Users/danie/Documents/AlbertaSat_Repos/ExAlta2_OBC/ex2_obc_software/include/HL_hal_stdtypes.h
-ex2_system/source/printf.obj: C:/Users/danie/Documents/AlbertaSat_Repos/ExAlta2_OBC/ex2_obc_software/include/os_portmacro.h
-ex2_system/source/printf.obj: C:/Users/danie/Documents/AlbertaSat_Repos/ExAlta2_OBC/ex2_obc_software/include/os_projdefs.h
-ex2_system/source/printf.obj: C:/Users/danie/Documents/AlbertaSat_Repos/ExAlta2_OBC/ex2_obc_software/include/os_portable.h
-ex2_system/source/printf.obj: C:/Users/danie/Documents/AlbertaSat_Repos/ExAlta2_OBC/ex2_obc_software/include/os_mpu_wrappers.h
-ex2_system/source/printf.obj: C:/Users/danie/Documents/AlbertaSat_Repos/ExAlta2_OBC/ex2_obc_software/include/os_task.h
-ex2_system/source/printf.obj: C:/Users/danie/Documents/AlbertaSat_Repos/ExAlta2_OBC/ex2_obc_software/include/os_list.h
-ex2_system/source/printf.obj: C:/Users/danie/Documents/AlbertaSat_Repos/ExAlta2_OBC/ex2_obc_software/include/HL_sci.h
-ex2_system/source/printf.obj: C:/Users/danie/Documents/AlbertaSat_Repos/ExAlta2_OBC/ex2_obc_software/include/HL_reg_sci.h
-ex2_system/source/printf.obj: C:/Users/danie/Documents/AlbertaSat_Repos/ExAlta2_OBC/ex2_obc_software/include/HL_reg_gio.h
-ex2_system/source/printf.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/float.h
+ex2_system/source/printf.obj: D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/stdbool.h
+ex2_system/source/printf.obj: D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/_ti_config.h
+ex2_system/source/printf.obj: D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/linkage.h
+ex2_system/source/printf.obj: D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/stdint.h
+ex2_system/source/printf.obj: D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/_stdint40.h
+ex2_system/source/printf.obj: D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/sys/stdint.h
+ex2_system/source/printf.obj: D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/sys/cdefs.h
+ex2_system/source/printf.obj: D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/sys/_types.h
+ex2_system/source/printf.obj: D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/machine/_types.h
+ex2_system/source/printf.obj: D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/machine/_stdint.h
+ex2_system/source/printf.obj: D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/sys/_stdint.h
+ex2_system/source/printf.obj: D:/AlbertaSat/repos/ex2_obc_software/ex2_system/include/printf.h
+ex2_system/source/printf.obj: D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/stdarg.h
+ex2_system/source/printf.obj: D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/stddef.h
+ex2_system/source/printf.obj: D:/AlbertaSat/repos/ex2_obc_software/main/system.h
+ex2_system/source/printf.obj: D:/AlbertaSat/repos/ex2_obc_software/include/FreeRTOS.h
+ex2_system/source/printf.obj: D:/AlbertaSat/repos/ex2_obc_software/include/FreeRTOSConfig.h
+ex2_system/source/printf.obj: D:/AlbertaSat/repos/ex2_obc_software/include/HL_sys_pmu.h
+ex2_system/source/printf.obj: D:/AlbertaSat/repos/ex2_obc_software/include/HL_sys_common.h
+ex2_system/source/printf.obj: D:/AlbertaSat/repos/ex2_obc_software/include/HL_hal_stdtypes.h
+ex2_system/source/printf.obj: D:/AlbertaSat/repos/ex2_obc_software/include/os_portmacro.h
+ex2_system/source/printf.obj: D:/AlbertaSat/repos/ex2_obc_software/include/os_projdefs.h
+ex2_system/source/printf.obj: D:/AlbertaSat/repos/ex2_obc_software/include/os_portable.h
+ex2_system/source/printf.obj: D:/AlbertaSat/repos/ex2_obc_software/include/os_mpu_wrappers.h
+ex2_system/source/printf.obj: D:/AlbertaSat/repos/ex2_obc_software/include/os_task.h
+ex2_system/source/printf.obj: D:/AlbertaSat/repos/ex2_obc_software/include/os_list.h
+ex2_system/source/printf.obj: D:/AlbertaSat/repos/ex2_obc_software/include/HL_sci.h
+ex2_system/source/printf.obj: D:/AlbertaSat/repos/ex2_obc_software/include/HL_reg_sci.h
+ex2_system/source/printf.obj: D:/AlbertaSat/repos/ex2_obc_software/include/HL_reg_gio.h
+ex2_system/source/printf.obj: D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/float.h
 
 ../ex2_system/source/printf.c:
 
-C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/stdbool.h:
+D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/stdbool.h:
 
-C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/_ti_config.h:
+D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/_ti_config.h:
 
-C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/linkage.h:
+D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/linkage.h:
 
-C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/stdint.h:
+D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/stdint.h:
 
-C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/_stdint40.h:
+D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/_stdint40.h:
 
-C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/sys/stdint.h:
+D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/sys/stdint.h:
 
-C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/sys/cdefs.h:
+D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/sys/cdefs.h:
 
-C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/sys/_types.h:
+D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/sys/_types.h:
 
-C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/machine/_types.h:
+D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/machine/_types.h:
 
-C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/machine/_stdint.h:
+D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/machine/_stdint.h:
 
-C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/sys/_stdint.h:
+D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/sys/_stdint.h:
 
-C:/Users/danie/Documents/AlbertaSat_Repos/ExAlta2_OBC/ex2_obc_software/ex2_system/include/printf.h:
+D:/AlbertaSat/repos/ex2_obc_software/ex2_system/include/printf.h:
 
-C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/stdarg.h:
+D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/stdarg.h:
 
-C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/stddef.h:
+D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/stddef.h:
 
-C:/Users/danie/Documents/AlbertaSat_Repos/ExAlta2_OBC/ex2_obc_software/main/system.h:
+D:/AlbertaSat/repos/ex2_obc_software/main/system.h:
 
-C:/Users/danie/Documents/AlbertaSat_Repos/ExAlta2_OBC/ex2_obc_software/include/FreeRTOS.h:
+D:/AlbertaSat/repos/ex2_obc_software/include/FreeRTOS.h:
 
-C:/Users/danie/Documents/AlbertaSat_Repos/ExAlta2_OBC/ex2_obc_software/include/FreeRTOSConfig.h:
+D:/AlbertaSat/repos/ex2_obc_software/include/FreeRTOSConfig.h:
 
-C:/Users/danie/Documents/AlbertaSat_Repos/ExAlta2_OBC/ex2_obc_software/include/HL_sys_pmu.h:
+D:/AlbertaSat/repos/ex2_obc_software/include/HL_sys_pmu.h:
 
-C:/Users/danie/Documents/AlbertaSat_Repos/ExAlta2_OBC/ex2_obc_software/include/HL_sys_common.h:
+D:/AlbertaSat/repos/ex2_obc_software/include/HL_sys_common.h:
 
-C:/Users/danie/Documents/AlbertaSat_Repos/ExAlta2_OBC/ex2_obc_software/include/HL_hal_stdtypes.h:
+D:/AlbertaSat/repos/ex2_obc_software/include/HL_hal_stdtypes.h:
 
-C:/Users/danie/Documents/AlbertaSat_Repos/ExAlta2_OBC/ex2_obc_software/include/os_portmacro.h:
+D:/AlbertaSat/repos/ex2_obc_software/include/os_portmacro.h:
 
-C:/Users/danie/Documents/AlbertaSat_Repos/ExAlta2_OBC/ex2_obc_software/include/os_projdefs.h:
+D:/AlbertaSat/repos/ex2_obc_software/include/os_projdefs.h:
 
-C:/Users/danie/Documents/AlbertaSat_Repos/ExAlta2_OBC/ex2_obc_software/include/os_portable.h:
+D:/AlbertaSat/repos/ex2_obc_software/include/os_portable.h:
 
-C:/Users/danie/Documents/AlbertaSat_Repos/ExAlta2_OBC/ex2_obc_software/include/os_mpu_wrappers.h:
+D:/AlbertaSat/repos/ex2_obc_software/include/os_mpu_wrappers.h:
 
-C:/Users/danie/Documents/AlbertaSat_Repos/ExAlta2_OBC/ex2_obc_software/include/os_task.h:
+D:/AlbertaSat/repos/ex2_obc_software/include/os_task.h:
 
-C:/Users/danie/Documents/AlbertaSat_Repos/ExAlta2_OBC/ex2_obc_software/include/os_list.h:
+D:/AlbertaSat/repos/ex2_obc_software/include/os_list.h:
 
-C:/Users/danie/Documents/AlbertaSat_Repos/ExAlta2_OBC/ex2_obc_software/include/HL_sci.h:
+D:/AlbertaSat/repos/ex2_obc_software/include/HL_sci.h:
 
-C:/Users/danie/Documents/AlbertaSat_Repos/ExAlta2_OBC/ex2_obc_software/include/HL_reg_sci.h:
+D:/AlbertaSat/repos/ex2_obc_software/include/HL_reg_sci.h:
 
-C:/Users/danie/Documents/AlbertaSat_Repos/ExAlta2_OBC/ex2_obc_software/include/HL_reg_gio.h:
+D:/AlbertaSat/repos/ex2_obc_software/include/HL_reg_gio.h:
 
-C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/float.h:
+D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include/float.h:
 

@@ -1,7 +1,7 @@
 ******************************************************************************
                   TI ARM Linker PC v20.2.5                     
 ******************************************************************************
->> Linked Wed Jan 19 11:00:35 2022
+>> Linked Wed Jan 19 13:59:57 2022
 
 OUTPUT FILE NAME:   <ex2_obc_software.out>
 ENTRY POINT SYMBOL: "_c_int00"  address: 0002c4c4
@@ -542,7 +542,7 @@ MODULE SUMMARY
     +--+----------------------------+--------+---------+---------+
        Total:                       79448    544       262752 
                                                               
-    C:\ti\ccs1040\ccs\tools\compiler\ti-cgt-arm_20.2.5.LTS\lib\rtsv7R4_A_be_v3D16_eabi.lib
+    D:\ti\ccs1040\ccs\tools\compiler\ti-cgt-arm_20.2.5.LTS\lib\rtsv7R4_A_be_v3D16_eabi.lib
        _printfi.c.obj               6845     0         0      
        memory.c.obj                 1080     0         8      
        ull_div32.asm.obj            696      0         0      
