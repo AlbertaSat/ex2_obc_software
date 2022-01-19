@@ -48,6 +48,7 @@
 #include "logger/logger.h"
 #include "file_delivery_app.h"
 #include "uhf.h"
+#include "dfgm_converter.h"
 
 #include <FreeRTOS.h>
 #include <os_task.h>
@@ -55,6 +56,9 @@
 #include "uhf.h"
 #include "eps.h"
 #include "system.h"
+
+#include "HL_sci.h"
+#include "HL_reg_sci.h"
 
 /**
  * The main function must:
@@ -80,14 +84,24 @@ static FTP ftp_app;
 void ex2_init(void *pvParameters) {
 
     /* Initialization routine */
+//    uint32 bytes[100] = {0};
+//
+//    // checking to see if DFGM is sending some sort of data
+//    while(1) {
+//        for(int i = 0; i < 100; i++) {
+//            bytes[i] = sciReceiveByte(sciREG4);
+//        }
+//    }
 
-#if defined(HAS_SD_CARD) // TODO: tolerate non-existent SD Card
-    init_filesystem();
-#endif
-    init_csp();
-    /* Start service server, and response server */
-    uhf_i2c_init();
-    init_software();
+    dfgm_init();
+
+//#if defined(HAS_SD_CARD) // TODO: tolerate non-existent SD Card
+//    init_filesystem();
+//#endif
+//    init_csp();
+//    /* Start service server, and response server */
+//    uhf_i2c_init();
+//    init_software();
 
     //  start_eps_mock();
     /*
@@ -128,9 +142,21 @@ int ex2_main(void) {
     InitIO();
     for (int i = 0; i < 1000000; i++)
         ;
+
+//    uint8_t bytes[100] = {0};
+//
+//    while(1) {
+//        for(int i = 0; i < 100; i++) {
+//            if(sciIsRxReady(sciREG4)){
+//                bytes[i] = sciReceiveByte(sciREG4);
+//            }
+//        }
+//
+//    }
+
     xTaskCreate(ex2_init, "init", INIT_STACK_SIZE, NULL, INIT_PRIO, NULL);
 
-    xTaskCreate(init_UHF_PIPE, "init_UHF_PIPE", 2000, NULL, 5, NULL);
+//    xTaskCreate(init_UHF_PIPE, "init_UHF_PIPE", 2000, NULL, 5, NULL);
 
     /* Start FreeRTOS! */
     vTaskStartScheduler();
