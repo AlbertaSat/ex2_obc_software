@@ -34,3 +34,6 @@ extern beacon_packet_2_t beacon_packet_two;
 
 /* Updates Beacon Packet with the latest housekeeping data */
 void update_beacon(All_systems_housekeeping *all_hk_data);
+
+extern beacon_packet_1_t beacon_packet_one;
+extern beacon_packet_2_t beacon_packet_two;
