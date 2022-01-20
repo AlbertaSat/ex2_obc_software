@@ -103,11 +103,11 @@ GPS_RETURNSTATE gps_disable_NMEA_output() { return gps_configure_message_types(0
 GPS_RETURNSTATE gps_skytraq_get_software_crc(uint16_t *crc) {
     uint8_t reply[11];
     GPS_RETURNSTATE result = skytraq_query_software_CRC(&reply, 11);
-    if (result != SUCCESS) {
+    if (result != GPS_SUCCESS) {
         return result;
     }
     *crc = (reply[6] << 8) | reply[7]; // extract 16 bit CRC
-    return SUCCESS;
+    return GPS_SUCCESS;
 }
 /**
  * @brief takes time as NMEA integer and extracts it to a struct
