@@ -128,15 +128,15 @@ void save_packet(dfgm_packet_t *data) {
     for(int i = 0; i < 100; i++) {
         // Build string to save
         memset(dataSample, 0, sizeof(dataSample));
-        sprintf(dataSample,
-                "%d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \n",
-                data->tup[i].X, data->tup[i].Y, data->tup[i].Z, data->hk[0], data->hk[1], data->hk[2],
-                data->hk[3], data->hk[4], data->hk[5], data->hk[6], data->hk[7], data->hk[8],
-                data->hk[9], data->hk[10], data->hk[11]);
+//        sprintf(dataSample,
+//                "%d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \n",
+//                data->tup[i].X, data->tup[i].Y, data->tup[i].Z, data->hk[0], data->hk[1], data->hk[2],
+//                data->hk[3], data->hk[4], data->hk[5], data->hk[6], data->hk[7], data->hk[8],
+//                data->hk[9], data->hk[10], data->hk[11]);
 
         // alternative string build for only magnetic field data
-//        sprintf(dataSample, "%d \t %d \t %d \n",
-//                data->tup[i].X, data->tup[i].Y, data->tup[i].Z);
+        sprintf(dataSample, "%d \t %d \t %d \n",
+                data->tup[i].X, data->tup[i].Y, data->tup[i].Z);
 
         // Save string to file
         iErr = red_write(dataFile, dataSample, strlen(dataSample));
