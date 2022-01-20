@@ -206,7 +206,7 @@ typedef enum nmea_talker_IDs {
 typedef enum enable_disable { DISABLE, ENABLE } enable_disable;
 
 typedef enum GPS_RETURNSTATE {
-    SUCCESS,
+    GPS_SUCCESS,
     RESOURCE_BUSY,
     MESSAGE_INVALID,
     UNKNOWN_ERROR,

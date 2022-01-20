@@ -1,4 +1,5 @@
 #include "skytraq_gps_driver.h"
+#include "skytraq_binary.h"
 #include "FreeRTOS.h"
 #include "HL_sci.h"
 #include "NMEAParser.h"
@@ -47,23 +48,23 @@ bool gps_skytraq_driver_init() {
     skytraq_binary_init();
 
     GPS_RETURNSTATE gps_enable_all = gps_configure_message_types(0, 0, 0, 3);
-    if (gps_enable_all != SUCCESS) {
+    if (gps_enable_all != GPS_SUCCESS) {
         return false;
     }
-    vTaskDelay(500 * portTICK_PERIOD_MS);
+    vTaskDelay(200 * portTICK_PERIOD_MS);
 
     // the manufacturer software restarts the gps with all 0's. Copied here
     GPS_RETURNSTATE restart = skytraq_restart_receiver(HOT_START, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-    if (restart != SUCCESS) {
+    if (restart != GPS_SUCCESS) {
         return false;
     }
-    vTaskDelay(500 * portTICK_PERIOD_MS);
+    vTaskDelay(200 * portTICK_PERIOD_MS);
 
     GPS_RETURNSTATE powerMode = skytraq_configure_power_mode(POWERSAVE, UPDATE_TO_FLASH);
-    if (powerMode != SUCCESS) {
+    if (powerMode != GPS_SUCCESS) {
         return false;
     }
-    vTaskDelay(500 * portTICK_PERIOD_MS);
+    vTaskDelay(200 * portTICK_PERIOD_MS);
 
     // TODO: maybe implement a way to request CRC and compare it with a stored CRC?
     return true;
@@ -102,11 +103,11 @@ GPS_RETURNSTATE gps_disable_NMEA_output() { return gps_configure_message_types(0
 GPS_RETURNSTATE gps_skytraq_get_software_crc(uint16_t *crc) {
     uint8_t reply[11];
     GPS_RETURNSTATE result = skytraq_query_software_CRC(&reply, 11);
-    if (result != SUCCESS) {
+    if (result != GPS_SUCCESS) {
         return result;
     }
     *crc = (reply[6] << 8) | reply[7]; // extract 16 bit CRC
-    return SUCCESS;
+    return GPS_SUCCESS;
 }
 /**
  * @brief takes time as NMEA integer and extracts it to a struct
