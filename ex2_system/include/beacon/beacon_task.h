@@ -90,8 +90,8 @@ typedef struct __attribute__((packed)) {
     uint8_t log6_code;
 } beacon_packet_2_t;
 
-extern beacon_packet_1_t beacon_packet_one;
-extern beacon_packet_2_t beacon_packet_two;
+beacon_packet_1_t beacon_packet_one;
+beacon_packet_2_t beacon_packet_two;
 
 SAT_returnState start_beacon_daemon(void);
 
