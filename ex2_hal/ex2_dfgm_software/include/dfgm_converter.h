@@ -73,18 +73,30 @@ typedef struct __attribute__((__packed__)) {
 } dfgm_packet_t;
 
 /**
- * @brief convert raw DFGM data to magnetic field data
+ * @brief convert part of raw DFGM data to magnetic field data
  * 
  * @param data DFGM packet to process
  */
 void dfgm_convert_mag(dfgm_packet_t * const data);
 
 /**
- * @brief convert raw DFGM data to house keeping data
+ * @brief convert part of raw DFGM data to house keeping data
  *
  * @param data DFGM packet to process
  */
 void dfgm_convert_HK(dfgm_packet_t * const data);
+
+/**
+ * @brief save data packet onto OBC
+ *
+ * @param data DFGM packet to save
+ */
+void save_packet(dfgm_packet_t *data);
+
+/**
+ * @brief read dfgm data file
+ */
+void read_saved_data(); // temp function for binary testing
 
 /**
  * @brief Send DFGM data to terminal via serial port

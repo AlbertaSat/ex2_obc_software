@@ -10,6 +10,16 @@
 #include <time.h>
 #include "os_semphr.h"
 
+#include "stdio.h"
+#include <redconf.h>
+#include <redfs.h>
+#include <redfse.h>
+#include <redposix.h>
+#include <redtests.h>
+#include <redvolume.h>
+
+#include <string.h>
+
 #define BUFFER_SIZE 1248
 #define QUEUE_DEPTH 32
 
@@ -54,7 +64,7 @@ typedef struct __attribute__((packed)) {
 
 void dfgm_convert_mag(dfgm_packet_t *const data) {
 
-    // convert raw data to magnetic field data
+    // convert part of raw data to magnetic field data
     int i;
     for (i = 0; i < 100; i++) {
         short xdac = (data->tup[i].X) >> 16;
@@ -73,10 +83,129 @@ void dfgm_convert_mag(dfgm_packet_t *const data) {
 }
 
 void dfgm_convert_HK(dfgm_packet_t *const data) {
+    // convert part of raw data into house keeping data
     for (int i = 0; i < 12; i++) {
         float HK_value = ((float)(data->hk[i]) * HKScales[i] + HKOffsets[i]);
         data->hk[i] = *(uint16_t *)&HK_value;
     };
+}
+
+void save_packet(dfgm_packet_t *data) {
+    int32_t iErr;
+    const char *pszVolume0 = gaRedVolConf[0].pszPathPrefix;
+
+    // initialize reliance edge
+    iErr = red_init();
+    if (iErr == -1) {
+        fprintf(stderr, "Unexpected error %d from red_init()\r\n", (int)red_errno);
+        exit(red_errno);
+    }
+
+    // format file system volume
+    iErr = red_format(pszVolume0);
+    if (iErr == -1) {
+        fprintf(stderr, "Unexpected error %d from red_format()\r\n", (int)red_errno);
+        exit(red_errno);
+    }
+
+    // mount volume
+    iErr = red_mount(pszVolume0);
+    if (iErr == -1) {
+        fprintf(stderr, "Unexpected error %d from red_mount()\r\n", (int)red_errno);
+        exit(red_errno);
+    }
+
+    // open or create file
+    int32_t dataFile;
+    dataFile = red_open("DFGM_data.txt", RED_O_APPEND | RED_O_CREAT);
+    if (iErr == -1) {
+        fprintf(stderr, "Unexpected error %d from red_open()\r\n", (int)red_errno);
+        exit(red_errno);
+    }
+
+    // Save samples line by line
+    char dataSample[100];
+    for(int i = 0; i < 100; i++) {
+        // Build string to save
+        memset(dataSample, 0, sizeof(dataSample));
+        sprintf(dataSample,
+                "%d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \n",
+                data->tup[i].X, data->tup[i].Y, data->tup[i].Z, data->hk[0], data->hk[1], data->hk[2],
+                data->hk[3], data->hk[4], data->hk[5], data->hk[6], data->hk[7], data->hk[8],
+                data->hk[9], data->hk[10], data->hk[11]);
+
+        // alternative string build for only magnetic field data
+//        sprintf(dataSample, "%d \t %d \t %d \n",
+//                data->tup[i].X, data->tup[i].Y, data->tup[i].Z);
+
+        // Save string to file
+        iErr = red_write(dataFile, dataSample, strlen(dataSample));
+        if (iErr == -1) {
+            fprintf(stderr, "Unexpected error %d from red_write()\r\n", (int)red_errno);
+            exit(red_errno);
+        }
+
+    }
+
+    // close file
+    iErr = red_close(dataFile);
+    if (iErr == -1) {
+        fprintf(stderr, "Unexpected error %d from red_close()\r\n", (int)red_errno);
+        exit(red_errno);
+    }
+}
+
+void read_saved_data() {
+    int32_t iErr;
+    const char *pszVolume0 = gaRedVolConf[0].pszPathPrefix;
+
+    // initialize reliance edge
+    iErr = red_init();
+    if (iErr == -1) {
+        fprintf(stderr, "Unexpected error %d from red_init()\r\n", (int)red_errno);
+        exit(red_errno);
+    }
+
+    // format file system volume
+    iErr = red_format(pszVolume0);
+    if (iErr == -1) {
+        fprintf(stderr, "Unexpected error %d from red_format()\r\n", (int)red_errno);
+        exit(red_errno);
+    }
+
+    // mount volume
+    iErr = red_mount(pszVolume0);
+    if (iErr == -1) {
+        fprintf(stderr, "Unexpected error %d from red_mount()\r\n", (int)red_errno);
+        exit(red_errno);
+    }
+
+    // open file
+    int32_t dataFile;
+    dataFile = red_open("DFGM_data.txt", RED_O_RDONLY);
+    if (iErr == -1) {
+        fprintf(stderr, "Unexpected error %d from red_open()\r\n", (int)red_errno);
+        exit(red_errno);
+    }
+
+    // read & print data
+    char dataSample[10000];
+    iErr = red_read(dataFile, dataSample, 10000);
+    if (iErr == -1) {
+        fprintf(stderr, "Unexpected error %d from red_read()\r\n", (int)red_errno);
+        exit(red_errno);
+    }
+    else {
+        printf(dataSample);
+    }
+
+    // close file
+    iErr = red_close(dataFile);
+    if (iErr == -1) {
+        fprintf(stderr, "Unexpected error %d from red_close()\r\n", (int)red_errno);
+        exit(red_errno);
+    }
+
 }
 
 void send_packet(dfgm_packet_t *packet) {
@@ -104,7 +233,13 @@ void dfgm_rx_task(void *pvParameters) {
         // converts part of raw data to house keeping data
         dfgm_convert_HK(&(dat.pkt));
 
-        send_packet(&(dat.pkt));
+        // save data
+        save_packet(&(dat.pkt));
+
+        // for testing purposes: output file contents into terminal
+        read_saved_data();
+
+        //send_packet(&(dat.pkt));
     }
 }
 
