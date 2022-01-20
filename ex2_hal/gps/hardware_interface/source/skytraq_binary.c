@@ -333,8 +333,6 @@ GPS_RETURNSTATE skytraq_query_software_CRC(uint8_t *reply, uint16_t reply_len) {
     uint8_t payload[2];
     payload[0] = QUERY_SOFTWARE_CRC;
     payload[1] = 1; // system code
-    uint8_t reply[25] = {0};
-    GPS_RETURNSTATE ret;
 
     return skytraq_send_message_with_reply(payload, length, reply, reply_len);
 }
@@ -404,7 +402,6 @@ GPS_RETURNSTATE skytraq_configure_power_mode(skytraq_power_mode mode, skytraq_up
 GPS_RETURNSTATE skytraq_get_gps_time(uint8_t *reply, uint16_t reply_len) {
     uint16_t length = 2;
     uint8_t payload[2];
-    uint8_t reply[100];
 
     *(uint16_t *)&(payload[0]) = QUERY_GPS_TIME;
 
