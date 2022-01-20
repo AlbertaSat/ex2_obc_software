@@ -23,7 +23,7 @@ GPS_RETURNSTATE skytraq_restart_receiver(StartMode start_mode, uint16_t utc_year
 
 GPS_RETURNSTATE skytraq_query_software_version(void);
 
-GPS_RETURNSTATE skytraq_query_software_CRC(uint8_t *reply);
+GPS_RETURNSTATE skytraq_query_software_CRC(uint8_t *reply, uint16_t reply_len);
 
 GPS_RETURNSTATE skytraq_restore_factory_defaults(void);
 
@@ -36,9 +36,10 @@ GPS_RETURNSTATE skytraq_configure_nmea_output_rate(uint8_t GGA_interval, uint8_t
 
 GPS_RETURNSTATE skytraq_configure_power_mode(skytraq_power_mode mode, skytraq_update_attributes attribute);
 
-GPS_RETURNSTATE skytraq_get_gps_time(uint8_t *reply);
+GPS_RETURNSTATE skytraq_get_gps_time(uint8_t *reply, uint16_t reply_len);
 
-GPS_RETURNSTATE skytraq_send_message_with_reply(uint8_t *payload, uint16_t size, uint8_t *reply);
+GPS_RETURNSTATE skytraq_send_message_with_reply(uint8_t *payload, uint16_t size, uint8_t *reply,
+                                                uint16_t reply_len);
 
 GPS_RETURNSTATE skytraq_send_message(uint8_t *paylod, uint16_t size);
 
