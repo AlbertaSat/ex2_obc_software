@@ -90,6 +90,10 @@
 									<listOptionValue builtIn="false" value="IS_FLATSAT"/>
 									<listOptionValue builtIn="false" value="ADCS_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="PAYLOAD_IS_STUBBED"/>
+									<listOptionValue builtIn="false" value="PAYLOAD_IS_STUBBED"/>
+									<listOptionValue builtIn="false" value="WATCHDOG_IS_STUBBED"/>
+									<listOptionValue builtIn="false" value="ATHENA_IS_STUBBED"/>
+									<listOptionValue builtIn="false" value="UHF_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="WATCHDOG_IS_STUBBED"/>
 								</option>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEBUGGING_MODEL.517860824" name="Debugging model" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEBUGGING_MODEL" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEBUGGING_MODEL.SYMDEBUG__DWARF" valueType="enumerated"/>
