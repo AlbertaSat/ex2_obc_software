@@ -29,8 +29,9 @@
 
 enum current_sentence { none, binary, nmea } line_type;
 
-#define GPS_TX_TIMEOUT_MS 1000
+
 SemaphoreHandle_t tx_semphr;
+static SemaphoreHandle_t uart_mutex;
 
 #define BUFSIZE 100
 #define ITEM_SIZE BUFSIZE
@@ -61,6 +62,7 @@ bool skytraq_binary_init() {
     sci_busy = false;
     binary_queue = xQueueCreate(QUEUE_LENGTH, ITEM_SIZE);
     tx_semphr = xSemaphoreCreateBinary();
+    uart_mutex = xSemaphoreCreateMutex();
 
     if (tx_semphr == NULL) {
         return false;
@@ -88,8 +90,13 @@ bool skytraq_binary_init() {
  * @param size size of the message to send, not including start symbol, checksum, or end symbol
  * @return GPS_RETURNSTATE Error explaining why the failure occurred
  */
-GPS_RETURNSTATE skytraq_send_message(uint8_t *paylod, uint16_t size) {
+GPS_RETURNSTATE skytraq_send_message(uint8_t *payload, uint16_t size) {
+    if(xSemaphoreTake(uart_mutex, GPS_UART_TIMEOUT_MS) != pdTRUE) {
+          return UNKNOWN_ERROR;
+    }
+
     if (sci_busy) {
+        xSemaphoreGive(uart_mutex);
         return RESOURCE_BUSY;
     }
     sci_busy = true;
@@ -99,13 +106,14 @@ GPS_RETURNSTATE skytraq_send_message(uint8_t *paylod, uint16_t size) {
     message[0] = 0xA0;
     message[1] = 0xA1;
     *(uint16_t *)&(message[2]) = size;
-    memcpy(&(message[4]), paylod, size);
+    memcpy(&(message[4]), payload, size);
     message[total_size - 3] = calc_checksum(message, size);
     message[total_size - 1] = 0x0A;
     message[total_size - 2] = 0x0D;
 
     sciSend(GPS_SCI, total_size, message);
     if (xSemaphoreTake(tx_semphr, GPS_TX_TIMEOUT_MS) != pdTRUE) {
+        xSemaphoreGive(uart_mutex);
         return TX_TIMEDOUT;
     }
 
@@ -114,9 +122,11 @@ GPS_RETURNSTATE skytraq_send_message(uint8_t *paylod, uint16_t size) {
     uint8_t sentence[BUFSIZE];
 
     // Will wait 1 second for a response
-    BaseType_t success = xQueueReceive(binary_queue, sentence, 1000 * portTICK_PERIOD_MS);
+
+    BaseType_t success = xQueueReceive(binary_queue, sentence, GPS_UART_TIMEOUT_MS);
     if (success != pdPASS) {
         sci_busy = false;
+        xSemaphoreGive(uart_mutex);
         return RX_TIMEDOUT;
     }
 
@@ -126,17 +136,21 @@ GPS_RETURNSTATE skytraq_send_message(uint8_t *paylod, uint16_t size) {
         switch (sentence[4]) {
         case 0x83:
             sci_busy = false;
-            return SUCCESS;
+            xSemaphoreGive(uart_mutex);
+            return GPS_SUCCESS;
         case 0x84:
             sci_busy = false;
+            xSemaphoreGive(uart_mutex);
             return MESSAGE_INVALID;
         }
     } else {
         sci_busy = false;
+        xSemaphoreGive(uart_mutex);
         return INVALID_CHECKSUM_RECEIVE;
     }
     // should never reach here... I pray there is a merciful God
     sci_busy = false;
+    xSemaphoreGive(uart_mutex);
     return UNKNOWN_ERROR;
 }
 
@@ -153,9 +167,10 @@ GPS_RETURNSTATE skytraq_send_message(uint8_t *paylod, uint16_t size) {
  */
 GPS_RETURNSTATE skytraq_send_message_with_reply(uint8_t *payload, uint16_t size, uint8_t *reply,
                                                 uint16_t reply_len) {
+    //skytraq_send_message will receive a confirmation packet from the gps
     GPS_RETURNSTATE worked = skytraq_send_message(payload, size);
 
-    if (worked != SUCCESS) {
+    if (worked != GPS_SUCCESS) {
         return worked;
     }
     // WARNING: possible race condition where another task could get control
@@ -165,8 +180,8 @@ GPS_RETURNSTATE skytraq_send_message_with_reply(uint8_t *payload, uint16_t size,
 
     uint8_t sentence[BUFSIZE];
 
-    // will wait for 1 second for a reply
-    BaseType_t success = xQueueReceive(binary_queue, sentence, 1000 * portTICK_PERIOD_MS);
+    // Wait for 1 second to receive the actual reponse from the GPS
+    BaseType_t success = xQueueReceive(binary_queue, sentence, GPS_UART_TIMEOUT_MS);
 
     if (success != pdPASS) {
         sci_busy = false;
@@ -177,7 +192,7 @@ GPS_RETURNSTATE skytraq_send_message_with_reply(uint8_t *payload, uint16_t size,
     if (cs_success) {
         memcpy((char *)reply, (char *)sentence, reply_len);
         sci_busy = false;
-        return SUCCESS;
+        return GPS_SUCCESS;
     } else {
         sci_busy = false;
         return INVALID_CHECKSUM_RECEIVE;
@@ -212,15 +227,16 @@ void get_byte() {
     if (in == '\n') {
         if (current_line_type == binary) {
             if (binary_queue != NULL)
-                xQueueSendFromISR(binary_queue, binary_message_buffer, NULL);
+                xQueueSendToBackFromISR(binary_queue, binary_message_buffer, pdFALSE);
         } else if (current_line_type == nmea) {
             if (NMEA_queue != NULL)
-                xQueueSendFromISR(NMEA_queue, binary_message_buffer, NULL);
+                xQueueSendToBackFromISR(NMEA_queue, binary_message_buffer, pdFALSE);
         }
         bin_buff_loc = 0;
         memset(binary_message_buffer, 0, BUFSIZE);
         current_line_type = none;
     }
+
 }
 
 /**
@@ -231,10 +247,12 @@ void get_byte() {
  */
 void gps_sciNotification(sciBASE_t *sci, unsigned flags) {
     portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
-    switch (flags) {
+
+    switch(flags) {
     case SCI_RX_INT:
         get_byte();
         sciReceive(sci, 1, &byte);
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         break;
 
     case SCI_TX_INT:
