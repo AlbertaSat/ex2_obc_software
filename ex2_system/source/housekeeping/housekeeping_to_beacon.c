@@ -28,15 +28,17 @@
 int i;
 
 /* Updates Beacon Packet with the latest housekeeping data */
-void update_beacon(All_systems_housekeeping *all_hk_data) {
+void update_beacon(All_systems_housekeeping *all_hk_data, beacon_packet_1_t *beacon_packet_one, beacon_packet_2_t *beacon_packet_two) {
     // Populate the beacon packet by fetching relevant data from housekeeping_services.c
 
     //TODO: remove this after testing
     // get the unix time from RTC, and convert it to a struct using RTCMK_GetUnix
     // RTCMK_GetUnix(&(beacon_packet.time));
 
-    beacon_packet_one->common.time = all_hk_data->hk_timeorder.UNIXtimestamp;
-    beacon_packet_one->common.packet_number = 1;
+    beacon_packet_one.time = all_hk_data->hk_timeorder.UNIXtimestamp;
+    beacon_packet_two.time = all_hk_data->hk_timeorder.UNIXtimestamp;
+    beacon_packet_one.packet_number = 1;
+    beacon_packet_two.packet_number = 2;
 
     /*-------EPS-------*/
     beacon_packet_one.eps_mode = all_hk_data->EPS_hk.battMode;

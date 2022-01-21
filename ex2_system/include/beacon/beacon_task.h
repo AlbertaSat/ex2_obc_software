@@ -13,7 +13,7 @@
  */
 /**
  * @file beacon_task.h
- * @author Andrew R. Rooney
+ * @author Andrew R. Rooney, Grace Yi
  * @date Mar. 6, 2021
  */
 #ifndef EX2_SYSTEM_INCLUDE_BEACON_TASK_H_
@@ -33,11 +33,9 @@
 #include "housekeeping_to_beacon.h"
 
 typedef struct __attribute__((packed)) {
+    //common
     uint32_t time;
     uint8_t packet_number;
-} beacon_common_t;
-typedef struct __attribute__((packed)) {
-    beacon_common_t common;
     //EPS
     uint8_t eps_mode;
     uint16_t battery_voltage;
@@ -63,7 +61,9 @@ typedef struct __attribute__((packed)) {
     uint8_t payload_software_version;
 } beacon_packet_1_t;
 typedef struct __attribute__((packed)) {
-    beacon_common_t common;
+    //common
+    uint32_t time;
+    uint8_t packet_number;
     //OBC
     uint16_t obc_boot_count;
     uint8_t obc_last_reset_reason;
@@ -90,6 +90,8 @@ typedef struct __attribute__((packed)) {
     uint8_t log6_code;
 } beacon_packet_2_t;
 
+//extern beacon_packet_1_t beacon_packet_one;
+//extern beacon_packet_2_t beacon_packet_two;
 beacon_packet_1_t beacon_packet_one;
 beacon_packet_2_t beacon_packet_two;
 

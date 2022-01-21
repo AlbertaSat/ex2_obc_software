@@ -16,7 +16,7 @@
  * @author Grace Yi
  * @date 2021-10-27
  */
-#include <beacon_task.h> //contains beacon packets (ie. a summary of housekeeping data)
+#include "beacon_task.h" //contains beacon packets (ie. a summary of housekeeping data)
 #include "housekeeping_service.h" //contains all housekeeping data
 #include "rtcmk.h"                //to get time from RTC
 #include "services.h"
@@ -29,8 +29,6 @@
  *      The pointer to where housekeeping data is kept
  */
 
-extern beacon_packet_1_t beacon_packet_one;
-extern beacon_packet_2_t beacon_packet_two;
-
 /* Updates Beacon Packet with the latest housekeeping data */
-void update_beacon(All_systems_housekeeping *all_hk_data);
+void update_beacon(All_systems_housekeeping *all_hk_data, beacon_packet_1_t *beacon_packet_1, beacon_packet_2_t *beacon_packet_2);
+

@@ -47,7 +47,7 @@ static void *beacon_daemon(All_systems_housekeeping* all_hk_data) {
             //define each element as 1 for testing purposes
             1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
 
-        update_beacon(&all_hk_data);
+        update_beacon(&all_hk_data, &beacon_packet_one, &beacon_packet_two);
 
         //Send first beacon packet
         memcpy(&(beacon_msg.message), &beacon_packet_one, sizeof(beacon_packet_1_t));
@@ -75,8 +75,6 @@ static void *beacon_daemon(All_systems_housekeeping* all_hk_data) {
         /* Sending the beacon */
         // The beacon transmission period is configurable through comms service
         // by the operator or here through HAL_UHF_getBeaconT().
-        uint8_t scw[SCW_LEN];
-        scw[5] = 1;
         HAL_UHF_setSCW(scw);
 
 #ifndef UHF_IS_STUBBED
