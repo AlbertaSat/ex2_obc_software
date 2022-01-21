@@ -21,14 +21,3 @@
 #include "rtcmk.h"                //to get time from RTC
 #include "services.h"
 #include "adcs_handler.h"
-
-/**
- * @brief
- *      Updates the beacon packet with the latest housekeeping data
- * @param all_hk_data
- *      The pointer to where housekeeping data is kept
- */
-
-/* Updates Beacon Packet with the latest housekeeping data */
-void update_beacon(All_systems_housekeeping *all_hk_data, beacon_packet_1_t *beacon_packet_1, beacon_packet_2_t *beacon_packet_2);
-

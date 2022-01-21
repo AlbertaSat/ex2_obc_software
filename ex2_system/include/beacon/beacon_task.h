@@ -91,10 +91,18 @@ typedef struct __attribute__((packed)) {
     uint8_t log6_code;
 } beacon_packet_2_t;
 
-//extern beacon_packet_1_t beacon_packet_one;
-//extern beacon_packet_2_t beacon_packet_two;
+/**
+ * @brief
+ *      Updates the beacon packet with the latest housekeeping data
+ * @param all_hk_data
+ *      The pointer to where housekeeping data is kept
+ */
+
 beacon_packet_1_t beacon_packet_one;
 beacon_packet_2_t beacon_packet_two;
+
+/* Updates Beacon Packet with the latest housekeeping data */
+void update_beacon(All_systems_housekeeping *all_hk_data, beacon_packet_1_t *beacon_packet_one, beacon_packet_2_t *beacon_packet_two);
 
 SAT_returnState start_beacon_daemon(void);
 
