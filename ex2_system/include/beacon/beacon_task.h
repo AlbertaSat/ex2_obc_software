@@ -60,6 +60,7 @@ typedef struct __attribute__((packed)) {
     //Payload
     uint8_t payload_software_version;
 } beacon_packet_1_t;
+
 typedef struct __attribute__((packed)) {
     //common
     uint32_t time;
