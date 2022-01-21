@@ -95,6 +95,11 @@ void ex2_init(void *pvParameters) {
 
     dfgm_init();
 
+    // for testing purposes: output file contents into terminal after dfgm data collection ends
+    read_saved_data();
+
+    // place breakpoint somewhere here
+
 //#if defined(HAS_SD_CARD) // TODO: tolerate non-existent SD Card
 //    init_filesystem();
 //#endif

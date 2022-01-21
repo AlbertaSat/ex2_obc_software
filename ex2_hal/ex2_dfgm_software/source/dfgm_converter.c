@@ -236,9 +236,6 @@ void dfgm_rx_task(void *pvParameters) {
         // save data
         save_packet(&(dat.pkt));
 
-        // for testing purposes: output file contents into terminal
-        read_saved_data();
-
         //send_packet(&(dat.pkt));
     }
 }
