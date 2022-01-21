@@ -25,12 +25,11 @@
  *      The pointer to where housekeeping data is kept
  */
 
-int i;
 
 /* Updates Beacon Packet with the latest housekeeping data */
 //void update_beacon(All_systems_housekeeping *all_hk_data, beacon_packet_1_t *beacon_packet_one, beacon_packet_2_t *beacon_packet_two) {
 void update_beacon(All_systems_housekeeping *all_hk_data, beacon_packet_1_t *beacon_packet_one, beacon_packet_2_t *beacon_packet_two) {
-
+    int i;
     // Populate the beacon packet by fetching relevant data from housekeeping_services.c
 
     //TODO: remove this after testing

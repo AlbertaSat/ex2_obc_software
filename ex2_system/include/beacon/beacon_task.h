@@ -30,7 +30,6 @@
 #include "system.h"
 #include "uTransceiver.h"
 #include "housekeeping_service.h"
-#include "housekeeping_to_beacon.h"
 
 typedef struct __attribute__((packed)) {
     //common

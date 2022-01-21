@@ -21,3 +21,5 @@
 #include "rtcmk.h"                //to get time from RTC
 #include "services.h"
 #include "adcs_handler.h"
+
+#define max(X, Y) (((X) > (Y)) ? (X) : (Y))
