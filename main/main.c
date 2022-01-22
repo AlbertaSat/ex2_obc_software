@@ -38,7 +38,6 @@
 #include "board_io_tests.h"
 #include "services.h"
 #include "subsystems_ids.h"
-#include "eps.h"
 #include "mocks/mock_eps.h"
 #include "csp/drivers/can.h"
 #include "HL_sci.h"
@@ -47,14 +46,18 @@
 #include "mocks/rtc.h"
 #include "logger/logger.h"
 #include "file_delivery_app.h"
-#include "uhf.h"
+#include "ads7128.h"
+#include "skytraq_gps_driver.h"
 
 #include <FreeRTOS.h>
 #include <os_task.h>
 #include <os_semphr.h>
 #include "uhf.h"
 #include "eps.h"
+#include "sband.h"
 #include "system.h"
+
+#include "sband_binary_tests.h"
 
 /**
  * The main function must:
@@ -67,12 +70,12 @@
  */
 
 #define INIT_PRIO configMAX_PRIORITIES - 1
-#define INIT_STACK_SIZE 1500
+#define INIT_STACK_SIZE 3000
 
 static void init_filesystem();
 static void init_csp();
 static void init_software();
-static void init_UHF_PIPE();
+static void flatsat_test();
 static inline SAT_returnState init_csp_interface();
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
 static FTP ftp_app;
@@ -81,44 +84,56 @@ void ex2_init(void *pvParameters) {
 
     /* Initialization routine */
 
+    /* Hardware Initialization */
+
 #if defined(HAS_SD_CARD) // TODO: tolerate non-existent SD Card
     init_filesystem();
 #endif
-    init_csp();
-    /* Start service server, and response server */
-    uhf_i2c_init();
-    init_software();
 
-    //  start_eps_mock();
-    /*
-        void *task_handler = create_ftp_task(OBC_APP_ID, &ftp_app);
-        if (task_handler == NULL) {
-            return -1;
-        }
-    */
+#ifndef ADCS_IS_STUBBED
+    // PLACEHOLDER: adcs hardware init
+#endif
+
+#ifndef ATHENA_IS_STUBBED
+    // PLACEHOLDER: athena hardware init
+#endif
+
+#ifndef EPS_IS_STUBBED
+    // PLACEHOLDER: eps hardware init
+#endif
+
+#ifndef UHF_IS_STUBBED
+    uhf_i2c_init();
+#endif
+
+#ifndef SBAND_IS_STUBBED
+    STX_Enable();
+    // PLACEHOLDER: sband hardware init
+#endif
+
+#ifndef CHARON_IS_STUBBED
+    gps_skytraq_driver_init();
+    ads7128Init();
+#endif
+
+
+    /* Software Initialization */
+
+    /* Start service server, and response server */
+    init_csp();
+    init_software();
+    // create_ftp_task(OBC_APP_ID, &ftp_app);
+
+
+    /* Test Task */
+    xTaskCreate(flatsat_test, "flatsat_test", 5000, NULL, 4, NULL);
+
     vTaskDelete(0); // delete self to free up heap
 }
 
-void init_UHF_PIPE(void *pvParameters) {
-
-    vTaskDelay(0.1 * ONE_MINUTE);
-    // Read from the UHF
-    uint8_t UHF_return;
-    uint8_t scw[12] = {0};
-    uint32_t pipe_timeout = 0;
-    uint32_t freq = 437875000;
-
-    UHF_genericWrite(1, &freq);
-    UHF_return = UHF_genericRead(0, scw);
-    UHF_return = UHF_genericRead(6, &pipe_timeout);
-    scw[UHF_SCW_UARTBAUD_INDEX] = UHF_UARTBAUD_19200;
-    scw[UHF_SCW_RFMODE_INDEX] = UHF_RFMODE7;
-    scw[UHF_SCW_BCN_INDEX] = UHF_BCN_OFF;
-    scw[UHF_SCW_PIPE_INDEX] = UHF_PIPE_ON;
-    pipe_timeout = 20;
-
-    UHF_return = UHF_genericWrite(6, &pipe_timeout);
-    UHF_return = UHF_genericWrite(0, scw);
+void flatsat_test(void *pvParameters) {
+    sband_binary_test();
+    uhf_binary_test();
 
     vTaskDelete(NULL);
 }
@@ -126,17 +141,13 @@ void init_UHF_PIPE(void *pvParameters) {
 int ex2_main(void) {
     _enable_IRQ_interrupt_(); // enable inturrupts
     InitIO();
-    for (int i = 0; i < 1000000; i++)
-        ;
+    for (int i = 0; i < 1000000; i++);
     xTaskCreate(ex2_init, "init", INIT_STACK_SIZE, NULL, INIT_PRIO, NULL);
-
-    xTaskCreate(init_UHF_PIPE, "init_UHF_PIPE", 2000, NULL, 5, NULL);
 
     /* Start FreeRTOS! */
     vTaskStartScheduler();
 
-    for (;;)
-        ; // Scheduler didn't start
+    for (;;); // Scheduler didn't start
 }
 
 /**
@@ -220,7 +231,7 @@ static void init_csp() {
 /**
  * Initialize CSP interfaces
  * @details
- * 		start the localhost zmq server and add it to the default route
+ *      start the localhost zmq server and add it to the default route
  * with no VIA address
  */
 static inline SAT_returnState init_csp_interface() {
@@ -306,3 +317,4 @@ void SciSendBuf(char *buf, uint32_t bufSize) {
         bufSize--;
     }
 }
+

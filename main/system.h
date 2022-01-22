@@ -59,7 +59,9 @@
 #elif defined(IS_2U)
     #define PAYLOAD_SCI sciREG1  //UART3
 #endif
-#else // These values are expected to be adjusted based on what the developer is working on
+#else
+// These values are expected to be adjusted based on what the developer is working on
+// NOTE: Multiple definitions of the same sciREG will cause issues in the interrupt switch() statement
     #define CSP_SCI sciREG2
     #define GPS_SCI sciREG1
     #define ADCS_SCI sciREG3
@@ -88,7 +90,7 @@
 
 #if defined(IS_ATHENA)
     #define IMU_I2C i2cREG2
-    #define SOLAR_I2C i2cREG2
+    #define SOLAR_I2C i2cREG1
     #define TEMPSENSE_I2C i2cREG2
     #define RTC_I2C i2cREG2
 
@@ -130,7 +132,8 @@ typedef enum {
 #define UHF_GIO_PIN     22
 // TODO: Numbers to be set
 #define UHF_PWR_CHNL    8
-#define STX_PWR_CHNL    1
+//SBAND_PWR_CHNL does not exist as there is no power channel, it is on 5V_AO (always on)
+#define CHARON_PWR_CHNL 7
 #define IRIS_PWR_CHNL   1
 #define DFGM_PWR_CHNL   1
 #define ADCS_PWR_CHNL   1
