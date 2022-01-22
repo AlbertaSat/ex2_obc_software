@@ -117,7 +117,16 @@ STX_return HAL_S_getTR(Sband_TR *S_transmit) {
 STX_return HAL_S_getHK(Sband_Housekeeping *S_hk) {
     STX_return status;
 #ifndef SBAND_IS_STUBBED
-    status = STX_getHK(&S_FS.HK);
+    sBand_housekeeping temp_hk;
+    status = STX_getHK(&temp_hk);
+    S_FS.HK.Output_Power = temp_hk.outputPower;
+    S_FS.HK.PA_Temp = temp_hk.paTemp;
+    S_FS.HK.Top_Temp = temp_hk.topTemp;
+    S_FS.HK.Bottom_Temp = temp_hk.bottomTemp;
+    S_FS.HK.Bat_Current = temp_hk.batCurrent;
+    S_FS.HK.Bat_Voltage = temp_hk.batVoltage;
+    S_FS.HK.PA_Current = temp_hk.paCurrent;
+    S_FS.HK.PA_Voltage = temp_hk.paVoltage;
 #else
     S_FS.HK.Output_Power = 26;
     S_FS.HK.PA_Temp = 27.3;
