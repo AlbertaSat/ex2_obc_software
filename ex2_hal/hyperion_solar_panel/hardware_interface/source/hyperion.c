@@ -409,6 +409,7 @@ void Hyperion_config3_getHK(Hyperion_HouseKeeping *hyperion_hk) {
     // NADIR Temp Adc
     hyperion_hk->Nadir_Temp_Adc = adc_get_tsense_temp(PANEL_SLAVE_ADDR_NADIR2U, ADC_VREF);
 
+#ifndef HYPERION_PANEL_2U_LIMITED
     // Port 2U TEMP 1 2
     hyperion_config_3_value(CONFIG_3_PANEL_P2U, CONFIG_3_CHANNEL_TEMP_1, &hyperion_hk->Port_Temp1);
     hyperion_config_3_value(CONFIG_3_PANEL_P2U, CONFIG_3_CHANNEL_TEMP_2, &hyperion_hk->Port_Temp2);
@@ -424,6 +425,7 @@ void Hyperion_config3_getHK(Hyperion_HouseKeeping *hyperion_hk) {
 
     // Port Dep Temp Adc
     hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_ADC_TEMP, &hyperion_hk->Port_Dep_Temp_Adc);
+#endif
 
     // Star Temp 1 2
     hyperion_config_3_value(CONFIG_3_PANEL_S2U, CONFIG_3_CHANNEL_TEMP_1, &hyperion_hk->Star_Temp1);
@@ -452,6 +454,7 @@ void Hyperion_config3_getHK(Hyperion_HouseKeeping *hyperion_hk) {
     // Nadir Pd 1
     hyperion_config_2_value(CONFIG_2_PANEL_NADIR, CONFIG_2_CHANNEL_PD_1, &hyperion_hk->Nadir_Pd1);
 
+#ifndef HYPERION_PANEL_2U_LIMITED
     // Port 2U Pd 1 2
     hyperion_config_3_value(CONFIG_3_PANEL_P2U, CONFIG_3_CHANNEL_PD_1, &hyperion_hk->Port_Pd1);
     hyperion_config_3_value(CONFIG_3_PANEL_P2U, CONFIG_3_CHANNEL_PD_2, &hyperion_hk->Port_Pd2);
@@ -461,6 +464,7 @@ void Hyperion_config3_getHK(Hyperion_HouseKeeping *hyperion_hk) {
     hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_PD_1, &hyperion_hk->Port_Dep_Pd1);
     hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_PD_2, &hyperion_hk->Port_Dep_Pd2);
     hyperion_hk->Port_Dep_Pd3 = HYPERION_2U_PD_PLACEHOLDER;
+#endif
 
     // Star 2U Pd 1 2
     hyperion_config_3_value(CONFIG_3_PANEL_S2U, CONFIG_3_CHANNEL_PD_1, &hyperion_hk->Star_Pd1);
@@ -477,11 +481,13 @@ void Hyperion_config3_getHK(Hyperion_HouseKeeping *hyperion_hk) {
     hyperion_config_3_value(CONFIG_3_PANEL_Z2U, CONFIG_3_CHANNEL_PD_2, &hyperion_hk->Zenith_Pd2);
     hyperion_hk->Zenith_Pd3 = HYPERION_2U_PD_PLACEHOLDER;
 
+#ifndef HYPERION_PANEL_2U_LIMITED
     // Port 2U Voltage
     hyperion_config_3_value(CONFIG_3_PANEL_P2U, CONFIG_3_CHANNEL_VOLT, &hyperion_hk->Port_Voltage);
 
     // Port Dep 2U Voltage
     hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_VOLT, &hyperion_hk->Port_Dep_Voltage);
+#endif
 
     // Star 2U Voltage
     hyperion_config_3_value(CONFIG_3_PANEL_S2U, CONFIG_3_CHANNEL_VOLT, &hyperion_hk->Star_Voltage);
@@ -492,11 +498,13 @@ void Hyperion_config3_getHK(Hyperion_HouseKeeping *hyperion_hk) {
     // Zenith 2U Voltage
     hyperion_config_3_value(CONFIG_3_PANEL_Z2U, CONFIG_3_CHANNEL_VOLT, &hyperion_hk->Zenith_Voltage);
 
+#ifndef HYPERION_PANEL_2U_LIMITED
     // Port 2U Current
     hyperion_config_3_value(CONFIG_3_PANEL_P2U, CONFIG_3_CHANNEL_CURR, &hyperion_hk->Port_Current);
 
     // Port Dep 2U Current
     hyperion_config_3_value(CONFIG_3_PANEL_PD2U, CONFIG_3_CHANNEL_CURR, &hyperion_hk->Port_Dep_Current);
+#endif
 
     // Star 2U Current
     hyperion_config_3_value(CONFIG_3_PANEL_S2U, CONFIG_3_CHANNEL_CURR, &hyperion_hk->Star_Current);
