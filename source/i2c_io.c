@@ -83,7 +83,6 @@ int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, uint8_t *buf) {
 
     /* Clear the Stop condition */
     i2cClearSCD(i2c);
-    vTaskDelay(i2c_mutex_timeout);
     xSemaphoreGive(i2csemphr_t[index].i2c_mutex);
     return ret;
 }
@@ -139,7 +138,6 @@ int i2c_Send(i2cBASE_t *i2c, uint8_t addr, uint16_t size, uint8_t *buf) {
 
     /* Clear the Stop condition */
     i2cClearSCD(i2c);
-    vTaskDelay(i2c_mutex_timeout);
     xSemaphoreGive(i2csemphr_t[index].i2c_mutex);
     return ret;
 }
