@@ -36,6 +36,7 @@ Deployable_t sw;
  *      Returns FALSE otherwise
  */
 bool hard_switch_status() {
+    //TODO: uncomment ex2_log and vTaskDelay, they are commented out for testing purposes since Cgreen cannot recognize them
     TickType_t two_min_delay = pdMS_TO_TICKS(120 * 1000);
     TickType_t four_min_delay = pdMS_TO_TICKS(240 * 1000);
     TickType_t twenty_sec_delay = pdMS_TO_TICKS(20 * 1000);
