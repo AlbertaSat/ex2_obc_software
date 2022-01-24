@@ -55,8 +55,11 @@ static BaseType_t prvTimeCommand(char *pcWriteBuffer, size_t xWriteBufferLen, co
 
     if (num_parameters == 0) {
         // default behavior: get time
-        RTCMK_GetUnix(&unix_time);
-        snprintf(pcWriteBuffer, MAX_OUTPUT_SIZE, "%d\r\n", unix_time);
+        if (RTCMK_GetUnix(&unix_time) == -1) {
+            snprintf(pcWriteBuffer, MAX_OUTPUT_SIZE, "Could not get time\r\n", unix_time);
+        } else {
+            snprintf(pcWriteBuffer, MAX_OUTPUT_SIZE, "%d\r\n", unix_time);
+        }
         xReturn = pdFALSE;
 
     } else {
