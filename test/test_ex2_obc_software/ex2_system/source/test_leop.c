@@ -100,32 +100,34 @@ Ensure(leop, leop_init_returns_true_when_switchstatus_true) {
 }
 
 Ensure(leop, leop_init_returns_false_when_switchstatus_false) {
-    always_expect(eeprom_get_leop_status, will_return(false));
-    always_expect(switchstatus, will_return(is_false));
+    expect(eeprom_get_leop_status, will_return(false));
+    always_expect(switchstatus, will_return(false));
     always_expect(activate, will_return(is_equal_to(0)));
     //always_expect(eeprom_set_leop_status, will_return(is_true));
     bool open = leop_init();
     assert_that(open, is_false);
 }
 
-/*Ensure(leop, hard_switch_status_is_checked_3times) {
-    //expect(eeprom_get_leop_status, will_return(is_false));
-    expect(switchstatus(Deployable_t deployable), will_return(is_false));
-    expect(activate(Deployable_t knife), will_return(is_false));
-    expect(switchstatus(Deployable_t deployable), will_return(is_false));
-    expect(activate(Deployable_t knife), will_return(is_false));
-    expect(switchstatus(Deployable_t deployable), will_return(is_false));
-    expect(activate(Deployable_t knife), will_return(is_false));
-    bool open = hard_switch_status();
+Ensure(leop, hard_switch_status_is_checked_3times) {
+    expect(eeprom_get_leop_status, will_return(false));
+    expect(switchstatus, will_return(false));
+    expect(activate, will_return(is_equal_to(0)));
+    expect(switchstatus, will_return(false));
+    expect(activate, will_return(is_equal_to(0)));
+    expect(switchstatus, will_return(false));
+    expect(activate, will_return(is_equal_to(0)));
+    expect(switchstatus, will_return(false));
+    //always_expect(eeprom_set_leop_status, will_return(is_true));
+    bool open = leop_init();
     assert_that(open, is_false);
-}*/
+}
 
 TestSuite *leop_test_code() {
     TestSuite *suite = create_test_suite();
     add_test_with_context(suite, leop, leop_init_returns_true_when_eeprom_true);
     add_test_with_context(suite, leop, leop_init_returns_true_when_switchstatus_true);
     add_test_with_context(suite, leop, leop_init_returns_false_when_switchstatus_false);
-    //add_test_with_context(suite, leop, hard_switch_status_is_checked_3times);
+    add_test_with_context(suite, leop, hard_switch_status_is_checked_3times);
 
     return suite;
 }

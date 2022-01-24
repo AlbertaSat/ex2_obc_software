@@ -17,8 +17,7 @@
 #include <system.h>
 
 #include "leop.h"
-#include "../ex2_hal/ex2_athena_software/equipment_handler/include/deployablescontrol.h"
-//#include "deployablescontrol.h"
+#include "deployablescontrol.h"
 #include "leop_eeprom.h"
 
 #define MAX_RETRIES 3

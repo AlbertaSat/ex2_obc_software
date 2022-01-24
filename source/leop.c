@@ -42,7 +42,7 @@ bool hard_switch_status() {
     int getStatus_retries;
     int successful_deployment = 0;
     //sw = {Port, UHF_P, UHF_Z, Payload, UHF_S, UHF_N, Starboard, DFGM};
-    for (getStatus_retries = 0; getStatus_retries < MAX_RETRIES; getStatus_retries++) {
+    for (getStatus_retries = 0; getStatus_retries <= MAX_RETRIES; getStatus_retries++) {
         sw = 0;
         //Deploy DFGM
         if (switchstatus(sw) != 1 && getStatus_retries != MAX_RETRIES) {
@@ -51,13 +51,13 @@ bool hard_switch_status() {
             activate(sw);
             //vTaskDelay(twenty_sec_delay);
         }
-        else if (switchstatus(sw) != 1 && getStatus_retries == MAX_RETRIES) {
+        else if (getStatus_retries == MAX_RETRIES) {
             //ex2_log("Check #%d: %c not deployed, exiting the LEOP sequence.\n", &getStatus_retries, sw);
             return false;
         }
     }
     //vTaskDelay(two_min_delay);
-    for (getStatus_retries = 0; getStatus_retries < MAX_RETRIES; getStatus_retries++) {
+    for (getStatus_retries = 0; getStatus_retries <= MAX_RETRIES; getStatus_retries++) {
         //Deploy UHF
         for (sw = 1; sw < 5; sw++) {
             if (switchstatus(sw) != 1 && getStatus_retries != MAX_RETRIES) {
@@ -66,7 +66,7 @@ bool hard_switch_status() {
                 activate(sw);
                 //vTaskDelay(twenty_sec_delay);
             }
-            else if (switchstatus(sw) != 1 && getStatus_retries == MAX_RETRIES) {
+            else if (getStatus_retries == MAX_RETRIES) {
                 //ex2_log("Check #%d: %c not deployed, exiting the LEOP sequence.\n", &getStatus_retries, sw);
                 return false;
             }
@@ -74,7 +74,7 @@ bool hard_switch_status() {
         }
     }
     //vTaskDelay(four_min_delay);
-    for (getStatus_retries = 0; getStatus_retries < MAX_RETRIES; getStatus_retries++) {
+    for (getStatus_retries = 0; getStatus_retries <= MAX_RETRIES; getStatus_retries++) {
         //Deploy solar panels
         for (sw = 5; sw < 8; sw++) {
             if (switchstatus(sw) != 1 && getStatus_retries != MAX_RETRIES) {
@@ -83,7 +83,7 @@ bool hard_switch_status() {
                 activate(sw);
                 //vTaskDelay(twenty_sec_delay);
             }
-            else if (switchstatus(sw) != 1 && getStatus_retries == MAX_RETRIES) {
+            else if (getStatus_retries == MAX_RETRIES) {
                 //ex2_log("Check #%d: %c not deployed, exiting the LEOP sequence.\n", &getStatus_retries, sw);
                 return false;
             }
