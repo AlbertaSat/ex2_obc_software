@@ -42,62 +42,61 @@ bool hard_switch_status() {
     int getStatus_retries;
     int successful_deployment = 0;
     //sw = {Port, UHF_P, UHF_Z, Payload, UHF_S, UHF_N, Starboard, DFGM};
-    for (getStatus_retries = 0; getStatus_retries <= MAX_RETRIES; getStatus_retries++) {
+    for (getStatus_retries = 0; getStatus_retries < MAX_RETRIES; getStatus_retries++) {
         sw = 0;
         //Deploy DFGM
-        if (getStatus_retries == MAX_RETRIES) {
-            ex2_log("Check #%d: %c not deployed, exiting the LEOP sequence.\n", &getStatus_retries, sw);
-            return false;
-        }
-        else if (switchstatus(sw) != 1) {
-            ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);           
-            ex2_log("Manually activated %c\n", sw);
+        if (switchstatus(sw) != 1 && getStatus_retries != MAX_RETRIES) {
+            //ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);           
+            //ex2_log("Manually activated %c\n", sw);
             activate(sw);
-            vTaskDelay(twenty_sec_delay);
+            //vTaskDelay(twenty_sec_delay);
+        }
+        else if (switchstatus(sw) != 1 && getStatus_retries == MAX_RETRIES) {
+            //ex2_log("Check #%d: %c not deployed, exiting the LEOP sequence.\n", &getStatus_retries, sw);
+            return false;
         }
     }
-    vTaskDelay(two_min_delay);
-    for (getStatus_retries = 0; getStatus_retries <= MAX_RETRIES; getStatus_retries++) {
+    //vTaskDelay(two_min_delay);
+    for (getStatus_retries = 0; getStatus_retries < MAX_RETRIES; getStatus_retries++) {
         //Deploy UHF
-        if (getStatus_retries == MAX_RETRIES) {
-            ex2_log("Check #%d: %c not deployed, exiting the LEOP sequence.\n", &getStatus_retries, sw);
-            return false;
-        }
         for (sw = 1; sw < 5; sw++) {
-            if (switchstatus(sw) != 1) {
-                ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);           
-                ex2_log("Manually activated %c\n", sw); 
+            if (switchstatus(sw) != 1 && getStatus_retries != MAX_RETRIES) {
+                //ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);           
+                //ex2_log("Manually activated %c\n", sw); 
                 activate(sw);
-                vTaskDelay(twenty_sec_delay);
+                //vTaskDelay(twenty_sec_delay);
             }
+            else if (switchstatus(sw) != 1 && getStatus_retries == MAX_RETRIES) {
+                //ex2_log("Check #%d: %c not deployed, exiting the LEOP sequence.\n", &getStatus_retries, sw);
+                return false;
+            }
+            
         }
     }
-    vTaskDelay(four_min_delay);
-    for (getStatus_retries = 0; getStatus_retries <= MAX_RETRIES; getStatus_retries++) {
-    //Deploy solar panels
-        if (getStatus_retries == MAX_RETRIES) {
-            ex2_log("Check #%d: %c not deployed, exiting the LEOP sequence.\n", &getStatus_retries, sw);
-            return false;
-        }
+    //vTaskDelay(four_min_delay);
+    for (getStatus_retries = 0; getStatus_retries < MAX_RETRIES; getStatus_retries++) {
+        //Deploy solar panels
         for (sw = 5; sw < 8; sw++) {
-            if (switchstatus(sw) != 1) {
-                ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);           
-                ex2_log("Manually activated %c\n", sw); 
+            if (switchstatus(sw) != 1 && getStatus_retries != MAX_RETRIES) {
+                //ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);           
+                //ex2_log("Manually activated %c\n", sw); 
                 activate(sw);
-                vTaskDelay(twenty_sec_delay);
+                //vTaskDelay(twenty_sec_delay);
             }
-            else if (switchstatus(sw) == 1) {
-                successful_deployment++;
+            else if (switchstatus(sw) != 1 && getStatus_retries == MAX_RETRIES) {
+                //ex2_log("Check #%d: %c not deployed, exiting the LEOP sequence.\n", &getStatus_retries, sw);
+                return false;
             }
         }
     }
     
-    if (switchstatus(0) & switchstatus(1) & switchstatus(2) & switchstatus(3) & switchstatus(4) & switchstatus(5) & switchstatus(6) & switchstatus(7) == 1) {
+    /*if (switchstatus(0) & switchstatus(1) & switchstatus(2) & switchstatus(3) & switchstatus(4) & switchstatus(5) & switchstatus(6) & switchstatus(7) == 1) {
         return true; 
     }
     else {
         return false;
-    }
+    }*/
+    return true;
 } 
 
 /**
@@ -112,12 +111,15 @@ bool hard_switch_status() {
 bool leop_init() {
     if (eeprom_get_leop_status() != true) {
         //If leop sequence was never executed, check that all hard switches have been deployed
-        return hard_switch_status();
         if (hard_switch_status() == true) {
             //If all hard switch have been deployed, set eeprom flag to TRUE
             eeprom_set_leop_status();
             return true;
         }
+        return false;
+    }
+    else if (eeprom_get_leop_status() == true) {
+        return true;
     }
 }
 

@@ -18,7 +18,8 @@ bool eeprom_get_leop_status() {
     }
 }
 
-void eeprom_set_leop_status() {
+bool eeprom_set_leop_status() {
     bool leop_status = true;
     TI_Fee_WriteSync(LEOP_STATUS_BLOCKNUMBER, (uint8_t *)&leop_status);
+    return true;
 }
