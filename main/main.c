@@ -84,9 +84,9 @@ static FTP ftp_app;
 void ex2_init(void *pvParameters) {
 
     /* Initialization routine */
-//    uint32 bytes[100] = {0};
-//
+
 //    // checking to see if DFGM is sending some sort of data
+//    uint32 bytes[100] = {0};
 //    while(1) {
 //        for(int i = 0; i < 100; i++) {
 //            bytes[i] = sciReceiveByte(sciREG4);
@@ -94,11 +94,6 @@ void ex2_init(void *pvParameters) {
 //    }
 
     dfgm_init();
-
-    // for testing purposes: output file contents into terminal after dfgm data collection ends
-    read_saved_data();
-
-    // place breakpoint somewhere here
 
 //#if defined(HAS_SD_CARD) // TODO: tolerate non-existent SD Card
 //    init_filesystem();
