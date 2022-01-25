@@ -26,6 +26,14 @@
 #include <string.h>
 #include "system.h"
 
+#include "stdio.h"
+#include <redconf.h>
+#include <redfs.h>
+#include <redfse.h>
+#include <redposix.h>
+#include <redtests.h>
+#include <redvolume.h>
+
 #define scilinREG PRINTF_SCI
 
 double dummy;
@@ -66,6 +74,8 @@ void print_raw(struct SECOND *ptr);
 void print_mean(struct SECOND *ptr);
 void shift_sptr(void);
 void apply_filter(void);
+
+void convert_100Hz_to_1Hz(char * filename100Hz, char * filename1Hz);
 
 int main_filter(int argc, char **argv) {
   int i;
@@ -262,4 +272,104 @@ void shift_sptr(void) {
   //  }
 
   //  sptr[11] = sptr[0];
+}
+
+void convert_100Hz_to_1Hz(char * filename100Hz, char * filename1Hz) {
+    /*------------------- Read the file into a string ------------------*/
+
+    int32_t iErr;
+    const char *pszVolume0 = gaRedVolConf[0].pszPathPrefix;
+
+    // initialize reliance edge
+    iErr = red_init();
+    if (iErr == -1) {
+        fprintf(stderr, "Unexpected error %d from red_init()\r\n", (int)red_errno);
+        exit(red_errno);
+    }
+
+    // format file system volume    // doesn't need to be done every time
+    iErr = red_format(pszVolume0);
+    if (iErr == -1) {
+        fprintf(stderr, "Unexpected error %d from red_format()\r\n", (int)red_errno);
+        exit(red_errno);
+    }
+
+    // mount volume
+    iErr = red_mount(pszVolume0);
+    if (iErr == -1) {
+        fprintf(stderr, "Unexpected error %d from red_mount()\r\n", (int)red_errno);
+        exit(red_errno);
+    }
+
+    // open file
+    int32_t dataFile;
+    dataFile = red_open(filename100Hz, RED_O_RDONLY);
+    if (iErr == -1) {
+        fprintf(stderr, "Unexpected error %d from red_open()\r\n", (int)red_errno);
+        exit(red_errno);
+    }
+
+    // read data to string
+    char data100Hz[100000];
+    iErr = red_read(dataFile, data100Hz, 10000);
+    if (iErr == -1) {
+        fprintf(stderr, "Unexpected error %d from red_read()\r\n", (int)red_errno);
+        exit(red_errno);
+    }
+
+    // close file
+    iErr = red_close(dataFile);
+    if (iErr == -1) {
+        fprintf(stderr, "Unexpected error %d from red_close()\r\n", (int)red_errno);
+        exit(red_errno);
+    }
+
+    /*------------------- Parse & convert packet to SECOND, then filter & save new 1 Hz sample ------------------*/
+    // Note that filtering takes in one packet at a time, but requires 2 packets to apply the filter
+
+    // get the first value in the file via a token
+    // all sequential values can be read by using NULL as the string name in strtok()
+    char * value = strtok(data100Hz, " ");
+    int firstValueOfPacketFlag = 1;
+
+    // repeat until there are no more packets left to read in the file
+    while(value != NULL) {
+        // a SECOND struct contains both the 100 X-Y-Z samples and the 1 filtered X-Y-Z sample
+        struct SECOND packet;
+
+        /*---------------------- Parse, & convert ----------------------*/
+        // 100 X-Y-Z samples = 1 packet
+        for (int sample = 0; sample < 100; sample++) {
+            // For distinguishing what value the packet starts with
+            if (firstValueOfPacketFlag) {
+                packet.X[sample] = strtod(value, NULL);
+                firstValueOfPacketFlag = 0;
+            } else {
+                value = strtok(NULL, " ");
+                packet.X[sample] = strtod(value, NULL);
+            }
+
+            value = strtok(NULL, " ");
+            packet.Y[sample] = strtod(value, NULL);
+
+            value = strtok(NULL, " ");
+            packet.Z[sample] = strtod(value, NULL);
+        }
+
+        // strtok returns NULL if there are no more tokens that can be processed
+        value = strtok(NULL, " ");
+        firstValueOfPacketFlag = 1;
+
+        /*---------------------- Apply filter ----------------------*/
+
+
+        /*---------------------- Save filtered sample ----------------------*/
+
+
+
+    }
+
+
+
+
 }
