@@ -17,9 +17,9 @@
  * @date Mar. 6, 2021
  */
 
+#include <beacon_task.h>
 #include "system_tasks.h"
 
-#include "beacon/beacon.h"
 #include "coordinate_management/coordinate_management.h"
 #include "diagnostic/diagnostic.h"
 #include "housekeeping/housekeeping_task.h"
