@@ -91,12 +91,12 @@ void dfgm_convert_HK(dfgm_packet_t * const data);
  *
  * @param data DFGM packet to save
  */
-void save_packet(dfgm_packet_t *data);
+void save_packet(dfgm_packet_t *data, char *filename);
 
 /**
  * @brief read dfgm data file
  */
-void read_saved_data(); // temp function for binary testing
+void print_file(char* filename); // temp function for binary testing
 
 /**
  * @brief Send DFGM data to terminal via serial port

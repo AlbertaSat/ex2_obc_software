@@ -90,7 +90,7 @@ void dfgm_convert_HK(dfgm_packet_t *const data) {
     };
 }
 
-void save_packet(dfgm_packet_t *data) {
+void save_packet(dfgm_packet_t *data, char *filename) {
     int32_t iErr;
     const char *pszVolume0 = gaRedVolConf[0].pszPathPrefix;
 
@@ -101,7 +101,7 @@ void save_packet(dfgm_packet_t *data) {
         exit(red_errno);
     }
 
-    // format file system volume
+    // format file system volume    // does not need to be done every time
     iErr = red_format(pszVolume0);
     if (iErr == -1) {
         fprintf(stderr, "Unexpected error %d from red_format()\r\n", (int)red_errno);
@@ -117,7 +117,7 @@ void save_packet(dfgm_packet_t *data) {
 
     // open or create file
     int32_t dataFile;
-    dataFile = red_open("DFGM_data.txt", RED_O_APPEND | RED_O_CREAT);
+    dataFile = red_open(filename, RED_O_APPEND | RED_O_CREAT);
     if (iErr == -1) {
         fprintf(stderr, "Unexpected error %d from red_open()\r\n", (int)red_errno);
         exit(red_errno);
@@ -128,14 +128,9 @@ void save_packet(dfgm_packet_t *data) {
     for(int i = 0; i < 100; i++) {
         // Build string to save
         memset(dataSample, 0, sizeof(dataSample));
-//        sprintf(dataSample,
-//                "%d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \n",
-//                data->tup[i].X, data->tup[i].Y, data->tup[i].Z, data->hk[0], data->hk[1], data->hk[2],
-//                data->hk[3], data->hk[4], data->hk[5], data->hk[6], data->hk[7], data->hk[8],
-//                data->hk[9], data->hk[10], data->hk[11]);
 
-        // alternative string build for only magnetic field data
-        sprintf(dataSample, "%d \t %d \t %d \n",
+        // build string for only magnetic field data
+        sprintf(dataSample, " %d %d %d\n",
                 data->tup[i].X, data->tup[i].Y, data->tup[i].Z);
 
         // Save string to file
@@ -144,7 +139,6 @@ void save_packet(dfgm_packet_t *data) {
             fprintf(stderr, "Unexpected error %d from red_write()\r\n", (int)red_errno);
             exit(red_errno);
         }
-
     }
 
     // close file
@@ -155,7 +149,7 @@ void save_packet(dfgm_packet_t *data) {
     }
 }
 
-void read_saved_data() {
+void print_file(char* filename) {
     int32_t iErr;
     const char *pszVolume0 = gaRedVolConf[0].pszPathPrefix;
 
@@ -166,7 +160,7 @@ void read_saved_data() {
         exit(red_errno);
     }
 
-    // format file system volume
+    // format file system volume    // doesn't need to be done every time
     iErr = red_format(pszVolume0);
     if (iErr == -1) {
         fprintf(stderr, "Unexpected error %d from red_format()\r\n", (int)red_errno);
@@ -189,14 +183,14 @@ void read_saved_data() {
     }
 
     // read & print data
-    char dataSample[10000];
-    iErr = red_read(dataFile, dataSample, 10000);
+    char data[100000];
+    iErr = red_read(dataFile, data, 10000);
     if (iErr == -1) {
         fprintf(stderr, "Unexpected error %d from red_read()\r\n", (int)red_errno);
         exit(red_errno);
     }
     else {
-        printf(dataSample);
+        printf("%s", data);
     }
 
     // close file
@@ -234,7 +228,9 @@ void dfgm_rx_task(void *pvParameters) {
         dfgm_convert_HK(&(dat.pkt));
 
         // save data
-        save_packet(&(dat.pkt));
+        save_packet(&(dat.pkt), "high_rate_DFGM_data.txt");
+
+        print_file("high_rate_DFGM_data.txt");
 
         //send_packet(&(dat.pkt));
     }
