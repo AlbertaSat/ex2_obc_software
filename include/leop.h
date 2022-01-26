@@ -16,7 +16,6 @@
 #include <string.h>
 #include <system.h>
 
-#include "leop.h"
 #include "deployablescontrol.h"
 #include "leop_eeprom.h"
 

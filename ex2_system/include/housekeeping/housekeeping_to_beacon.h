@@ -16,20 +16,10 @@
  * @author Grace Yi
  * @date 2021-10-27
  */
-#include <beacon_task.h> //contains beacon packets (ie. a summary of housekeeping data)
+#include "beacon_task.h" //contains beacon packets (ie. a summary of housekeeping data)
 #include "housekeeping_service.h" //contains all housekeeping data
 #include "rtcmk.h"                //to get time from RTC
 #include "services.h"
 #include "adcs_handler.h"
 
-/**
- * @brief
- *      Updates the beacon packet with the latest housekeeping data
- * @param all_hk_data
- *      The pointer to where housekeeping data is kept
- */
-
-beacon_packet_1_t beacon_packet;
-
-/* Updates Beacon Packet with the latest housekeeping data */
-void update_beacon(All_systems_housekeeping *all_hk_data);
+#define max(X, Y) (((X) > (Y)) ? (X) : (Y))
