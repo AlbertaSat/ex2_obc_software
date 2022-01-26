@@ -68,15 +68,6 @@ struct SECOND buffer[2];
 struct SECOND *sptr[2];
 struct SECOND *g_ptr;
 
-void read_second(struct SECOND *ptr);
-void print_result(struct SECOND *ptr);
-void print_raw(struct SECOND *ptr);
-void print_mean(struct SECOND *ptr);
-void shift_sptr(void);
-void apply_filter(void);
-
-void convert_100Hz_to_1Hz(char * filename100Hz, char * filename1Hz);
-
 int main_filter(int argc, char **argv) {
   int i;
   dummy = 99999.999; // Invalid data value
@@ -102,6 +93,8 @@ int main_filter(int argc, char **argv) {
   //  }
 
   sciSend(scilinREG, 5, (uint8 *)"yep3\n");
+
+  // Actual filtering occurs here
   while (1) {
     apply_filter();
     print_result(sptr[1]);
@@ -187,80 +180,84 @@ void apply_filter(void) {
   sptr[1]->Zfilt = Zfilt;
 }
 
-void read_second(struct SECOND *ptr) {
-  g_ptr = ptr;
-  sciSend(scilinREG, 5, (uint8 *)"scanf");
-}
+//// Unused function
+//void read_second(struct SECOND *ptr) {
+//  g_ptr = ptr;
+//  sciSend(scilinREG, 5, (uint8 *)"scanf");
+//}
 
-void print_result(struct SECOND *ptr) {
-  char outBuff[50];
-  sprintf(outBuff, "%s %12.3lf%12.3lf%12.3lf %c\n", ptr->datetime, ptr->Xfilt,
-          ptr->Yfilt, ptr->Zfilt, ptr->flag);
-  sciSend(scilinREG, 50, (unsigned char *)&outBuff);
-  free(outBuff);
-}
+//// Unused function
+//void print_result(struct SECOND *ptr) {
+//  char outBuff[50];
+//  sprintf(outBuff, "%s %12.3lf%12.3lf%12.3lf %c\n", ptr->datetime, ptr->Xfilt,
+//          ptr->Yfilt, ptr->Zfilt, ptr->flag);
+//  sciSend(scilinREG, 50, (unsigned char *)&outBuff);
+//  free(outBuff);
+//}
 
-void print_raw(struct SECOND *ptr) {
-  char outBuff[50];
-  sprintf(outBuff, "%s %12.3lf %12.3lf %12.3lf %c\n", ptr->datetime, ptr->X[0],
-          ptr->Y[0], ptr->Z[0], ptr->flag);
-  sciSend(scilinREG, 50, (unsigned char *)&outBuff);
-  free(outBuff);
-}
+//// Unused function
+//void print_raw(struct SECOND *ptr) {
+//  char outBuff[50];
+//  sprintf(outBuff, "%s %12.3lf %12.3lf %12.3lf %c\n", ptr->datetime, ptr->X[0],
+//          ptr->Y[0], ptr->Z[0], ptr->flag);
+//  sciSend(scilinREG, 50, (unsigned char *)&outBuff);
+//  free(outBuff);
+//}
 
-void print_mean(struct SECOND *ptr) {
-  double Xmean, Ymean, Zmean;
-  int sample;
-  int Xinvalid, Yinvalid, Zinvalid;
-
-  //  Does invalid data appear in this second?
-  Xinvalid = 0;
-  Yinvalid = 0;
-  Zinvalid = 0;
-  //
-  Xmean = 0.0;
-  Ymean = 0.0;
-  Zmean = 0.0;
-
-  for (sample = 0; sample < 100; sample++) {
-
-    //      if (ptr->X[sample] > dumcomp) Xinvalid=1;
-    //      if (ptr->Y[sample] > dumcomp) Yinvalid=1;
-    //      if (ptr->Z[sample] > dumcomp) Zinvalid=1;
-
-    Xmean += ptr->X[sample];
-    Ymean += ptr->Y[sample];
-    Zmean += ptr->Z[sample];
-  }
-
-  if (Xinvalid)
-    Xmean = dummy;
-  else
-    Xmean = Xmean / 100.0;
-  if (Yinvalid)
-    Ymean = dummy;
-  else
-    Ymean = Ymean / 100.0;
-  if (Zinvalid)
-    Zmean = dummy;
-  else
-    Zmean = Zmean / 100.0;
-
-  if (Xinvalid || Yinvalid || Zinvalid)
-    ptr->flag = 'x';
-
-  sciSend(scilinREG, 5, (uint8 *)"yepx\n");
-
-  sciSend(scilinREG, 8, (uint8 *)&Xmean);
-  sciSend(scilinREG, 1, (uint8 *)" ");
-  sciSend(scilinREG, 8, (uint8 *)&Ymean);
-  sciSend(scilinREG, 1, (uint8 *)" ");
-  sciSend(scilinREG, 8, (uint8 *)&Zmean);
-  sciSend(scilinREG, 1, (uint8 *)"\n");
-
-  //    sprintf(outBuff, "%s %12.3lf %12.3lf %12.3lf %c\n", ptr->datetime,
-  //    Xmean, Ymean, Zmean, ptr->flag);
-}
+// Unused function
+//void print_mean(struct SECOND *ptr) {
+//  double Xmean, Ymean, Zmean;
+//  int sample;
+//  int Xinvalid, Yinvalid, Zinvalid;
+//
+//  //  Does invalid data appear in this second?
+//  Xinvalid = 0;
+//  Yinvalid = 0;
+//  Zinvalid = 0;
+//  //
+//  Xmean = 0.0;
+//  Ymean = 0.0;
+//  Zmean = 0.0;
+//
+//  for (sample = 0; sample < 100; sample++) {
+//
+//    //      if (ptr->X[sample] > dumcomp) Xinvalid=1;
+//    //      if (ptr->Y[sample] > dumcomp) Yinvalid=1;
+//    //      if (ptr->Z[sample] > dumcomp) Zinvalid=1;
+//
+//    Xmean += ptr->X[sample];
+//    Ymean += ptr->Y[sample];
+//    Zmean += ptr->Z[sample];
+//  }
+//
+//  if (Xinvalid)
+//    Xmean = dummy;
+//  else
+//    Xmean = Xmean / 100.0;
+//  if (Yinvalid)
+//    Ymean = dummy;
+//  else
+//    Ymean = Ymean / 100.0;
+//  if (Zinvalid)
+//    Zmean = dummy;
+//  else
+//    Zmean = Zmean / 100.0;
+//
+//  if (Xinvalid || Yinvalid || Zinvalid)
+//    ptr->flag = 'x';
+//
+//  sciSend(scilinREG, 5, (uint8 *)"yepx\n");
+//
+//  sciSend(scilinREG, 8, (uint8 *)&Xmean);
+//  sciSend(scilinREG, 1, (uint8 *)" ");
+//  sciSend(scilinREG, 8, (uint8 *)&Ymean);
+//  sciSend(scilinREG, 1, (uint8 *)" ");
+//  sciSend(scilinREG, 8, (uint8 *)&Zmean);
+//  sciSend(scilinREG, 1, (uint8 *)"\n");
+//
+//  //    sprintf(outBuff, "%s %12.3lf %12.3lf %12.3lf %c\n", ptr->datetime,
+//  //    Xmean, Ymean, Zmean, ptr->flag);
+//}
 
 void shift_sptr(void) {
   int i;
@@ -274,11 +271,63 @@ void shift_sptr(void) {
   //  sptr[11] = sptr[0];
 }
 
+void save_second(struct SECOND *second, char * filename) {
+    int32_t iErr;
+    const char *pszVolume0 = gaRedVolConf[1].pszPathPrefix;
+
+    // initialize reliance edge
+    iErr = red_init();
+    if (iErr == -1) {
+        fprintf(stderr, "Unexpected error %d from red_init()\r\n", (int)red_errno);
+        exit(red_errno);
+    }
+
+    // format file system volume    // does not need to be done every time
+//    iErr = red_format(pszVolume0);
+//    if (iErr == -1) {
+//        fprintf(stderr, "Unexpected error %d from red_format()\r\n", (int)red_errno);
+//        exit(red_errno);
+//    }
+
+    // mount volume
+    iErr = red_mount(pszVolume0);
+    if (iErr == -1) {
+        fprintf(stderr, "Unexpected error %d from red_mount()\r\n", (int)red_errno);
+        exit(red_errno);
+    }
+
+    // open or create file
+    int32_t dataFile;
+    dataFile = red_open(filename, RED_O_WRONLY | RED_O_CREAT | RED_O_APPEND);
+    if (iErr == -1) {
+        fprintf(stderr, "Unexpected error %d from red_open()\r\n", (int)red_errno);
+        exit(red_errno);
+    }
+
+    // build string to save from data in second
+    char dataSample[100];
+    sprintf(dataSample, " %d %d %d\n", second->Xfilt, second->Yfilt, second->Zfilt);
+
+    // save 1 Hz sample
+    iErr = red_write(dataFile, dataSample, strlen(dataSample));
+    if (iErr == -1) {
+        fprintf(stderr, "Unexpected error %d from red_write()\r\n", (int)red_errno);
+        exit(red_errno);
+    }
+
+    // close file
+    iErr = red_close(dataFile);
+    if (iErr == -1) {
+        fprintf(stderr, "Unexpected error %d from red_close()\r\n", (int)red_errno);
+        exit(red_errno);
+    }
+}
+
 void convert_100Hz_to_1Hz(char * filename100Hz, char * filename1Hz) {
     /*------------------- Read the file into a string ------------------*/
 
     int32_t iErr;
-    const char *pszVolume0 = gaRedVolConf[0].pszPathPrefix;
+    const char *pszVolume0 = gaRedVolConf[1].pszPathPrefix;
 
     // initialize reliance edge
     iErr = red_init();
@@ -288,11 +337,11 @@ void convert_100Hz_to_1Hz(char * filename100Hz, char * filename1Hz) {
     }
 
     // format file system volume    // doesn't need to be done every time
-    iErr = red_format(pszVolume0);
-    if (iErr == -1) {
-        fprintf(stderr, "Unexpected error %d from red_format()\r\n", (int)red_errno);
-        exit(red_errno);
-    }
+//    iErr = red_format(pszVolume0);
+//    if (iErr == -1) {
+//        fprintf(stderr, "Unexpected error %d from red_format()\r\n", (int)red_errno);
+//        exit(red_errno);
+//    }
 
     // mount volume
     iErr = red_mount(pszVolume0);
@@ -311,7 +360,7 @@ void convert_100Hz_to_1Hz(char * filename100Hz, char * filename1Hz) {
 
     // read data to string
     char data100Hz[100000];
-    iErr = red_read(dataFile, data100Hz, 10000);
+    iErr = red_read(dataFile, data100Hz, 100000);
     if (iErr == -1) {
         fprintf(stderr, "Unexpected error %d from red_read()\r\n", (int)red_errno);
         exit(red_errno);
@@ -332,44 +381,49 @@ void convert_100Hz_to_1Hz(char * filename100Hz, char * filename1Hz) {
     char * value = strtok(data100Hz, " ");
     int firstValueOfPacketFlag = 1;
 
+    // a SECOND struct contains both the 100 X-Y-Z samples and the 1 filtered X-Y-Z sample
+    // sptr probably stands for "second pointer"
+    sptr[0] = &buffer[0];
+    sptr[1] = &buffer[1];
+
+    // There must be 2 packets of data before filtering can start
+    int firstPacketFlag = 1;
+
     // repeat until there are no more packets left to read in the file
     while(value != NULL) {
-        // a SECOND struct contains both the 100 X-Y-Z samples and the 1 filtered X-Y-Z sample
-        struct SECOND packet;
-
-        /*---------------------- Parse, & convert ----------------------*/
-        // 100 X-Y-Z samples = 1 packet
+        /*---------------------- Parse & convert one packet, then store into a second ----------------------*/
+        // 3 #s from file = 1 X-Y-Z sample, 100 X-Y-Z samples = 1 packet, 300 #s from file = 1 packet
         for (int sample = 0; sample < 100; sample++) {
             // For distinguishing what value the packet starts with
             if (firstValueOfPacketFlag) {
-                packet.X[sample] = strtod(value, NULL);
+                sptr[1]->X[sample] = strtod(value, NULL);
                 firstValueOfPacketFlag = 0;
             } else {
                 value = strtok(NULL, " ");
-                packet.X[sample] = strtod(value, NULL);
+                sptr[1]->X[sample] = strtod(value, NULL);
             }
 
             value = strtok(NULL, " ");
-            packet.Y[sample] = strtod(value, NULL);
+            sptr[1]->Y[sample] = strtod(value, NULL);
 
             value = strtok(NULL, " ");
-            packet.Z[sample] = strtod(value, NULL);
+            sptr[1]->Z[sample] = strtod(value, NULL);
         }
 
-        // strtok returns NULL if there are no more tokens that can be processed
+        // strtok returns NULL if there are no more tokens that can be processed (i.e. EOF is reached)
         value = strtok(NULL, " ");
         firstValueOfPacketFlag = 1;
 
-        /*---------------------- Apply filter ----------------------*/
-
-
-        /*---------------------- Save filtered sample ----------------------*/
-
-
+        /*---------------------- Apply filter and save filtered sample to a file ----------------------*/
+        if (firstPacketFlag) {
+            // Ensures there are 2 packets in the buffer before filtering
+            shift_sptr();
+            firstPacketFlag = 0;
+        } else {
+            apply_filter();
+            save_second(sptr[1], "survey_rate_DFGM_data.txt");
+            shift_sptr();
+        }
 
     }
-
-
-
-
 }
