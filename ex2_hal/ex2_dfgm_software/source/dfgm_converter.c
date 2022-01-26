@@ -92,7 +92,7 @@ void dfgm_convert_HK(dfgm_packet_t *const data) {
 
 void save_packet(dfgm_packet_t *data, char *filename) {
     int32_t iErr;
-    const char *pszVolume0 = gaRedVolConf[0].pszPathPrefix;
+    const char *pszVolume0 = gaRedVolConf[1].pszPathPrefix;
 
     // initialize reliance edge
     iErr = red_init();
@@ -102,11 +102,11 @@ void save_packet(dfgm_packet_t *data, char *filename) {
     }
 
     // format file system volume    // does not need to be done every time
-    iErr = red_format(pszVolume0);
-    if (iErr == -1) {
-        fprintf(stderr, "Unexpected error %d from red_format()\r\n", (int)red_errno);
-        exit(red_errno);
-    }
+//    iErr = red_format(pszVolume0);
+//    if (iErr == -1) {
+//        fprintf(stderr, "Unexpected error %d from red_format()\r\n", (int)red_errno);
+//        exit(red_errno);
+//    }
 
     // mount volume
     iErr = red_mount(pszVolume0);
@@ -117,7 +117,7 @@ void save_packet(dfgm_packet_t *data, char *filename) {
 
     // open or create file
     int32_t dataFile;
-    dataFile = red_open(filename, RED_O_APPEND | RED_O_CREAT);
+    dataFile = red_open(filename, RED_O_WRONLY | RED_O_CREAT | RED_O_APPEND);
     if (iErr == -1) {
         fprintf(stderr, "Unexpected error %d from red_open()\r\n", (int)red_errno);
         exit(red_errno);
@@ -134,7 +134,7 @@ void save_packet(dfgm_packet_t *data, char *filename) {
                 data->tup[i].X, data->tup[i].Y, data->tup[i].Z);
 
         // Save string to file
-        iErr = red_write(dataFile, dataSample, strlen(dataSample));
+        iErr = red_write(dataFile, dataSample, strlen(dataSample)); // throws error 9 - RED_EBADF (bad file number)
         if (iErr == -1) {
             fprintf(stderr, "Unexpected error %d from red_write()\r\n", (int)red_errno);
             exit(red_errno);
@@ -151,7 +151,7 @@ void save_packet(dfgm_packet_t *data, char *filename) {
 
 void print_file(char* filename) {
     int32_t iErr;
-    const char *pszVolume0 = gaRedVolConf[0].pszPathPrefix;
+    const char *pszVolume0 = gaRedVolConf[1].pszPathPrefix;
 
     // initialize reliance edge
     iErr = red_init();
@@ -161,11 +161,11 @@ void print_file(char* filename) {
     }
 
     // format file system volume    // doesn't need to be done every time
-    iErr = red_format(pszVolume0);
-    if (iErr == -1) {
-        fprintf(stderr, "Unexpected error %d from red_format()\r\n", (int)red_errno);
-        exit(red_errno);
-    }
+//    iErr = red_format(pszVolume0);
+//    if (iErr == -1) {
+//        fprintf(stderr, "Unexpected error %d from red_format()\r\n", (int)red_errno);
+//        exit(red_errno);
+//    }
 
     // mount volume
     iErr = red_mount(pszVolume0);
@@ -176,7 +176,7 @@ void print_file(char* filename) {
 
     // open file
     int32_t dataFile;
-    dataFile = red_open("DFGM_data.txt", RED_O_RDONLY);
+    dataFile = red_open(filename, RED_O_RDONLY);
     if (iErr == -1) {
         fprintf(stderr, "Unexpected error %d from red_open()\r\n", (int)red_errno);
         exit(red_errno);
@@ -184,7 +184,7 @@ void print_file(char* filename) {
 
     // read & print data
     char data[100000];
-    iErr = red_read(dataFile, data, 10000);
+    iErr = red_read(dataFile, data, 100000);
     if (iErr == -1) {
         fprintf(stderr, "Unexpected error %d from red_read()\r\n", (int)red_errno);
         exit(red_errno);
@@ -200,6 +200,18 @@ void print_file(char* filename) {
         exit(red_errno);
     }
 
+}
+
+void print_packet(dfgm_packet_t * data) {
+    char dataSample[100];
+    for(int i = 0; i < 100; i++) {
+        memset(dataSample, 0, sizeof(dataSample));
+        sprintf(dataSample, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n",
+                data->tup[i].X, data->tup[i].Y, data->tup[i].Z, data->hk[0], data->hk[1], data->hk[2],
+                data->hk[3], data->hk[4], data->hk[5], data->hk[6], data->hk[7], data->hk[8],
+                data->hk[9], data->hk[10], data->hk[11]);
+        printf("%s", dataSample);
+    }
 }
 
 void send_packet(dfgm_packet_t *packet) {
@@ -230,6 +242,7 @@ void dfgm_rx_task(void *pvParameters) {
         // save data
         save_packet(&(dat.pkt), "high_rate_DFGM_data.txt");
 
+        // temporary, will be moved to dfgm_binary_test.c
         print_file("high_rate_DFGM_data.txt");
 
         //send_packet(&(dat.pkt));

@@ -95,8 +95,17 @@ void save_packet(dfgm_packet_t *data, char *filename);
 
 /**
  * @brief read dfgm data file
+ *
+ * @param name of file to save data to
  */
 void print_file(char* filename); // temp function for binary testing
+
+/**
+ * @brief read dfgm data packet
+ *
+ * @param packet data to be printed
+ */
+void print_packet(dfgm_packet_t *data);
 
 /**
  * @brief Send DFGM data to terminal via serial port
