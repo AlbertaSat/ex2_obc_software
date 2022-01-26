@@ -92,7 +92,7 @@ void dfgm_convert_HK(dfgm_packet_t *const data) {
 
 void save_packet(dfgm_packet_t *data, char *filename) {
     int32_t iErr;
-    const char *pszVolume0 = gaRedVolConf[0].pszPathPrefix;
+    const char *pszVolume0 = gaRedVolConf[1].pszPathPrefix;
 
     // initialize reliance edge
     iErr = red_init();
@@ -102,11 +102,11 @@ void save_packet(dfgm_packet_t *data, char *filename) {
     }
 
     // format file system volume    // does not need to be done every time
-    iErr = red_format(pszVolume0);
-    if (iErr == -1) {
-        fprintf(stderr, "Unexpected error %d from red_format()\r\n", (int)red_errno);
-        exit(red_errno);
-    }
+//    iErr = red_format(pszVolume0);
+//    if (iErr == -1) {
+//        fprintf(stderr, "Unexpected error %d from red_format()\r\n", (int)red_errno);
+//        exit(red_errno);
+//    }
 
     // mount volume
     iErr = red_mount(pszVolume0);
@@ -117,7 +117,7 @@ void save_packet(dfgm_packet_t *data, char *filename) {
 
     // open or create file
     int32_t dataFile;
-    dataFile = red_open(filename, RED_O_APPEND | RED_O_CREAT);
+    dataFile = red_open(filename, RED_O_APPEND | RED_O_CREAT | RED_O_RDWR);
     if (iErr == -1) {
         fprintf(stderr, "Unexpected error %d from red_open()\r\n", (int)red_errno);
         exit(red_errno);
