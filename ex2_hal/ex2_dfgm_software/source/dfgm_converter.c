@@ -117,11 +117,7 @@ void save_packet(dfgm_packet_t *data, char *filename) {
 
     // open or create file
     int32_t dataFile;
-<<<<<<< HEAD
     dataFile = red_open(filename, RED_O_WRONLY | RED_O_CREAT | RED_O_APPEND);
-=======
-    dataFile = red_open(filename, RED_O_APPEND | RED_O_CREAT | RED_O_RDWR);
->>>>>>> 54a2d5e7312a2add9c04a191a1345eaa5b8d5e65
     if (iErr == -1) {
         fprintf(stderr, "Unexpected error %d from red_open()\r\n", (int)red_errno);
         exit(red_errno);
