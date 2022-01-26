@@ -25,7 +25,7 @@
 
 static void *beacon_daemon(All_systems_housekeeping* all_hk_data);
 SAT_returnState start_beacon_daemon();
-static TickType_t beacon_delay = pdMS_TO_TICKS(1000); //converts 1000 ms to number of ticks
+
 /**
  * Construct and send out the system beacon at the required frequency.
  *
@@ -33,14 +33,17 @@ static TickType_t beacon_delay = pdMS_TO_TICKS(1000); //converts 1000 ms to numb
  *    task parameters (not used)
  */
 static void *beacon_daemon(All_systems_housekeeping* all_hk_data) {
-    TickType_t beacon_update_delay = pdMS_TO_TICKS(1000);
-    uint32_t seconds_delay = 30;
+  
+    uint32_t thirty_seconds_delay = 30;
+    uint32_t three_seconds_delay = 3;
+    TickType_t beacon_update_delay = pdMS_TO_TICKS(three_seconds_delay * 1000); //pdMS_TO_TICKS(1000) converts 1000 ms to number of ticks
+    TickType_t beacon_freq_delay = pdMS_TO_TICKS(thirty_seconds_delay * 1000);
+
     for (;;) {
         int8_t uhf_status = -1;
         /* Constructing the system beacon content */
         // Refer to table 3 of MOP
         UHF_configStruct beacon_msg;
-        //All_systems_housekeeping all_hk_data;
 
         //Testing purposes only, passing 1s to the UHF
         beacon_packet_1_t beacon_packet_one = {
@@ -63,6 +66,9 @@ static void *beacon_daemon(All_systems_housekeeping* all_hk_data) {
         uint8_t scw[SCW_LEN];
         scw[5] = 1;
         HAL_UHF_setSCW(scw);
+
+        //wait 3s before updating the second beacon packet to allow time for sending the first beacon
+        vTaskDelay(beacon_update_delay);
 
         //Send second beacon packet
         memcpy(&(beacon_msg.message), &beacon_packet_two, sizeof(beacon_packet_2_t));
@@ -96,7 +102,7 @@ static void *beacon_daemon(All_systems_housekeeping* all_hk_data) {
     }
 #endif
 
-    vTaskDelay(beacon_delay);
+    vTaskDelay(beacon_freq_delay);
   }
 }
 
