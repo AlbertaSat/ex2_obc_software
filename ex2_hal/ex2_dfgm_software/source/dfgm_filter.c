@@ -68,51 +68,52 @@ struct SECOND buffer[2];
 struct SECOND *sptr[2];
 struct SECOND *g_ptr;
 
-int main_filter(int argc, char **argv) {
-  int i;
-  dummy = 99999.999; // Invalid data value
-  dumcomp = 99999.0; // Value to test against
-
-  /* Initialize the pointers to the data buffer */
-
-  for (i = 0; i < 2; i++) {
-    sptr[i] = &buffer[i];
-  }
-  sciSend(scilinREG, 5, (uint8 *)"yep1\n");
-  /* Fill the buffer with the first 2 seconds */
-
-  for (i = 0; i < 2; i++) {
-    read_second(sptr[i]);
-  }
-  sciSend(scilinREG, 5, (uint8 *)"yep2\n");
-
-  /* Deal with the first 6 samples which can't be filtered */
-
-  //  for (i=0; i<6; i++){
-  print_mean(sptr[0]);
-  //  }
-
-  sciSend(scilinREG, 5, (uint8 *)"yep3\n");
-
-  // Actual filtering occurs here
-  while (1) {
-    apply_filter();
-    print_result(sptr[1]);
-    //      print_mean(sptr[1]);
-    /* Shift the pointers by 1 */
-
-    shift_sptr();
-
-    /* read in the next full second of data */
-
-    read_second(sptr[1]);
-  }
-
-  /* Deal with the last samples which can't be filtered */
-
-  //  print_raw(sptr[1]);
-  return 0;
-}
+//// Unused function
+//int main_filter(int argc, char **argv) {
+//  int i;
+//  dummy = 99999.999; // Invalid data value
+//  dumcomp = 99999.0; // Value to test against
+//
+//  /* Initialize the pointers to the data buffer */
+//
+//  for (i = 0; i < 2; i++) {
+//    sptr[i] = &buffer[i];
+//  }
+//  sciSend(scilinREG, 5, (uint8 *)"yep1\n");
+//  /* Fill the buffer with the first 2 seconds */
+//
+//  for (i = 0; i < 2; i++) {
+//    read_second(sptr[i]);
+//  }
+//  sciSend(scilinREG, 5, (uint8 *)"yep2\n");
+//
+//  /* Deal with the first 6 samples which can't be filtered */
+//
+//  //  for (i=0; i<6; i++){
+//  print_mean(sptr[0]);
+//  //  }
+//
+//  sciSend(scilinREG, 5, (uint8 *)"yep3\n");
+//
+//  // Actual filtering occurs here
+//  while (1) {
+//    apply_filter();
+//    print_result(sptr[1]);
+//    //      print_mean(sptr[1]);
+//    /* Shift the pointers by 1 */
+//
+//    shift_sptr();
+//
+//    /* read in the next full second of data */
+//
+//    read_second(sptr[1]);
+//  }
+//
+//  /* Deal with the last samples which can't be filtered */
+//
+//  //  print_raw(sptr[1]);
+//  return 0;
+//}
 
 void apply_filter(void) {
 
@@ -204,7 +205,7 @@ void apply_filter(void) {
 //  free(outBuff);
 //}
 
-// Unused function
+//// Unused function
 //void print_mean(struct SECOND *ptr) {
 //  double Xmean, Ymean, Zmean;
 //  int sample;
