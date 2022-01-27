@@ -20,6 +20,8 @@
 
 #include <string.h>
 
+#include "dfgm_filter.h"
+
 #define BUFFER_SIZE 1248
 #define QUEUE_DEPTH 32
 
@@ -221,15 +223,21 @@ void send_packet(dfgm_packet_t *packet) {
 void dfgm_rx_task(void *pvParameters) {
     static dfgm_data_t dat = {0};
     int received = 0;
+    char input;
     for (;;) {
-        memset(&dat, 0, sizeof(dfgm_data_t));
+        /*---------------------------------------------- Test 1A ----------------------------------------------*/
+
+        printf("%s", "Press enter to begin Test 1A - Gathering 1 Packet of Data");
+        scanf("%c", &input);
+        printf("%s", "Starting test 1A...");
+
         // receive packet from queue
+        memset(&dat, 0, sizeof(dfgm_data_t));
         while (received < sizeof(dfgm_packet_t)) {
             uint8_t *pkt = (uint8_t *)&(dat.pkt);
             xQueueReceive(dfgmQueue, &(pkt[received]), portMAX_DELAY);
             received++;
         }
-
         received = 0;
 
         // converts part of raw data to magnetic field data
@@ -239,13 +247,64 @@ void dfgm_rx_task(void *pvParameters) {
         // converts part of raw data to house keeping data
         dfgm_convert_HK(&(dat.pkt));
 
-        // save data
-        save_packet(&(dat.pkt), "high_rate_DFGM_data.txt");
+        // Print the contents of 1 packet
+        print_packet(&(dat.pkt));
 
-        // temporary, will be moved to dfgm_binary_test.c
+        printf("%s", "Test 1A complete.");
+
+        /*---------------------------------------------- Test 1B ----------------------------------------------*/
+
+        printf("%s", "Press enter to begin Test 1B - Gathering 5 minutes of Data");
+        scanf("%c", &input);
+        printf("%s", "Starting test 1B...");
+
+        int secondsPassed = 0;
+        while(secondsPassed < 300) {
+            // receive packet from queue
+            memset(&dat, 0, sizeof(dfgm_data_t));
+            while (received < sizeof(dfgm_packet_t)) {
+                uint8_t *pkt = (uint8_t *)&(dat.pkt);
+                xQueueReceive(dfgmQueue, &(pkt[received]), portMAX_DELAY);
+                received++;
+            }
+            received = 0;
+
+            // converts part of raw data to magnetic field data
+            dfgm_convert_mag(&(dat.pkt));
+            //RTCMK_GetUnix(&(dat.time));
+
+            // converts part of raw data to house keeping data
+            dfgm_convert_HK(&(dat.pkt));
+
+            // save data
+            save_packet(&(dat.pkt), "high_rate_DFGM_data.txt");
+
+            secondsPassed += 1;
+        }
+
+        // print 100 Hz data
         print_file("high_rate_DFGM_data.txt");
 
-        //send_packet(&(dat.pkt));
+        printf("%s", "Test 1B complete.");
+
+        /*---------------------------------------------- Test 1C ----------------------------------------------*/
+
+        printf("%s", "Press enter to begin Test 1C - Converting the 100 Hz file into a 10 Hz and 1 Hz file");
+        scanf("%c", &input);
+        printf("%s", "Starting test 1C...");
+
+        printf("%s", "Displaying 10 Hz data: ");
+//        convert_100Hz_to_10Hz("high_rate_DFGM_data.txt", "medium_rate_DFGM_data.txt");
+//        print_file("medium_rate_DFGM_data.txt");
+
+        printf("%s", "Press enter again to display 1 Hz data");
+        scanf("$c", &input);
+        printf("%s", "Displaying 1 Hz data: ");
+
+        convert_100Hz_to_1Hz("high_rate_DFGM_data.txt", "survey_rate_DFGM_data.txt");
+        print_file("survey_rate_DFGM_data.txt");
+
+        printf("%s", "Test 1C complete.");
     }
 }
 
