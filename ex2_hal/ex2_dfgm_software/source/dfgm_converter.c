@@ -10,7 +10,7 @@
 #include <time.h>
 #include "os_semphr.h"
 
-#include "stdio.h"
+#include "printf.h"
 #include <redconf.h>
 #include <redfs.h>
 #include <redfse.h>
@@ -94,34 +94,31 @@ void dfgm_convert_HK(dfgm_packet_t *const data) {
 
 void save_packet(dfgm_packet_t *data, char *filename) {
     int32_t iErr;
-    const char *pszVolume0 = gaRedVolConf[1].pszPathPrefix;
 
-    // initialize reliance edge
-    iErr = red_init();
-    if (iErr == -1) {
-        fprintf(stderr, "Unexpected error %d from red_init()\r\n", (int)red_errno);
-        exit(red_errno);
-    }
+    char buf[1024] = "";
 
-    // format file system volume    // does not need to be done every time
-//    iErr = red_format(pszVolume0);
-//    if (iErr == -1) {
-//        fprintf(stderr, "Unexpected error %d from red_format()\r\n", (int)red_errno);
+    red_getcwd(buf, 1024);
+
+    printf("CWD = %s\r\n", buf);
+
+//    iErr = red_mkdir("VOL0:/home");
+//    if (iErr == -1)
+//    {
+//        printf("Unexpected error %d from red_mkdir()\r\n", (int)red_errno);
+//        exit(red_errno);
+//    }
+//    iErr = red_chdir("home");
+//    if (iErr == -1)
+//    {
+//        printf("Unexpected error %d from red_chdir()\r\n", (int)red_errno);
 //        exit(red_errno);
 //    }
 
-    // mount volume
-    iErr = red_mount(pszVolume0);
-    if (iErr == -1) {
-        fprintf(stderr, "Unexpected error %d from red_mount()\r\n", (int)red_errno);
-        exit(red_errno);
-    }
-
     // open or create file
     int32_t dataFile;
-    dataFile = red_open(filename, RED_O_WRONLY | RED_O_CREAT | RED_O_APPEND);
-    if (iErr == -1) {
-        fprintf(stderr, "Unexpected error %d from red_open()\r\n", (int)red_errno);
+    dataFile = red_open(filename, RED_O_RDWR | RED_O_CREAT | RED_O_APPEND);
+    if (dataFile == -1) {
+        printf("Unexpected error %d from red_open()\r\n", (int)red_errno);
         exit(red_errno);
     }
 
@@ -138,7 +135,7 @@ void save_packet(dfgm_packet_t *data, char *filename) {
         // Save string to file
         iErr = red_write(dataFile, dataSample, strlen(dataSample)); // throws error 9 - RED_EBADF (bad file number)
         if (iErr == -1) {
-            fprintf(stderr, "Unexpected error %d from red_write()\r\n", (int)red_errno);
+            printf("Unexpected error %d from red_write()\r\n", (int)red_errno);
             exit(red_errno);
         }
     }
@@ -146,49 +143,27 @@ void save_packet(dfgm_packet_t *data, char *filename) {
     // close file
     iErr = red_close(dataFile);
     if (iErr == -1) {
-        fprintf(stderr, "Unexpected error %d from red_close()\r\n", (int)red_errno);
+        printf("Unexpected error %d from red_close()\r\n", (int)red_errno);
         exit(red_errno);
     }
 }
 
 void print_file(char* filename) {
     int32_t iErr;
-    const char *pszVolume0 = gaRedVolConf[1].pszPathPrefix;
-
-    // initialize reliance edge
-    iErr = red_init();
-    if (iErr == -1) {
-        fprintf(stderr, "Unexpected error %d from red_init()\r\n", (int)red_errno);
-        exit(red_errno);
-    }
-
-    // format file system volume    // doesn't need to be done every time
-//    iErr = red_format(pszVolume0);
-//    if (iErr == -1) {
-//        fprintf(stderr, "Unexpected error %d from red_format()\r\n", (int)red_errno);
-//        exit(red_errno);
-//    }
-
-    // mount volume
-    iErr = red_mount(pszVolume0);
-    if (iErr == -1) {
-        fprintf(stderr, "Unexpected error %d from red_mount()\r\n", (int)red_errno);
-        exit(red_errno);
-    }
 
     // open file
     int32_t dataFile;
     dataFile = red_open(filename, RED_O_RDONLY);
     if (iErr == -1) {
-        fprintf(stderr, "Unexpected error %d from red_open()\r\n", (int)red_errno);
+        printf("Unexpected error %d from red_open()\r\n", (int)red_errno);
         exit(red_errno);
     }
 
     // read & print data
-    char data[100000];
+    char * data = (char *)pvPortMalloc(100000*sizeof(char));
     iErr = red_read(dataFile, data, 100000);
     if (iErr == -1) {
-        fprintf(stderr, "Unexpected error %d from red_read()\r\n", (int)red_errno);
+        printf("Unexpected error %d from red_read()\r\n", (int)red_errno);
         exit(red_errno);
     }
     else {
@@ -198,9 +173,11 @@ void print_file(char* filename) {
     // close file
     iErr = red_close(dataFile);
     if (iErr == -1) {
-        fprintf(stderr, "Unexpected error %d from red_close()\r\n", (int)red_errno);
+        printf("Unexpected error %d from red_close()\r\n", (int)red_errno);
         exit(red_errno);
     }
+
+    vPortFree(data);
 
 }
 
@@ -208,11 +185,11 @@ void print_packet(dfgm_packet_t * data) {
     char dataSample[100];
     for(int i = 0; i < 100; i++) {
         memset(dataSample, 0, sizeof(dataSample));
-        sprintf(dataSample, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n",
+        sprintf(dataSample, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d",
                 data->tup[i].X, data->tup[i].Y, data->tup[i].Z, data->hk[0], data->hk[1], data->hk[2],
                 data->hk[3], data->hk[4], data->hk[5], data->hk[6], data->hk[7], data->hk[8],
                 data->hk[9], data->hk[10], data->hk[11]);
-        printf("%s", dataSample);
+        printf("%s\n", dataSample);
     }
 }
 
@@ -224,8 +201,35 @@ void dfgm_rx_task(void *pvParameters) {
     static dfgm_data_t dat = {0};
     int received = 0;
     char input;
+    int32_t iErr = 0;
+
+    const char *pszVolume0 = gaRedVolConf[0].pszPathPrefix;
+
+    // initialize reliance edge
+    iErr = red_init();
+    if (iErr == -1) {
+        printf("Unexpected error %d from red_init()\r\n", (int)red_errno);
+        exit(red_errno);
+    }
+
+    // format file system volume    // does not need to be done every time
+//    iErr = red_format(pszVolume0);
+//    if (iErr == -1) {
+//        printf("Unexpected error %d from red_format()\r\n", (int)red_errno);
+//        exit(red_errno);
+//    }
+
+    // mount volume
+    iErr = red_mount(pszVolume0);
+    if (iErr == -1) {
+        printf("Unexpected error %d from red_mount()\r\n", (int)red_errno);
+        exit(red_errno);
+    }
+
     for (;;) {
         /*---------------------------------------------- Test 1A ----------------------------------------------*/
+
+
 
         // Place a breakpoint here
         printf("%s", "Starting test 1A...");
@@ -257,7 +261,7 @@ void dfgm_rx_task(void *pvParameters) {
         printf("%s", "Starting test 1B...");
 
         int secondsPassed = 0;
-        while(secondsPassed < 300) {
+        while(secondsPassed < 5) {
             // receive packet from queue
             memset(&dat, 0, sizeof(dfgm_data_t));
             while (received < sizeof(dfgm_packet_t)) {
@@ -310,7 +314,7 @@ void dfgm_init() {
     TaskHandle_t dfgm_rx_handle;
     dfgmQueue = xQueueCreate(QUEUE_DEPTH, sizeof(uint8_t));
     tx_semphr = xSemaphoreCreateBinary();
-    xTaskCreate(dfgm_rx_task, "DFGM RX", 256, NULL, DFGM_RX_PRIO,
+    xTaskCreate(dfgm_rx_task, "DFGM RX", 20000, NULL, DFGM_RX_PRIO,
                 &dfgm_rx_handle);
     sciReceive(DFGM_SCI, 1, &dfgmBuffer);
     return;
