@@ -95,24 +95,8 @@ void dfgm_convert_HK(dfgm_packet_t *const data) {
 void save_packet(dfgm_packet_t *data, char *filename) {
     int32_t iErr;
 
-    char buf[1024] = "";
-
-    red_getcwd(buf, 1024);
-
-    printf("CWD = %s\r\n", buf);
-
-//    iErr = red_mkdir("VOL0:/home");
-//    if (iErr == -1)
-//    {
-//        printf("Unexpected error %d from red_mkdir()\r\n", (int)red_errno);
-//        exit(red_errno);
-//    }
-//    iErr = red_chdir("home");
-//    if (iErr == -1)
-//    {
-//        printf("Unexpected error %d from red_chdir()\r\n", (int)red_errno);
-//        exit(red_errno);
-//    }
+    // For debugging purposes
+    printf("Saving packet...\n");
 
     // open or create file
     int32_t dataFile;
@@ -129,6 +113,7 @@ void save_packet(dfgm_packet_t *data, char *filename) {
         memset(dataSample, 0, sizeof(dataSample));
 
         // build string for only magnetic field data
+        // Note that the first char should be a space (needed for parsing successive samples)
         sprintf(dataSample, " %d %d %d\n",
                 data->tup[i].X, data->tup[i].Y, data->tup[i].Z);
 
@@ -167,7 +152,7 @@ void print_file(char* filename) {
         exit(red_errno);
     }
     else {
-        printf("%s", data);
+        printf("%s\n", data);
     }
 
     // close file
@@ -229,10 +214,8 @@ void dfgm_rx_task(void *pvParameters) {
     for (;;) {
         /*---------------------------------------------- Test 1A ----------------------------------------------*/
 
-
-
         // Place a breakpoint here
-        printf("%s", "Starting test 1A...");
+        printf("%s\n", "Starting test 1A...");
 
         // receive packet from queue
         memset(&dat, 0, sizeof(dfgm_data_t));
@@ -254,14 +237,15 @@ void dfgm_rx_task(void *pvParameters) {
         print_packet(&(dat.pkt));
 
         // Place a breakpoint here
-        printf("%s", "Test 1A complete.");
+        printf("%s\n", "Test 1A complete.");
 
         /*---------------------------------------------- Test 1B ----------------------------------------------*/
 
-        printf("%s", "Starting test 1B...");
+        printf("%s\n", "Starting test 1B...");
 
         int secondsPassed = 0;
-        while(secondsPassed < 5) {
+        int requiredRuntime = 5; // in seconds
+        while(secondsPassed < requiredRuntime) {
             // receive packet from queue
             memset(&dat, 0, sizeof(dfgm_data_t));
             while (received < sizeof(dfgm_packet_t)) {
@@ -287,26 +271,25 @@ void dfgm_rx_task(void *pvParameters) {
         // print 100 Hz data
         print_file("high_rate_DFGM_data.txt");
 
-        // Place  a breakpoint here
-        printf("%s", "Test 1B complete.");
+        // Place a breakpoint here
+        printf("%s\n", "Test 1B complete.");
 
         /*---------------------------------------------- Test 1C ----------------------------------------------*/
 
-        printf("%s", "Starting test 1C...");
+        printf("%s\n", "Starting test 1C...");
 
-        printf("%s", "Displaying 10 Hz data: ");
+        printf("%s\n", "Displaying 10 Hz data: ");
 //        convert_100Hz_to_10Hz("high_rate_DFGM_data.txt", "medium_rate_DFGM_data.txt");
 //        print_file("medium_rate_DFGM_data.txt");
 
-        printf("%s", "Press enter again to display 1 Hz data");
-        scanf("$c", &input);
-        printf("%s", "Displaying 1 Hz data: ");
+        // Place a breakpoint here
+        printf("%s\n", "Displaying 1 Hz data: ");
 
         convert_100Hz_to_1Hz("high_rate_DFGM_data.txt", "survey_rate_DFGM_data.txt");
         print_file("survey_rate_DFGM_data.txt");
 
         // Place a breakpoint here
-        printf("%s", "Test 1C complete.");
+        printf("%s\n", "Test 1C complete.");
     }
 }
 
