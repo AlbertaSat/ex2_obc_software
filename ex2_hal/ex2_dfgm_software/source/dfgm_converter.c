@@ -162,6 +162,7 @@ void print_file(char* filename) {
         exit(red_errno);
     }
 
+    // Free memory
     vPortFree(data);
 
 }
@@ -187,6 +188,8 @@ void dfgm_rx_task(void *pvParameters) {
     int received = 0;
     char input;
     int32_t iErr = 0;
+
+    // Set up filesystem before task is actually run
 
     const char *pszVolume0 = gaRedVolConf[0].pszPathPrefix;
 
