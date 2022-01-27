@@ -227,8 +227,7 @@ void dfgm_rx_task(void *pvParameters) {
     for (;;) {
         /*---------------------------------------------- Test 1A ----------------------------------------------*/
 
-        printf("%s", "Press enter to begin Test 1A - Gathering 1 Packet of Data");
-        scanf("%c", &input);
+        // Place a breakpoint here
         printf("%s", "Starting test 1A...");
 
         // receive packet from queue
@@ -250,12 +249,11 @@ void dfgm_rx_task(void *pvParameters) {
         // Print the contents of 1 packet
         print_packet(&(dat.pkt));
 
+        // Place a breakpoint here
         printf("%s", "Test 1A complete.");
 
         /*---------------------------------------------- Test 1B ----------------------------------------------*/
 
-        printf("%s", "Press enter to begin Test 1B - Gathering 5 minutes of Data");
-        scanf("%c", &input);
         printf("%s", "Starting test 1B...");
 
         int secondsPassed = 0;
@@ -285,12 +283,11 @@ void dfgm_rx_task(void *pvParameters) {
         // print 100 Hz data
         print_file("high_rate_DFGM_data.txt");
 
+        // Place  a breakpoint here
         printf("%s", "Test 1B complete.");
 
         /*---------------------------------------------- Test 1C ----------------------------------------------*/
 
-        printf("%s", "Press enter to begin Test 1C - Converting the 100 Hz file into a 10 Hz and 1 Hz file");
-        scanf("%c", &input);
         printf("%s", "Starting test 1C...");
 
         printf("%s", "Displaying 10 Hz data: ");
@@ -304,6 +301,7 @@ void dfgm_rx_task(void *pvParameters) {
         convert_100Hz_to_1Hz("high_rate_DFGM_data.txt", "survey_rate_DFGM_data.txt");
         print_file("survey_rate_DFGM_data.txt");
 
+        // Place a breakpoint here
         printf("%s", "Test 1C complete.");
     }
 }
