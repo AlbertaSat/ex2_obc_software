@@ -8,41 +8,41 @@
  * ccc-xxxxxxxxxx
  */
 
-// mag field constants
-#define XDACScale 1.97477
-#define XADCScale 0.0057
+// mag field constants (have to be calibrated for each sensor/acquisition system)
+#define XDACScale 1.757421875
+#define XADCScale -0.0353
 #define XOffset 0
-#define YDACScale 1.97477
-#define YADCScale 0.0057
+#define YDACScale 2.031835938
+#define YADCScale -0.0267
 #define YOffset 0
-#define ZDACScale 1.97477
-#define ZADCScale 0.0057
+#define ZDACScale 1.934375
+#define ZADCScale -0.0302
 #define ZOffset 0
 
 // HK constants
-#define HK0Scale (2.5*1000000.0/(4096.0*5000.0)) // for sensor temp
-#define HK0Offset -273.15
-#define HK1Scale 0.0313 // for board temp
-#define HK1Offset -20.51
-#define HK2Scale 0.0313 // for reference temp
+#define HK0Scale (2.5/4096.0) // for core voltage (in V, not mV)
+#define HK0Offset 0
+#define HK1Scale (2.5*1000000.0/(4096.0*5000.0)) // for sensor temperature
+#define HK1Offset -273.15
+#define HK2Scale 0.0313 // for reference temperature
 #define HK2Offset -20.51
-#define HK3Scale (10.1*2.5/4096.0) // for input voltage
-#define HK3Offset 0
-#define HK4Scale 0.107 // for input current
+#define HK3Scale 0.0313 // for board temperature
+#define HK3Offset -20.51
+#define HK4Scale (5.0*2.5/4096.0) // for positive rail voltage (in V, not mV)
 #define HK4Offset 0
-#define HK5Scale (2.5/4096.0) //for core voltage
+#define HK5Scale (5.0*2.5/4096.0) // for input voltage (in V, not mV)
 #define HK5Offset 0
-#define HK6Scale (3.0*2.5/4096.0) // for positive rail voltage
+#define HK6Scale (2.5/4096.0) // for reference voltage (in V, not mV)
 #define HK6Offset 0
-#define HK7Scale (2.5/4096.0) // for reference voltage
+#define HK7Scale 0.107 // for input current
 #define HK7Offset 0
-#define HK8Scale 1 // for regPSUOFfset
+#define HK8Scale 1 // for RESERVED
 #define HK8Offset 0
-#define HK9Scale 1 // for regPSUDeadSpace
+#define HK9Scale 1 // for RESERVED
 #define HK9Offset 0
-#define HK10Scale 1 // for controlChannel
+#define HK10Scale 1 // for RESERVED
 #define HK10Offset 0
-#define HK11Scale 1 // for serialRxData
+#define HK11Scale 1 // for RESERVED
 #define HK11Offset 0
 
 typedef struct __attribute__((packed)) {
