@@ -34,6 +34,8 @@
 #include <redtests.h>
 #include <redvolume.h>
 
+#include "printf.h"
+
 #define scilinREG PRINTF_SCI
 
 double dummy;
@@ -274,34 +276,12 @@ void shift_sptr(void) {
 
 void save_second(struct SECOND *second, char * filename) {
     int32_t iErr;
-    const char *pszVolume0 = gaRedVolConf[1].pszPathPrefix;
-
-    // initialize reliance edge
-    iErr = red_init();
-    if (iErr == -1) {
-        fprintf(stderr, "Unexpected error %d from red_init()\r\n", (int)red_errno);
-        exit(red_errno);
-    }
-
-    // format file system volume    // does not need to be done every time
-//    iErr = red_format(pszVolume0);
-//    if (iErr == -1) {
-//        fprintf(stderr, "Unexpected error %d from red_format()\r\n", (int)red_errno);
-//        exit(red_errno);
-//    }
-
-    // mount volume
-    iErr = red_mount(pszVolume0);
-    if (iErr == -1) {
-        fprintf(stderr, "Unexpected error %d from red_mount()\r\n", (int)red_errno);
-        exit(red_errno);
-    }
 
     // open or create file
     int32_t dataFile;
     dataFile = red_open(filename, RED_O_WRONLY | RED_O_CREAT | RED_O_APPEND);
     if (iErr == -1) {
-        fprintf(stderr, "Unexpected error %d from red_open()\r\n", (int)red_errno);
+        printf("Unexpected error %d from red_open()\r\n", (int)red_errno);
         exit(red_errno);
     }
 
@@ -312,65 +292,43 @@ void save_second(struct SECOND *second, char * filename) {
     // save 1 Hz sample
     iErr = red_write(dataFile, dataSample, strlen(dataSample));
     if (iErr == -1) {
-        fprintf(stderr, "Unexpected error %d from red_write()\r\n", (int)red_errno);
+        printf("Unexpected error %d from red_write()\r\n", (int)red_errno);
         exit(red_errno);
     }
 
     // close file
     iErr = red_close(dataFile);
     if (iErr == -1) {
-        fprintf(stderr, "Unexpected error %d from red_close()\r\n", (int)red_errno);
+        printf("Unexpected error %d from red_close()\r\n", (int)red_errno);
         exit(red_errno);
     }
 }
 
 void convert_100Hz_to_1Hz(char * filename100Hz, char * filename1Hz) {
     /*------------------- Read the file into a string ------------------*/
-
+    // Assumes filesystem is already initialized, formatted, and mounted
     int32_t iErr;
-    const char *pszVolume0 = gaRedVolConf[1].pszPathPrefix;
-
-    // initialize reliance edge
-    iErr = red_init();
-    if (iErr == -1) {
-        fprintf(stderr, "Unexpected error %d from red_init()\r\n", (int)red_errno);
-        exit(red_errno);
-    }
-
-    // format file system volume    // doesn't need to be done every time
-//    iErr = red_format(pszVolume0);
-//    if (iErr == -1) {
-//        fprintf(stderr, "Unexpected error %d from red_format()\r\n", (int)red_errno);
-//        exit(red_errno);
-//    }
-
-    // mount volume
-    iErr = red_mount(pszVolume0);
-    if (iErr == -1) {
-        fprintf(stderr, "Unexpected error %d from red_mount()\r\n", (int)red_errno);
-        exit(red_errno);
-    }
 
     // open file
     int32_t dataFile;
     dataFile = red_open(filename100Hz, RED_O_RDONLY);
     if (iErr == -1) {
-        fprintf(stderr, "Unexpected error %d from red_open()\r\n", (int)red_errno);
+        printf("Unexpected error %d from red_open()\r\n", (int)red_errno);
         exit(red_errno);
     }
 
     // read data to string
-    char data100Hz[100000];
+    char * data100Hz = (char *)pvPortMalloc(100000*sizeof(char));
     iErr = red_read(dataFile, data100Hz, 100000);
     if (iErr == -1) {
-        fprintf(stderr, "Unexpected error %d from red_read()\r\n", (int)red_errno);
-        exit(red_errno);
+       printf("Unexpected error %d from red_read()\r\n", (int)red_errno);
+       exit(red_errno);
     }
 
     // close file
     iErr = red_close(dataFile);
     if (iErr == -1) {
-        fprintf(stderr, "Unexpected error %d from red_close()\r\n", (int)red_errno);
+        printf("Unexpected error %d from red_close()\r\n", (int)red_errno);
         exit(red_errno);
     }
 
@@ -422,9 +380,11 @@ void convert_100Hz_to_1Hz(char * filename100Hz, char * filename1Hz) {
             firstPacketFlag = 0;
         } else {
             apply_filter();
-            save_second(sptr[1], "survey_rate_DFGM_data.txt");
+            save_second(sptr[1], filename1Hz);
             shift_sptr();
         }
-
     }
+
+    // Free memory
+    vPortFree(data100Hz);
 }
