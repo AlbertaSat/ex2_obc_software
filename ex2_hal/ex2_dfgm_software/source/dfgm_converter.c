@@ -78,9 +78,9 @@ void dfgm_convert_mag(dfgm_packet_t *const data) {
         float X = (XDACScale * (float)xdac + XADCScale * (float)xadc + XOffset);
         float Y = (YDACScale * (float)ydac + YADCScale * (float)yadc + YOffset);
         float Z = (ZDACScale * (float)zdac + ZADCScale * (float)zadc + ZOffset);
-        data->tup[i].X = (uint32_t )X;
-        data->tup[i].Y = (uint32_t )Y;
-        data->tup[i].Z = (uint32_t )Z;
+        data->tup[i].X = *(uint32_t *)&X;
+        data->tup[i].Y = *(uint32_t *)&Y;
+        data->tup[i].Z = *(uint32_t *)&Z;
     }
 }
 
