@@ -20,7 +20,7 @@
 #define ZOffset 0
 
 // HK constants
-#define HK0Scale (2.5/4096.0) // for core voltage (in V, not mV)
+#define HK0Scale (2.5/4096.0 * 1000.0) // for core voltage (in mV)
 #define HK0Offset 0
 #define HK1Scale (2.5*1000000.0/(4096.0*5000.0)) // for sensor temperature
 #define HK1Offset -273.15
@@ -28,11 +28,11 @@
 #define HK2Offset -20.51
 #define HK3Scale 0.0313 // for board temperature
 #define HK3Offset -20.51
-#define HK4Scale (5.0*2.5/4096.0) // for positive rail voltage (in V, not mV)
+#define HK4Scale (5.0*2.5/4096.0 * 1000.0) // for positive rail voltage (in mV)
 #define HK4Offset 0
-#define HK5Scale (5.0*2.5/4096.0) // for input voltage (in V, not mV)
+#define HK5Scale (5.0*2.5/4096.0 * 1000.0) // for input voltage (in mV)
 #define HK5Offset 0
-#define HK6Scale (2.5/4096.0) // for reference voltage (in V, not mV)
+#define HK6Scale (2.5/4096.0 * 1000.0) // for reference voltage (in mV)
 #define HK6Offset 0
 #define HK7Scale 0.107 // for input current
 #define HK7Offset 0
@@ -106,6 +106,8 @@ void print_file(char* filename); // temp function for binary testing
  * @param packet data to be printed
  */
 void print_packet(dfgm_packet_t *data);
+
+void clear_file(char* filename);
 
 /**
  * @brief Send DFGM data to terminal via serial port

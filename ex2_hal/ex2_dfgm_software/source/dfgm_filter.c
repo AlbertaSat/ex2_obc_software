@@ -281,7 +281,7 @@ void save_second(struct SECOND *second, char * filename) {
     int32_t dataFile;
     dataFile = red_open(filename, RED_O_WRONLY | RED_O_CREAT | RED_O_APPEND);
     if (iErr == -1) {
-        printf("Unexpected error %d from red_open()\r\n", (int)red_errno);
+        printf("Unexpected error %d from red_open() in save_second()\r\n", (int)red_errno);
         exit(red_errno);
     }
 
@@ -292,14 +292,14 @@ void save_second(struct SECOND *second, char * filename) {
     // save 1 Hz sample
     iErr = red_write(dataFile, dataSample, strlen(dataSample));
     if (iErr == -1) {
-        printf("Unexpected error %d from red_write()\r\n", (int)red_errno);
+        printf("Unexpected error %d from red_write() in save_second()\r\n", (int)red_errno);
         exit(red_errno);
     }
 
     // close file
     iErr = red_close(dataFile);
     if (iErr == -1) {
-        printf("Unexpected error %d from red_close()\r\n", (int)red_errno);
+        printf("Unexpected error %d from red_close() in save_second()\r\n", (int)red_errno);
         exit(red_errno);
     }
 }
@@ -313,7 +313,7 @@ void convert_100Hz_to_1Hz(char * filename100Hz, char * filename1Hz) {
     int32_t dataFile;
     dataFile = red_open(filename100Hz, RED_O_RDONLY);
     if (iErr == -1) {
-        printf("Unexpected error %d from red_open()\r\n", (int)red_errno);
+        printf("Unexpected error %d from red_open() filter\r\n", (int)red_errno);
         exit(red_errno);
     }
 
@@ -321,14 +321,14 @@ void convert_100Hz_to_1Hz(char * filename100Hz, char * filename1Hz) {
     char * data100Hz = (char *)pvPortMalloc(100000*sizeof(char));
     iErr = red_read(dataFile, data100Hz, 100000);
     if (iErr == -1) {
-       printf("Unexpected error %d from red_read()\r\n", (int)red_errno);
+       printf("Unexpected error %d from red_read() filter\r\n", (int)red_errno);
        exit(red_errno);
     }
 
     // close file
     iErr = red_close(dataFile);
     if (iErr == -1) {
-        printf("Unexpected error %d from red_close()\r\n", (int)red_errno);
+        printf("Unexpected error %d from red_close() filter\r\n", (int)red_errno);
         exit(red_errno);
     }
 
@@ -347,6 +347,7 @@ void convert_100Hz_to_1Hz(char * filename100Hz, char * filename1Hz) {
 
     // There must be 2 packets of data before filtering can start
     int firstPacketFlag = 1;
+    int count = 0;
 
     // repeat until there are no more packets left to read in the file
     while(value != NULL) {
@@ -357,16 +358,20 @@ void convert_100Hz_to_1Hz(char * filename100Hz, char * filename1Hz) {
             if (firstValueOfPacketFlag) {
                 sptr[1]->X[sample] = strtod(value, NULL);
                 firstValueOfPacketFlag = 0;
+                count += 1;
             } else {
                 value = strtok(NULL, " ");
                 sptr[1]->X[sample] = strtod(value, NULL);
+                count += 1;
             }
 
             value = strtok(NULL, " ");
             sptr[1]->Y[sample] = strtod(value, NULL);
+            count += 1;
 
             value = strtok(NULL, " ");
             sptr[1]->Z[sample] = strtod(value, NULL);
+            count += 1;
         }
 
         // strtok returns NULL if there are no more tokens that can be processed (i.e. EOF is reached)
@@ -381,6 +386,7 @@ void convert_100Hz_to_1Hz(char * filename100Hz, char * filename1Hz) {
         } else {
             apply_filter();
             save_second(sptr[1], filename1Hz);
+            printf("second saved");
             shift_sptr();
         }
     }

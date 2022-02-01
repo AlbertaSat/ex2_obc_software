@@ -78,9 +78,9 @@ void dfgm_convert_mag(dfgm_packet_t *const data) {
         float X = (XDACScale * (float)xdac + XADCScale * (float)xadc + XOffset);
         float Y = (YDACScale * (float)ydac + YADCScale * (float)yadc + YOffset);
         float Z = (ZDACScale * (float)zdac + ZADCScale * (float)zadc + ZOffset);
-        data->tup[i].X = *(uint32_t *)&X;
-        data->tup[i].Y = *(uint32_t *)&Y;
-        data->tup[i].Z = *(uint32_t *)&Z;
+        data->tup[i].X = (*(uint32_t *)&X)/1000000000;
+        data->tup[i].Y = (*(uint32_t *)&Y)/1000000000;
+        data->tup[i].Z = (*(uint32_t *)&Z)/1000000000;
     }
 }
 
@@ -102,7 +102,7 @@ void save_packet(dfgm_packet_t *data, char *filename) {
     int32_t dataFile;
     dataFile = red_open(filename, RED_O_RDWR | RED_O_CREAT | RED_O_APPEND);
     if (dataFile == -1) {
-        printf("Unexpected error %d from red_open()\r\n", (int)red_errno);
+        printf("Unexpected error %d from red_open() in save_packet()\r\n", (int)red_errno);
         exit(red_errno);
     }
 
@@ -120,7 +120,7 @@ void save_packet(dfgm_packet_t *data, char *filename) {
         // Save string to file
         iErr = red_write(dataFile, dataSample, strlen(dataSample)); // throws error 9 - RED_EBADF (bad file number)
         if (iErr == -1) {
-            printf("Unexpected error %d from red_write()\r\n", (int)red_errno);
+            printf("Unexpected error %d from red_write() in save_packet()\r\n", (int)red_errno);
             exit(red_errno);
         }
     }
@@ -128,7 +128,7 @@ void save_packet(dfgm_packet_t *data, char *filename) {
     // close file
     iErr = red_close(dataFile);
     if (iErr == -1) {
-        printf("Unexpected error %d from red_close()\r\n", (int)red_errno);
+        printf("Unexpected error %d from red_close() in save_packet()\r\n", (int)red_errno);
         exit(red_errno);
     }
 }
@@ -140,7 +140,7 @@ void print_file(char* filename) {
     int32_t dataFile;
     dataFile = red_open(filename, RED_O_RDONLY);
     if (iErr == -1) {
-        printf("Unexpected error %d from red_open()\r\n", (int)red_errno);
+        printf("Unexpected error %d from red_open() in print_file()\r\n", (int)red_errno);
         exit(red_errno);
     }
 
@@ -148,17 +148,19 @@ void print_file(char* filename) {
     char * data = (char *)pvPortMalloc(100000*sizeof(char));
     iErr = red_read(dataFile, data, 100000);
     if (iErr == -1) {
-        printf("Unexpected error %d from red_read()\r\n", (int)red_errno);
+        printf("Unexpected error %d from red_read() in print_file()\r\n", (int)red_errno);
         exit(red_errno);
     }
     else {
         printf("%s\n", data);
     }
 
+    printf(strlen(*data));
+
     // close file
     iErr = red_close(dataFile);
     if (iErr == -1) {
-        printf("Unexpected error %d from red_close()\r\n", (int)red_errno);
+        printf("Unexpected error %d from red_close() in print_file()\r\n", (int)red_errno);
         exit(red_errno);
     }
 
@@ -176,6 +178,19 @@ void print_packet(dfgm_packet_t * data) {
                 data->hk[3], data->hk[4], data->hk[5], data->hk[6], data->hk[7], data->hk[8],
                 data->hk[9], data->hk[10], data->hk[11]);
         printf("%s\n", dataSample);
+    }
+}
+
+void clear_file(char* filename) {
+    int32_t iErr;
+
+    // For debugging purposes
+    printf("Clearing %s\n", filename);
+
+    // Delete the specified file
+    iErr = red_unlink(filename);
+    if (iErr == -1) {
+        printf("Unexpected error %d from red_unlink() in clear_file()\r\n", (int)red_errno);
     }
 }
 
@@ -214,6 +229,9 @@ void dfgm_rx_task(void *pvParameters) {
         exit(red_errno);
     }
 
+    clear_file("high_rate_DFGM_data");
+    clear_file("survey_rate_DFGM_data");
+
     for (;;) {
         /*---------------------------------------------- Test 1A ----------------------------------------------*/
 
@@ -228,6 +246,10 @@ void dfgm_rx_task(void *pvParameters) {
             received++;
         }
         received = 0;
+
+        if(dat.pkt.dle != 16) {
+            printf("oh no!");
+        }
 
         // converts part of raw data to magnetic field data
         dfgm_convert_mag(&(dat.pkt));
@@ -244,10 +266,10 @@ void dfgm_rx_task(void *pvParameters) {
 
         /*---------------------------------------------- Test 1B ----------------------------------------------*/
 
-        printf("%s\n", "Starting test 1B...");
+        //printf("%s\n", "Starting test 1B...");
 
         int secondsPassed = 0;
-        int requiredRuntime = 5; // in seconds
+        int requiredRuntime = 1; // in seconds
         while(secondsPassed < requiredRuntime) {
             // receive packet from queue
             memset(&dat, 0, sizeof(dfgm_data_t));
@@ -266,13 +288,13 @@ void dfgm_rx_task(void *pvParameters) {
             dfgm_convert_HK(&(dat.pkt));
 
             // save data
-            save_packet(&(dat.pkt), "high_rate_DFGM_data.txt");
+            save_packet(&(dat.pkt), "high_rate_DFGM_data");
 
             secondsPassed += 1;
         }
 
         // print 100 Hz data
-        print_file("high_rate_DFGM_data.txt");
+        print_file("high_rate_DFGM_data");
 
         // Place a breakpoint here
         printf("%s\n", "Test 1B complete.");
@@ -288,17 +310,20 @@ void dfgm_rx_task(void *pvParameters) {
         // Place a breakpoint here
         printf("%s\n", "Displaying 1 Hz data: ");
 
-        convert_100Hz_to_1Hz("high_rate_DFGM_data.txt", "survey_rate_DFGM_data.txt");
-        print_file("survey_rate_DFGM_data.txt");
+        convert_100Hz_to_1Hz("high_rate_DFGM_data", "survey_rate_DFGM_data");
+        //print_file("survey_rate_DFGM_data");
 
         // Place a breakpoint here
         printf("%s\n", "Test 1C complete.");
+
+        clear_file("high_rate_DFGM_data");
+        clear_file("survey_rate_DFGM_data");
     }
 }
 
 void dfgm_init() {
     TaskHandle_t dfgm_rx_handle;
-    dfgmQueue = xQueueCreate(QUEUE_DEPTH, sizeof(uint8_t));
+    dfgmQueue = xQueueCreate(QUEUE_DEPTH*10, sizeof(uint8_t));
     tx_semphr = xSemaphoreCreateBinary();
     xTaskCreate(dfgm_rx_task, "DFGM RX", 20000, NULL, DFGM_RX_PRIO,
                 &dfgm_rx_handle);
