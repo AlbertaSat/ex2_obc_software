@@ -82,15 +82,17 @@
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEFINE.1282553538" name="Pre-define NAME (--define, -D)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEFINE" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="SBAND_COMMERCIAL_FREQUENCY"/>
+									<listOptionValue builtIn="false" value="CHARON_IS_STUBBED"/>
+									<listOptionValue builtIn="false" value="SBAND_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="SYSTEM_APP_ID=_OBC_APP_ID_"/>
-									<listOptionValue builtIn="false" value="EPS_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="PAYLOAD_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="IS_3U"/>
 									<listOptionValue builtIn="false" value="ADCS_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="PAYLOAD_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="UHF_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="WATCHDOG_IS_STUBBED"/>
-									<listOptionValue builtIn="false" value="ATHENA_IS_STUBBED"/>
+									<listOptionValue builtIn="false" value="IS_ATHENA"/>
+									<listOptionValue builtIn="false" value="IS_FLATSAT"/>
 								</option>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEBUGGING_MODEL.517860824" name="Debugging model" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEBUGGING_MODEL" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEBUGGING_MODEL.SYMDEBUG__DWARF" valueType="enumerated"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DIAG_WARNING.1029290207" name="Treat diagnostic &lt;id&gt; as warning (--diag_warning, -pdsw)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DIAG_WARNING" valueType="stringList">

@@ -126,7 +126,7 @@ void ex2_init(void *pvParameters) {
 
 
     /* Test Task */
-    xTaskCreate(flatsat_test, "flatsat_test", 5000, NULL, 4, NULL);
+    //xTaskCreate(flatsat_test, "flatsat_test", 5000, NULL, 4, NULL);
 
     vTaskDelete(0); // delete self to free up heap
 }
