@@ -122,7 +122,6 @@ GPS_RETURNSTATE skytraq_send_message(uint8_t *payload, uint16_t size) {
     uint8_t sentence[BUFSIZE];
 
     // Will wait 1 second for a response
-
     BaseType_t success = xQueueReceive(binary_queue, sentence, GPS_UART_TIMEOUT_MS);
     if (success != pdPASS) {
         sci_busy = false;
@@ -319,13 +318,13 @@ GPS_RETURNSTATE skytraq_restart_receiver(StartMode start_mode, uint16_t utc_year
     return skytraq_send_message(payload, length);
 }
 
-GPS_RETURNSTATE skytraq_query_software_version() {
+GPS_RETURNSTATE skytraq_query_software_version(uint8_t *reply, uint16_t reply_len) {
     uint16_t length = 2;
     uint8_t payload[2];
     payload[0] = QUERY_SOFTWARE_VERSION;
     payload[1] = 1; // system code
 
-    return skytraq_send_message(payload, length);
+    return skytraq_send_message_with_reply(payload, length, reply, reply_len);
 }
 
 GPS_RETURNSTATE skytraq_query_software_CRC(uint8_t *reply, uint16_t reply_len) {
