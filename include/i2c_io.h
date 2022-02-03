@@ -27,6 +27,6 @@
 
 void init_i2c_driver();
 
-int i2c_Send(i2cBASE_t *i2c, uint8_t addr, uint16_t size, uint8_t *buf);
+int i2c_Send(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf);
 
-int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, uint8_t *buf);
+int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf);
