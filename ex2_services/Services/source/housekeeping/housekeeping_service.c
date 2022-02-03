@@ -385,15 +385,17 @@ Result collect_hk_from_devices(All_systems_housekeeping *all_hk_data) {
 #endif                                                             /* EPS Housekeeping */
 
 #ifndef UHF_IS_STUBBED
-    if (!uhf_is_busy()) {
-        UHF_return UHF_return_code = UHF_getHK(&all_hk_data->UHF_hk); // UHF get housekeeping
+    UHF_return UHF_return_code;
+    if(!uhf_is_busy()){
+        UHF_return_code = UHF_getHK(&all_hk_data->UHF_hk);      //UHF get housekeeping
+        vTaskDelay(ONE_SECOND);
     }
-    vTaskDelay(ONE_SECOND);
 #endif /* UHF Housekeeping */
 
 #ifndef SBAND_IS_STUBBED
     STX_return STX_return_code = HAL_S_getHK(&all_hk_data->S_band_hk); // S_band get housekeeping
 #endif                                                                 /* SBAND Housekeeping */
+
 
 #ifndef HYPERION_IS_STUBBED
 #ifdef HYPERION_PANEL_3U
@@ -406,7 +408,7 @@ Result collect_hk_from_devices(All_systems_housekeeping *all_hk_data) {
 #endif
 
 #ifndef CHARON_IS_STUBBED
-    Charon_getHK(&all_hk_data->charon_hk);
+    GPS_RETURNSTATE Charon_return_code = Charon_getHK(&all_hk_data->charon_hk);
 #endif /* Charon Housekeeping */
 
     /*consider if struct should hold error codes returned from these functions*/
