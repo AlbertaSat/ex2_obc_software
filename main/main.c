@@ -48,6 +48,7 @@
 #include "file_delivery_app.h"
 #include "ads7128.h"
 #include "skytraq_gps_driver.h"
+#include <task_manager.h>
 
 #include <FreeRTOS.h>
 #include <os_task.h>
@@ -87,7 +88,7 @@ void ex2_init(void *pvParameters) {
     /* Hardware Initialization */
 
 #if defined(HAS_SD_CARD) // TODO: tolerate non-existent SD Card
-    init_filesystem();
+    //init_filesystem();
 #endif
 
 #ifndef ADCS_IS_STUBBED
@@ -155,6 +156,7 @@ int ex2_main(void) {
  */
 void init_software() {
     /* start system tasks and service listeners */
+    start_task_manager();
     if (start_system_tasks() != SATR_OK || start_service_server() != SATR_OK) {
         ex2_log("Initialization error\n");
     }

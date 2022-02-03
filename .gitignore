@@ -5,3 +5,4 @@ Debug/**
 /test/*.o
 /test/**/*.o
 /Devel/
+/ex2_project/
