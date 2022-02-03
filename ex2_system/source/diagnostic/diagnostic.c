@@ -174,14 +174,14 @@ static void charon_watchdog_daemon(void *pvParameters) {
         }
 
         // Get Charon gps firmware version
-        uint8_t charon_vesion = 0;
+        uint32_t version = NULL;
         GPS_RETURNSTATE err;
         for (int i = 0; i < watchdog_retries; i++) {
-            err = skytraq_query_software_version(/* TODO: this should pass &charon_version */);
+            err = gps_skytraq_get_software_version(&version);
             if(err == GPS_SUCCESS) break;
         }
 
-        if (err != GPS_SUCCESS) {
+        if ((err != GPS_SUCCESS) || (version == NULL)) {
             ex2_log("Charon was not responsive - attempting to toggle power.");\
 
             // Turn Charon off
