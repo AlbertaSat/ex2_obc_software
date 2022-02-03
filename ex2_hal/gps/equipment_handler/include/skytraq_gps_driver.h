@@ -21,6 +21,8 @@ GPS_RETURNSTATE gps_configure_message_types(uint8_t GGA, uint8_t GSA, uint8_t GS
 
 GPS_RETURNSTATE gps_skytraq_get_software_crc(uint16_t *crc);
 
+GPS_RETURNSTATE gps_skytraq_get_software_version(uint32_t *version);
+
 GPS_RETURNSTATE gps_disable_NMEA_output(void);
 
 bool gps_get_position(int32_t *latitude_upper, int32_t *latitude_lower, int32_t *longitude_upper,

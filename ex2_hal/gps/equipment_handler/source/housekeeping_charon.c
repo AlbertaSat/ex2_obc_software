@@ -19,14 +19,18 @@
 
 #include "housekeeping_charon.h"
 
-int Charon_getHK(charon_housekeeping * hk){
+GPS_RETURNSTATE Charon_getHK(charon_housekeeping * hk){
     // Read temperature sensors
     if(readAllTemps(&hk->temparray[0])){
-        return 1;
+        return UNKNOWN_ERROR;
     }
 
     // Read GPS firmware CRC
-    if(skytraq_query_software_CRC(&hk->crc)){
-        return 1;
+    GPS_RETURNSTATE ret = gps_skytraq_get_software_crc(&hk->crc);
+
+    if(ret != GPS_SUCCESS){
+        return ret;
     }
+
+    return GPS_SUCCESS;
 }
