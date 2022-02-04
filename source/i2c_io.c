@@ -20,6 +20,7 @@ static struct i2csemphr
     SemaphoreHandle_t i2c_mutex;
     SemaphoreHandle_t i2c_block;
     bool hadFailure;
+    bool expecting_scd;
 } i2csemphr_t[2U];
 
 /**
@@ -34,6 +35,8 @@ void init_i2c_driver() {
     i2csemphr_t[1].i2c_block = xSemaphoreCreateBinary();
     i2csemphr_t[0].hadFailure = false;
     i2csemphr_t[1].hadFailure = false;
+    i2csemphr_t[0].expecting_scd = false;
+    i2csemphr_t[1].expecting_scd = false;
 }
 
 /**
@@ -65,8 +68,9 @@ int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
         return -1;
     }
 
-    /* Configure address of Slave to talk to */
     taskENTER_CRITICAL();
+    i2csemphr_t[index].expecting_scd = true;
+    /* Configure address of Slave to talk to */
     i2cSetSlaveAdd(i2c, addr);
     i2cSetDirection(i2c, I2C_RECEIVER);
     i2cSetCount(i2c, size);
@@ -91,9 +95,11 @@ int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
     /* Clear the Stop condition */
     i2cClearSCD(i2c);
     vTaskDelay(i2c_mutex_timeout);
+    i2csemphr_t[index].expecting_scd = false;
     xSemaphoreGive(i2csemphr_t[index].i2c_mutex);
     return ret;
 }
+
 /**
  * @brief
  *   Send an array to an i2c device
@@ -113,7 +119,6 @@ int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
  * @return
  *   Returns 0 data written, <0 if unable to write data.
  **/
-
 int i2c_Send(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
     int ret = 0;
     uint32 index = i2c == i2cREG1 ? 0U : 1U;
@@ -123,8 +128,9 @@ int i2c_Send(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
         return -1;
     }
 
-    /* Configure address of Slave to talk to */
     taskENTER_CRITICAL();
+    i2csemphr_t[index].expecting_scd = true;
+    /* Configure address of Slave to talk to */
     i2cSetSlaveAdd(i2c, addr);
     i2cSetDirection(i2c, I2C_TRANSMITTER);
     i2cSetCount(i2c, size);
@@ -147,6 +153,7 @@ int i2c_Send(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
     /* Clear the Stop condition */
     i2cClearSCD(i2c);
     vTaskDelay(i2c_mutex_timeout);
+    i2csemphr_t[index].expecting_scd = false;
     xSemaphoreGive(i2csemphr_t[index].i2c_mutex);
     return ret;
 }
@@ -169,7 +176,10 @@ void i2cNotification(i2cBASE_t *i2c, uint32 flags) {
         break;
 
     case I2C_SCD_INT:
-        xSemaphoreGiveFromISR(i2csemphr_t[reg].i2c_block, &xHigherPriorityTaskWoken);
+        if (i2csemphr_t[reg].expecting_scd == true) {
+            i2csemphr_t[reg].expecting_scd = false;
+            xSemaphoreGiveFromISR(i2csemphr_t[reg].i2c_block, &xHigherPriorityTaskWoken);
+        }
         i2cClearSCD(i2c);
         break;
 
