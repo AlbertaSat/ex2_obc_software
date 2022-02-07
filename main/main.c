@@ -124,9 +124,10 @@ void ex2_init(void *pvParameters) {
     init_software();
     // create_ftp_task(OBC_APP_ID, &ftp_app);
 
-
+#ifdef FLATSAT_TEST
     /* Test Task */
     xTaskCreate(flatsat_test, "flatsat_test", 5000, NULL, 4, NULL);
+#endif
 
     vTaskDelete(0); // delete self to free up heap
 }
