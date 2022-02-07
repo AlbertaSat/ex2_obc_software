@@ -307,7 +307,7 @@ static const CLI_Command_Definition_t xRMDIRCommand = {
     "rmdir", "rmdir:\n\tRemove a directory only if it is empty\n", prvRMDIRCommand, 1};
 static const CLI_Command_Definition_t xMKCommand = {"mk", "mk:\n\tCreate a new empty file\n", prvMKCommand, 1};
 static const CLI_Command_Definition_t xRMCommand = {
-    "rm", ":\n\tDelete files. Can take any number of file parameters\n", prvRMCommand, -1};
+    "rm", "rm:\n\tDelete files. Can take any number of file parameters\n", prvRMCommand, -1};
 static const CLI_Command_Definition_t xSTATCommand = {"stat", "stat:\n\tStat a file\n", prvSTATCommand, 1};
 static const CLI_Command_Definition_t xREADCommand = {"read", "read:\n\tRead contents of a file\n", prvREADCommand,
                                                       1};
