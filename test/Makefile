@@ -11,7 +11,6 @@ LIB=-Wl,--start-group
 LIB+=-lm
 LIB+=-lc
 
-STATIC_FILES=cgreen/libcgreen.so
 CFLAGS=$(INC)
 SHELL:=/bin/bash
 #entrypoint
@@ -30,7 +29,7 @@ $(MAIN): $(OBJS_FILES) main.o $(SUT)
 	$(CC) $(OBJS_FILES) $(CFLAGS) main.o $(LIB) -Lcgreen/ -lcgreen -Wl,--end-group -o main
 
 test: all
-	LD_LIBRARY_PATH=$(pwd)cgreen ./main
+	./main
 
 lib:  $(OBJS_FILES)
 	ar -rsc file_delivery_app.a $(OBJS_FILES)
