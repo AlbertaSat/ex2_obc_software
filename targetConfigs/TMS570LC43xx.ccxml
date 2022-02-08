@@ -6,9 +6,17 @@
             <instance XML_version="1.2" href="drivers/tixds510icepick_c.xml" id="drivers" xml="tixds510icepick_c.xml" xmlpath="drivers"/>
             <instance XML_version="1.2" href="drivers/tixds510cs_dap.xml" id="drivers" xml="tixds510cs_dap.xml" xmlpath="drivers"/>
             <instance XML_version="1.2" href="drivers/tixds510cortexR.xml" id="drivers" xml="tixds510cortexR.xml" xmlpath="drivers"/>
-            <property Type="choicelist" Value="0" id="The JTAG TCLK Frequency (MHz)">
+            <property Type="choicelist" Value="2" id="The JTAG TCLK Frequency (MHz)">
                 <choice Name="Fixed with user specified value" value="SPECIFIC">
                     <property Type="stringfield" Value="1MHz" id="-- Enter a value from 100.0kHz to 2.5MHz"/>
+                </choice>
+            <choice Name="Fixed with user selected faster value" value="SPECIFIC">
+                    <property Type="choicelist" Value="3" id="Select TCK Setting"/>
+                </choice>
+            </property>
+            <property Type="choicelist" Value="0" id="Power Selection">
+                <choice Name="Target supplied power" value="0">
+                    <property Type="choicelist" Value="0" id="Voltage Selection"/>
                 </choice>
             </property>
             <platform XML_version="1.2" id="platform_0">

@@ -85,7 +85,7 @@ void ex2_init(void *pvParameters) {
 
     /* Initialization routine */
 
-//    // checking to see if DFGM is sending some sort of data
+    // checking to see if DFGM is sending some sort of data
 //    uint32 bytes[100] = {0};
 //    while(1) {
 //        for(int i = 0; i < 100; i++) {

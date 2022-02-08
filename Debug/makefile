@@ -4,7 +4,7 @@
 
 SHELL = cmd.exe
 
-CG_TOOL_ROOT := D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS
+CG_TOOL_ROOT := C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS
 
 GEN_OPTS__FLAG := 
 GEN_CMDS__FLAG := 
@@ -476,17 +476,18 @@ BIN_OUTPUTS__QUOTED += \
 
 
 # All Target
-all: $(OBJS) $(CMD_SRCS) $(LIB_SRCS) $(GEN_CMDS)
+all: $(OBJS) $(CMD_SRCS) $(A_SRCS) $(LIB_SRCS) $(GEN_CMDS)
 	@$(MAKE) --no-print-directory -Onone "ex2_obc_software.out"
 
 # Tool invocations
-ex2_obc_software.out: $(OBJS) $(CMD_SRCS) $(LIB_SRCS) $(GEN_CMDS)
+ex2_obc_software.out: $(OBJS) $(CMD_SRCS) $(A_SRCS) $(LIB_SRCS) $(GEN_CMDS)
 	@echo 'Building target: "$@"'
 	@echo 'Invoking: ARM Linker'
-	@echo 'Flags: -mv7R5 --code_state=32 --float_support=VFPv3D16 --define=SYSTEM_APP_ID=_OBC_APP_ID_ --define=IS_3U --define=IS_ATHENA --define=IS_FLATSAT --define=ADCS_IS_STUBBED --define=UHF_IS_STUBBED --define=WATCHDOG_IS_STUBBED --define=SBAND_IS_STUBBED -g --c99 --diag_warning=225 --diag_wrap=off --display_error_number --enum_type=packed --abi=eabi -z -m"ex2_obc_software.map" --heap_size=0x800 --stack_size=0x800 -i"D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/lib" -i"D:/AlbertaSat/repos/ex2_obc_software/ex2_hal/ex2_dfgm_software/include" -i"D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include" --reread_libs --diag_wrap=off --display_error_number --warn_sections --xml_link_info="ex2_obc_software_linkInfo.xml" --rom_model --be32'
-	$(shell echo -mv7R5 --code_state=32 --float_support=VFPv3D16 --define=SYSTEM_APP_ID=_OBC_APP_ID_ --define=IS_3U --define=IS_ATHENA --define=IS_FLATSAT --define=ADCS_IS_STUBBED --define=UHF_IS_STUBBED --define=WATCHDOG_IS_STUBBED --define=SBAND_IS_STUBBED -g --c99 --diag_warning=225 --diag_wrap=off --display_error_number --enum_type=packed --abi=eabi -z -m"ex2_obc_software.map" --heap_size=0x800 --stack_size=0x800 -i"D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/lib" -i"D:/AlbertaSat/repos/ex2_obc_software/ex2_hal/ex2_dfgm_software/include" -i"D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include" --reread_libs --diag_wrap=off --display_error_number --warn_sections --xml_link_info="ex2_obc_software_linkInfo.xml" --rom_model --be32 > "ccsLinker.opt")
+	@echo 'Flags: -mv7R5 --code_state=32 --float_support=VFPv3D16 --define=SYSTEM_APP_ID=_OBC_APP_ID_ --define=IS_3U --define=IS_ATHENA --define=IS_FLATSAT --define=ADCS_IS_STUBBED --define=UHF_IS_STUBBED --define=WATCHDOG_IS_STUBBED --define=SBAND_IS_STUBBED -g --c99 --diag_warning=225 --diag_wrap=off --display_error_number --enum_type=packed --abi=eabi -z -m"ex2_obc_software.map" --heap_size=0x800 --stack_size=0x800 -i"C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/lib" -i"C:/Users/danie/Documents/AlbertaSat_Repos/Ex-Alta2_OBC/ex2_obc_software/ex2_hal/ex2_dfgm_software/include" -i"C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include" --reread_libs --diag_wrap=off --display_error_number --warn_sections --xml_link_info="ex2_obc_software_linkInfo.xml" --rom_model --be32'
+	$(shell echo -mv7R5 --code_state=32 --float_support=VFPv3D16 --define=SYSTEM_APP_ID=_OBC_APP_ID_ --define=IS_3U --define=IS_ATHENA --define=IS_FLATSAT --define=ADCS_IS_STUBBED --define=UHF_IS_STUBBED --define=WATCHDOG_IS_STUBBED --define=SBAND_IS_STUBBED -g --c99 --diag_warning=225 --diag_wrap=off --display_error_number --enum_type=packed --abi=eabi -z -m"ex2_obc_software.map" --heap_size=0x800 --stack_size=0x800 -i"C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/lib" -i"C:/Users/danie/Documents/AlbertaSat_Repos/Ex-Alta2_OBC/ex2_obc_software/ex2_hal/ex2_dfgm_software/include" -i"C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/include" --reread_libs --diag_wrap=off --display_error_number --warn_sections --xml_link_info="ex2_obc_software_linkInfo.xml" --rom_model --be32 > "ccsLinker.opt")
 	$(shell type "ccsObjs.opt" >> "ccsLinker.opt")
-	"D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/bin/armcl" -@"ccsLinker.opt" -o "ex2_obc_software.out"
+	$(if $(strip $(A_SRCS)), $(shell echo $(A_SRCS) >> "ccsLinker.opt"))
+	"C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/bin/armcl" -@"ccsLinker.opt" -o "ex2_obc_software.out"
 	@echo 'Finished building target: "$@"'
 	@echo ' '
 	@$(MAKE) --no-print-directory post-build
@@ -494,7 +495,7 @@ ex2_obc_software.out: $(OBJS) $(CMD_SRCS) $(LIB_SRCS) $(GEN_CMDS)
 ex2_obc_software.bin: $(EXE_OUTPUTS)
 	@echo 'Building secondary target: "$@"'
 	@echo 'Invoking: ARM Hex Utility'
-	"D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/bin/armhex" --diag_wrap=off -o "ex2_obc_software.bin" $(EXE_OUTPUTS__QUOTED)
+	"C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/bin/armhex" --diag_wrap=off -o "ex2_obc_software.bin" $(EXE_OUTPUTS__QUOTED)
 	@echo 'Finished building secondary target: "$@"'
 	@echo ' '
 	@$(MAKE) --no-print-directory post-build
@@ -524,7 +525,7 @@ clean:
 	-@echo ' '
 
 post-build:
-	-"D:/ti/ccs1040/ccs/utils/tiobj2bin/tiobj2bin" "ex2_obc_software.out" "ex2_obc_software.bin" "D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/bin/ofd470" "D:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/bin/hex470" "D:/ti/ccs1040/ccs/utils/tiobj2bin/mkhex4bin"
+	-"C:/ti/ccs1040/ccs/utils/tiobj2bin/tiobj2bin" "ex2_obc_software.out" "ex2_obc_software.bin" "C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/bin/ofd470" "C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-arm_20.2.5.LTS/bin/hex470" "C:/ti/ccs1040/ccs/utils/tiobj2bin/mkhex4bin"
 	-@echo ' '
 
 .PHONY: all clean dependents
