@@ -1,10 +1,10 @@
 ******************************************************************************
                   TI ARM Linker PC v20.2.5                     
 ******************************************************************************
->> Linked Tue Feb  8 16:34:38 2022
+>> Linked Tue Feb  8 17:21:22 2022
 
 OUTPUT FILE NAME:   <ex2_obc_software.out>
-ENTRY POINT SYMBOL: "_c_int00"  address: 0002dbf4
+ENTRY POINT SYMBOL: "_c_int00"  address: 0002dc34
 
 
 MEMORY CONFIGURATION
@@ -13,7 +13,7 @@ MEMORY CONFIGURATION
 ----------------------  --------  ---------  --------  --------  ----  --------
   VECTORS               00000000   00000040  00000028  00000018     X
   KERNEL                00000040   00008000  00007370  00000c90  R  X
-  FLASH                 00008040   001f7fc0  0002ac8c  001cd334  R  X
+  FLASH                 00008040   001f7fc0  0002accc  001cd2f4  R  X
   RAMINTVECS            08000000   00000020  00000008  00000018  RW X
   KRAM                  08000020   00000800  00000148  000006b8  RW  
   RAM                   08000820   0007ebe0  0004566a  00039576  RW  
@@ -30,9 +30,9 @@ run origin  load origin   length   init length attrs members
   00000040    00000040    00006f90   00006f90    r-x .kernelTEXT
 00006fe0    00006fe0    000003e0   000003e0    r--
   00006fe0    00006fe0    000003e0   000003e0    r-- .cinit
-00008060    00008060    0002abe4   0002abe4    r-x
-  00008060    00008060    00028660   00028660    r-x .text
-  000306c0    000306c0    00002584   00002584    r-- .const
+00008060    00008060    0002ac24   0002ac24    r-x
+  00008060    00008060    000286a0   000286a0    r-x .text
+  00030700    00030700    00002584   00002584    r-- .const
 08000000    00008040    00000008   00000008    r-x
   08000000    00008040    00000008   00000008    r-x .ramIntvecs
 08000020    08000020    00000148   00000000    rw-
@@ -42,8 +42,8 @@ run origin  load origin   length   init length attrs members
   08040820    08040820    0000445e   00000000    rw- .bss
   08044c80    08044c80    00000a0c   00000000    rw- .data
   08045690    08045690    00000800   00000000    rw- .sysmem
-80000000    00032c44    000000a0   000000a0    r-x
-  80000000    00032c44    000000a0   000000a0    r-x .blinky_section
+80000000    00032c84    000000a0   000000a0    r-x
+  80000000    00032c84    000000a0   000000a0    r-x .blinky_section
 
 
 SECTION ALLOCATION MAP
@@ -66,8 +66,8 @@ section   page    origin      length       input sections
                   00006c1c    000003b4     os_heap.obj (.kernelTEXT)
 
 .cinit     0    00006fe0    000003e0     
-                  00006fe0    00000392     (.cinit..data.load) [load image, compression = lzss]
-                  00007372    00000002     --HOLE-- [fill = 0]
+                  00006fe0    00000391     (.cinit..data.load) [load image, compression = lzss]
+                  00007371    00000003     --HOLE-- [fill = 0]
                   00007374    0000000c     (__TI_handler_table)
                   00007380    00000009     (.cinit..kernelBSS.load) [load image, compression = lzss]
                   00007389    00000007     --HOLE-- [fill = 0]
@@ -79,7 +79,7 @@ section   page    origin      length       input sections
 *          0    00008040    00000008     RUN ADDR = 08000000
                   00008040    00000008     ramintvecs.obj (.ramIntvecs)
 
-.text      0    00008060    00028660     
+.text      0    00008060    000286a0     
                   00008060    00002a34     posix.obj (.text)
                   0000aa94    00002830     inodedata.obj (.text)
                   0000d2c4    00002504     printf.obj (.text)
@@ -91,199 +91,199 @@ section   page    origin      length       input sections
                   00016b14    000010b0     inode.obj (.text)
                   00017bc4    00000ff4     HL_sci.obj (.text)
                   00018bb8    00000fac     rtsv7R4_A_be_v3D16_eabi.lib : _printfi.c.obj (.text:__TI_printfi)
-                  00019b64    00000f14     dfgm_converter.obj (.text)
-                  0001aa78    00000ef4     board_io_tests.obj (.text)
-                  0001b96c    00000dc8     os_mpu_wrappers.obj (.text)
-                  0001c734    00000ce4     HL_i2c.obj (.text)
-                  0001d418    00000acc     volume.obj (.text)
-                  0001dee4    00000a30     HL_spi.obj (.text:retain)
-                  0001e914    000009f4     HL_pinmux.obj (.text)
-                  0001f308    000009cc     HL_sci.obj (.text:retain)
-                  0001fcd4    000009b8     sd_io.obj (.text)
-                  0002068c    0000099c     HL_system.obj (.text)
-                  00021028    00000940     HL_sys_vim.obj (.text)
-                  00021968    00000918     skytraq_binary.obj (.text)
-                  00022280    000008f8     path.obj (.text)
-                  00022b78    00000828     uhf.obj (.text)
-                  000233a0    0000078c     HL_esm.obj (.text)
-                  00023b2c    00000788     dfgm_filter.obj (.text)
-                  000242b4    00000734     csp_if_can.obj (.text)
-                  000249e8    000006a0     logger.obj (.text)
-                  00025088    00000664     HL_errata_SSWF021_45.obj (.text)
-                  000256ec    00000644     csp_buffer.obj (.text)
-                  00025d30    000005f8     imap.obj (.text)
-                  00026328    000005e8     adcs_io.obj (.text)
-                  00026910    0000054c     rtsv7R4_A_be_v3D16_eabi.lib : strtod.c.obj (.text:strtod)
-                  00026e5c    00000518     imapextern.obj (.text)
-                  00027374    000004f8     i2c.obj (.text)
-                  0002786c    00000484     HL_gio.obj (.text)
-                  00027cf0    0000047c     can.obj (.text)
-                  0002816c    0000046c     blockio.obj (.text)
-                  000285d8    00000428     i2c_io.obj (.text)
-                  00028a00    00000428     osbdev.obj (.text)
-                  00028e28    000003e4     HL_i2c.obj (.text:retain)
-                  0002920c    000003e0     string.obj (.text)
-                  000295ec    000003c4     HL_sys_core.obj (.text)
-                  000299b0    000003c4     memory.obj (.text)
-                  00029d74    0000039c     format.obj (.text)
-                  0002a110    0000037c     csp_iflist.obj (.text)
-                  0002a48c    00000364     crc.obj (.text)
-                  0002a7f0    00000358     HL_sys_mpu.obj (.text)
-                  0002ab48    00000350     csp_qfifo.obj (.text)
-                  0002ae98    0000033c     HL_sys_vim.obj (.text:retain)
-                  0002b1d4    000002dc     rtsv7R4_A_be_v3D16_eabi.lib : _printfi.c.obj (.text:_pconv_a)
-                  0002b4b0    000002d8     csp_if_can_pbuf.obj (.text)
-                  0002b788    000002b8     rtsv7R4_A_be_v3D16_eabi.lib : ull_div32.asm.obj (.text)
-                  0002ba40    00000284     usart_m3.obj (.text)
-                  0002bcc4    00000278     os_heap.obj (.text)
-                  0002bf3c    0000025c     HL_notification.obj (.text)
-                  0002c198    00000248     rtsv7R4_A_be_v3D16_eabi.lib : _printfi.c.obj (.text:_pconv_g)
-                  0002c3e0    00000238     os_list.obj (.text)
-                  0002c618    0000022c     csp_debug.obj (.text)
-                  0002c844    00000218     imapinline.obj (.text)
-                  0002ca5c    00000200     HL_can.obj (.text:retain)
-                  0002cc5c    000001f8     HL_emif.obj (.text)
-                  0002ce54    000001d0     main.obj (.text)
-                  0002d024    000001a4     rtsv7R4_A_be_v3D16_eabi.lib : fputs.c.obj (.text:fputs)
-                  0002d1c8    00000198                                 : memory.c.obj (.text:aligned_alloc)
-                  0002d360    00000180                                 : memcpy32.asm.obj (.text)
-                  0002d4e0    00000178     HL_esm.obj (.text:retain)
-                  0002d658    00000174     rtsv7R4_A_be_v3D16_eabi.lib : memory.c.obj (.text:free)
-                  0002d7cc    00000174     os_tasks.obj (.text)
-                  0002d940    0000015c     rtsv7R4_A_be_v3D16_eabi.lib : _printfi.c.obj (.text:_pconv_e)
-                  0002da9c    00000158                                 : setvbuf.c.obj (.text:setvbuf)
-                  0002dbf4    00000150     HL_sys_startup.obj (.text:retain)
-                  0002dd44    00000144     bitmap.obj (.text)
-                  0002de88    00000144     rtsv7R4_A_be_v3D16_eabi.lib : _printfi.c.obj (.text:fcvt)
-                  0002dfcc    0000013c                                 : s_floor.c.obj (.text:floor)
-                  0002e108    00000138     os_port.obj (.text)
-                  0002e240    00000120     csp_queue.obj (.text)
-                  0002e360    00000120     rtsv7R4_A_be_v3D16_eabi.lib : s_scalbn.c.obj (.text:scalbn)
-                  0002e480    00000115                                 : _printfi.c.obj (.text:_ltostr)
-                  0002e595    00000003     --HOLE-- [fill = 0]
-                  0002e598    00000100                                 : fputc.c.obj (.text:fputc)
-                  0002e698    000000f8     osmutex.obj (.text)
-                  0002e790    000000e0     HL_sys_pmu.obj (.text)
-                  0002e870    000000c8     rtsv7R4_A_be_v3D16_eabi.lib : _printfi.c.obj (.text:_mcpy)
-                  0002e938    000000b8                                 : fclose.c.obj (.text:__TI_closefile)
-                  0002e9f0    000000b4     osoutput.obj (.text)
-                  0002eaa4    000000b0     rtsv7R4_A_be_v3D16_eabi.lib : memset32.asm.obj (.text)
-                  0002eb54    000000b0     spi_io.obj (.text)
-                  0002ec04    000000b0     rtsv7R4_A_be_v3D16_eabi.lib : memory.c.obj (.text:split)
-                  0002ecb4    000000ac                                 : hostlseek.c.obj (.text:HOSTlseek)
-                  0002ed60    000000ac                                 : fflush.c.obj (.text:fflush)
-                  0002ee0c    000000a8                                 : fseek.c.obj (.text:fseek)
-                  0002eeb4    000000a4                                 : hostrename.c.obj (.text:HOSTrename)
-                  0002ef58    000000a0                                 : _io_perm.c.obj (.text:__TI_wrt_ok)
-                  0002eff8    0000009c                                 : fprintf.c.obj (.text:fprintf)
-                  0002f094    0000009c                                 : printf.c.obj (.text:printf)
-                  0002f130    00000098                                 : hostopen.c.obj (.text:HOSTopen)
-                  0002f1c8    00000098                                 : _printfi.c.obj (.text:_ecpy)
-                  0002f260    00000098                                 : close.c.obj (.text:close)
-                  0002f2f8    00000090                                 : hostread.c.obj (.text:HOSTread)
-                  0002f388    00000090                                 : hostwrite.c.obj (.text:HOSTwrite)
-                  0002f418    00000090                                 : copy_decompress_lzss.c.obj (.text:decompress:lzss:__TI_decompress_lzss)
-                  0002f4a8    0000008c                                 : s_frexp.c.obj (.text:frexp)
-                  0002f534    0000008c     ostask.obj (.text)
-                  0002f5c0    00000088     namelen.obj (.text)
-                  0002f648    00000084     rtsv7R4_A_be_v3D16_eabi.lib : fflush.c.obj (.text:__TI_doflush)
-                  0002f6cc    00000084                                 : atoi.c.obj (.text:atoi)
-                  0002f750    00000080                                 : _ltoa.c.obj (.text:__TI_ltoa)
-                  0002f7d0    0000007c     csp_clock.obj (.text)
-                  0002f84c    0000007c     rtsv7R4_A_be_v3D16_eabi.lib : exit.c.obj (.text:exit)
-                  0002f8c8    0000007c                                 : snprintf.c.obj (.text:snprintf)
-                  0002f944    00000074                                 : hostclose.c.obj (.text:HOSTclose)
-                  0002f9b8    00000074                                 : _printfi.c.obj (.text:_pconv_f)
-                  0002fa2c    00000074     csp_malloc.obj (.text)
-                  0002faa0    00000070     rtsv7R4_A_be_v3D16_eabi.lib : hostunlink.c.obj (.text:HOSTunlink)
-                  0002fb10    00000070     spi_io.obj (.text:SPI_CS_Low)
-                  0002fb80    0000006c     rtsv7R4_A_be_v3D16_eabi.lib : getdevice.c.obj (.text:getdevice)
-                  0002fbec    00000068                                 : autoinit.c.obj (.text:__TI_auto_init_nobinit_nopinit:__TI_auto_init_nobinit_nopinit)
-                  0002fc54    00000068                                 : strtok.c.obj (.text:strtok)
-                  0002fcbc    00000064                                 : _printfi.c.obj (.text:_fcpy)
-                  0002fd20    00000064                                 : sprintf.c.obj (.text:sprintf)
-                  0002fd84    00000060     osassert.obj (.text)
-                  0002fde4    0000005c     rtsv7R4_A_be_v3D16_eabi.lib : snprintf.c.obj (.text:_outs)
-                  0002fe40    00000054     HL_sys_startup.obj (.text)
-                  0002fe94    00000054     rtsv7R4_A_be_v3D16_eabi.lib : fopen.c.obj (.text:__TI_cleanup)
-                  0002fee8    00000054                                 : trgmsg.c.obj (.text:__TI_readmsg)
-                  0002ff3c    00000054                                 : trgmsg.c.obj (.text:__TI_writemsg)
-                  0002ff90    00000054                                 : getdevice.c.obj (.text:finddevice)
-                  0002ffe4    00000054                                 : i_div32.asm.obj (.text)
-                  00030038    00000054                                 : strncasecmp.c.obj (.text:strncasecmp)
-                  0003008c    00000050                                 : u_div32.asm.obj (.text)
-                  000300dc    0000004c     HL_sys_main.obj (.text)
-                  00030128    0000004c     rtsv7R4_A_be_v3D16_eabi.lib : strspn.c.obj (.text:strspn)
-                  00030174    00000048                                 : strncpy.c.obj (.text:strncpy)
-                  000301bc    00000048                                 : unlink.c.obj (.text:unlink)
-                  00030204    00000044                                 : lseek.c.obj (.text:lseek)
-                  00030248    00000044                                 : strcspn.c.obj (.text:strcspn)
-                  0003028c    00000044                                 : write.c.obj (.text:write)
-                  000302d0    00000040     csp_time.obj (.text)
-                  00030310    00000040     rtsv7R4_A_be_v3D16_eabi.lib : memory.c.obj (.text:free_list_insert)
-                  00030350    00000034     spi_io.obj (.text:SPI_CS_High)
-                  00030384    00000030     rtsv7R4_A_be_v3D16_eabi.lib : sprintf.c.obj (.text:_outs)
-                  000303b4    00000030                                 : memory.c.obj (.text:free_list_remove)
-                  000303e4    00000030                                 : memccpy.c.obj (.text:memccpy)
-                  00030414    0000002c                                 : snprintf.c.obj (.text:_outc)
-                  00030440    0000002c                                 : memchr.c.obj (.text:memchr)
-                  0003046c    00000028                                 : strchr.c.obj (.text:strchr)
-                  00030494    00000028                                 : strcmp.c.obj (.text:strcmp)
-                  000304bc    00000024                                 : ll_lsl32.asm.obj (.text)
-                  000304e0    00000024                                 : ll_lsr32.asm.obj (.text)
-                  00030504    00000024                                 : wcslen.c.obj (.text:wcslen)
-                  00030528    00000020                                 : strlen.c.obj (.text:strlen)
-                  00030548    0000001c                                 : s_copysign.c.obj (.text:copysign)
-                  00030564    00000018     osclock.obj (.text)
-                  0003057c    00000018     rtsv7R4_A_be_v3D16_eabi.lib : strcpy.c.obj (.text:strcpy)
-                  00030594    00000014     sd_io.obj (.text:__SD_Assert)
-                  000305a8    00000014     sd_io.obj (.text:__SD_Deassert)
-                  000305bc    00000014     rtsv7R4_A_be_v3D16_eabi.lib : sprintf.c.obj (.text:_outc)
-                  000305d0    00000014     csp_endian.obj (.text:csp_hton16)
-                  000305e4    00000014     csp_endian.obj (.text:csp_hton32)
-                  000305f8    00000014     csp_endian.obj (.text:csp_htonflt)
-                  0003060c    00000014     csp_endian.obj (.text:csp_ntoh16)
-                  00030620    00000014     csp_endian.obj (.text:csp_ntoh32)
-                  00030634    00000014     rtsv7R4_A_be_v3D16_eabi.lib : copy_decompress_none.c.obj (.text:decompress:none:__TI_decompress_none)
-                  00030648    00000010                                 : copy_zero_init.c.obj (.text:decompress:ZI:__TI_zero_init)
-                  00030658    0000000c                                 : errno.c.obj (.text:__aeabi_errno_addr)
-                  00030664    0000000c                                 : memory.c.obj (.text:malloc)
-                  00030670    0000000c                                 : fputc.c.obj (.text:putchar)
-                  0003067c    00000008     spi_io.obj (.text:SPI_Timer_Status)
-                  00030684    00000008     rtsv7R4_A_be_v3D16_eabi.lib : exit.c.obj (.text:abort:abort)
-                  0003068c    00000004     spi_io.obj (.text:SPI_Freq_High)
-                  00030690    00000004     spi_io.obj (.text:SPI_Freq_Low)
-                  00030694    00000004     spi_io.obj (.text:SPI_Timer_Off)
-                  00030698    00000004     rtsv7R4_A_be_v3D16_eabi.lib : _lock.c.obj (.text:_nop)
-                  0003069c    00000004                                 : fprintf.c.obj (.text:_outc)
-                  000306a0    00000004                                 : printf.c.obj (.text:_outc)
-                  000306a4    00000004                                 : fprintf.c.obj (.text:_outs)
-                  000306a8    00000004                                 : printf.c.obj (.text:_outs)
-                  000306ac    00000004     HL_sys_phantom.obj (.text:retain)
-                  000306b0    00000004     rtsv7R4_A_be_v3D16_eabi.lib : div0.asm.obj (.text)
-                  000306b4    00000004     sign.obj (.text)
-                  000306b8    00000008     board_io_tests.obj (.tramp.blinky.1)
+                  00019b64    00000f54     dfgm_converter.obj (.text)
+                  0001aab8    00000ef4     board_io_tests.obj (.text)
+                  0001b9ac    00000dc8     os_mpu_wrappers.obj (.text)
+                  0001c774    00000ce4     HL_i2c.obj (.text)
+                  0001d458    00000acc     volume.obj (.text)
+                  0001df24    00000a30     HL_spi.obj (.text:retain)
+                  0001e954    000009f4     HL_pinmux.obj (.text)
+                  0001f348    000009cc     HL_sci.obj (.text:retain)
+                  0001fd14    000009b8     sd_io.obj (.text)
+                  000206cc    0000099c     HL_system.obj (.text)
+                  00021068    00000940     HL_sys_vim.obj (.text)
+                  000219a8    00000918     skytraq_binary.obj (.text)
+                  000222c0    000008f8     path.obj (.text)
+                  00022bb8    00000828     uhf.obj (.text)
+                  000233e0    0000078c     HL_esm.obj (.text)
+                  00023b6c    00000788     dfgm_filter.obj (.text)
+                  000242f4    00000734     csp_if_can.obj (.text)
+                  00024a28    000006a0     logger.obj (.text)
+                  000250c8    00000664     HL_errata_SSWF021_45.obj (.text)
+                  0002572c    00000644     csp_buffer.obj (.text)
+                  00025d70    000005f8     imap.obj (.text)
+                  00026368    000005e8     adcs_io.obj (.text)
+                  00026950    0000054c     rtsv7R4_A_be_v3D16_eabi.lib : strtod.c.obj (.text:strtod)
+                  00026e9c    00000518     imapextern.obj (.text)
+                  000273b4    000004f8     i2c.obj (.text)
+                  000278ac    00000484     HL_gio.obj (.text)
+                  00027d30    0000047c     can.obj (.text)
+                  000281ac    0000046c     blockio.obj (.text)
+                  00028618    00000428     i2c_io.obj (.text)
+                  00028a40    00000428     osbdev.obj (.text)
+                  00028e68    000003e4     HL_i2c.obj (.text:retain)
+                  0002924c    000003e0     string.obj (.text)
+                  0002962c    000003c4     HL_sys_core.obj (.text)
+                  000299f0    000003c4     memory.obj (.text)
+                  00029db4    0000039c     format.obj (.text)
+                  0002a150    0000037c     csp_iflist.obj (.text)
+                  0002a4cc    00000364     crc.obj (.text)
+                  0002a830    00000358     HL_sys_mpu.obj (.text)
+                  0002ab88    00000350     csp_qfifo.obj (.text)
+                  0002aed8    0000033c     HL_sys_vim.obj (.text:retain)
+                  0002b214    000002dc     rtsv7R4_A_be_v3D16_eabi.lib : _printfi.c.obj (.text:_pconv_a)
+                  0002b4f0    000002d8     csp_if_can_pbuf.obj (.text)
+                  0002b7c8    000002b8     rtsv7R4_A_be_v3D16_eabi.lib : ull_div32.asm.obj (.text)
+                  0002ba80    00000284     usart_m3.obj (.text)
+                  0002bd04    00000278     os_heap.obj (.text)
+                  0002bf7c    0000025c     HL_notification.obj (.text)
+                  0002c1d8    00000248     rtsv7R4_A_be_v3D16_eabi.lib : _printfi.c.obj (.text:_pconv_g)
+                  0002c420    00000238     os_list.obj (.text)
+                  0002c658    0000022c     csp_debug.obj (.text)
+                  0002c884    00000218     imapinline.obj (.text)
+                  0002ca9c    00000200     HL_can.obj (.text:retain)
+                  0002cc9c    000001f8     HL_emif.obj (.text)
+                  0002ce94    000001d0     main.obj (.text)
+                  0002d064    000001a4     rtsv7R4_A_be_v3D16_eabi.lib : fputs.c.obj (.text:fputs)
+                  0002d208    00000198                                 : memory.c.obj (.text:aligned_alloc)
+                  0002d3a0    00000180                                 : memcpy32.asm.obj (.text)
+                  0002d520    00000178     HL_esm.obj (.text:retain)
+                  0002d698    00000174     rtsv7R4_A_be_v3D16_eabi.lib : memory.c.obj (.text:free)
+                  0002d80c    00000174     os_tasks.obj (.text)
+                  0002d980    0000015c     rtsv7R4_A_be_v3D16_eabi.lib : _printfi.c.obj (.text:_pconv_e)
+                  0002dadc    00000158                                 : setvbuf.c.obj (.text:setvbuf)
+                  0002dc34    00000150     HL_sys_startup.obj (.text:retain)
+                  0002dd84    00000144     bitmap.obj (.text)
+                  0002dec8    00000144     rtsv7R4_A_be_v3D16_eabi.lib : _printfi.c.obj (.text:fcvt)
+                  0002e00c    0000013c                                 : s_floor.c.obj (.text:floor)
+                  0002e148    00000138     os_port.obj (.text)
+                  0002e280    00000120     csp_queue.obj (.text)
+                  0002e3a0    00000120     rtsv7R4_A_be_v3D16_eabi.lib : s_scalbn.c.obj (.text:scalbn)
+                  0002e4c0    00000115                                 : _printfi.c.obj (.text:_ltostr)
+                  0002e5d5    00000003     --HOLE-- [fill = 0]
+                  0002e5d8    00000100                                 : fputc.c.obj (.text:fputc)
+                  0002e6d8    000000f8     osmutex.obj (.text)
+                  0002e7d0    000000e0     HL_sys_pmu.obj (.text)
+                  0002e8b0    000000c8     rtsv7R4_A_be_v3D16_eabi.lib : _printfi.c.obj (.text:_mcpy)
+                  0002e978    000000b8                                 : fclose.c.obj (.text:__TI_closefile)
+                  0002ea30    000000b4     osoutput.obj (.text)
+                  0002eae4    000000b0     rtsv7R4_A_be_v3D16_eabi.lib : memset32.asm.obj (.text)
+                  0002eb94    000000b0     spi_io.obj (.text)
+                  0002ec44    000000b0     rtsv7R4_A_be_v3D16_eabi.lib : memory.c.obj (.text:split)
+                  0002ecf4    000000ac                                 : hostlseek.c.obj (.text:HOSTlseek)
+                  0002eda0    000000ac                                 : fflush.c.obj (.text:fflush)
+                  0002ee4c    000000a8                                 : fseek.c.obj (.text:fseek)
+                  0002eef4    000000a4                                 : hostrename.c.obj (.text:HOSTrename)
+                  0002ef98    000000a0                                 : _io_perm.c.obj (.text:__TI_wrt_ok)
+                  0002f038    0000009c                                 : fprintf.c.obj (.text:fprintf)
+                  0002f0d4    0000009c                                 : printf.c.obj (.text:printf)
+                  0002f170    00000098                                 : hostopen.c.obj (.text:HOSTopen)
+                  0002f208    00000098                                 : _printfi.c.obj (.text:_ecpy)
+                  0002f2a0    00000098                                 : close.c.obj (.text:close)
+                  0002f338    00000090                                 : hostread.c.obj (.text:HOSTread)
+                  0002f3c8    00000090                                 : hostwrite.c.obj (.text:HOSTwrite)
+                  0002f458    00000090                                 : copy_decompress_lzss.c.obj (.text:decompress:lzss:__TI_decompress_lzss)
+                  0002f4e8    0000008c                                 : s_frexp.c.obj (.text:frexp)
+                  0002f574    0000008c     ostask.obj (.text)
+                  0002f600    00000088     namelen.obj (.text)
+                  0002f688    00000084     rtsv7R4_A_be_v3D16_eabi.lib : fflush.c.obj (.text:__TI_doflush)
+                  0002f70c    00000084                                 : atoi.c.obj (.text:atoi)
+                  0002f790    00000080                                 : _ltoa.c.obj (.text:__TI_ltoa)
+                  0002f810    0000007c     csp_clock.obj (.text)
+                  0002f88c    0000007c     rtsv7R4_A_be_v3D16_eabi.lib : exit.c.obj (.text:exit)
+                  0002f908    0000007c                                 : snprintf.c.obj (.text:snprintf)
+                  0002f984    00000074                                 : hostclose.c.obj (.text:HOSTclose)
+                  0002f9f8    00000074                                 : _printfi.c.obj (.text:_pconv_f)
+                  0002fa6c    00000074     csp_malloc.obj (.text)
+                  0002fae0    00000070     rtsv7R4_A_be_v3D16_eabi.lib : hostunlink.c.obj (.text:HOSTunlink)
+                  0002fb50    00000070     spi_io.obj (.text:SPI_CS_Low)
+                  0002fbc0    0000006c     rtsv7R4_A_be_v3D16_eabi.lib : getdevice.c.obj (.text:getdevice)
+                  0002fc2c    00000068                                 : autoinit.c.obj (.text:__TI_auto_init_nobinit_nopinit:__TI_auto_init_nobinit_nopinit)
+                  0002fc94    00000068                                 : strtok.c.obj (.text:strtok)
+                  0002fcfc    00000064                                 : _printfi.c.obj (.text:_fcpy)
+                  0002fd60    00000064                                 : sprintf.c.obj (.text:sprintf)
+                  0002fdc4    00000060     osassert.obj (.text)
+                  0002fe24    0000005c     rtsv7R4_A_be_v3D16_eabi.lib : snprintf.c.obj (.text:_outs)
+                  0002fe80    00000054     HL_sys_startup.obj (.text)
+                  0002fed4    00000054     rtsv7R4_A_be_v3D16_eabi.lib : fopen.c.obj (.text:__TI_cleanup)
+                  0002ff28    00000054                                 : trgmsg.c.obj (.text:__TI_readmsg)
+                  0002ff7c    00000054                                 : trgmsg.c.obj (.text:__TI_writemsg)
+                  0002ffd0    00000054                                 : getdevice.c.obj (.text:finddevice)
+                  00030024    00000054                                 : i_div32.asm.obj (.text)
+                  00030078    00000054                                 : strncasecmp.c.obj (.text:strncasecmp)
+                  000300cc    00000050                                 : u_div32.asm.obj (.text)
+                  0003011c    0000004c     HL_sys_main.obj (.text)
+                  00030168    0000004c     rtsv7R4_A_be_v3D16_eabi.lib : strspn.c.obj (.text:strspn)
+                  000301b4    00000048                                 : strncpy.c.obj (.text:strncpy)
+                  000301fc    00000048                                 : unlink.c.obj (.text:unlink)
+                  00030244    00000044                                 : lseek.c.obj (.text:lseek)
+                  00030288    00000044                                 : strcspn.c.obj (.text:strcspn)
+                  000302cc    00000044                                 : write.c.obj (.text:write)
+                  00030310    00000040     csp_time.obj (.text)
+                  00030350    00000040     rtsv7R4_A_be_v3D16_eabi.lib : memory.c.obj (.text:free_list_insert)
+                  00030390    00000034     spi_io.obj (.text:SPI_CS_High)
+                  000303c4    00000030     rtsv7R4_A_be_v3D16_eabi.lib : sprintf.c.obj (.text:_outs)
+                  000303f4    00000030                                 : memory.c.obj (.text:free_list_remove)
+                  00030424    00000030                                 : memccpy.c.obj (.text:memccpy)
+                  00030454    0000002c                                 : snprintf.c.obj (.text:_outc)
+                  00030480    0000002c                                 : memchr.c.obj (.text:memchr)
+                  000304ac    00000028                                 : strchr.c.obj (.text:strchr)
+                  000304d4    00000028                                 : strcmp.c.obj (.text:strcmp)
+                  000304fc    00000024                                 : ll_lsl32.asm.obj (.text)
+                  00030520    00000024                                 : ll_lsr32.asm.obj (.text)
+                  00030544    00000024                                 : wcslen.c.obj (.text:wcslen)
+                  00030568    00000020                                 : strlen.c.obj (.text:strlen)
+                  00030588    0000001c                                 : s_copysign.c.obj (.text:copysign)
+                  000305a4    00000018     osclock.obj (.text)
+                  000305bc    00000018     rtsv7R4_A_be_v3D16_eabi.lib : strcpy.c.obj (.text:strcpy)
+                  000305d4    00000014     sd_io.obj (.text:__SD_Assert)
+                  000305e8    00000014     sd_io.obj (.text:__SD_Deassert)
+                  000305fc    00000014     rtsv7R4_A_be_v3D16_eabi.lib : sprintf.c.obj (.text:_outc)
+                  00030610    00000014     csp_endian.obj (.text:csp_hton16)
+                  00030624    00000014     csp_endian.obj (.text:csp_hton32)
+                  00030638    00000014     csp_endian.obj (.text:csp_htonflt)
+                  0003064c    00000014     csp_endian.obj (.text:csp_ntoh16)
+                  00030660    00000014     csp_endian.obj (.text:csp_ntoh32)
+                  00030674    00000014     rtsv7R4_A_be_v3D16_eabi.lib : copy_decompress_none.c.obj (.text:decompress:none:__TI_decompress_none)
+                  00030688    00000010                                 : copy_zero_init.c.obj (.text:decompress:ZI:__TI_zero_init)
+                  00030698    0000000c                                 : errno.c.obj (.text:__aeabi_errno_addr)
+                  000306a4    0000000c                                 : memory.c.obj (.text:malloc)
+                  000306b0    0000000c                                 : fputc.c.obj (.text:putchar)
+                  000306bc    00000008     spi_io.obj (.text:SPI_Timer_Status)
+                  000306c4    00000008     rtsv7R4_A_be_v3D16_eabi.lib : exit.c.obj (.text:abort:abort)
+                  000306cc    00000004     spi_io.obj (.text:SPI_Freq_High)
+                  000306d0    00000004     spi_io.obj (.text:SPI_Freq_Low)
+                  000306d4    00000004     spi_io.obj (.text:SPI_Timer_Off)
+                  000306d8    00000004     rtsv7R4_A_be_v3D16_eabi.lib : _lock.c.obj (.text:_nop)
+                  000306dc    00000004                                 : fprintf.c.obj (.text:_outc)
+                  000306e0    00000004                                 : printf.c.obj (.text:_outc)
+                  000306e4    00000004                                 : fprintf.c.obj (.text:_outs)
+                  000306e8    00000004                                 : printf.c.obj (.text:_outs)
+                  000306ec    00000004     HL_sys_phantom.obj (.text:retain)
+                  000306f0    00000004     rtsv7R4_A_be_v3D16_eabi.lib : div0.asm.obj (.text)
+                  000306f4    00000004     sign.obj (.text)
+                  000306f8    00000008     board_io_tests.obj (.tramp.blinky.1)
 
-.const     0    000306c0    00002584     
-                  000306c0    00002000     crc.obj (.const:aulCrc32Table$1)
-                  000326c0    00000200     HL_sys_vim.obj (.const:s_vim_init)
-                  000328c0    00000101     rtsv7R4_A_be_v3D16_eabi.lib : ctype.c.obj (.const:.string:_ctypes_)
-                  000329c1    00000006     adcs_io.obj (.const:.string:$P$T0$1)
-                  000329c7    00000001     --HOLE-- [fill = 0]
-                  000329c8    00000080     rtsv7R4_A_be_v3D16_eabi.lib : strtod.c.obj (.const:digits)
-                  00032a48    00000050     redconf.obj (.const:gaRedVolConf)
-                  00032a98    00000050     printf.obj (.const:pow10$1)
-                  00032ae8    00000048     rtsv7R4_A_be_v3D16_eabi.lib : strtod.c.obj (.const:powerof10)
-                  00032b30    00000030     core.obj (.const:$P$T0$2)
-                  00032b60    00000030     core.obj (.const:$P$T1$3)
-                  00032b90    00000030     dfgm_converter.obj (.const:HKOffsets)
-                  00032bc0    00000030     dfgm_converter.obj (.const:HKScales)
-                  00032bf0    00000020     HL_can.obj (.const:s_canByteOrder)
-                  00032c10    00000014     logger.obj (.const:.string:logger_config)
-                  00032c24    0000000e     redconf.obj (.const:.string)
-                  00032c32    00000002     --HOLE-- [fill = 0]
-                  00032c34    00000008     csp_qfifo.obj (.const:$P$T2$1)
-                  00032c3c    00000008     board_io_tests.obj (.const:.string:$P$T0$1)
+.const     0    00030700    00002584     
+                  00030700    00002000     crc.obj (.const:aulCrc32Table$1)
+                  00032700    00000200     HL_sys_vim.obj (.const:s_vim_init)
+                  00032900    00000101     rtsv7R4_A_be_v3D16_eabi.lib : ctype.c.obj (.const:.string:_ctypes_)
+                  00032a01    00000006     adcs_io.obj (.const:.string:$P$T0$1)
+                  00032a07    00000001     --HOLE-- [fill = 0]
+                  00032a08    00000080     rtsv7R4_A_be_v3D16_eabi.lib : strtod.c.obj (.const:digits)
+                  00032a88    00000050     redconf.obj (.const:gaRedVolConf)
+                  00032ad8    00000050     printf.obj (.const:pow10$1)
+                  00032b28    00000048     rtsv7R4_A_be_v3D16_eabi.lib : strtod.c.obj (.const:powerof10)
+                  00032b70    00000030     core.obj (.const:$P$T0$2)
+                  00032ba0    00000030     core.obj (.const:$P$T1$3)
+                  00032bd0    00000030     dfgm_converter.obj (.const:HKOffsets)
+                  00032c00    00000030     dfgm_converter.obj (.const:HKScales)
+                  00032c30    00000020     HL_can.obj (.const:s_canByteOrder)
+                  00032c50    00000014     logger.obj (.const:.string:logger_config)
+                  00032c64    0000000e     redconf.obj (.const:.string)
+                  00032c72    00000002     --HOLE-- [fill = 0]
+                  00032c74    00000008     csp_qfifo.obj (.const:$P$T2$1)
+                  00032c7c    00000008     board_io_tests.obj (.const:.string:$P$T0$1)
 
 .kernelBSS 
 *          0    08000020    00000148     UNINITIALIZED
@@ -375,9 +375,9 @@ section   page    origin      length       input sections
                   080456a0    000007f0     --HOLE--
 
 .blinky_section 
-*          0    00032c44    000000a0     RUN ADDR = 80000000
-                  00032c44    00000098     board_io_tests.obj (.blinky_section)
-                  00032cdc    00000008     HL_gio.obj (.tramp.gioSetBit.1)
+*          0    00032c84    000000a0     RUN ADDR = 80000000
+                  00032c84    00000098     board_io_tests.obj (.blinky_section)
+                  00032d1c    00000008     HL_gio.obj (.tramp.gioSetBit.1)
 
 __llvm_prf_cnts 
 *          0    08000820    00000000     UNINITIALIZED
@@ -400,9 +400,9 @@ MODULE SUMMARY
                                                               
     .\ex2_hal\ex2_dfgm_software\source\
        dfgm_filter.obj              1928     0         5568   
-       dfgm_converter.obj           3860     96        1264   
+       dfgm_converter.obj           3924     96        1264   
     +--+----------------------------+--------+---------+---------+
-       Total:                       5788     96        6832   
+       Total:                       5852     96        6832   
                                                               
     .\ex2_hal\ex2_gps_software\equipment_handler\source\
        skytraq_gps_driver.obj       0        0         4      
@@ -622,15 +622,15 @@ MODULE SUMMARY
        Total:                       17321    457       948    
                                                               
        Heap:                        0        0         2048   
-       Linker Generated:            0        983       0      
+       Linker Generated:            0        982       0      
     +--+----------------------------+--------+---------+---------+
-       Grand Total:                 194405   10584     284585 
+       Grand Total:                 194469   10583     284585 
 
 
 LINKER GENERATED COPY TABLES
 
 __TI_cinit_table @ 000073a0 records: 4, size/record: 8, table size: 32
-	.data: load addr=00006fe0, load size=00000392 bytes, run addr=08044c80, run size=00000a0c bytes, compression=lzss
+	.data: load addr=00006fe0, load size=00000391 bytes, run addr=08044c80, run size=00000a0c bytes, compression=lzss
 	.kernelBSS: load addr=00007380, load size=00000009 bytes, run addr=08000020, run size=00000148 bytes, compression=lzss
 	.bss: load addr=00007390, load size=00000008 bytes, run addr=08040820, run size=0000445e bytes, compression=zero_init
 	.kernelHEAP: load addr=00007398, load size=00000008 bytes, run addr=08000820, run size=00040000 bytes, compression=zero_init
@@ -652,9 +652,9 @@ callee name               trampoline name
 ramSWI                    $Tramp$AA$L$PI$$ramSWI
    08000000     00000020     00000008   HL_sys_intvecs.obj (.intvecs)
 blinky                    $Tramp$AA$L$PI$$blinky
-   80000000     000306b8     0001b674   board_io_tests.obj (.text)
+   80000000     000306f8     0001b6b4   board_io_tests.obj (.text)
 gioSetBit                 $Tramp$AA$L$PI$$gioSetBit
-   0002795c     80000098     80000010   board_io_tests.obj (.blinky_section)
+   0002799c     80000098     80000010   board_io_tests.obj (.blinky_section)
                              80000054   board_io_tests.obj (.blinky_section)
 
 [3 trampolines]
@@ -666,129 +666,129 @@ GLOBAL SYMBOLS: SORTED ALPHABETICALLY BY Name
 address   name                                  
 -------   ----                                  
 800000a0  BlinkyEndAddr                         
-00032ce4  BlinkyLoadEnd                         
-00032c44  BlinkyLoadStart                       
+00032d24  BlinkyLoadEnd                         
+00032c84  BlinkyLoadStart                       
 000000a0  BlinkySize                            
 80000000  BlinkyStartAddr                       
-00030684  C$$EXIT                               
-0002ff84  C$$IO$$                               
-0001b4f8  CANRxTest                             
-0001b480  CANTxTest                             
-0001ac38  GPIOGetBit                            
-0001aaf4  GPIOSetBit                            
-0001ad7c  GPIOTxTest                            
-00022ed0  HAL_UHF_getAudioT                     
-00023040  HAL_UHF_getBeaconMsg                  
-00022ea4  HAL_UHF_getBeaconT                    
-00022fa0  HAL_UHF_getDestination                
-00023068  HAL_UHF_getFRAM                       
-00022d9c  HAL_UHF_getFreq                       
-00022f28  HAL_UHF_getLowPwr                     
-00023018  HAL_UHF_getMIDI                       
-00022ff0  HAL_UHF_getMorse                      
-00022f50  HAL_UHF_getPayload                    
-00022e20  HAL_UHF_getPcktsIn                    
-00022e4c  HAL_UHF_getPcktsInCRC16               
-00022df4  HAL_UHF_getPcktsOut                   
-00022e78  HAL_UHF_getPipeT                      
-00022d74  HAL_UHF_getSCW                        
-00022f78  HAL_UHF_getSecureKey                  
-00022fc8  HAL_UHF_getSource                     
-00022efc  HAL_UHF_getTemp                       
-00022dc8  HAL_UHF_getUptime                     
-00022c2c  HAL_UHF_lowPwr                        
-00022c18  HAL_UHF_restore                       
-00022d60  HAL_UHF_secure                        
-00022bf8  HAL_UHF_setAudioT                     
-00022cf0  HAL_UHF_setBeaconMsg                  
-00022bd8  HAL_UHF_setBeaconT                    
-00022c40  HAL_UHF_setDestination                
-00022d30  HAL_UHF_setFRAM                       
-00022b98  HAL_UHF_setFreq                       
-00022d1c  HAL_UHF_setI2C                        
-00022cc4  HAL_UHF_setMIDI                       
-00022c98  HAL_UHF_setMorse                      
-00022bb8  HAL_UHF_setPipeT                      
-00022b78  HAL_UHF_setSCW                        
-00022c6c  HAL_UHF_setSource                     
-00032b90  HKOffsets                             
-00032bc0  HKScales                              
-0002f944  HOSTclose                             
-0002ecb4  HOSTlseek                             
-0002f130  HOSTopen                              
-0002f2f8  HOSTread                              
-0002eeb4  HOSTrename                            
-0002faa0  HOSTunlink                            
-0002f388  HOSTwrite                             
-0001b1f8  I2CMasterRxTest                       
-0001b148  I2CMasterTxTest                       
-0001b2f4  I2CSlaveRxTest                        
-0001b3e0  I2CSlaveTxTest                        
-0001aa78  InitIO                                
-0001bb3c  MPU_eTaskGetState                     
-0001bcf0  MPU_pcTaskGetName                     
-0001c4ac  MPU_pcTimerGetName                    
-0001bdd0  MPU_pvTaskGetThreadLocalStoragePointer
-0001c3e4  MPU_pvTimerGetTimerID                 
-0001bf8c  MPU_ulTaskNotifyTake                  
-0001c174  MPU_uxQueueMessagesWaiting            
-0001c1a8  MPU_uxQueueSpacesAvailable            
-0001bcc4  MPU_uxTaskGetNumberOfTasks            
-0001bd58  MPU_uxTaskGetStackHighWaterMark       
-0001be40  MPU_uxTaskGetSystemState              
-0001bb08  MPU_uxTaskPriorityGet                 
-0001c708  MPU_vEventGroupDelete                 
-0001c1dc  MPU_vQueueDelete                      
-0001ba14  MPU_vTaskAllocateMPURegions           
-0001ba74  MPU_vTaskDelay                        
-0001baa0  MPU_vTaskDelayUntil                   
-0001ba48  MPU_vTaskDelete                       
-0001bb70  MPU_vTaskGetInfo                      
-0001beb8  MPU_vTaskGetRunTimeStats              
-0001be8c  MPU_vTaskList                         
-0001bbbc  MPU_vTaskPrioritySet                  
-0001bc1c  MPU_vTaskResume                       
-0001bd8c  MPU_vTaskSetThreadLocalStoragePointer 
-0001c030  MPU_vTaskSetTimeOutState              
-0001bbf0  MPU_vTaskSuspend                      
-0001bc48  MPU_vTaskSuspendAll                   
-0001c418  MPU_vTimerSetTimerID                  
-0001c62c  MPU_xEventGroupClearBits              
-0001c5a4  MPU_xEventGroupCreate                 
-0001c670  MPU_xEventGroupSetBits                
-0001c6b4  MPU_xEventGroupSync                   
-0001c5d0  MPU_xEventGroupWaitBits               
-0001c23c  MPU_xQueueCreateCountingSemaphore     
-0001c208  MPU_xQueueCreateMutex                 
-0001c2f8  MPU_xQueueGenericCreate               
-0001c120  MPU_xQueueGenericReceive              
-0001c344  MPU_xQueueGenericReset                
-0001c0cc  MPU_xQueueGenericSend                 
-0001c2c4  MPU_xQueueGiveMutexRecursive          
-0001c280  MPU_xQueueTakeMutexRecursive          
-0001bad4  MPU_xTaskAbortDelay                   
-0001c05c  MPU_xTaskCheckForTimeOut              
-0001b96c  MPU_xTaskCreate                       
-0001b9d0  MPU_xTaskCreateRestricted             
-0001bee4  MPU_xTaskGenericNotify                
-0001c004  MPU_xTaskGetCurrentTaskHandle         
-0001bd24  MPU_xTaskGetHandle                    
-0001be14  MPU_xTaskGetIdleTaskHandle            
-0001c0a0  MPU_xTaskGetSchedulerState            
-0001bc98  MPU_xTaskGetTickCount                 
-0001bfd0  MPU_xTaskNotifyStateClear             
-0001bf38  MPU_xTaskNotifyWait                   
-0001bc6c  MPU_xTaskResumeAll                    
-0001c388  MPU_xTimerCreate                      
-0001c548  MPU_xTimerGenericCommand              
-0001c514  MPU_xTimerGetExpiryTime               
-0001c4e0  MPU_xTimerGetPeriod                   
-0001c480  MPU_xTimerGetTimerDaemonTaskHandle    
-0001c44c  MPU_xTimerIsTimerActive               
+000306c4  C$$EXIT                               
+0002ffc4  C$$IO$$                               
+0001b538  CANRxTest                             
+0001b4c0  CANTxTest                             
+0001ac78  GPIOGetBit                            
+0001ab34  GPIOSetBit                            
+0001adbc  GPIOTxTest                            
+00022f10  HAL_UHF_getAudioT                     
+00023080  HAL_UHF_getBeaconMsg                  
+00022ee4  HAL_UHF_getBeaconT                    
+00022fe0  HAL_UHF_getDestination                
+000230a8  HAL_UHF_getFRAM                       
+00022ddc  HAL_UHF_getFreq                       
+00022f68  HAL_UHF_getLowPwr                     
+00023058  HAL_UHF_getMIDI                       
+00023030  HAL_UHF_getMorse                      
+00022f90  HAL_UHF_getPayload                    
+00022e60  HAL_UHF_getPcktsIn                    
+00022e8c  HAL_UHF_getPcktsInCRC16               
+00022e34  HAL_UHF_getPcktsOut                   
+00022eb8  HAL_UHF_getPipeT                      
+00022db4  HAL_UHF_getSCW                        
+00022fb8  HAL_UHF_getSecureKey                  
+00023008  HAL_UHF_getSource                     
+00022f3c  HAL_UHF_getTemp                       
+00022e08  HAL_UHF_getUptime                     
+00022c6c  HAL_UHF_lowPwr                        
+00022c58  HAL_UHF_restore                       
+00022da0  HAL_UHF_secure                        
+00022c38  HAL_UHF_setAudioT                     
+00022d30  HAL_UHF_setBeaconMsg                  
+00022c18  HAL_UHF_setBeaconT                    
+00022c80  HAL_UHF_setDestination                
+00022d70  HAL_UHF_setFRAM                       
+00022bd8  HAL_UHF_setFreq                       
+00022d5c  HAL_UHF_setI2C                        
+00022d04  HAL_UHF_setMIDI                       
+00022cd8  HAL_UHF_setMorse                      
+00022bf8  HAL_UHF_setPipeT                      
+00022bb8  HAL_UHF_setSCW                        
+00022cac  HAL_UHF_setSource                     
+00032bd0  HKOffsets                             
+00032c00  HKScales                              
+0002f984  HOSTclose                             
+0002ecf4  HOSTlseek                             
+0002f170  HOSTopen                              
+0002f338  HOSTread                              
+0002eef4  HOSTrename                            
+0002fae0  HOSTunlink                            
+0002f3c8  HOSTwrite                             
+0001b238  I2CMasterRxTest                       
+0001b188  I2CMasterTxTest                       
+0001b334  I2CSlaveRxTest                        
+0001b420  I2CSlaveTxTest                        
+0001aab8  InitIO                                
+0001bb7c  MPU_eTaskGetState                     
+0001bd30  MPU_pcTaskGetName                     
+0001c4ec  MPU_pcTimerGetName                    
+0001be10  MPU_pvTaskGetThreadLocalStoragePointer
+0001c424  MPU_pvTimerGetTimerID                 
+0001bfcc  MPU_ulTaskNotifyTake                  
+0001c1b4  MPU_uxQueueMessagesWaiting            
+0001c1e8  MPU_uxQueueSpacesAvailable            
+0001bd04  MPU_uxTaskGetNumberOfTasks            
+0001bd98  MPU_uxTaskGetStackHighWaterMark       
+0001be80  MPU_uxTaskGetSystemState              
+0001bb48  MPU_uxTaskPriorityGet                 
+0001c748  MPU_vEventGroupDelete                 
+0001c21c  MPU_vQueueDelete                      
+0001ba54  MPU_vTaskAllocateMPURegions           
+0001bab4  MPU_vTaskDelay                        
+0001bae0  MPU_vTaskDelayUntil                   
+0001ba88  MPU_vTaskDelete                       
+0001bbb0  MPU_vTaskGetInfo                      
+0001bef8  MPU_vTaskGetRunTimeStats              
+0001becc  MPU_vTaskList                         
+0001bbfc  MPU_vTaskPrioritySet                  
+0001bc5c  MPU_vTaskResume                       
+0001bdcc  MPU_vTaskSetThreadLocalStoragePointer 
+0001c070  MPU_vTaskSetTimeOutState              
+0001bc30  MPU_vTaskSuspend                      
+0001bc88  MPU_vTaskSuspendAll                   
+0001c458  MPU_vTimerSetTimerID                  
+0001c66c  MPU_xEventGroupClearBits              
+0001c5e4  MPU_xEventGroupCreate                 
+0001c6b0  MPU_xEventGroupSetBits                
+0001c6f4  MPU_xEventGroupSync                   
+0001c610  MPU_xEventGroupWaitBits               
+0001c27c  MPU_xQueueCreateCountingSemaphore     
+0001c248  MPU_xQueueCreateMutex                 
+0001c338  MPU_xQueueGenericCreate               
+0001c160  MPU_xQueueGenericReceive              
+0001c384  MPU_xQueueGenericReset                
+0001c10c  MPU_xQueueGenericSend                 
+0001c304  MPU_xQueueGiveMutexRecursive          
+0001c2c0  MPU_xQueueTakeMutexRecursive          
+0001bb14  MPU_xTaskAbortDelay                   
+0001c09c  MPU_xTaskCheckForTimeOut              
+0001b9ac  MPU_xTaskCreate                       
+0001ba10  MPU_xTaskCreateRestricted             
+0001bf24  MPU_xTaskGenericNotify                
+0001c044  MPU_xTaskGetCurrentTaskHandle         
+0001bd64  MPU_xTaskGetHandle                    
+0001be54  MPU_xTaskGetIdleTaskHandle            
+0001c0e0  MPU_xTaskGetSchedulerState            
+0001bcd8  MPU_xTaskGetTickCount                 
+0001c010  MPU_xTaskNotifyStateClear             
+0001bf78  MPU_xTaskNotifyWait                   
+0001bcac  MPU_xTaskResumeAll                    
+0001c3c8  MPU_xTimerCreate                      
+0001c588  MPU_xTimerGenericCommand              
+0001c554  MPU_xTimerGetExpiryTime               
+0001c520  MPU_xTimerGetPeriod                   
+0001c4c0  MPU_xTimerGetTimerDaemonTaskHandle    
+0001c48c  MPU_xTimerIsTimerActive               
 08044c64  NMEA_queue                            
-0002de10  RedBitClear                           
-0002dd44  RedBitGet                             
-0002ddb8  RedBitSet                             
+0002de50  RedBitClear                           
+0002dd84  RedBitGet                             
+0002ddf8  RedBitSet                             
 0001601c  RedBufferBranch                       
 00015fb4  RedBufferDirty                        
 000160d4  RedBufferDiscard                      
@@ -818,22 +818,22 @@ address   name
 00011a24  RedCoreVolStat                        
 000119a4  RedCoreVolTransact                    
 00011904  RedCoreVolUnmount                     
-0002a48c  RedCrc32Update                        
-0002a75c  RedCrcNode                            
+0002a4cc  RedCrc32Update                        
+0002a79c  RedCrcNode                            
 00014678  RedDirEntryCreate                     
 00014868  RedDirEntryDelete                     
 00014ac0  RedDirEntryLookup                     
 00014e20  RedDirEntryRead                       
 00015104  RedDirEntryRename                     
-00026044  RedImapAllocBlock                     
-00025d30  RedImapBlockGet                       
-00025df0  RedImapBlockSet                       
-000261f4  RedImapBlockState                     
-00026e5c  RedImapEBlockGet                      
-00026fa8  RedImapEBlockSet                      
-0002c844  RedImapIBlockGet                      
-0002c914  RedImapIBlockSet                      
-000272cc  RedImapNodeBlock                      
+00026084  RedImapAllocBlock                     
+00025d70  RedImapBlockGet                       
+00025e30  RedImapBlockSet                       
+00026234  RedImapBlockState                     
+00026e9c  RedImapEBlockGet                      
+00026fe8  RedImapEBlockSet                      
+0002c884  RedImapIBlockGet                      
+0002c954  RedImapIBlockSet                      
+0002730c  RedImapNodeBlock                      
 00017a28  RedInodeBitGet                        
 00017518  RedInodeBranch                        
 00016cf4  RedInodeCreate                        
@@ -852,215 +852,215 @@ address   name
 000173d0  RedInodePutData                       
 00017328  RedInodePutDindir                     
 0001737c  RedInodePutIndir                      
-000284fc  RedIoFlush                            
-0002816c  RedIoRead                             
-00028334  RedIoWrite                            
-00029c2c  RedMemCmp                             
-000299b0  RedMemCpy                             
-00029a70  RedMemMove                            
-00029b88  RedMemSet                             
-0002f5c0  RedNameLen                            
-0002fd84  RedOsAssertFail                       
-00028bc8  RedOsBDevClose                        
-00028dec  RedOsBDevFlush                        
-00028b8c  RedOsBDevOpen                         
-00028bfc  RedOsBDevRead                         
-00028cf4  RedOsBDevWrite                        
-00030574  RedOsClockGetTime                     
-00030564  RedOsClockInit                        
-0003056c  RedOsClockUninit                      
-0002e6f8  RedOsMutexAcquire                     
-0002e698  RedOsMutexInit                        
-0002e720  RedOsMutexRelease                     
-0002e6d4  RedOsMutexUninit                      
-0002e9f0  RedOsOutputString                     
-0002f534  RedOsTaskId                           
-000224fc  RedPathLookup                         
-00022568  RedPathToName                         
-0002245c  RedPathVolumeLookup                   
-00022280  RedPathVolumePrefixLookup             
-000306b4  RedSignOn                             
-0002928c  RedStrCmp                             
-0002920c  RedStrLen                             
-000293a4  RedStrNCmp                            
-000294d8  RedStrNCpy                            
-0001dd1c  RedVolCriticalError                   
-00029d74  RedVolFormat                          
-0001d418  RedVolMount                           
-0001d48c  RedVolMountMaster                     
-0001d5fc  RedVolMountMetaroot                   
-0001dd70  RedVolSeqNumIncrement                 
-0001da58  RedVolTransact                        
-0001b61c  SDRAM_Test                            
-00020148  SD_Init                               
-00020494  SD_Read                               
-00020650  SD_Status                             
-00020608  SD_Write                              
+0002853c  RedIoFlush                            
+000281ac  RedIoRead                             
+00028374  RedIoWrite                            
+00029c6c  RedMemCmp                             
+000299f0  RedMemCpy                             
+00029ab0  RedMemMove                            
+00029bc8  RedMemSet                             
+0002f600  RedNameLen                            
+0002fdc4  RedOsAssertFail                       
+00028c08  RedOsBDevClose                        
+00028e2c  RedOsBDevFlush                        
+00028bcc  RedOsBDevOpen                         
+00028c3c  RedOsBDevRead                         
+00028d34  RedOsBDevWrite                        
+000305b4  RedOsClockGetTime                     
+000305a4  RedOsClockInit                        
+000305ac  RedOsClockUninit                      
+0002e738  RedOsMutexAcquire                     
+0002e6d8  RedOsMutexInit                        
+0002e760  RedOsMutexRelease                     
+0002e714  RedOsMutexUninit                      
+0002ea30  RedOsOutputString                     
+0002f574  RedOsTaskId                           
+0002253c  RedPathLookup                         
+000225a8  RedPathToName                         
+0002249c  RedPathVolumeLookup                   
+000222c0  RedPathVolumePrefixLookup             
+000306f4  RedSignOn                             
+000292cc  RedStrCmp                             
+0002924c  RedStrLen                             
+000293e4  RedStrNCmp                            
+00029518  RedStrNCpy                            
+0001dd5c  RedVolCriticalError                   
+00029db4  RedVolFormat                          
+0001d458  RedVolMount                           
+0001d4cc  RedVolMountMaster                     
+0001d63c  RedVolMountMetaroot                   
+0001ddb0  RedVolSeqNumIncrement                 
+0001da98  RedVolTransact                        
+0001b65c  SDRAM_Test                            
+00020188  SD_Init                               
+000204d4  SD_Read                               
+00020690  SD_Status                             
+00020648  SD_Write                              
 UNDEFED   SHT$$INIT_ARRAY$$Base                 
 UNDEFED   SHT$$INIT_ARRAY$$Limit                
-0001af9c  SPIMasterRxTest                       
-0001af20  SPIMasterTxTest                       
-0001b0b8  SPISlaveRxTest                        
-0001b03c  SPISlaveTxTest                        
-00030350  SPI_CS_High                           
-0002fb10  SPI_CS_Low                            
-0003068c  SPI_Freq_High                         
-00030690  SPI_Freq_Low                          
-0002eb54  SPI_Init                              
-0002eb58  SPI_RW                                
-0002eba8  SPI_Release                           
-00030694  SPI_Timer_Off                         
-0002ebe4  SPI_Timer_On                          
-0003067c  SPI_Timer_Status                      
-0002cf94  SciSendBuf                            
+0001afdc  SPIMasterRxTest                       
+0001af60  SPIMasterTxTest                       
+0001b0f8  SPISlaveRxTest                        
+0001b07c  SPISlaveTxTest                        
+00030390  SPI_CS_High                           
+0002fb50  SPI_CS_Low                            
+000306cc  SPI_Freq_High                         
+000306d0  SPI_Freq_Low                          
+0002eb94  SPI_Init                              
+0002eb98  SPI_RW                                
+0002ebe8  SPI_Release                           
+000306d4  SPI_Timer_Off                         
+0002ec24  SPI_Timer_On                          
+000306bc  SPI_Timer_Status                      
+0002cfd4  SciSendBuf                            
 00013bb4  SpiRxStatus                           
 00013b28  SpiTxStatus                           
-0001ae98  UARTRxTest                            
-0001ae54  UARTTxTest                            
-00023288  UHF_convert_endianness                
-00023098  UHF_getHK                             
+0001aed8  UARTRxTest                            
+0001ae94  UARTTxTest                            
+000232c8  UHF_convert_endianness                
+000230d8  UHF_getHK                             
 080445ec  __CIOBUF_                             
-00030594  __SD_Assert                           
-000305a8  __SD_Deassert                         
-0001fcd4  __SD_Power_Of_Two                     
-0001ff28  __SD_Sectors                          
-0001fd48  __SD_Send_Cmd                         
-0001fd24  __SD_Speed_Transfer                   
-0001fe50  __SD_Write_Block                      
+000305d4  __SD_Assert                           
+000305e8  __SD_Deassert                         
+0001fd14  __SD_Power_Of_Two                     
+0001ff68  __SD_Sectors                          
+0001fd88  __SD_Send_Cmd                         
+0001fd64  __SD_Speed_Transfer                   
+0001fe90  __SD_Write_Block                      
 00000800  __SYSMEM_SIZE                         
 000073a0  __TI_CINIT_Base                       
 000073c0  __TI_CINIT_Limit                      
 00007374  __TI_Handler_Table_Base               
 00007380  __TI_Handler_Table_Limit              
-000299a8  __TI_PINIT_Base                       
-000299ac  __TI_PINIT_Limit                      
-0002fbec  __TI_auto_init_nobinit_nopinit        
-0002fe94  __TI_cleanup                          
+000299e8  __TI_PINIT_Base                       
+000299ec  __TI_PINIT_Limit                      
+0002fc2c  __TI_auto_init_nobinit_nopinit        
+0002fed4  __TI_cleanup                          
 08045648  __TI_cleanup_ptr                      
-0002e938  __TI_closefile                        
-0002f418  __TI_decompress_lzss                  
-00030634  __TI_decompress_none                  
-0002f648  __TI_doflush                          
+0002e978  __TI_closefile                        
+0002f458  __TI_decompress_lzss                  
+00030674  __TI_decompress_none                  
+0002f688  __TI_doflush                          
 0804564c  __TI_dtors_ptr                        
 08045650  __TI_enable_exit_profile_output       
 08045638  __TI_ft_end                           
-0002f750  __TI_ltoa                             
+0002f790  __TI_ltoa                             
 ffffffff  __TI_pprof_out_hndl                   
 00018bb8  __TI_printfi                          
 ffffffff  __TI_prof_data_size                   
 ffffffff  __TI_prof_data_start                  
-0002fee8  __TI_readmsg                          
+0002ff28  __TI_readmsg                          
 00000000  __TI_static_base__                    
 080447fe  __TI_tmpnams                          
-0002ff3c  __TI_writemsg                         
-0002ef58  __TI_wrt_ok                           
-00030648  __TI_zero_init                        
-00030658  __aeabi_errno_addr                    
-0002ffe4  __aeabi_idiv                          
-000306b0  __aeabi_idiv0                         
-0002ffe4  __aeabi_idivmod                       
-000306b0  __aeabi_ldiv0                         
-000304bc  __aeabi_llsl                          
-000304e0  __aeabi_llsr                          
-0002eaa4  __aeabi_memclr                        
-0002eaa4  __aeabi_memclr4                       
-0002eaa4  __aeabi_memclr8                       
-0002d360  __aeabi_memcpy                        
-0002d360  __aeabi_memcpy4                       
-0002d360  __aeabi_memcpy8                       
-0002eaa8  __aeabi_memset                        
-0002eaa8  __aeabi_memset4                       
-0002eaa8  __aeabi_memset8                       
+0002ff7c  __TI_writemsg                         
+0002ef98  __TI_wrt_ok                           
+00030688  __TI_zero_init                        
+00030698  __aeabi_errno_addr                    
+00030024  __aeabi_idiv                          
+000306f0  __aeabi_idiv0                         
+00030024  __aeabi_idivmod                       
+000306f0  __aeabi_ldiv0                         
+000304fc  __aeabi_llsl                          
+00030520  __aeabi_llsr                          
+0002eae4  __aeabi_memclr                        
+0002eae4  __aeabi_memclr4                       
+0002eae4  __aeabi_memclr8                       
+0002d3a0  __aeabi_memcpy                        
+0002d3a0  __aeabi_memcpy4                       
+0002d3a0  __aeabi_memcpy8                       
+0002eae8  __aeabi_memset                        
+0002eae8  __aeabi_memset4                       
+0002eae8  __aeabi_memset8                       
 08045644  __aeabi_stderr                        
 0804563c  __aeabi_stdin                         
 08045640  __aeabi_stdout                        
-0003008c  __aeabi_uidiv                         
-0003008c  __aeabi_uidivmod                      
-0002b788  __aeabi_uldivmod                      
+000300cc  __aeabi_uidiv                         
+000300cc  __aeabi_uidivmod                      
+0002b7c8  __aeabi_uldivmod                      
 ffffffff  __binit__                             
 ffffffff  __c_args__                            
 0000d430  __putchar                             
 08000820  __start___llvm_prf_cnts               
 08000820  __stop___llvm_prf_cnts                
-0002dbf4  _c_int00                              
-0002995c  _cacheDisable_                        
-00029918  _cacheEnable_                         
-000298f8  _checkMemInitOn_                      
-00029804  _coreClearAuxiliaryDataFault_         
-00029818  _coreClearAuxiliaryInstructionFault_  
-000297dc  _coreClearDataFaultAddress_           
-000297b4  _coreClearDataFault_                  
-000297f0  _coreClearInstructionFaultAddress_    
-000297c8  _coreClearInstructionFault_           
-0002978c  _coreDisableEventBusExport_           
-0002977c  _coreEnableEventBusExport_            
-0002979c  _coreEnableIrqVicOffset_              
-00029764  _coreEnableVfp_                       
-000297fc  _coreGetAuxiliaryDataFault_           
-00029810  _coreGetAuxiliaryInstructionFault_    
-000297d4  _coreGetDataFaultAddress_             
-000297ac  _coreGetDataFault_                    
-000297e8  _coreGetInstructionFaultAddress_      
-000297c0  _coreGetInstructionFault_             
-000295ec  _coreInitRegisters_                   
-000296f8  _coreInitStackPointer_                
-000328c0  _ctypes_                              
-00029980  _dCacheInvalidate_                    
-00030108  _dabort                               
+0002dc34  _c_int00                              
+0002999c  _cacheDisable_                        
+00029958  _cacheEnable_                         
+00029938  _checkMemInitOn_                      
+00029844  _coreClearAuxiliaryDataFault_         
+00029858  _coreClearAuxiliaryInstructionFault_  
+0002981c  _coreClearDataFaultAddress_           
+000297f4  _coreClearDataFault_                  
+00029830  _coreClearInstructionFaultAddress_    
+00029808  _coreClearInstructionFault_           
+000297cc  _coreDisableEventBusExport_           
+000297bc  _coreEnableEventBusExport_            
+000297dc  _coreEnableIrqVicOffset_              
+000297a4  _coreEnableVfp_                       
+0002983c  _coreGetAuxiliaryDataFault_           
+00029850  _coreGetAuxiliaryInstructionFault_    
+00029814  _coreGetDataFaultAddress_             
+000297ec  _coreGetDataFault_                    
+00029828  _coreGetInstructionFaultAddress_      
+00029800  _coreGetInstructionFault_             
+0002962c  _coreInitRegisters_                   
+00029738  _coreInitStackPointer_                
+00032900  _ctypes_                              
+000299c0  _dCacheInvalidate_                    
+00030148  _dabort                               
 080454e0  _device                               
-00029824  _disable_IRQ_interrupt_               
-0002982c  _enable_IRQ_interrupt_                
-00029834  _enable_interrupt_                    
-00025088  _errata_SSWF021_45_both_plls          
-0002527c  _errata_SSWF021_45_pll1               
-000253f4  _errata_SSWF021_45_pll2               
-0002983c  _esmCcmErrorsClear_                   
+00029864  _disable_IRQ_interrupt_               
+0002986c  _enable_IRQ_interrupt_                
+00029874  _enable_interrupt_                    
+000250c8  _errata_SSWF021_45_both_plls          
+000252bc  _errata_SSWF021_45_pll1               
+00025434  _errata_SSWF021_45_pll2               
+0002987c  _esmCcmErrorsClear_                   
 080453f0  _ftable                               
-00029744  _getCPSRValue_                        
-0002974c  _gotoCPUIdle_                         
-00029994  _iCacheInvalidate_                    
+00029784  _getCPSRValue_                        
+0002978c  _gotoCPUIdle_                         
+000299d4  _iCacheInvalidate_                    
 08045654  _lock                                 
-000298c4  _memInit_                             
-0002aaf0  _mpuAreRegionsSeparate_               
-0002aad4  _mpuDisableBackgroundRegion_          
-0002aaac  _mpuDisable_                          
-0002aac4  _mpuEnableBackgroundRegion_           
-0002aa94  _mpuEnable_                           
-0002aae4  _mpuGetNumberOfRegions_               
-0002ab14  _mpuGetRegionBaseAddress_             
-0002ab34  _mpuGetRegionPermission_              
-0002ab28  _mpuGetRegionType_                    
-0002ab04  _mpuGetRegion_                        
-0002a7f0  _mpuInit_                             
-0002ab0c  _mpuSetRegionBaseAddress_             
-0002ab40  _mpuSetRegionSizeRegister_            
-0002ab1c  _mpuSetRegionTypeAndPermission_       
-0002aafc  _mpuSetRegion_                        
-00030698  _nop                                  
-0002e7ec  _pmuDisableCountersGlobal_            
-0002e7dc  _pmuEnableCountersGlobal_             
-0002e848  _pmuGetCycleCount_                    
-0002e850  _pmuGetEventCount_                    
-0002e85c  _pmuGetOverflow_                      
-0002e790  _pmuInit_                             
-0002e81c  _pmuResetCounters_                    
-0002e7fc  _pmuResetCycleCounter_                
-0002e80c  _pmuResetEventCounters_               
-0002e83c  _pmuSetCountEvent_                    
-0002e82c  _pmuStartCounters_                    
-0002e834  _pmuStopCounters_                     
-000300f8  _prefetch                             
+00029904  _memInit_                             
+0002ab30  _mpuAreRegionsSeparate_               
+0002ab14  _mpuDisableBackgroundRegion_          
+0002aaec  _mpuDisable_                          
+0002ab04  _mpuEnableBackgroundRegion_           
+0002aad4  _mpuEnable_                           
+0002ab24  _mpuGetNumberOfRegions_               
+0002ab54  _mpuGetRegionBaseAddress_             
+0002ab74  _mpuGetRegionPermission_              
+0002ab68  _mpuGetRegionType_                    
+0002ab44  _mpuGetRegion_                        
+0002a830  _mpuInit_                             
+0002ab4c  _mpuSetRegionBaseAddress_             
+0002ab80  _mpuSetRegionSizeRegister_            
+0002ab5c  _mpuSetRegionTypeAndPermission_       
+0002ab3c  _mpuSetRegion_                        
+000306d8  _nop                                  
+0002e82c  _pmuDisableCountersGlobal_            
+0002e81c  _pmuEnableCountersGlobal_             
+0002e888  _pmuGetCycleCount_                    
+0002e890  _pmuGetEventCount_                    
+0002e89c  _pmuGetOverflow_                      
+0002e7d0  _pmuInit_                             
+0002e85c  _pmuResetCounters_                    
+0002e83c  _pmuResetCycleCounter_                
+0002e84c  _pmuResetEventCounters_               
+0002e87c  _pmuSetCountEvent_                    
+0002e86c  _pmuStartCounters_                    
+0002e874  _pmuStopCounters_                     
+00030138  _prefetch                             
 08045558  _stream                               
 08045690  _sys_memory                           
 UNDEFED   _system_post_cinit                    
-00030118  _undef                                
+00030158  _undef                                
 08045658  _unlock                               
-00030684  abort                                 
-0002bf88  adcNotification                       
-00026398  adcs_sciNotification                  
-0002d1c8  aligned_alloc                         
-00023b2c  apply_filter                          
-0002f6cc  atoi                                  
+000306c4  abort                                 
+0002bfc8  adcNotification                       
+000263d8  adcs_sciNotification                  
+0002d208  aligned_alloc                         
+00023b6c  apply_filter                          
+0002f70c  atoi                                  
 08044c68  bin_buff_loc                          
 08044a98  binary_message_buffer                 
 0804566c  binary_queue                          
@@ -1068,11 +1068,11 @@ ffffffff  binit
 80000000  blinky                                
 08042090  buffer                                
 0804489e  byte                                  
-00021e9c  calc_checksum                         
+00021edc  calc_checksum                         
 00010dfc  can1GetConfigValue                    
-0002ca5c  can1HighLevelInterrupt                
+0002ca9c  can1HighLevelInterrupt                
 00010f54  can2GetConfigValue                    
-0002cb44  can2HighLevelInterrupt                
+0002cb84  can2HighLevelInterrupt                
 000110ac  can3GetConfigValue                    
 00011258  can4GetConfigValue                    
 00010c48  canDisableErrorNotification           
@@ -1081,7 +1081,7 @@ ffffffff  binit
 00010be8  canEnableErrorNotification            
 00010c08  canEnableStatusChangeNotification     
 00010c68  canEnableloopback                     
-0002bf9c  canErrorNotification                  
+0002bfdc  canErrorNotification                  
 00010990  canFillMessageObjectData              
 00010670  canGetData                            
 00010508  canGetDataAndSize                     
@@ -1096,275 +1096,275 @@ ffffffff  binit
 00010b44  canIsMessageBoxValid                  
 00010ae8  canIsRxMessageArrived                 
 00010a8c  canIsTxMessagePending                 
-000280cc  canMessageNotification                
+0002810c  canMessageNotification                
 000108f0  canSendRemoteFrame                    
-0002bfb0  canStatusChangeNotification           
+0002bff0  canStatusChangeNotification           
 0001040c  canTransmit                           
 00010878  canUpdateID                           
-00027cf0  can_rx_thread                         
-0001a384  clear_file                            
-0002f260  close                                 
-00022150  configure_message_type                
-00023e64  convert_100Hz_to_1Hz                  
-00030548  copysign                              
-00030548  copysignl                             
-0002c100  crcNotification                       
-00025b74  csp_buffer_clone                      
-00025bf8  csp_buffer_data_size                  
-00025a40  csp_buffer_free                       
-000259bc  csp_buffer_free_isr                   
-000257d0  csp_buffer_free_resources             
-000258a8  csp_buffer_get                        
-00025818  csp_buffer_get_isr                    
-000256ec  csp_buffer_init                       
-00025bd4  csp_buffer_remaining                  
-00025be8  csp_buffer_size                       
-0002a238  csp_bytesize                          
-0002fa40  csp_calloc                            
-0002492c  csp_can_add_interface                 
-00027fa0  csp_can_open_and_add_interface        
-0002b698  csp_can_pbuf_find                     
-0002b4b0  csp_can_pbuf_free                     
-0002b544  csp_can_pbuf_new                      
-000242b4  csp_can_rx                            
-00024668  csp_can_tx                            
-0002f7d0  csp_clock_get_time                    
-0002f7f8  csp_clock_set_time                    
+00027d30  can_rx_thread                         
+0001a3e8  clear_file                            
+0002f2a0  close                                 
+00022190  configure_message_type                
+00023ea4  convert_100Hz_to_1Hz                  
+00030588  copysign                              
+00030588  copysignl                             
+0002c140  crcNotification                       
+00025bb4  csp_buffer_clone                      
+00025c38  csp_buffer_data_size                  
+00025a80  csp_buffer_free                       
+000259fc  csp_buffer_free_isr                   
+00025810  csp_buffer_free_resources             
+000258e8  csp_buffer_get                        
+00025858  csp_buffer_get_isr                    
+0002572c  csp_buffer_init                       
+00025c14  csp_buffer_remaining                  
+00025c28  csp_buffer_size                       
+0002a278  csp_bytesize                          
+0002fa80  csp_calloc                            
+0002496c  csp_can_add_interface                 
+00027fe0  csp_can_open_and_add_interface        
+0002b6d8  csp_can_pbuf_find                     
+0002b4f0  csp_can_pbuf_free                     
+0002b584  csp_can_pbuf_new                      
+000242f4  csp_can_rx                            
+000246a8  csp_can_tx                            
+0002f810  csp_clock_get_time                    
+0002f838  csp_clock_set_time                    
 08044ba0  csp_conf                              
-0002c7a4  csp_debug_get_level                   
+0002c7e4  csp_debug_get_level                   
 08045164  csp_debug_hook_func                   
-0002c618  csp_debug_hook_set                    
+0002c658  csp_debug_hook_set                    
 08045674  csp_debug_level_enabled               
-0002c774  csp_debug_set_level                   
-0002c7d4  csp_debug_toggle_level                
-0002fa8c  csp_free                              
-000302d0  csp_get_ms                            
-000302dc  csp_get_ms_isr                        
-000302e8  csp_get_s                             
-000302fc  csp_get_s_isr                         
-000305d0  csp_hton16                            
-000305e4  csp_hton32                            
-000305f8  csp_htonflt                           
-0002a16c  csp_iflist_add                        
-0002a22c  csp_iflist_get                        
-0002a110  csp_iflist_get_by_name                
-0002a2e8  csp_iflist_print                      
-0002fa2c  csp_malloc                            
-0003060c  csp_ntoh16                            
-00030620  csp_ntoh32                            
-0002abcc  csp_qfifo_free_resources              
-0002ab48  csp_qfifo_init                        
-0002ac34  csp_qfifo_read                        
-0002add8  csp_qfifo_wake_up                     
-0002ac68  csp_qfifo_write                       
-0002e240  csp_queue_create                      
-0002e2d8  csp_queue_dequeue                     
-0002e314  csp_queue_dequeue_isr                 
-0002e274  csp_queue_enqueue                     
-0002e2b0  csp_queue_enqueue_isr                 
-0002e260  csp_queue_remove                      
-0002e338  csp_queue_size                        
-0002e34c  csp_queue_size_isr                    
-0002bbc8  csp_sciNotification                   
-0002bae4  csp_usart_open                        
-0002ba94  csp_usart_write                       
+0002c7b4  csp_debug_set_level                   
+0002c814  csp_debug_toggle_level                
+0002facc  csp_free                              
+00030310  csp_get_ms                            
+0003031c  csp_get_ms_isr                        
+00030328  csp_get_s                             
+0003033c  csp_get_s_isr                         
+00030610  csp_hton16                            
+00030624  csp_hton32                            
+00030638  csp_htonflt                           
+0002a1ac  csp_iflist_add                        
+0002a26c  csp_iflist_get                        
+0002a150  csp_iflist_get_by_name                
+0002a328  csp_iflist_print                      
+0002fa6c  csp_malloc                            
+0003064c  csp_ntoh16                            
+00030660  csp_ntoh32                            
+0002ac0c  csp_qfifo_free_resources              
+0002ab88  csp_qfifo_init                        
+0002ac74  csp_qfifo_read                        
+0002ae18  csp_qfifo_wake_up                     
+0002aca8  csp_qfifo_write                       
+0002e280  csp_queue_create                      
+0002e318  csp_queue_dequeue                     
+0002e354  csp_queue_dequeue_isr                 
+0002e2b4  csp_queue_enqueue                     
+0002e2f0  csp_queue_enqueue_isr                 
+0002e2a0  csp_queue_remove                      
+0002e378  csp_queue_size                        
+0002e38c  csp_queue_size_isr                    
+0002bc08  csp_sciNotification                   
+0002bb24  csp_usart_open                        
+0002bad4  csp_usart_write                       
 08045670  current_line_type                     
 08045610  current_size                          
-00020f80  customTrimLPO                         
-0002bfd8  dccNotification                       
+00020fc0  customTrimLPO                         
+0002c018  dccNotification                       
 08044c14  devs                                  
-00019da8  dfgm_convert_HK                       
+00019d8c  dfgm_convert_HK                       
 00019b64  dfgm_convert_mag                      
-0001a7d8  dfgm_init                             
-0001a508  dfgm_rx_task                          
-0001a844  dfgm_sciNotification                  
-0002bf74  dmaGroupANotification                 
-0002c634  do_csp_debug                          
+0001a834  dfgm_init                             
+0001a520  dfgm_rx_task                          
+0001a938  dfgm_sciNotification                  
+0002bfb4  dmaGroupANotification                 
+0002c674  do_csp_debug                          
 00002360  eTaskConfirmSleepModeStatus           
 00000910  eTaskGetState                         
-0002c14c  ecapNotification                      
-0002c0d8  edgeNotification                      
-0002c184  emacRxNotification                    
-0002c174  emacTxNotification                    
-0002cc60  emifGetConfigValue                    
-0002cc5c  emif_SDRAMInit                        
-0002cdb8  emif_SDRAM_StartupInit                
-0002c160  epcCAMFullNotification                
-0002c164  epcFIFOFullNotification               
-0002c138  eqepNotification                      
+0002c18c  ecapNotification                      
+0002c118  edgeNotification                      
+0002c1c4  emacRxNotification                    
+0002c1b4  emacTxNotification                    
+0002cca0  emifGetConfigValue                    
+0002cc9c  emif_SDRAMInit                        
+0002cdf8  emif_SDRAM_StartupInit                
+0002c1a0  epcCAMFullNotification                
+0002c1a4  epcFIFOFullNotification               
+0002c178  eqepNotification                      
 08045684  errno                                 
-000235b0  esmActivateNormalOperation            
-000236fc  esmClearStatus                        
-00023760  esmClearStatusBuffer                  
-0002373c  esmClearStatusUpper                   
-0002355c  esmDisableError                       
-00023584  esmDisableErrorUpper                  
-00023604  esmDisableInterrupt                   
-0002362c  esmDisableInterruptUpper              
-00023518  esmEnableError                        
-00023540  esmEnableErrorUpper                   
-000235c0  esmEnableInterrupt                    
-000235e8  esmEnableInterruptUpper               
-00023890  esmEnterSelfTest                      
-000234fc  esmError                              
-00023968  esmGetConfigValue                     
-0002379c  esmGetStatus                          
-00023868  esmGetStatusBuffer                    
-00023820  esmGetStatusUpper                     
-0002bc84  esmGroup1Notification                 
-0002bc94  esmGroup2Notification                 
-0002bf64  esmGroup3Notification                 
-0002d4e0  esmHighInterrupt                      
-000233a0  esmInit                               
-00023918  esmSelfTestStatus                     
-0002377c  esmSetCounterPreloadValue             
-00023648  esmSetInterruptLevel                  
-000236bc  esmSetInterruptLevelUpper             
-000235a0  esmTriggerErrorPinReset               
-0002c114  etpwmNotification                     
-0002c124  etpwmTripNotification                 
-0002ce54  ex2_init                              
-00024bf4  ex2_log                               
-0002ce6c  ex2_main                              
-0002f84c  exit                                  
+000235f0  esmActivateNormalOperation            
+0002373c  esmClearStatus                        
+000237a0  esmClearStatusBuffer                  
+0002377c  esmClearStatusUpper                   
+0002359c  esmDisableError                       
+000235c4  esmDisableErrorUpper                  
+00023644  esmDisableInterrupt                   
+0002366c  esmDisableInterruptUpper              
+00023558  esmEnableError                        
+00023580  esmEnableErrorUpper                   
+00023600  esmEnableInterrupt                    
+00023628  esmEnableInterruptUpper               
+000238d0  esmEnterSelfTest                      
+0002353c  esmError                              
+000239a8  esmGetConfigValue                     
+000237dc  esmGetStatus                          
+000238a8  esmGetStatusBuffer                    
+00023860  esmGetStatusUpper                     
+0002bcc4  esmGroup1Notification                 
+0002bcd4  esmGroup2Notification                 
+0002bfa4  esmGroup3Notification                 
+0002d520  esmHighInterrupt                      
+000233e0  esmInit                               
+00023958  esmSelfTestStatus                     
+000237bc  esmSetCounterPreloadValue             
+00023688  esmSetInterruptLevel                  
+000236fc  esmSetInterruptLevelUpper             
+000235e0  esmTriggerErrorPinReset               
+0002c154  etpwmNotification                     
+0002c164  etpwmTripNotification                 
+0002ce94  ex2_init                              
+00024c34  ex2_log                               
+0002ceac  ex2_main                              
+0002f88c  exit                                  
 0000f754  fctprintf                             
-0002ed60  fflush                                
+0002eda0  fflush                                
 08045168  filter                                
-0002ff90  finddevice                            
-0002dfcc  floor                                 
-0002dfcc  floorl                                
-0002eff8  fprintf                               
-0002e598  fputc                                 
-0002d024  fputs                                 
-0002d658  free                                  
-0002f4a8  frexp                                 
-0002f4a8  frexpl                                
-0001b83c  fs_stress_test                        
-0001b67c  fs_stress_worker1                     
-0001b75c  fs_stress_worker2                     
-0002ee0c  fseek                                 
-00032a48  gaRedVolConf                          
+0002ffd0  finddevice                            
+0002e00c  floor                                 
+0002e00c  floorl                                
+0002f038  fprintf                               
+0002e5d8  fputc                                 
+0002d064  fputs                                 
+0002d698  free                                  
+0002f4e8  frexp                                 
+0002f4e8  frexpl                                
+0001b87c  fs_stress_test                        
+0001b6bc  fs_stress_worker1                     
+0001b79c  fs_stress_worker2                     
+0002ee4c  fseek                                 
+00032a88  gaRedVolConf                          
 08044b50  gaRedVolume                           
 0804489f  gbRedVolNum                           
-0002cf2c  getProfilerTimerCount                 
-00020a28  getResetSource                        
-00021cfc  get_byte                              
-00024b1c  get_logger_file                       
-00024af8  get_logger_file_size                  
-00024b24  get_logger_old_file                   
-0002fb80  getdevice                             
-00027acc  gioDisableNotification                
-00027a64  gioEnableNotification                 
-000279cc  gioGetBit                             
-00027b34  gioGetConfigValue                     
-000279f4  gioGetPort                            
-0002786c  gioInit                               
-0002bfec  gioNotification                       
-0002795c  gioSetBit                             
-0002793c  gioSetDirection                       
-000279ac  gioSetPort                            
-00027a0c  gioToggleBit                          
+0002cf6c  getProfilerTimerCount                 
+00020a68  getResetSource                        
+00021d3c  get_byte                              
+00024b5c  get_logger_file                       
+00024b38  get_logger_file_size                  
+00024b64  get_logger_old_file                   
+0002fbc0  getdevice                             
+00027b0c  gioDisableNotification                
+00027aa4  gioEnableNotification                 
+00027a0c  gioGetBit                             
+00027b74  gioGetConfigValue                     
+00027a34  gioGetPort                            
+000278ac  gioInit                               
+0002c02c  gioNotification                       
+0002799c  gioSetBit                             
+0002797c  gioSetDirection                       
+000279ec  gioSetPort                            
+00027a4c  gioToggleBit                          
 080455f8  gpRedCoreVol                          
 080455fc  gpRedMR                               
 080455f0  gpRedVolConf                          
 080455f4  gpRedVolume                           
-00021e1c  gps_sciNotification                   
-0002fe90  handlePLLLockFail                     
-0002c0ec  hetNotification                       
-0001cf3c  i2c1GetConfigValue                    
-0001d104  i2c2GetConfigValue                    
-00028ff8  i2c2Interrupt                         
-0001cca8  i2cClearSCD                           
-0001ce00  i2cDisableLoopback                    
-0001ce88  i2cDisableNotification                
-0001cde0  i2cEnableLoopback                     
-0001ce20  i2cEnableNotification                 
-0001c734  i2cInit                               
-00028e28  i2cInterrupt                          
-0001d344  i2cIsBusBusy                          
-0001d304  i2cIsMasterReady                      
-0001cc40  i2cIsRxReady                          
-0001cc5c  i2cIsStopDetected                     
-0001cac8  i2cIsTxReady                          
-000288f8  i2cNotification                       
-0001cd08  i2cReceive                            
-0001ccc4  i2cReceiveByte                        
-0001cc78  i2cRxError                            
-0001cb14  i2cSend                               
-0001cae4  i2cSendByte                           
-0001c968  i2cSetBaudrate                        
-0001caa8  i2cSetCount                           
-0001d2cc  i2cSetDirection                       
-0001cf04  i2cSetMode                            
-0001c928  i2cSetOwnAdd                          
-0001c948  i2cSetSlaveAdd                        
-0001ca68  i2cSetStart                           
-0001ca88  i2cSetStop                            
-00028648  i2c_Receive                           
-00028780  i2c_Send                              
-00027428  i2c_prepare_for_pipe_mode             
-000275b0  i2c_receiveResponse                   
-0002764c  i2c_sendAndReceive                    
-00027740  i2c_sendAndReceivePIPE                
-00027514  i2c_sendCommand                       
+00021e5c  gps_sciNotification                   
+0002fed0  handlePLLLockFail                     
+0002c12c  hetNotification                       
+0001cf7c  i2c1GetConfigValue                    
+0001d144  i2c2GetConfigValue                    
+00029038  i2c2Interrupt                         
+0001cce8  i2cClearSCD                           
+0001ce40  i2cDisableLoopback                    
+0001cec8  i2cDisableNotification                
+0001ce20  i2cEnableLoopback                     
+0001ce60  i2cEnableNotification                 
+0001c774  i2cInit                               
+00028e68  i2cInterrupt                          
+0001d384  i2cIsBusBusy                          
+0001d344  i2cIsMasterReady                      
+0001cc80  i2cIsRxReady                          
+0001cc9c  i2cIsStopDetected                     
+0001cb08  i2cIsTxReady                          
+00028938  i2cNotification                       
+0001cd48  i2cReceive                            
+0001cd04  i2cReceiveByte                        
+0001ccb8  i2cRxError                            
+0001cb54  i2cSend                               
+0001cb24  i2cSendByte                           
+0001c9a8  i2cSetBaudrate                        
+0001cae8  i2cSetCount                           
+0001d30c  i2cSetDirection                       
+0001cf44  i2cSetMode                            
+0001c968  i2cSetOwnAdd                          
+0001c988  i2cSetSlaveAdd                        
+0001caa8  i2cSetStart                           
+0001cac8  i2cSetStop                            
+00028688  i2c_Receive                           
+000287c0  i2c_Send                              
+00027468  i2c_prepare_for_pipe_mode             
+000275f0  i2c_receiveResponse                   
+0002768c  i2c_sendAndReceive                    
+00027780  i2c_sendAndReceivePIPE                
+00027554  i2c_sendCommand                       
 08044c7c  incomingData                          
-00026328  init_adcs_io                          
-000285d8  init_i2c_driver                       
-00024d38  init_logger_fs                        
-00024fac  init_logger_queue                     
-0002cef8  initializeProfiler                    
-00024f88  kill_logger_daemon                    
-0002e360  ldexp                                 
-0002e360  ldexpl                                
-0001f308  lin1HighLevelInterrupt                
-0001f4d8  lin2HighLevelInterrupt                
-0002fe40  load                                  
-00024a78  load_logger_file_size                 
-00032c10  logger_config                         
+00026368  init_adcs_io                          
+00028618  init_i2c_driver                       
+00024d78  init_logger_fs                        
+00024fec  init_logger_queue                     
+0002cf38  initializeProfiler                    
+00024fc8  kill_logger_daemon                    
+0002e3a0  ldexp                                 
+0002e3a0  ldexpl                                
+0001f348  lin1HighLevelInterrupt                
+0001f518  lin2HighLevelInterrupt                
+0002fe80  load                                  
+00024ab8  load_logger_file_size                 
+00032c50  logger_config                         
 08045615  logger_file                           
 08045608  logger_file_handle                    
-00030204  lseek                                 
-000300dc  main                                  
-00030664  malloc                                
-00020854  mapClocks                             
-0002d1c8  memalign                              
-000303e4  memccpy                               
-00030440  memchr                                
-0002d360  memcpy                                
-0002eab4  memset                                
-0001e14c  mibspi1HighLevelInterrupt             
-0001dee4  mibspi1LowLevelInterrupt              
-0001e61c  mibspi5HighLevelInterrupt             
-0001e3b4  mibspi5LowLevelInterrupt              
-0001e914  muxInit                               
+00030244  lseek                                 
+0003011c  main                                  
+000306a4  malloc                                
+00020894  mapClocks                             
+0002d208  memalign                              
+00030424  memccpy                               
+00030480  memchr                                
+0002d3a0  memcpy                                
+0002eaf4  memset                                
+0001e18c  mibspi1HighLevelInterrupt             
+0001df24  mibspi1LowLevelInterrupt              
+0001e65c  mibspi5HighLevelInterrupt             
+0001e3f4  mibspi5LowLevelInterrupt              
+0001e954  muxInit                               
 0804560c  next_swap                             
 080455d8  old_logger_file                       
 08044c48  parmbuf                               
 00001430  pcTaskGetName                         
 000052bc  pcTimerGetName                        
-000207a0  periphInit                            
-000306ac  phantomInterrupt                      
-00019fdc  print_file                            
-0001a1b4  print_packet                          
-0002f094  printf                                
+000207e0  periphInit                            
+000306ec  phantomInterrupt                      
+00019fc0  print_file                            
+0001a198  print_packet                          
+0002f0d4  printf                                
 0000f5e0  printf_                               
 00006800  prvMpuDisable                         
 000067e8  prvMpuEnable                          
 000067d0  prvMpuSetRegion                       
-0002e598  putc                                  
-00030670  putchar                               
+0002e5d8  putc                                  
+000306b0  putchar                               
 00006c1c  pvPortMalloc                          
 00002434  pvTaskGetThreadLocalStoragePointer    
 000030d4  pvTaskIncrementMutexHeldCount         
 00005a24  pvTimerGetTimerID                     
-0002c0c0  pwmNotification                       
+0002c100  pwmNotification                       
 080000f0  pxCurrentTCB                          
 00006828  pxPortInitialiseStack                 
 08000000  ramSWI                                
 00000008  ramint_LoadSize                       
 00008040  ramint_LoadStart                      
 08000000  ramint_RunStart                       
-000267fc  receieve_uart_packet                  
+0002683c  receieve_uart_packet                  
 00009574  red_chdir                             
 00008aac  red_close                             
 00009520  red_closedir                          
@@ -1395,21 +1395,21 @@ ffffffff  binit
 000080d0  red_uninit                            
 00008730  red_unlink                            
 00008c40  red_write                             
-000301bc  remove                                
-000268c4  request_i2c_telemetry                 
-00026654  request_uart_telemetry                
+000301fc  remove                                
+00026904  request_i2c_telemetry                 
+00026694  request_uart_telemetry                
 00000000  resetEntry                            
-00019e58  save_packet                           
-00023d4c  save_second                           
-0002e360  scalbn                                
-0002e360  scalbnl                               
+00019e34  save_packet                           
+00023d8c  save_second                           
+0002e3a0  scalbn                                
+0002e3a0  scalbnl                               
 00018538  sci1GetConfigValue                    
 00018690  sci2GetConfigValue                    
 000187e8  sci3GetConfigValue                    
-0001f6a8  sci3HighLevelInterrupt                
+0001f6e8  sci3HighLevelInterrupt                
 00018940  sci4GetConfigValue                    
-0001f878  sci4HighLevelInterrupt                
-0001fa48  sci4LowLevelInterrupt                 
+0001f8b8  sci4HighLevelInterrupt                
+0001fa88  sci4LowLevelInterrupt                 
 08044c6c  sciData                               
 000183ac  sciDisableLoopback                    
 00018460  sciDisableNotification                
@@ -1421,7 +1421,7 @@ ffffffff  binit
 000181f0  sciIsIdleDetected                     
 000181d4  sciIsRxReady                          
 00018024  sciIsTxReady                          
-0002c014  sciNotification                       
+0002c054  sciNotification                       
 00018268  sciReceive                            
 0001823c  sciReceiveByte                        
 0001820c  sciRxError                            
@@ -1430,28 +1430,28 @@ ffffffff  binit
 00017f88  sciSetBaudrate                        
 00017f68  sciSetFunctional                      
 08044c7d  sci_busy                              
-000265cc  send_i2c_telecommand                  
-0001a438  send_packet                           
-0002644c  send_uart_telecommand                 
-00024ad8  set_logger_file_size                  
-00020760  setupFlash                            
-0002068c  setupPLL                              
-0002da9c  setvbuf                               
-00023d38  shift_sptr                            
-00021988  skytraq_binary_init                   
-000220d4  skytraq_configure_nmea_output_rate    
-0002218c  skytraq_configure_power_mode          
-00022090  skytraq_configure_serial_port         
-000221f4  skytraq_configure_utc_reference       
-000221c8  skytraq_get_gps_time                  
-00022030  skytraq_query_software_CRC            
-00022004  skytraq_query_software_version        
-00021f78  skytraq_restart_receiver              
-00022064  skytraq_restore_factory_defaults      
-00021a48  skytraq_send_message                  
-00021c2c  skytraq_send_message_with_reply       
-00021f08  skytraq_verify_checksum               
-0002f8c8  snprintf                              
+0002660c  send_i2c_telecommand                  
+0001a498  send_packet                           
+0002648c  send_uart_telecommand                 
+00024b18  set_logger_file_size                  
+000207a0  setupFlash                            
+000206cc  setupPLL                              
+0002dadc  setvbuf                               
+00023d78  shift_sptr                            
+000219c8  skytraq_binary_init                   
+00022114  skytraq_configure_nmea_output_rate    
+000221cc  skytraq_configure_power_mode          
+000220d0  skytraq_configure_serial_port         
+00022234  skytraq_configure_utc_reference       
+00022208  skytraq_get_gps_time                  
+00022070  skytraq_query_software_CRC            
+00022044  skytraq_query_software_version        
+00021fb8  skytraq_restart_receiver              
+000220a4  skytraq_restore_factory_defaults      
+00021a88  skytraq_send_message                  
+00021c6c  skytraq_send_message_with_reply       
+00021f48  skytraq_verify_checksum               
+0002f908  snprintf                              
 0000f688  snprintf_                             
 00013cf0  spi1GetConfigValue                    
 00013f0c  spi2GetConfigValue                    
@@ -1462,51 +1462,51 @@ ffffffff  binit
 00013cc0  spiDisableNotification                
 00013c40  spiEnableLoopback                     
 00013c90  spiEnableNotification                 
-0002c0b0  spiEndNotification                    
+0002c0f0  spiEndNotification                    
 00013590  spiGetData                            
 00012e70  spiInit                               
-0002c09c  spiNotification                       
+0002c0dc  spiNotification                       
 00013474  spiReceiveData                        
 000139e8  spiSendAndGetData                     
 000137b4  spiSendData                           
 00013454  spiSetFunctional                      
 000138ac  spiTransmitAndReceiveData             
 00013688  spiTransmitData                       
-0002fd20  sprintf                               
+0002fd60  sprintf                               
 0000f630  sprintf_                              
 08044c50  sptr                                  
-00024f24  start_logger_daemon                   
-00024e60  stop_logger_fs                        
-00024a30  store_logger_file_size                
-0003046c  strchr                                
-00030494  strcmp                                
-0003057c  strcpy                                
-00030248  strcspn                               
-00030528  strlen                                
-00030038  strncasecmp                           
-00030174  strncpy                               
-00030128  strspn                                
-00026918  strtod                                
-0002fc54  strtok                                
-00026918  strtold                               
-00020b50  systemGetConfigValue                  
-00020980  systemInit                            
-000209f8  systemPowerDown                       
-000206ec  trimLPO                               
+00024f64  start_logger_daemon                   
+00024ea0  stop_logger_fs                        
+00024a70  store_logger_file_size                
+000304ac  strchr                                
+000304d4  strcmp                                
+000305bc  strcpy                                
+00030288  strcspn                               
+00030568  strlen                                
+00030078  strncasecmp                           
+000301b4  strncpy                               
+00030168  strspn                                
+00026958  strtod                                
+0002fc94  strtok                                
+00026958  strtold                               
+00020b90  systemGetConfigValue                  
+000209c0  systemInit                            
+00020a38  systemPowerDown                       
+0002072c  trimLPO                               
 08044c70  tx_semphr                             
 08044c74  uTransceiverPipe_timer                
 08044c78  uTransceiver_semaphore                
 00004b04  ucQueueGetQueueType                   
-00027398  uhf_i2c_init                          
-000274e4  uhf_pipe_timer_reset_from_isr         
+000273d8  uhf_i2c_init                          
+00027524  uhf_pipe_timer_reset_from_isr         
 08045664  ulCriticalNesting                     
 000066f8  ulPortCountLeadingZeros               
 08045668  ulTaskHasFPUContext                   
 00003108  ulTaskNotifyTake                      
-000301bc  unlink                                
-0002ba40  usart_rx_thread                       
+000301fc  unlink                                
+0002ba80  usart_rx_thread                       
 00006334  uxEventGroupGetNumber                 
-0002c58c  uxListRemove                          
+0002c5cc  uxListRemove                          
 00004acc  uxQueueGetQueueNumber                 
 000049d8  uxQueueMessagesWaiting                
 00004a64  uxQueueMessagesWaitingFromISR         
@@ -1518,17 +1518,17 @@ ffffffff  binit
 00000a18  uxTaskPriorityGet                     
 00000a5c  uxTaskPriorityGetFromISR              
 00003098  uxTaskResetEventItemValue             
-0002cf88  vApplicationDaemonTaskStartupHook     
-0002cf84  vApplicationMallocFailedHook          
-0002cf74  vApplicationStackOverflowHook         
-0002ced8  vAssertCalled                         
+0002cfc8  vApplicationDaemonTaskStartupHook     
+0002cfc4  vApplicationMallocFailedHook          
+0002cfb4  vApplicationStackOverflowHook         
+0002cf18  vAssertCalled                         
 000062ac  vEventGroupClearBitsCallback          
 00006208  vEventGroupDelete                     
 00006290  vEventGroupSetBitsCallback            
-0002c3e0  vListInitialise                       
-0002c438  vListInitialiseItem                   
-0002c4c8  vListInsert                           
-0002c454  vListInsertEnd                        
+0002c420  vListInitialise                       
+0002c478  vListInitialiseItem                   
+0002c508  vListInsert                           
+0002c494  vListInsertEnd                        
 00006bd0  vPortEndScheduler                     
 00006e8c  vPortFree                             
 00006fa4  vPortInitialiseBlocks                 
@@ -1567,16 +1567,16 @@ ffffffff  binit
 00001170  vTaskSuspendAll                       
 00001c48  vTaskSwitchContext                    
 00005a68  vTimerSetTimerID                      
-000210fc  vimChannelMap                         
-00021368  vimDisableInterrupt                   
-0002ae98  vimECCErrorHandler                    
-000211a0  vimEnableInterrupt                    
-00021414  vimGetConfigValue                     
-00021028  vimInit                               
+0002113c  vimChannelMap                         
+000213a8  vimDisableInterrupt                   
+0002aed8  vimECCErrorHandler                    
+000211e0  vimEnableInterrupt                    
+00021454  vimGetConfigValue                     
+00021068  vimInit                               
 0000f6e0  vprintf_                              
 0000f718  vsnprintf_                            
-00030504  wcslen                                
-0003028c  write                                 
+00030544  wcslen                                
+000302cc  write                                 
 00005f94  xEventGroupClearBits                  
 00005ad0  xEventGroupCreate                     
 00006020  xEventGroupGetBitsFromISR             
@@ -1613,7 +1613,7 @@ ffffffff  binit
 000013dc  xTaskGetTickCount                     
 000013f8  xTaskGetTickCountFromISR              
 00001a1c  xTaskIncrementTick                    
-0002d8ac  xTaskNotifyStateClear                 
+0002d8ec  xTaskNotifyStateClear                 
 000031ec  xTaskNotifyWait                       
 00002b6c  xTaskPriorityDisinherit               
 00001f40  xTaskRemoveFromEventList              
@@ -1918,617 +1918,617 @@ address   name
 00018940  sci4GetConfigValue                    
 00018bb8  __TI_printfi                          
 00019b64  dfgm_convert_mag                      
-00019da8  dfgm_convert_HK                       
-00019e58  save_packet                           
-00019fdc  print_file                            
-0001a1b4  print_packet                          
-0001a384  clear_file                            
-0001a438  send_packet                           
-0001a508  dfgm_rx_task                          
-0001a7d8  dfgm_init                             
-0001a844  dfgm_sciNotification                  
-0001aa78  InitIO                                
-0001aaf4  GPIOSetBit                            
-0001ac38  GPIOGetBit                            
-0001ad7c  GPIOTxTest                            
-0001ae54  UARTTxTest                            
-0001ae98  UARTRxTest                            
-0001af20  SPIMasterTxTest                       
-0001af9c  SPIMasterRxTest                       
-0001b03c  SPISlaveTxTest                        
-0001b0b8  SPISlaveRxTest                        
-0001b148  I2CMasterTxTest                       
-0001b1f8  I2CMasterRxTest                       
-0001b2f4  I2CSlaveRxTest                        
-0001b3e0  I2CSlaveTxTest                        
-0001b480  CANTxTest                             
-0001b4f8  CANRxTest                             
-0001b61c  SDRAM_Test                            
-0001b67c  fs_stress_worker1                     
-0001b75c  fs_stress_worker2                     
-0001b83c  fs_stress_test                        
-0001b96c  MPU_xTaskCreate                       
-0001b9d0  MPU_xTaskCreateRestricted             
-0001ba14  MPU_vTaskAllocateMPURegions           
-0001ba48  MPU_vTaskDelete                       
-0001ba74  MPU_vTaskDelay                        
-0001baa0  MPU_vTaskDelayUntil                   
-0001bad4  MPU_xTaskAbortDelay                   
-0001bb08  MPU_uxTaskPriorityGet                 
-0001bb3c  MPU_eTaskGetState                     
-0001bb70  MPU_vTaskGetInfo                      
-0001bbbc  MPU_vTaskPrioritySet                  
-0001bbf0  MPU_vTaskSuspend                      
-0001bc1c  MPU_vTaskResume                       
-0001bc48  MPU_vTaskSuspendAll                   
-0001bc6c  MPU_xTaskResumeAll                    
-0001bc98  MPU_xTaskGetTickCount                 
-0001bcc4  MPU_uxTaskGetNumberOfTasks            
-0001bcf0  MPU_pcTaskGetName                     
-0001bd24  MPU_xTaskGetHandle                    
-0001bd58  MPU_uxTaskGetStackHighWaterMark       
-0001bd8c  MPU_vTaskSetThreadLocalStoragePointer 
-0001bdd0  MPU_pvTaskGetThreadLocalStoragePointer
-0001be14  MPU_xTaskGetIdleTaskHandle            
-0001be40  MPU_uxTaskGetSystemState              
-0001be8c  MPU_vTaskList                         
-0001beb8  MPU_vTaskGetRunTimeStats              
-0001bee4  MPU_xTaskGenericNotify                
-0001bf38  MPU_xTaskNotifyWait                   
-0001bf8c  MPU_ulTaskNotifyTake                  
-0001bfd0  MPU_xTaskNotifyStateClear             
-0001c004  MPU_xTaskGetCurrentTaskHandle         
-0001c030  MPU_vTaskSetTimeOutState              
-0001c05c  MPU_xTaskCheckForTimeOut              
-0001c0a0  MPU_xTaskGetSchedulerState            
-0001c0cc  MPU_xQueueGenericSend                 
-0001c120  MPU_xQueueGenericReceive              
-0001c174  MPU_uxQueueMessagesWaiting            
-0001c1a8  MPU_uxQueueSpacesAvailable            
-0001c1dc  MPU_vQueueDelete                      
-0001c208  MPU_xQueueCreateMutex                 
-0001c23c  MPU_xQueueCreateCountingSemaphore     
-0001c280  MPU_xQueueTakeMutexRecursive          
-0001c2c4  MPU_xQueueGiveMutexRecursive          
-0001c2f8  MPU_xQueueGenericCreate               
-0001c344  MPU_xQueueGenericReset                
-0001c388  MPU_xTimerCreate                      
-0001c3e4  MPU_pvTimerGetTimerID                 
-0001c418  MPU_vTimerSetTimerID                  
-0001c44c  MPU_xTimerIsTimerActive               
-0001c480  MPU_xTimerGetTimerDaemonTaskHandle    
-0001c4ac  MPU_pcTimerGetName                    
-0001c4e0  MPU_xTimerGetPeriod                   
-0001c514  MPU_xTimerGetExpiryTime               
-0001c548  MPU_xTimerGenericCommand              
-0001c5a4  MPU_xEventGroupCreate                 
-0001c5d0  MPU_xEventGroupWaitBits               
-0001c62c  MPU_xEventGroupClearBits              
-0001c670  MPU_xEventGroupSetBits                
-0001c6b4  MPU_xEventGroupSync                   
-0001c708  MPU_vEventGroupDelete                 
-0001c734  i2cInit                               
-0001c928  i2cSetOwnAdd                          
-0001c948  i2cSetSlaveAdd                        
-0001c968  i2cSetBaudrate                        
-0001ca68  i2cSetStart                           
-0001ca88  i2cSetStop                            
-0001caa8  i2cSetCount                           
-0001cac8  i2cIsTxReady                          
-0001cae4  i2cSendByte                           
-0001cb14  i2cSend                               
-0001cc40  i2cIsRxReady                          
-0001cc5c  i2cIsStopDetected                     
-0001cc78  i2cRxError                            
-0001cca8  i2cClearSCD                           
-0001ccc4  i2cReceiveByte                        
-0001cd08  i2cReceive                            
-0001cde0  i2cEnableLoopback                     
-0001ce00  i2cDisableLoopback                    
-0001ce20  i2cEnableNotification                 
-0001ce88  i2cDisableNotification                
-0001cf04  i2cSetMode                            
-0001cf3c  i2c1GetConfigValue                    
-0001d104  i2c2GetConfigValue                    
-0001d2cc  i2cSetDirection                       
-0001d304  i2cIsMasterReady                      
-0001d344  i2cIsBusBusy                          
-0001d418  RedVolMount                           
-0001d48c  RedVolMountMaster                     
-0001d5fc  RedVolMountMetaroot                   
-0001da58  RedVolTransact                        
-0001dd1c  RedVolCriticalError                   
-0001dd70  RedVolSeqNumIncrement                 
-0001dee4  mibspi1LowLevelInterrupt              
-0001e14c  mibspi1HighLevelInterrupt             
-0001e3b4  mibspi5LowLevelInterrupt              
-0001e61c  mibspi5HighLevelInterrupt             
-0001e914  muxInit                               
-0001f308  lin1HighLevelInterrupt                
-0001f4d8  lin2HighLevelInterrupt                
-0001f6a8  sci3HighLevelInterrupt                
-0001f878  sci4HighLevelInterrupt                
-0001fa48  sci4LowLevelInterrupt                 
-0001fcd4  __SD_Power_Of_Two                     
-0001fd24  __SD_Speed_Transfer                   
-0001fd48  __SD_Send_Cmd                         
-0001fe50  __SD_Write_Block                      
-0001ff28  __SD_Sectors                          
-00020148  SD_Init                               
-00020494  SD_Read                               
-00020608  SD_Write                              
-00020650  SD_Status                             
-0002068c  setupPLL                              
-000206ec  trimLPO                               
-00020760  setupFlash                            
-000207a0  periphInit                            
-00020854  mapClocks                             
-00020980  systemInit                            
-000209f8  systemPowerDown                       
-00020a28  getResetSource                        
-00020b50  systemGetConfigValue                  
-00020f80  customTrimLPO                         
-00021028  vimInit                               
-000210fc  vimChannelMap                         
-000211a0  vimEnableInterrupt                    
-00021368  vimDisableInterrupt                   
-00021414  vimGetConfigValue                     
-00021988  skytraq_binary_init                   
-00021a48  skytraq_send_message                  
-00021c2c  skytraq_send_message_with_reply       
-00021cfc  get_byte                              
-00021e1c  gps_sciNotification                   
-00021e9c  calc_checksum                         
-00021f08  skytraq_verify_checksum               
-00021f78  skytraq_restart_receiver              
-00022004  skytraq_query_software_version        
-00022030  skytraq_query_software_CRC            
-00022064  skytraq_restore_factory_defaults      
-00022090  skytraq_configure_serial_port         
-000220d4  skytraq_configure_nmea_output_rate    
-00022150  configure_message_type                
-0002218c  skytraq_configure_power_mode          
-000221c8  skytraq_get_gps_time                  
-000221f4  skytraq_configure_utc_reference       
-00022280  RedPathVolumePrefixLookup             
-0002245c  RedPathVolumeLookup                   
-000224fc  RedPathLookup                         
-00022568  RedPathToName                         
-00022b78  HAL_UHF_setSCW                        
-00022b98  HAL_UHF_setFreq                       
-00022bb8  HAL_UHF_setPipeT                      
-00022bd8  HAL_UHF_setBeaconT                    
-00022bf8  HAL_UHF_setAudioT                     
-00022c18  HAL_UHF_restore                       
-00022c2c  HAL_UHF_lowPwr                        
-00022c40  HAL_UHF_setDestination                
-00022c6c  HAL_UHF_setSource                     
-00022c98  HAL_UHF_setMorse                      
-00022cc4  HAL_UHF_setMIDI                       
-00022cf0  HAL_UHF_setBeaconMsg                  
-00022d1c  HAL_UHF_setI2C                        
-00022d30  HAL_UHF_setFRAM                       
-00022d60  HAL_UHF_secure                        
-00022d74  HAL_UHF_getSCW                        
-00022d9c  HAL_UHF_getFreq                       
-00022dc8  HAL_UHF_getUptime                     
-00022df4  HAL_UHF_getPcktsOut                   
-00022e20  HAL_UHF_getPcktsIn                    
-00022e4c  HAL_UHF_getPcktsInCRC16               
-00022e78  HAL_UHF_getPipeT                      
-00022ea4  HAL_UHF_getBeaconT                    
-00022ed0  HAL_UHF_getAudioT                     
-00022efc  HAL_UHF_getTemp                       
-00022f28  HAL_UHF_getLowPwr                     
-00022f50  HAL_UHF_getPayload                    
-00022f78  HAL_UHF_getSecureKey                  
-00022fa0  HAL_UHF_getDestination                
-00022fc8  HAL_UHF_getSource                     
-00022ff0  HAL_UHF_getMorse                      
-00023018  HAL_UHF_getMIDI                       
-00023040  HAL_UHF_getBeaconMsg                  
-00023068  HAL_UHF_getFRAM                       
-00023098  UHF_getHK                             
-00023288  UHF_convert_endianness                
-000233a0  esmInit                               
-000234fc  esmError                              
-00023518  esmEnableError                        
-00023540  esmEnableErrorUpper                   
-0002355c  esmDisableError                       
-00023584  esmDisableErrorUpper                  
-000235a0  esmTriggerErrorPinReset               
-000235b0  esmActivateNormalOperation            
-000235c0  esmEnableInterrupt                    
-000235e8  esmEnableInterruptUpper               
-00023604  esmDisableInterrupt                   
-0002362c  esmDisableInterruptUpper              
-00023648  esmSetInterruptLevel                  
-000236bc  esmSetInterruptLevelUpper             
-000236fc  esmClearStatus                        
-0002373c  esmClearStatusUpper                   
-00023760  esmClearStatusBuffer                  
-0002377c  esmSetCounterPreloadValue             
-0002379c  esmGetStatus                          
-00023820  esmGetStatusUpper                     
-00023868  esmGetStatusBuffer                    
-00023890  esmEnterSelfTest                      
-00023918  esmSelfTestStatus                     
-00023968  esmGetConfigValue                     
-00023b2c  apply_filter                          
-00023d38  shift_sptr                            
-00023d4c  save_second                           
-00023e64  convert_100Hz_to_1Hz                  
-000242b4  csp_can_rx                            
-00024668  csp_can_tx                            
-0002492c  csp_can_add_interface                 
-00024a30  store_logger_file_size                
-00024a78  load_logger_file_size                 
-00024ad8  set_logger_file_size                  
-00024af8  get_logger_file_size                  
-00024b1c  get_logger_file                       
-00024b24  get_logger_old_file                   
-00024bf4  ex2_log                               
-00024d38  init_logger_fs                        
-00024e60  stop_logger_fs                        
-00024f24  start_logger_daemon                   
-00024f88  kill_logger_daemon                    
-00024fac  init_logger_queue                     
-00025088  _errata_SSWF021_45_both_plls          
-0002527c  _errata_SSWF021_45_pll1               
-000253f4  _errata_SSWF021_45_pll2               
-000256ec  csp_buffer_init                       
-000257d0  csp_buffer_free_resources             
-00025818  csp_buffer_get_isr                    
-000258a8  csp_buffer_get                        
-000259bc  csp_buffer_free_isr                   
-00025a40  csp_buffer_free                       
-00025b74  csp_buffer_clone                      
-00025bd4  csp_buffer_remaining                  
-00025be8  csp_buffer_size                       
-00025bf8  csp_buffer_data_size                  
-00025d30  RedImapBlockGet                       
-00025df0  RedImapBlockSet                       
-00026044  RedImapAllocBlock                     
-000261f4  RedImapBlockState                     
-00026328  init_adcs_io                          
-00026398  adcs_sciNotification                  
-0002644c  send_uart_telecommand                 
-000265cc  send_i2c_telecommand                  
-00026654  request_uart_telemetry                
-000267fc  receieve_uart_packet                  
-000268c4  request_i2c_telemetry                 
-00026918  strtod                                
-00026918  strtold                               
-00026e5c  RedImapEBlockGet                      
-00026fa8  RedImapEBlockSet                      
-000272cc  RedImapNodeBlock                      
-00027398  uhf_i2c_init                          
-00027428  i2c_prepare_for_pipe_mode             
-000274e4  uhf_pipe_timer_reset_from_isr         
-00027514  i2c_sendCommand                       
-000275b0  i2c_receiveResponse                   
-0002764c  i2c_sendAndReceive                    
-00027740  i2c_sendAndReceivePIPE                
-0002786c  gioInit                               
-0002793c  gioSetDirection                       
-0002795c  gioSetBit                             
-000279ac  gioSetPort                            
-000279cc  gioGetBit                             
-000279f4  gioGetPort                            
-00027a0c  gioToggleBit                          
-00027a64  gioEnableNotification                 
-00027acc  gioDisableNotification                
-00027b34  gioGetConfigValue                     
-00027cf0  can_rx_thread                         
-00027fa0  csp_can_open_and_add_interface        
-000280cc  canMessageNotification                
-0002816c  RedIoRead                             
-00028334  RedIoWrite                            
-000284fc  RedIoFlush                            
-000285d8  init_i2c_driver                       
-00028648  i2c_Receive                           
-00028780  i2c_Send                              
-000288f8  i2cNotification                       
-00028b8c  RedOsBDevOpen                         
-00028bc8  RedOsBDevClose                        
-00028bfc  RedOsBDevRead                         
-00028cf4  RedOsBDevWrite                        
-00028dec  RedOsBDevFlush                        
-00028e28  i2cInterrupt                          
-00028ff8  i2c2Interrupt                         
-0002920c  RedStrLen                             
-0002928c  RedStrCmp                             
-000293a4  RedStrNCmp                            
-000294d8  RedStrNCpy                            
-000295ec  _coreInitRegisters_                   
-000296f8  _coreInitStackPointer_                
-00029744  _getCPSRValue_                        
-0002974c  _gotoCPUIdle_                         
-00029764  _coreEnableVfp_                       
-0002977c  _coreEnableEventBusExport_            
-0002978c  _coreDisableEventBusExport_           
-0002979c  _coreEnableIrqVicOffset_              
-000297ac  _coreGetDataFault_                    
-000297b4  _coreClearDataFault_                  
-000297c0  _coreGetInstructionFault_             
-000297c8  _coreClearInstructionFault_           
-000297d4  _coreGetDataFaultAddress_             
-000297dc  _coreClearDataFaultAddress_           
-000297e8  _coreGetInstructionFaultAddress_      
-000297f0  _coreClearInstructionFaultAddress_    
-000297fc  _coreGetAuxiliaryDataFault_           
-00029804  _coreClearAuxiliaryDataFault_         
-00029810  _coreGetAuxiliaryInstructionFault_    
-00029818  _coreClearAuxiliaryInstructionFault_  
-00029824  _disable_IRQ_interrupt_               
-0002982c  _enable_IRQ_interrupt_                
-00029834  _enable_interrupt_                    
-0002983c  _esmCcmErrorsClear_                   
-000298c4  _memInit_                             
-000298f8  _checkMemInitOn_                      
-00029918  _cacheEnable_                         
-0002995c  _cacheDisable_                        
-00029980  _dCacheInvalidate_                    
-00029994  _iCacheInvalidate_                    
-000299a8  __TI_PINIT_Base                       
-000299ac  __TI_PINIT_Limit                      
-000299b0  RedMemCpy                             
-00029a70  RedMemMove                            
-00029b88  RedMemSet                             
-00029c2c  RedMemCmp                             
-00029d74  RedVolFormat                          
-0002a110  csp_iflist_get_by_name                
-0002a16c  csp_iflist_add                        
-0002a22c  csp_iflist_get                        
-0002a238  csp_bytesize                          
-0002a2e8  csp_iflist_print                      
-0002a48c  RedCrc32Update                        
-0002a75c  RedCrcNode                            
-0002a7f0  _mpuInit_                             
-0002aa94  _mpuEnable_                           
-0002aaac  _mpuDisable_                          
-0002aac4  _mpuEnableBackgroundRegion_           
-0002aad4  _mpuDisableBackgroundRegion_          
-0002aae4  _mpuGetNumberOfRegions_               
-0002aaf0  _mpuAreRegionsSeparate_               
-0002aafc  _mpuSetRegion_                        
-0002ab04  _mpuGetRegion_                        
-0002ab0c  _mpuSetRegionBaseAddress_             
-0002ab14  _mpuGetRegionBaseAddress_             
-0002ab1c  _mpuSetRegionTypeAndPermission_       
-0002ab28  _mpuGetRegionType_                    
-0002ab34  _mpuGetRegionPermission_              
-0002ab40  _mpuSetRegionSizeRegister_            
-0002ab48  csp_qfifo_init                        
-0002abcc  csp_qfifo_free_resources              
-0002ac34  csp_qfifo_read                        
-0002ac68  csp_qfifo_write                       
-0002add8  csp_qfifo_wake_up                     
-0002ae98  vimECCErrorHandler                    
-0002b4b0  csp_can_pbuf_free                     
-0002b544  csp_can_pbuf_new                      
-0002b698  csp_can_pbuf_find                     
-0002b788  __aeabi_uldivmod                      
-0002ba40  usart_rx_thread                       
-0002ba94  csp_usart_write                       
-0002bae4  csp_usart_open                        
-0002bbc8  csp_sciNotification                   
-0002bc84  esmGroup1Notification                 
-0002bc94  esmGroup2Notification                 
-0002bf64  esmGroup3Notification                 
-0002bf74  dmaGroupANotification                 
-0002bf88  adcNotification                       
-0002bf9c  canErrorNotification                  
-0002bfb0  canStatusChangeNotification           
-0002bfd8  dccNotification                       
-0002bfec  gioNotification                       
-0002c014  sciNotification                       
-0002c09c  spiNotification                       
-0002c0b0  spiEndNotification                    
-0002c0c0  pwmNotification                       
-0002c0d8  edgeNotification                      
-0002c0ec  hetNotification                       
-0002c100  crcNotification                       
-0002c114  etpwmNotification                     
-0002c124  etpwmTripNotification                 
-0002c138  eqepNotification                      
-0002c14c  ecapNotification                      
-0002c160  epcCAMFullNotification                
-0002c164  epcFIFOFullNotification               
-0002c174  emacTxNotification                    
-0002c184  emacRxNotification                    
-0002c3e0  vListInitialise                       
-0002c438  vListInitialiseItem                   
-0002c454  vListInsertEnd                        
-0002c4c8  vListInsert                           
-0002c58c  uxListRemove                          
-0002c618  csp_debug_hook_set                    
-0002c634  do_csp_debug                          
-0002c774  csp_debug_set_level                   
-0002c7a4  csp_debug_get_level                   
-0002c7d4  csp_debug_toggle_level                
-0002c844  RedImapIBlockGet                      
-0002c914  RedImapIBlockSet                      
-0002ca5c  can1HighLevelInterrupt                
-0002cb44  can2HighLevelInterrupt                
-0002cc5c  emif_SDRAMInit                        
-0002cc60  emifGetConfigValue                    
-0002cdb8  emif_SDRAM_StartupInit                
-0002ce54  ex2_init                              
-0002ce6c  ex2_main                              
-0002ced8  vAssertCalled                         
-0002cef8  initializeProfiler                    
-0002cf2c  getProfilerTimerCount                 
-0002cf74  vApplicationStackOverflowHook         
-0002cf84  vApplicationMallocFailedHook          
-0002cf88  vApplicationDaemonTaskStartupHook     
-0002cf94  SciSendBuf                            
-0002d024  fputs                                 
-0002d1c8  aligned_alloc                         
-0002d1c8  memalign                              
-0002d360  __aeabi_memcpy                        
-0002d360  __aeabi_memcpy4                       
-0002d360  __aeabi_memcpy8                       
-0002d360  memcpy                                
-0002d4e0  esmHighInterrupt                      
-0002d658  free                                  
-0002d8ac  xTaskNotifyStateClear                 
-0002da9c  setvbuf                               
-0002dbf4  _c_int00                              
-0002dd44  RedBitGet                             
-0002ddb8  RedBitSet                             
-0002de10  RedBitClear                           
-0002dfcc  floor                                 
-0002dfcc  floorl                                
-0002e240  csp_queue_create                      
-0002e260  csp_queue_remove                      
-0002e274  csp_queue_enqueue                     
-0002e2b0  csp_queue_enqueue_isr                 
-0002e2d8  csp_queue_dequeue                     
-0002e314  csp_queue_dequeue_isr                 
-0002e338  csp_queue_size                        
-0002e34c  csp_queue_size_isr                    
-0002e360  ldexp                                 
-0002e360  ldexpl                                
-0002e360  scalbn                                
-0002e360  scalbnl                               
-0002e598  fputc                                 
-0002e598  putc                                  
-0002e698  RedOsMutexInit                        
-0002e6d4  RedOsMutexUninit                      
-0002e6f8  RedOsMutexAcquire                     
-0002e720  RedOsMutexRelease                     
-0002e790  _pmuInit_                             
-0002e7dc  _pmuEnableCountersGlobal_             
-0002e7ec  _pmuDisableCountersGlobal_            
-0002e7fc  _pmuResetCycleCounter_                
-0002e80c  _pmuResetEventCounters_               
-0002e81c  _pmuResetCounters_                    
-0002e82c  _pmuStartCounters_                    
-0002e834  _pmuStopCounters_                     
-0002e83c  _pmuSetCountEvent_                    
-0002e848  _pmuGetCycleCount_                    
-0002e850  _pmuGetEventCount_                    
-0002e85c  _pmuGetOverflow_                      
-0002e938  __TI_closefile                        
-0002e9f0  RedOsOutputString                     
-0002eaa4  __aeabi_memclr                        
-0002eaa4  __aeabi_memclr4                       
-0002eaa4  __aeabi_memclr8                       
-0002eaa8  __aeabi_memset                        
-0002eaa8  __aeabi_memset4                       
-0002eaa8  __aeabi_memset8                       
-0002eab4  memset                                
-0002eb54  SPI_Init                              
-0002eb58  SPI_RW                                
-0002eba8  SPI_Release                           
-0002ebe4  SPI_Timer_On                          
-0002ecb4  HOSTlseek                             
-0002ed60  fflush                                
-0002ee0c  fseek                                 
-0002eeb4  HOSTrename                            
-0002ef58  __TI_wrt_ok                           
-0002eff8  fprintf                               
-0002f094  printf                                
-0002f130  HOSTopen                              
-0002f260  close                                 
-0002f2f8  HOSTread                              
-0002f388  HOSTwrite                             
-0002f418  __TI_decompress_lzss                  
-0002f4a8  frexp                                 
-0002f4a8  frexpl                                
-0002f534  RedOsTaskId                           
-0002f5c0  RedNameLen                            
-0002f648  __TI_doflush                          
-0002f6cc  atoi                                  
-0002f750  __TI_ltoa                             
-0002f7d0  csp_clock_get_time                    
-0002f7f8  csp_clock_set_time                    
-0002f84c  exit                                  
-0002f8c8  snprintf                              
-0002f944  HOSTclose                             
-0002fa2c  csp_malloc                            
-0002fa40  csp_calloc                            
-0002fa8c  csp_free                              
-0002faa0  HOSTunlink                            
-0002fb10  SPI_CS_Low                            
-0002fb80  getdevice                             
-0002fbec  __TI_auto_init_nobinit_nopinit        
-0002fc54  strtok                                
-0002fd20  sprintf                               
-0002fd84  RedOsAssertFail                       
-0002fe40  load                                  
-0002fe90  handlePLLLockFail                     
-0002fe94  __TI_cleanup                          
-0002fee8  __TI_readmsg                          
-0002ff3c  __TI_writemsg                         
-0002ff84  C$$IO$$                               
-0002ff90  finddevice                            
-0002ffe4  __aeabi_idiv                          
-0002ffe4  __aeabi_idivmod                       
-00030038  strncasecmp                           
-0003008c  __aeabi_uidiv                         
-0003008c  __aeabi_uidivmod                      
-000300dc  main                                  
-000300f8  _prefetch                             
-00030108  _dabort                               
-00030118  _undef                                
-00030128  strspn                                
-00030174  strncpy                               
-000301bc  remove                                
-000301bc  unlink                                
-00030204  lseek                                 
-00030248  strcspn                               
-0003028c  write                                 
-000302d0  csp_get_ms                            
-000302dc  csp_get_ms_isr                        
-000302e8  csp_get_s                             
-000302fc  csp_get_s_isr                         
-00030350  SPI_CS_High                           
-000303e4  memccpy                               
-00030440  memchr                                
-0003046c  strchr                                
-00030494  strcmp                                
-000304bc  __aeabi_llsl                          
-000304e0  __aeabi_llsr                          
-00030504  wcslen                                
-00030528  strlen                                
-00030548  copysign                              
-00030548  copysignl                             
-00030564  RedOsClockInit                        
-0003056c  RedOsClockUninit                      
-00030574  RedOsClockGetTime                     
-0003057c  strcpy                                
-00030594  __SD_Assert                           
-000305a8  __SD_Deassert                         
-000305d0  csp_hton16                            
-000305e4  csp_hton32                            
-000305f8  csp_htonflt                           
-0003060c  csp_ntoh16                            
-00030620  csp_ntoh32                            
-00030634  __TI_decompress_none                  
-00030648  __TI_zero_init                        
-00030658  __aeabi_errno_addr                    
-00030664  malloc                                
-00030670  putchar                               
-0003067c  SPI_Timer_Status                      
-00030684  C$$EXIT                               
-00030684  abort                                 
-0003068c  SPI_Freq_High                         
-00030690  SPI_Freq_Low                          
-00030694  SPI_Timer_Off                         
-00030698  _nop                                  
-000306ac  phantomInterrupt                      
-000306b0  __aeabi_idiv0                         
-000306b0  __aeabi_ldiv0                         
-000306b4  RedSignOn                             
-000328c0  _ctypes_                              
-00032a48  gaRedVolConf                          
-00032b90  HKOffsets                             
-00032bc0  HKScales                              
-00032c10  logger_config                         
-00032c44  BlinkyLoadStart                       
-00032ce4  BlinkyLoadEnd                         
+00019d8c  dfgm_convert_HK                       
+00019e34  save_packet                           
+00019fc0  print_file                            
+0001a198  print_packet                          
+0001a3e8  clear_file                            
+0001a498  send_packet                           
+0001a520  dfgm_rx_task                          
+0001a834  dfgm_init                             
+0001a938  dfgm_sciNotification                  
+0001aab8  InitIO                                
+0001ab34  GPIOSetBit                            
+0001ac78  GPIOGetBit                            
+0001adbc  GPIOTxTest                            
+0001ae94  UARTTxTest                            
+0001aed8  UARTRxTest                            
+0001af60  SPIMasterTxTest                       
+0001afdc  SPIMasterRxTest                       
+0001b07c  SPISlaveTxTest                        
+0001b0f8  SPISlaveRxTest                        
+0001b188  I2CMasterTxTest                       
+0001b238  I2CMasterRxTest                       
+0001b334  I2CSlaveRxTest                        
+0001b420  I2CSlaveTxTest                        
+0001b4c0  CANTxTest                             
+0001b538  CANRxTest                             
+0001b65c  SDRAM_Test                            
+0001b6bc  fs_stress_worker1                     
+0001b79c  fs_stress_worker2                     
+0001b87c  fs_stress_test                        
+0001b9ac  MPU_xTaskCreate                       
+0001ba10  MPU_xTaskCreateRestricted             
+0001ba54  MPU_vTaskAllocateMPURegions           
+0001ba88  MPU_vTaskDelete                       
+0001bab4  MPU_vTaskDelay                        
+0001bae0  MPU_vTaskDelayUntil                   
+0001bb14  MPU_xTaskAbortDelay                   
+0001bb48  MPU_uxTaskPriorityGet                 
+0001bb7c  MPU_eTaskGetState                     
+0001bbb0  MPU_vTaskGetInfo                      
+0001bbfc  MPU_vTaskPrioritySet                  
+0001bc30  MPU_vTaskSuspend                      
+0001bc5c  MPU_vTaskResume                       
+0001bc88  MPU_vTaskSuspendAll                   
+0001bcac  MPU_xTaskResumeAll                    
+0001bcd8  MPU_xTaskGetTickCount                 
+0001bd04  MPU_uxTaskGetNumberOfTasks            
+0001bd30  MPU_pcTaskGetName                     
+0001bd64  MPU_xTaskGetHandle                    
+0001bd98  MPU_uxTaskGetStackHighWaterMark       
+0001bdcc  MPU_vTaskSetThreadLocalStoragePointer 
+0001be10  MPU_pvTaskGetThreadLocalStoragePointer
+0001be54  MPU_xTaskGetIdleTaskHandle            
+0001be80  MPU_uxTaskGetSystemState              
+0001becc  MPU_vTaskList                         
+0001bef8  MPU_vTaskGetRunTimeStats              
+0001bf24  MPU_xTaskGenericNotify                
+0001bf78  MPU_xTaskNotifyWait                   
+0001bfcc  MPU_ulTaskNotifyTake                  
+0001c010  MPU_xTaskNotifyStateClear             
+0001c044  MPU_xTaskGetCurrentTaskHandle         
+0001c070  MPU_vTaskSetTimeOutState              
+0001c09c  MPU_xTaskCheckForTimeOut              
+0001c0e0  MPU_xTaskGetSchedulerState            
+0001c10c  MPU_xQueueGenericSend                 
+0001c160  MPU_xQueueGenericReceive              
+0001c1b4  MPU_uxQueueMessagesWaiting            
+0001c1e8  MPU_uxQueueSpacesAvailable            
+0001c21c  MPU_vQueueDelete                      
+0001c248  MPU_xQueueCreateMutex                 
+0001c27c  MPU_xQueueCreateCountingSemaphore     
+0001c2c0  MPU_xQueueTakeMutexRecursive          
+0001c304  MPU_xQueueGiveMutexRecursive          
+0001c338  MPU_xQueueGenericCreate               
+0001c384  MPU_xQueueGenericReset                
+0001c3c8  MPU_xTimerCreate                      
+0001c424  MPU_pvTimerGetTimerID                 
+0001c458  MPU_vTimerSetTimerID                  
+0001c48c  MPU_xTimerIsTimerActive               
+0001c4c0  MPU_xTimerGetTimerDaemonTaskHandle    
+0001c4ec  MPU_pcTimerGetName                    
+0001c520  MPU_xTimerGetPeriod                   
+0001c554  MPU_xTimerGetExpiryTime               
+0001c588  MPU_xTimerGenericCommand              
+0001c5e4  MPU_xEventGroupCreate                 
+0001c610  MPU_xEventGroupWaitBits               
+0001c66c  MPU_xEventGroupClearBits              
+0001c6b0  MPU_xEventGroupSetBits                
+0001c6f4  MPU_xEventGroupSync                   
+0001c748  MPU_vEventGroupDelete                 
+0001c774  i2cInit                               
+0001c968  i2cSetOwnAdd                          
+0001c988  i2cSetSlaveAdd                        
+0001c9a8  i2cSetBaudrate                        
+0001caa8  i2cSetStart                           
+0001cac8  i2cSetStop                            
+0001cae8  i2cSetCount                           
+0001cb08  i2cIsTxReady                          
+0001cb24  i2cSendByte                           
+0001cb54  i2cSend                               
+0001cc80  i2cIsRxReady                          
+0001cc9c  i2cIsStopDetected                     
+0001ccb8  i2cRxError                            
+0001cce8  i2cClearSCD                           
+0001cd04  i2cReceiveByte                        
+0001cd48  i2cReceive                            
+0001ce20  i2cEnableLoopback                     
+0001ce40  i2cDisableLoopback                    
+0001ce60  i2cEnableNotification                 
+0001cec8  i2cDisableNotification                
+0001cf44  i2cSetMode                            
+0001cf7c  i2c1GetConfigValue                    
+0001d144  i2c2GetConfigValue                    
+0001d30c  i2cSetDirection                       
+0001d344  i2cIsMasterReady                      
+0001d384  i2cIsBusBusy                          
+0001d458  RedVolMount                           
+0001d4cc  RedVolMountMaster                     
+0001d63c  RedVolMountMetaroot                   
+0001da98  RedVolTransact                        
+0001dd5c  RedVolCriticalError                   
+0001ddb0  RedVolSeqNumIncrement                 
+0001df24  mibspi1LowLevelInterrupt              
+0001e18c  mibspi1HighLevelInterrupt             
+0001e3f4  mibspi5LowLevelInterrupt              
+0001e65c  mibspi5HighLevelInterrupt             
+0001e954  muxInit                               
+0001f348  lin1HighLevelInterrupt                
+0001f518  lin2HighLevelInterrupt                
+0001f6e8  sci3HighLevelInterrupt                
+0001f8b8  sci4HighLevelInterrupt                
+0001fa88  sci4LowLevelInterrupt                 
+0001fd14  __SD_Power_Of_Two                     
+0001fd64  __SD_Speed_Transfer                   
+0001fd88  __SD_Send_Cmd                         
+0001fe90  __SD_Write_Block                      
+0001ff68  __SD_Sectors                          
+00020188  SD_Init                               
+000204d4  SD_Read                               
+00020648  SD_Write                              
+00020690  SD_Status                             
+000206cc  setupPLL                              
+0002072c  trimLPO                               
+000207a0  setupFlash                            
+000207e0  periphInit                            
+00020894  mapClocks                             
+000209c0  systemInit                            
+00020a38  systemPowerDown                       
+00020a68  getResetSource                        
+00020b90  systemGetConfigValue                  
+00020fc0  customTrimLPO                         
+00021068  vimInit                               
+0002113c  vimChannelMap                         
+000211e0  vimEnableInterrupt                    
+000213a8  vimDisableInterrupt                   
+00021454  vimGetConfigValue                     
+000219c8  skytraq_binary_init                   
+00021a88  skytraq_send_message                  
+00021c6c  skytraq_send_message_with_reply       
+00021d3c  get_byte                              
+00021e5c  gps_sciNotification                   
+00021edc  calc_checksum                         
+00021f48  skytraq_verify_checksum               
+00021fb8  skytraq_restart_receiver              
+00022044  skytraq_query_software_version        
+00022070  skytraq_query_software_CRC            
+000220a4  skytraq_restore_factory_defaults      
+000220d0  skytraq_configure_serial_port         
+00022114  skytraq_configure_nmea_output_rate    
+00022190  configure_message_type                
+000221cc  skytraq_configure_power_mode          
+00022208  skytraq_get_gps_time                  
+00022234  skytraq_configure_utc_reference       
+000222c0  RedPathVolumePrefixLookup             
+0002249c  RedPathVolumeLookup                   
+0002253c  RedPathLookup                         
+000225a8  RedPathToName                         
+00022bb8  HAL_UHF_setSCW                        
+00022bd8  HAL_UHF_setFreq                       
+00022bf8  HAL_UHF_setPipeT                      
+00022c18  HAL_UHF_setBeaconT                    
+00022c38  HAL_UHF_setAudioT                     
+00022c58  HAL_UHF_restore                       
+00022c6c  HAL_UHF_lowPwr                        
+00022c80  HAL_UHF_setDestination                
+00022cac  HAL_UHF_setSource                     
+00022cd8  HAL_UHF_setMorse                      
+00022d04  HAL_UHF_setMIDI                       
+00022d30  HAL_UHF_setBeaconMsg                  
+00022d5c  HAL_UHF_setI2C                        
+00022d70  HAL_UHF_setFRAM                       
+00022da0  HAL_UHF_secure                        
+00022db4  HAL_UHF_getSCW                        
+00022ddc  HAL_UHF_getFreq                       
+00022e08  HAL_UHF_getUptime                     
+00022e34  HAL_UHF_getPcktsOut                   
+00022e60  HAL_UHF_getPcktsIn                    
+00022e8c  HAL_UHF_getPcktsInCRC16               
+00022eb8  HAL_UHF_getPipeT                      
+00022ee4  HAL_UHF_getBeaconT                    
+00022f10  HAL_UHF_getAudioT                     
+00022f3c  HAL_UHF_getTemp                       
+00022f68  HAL_UHF_getLowPwr                     
+00022f90  HAL_UHF_getPayload                    
+00022fb8  HAL_UHF_getSecureKey                  
+00022fe0  HAL_UHF_getDestination                
+00023008  HAL_UHF_getSource                     
+00023030  HAL_UHF_getMorse                      
+00023058  HAL_UHF_getMIDI                       
+00023080  HAL_UHF_getBeaconMsg                  
+000230a8  HAL_UHF_getFRAM                       
+000230d8  UHF_getHK                             
+000232c8  UHF_convert_endianness                
+000233e0  esmInit                               
+0002353c  esmError                              
+00023558  esmEnableError                        
+00023580  esmEnableErrorUpper                   
+0002359c  esmDisableError                       
+000235c4  esmDisableErrorUpper                  
+000235e0  esmTriggerErrorPinReset               
+000235f0  esmActivateNormalOperation            
+00023600  esmEnableInterrupt                    
+00023628  esmEnableInterruptUpper               
+00023644  esmDisableInterrupt                   
+0002366c  esmDisableInterruptUpper              
+00023688  esmSetInterruptLevel                  
+000236fc  esmSetInterruptLevelUpper             
+0002373c  esmClearStatus                        
+0002377c  esmClearStatusUpper                   
+000237a0  esmClearStatusBuffer                  
+000237bc  esmSetCounterPreloadValue             
+000237dc  esmGetStatus                          
+00023860  esmGetStatusUpper                     
+000238a8  esmGetStatusBuffer                    
+000238d0  esmEnterSelfTest                      
+00023958  esmSelfTestStatus                     
+000239a8  esmGetConfigValue                     
+00023b6c  apply_filter                          
+00023d78  shift_sptr                            
+00023d8c  save_second                           
+00023ea4  convert_100Hz_to_1Hz                  
+000242f4  csp_can_rx                            
+000246a8  csp_can_tx                            
+0002496c  csp_can_add_interface                 
+00024a70  store_logger_file_size                
+00024ab8  load_logger_file_size                 
+00024b18  set_logger_file_size                  
+00024b38  get_logger_file_size                  
+00024b5c  get_logger_file                       
+00024b64  get_logger_old_file                   
+00024c34  ex2_log                               
+00024d78  init_logger_fs                        
+00024ea0  stop_logger_fs                        
+00024f64  start_logger_daemon                   
+00024fc8  kill_logger_daemon                    
+00024fec  init_logger_queue                     
+000250c8  _errata_SSWF021_45_both_plls          
+000252bc  _errata_SSWF021_45_pll1               
+00025434  _errata_SSWF021_45_pll2               
+0002572c  csp_buffer_init                       
+00025810  csp_buffer_free_resources             
+00025858  csp_buffer_get_isr                    
+000258e8  csp_buffer_get                        
+000259fc  csp_buffer_free_isr                   
+00025a80  csp_buffer_free                       
+00025bb4  csp_buffer_clone                      
+00025c14  csp_buffer_remaining                  
+00025c28  csp_buffer_size                       
+00025c38  csp_buffer_data_size                  
+00025d70  RedImapBlockGet                       
+00025e30  RedImapBlockSet                       
+00026084  RedImapAllocBlock                     
+00026234  RedImapBlockState                     
+00026368  init_adcs_io                          
+000263d8  adcs_sciNotification                  
+0002648c  send_uart_telecommand                 
+0002660c  send_i2c_telecommand                  
+00026694  request_uart_telemetry                
+0002683c  receieve_uart_packet                  
+00026904  request_i2c_telemetry                 
+00026958  strtod                                
+00026958  strtold                               
+00026e9c  RedImapEBlockGet                      
+00026fe8  RedImapEBlockSet                      
+0002730c  RedImapNodeBlock                      
+000273d8  uhf_i2c_init                          
+00027468  i2c_prepare_for_pipe_mode             
+00027524  uhf_pipe_timer_reset_from_isr         
+00027554  i2c_sendCommand                       
+000275f0  i2c_receiveResponse                   
+0002768c  i2c_sendAndReceive                    
+00027780  i2c_sendAndReceivePIPE                
+000278ac  gioInit                               
+0002797c  gioSetDirection                       
+0002799c  gioSetBit                             
+000279ec  gioSetPort                            
+00027a0c  gioGetBit                             
+00027a34  gioGetPort                            
+00027a4c  gioToggleBit                          
+00027aa4  gioEnableNotification                 
+00027b0c  gioDisableNotification                
+00027b74  gioGetConfigValue                     
+00027d30  can_rx_thread                         
+00027fe0  csp_can_open_and_add_interface        
+0002810c  canMessageNotification                
+000281ac  RedIoRead                             
+00028374  RedIoWrite                            
+0002853c  RedIoFlush                            
+00028618  init_i2c_driver                       
+00028688  i2c_Receive                           
+000287c0  i2c_Send                              
+00028938  i2cNotification                       
+00028bcc  RedOsBDevOpen                         
+00028c08  RedOsBDevClose                        
+00028c3c  RedOsBDevRead                         
+00028d34  RedOsBDevWrite                        
+00028e2c  RedOsBDevFlush                        
+00028e68  i2cInterrupt                          
+00029038  i2c2Interrupt                         
+0002924c  RedStrLen                             
+000292cc  RedStrCmp                             
+000293e4  RedStrNCmp                            
+00029518  RedStrNCpy                            
+0002962c  _coreInitRegisters_                   
+00029738  _coreInitStackPointer_                
+00029784  _getCPSRValue_                        
+0002978c  _gotoCPUIdle_                         
+000297a4  _coreEnableVfp_                       
+000297bc  _coreEnableEventBusExport_            
+000297cc  _coreDisableEventBusExport_           
+000297dc  _coreEnableIrqVicOffset_              
+000297ec  _coreGetDataFault_                    
+000297f4  _coreClearDataFault_                  
+00029800  _coreGetInstructionFault_             
+00029808  _coreClearInstructionFault_           
+00029814  _coreGetDataFaultAddress_             
+0002981c  _coreClearDataFaultAddress_           
+00029828  _coreGetInstructionFaultAddress_      
+00029830  _coreClearInstructionFaultAddress_    
+0002983c  _coreGetAuxiliaryDataFault_           
+00029844  _coreClearAuxiliaryDataFault_         
+00029850  _coreGetAuxiliaryInstructionFault_    
+00029858  _coreClearAuxiliaryInstructionFault_  
+00029864  _disable_IRQ_interrupt_               
+0002986c  _enable_IRQ_interrupt_                
+00029874  _enable_interrupt_                    
+0002987c  _esmCcmErrorsClear_                   
+00029904  _memInit_                             
+00029938  _checkMemInitOn_                      
+00029958  _cacheEnable_                         
+0002999c  _cacheDisable_                        
+000299c0  _dCacheInvalidate_                    
+000299d4  _iCacheInvalidate_                    
+000299e8  __TI_PINIT_Base                       
+000299ec  __TI_PINIT_Limit                      
+000299f0  RedMemCpy                             
+00029ab0  RedMemMove                            
+00029bc8  RedMemSet                             
+00029c6c  RedMemCmp                             
+00029db4  RedVolFormat                          
+0002a150  csp_iflist_get_by_name                
+0002a1ac  csp_iflist_add                        
+0002a26c  csp_iflist_get                        
+0002a278  csp_bytesize                          
+0002a328  csp_iflist_print                      
+0002a4cc  RedCrc32Update                        
+0002a79c  RedCrcNode                            
+0002a830  _mpuInit_                             
+0002aad4  _mpuEnable_                           
+0002aaec  _mpuDisable_                          
+0002ab04  _mpuEnableBackgroundRegion_           
+0002ab14  _mpuDisableBackgroundRegion_          
+0002ab24  _mpuGetNumberOfRegions_               
+0002ab30  _mpuAreRegionsSeparate_               
+0002ab3c  _mpuSetRegion_                        
+0002ab44  _mpuGetRegion_                        
+0002ab4c  _mpuSetRegionBaseAddress_             
+0002ab54  _mpuGetRegionBaseAddress_             
+0002ab5c  _mpuSetRegionTypeAndPermission_       
+0002ab68  _mpuGetRegionType_                    
+0002ab74  _mpuGetRegionPermission_              
+0002ab80  _mpuSetRegionSizeRegister_            
+0002ab88  csp_qfifo_init                        
+0002ac0c  csp_qfifo_free_resources              
+0002ac74  csp_qfifo_read                        
+0002aca8  csp_qfifo_write                       
+0002ae18  csp_qfifo_wake_up                     
+0002aed8  vimECCErrorHandler                    
+0002b4f0  csp_can_pbuf_free                     
+0002b584  csp_can_pbuf_new                      
+0002b6d8  csp_can_pbuf_find                     
+0002b7c8  __aeabi_uldivmod                      
+0002ba80  usart_rx_thread                       
+0002bad4  csp_usart_write                       
+0002bb24  csp_usart_open                        
+0002bc08  csp_sciNotification                   
+0002bcc4  esmGroup1Notification                 
+0002bcd4  esmGroup2Notification                 
+0002bfa4  esmGroup3Notification                 
+0002bfb4  dmaGroupANotification                 
+0002bfc8  adcNotification                       
+0002bfdc  canErrorNotification                  
+0002bff0  canStatusChangeNotification           
+0002c018  dccNotification                       
+0002c02c  gioNotification                       
+0002c054  sciNotification                       
+0002c0dc  spiNotification                       
+0002c0f0  spiEndNotification                    
+0002c100  pwmNotification                       
+0002c118  edgeNotification                      
+0002c12c  hetNotification                       
+0002c140  crcNotification                       
+0002c154  etpwmNotification                     
+0002c164  etpwmTripNotification                 
+0002c178  eqepNotification                      
+0002c18c  ecapNotification                      
+0002c1a0  epcCAMFullNotification                
+0002c1a4  epcFIFOFullNotification               
+0002c1b4  emacTxNotification                    
+0002c1c4  emacRxNotification                    
+0002c420  vListInitialise                       
+0002c478  vListInitialiseItem                   
+0002c494  vListInsertEnd                        
+0002c508  vListInsert                           
+0002c5cc  uxListRemove                          
+0002c658  csp_debug_hook_set                    
+0002c674  do_csp_debug                          
+0002c7b4  csp_debug_set_level                   
+0002c7e4  csp_debug_get_level                   
+0002c814  csp_debug_toggle_level                
+0002c884  RedImapIBlockGet                      
+0002c954  RedImapIBlockSet                      
+0002ca9c  can1HighLevelInterrupt                
+0002cb84  can2HighLevelInterrupt                
+0002cc9c  emif_SDRAMInit                        
+0002cca0  emifGetConfigValue                    
+0002cdf8  emif_SDRAM_StartupInit                
+0002ce94  ex2_init                              
+0002ceac  ex2_main                              
+0002cf18  vAssertCalled                         
+0002cf38  initializeProfiler                    
+0002cf6c  getProfilerTimerCount                 
+0002cfb4  vApplicationStackOverflowHook         
+0002cfc4  vApplicationMallocFailedHook          
+0002cfc8  vApplicationDaemonTaskStartupHook     
+0002cfd4  SciSendBuf                            
+0002d064  fputs                                 
+0002d208  aligned_alloc                         
+0002d208  memalign                              
+0002d3a0  __aeabi_memcpy                        
+0002d3a0  __aeabi_memcpy4                       
+0002d3a0  __aeabi_memcpy8                       
+0002d3a0  memcpy                                
+0002d520  esmHighInterrupt                      
+0002d698  free                                  
+0002d8ec  xTaskNotifyStateClear                 
+0002dadc  setvbuf                               
+0002dc34  _c_int00                              
+0002dd84  RedBitGet                             
+0002ddf8  RedBitSet                             
+0002de50  RedBitClear                           
+0002e00c  floor                                 
+0002e00c  floorl                                
+0002e280  csp_queue_create                      
+0002e2a0  csp_queue_remove                      
+0002e2b4  csp_queue_enqueue                     
+0002e2f0  csp_queue_enqueue_isr                 
+0002e318  csp_queue_dequeue                     
+0002e354  csp_queue_dequeue_isr                 
+0002e378  csp_queue_size                        
+0002e38c  csp_queue_size_isr                    
+0002e3a0  ldexp                                 
+0002e3a0  ldexpl                                
+0002e3a0  scalbn                                
+0002e3a0  scalbnl                               
+0002e5d8  fputc                                 
+0002e5d8  putc                                  
+0002e6d8  RedOsMutexInit                        
+0002e714  RedOsMutexUninit                      
+0002e738  RedOsMutexAcquire                     
+0002e760  RedOsMutexRelease                     
+0002e7d0  _pmuInit_                             
+0002e81c  _pmuEnableCountersGlobal_             
+0002e82c  _pmuDisableCountersGlobal_            
+0002e83c  _pmuResetCycleCounter_                
+0002e84c  _pmuResetEventCounters_               
+0002e85c  _pmuResetCounters_                    
+0002e86c  _pmuStartCounters_                    
+0002e874  _pmuStopCounters_                     
+0002e87c  _pmuSetCountEvent_                    
+0002e888  _pmuGetCycleCount_                    
+0002e890  _pmuGetEventCount_                    
+0002e89c  _pmuGetOverflow_                      
+0002e978  __TI_closefile                        
+0002ea30  RedOsOutputString                     
+0002eae4  __aeabi_memclr                        
+0002eae4  __aeabi_memclr4                       
+0002eae4  __aeabi_memclr8                       
+0002eae8  __aeabi_memset                        
+0002eae8  __aeabi_memset4                       
+0002eae8  __aeabi_memset8                       
+0002eaf4  memset                                
+0002eb94  SPI_Init                              
+0002eb98  SPI_RW                                
+0002ebe8  SPI_Release                           
+0002ec24  SPI_Timer_On                          
+0002ecf4  HOSTlseek                             
+0002eda0  fflush                                
+0002ee4c  fseek                                 
+0002eef4  HOSTrename                            
+0002ef98  __TI_wrt_ok                           
+0002f038  fprintf                               
+0002f0d4  printf                                
+0002f170  HOSTopen                              
+0002f2a0  close                                 
+0002f338  HOSTread                              
+0002f3c8  HOSTwrite                             
+0002f458  __TI_decompress_lzss                  
+0002f4e8  frexp                                 
+0002f4e8  frexpl                                
+0002f574  RedOsTaskId                           
+0002f600  RedNameLen                            
+0002f688  __TI_doflush                          
+0002f70c  atoi                                  
+0002f790  __TI_ltoa                             
+0002f810  csp_clock_get_time                    
+0002f838  csp_clock_set_time                    
+0002f88c  exit                                  
+0002f908  snprintf                              
+0002f984  HOSTclose                             
+0002fa6c  csp_malloc                            
+0002fa80  csp_calloc                            
+0002facc  csp_free                              
+0002fae0  HOSTunlink                            
+0002fb50  SPI_CS_Low                            
+0002fbc0  getdevice                             
+0002fc2c  __TI_auto_init_nobinit_nopinit        
+0002fc94  strtok                                
+0002fd60  sprintf                               
+0002fdc4  RedOsAssertFail                       
+0002fe80  load                                  
+0002fed0  handlePLLLockFail                     
+0002fed4  __TI_cleanup                          
+0002ff28  __TI_readmsg                          
+0002ff7c  __TI_writemsg                         
+0002ffc4  C$$IO$$                               
+0002ffd0  finddevice                            
+00030024  __aeabi_idiv                          
+00030024  __aeabi_idivmod                       
+00030078  strncasecmp                           
+000300cc  __aeabi_uidiv                         
+000300cc  __aeabi_uidivmod                      
+0003011c  main                                  
+00030138  _prefetch                             
+00030148  _dabort                               
+00030158  _undef                                
+00030168  strspn                                
+000301b4  strncpy                               
+000301fc  remove                                
+000301fc  unlink                                
+00030244  lseek                                 
+00030288  strcspn                               
+000302cc  write                                 
+00030310  csp_get_ms                            
+0003031c  csp_get_ms_isr                        
+00030328  csp_get_s                             
+0003033c  csp_get_s_isr                         
+00030390  SPI_CS_High                           
+00030424  memccpy                               
+00030480  memchr                                
+000304ac  strchr                                
+000304d4  strcmp                                
+000304fc  __aeabi_llsl                          
+00030520  __aeabi_llsr                          
+00030544  wcslen                                
+00030568  strlen                                
+00030588  copysign                              
+00030588  copysignl                             
+000305a4  RedOsClockInit                        
+000305ac  RedOsClockUninit                      
+000305b4  RedOsClockGetTime                     
+000305bc  strcpy                                
+000305d4  __SD_Assert                           
+000305e8  __SD_Deassert                         
+00030610  csp_hton16                            
+00030624  csp_hton32                            
+00030638  csp_htonflt                           
+0003064c  csp_ntoh16                            
+00030660  csp_ntoh32                            
+00030674  __TI_decompress_none                  
+00030688  __TI_zero_init                        
+00030698  __aeabi_errno_addr                    
+000306a4  malloc                                
+000306b0  putchar                               
+000306bc  SPI_Timer_Status                      
+000306c4  C$$EXIT                               
+000306c4  abort                                 
+000306cc  SPI_Freq_High                         
+000306d0  SPI_Freq_Low                          
+000306d4  SPI_Timer_Off                         
+000306d8  _nop                                  
+000306ec  phantomInterrupt                      
+000306f0  __aeabi_idiv0                         
+000306f0  __aeabi_ldiv0                         
+000306f4  RedSignOn                             
+00032900  _ctypes_                              
+00032a88  gaRedVolConf                          
+00032bd0  HKOffsets                             
+00032c00  HKScales                              
+00032c50  logger_config                         
+00032c84  BlinkyLoadStart                       
+00032d24  BlinkyLoadEnd                         
 08000000  ramSWI                                
 08000000  ramint_RunStart                       
 080000f0  pxCurrentTCB                          
