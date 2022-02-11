@@ -102,13 +102,31 @@ GPS_RETURNSTATE gps_disable_NMEA_output() { return gps_configure_message_types(0
  */
 GPS_RETURNSTATE gps_skytraq_get_software_crc(uint16_t *crc) {
     uint8_t reply[11];
-    GPS_RETURNSTATE result = skytraq_query_software_CRC(&reply, 11);
+    GPS_RETURNSTATE result = skytraq_query_software_CRC(reply, 11);
     if (result != GPS_SUCCESS) {
         return result;
     }
     *crc = (reply[6] << 8) | reply[7]; // extract 16 bit CRC
     return GPS_SUCCESS;
 }
+
+/**
+ * @brief Get software version on the skytraq
+ * @param pointer to uint8_t to store version
+ *        Version "XX.YY.ZZ" -> *version = 0x000000XXYYZZ
+ *
+ * @return GPS_RETURNSTATE
+ */
+GPS_RETURNSTATE gps_skytraq_get_software_version(uint32_t *version) {
+    uint8_t reply[21];
+    GPS_RETURNSTATE result = skytraq_query_software_version(reply, 21);
+    if (result != GPS_SUCCESS) {
+        return result;
+    }
+    *version = (reply[11] << 16) | (reply[12] << 8) | (reply[13]);
+    return GPS_SUCCESS;
+}
+
 /**
  * @brief takes time as NMEA integer and extracts it to a struct
  *
