@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define GPS_UART_TIMEOUT_MS 1000 * portTICK_PERIOD_MS
+#define GPS_UART_TIMEOUT_MS 2000 * portTICK_PERIOD_MS
 #define GPS_TX_TIMEOUT_MS 1000 *portTICK_PERIOD_MS
 
 bool skytraq_verify_checksum(uint8_t *message);
@@ -24,9 +24,9 @@ GPS_RETURNSTATE skytraq_restart_receiver(StartMode start_mode, uint16_t utc_year
                                          uint8_t utc_day, uint8_t utc_hour, uint8_t utc_minute, uint8_t utc_second,
                                          int16_t latitude, int16_t longitude, int16_t altitude);
 
-GPS_RETURNSTATE skytraq_query_software_version(void);
-
 GPS_RETURNSTATE skytraq_query_software_CRC(uint8_t *reply, uint16_t reply_len);
+
+GPS_RETURNSTATE skytraq_query_software_version(uint8_t *reply, uint16_t reply_len);
 
 GPS_RETURNSTATE skytraq_restore_factory_defaults(void);
 
