@@ -1,4 +1,21 @@
-// Copyright stuff
+/*
+ * Copyright (C) 2015  University of Alberta
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+/**
+ * @file
+ * @author
+ * @date
+ */
 
 
 #ifndef DFGM_HANDLER_H
@@ -6,16 +23,16 @@
 
 // Headers
 #include "system.h"
-#include <stdint.h> // double check what this is even used for
-
+#include <stdint.h>
+#include <time.h>
 
 typedef enum {
     DFGM_SUCCESS = 0,
 
-    DFGM_BAD_READ = 1,
-    DFGM_BAD_WRITE = 2,
+    DFGM_BAD_PARAM = 1,
+    DFGM_BUSY = 2,
 
-    IS_STUBBED_DFGM = 0;
+    IS_STUBBED_DFGM = 0
 } STX_return;
 
 // Macros for conversions from converter and filter header and source files (QUEUE_DEPTH, etc.)
@@ -56,6 +73,10 @@ typedef enum {
 #define HK11Scale 1 // for RESERVED
 #define HK11Offset 0
 
+// For data collection task & HK
+#define minRuntime 1 // in seconds
+#define timeThreshold 180 // in seconds
+#define QUEUE_DEPTH 32
 
 // Structs from converter and filter - dfgm_data_tuple_t, dfgm_packet_t, dfgm_data_t, HK data struct etc.
 // SECOND + dfgm_1Hz_file_t combo? should include timestamps, 100Hz data, and filtered data
@@ -119,25 +140,31 @@ struct SECOND {
     double Zfilt;
 };
 
+typedef struct {
+    int filterMode;
+    time_t startTime;
+    time_t endTime;
+} dfgm_filter_settings;
+
 // Functions used in converter
 void dfgm_convert_mag(dfgm_packet_t *const data);
 void dfgm_convert_HK(dfgm_packet_t *const data);
-void save_packet(dfgm_packet_t *data, char *filename);
+void save_packet(dfgm_data_t *data, char *filename);
+
 //void clear_file(char* filename); // Will probably need modifications
 void dfgm_init();
 
 // Functions used in filters
 void shift_sptr(void);
 void apply_filter(void);
-void save_second(void); // rename "second"
-void convert_100Hz_to_1Hz(char *filename100Hz, char *filename1Hz);
-//void convert_100Hz_to_10Hz(char * filename100Hz, char * filename10Hz);
+void save_second(struct SECOND *second, char * filename); // rename "second"
+STX_return convert_100Hz_to_1Hz(char *filename100Hz, char *filename1Hz, dfgm_filter_settings *filterSettings);
+//void convert_100Hz_to_10Hz(char *filename100Hz, char *filename10Hz, dfgm_filter_settings *filterSettings);
 
-
-STX_return STX_startDFGM(int runtime);
+// Functions called in hardware interface
+STX_return STX_startDFGM(int givenRuntime);
 STX_return STX_stopDFGM();
-STX_return STX_filterTo10Hz();
-STX_return STX_filterTo1Hz();
-STX_return STX_getHK(dfgm_housekeeping *hk);
+STX_return STX_filterDFGM(dfgm_filter_settings * filterSettings);
+STX_return STX_getDFGMHK(dfgm_housekeeping *hk);
 
 #endif /* DFGM_HANDLER_H */

@@ -1,7 +1,24 @@
-// Copyright stuff
+/*
+ * Copyright (C) 2015  University of Alberta
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+/**
+ * @file
+ * @author
+ * @date
+ */
 
 
-// + Other headers used in converter.c and filter.c (Reliance Edge, etc.)
+// Headers used in converter.c and filter.c (Reliance Edge, etc.)
 #include "dfgm_handler.h"
 
 #include "FreeRTOS.h"
@@ -10,6 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "system.h"
+#include <stdint.h>
 
 #include <os_queue.h>
 #include <os_task.h>
@@ -23,8 +41,14 @@
 #include <redposix.h>
 #include <redtests.h>
 #include <redvolume.h>
+#include "rtcmk.h"
 
 #include <string.h>
+
+// For debugging...?
+#include "printf.h"
+
+#define scilinREG PRINTF_SCI
 
 // Macros
 #ifndef DFGM_RX_PRIO
@@ -39,11 +63,11 @@
 static uint8_t dfgmBuffer;
 static xQueueHandle dfgmQueue;
 static SemaphoreHandle_t tx_semphr;
-static int runtime; // Could be used as a task interrupt
-static dfgm_housekeeping dfgmHKBuffer;
+static int dfgmRuntime;
+static dfgm_housekeeping dfgmHKBuffer = {0};
+static int savePktFlag;
 
 // HKScales and HKOffsets array
-
 const float HKScales[] = {HK0Scale, HK1Scale, HK2Scale, HK3Scale,
                           HK4Scale, HK5Scale, HK6Scale, HK7Scale,
                           HK8Scale, HK9Scale, HK10Scale, HK11Scale};
@@ -84,7 +108,7 @@ double filter[81] = {
 // SECOND buffer and SECOND sptr (second pointer)
 // SECOND is a struct
 struct SECOND secBuffer[2];
-struct SECOND *sPtr[2];
+struct SECOND *sptr[2];
 
 // Converter functions
 void dfgm_convert_mag(dfgm_packet_t *const data) {
@@ -115,8 +139,24 @@ void dfgm_convert_HK(dfgm_packet_t *const data) {
     };
 }
 
+void update_HK(dfgm_data_t const *data) {
+    dfgmHKBuffer.timestamp = data->time;
+    dfgmHKBuffer.coreVoltage = (float) ((data->pkt).hk[0]); // Leave voltage values in mV or V?
+    dfgmHKBuffer.sensorTemp = (float) ((data->pkt).hk[1]);
+    dfgmHKBuffer.refTemp = (float) ((data->pkt).hk[2]);
+    dfgmHKBuffer.boardTemp = (float) ((data->pkt).hk[3]);
+    dfgmHKBuffer.posRailVoltage = (float) ((data->pkt).hk[4]);
+    dfgmHKBuffer.inputVoltage = (float) ((data->pkt).hk[5]);
+    dfgmHKBuffer.refVoltage = (float) ((data->pkt).hk[6]);
+    dfgmHKBuffer.inputCurrent = (float) ((data->pkt).hk[7]);
+    dfgmHKBuffer.reserved1 = (float) ((data->pkt).hk[8]);
+    dfgmHKBuffer.reserved2 = (float) ((data->pkt).hk[9]);
+    dfgmHKBuffer.reserved3 = (float) ((data->pkt).hk[10]);
+    dfgmHKBuffer.reserved4 = (float) ((data->pkt).hk[11]);
+}
+
 // File system functions
-void save_packet(dfgm_packet_t *data, char *filename) {
+void save_packet(dfgm_data_t *data, char *filename) {
     int32_t iErr;
 
     // open or create file
@@ -135,8 +175,8 @@ void save_packet(dfgm_packet_t *data, char *filename) {
 
         // build string for only magnetic field data
         // Note that the first char should be a space (needed for parsing successive samples)
-        sprintf(dataSample, "%d %d %d\n",
-                data->tup[i].X, data->tup[i].Y, data->tup[i].Z);
+        sprintf(dataSample, "%dl %d %d %d\n",
+                data->time, (data->pkt).tup[i].X, (data->pkt).tup[i].Y, (data->pkt).tup[i].Z);
 
         // Save string to file
         iErr = red_write(dataFile, dataSample, strlen(dataSample));
@@ -153,6 +193,34 @@ void save_packet(dfgm_packet_t *data, char *filename) {
         exit(red_errno);
     }
 }
+
+// Might need modification
+//void clear_file(char* filename) {
+//    int32_t iErr;
+//    int32_t dataFile;
+//
+//    // Only delete the file if it exists
+//    dataFile = red_open(filename, RED_O_RDONLY);
+//    if (dataFile != -1) {
+//        // close file before deleting file
+//        iErr = red_close(dataFile);
+//        if (iErr == -1) {
+//            printf("Unexpected error %d from red_close() in clear_file()\r\n", (int)red_errno);
+//            exit(red_errno);
+//        }
+//
+//        // delete file
+//        iErr = red_unlink(filename);
+//        if (iErr == -1) {
+//            printf("Unexpected error %d from red_unlink() in clear_file()\r\n", (int)red_errno);
+//            exit(red_errno);
+//        } else {
+//            printf("%s cleared\n", filename);
+//        }
+//    } else {
+//        printf("%s doesn't exist!\n", filename);
+//    }
+//}
 
 // Filter functions
 void apply_filter(void) {
@@ -204,7 +272,7 @@ void save_second(struct SECOND *second, char * filename) {
 
     // build string to save using data in second
     char dataSample[50];
-    sprintf(dataSample, "%d %d %d\n", second->Xfilt, second->Yfilt, second->Zfilt);
+    sprintf(dataSample, "%ld %d %d %d\n", second->time, second->Xfilt, second->Yfilt, second->Zfilt);
 
     // save 1 Hz sample
     iErr = red_write(dataFile, dataSample, strlen(dataSample));
@@ -221,12 +289,23 @@ void save_second(struct SECOND *second, char * filename) {
     }
 }
 
-void convert_100Hz_to_1Hz(char * filename100Hz, char * filename1Hz) {
+STX_return convert_100Hz_to_1Hz(char *filename100Hz, char *filename1Hz, dfgm_filter_settings *filterSettings) {
     /*------------------- Initialization ------------------*/
-    // Assumes file system is already initialized, formatted, and mounted
     int32_t iErr;
 
-    // open file
+    // Set up time stamps
+    time_t startTimestamp = filterSettings->startTime;
+    time_t endTimestamp = filterSettings->endTime;
+    time_t packetTimestamp = 0;
+    int timestamp;
+    int startTimestampFound = 0;
+
+    // Check time stamps to see if 2 packets can be used for filtering
+    if (endTimestamp - startTimestamp > 1) {
+        return DFGM_BAD_PARAM;
+    }
+
+    // open file assuming file system is already initialized, formatted, and mounted
     int32_t dataFile100Hz;
     dataFile100Hz = red_open(filename100Hz, RED_O_RDONLY);
     if (dataFile100Hz == -1) {
@@ -241,8 +320,8 @@ void convert_100Hz_to_1Hz(char * filename100Hz, char * filename1Hz) {
 
     // a SECOND struct contains both the 100 X-Y-Z samples and the 1 filtered X-Y-Z sample
     // sptr probably stands for "second pointer"
-    sptr[0] = &buffer[0];
-    sptr[1] = &buffer[1];
+    sptr[0] = &secBuffer[0];
+    sptr[1] = &secBuffer[1];
 
     // There must be 2 packets of data before filtering can start
     int firstPacketFlag = 1;
@@ -260,27 +339,50 @@ void convert_100Hz_to_1Hz(char * filename100Hz, char * filename1Hz) {
 
     // Read file line by line
     while (bytes_read != 0) {
-        // Assumes there are 100 samples per packet in the file
+        // Assumes there are 100 samples per packet in the file, 1 sample per line
         int sample = 0;
         while (sample < 100) {
-            // Reads one sample containing 3 numbers for X, Y, Z mag. coords
             if (c != '\n') {
+                // Builds line
                 line[i] = c;
                 i += 1;
                 bytes_read = red_read(dataFile100Hz, &c, 1);
             } else {
                 line[i] = '\0';
 
-                // Parse, convert, and store coords
+                // Get packet time stamp
                 char * token;
                 token = strtok(line, " ");
-                sptr[1]->X[sample] = strtod(token, NULL);
+                timestamp = atoi(token);
+                packetTimestamp = timestamp;
 
-                token = strtok(NULL, " ");
-                sptr[1]->Y[sample] = strtod(token, NULL);
+                // Start filtering once packet time stamps are within the given time frame
+                if (startTimestamp <= packetTimestamp && !startTimestampFound) {
+                    startTimestampFound = 1;
+                }
 
-                token = strtok(NULL, " ");
-                sptr[1]->Z[sample] = strtod(token, NULL);
+                // Stop filtering once packet time stamps are out of the given time frame
+                if (endTimestamp > packetTimestamp && startTimestampFound) {
+                    startTimestampFound = 0;
+                    iErr = red_close(dataFile100Hz);
+                    if (iErr == -1) {
+                        printf("Unexpected error %d from red_close() in filter\r\n", (int)red_errno);
+                        exit(red_errno);
+                    }
+                    return DFGM_SUCCESS;
+                }
+
+                // Parse, convert, and store coords
+                if (startTimestampFound) {
+                    token = strtok(NULL, " ");
+                    sptr[1]->X[sample] = strtod(token, NULL);
+
+                    token = strtok(NULL, " ");
+                    sptr[1]->Y[sample] = strtod(token, NULL);
+
+                    token = strtok(NULL, " ");
+                    sptr[1]->Z[sample] = strtod(token, NULL);
+                }
 
                 // Move onto next sample
                 memset(line, 0, sizeof(line));
@@ -291,33 +393,52 @@ void convert_100Hz_to_1Hz(char * filename100Hz, char * filename1Hz) {
         }
 
         /*---------------------- Apply filter and save filtered sample to a file ----------------------*/
-        if (firstPacketFlag) {
-            // Ensures that there are at least 2 packets in the buffer before filtering
-            shift_sptr();
-            firstPacketFlag = 0;
-        } else {
-            apply_filter();
-            save_second(sptr[1], filename1Hz);
-            shift_sptr();
+        if (startTimestampFound) {
+            if (firstPacketFlag) {
+                // Ensures that there are at least 2 packets in the buffer before filtering
+                shift_sptr();
+                firstPacketFlag = 0;
+            } else if (!firstPacketFlag && sptr[1]->time - sptr[0]->time != 1) {
+                // If packets are not from the same data set, do not filter
+                shift_sptr();
+                firstPacketFlag = 0;
+            } else {
+                apply_filter();
+                save_second(sptr[1], filename1Hz);
+                shift_sptr();
+            }
         }
     }
 
-    iErr = red_close(dataFile100Hz);
-    if (iErr == -1) {
-        printf("Unexpected error %d from red_close() in filter\r\n", (int)red_errno);
-        exit(red_errno);
+    // file reader did not find the start time stamp and reached the EOF
+    if (!startTimestampFound) {
+        iErr = red_close(dataFile100Hz);
+        if (iErr == -1) {
+            printf("Unexpected error %d from red_close() in filter\r\n", (int)red_errno);
+            exit(red_errno);
+        }
+        return DFGM_BAD_PARAM;
+    } else {
+        // file reader did not find the end time stamp, but reached the EOF
+        iErr = red_close(dataFile100Hz);
+        if (iErr == -1) {
+            printf("Unexpected error %d from red_close() in filter\r\n", (int)red_errno);
+            exit(red_errno);
+        }
+        return DFGM_SUCCESS;
     }
+
 }
 
-// DFGM RX Task, dfgm_init(), dfgm_sciNotification()
+// FreeRTOS
 void dfgm_rx_task(void *pvParameters) {
     static dfgm_data_t dat = {0};
     int received = 0;
     int secondsPassed;
     int32_t iErr = 0;
+    savePktFlag = 1;
 
     // Set up file system before task is actually run
-
     const char *pszVolume0 = gaRedVolConf[0].pszPathPrefix;
 
     // initialize reliance edge
@@ -341,22 +462,24 @@ void dfgm_rx_task(void *pvParameters) {
         exit(red_errno);
     }
 
-    clear_file("high_rate_DFGM_data");
-    clear_file("survey_rate_DFGM_data");
-    clear_file("high_rate_DFGM_data.txt");
-    clear_file("survey_rate_DFGM_data.txt");
+//    clear_file("high_rate_DFGM_data.txt");
+//    clear_file("survey_rate_DFGM_data.txt");
 
     for (;;) {
-        // Wait until a valid runtime is given
+        // Reset time
         secondsPassed = 0;
-        while(secondsPassed >= runtime) {
+        dfgmRuntime = 0;
+
+        // Wait until a valid runtime is given
+        while(secondsPassed >= dfgmRuntime) {
             ;
         }
 
-        // Run the dfgm "task" for x seconds
-        // If runtime is ever set to some value that causes the while condition to become false, "task" stops
-        // This could work for the HAL_stop command
-        while(secondsPassed < runtime) {
+        // Read first byte to trigger dfgm_sciNotification (interrupt handler)
+        sciReceive(DFGM_SCI, 1, &dfgmBuffer);
+
+        // Data collection only starts when runtime is given
+        while(secondsPassed < dfgmRuntime) {
             // receive packet from queue
             memset(&dat, 0, sizeof(dfgm_data_t));
             while (received < sizeof(dfgm_packet_t)) {
@@ -366,17 +489,25 @@ void dfgm_rx_task(void *pvParameters) {
             }
             received = 0;
 
-            // Save raw data to somehere?
+            // Get timestamp
+            RTCMK_GetUnix(&(dat.time));
 
-            // converts part of raw data to magnetic field data
+            // Save raw data to somewhere (May be excluded at some point)
+            //save_packet(&(dat.pkt), "raw_DFGM_data.txt");
+
+            // convert part of raw data to magnetic field data
             dfgm_convert_mag(&(dat.pkt));
-            //RTCMK_GetUnix(&(dat.time));
 
-            // converts part of raw data to house keeping data
+            // convert part of raw data to house keeping data
             dfgm_convert_HK(&(dat.pkt));
 
-            // save data
-            save_packet(&(dat.pkt), "high_rate_DFGM_data.txt");
+            // save mag field data if you need to
+            if (savePktFlag) {
+                save_packet(&dat, "high_rate_DFGM_data.txt");
+            }
+
+            // update HK buffer
+            update_HK(&dat);
 
             secondsPassed += 1;
         }
@@ -387,9 +518,8 @@ void dfgm_init() {
     TaskHandle_t dfgm_rx_handle;
     dfgmQueue = xQueueCreate(QUEUE_DEPTH*10, sizeof(uint8_t));
     tx_semphr = xSemaphoreCreateBinary();
-    xTaskCreate(dfgm_rx_task, "DFGM RX", 20000, NULL, DFGM_RX_PRIO,
+    xTaskCreate(dfgm_rx_task, "DFGM RX", 256, NULL, DFGM_RX_PRIO,
                 &dfgm_rx_handle);
-    sciReceive(DFGM_SCI, 1, &dfgmBuffer);
     return;
 }
 
@@ -410,9 +540,58 @@ void dfgm_sciNotification(sciBASE_t *sci, unsigned flags) {
     }
 }
 
-//Actual function implementations (uses any combination of the code above)
-//STX_return STX_startDFGM(int runtime);
-//STX_return STX_stopDFGM();
-//STX_return STX_filterTo10Hz();
-//STX_return STX_filterTo1Hz();
-//STX_return STX_getHK(dfgm_housekeeping *hk);
+//  Hardware interface uses these functions to execute subservices
+STX_return STX_startDFGM(int givenRuntime) {
+    STX_return status = DFGM_SUCCESS;
+    if (dfgmRuntime == 0 && givenRuntime >= minRuntime) {
+        dfgmRuntime = givenRuntime;
+        status =  DFGM_SUCCESS;
+    } else if (dfgmRuntime != 0) {
+        status = DFGM_BUSY;
+    } else if (givenRuntime < minRuntime) {
+        status = DFGM_BAD_PARAM;
+    }
+    return status;
+}
+
+STX_return STX_stopDFGM() {
+    dfgmRuntime = 0;
+
+    // Will always work whether or not the data collection task is running
+    return DFGM_SUCCESS;
+}
+
+STX_return STX_filterDFGM(dfgm_filter_settings * filterSettings) {
+    STX_return status;
+    // Check filterMode
+    if (filterSettings->filterMode == 1) {
+        // Convert from 100 Hz to 1 Hz
+        status = convert_100Hz_to_1Hz("high_rate_DFGM_data.txt", "survey_rate_DFGM_data.txt", filterSettings);
+    } else if (filterSettings->filterMode == 10) {
+        // Convert from 100 Hz to 10 Hz
+        //convert_100Hz_to_10Hz("high_rate_DFGM_data.txt", "medium_rate_DFGM_data.txt", filterSettings);
+
+        int x; // placeholder line until convert_100Hz_to_10Hz() is finished
+        x = 0;
+    } else {
+        status = DFGM_BAD_PARAM;
+    }
+    return status;
+}
+
+STX_return STX_getDFGMHK(dfgm_housekeeping *hk) {
+    STX_return status = DFGM_SUCCESS;
+    time_t currentTime;
+    RTCMK_GetUnix(&currentTime);
+    time_t timeDiff = currentTime - dfgmHKBuffer.timestamp;
+
+    // Update HK if buffer has old data
+    if (timeDiff > timeThreshold) {
+        savePktFlag = 0;
+        status = STX_startDFGM(1);
+        savePktFlag = 1;
+    }
+
+    hk = &dfgmHKBuffer;
+    return status;
+}
