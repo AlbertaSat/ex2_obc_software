@@ -45,9 +45,9 @@ typedef struct __attribute__((packed)) {
     uint32_t endTime;
 } DFGM_Filter_Settings;
 
-STX_return HAL_DFGM_run(int32_t givenRuntime);
-STX_return HAL_DFGM_stop();
-STX_return HAL_DFGM_filter(DFGM_Filter_Settings *DFGM_filterSettings);
-STX_return HAL_DFGM_getHK(DFGM_Housekeeping *DFGM_hk);
+DFGM_return HAL_DFGM_run(int32_t givenRuntime);
+DFGM_return HAL_DFGM_stop();
+DFGM_return HAL_DFGM_filter(DFGM_Filter_Settings *DFGM_filterSettings);
+DFGM_return HAL_DFGM_getHK(DFGM_Housekeeping *DFGM_hk);
 
 #endif /* DFGM_H */

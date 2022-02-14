@@ -26,8 +26,8 @@
 
 #include "services.h"
 
-STX_return HAL_DFGM_run(int32_t givenRuntime) {
-    STX_return status;
+DFGM_return HAL_DFGM_run(int32_t givenRuntime) {
+    DFGM_return status;
 #ifndef DFGM_IS_STUBBED
     // If DFGM is connected, run
     int runtime = (int) givenRuntime;
@@ -39,8 +39,8 @@ STX_return HAL_DFGM_run(int32_t givenRuntime) {
     return status;
 }
 
-STX_return HAL_DFGM_stop() {
-    STX_return status;
+DFGM_return HAL_DFGM_stop() {
+    DFGM_return status;
 #ifndef DFGM_IS_STUBBED
     // DFGM is connected
     status = STX_stopDFGM();
@@ -51,8 +51,8 @@ STX_return HAL_DFGM_stop() {
     return status;
 }
 
-STX_return HAL_DFGM_filter(DFGM_Filter_Settings *DFGM_filterSettings) {
-    STX_return status;
+DFGM_return HAL_DFGM_filter(DFGM_Filter_Settings *DFGM_filterSettings) {
+    DFGM_return status;
     dfgm_filter_settings filterSettings;
 #ifndef DFGM_IS_STUBBED
     filterSettings.filterMode = (int) DFGM_filterSettings->filterMode;
@@ -66,8 +66,8 @@ STX_return HAL_DFGM_filter(DFGM_Filter_Settings *DFGM_filterSettings) {
     return status;
 }
 
-STX_return HAL_DFGM_getHK(DFGM_Housekeeping *DFGM_hk) {
-    STX_return status;
+DFGM_return HAL_DFGM_getHK(DFGM_Housekeeping *DFGM_hk) {
+    DFGM_return status;
     dfgm_housekeeping hk;
 #ifndef DFGM_IS_STUBBED
     status = STX_getDFGMHK(&hk);
