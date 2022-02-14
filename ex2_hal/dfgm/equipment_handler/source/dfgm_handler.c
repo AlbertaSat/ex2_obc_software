@@ -289,7 +289,7 @@ void save_second(struct SECOND *second, char * filename) {
     }
 }
 
-STX_return convert_100Hz_to_1Hz(char *filename100Hz, char *filename1Hz, dfgm_filter_settings *filterSettings) {
+DFGM_return convert_100Hz_to_1Hz(char *filename100Hz, char *filename1Hz, dfgm_filter_settings *filterSettings) {
     /*------------------- Initialization ------------------*/
     int32_t iErr;
 
@@ -541,8 +541,8 @@ void dfgm_sciNotification(sciBASE_t *sci, unsigned flags) {
 }
 
 //  Hardware interface uses these functions to execute subservices
-STX_return STX_startDFGM(int givenRuntime) {
-    STX_return status = DFGM_SUCCESS;
+DFGM_return STX_startDFGM(int givenRuntime) {
+    DFGM_return status = DFGM_SUCCESS;
     if (dfgmRuntime == 0 && givenRuntime >= minRuntime) {
         dfgmRuntime = givenRuntime;
         status =  DFGM_SUCCESS;
@@ -554,15 +554,15 @@ STX_return STX_startDFGM(int givenRuntime) {
     return status;
 }
 
-STX_return STX_stopDFGM() {
+DFGM_return STX_stopDFGM() {
     dfgmRuntime = 0;
 
     // Will always work whether or not the data collection task is running
     return DFGM_SUCCESS;
 }
 
-STX_return STX_filterDFGM(dfgm_filter_settings * filterSettings) {
-    STX_return status;
+DFGM_return STX_filterDFGM(dfgm_filter_settings * filterSettings) {
+    DFGM_return status;
     // Check filterMode
     if (filterSettings->filterMode == 1) {
         // Convert from 100 Hz to 1 Hz
@@ -579,8 +579,8 @@ STX_return STX_filterDFGM(dfgm_filter_settings * filterSettings) {
     return status;
 }
 
-STX_return STX_getDFGMHK(dfgm_housekeeping *hk) {
-    STX_return status = DFGM_SUCCESS;
+DFGM_return STX_getDFGMHK(dfgm_housekeeping *hk) {
+    DFGM_return status = DFGM_SUCCESS;
     time_t currentTime;
     RTCMK_GetUnix(&currentTime);
     time_t timeDiff = currentTime - dfgmHKBuffer.timestamp;

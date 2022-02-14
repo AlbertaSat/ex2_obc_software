@@ -33,7 +33,7 @@ typedef enum {
     DFGM_BUSY = 2,
 
     IS_STUBBED_DFGM = 0
-} STX_return;
+} DFGM_return;
 
 // Macros for conversions from converter and filter header and source files (QUEUE_DEPTH, etc.)
 // Conversion constants for mag data (Have to be calibrated for each sensor/acquisition system)
@@ -158,13 +158,13 @@ void dfgm_init();
 void shift_sptr(void);
 void apply_filter(void);
 void save_second(struct SECOND *second, char * filename); // rename "second"
-STX_return convert_100Hz_to_1Hz(char *filename100Hz, char *filename1Hz, dfgm_filter_settings *filterSettings);
+DFGM_return convert_100Hz_to_1Hz(char *filename100Hz, char *filename1Hz, dfgm_filter_settings *filterSettings);
 //void convert_100Hz_to_10Hz(char *filename100Hz, char *filename10Hz, dfgm_filter_settings *filterSettings);
 
 // Functions called in hardware interface
-STX_return STX_startDFGM(int givenRuntime);
-STX_return STX_stopDFGM();
-STX_return STX_filterDFGM(dfgm_filter_settings * filterSettings);
-STX_return STX_getDFGMHK(dfgm_housekeeping *hk);
+DFGM_return STX_startDFGM(int givenRuntime);
+DFGM_return STX_stopDFGM();
+DFGM_return STX_filterDFGM(dfgm_filter_settings * filterSettings);
+DFGM_return STX_getDFGMHK(dfgm_housekeeping *hk);
 
 #endif /* DFGM_HANDLER_H */
