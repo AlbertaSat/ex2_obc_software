@@ -16,8 +16,21 @@
 #define SBAND_H
 
 #include <inttypes.h>
+#include "HL_reg_het.h"
 
-#include "sTransmitter.h"
+typedef enum {
+    S_SUCCESS = 0,
+
+    // Returned if a read or write command fails
+    S_BAD_READ = 1,
+    S_BAD_WRITE = 2,
+
+    // Returned if an invalid parameter is passed to a write command at the EH
+    S_BAD_PARAM = 3,
+
+    // Returned at HAL if S-band is stubbed
+    IS_STUBBED_S = 0,
+} STX_return;
 
 typedef enum {
     COUNT = 0,
