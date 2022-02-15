@@ -60,6 +60,8 @@
 
 //#include "sband_binary_tests.h"
 
+#include "HL_reg_sci.h"
+
 /**
  * The main function must:
  *  - Define the Service_Queues_t service_queues;
