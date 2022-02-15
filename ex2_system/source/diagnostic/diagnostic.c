@@ -51,8 +51,8 @@ static SemaphoreHandle_t charon_watchdog_mtx = NULL;
  * @param pvParameters Task parameters (not used)
  */
 static void uhf_watchdog_daemon(void *pvParameters) {
-    TickType_t delay = get_uhf_watchdog_delay();
     for (;;) {
+        TickType_t delay = get_uhf_watchdog_delay();
         if (eps_get_pwr_chnl(UHF_PWR_CHNL) == 0) {
             ex2_log("UHF not on - power not toggled");
             vTaskDelay(delay);
@@ -116,8 +116,8 @@ static void uhf_watchdog_daemon(void *pvParameters) {
  * @param pvParameters Task parameters (not used)
  */
 static void sband_watchdog_daemon(void *pvParameters) {
-    TickType_t delay = get_sband_watchdog_delay();
     for (;;) {
+        TickType_t delay = get_sband_watchdog_delay();
         if (gioGetBit(hetPORT2, 23) == 0) {
             ex2_log("SBAND not enabled - power not toggled");
             vTaskDelay(delay);
@@ -169,8 +169,8 @@ static void sband_watchdog_daemon(void *pvParameters) {
  */
 
 static void charon_watchdog_daemon(void *pvParameters) {
-    TickType_t delay = get_charon_watchdog_delay();
     for (;;) {
+        TickType_t delay = get_charon_watchdog_delay();
         if (eps_get_pwr_chnl(CHARON_PWR_CHNL) == 0) {
             ex2_log("Charon not on - power not toggled");
             vTaskDelay(delay);
