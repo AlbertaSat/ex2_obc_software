@@ -115,7 +115,10 @@ float calculateTemp(uint16_t b) {
  * @return void
  */
 void STX_Enable(void) {
-    gioSetBit(hetPORT2, 23, 1); // Het2 23 is the S-band enable pin
+    uint32_t bit = gioGetBit(hetPORT2, 23);
+    if(bit == 0){
+        gioSetBit(hetPORT2, 23, 1); // Het2 23 is the S-band enable pin
+    }
     gioSetBit(hetPORT2, 21, 1); // Het2 21 is the S-band nRESET pin
 }
 
@@ -545,7 +548,7 @@ STX_return STX_getBuffer(uint8_t quantity, uint16_t *ptr) {
  * @return STX_return
  *      Success of the function defined in sTransmitter.h
  */
-STX_return STX_getHK(sBand_housekeeping *hkStruct) {
+STX_return STX_getHK(Sband_Housekeeping *hkStruct) {
     uint16_t val = 0;
     int16_t temp = 0;
 
@@ -565,40 +568,40 @@ STX_return STX_getHK(sBand_housekeeping *hkStruct) {
             switch (address) {
             case S_OUTPWR_REG_1:
                 val &= S_POWER_BITMASK;
-                hkStruct->outputPower = (float)val * S_OUTPWR_SCALING;
+                hkStruct->Output_Power = (float)val * S_OUTPWR_SCALING;
                 break;
 
             case S_PATEMP_REG_1:
                 val &= S_POWER_BITMASK;
-                hkStruct->paTemp = (float)val * S_PATEMP_SCALING + S_PATEMP_OFFSET;
+                hkStruct->PA_Temp = (float)val * S_PATEMP_SCALING + S_PATEMP_OFFSET;
                 break;
 
             case S_TOPTEMP_REG_1:
-                hkStruct->topTemp = calculateTemp(val);
+                hkStruct->Top_Temp = calculateTemp(val);
                 break;
 
             case S_BOTTEMP_REG_1:
-                hkStruct->bottomTemp = calculateTemp(val);
+                hkStruct->Bottom_Temp = calculateTemp(val);
                 break;
 
             case S_CURRENT_REG_1:
                 temp = (int16_t)val;
-                hkStruct->batCurrent = (float)temp * S_CURRENT_SCALING;
+                hkStruct->Bat_Current = (float)temp * S_CURRENT_SCALING;
                 break;
 
             case S_VOLTAGE_REG_1:
                 val &= S_VOLTAGE_BITMASK;
-                hkStruct->batVoltage = (float)val * S_VOLTAGE_SCALING;
+                hkStruct->Bat_Voltage = (float)val * S_VOLTAGE_SCALING;
                 break;
 
             case S_PACURRENT_REG_1:
                 temp = (int16_t)val;
-                hkStruct->paCurrent = (float)temp * S_CURRENT_SCALING;
+                hkStruct->PA_Current = (float)temp * S_CURRENT_SCALING;
                 break;
 
             case S_PAVOLTAGE_REG_1:
                 val &= S_VOLTAGE_BITMASK;
-                hkStruct->paVoltage = (float)val * S_VOLTAGE_SCALING;
+                hkStruct->PA_Voltage = (float)val * S_VOLTAGE_SCALING;
                 break;
             }
         }
