@@ -27,12 +27,12 @@
 #endif
 
 typedef enum {
-ADCS = 0,
-DFGM = 1,
-IRIS = 2,
-OBC = 3,
-CHARON = 4,
-UHF = 5,
+ADCS_CHANNEL = 0,
+DFGM_CHANNEL = 1,
+IRIS_CHANNEL = 2,
+OBC_CHANNEL = 3,
+CHARON_CHANNEL = 4,
+UHF_CHANNEL = 5,
 } Power_Channel;
 
 uint8_t setuppcal9538a(void);
