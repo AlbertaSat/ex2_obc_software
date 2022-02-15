@@ -11,8 +11,6 @@
 #include <stdint.h>
 #include "os_task.h"
 
-#include "printf.h"
-
 /** @struct i2Csemphr
 *   @brief Interrupt mode globals
 *
@@ -59,8 +57,7 @@ void init_i2c_driver() {
  **/
 
 int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
-    //printf("rec\r\n");
-    int ret = 0;
+    uint8 ret = 0;
     uint32 index = i2c == i2cREG1 ? 0U : 1U;
     uint32 i2c_mutex_timeout = pdMS_TO_TICKS(25);
 
@@ -68,7 +65,6 @@ int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
         return -1;
     }
 
-    taskENTER_CRITICAL();
     /* Configure address of Slave to talk to */
     taskENTER_CRITICAL();
     i2cSetSlaveAdd(i2c, addr);
@@ -81,20 +77,13 @@ int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
     taskEXIT_CRITICAL();
 
     if (xSemaphoreTake(i2csemphr_t[index].i2c_block, I2C_TIMEOUT_MS) != pdTRUE) {
-        //printf("Rec Fail\r\n");
         i2cSetStop(i2c);
         ret = -1;
-    } else {
-        //printf("rec pass\r\n");
-        //printf("%d\r\n", i2csemphr_t[index].hadFailure);
-        if (i2csemphr_t[index].hadFailure == true) {
-            ret = -1;
-            i2csemphr_t[index].hadFailure = false; // reset failure flag
-        }
     }
 
     /* Clear the Stop condition */
     i2cClearSCD(i2c);
+    vTaskDelay(i2c_mutex_timeout);
     xSemaphoreGive(i2csemphr_t[index].i2c_mutex);
     return ret;
 }
@@ -119,8 +108,7 @@ int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
  **/
 
 int i2c_Send(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
-    //printf("send\r\n");
-    int ret = 0;
+    uint8 ret = 0;
     uint32 index = i2c == i2cREG1 ? 0U : 1U;
     uint32 i2c_mutex_timeout = pdMS_TO_TICKS(10);
 
@@ -128,7 +116,6 @@ int i2c_Send(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
         return -1;
     }
 
-    taskENTER_CRITICAL();
     /* Configure address of Slave to talk to */
     taskENTER_CRITICAL();
     i2cSetSlaveAdd(i2c, addr);
@@ -141,11 +128,9 @@ int i2c_Send(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
     taskEXIT_CRITICAL();
 
     if (xSemaphoreTake(i2csemphr_t[index].i2c_block, I2C_TIMEOUT_MS) != pdTRUE) {
-        //printf("send fail\r\n");
+        i2cSetStop(i2c);
         ret = -1;
     } else {
-        //printf("send pass\r\n");
-        //printf("%d\r\n", i2csemphr_t[index].hadFailure);
         if (i2csemphr_t[index].hadFailure == true) {
             ret = -1;
             i2csemphr_t[index].hadFailure = false; // reset failure flag
@@ -154,6 +139,7 @@ int i2c_Send(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
 
     /* Clear the Stop condition */
     i2cClearSCD(i2c);
+    vTaskDelay(i2c_mutex_timeout);
     xSemaphoreGive(i2csemphr_t[index].i2c_mutex);
     return ret;
 }
@@ -165,32 +151,27 @@ void i2cNotification(i2cBASE_t *i2c, uint32 flags) {
     switch (flags) {
 
     case I2C_NACK_INT: // nack received after start byte. attempt to recover. A nack on the start byte does not trigger an interrupt
-        //printf("Nack\r\n");
         i2c->STR = (uint32)I2C_NACK_INT;
-        i2csemphr_t[reg].hadFailure = true;
         i2cSetStop(i2c);
         break;
 
     case I2C_AL_INT: // arbitration lost, attempt to recover
-        //printf("AL\r\n");
         i2c->STR = (uint32)I2C_AL_INT;
         i2cSetStop(i2c);
         break;
 
     case I2C_SCD_INT:
-        //printf("SCD\r\n");
         xSemaphoreGiveFromISR(i2csemphr_t[reg].i2c_block, &xHigherPriorityTaskWoken);
         i2cClearSCD(i2c);
         break;
 
+
     case I2C_ARDY_INT:
-        //printf("ARDY\r\n");
         i2csemphr_t[reg].hadFailure = true;
         i2cSetStop(i2c);
         break;
 
     case I2C_AAS_INT: // this shouldn't happen since Athena is not configured as a slave device
-        //printf("AAS\r\n");
         i2cSetStop(i2c);
         break;
 
