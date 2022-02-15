@@ -9,7 +9,7 @@ bool charon_binary_test(void){
         return 1;
     }
 
-    Power_Channel channel_to_reset = UHF;
+    Power_Channel channel_to_reset = UHF_CHANNEL;
     if(setuppcal9538a()){
         return 1;
     }
