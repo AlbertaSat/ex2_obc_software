@@ -51,21 +51,6 @@ DFGM_return HAL_DFGM_stop() {
     return status;
 }
 
-DFGM_return HAL_DFGM_filter(DFGM_Filter_Settings *DFGM_filterSettings) {
-    DFGM_return status;
-    dfgm_filter_settings filterSettings;
-#ifndef DFGM_IS_STUBBED
-    filterSettings.filterMode = (int) DFGM_filterSettings->filterMode;
-    filterSettings.startTime = DFGM_filterSettings->startTime;
-    filterSettings.endTime = DFGM_filterSettings->endTime;
-    status = STX_filterDFGM(&filterSettings);
-#else
-    // DFGM not connected
-    status = IS_STUBBED_DFGM;
-#endif
-    return status;
-}
-
 DFGM_return HAL_DFGM_getHK(DFGM_Housekeeping *DFGM_hk) {
     DFGM_return status;
     dfgm_housekeeping hk;
