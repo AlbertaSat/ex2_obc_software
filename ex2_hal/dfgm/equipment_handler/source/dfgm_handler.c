@@ -65,7 +65,7 @@ static xQueueHandle dfgmQueue;
 static SemaphoreHandle_t tx_semphr;
 static int dfgmRuntime;
 static dfgm_housekeeping dfgmHKBuffer = {0};
-static int savePktFlag;
+static int collectingHK;
 
 // HKScales and HKOffsets array
 const float HKScales[] = {HK0Scale, HK1Scale, HK2Scale, HK3Scale,
@@ -174,7 +174,7 @@ void save_packet(dfgm_data_t *data, char *filename) {
         dataSample.Y = (data->pkt).tup[i].Y;
         dataSample.Z = (data->pkt).tup[i].Z;
 
-        iErr = red_write(dataFile, data, sizeof(dfgm_data_sample_t));
+        iErr = red_write(dataFile, &dataSample, sizeof(dfgm_data_sample_t));
         if (iErr == -1) {
             printf("Unexpected error %d from red_write() in save_packet()\r\n", (int)red_errno);
             exit(red_errno);
@@ -190,32 +190,28 @@ void save_packet(dfgm_data_t *data, char *filename) {
 }
 
 // Might need modification
-//void clear_file(char* filename) {
-//    int32_t iErr;
-//    int32_t dataFile;
-//
-//    // Only delete the file if it exists
-//    dataFile = red_open(filename, RED_O_RDONLY);
-//    if (dataFile != -1) {
-//        // close file before deleting file
-//        iErr = red_close(dataFile);
-//        if (iErr == -1) {
-//            printf("Unexpected error %d from red_close() in clear_file()\r\n", (int)red_errno);
-//            exit(red_errno);
-//        }
-//
-//        // delete file
-//        iErr = red_unlink(filename);
-//        if (iErr == -1) {
-//            printf("Unexpected error %d from red_unlink() in clear_file()\r\n", (int)red_errno);
-//            exit(red_errno);
-//        } else {
-//            printf("%s cleared\n", filename);
-//        }
-//    } else {
-//        printf("%s doesn't exist!\n", filename);
-//    }
-//}
+void clear_file(char* filename) {
+    int32_t iErr;
+    int32_t dataFile;
+
+    // Clear file if it exists, otherwise do nothing
+    dataFile = red_open(filename, RED_O_RDONLY);
+    if (dataFile != -1) {
+        // File opens if it exists
+        iErr = red_close(dataFile);
+        if (iErr == -1) {
+            printf("Unexpected error %d from red_close() in clear_file()\r\n", (int)red_errno);
+            exit(red_errno);
+        }
+
+        // Delete file
+        iErr = red_unlink(filename);
+        if (iErr == -1) {
+            printf("Unexpected error %d from red_unlink() in clear_file()\r\n", (int)red_errno);
+            exit(red_errno);
+        }
+    }
+}
 
 // Filter functions
 void apply_filter(void) {
@@ -276,9 +272,9 @@ void save_second(struct SECOND *second, char * filename) {
     dataSample.Y = (*(uint32_t *)&Y);
     dataSample.Z = (*(uint32_t *)&Z);
 
-    iErr = red_write(dataFile, data, sizeof(dfgm_data_sample_t));
+    iErr = red_write(dataFile, &dataSample, sizeof(dfgm_data_sample_t));
     if (iErr == -1) {
-        printf("Unexpected error %d from red_write() in save_packet()\r\n", (int)red_errno);
+        printf("Unexpected error %d from red_write() in save_second()\r\n", (int)red_errno);
         exit(red_errno);
     }
 
@@ -307,16 +303,17 @@ void convert_100Hz_to_1Hz(char *filename100Hz, char *filename1Hz) {
     // There must be 2 packets of data before filtering can start
     int firstPacketFlag = 1;
 
-    /*------------------- Read packets line by line (sample by sample) ------------------*/
+    /*------------------- Read packets sample by sample ------------------*/
     dfgm_data_sample_t dataSample = {0};
     int EOF_reached = 0;
+    int bytes_read = 0;
 
     // Read file sample by sample until EOF is reached
     while (1) {
         // Assume there are 100 samples per packet in the file
         for (int sample = 0; sample < 100; sample++) {
             memset(&dataSample, 0, sizeof(dfgm_data_sample_t));
-            bytes_read = red_read(dataFile100hz, &dataSample, sizeof(dfgm_data_sample_t));
+            bytes_read = red_read(dataFile100Hz, &dataSample, sizeof(dfgm_data_sample_t));
             if (bytes_read == -1) {
                 printf("Unexpected error %d from red_read() in filter\r\n", (int) red_errno);
             } else if (bytes_read == 0){
@@ -330,22 +327,21 @@ void convert_100Hz_to_1Hz(char *filename100Hz, char *filename1Hz) {
             sptr[1]->Z[sample] = dataSample.Z;
         }
 
-
         /*---------------------- Apply filter and save filtered sample to a file ----------------------*/
-        time_t pktTimeDiff = sptr[1]->time - sptr[0]_time;
+        time_t pktTimeDiff = sptr[1]->time - sptr[0]->time;
 
         if (EOF_reached) {
             break;
         } else if (firstPacketFlag) {
             // Ensure there are at least 2 packets in the buffer before filtering
             firstPacketFlag = 0;
-            shirt_sptr();
+            shift_sptr();
         } else if (!firstPacketFlag && pktTimeDiff != 1) {
             // Consecutive packets must belong to the same data set
             shift_sptr();
         } else {
             apply_filter();
-            save_second(sptr[1], filename1Hz)
+            save_second(sptr[1], filename1Hz);
             shift_sptr();
         }
     }
@@ -356,13 +352,21 @@ void convert_100Hz_to_1Hz(char *filename100Hz, char *filename1Hz) {
     }
 }
 
+void update_1HzFile(void) {
+    char filename1Hz[] = "survey_rate_DFGM_data";
+    char filename100Hz[] = "high_rate_DFGM_data";
+
+    clear_file(filename1Hz);
+    convert_100Hz_to_1Hz(filename100Hz, filename1Hz);
+}
+
 // FreeRTOS
 void dfgm_rx_task(void *pvParameters) {
     static dfgm_data_t dat = {0};
     int received = 0;
     int secondsPassed;
     int32_t iErr = 0;
-    savePktFlag = 1;
+    collectingHK = 0;
 
     // Set up file system before task is actually run
     const char *pszVolume0 = gaRedVolConf[0].pszPathPrefix;
@@ -419,8 +423,8 @@ void dfgm_rx_task(void *pvParameters) {
             RTCMK_GetUnix(&(dat.time));
 
             // Don't save if receiving packet for HK
-            if(savePktFlag) {
-                //save_packet(&(dat.pkt), "raw_DFGM_data.txt");
+            if(!collectingHK) {
+                //save_packet(&(dat.pkt), "raw_DFGM_data");
             }
 
             dfgm_convert_mag(&(dat.pkt));
@@ -428,18 +432,21 @@ void dfgm_rx_task(void *pvParameters) {
             update_HK(&dat);
 
             // Don't save if receiving packet for HK
-            if (savePktFlag) {
+            if (!collectingHK) {
                 save_packet(&dat, "high_rate_DFGM_data");
-                convert_100Hz_to_1Hz("high_rate_DFGM_data", "survey_rate_DFGM_data");
-                //convert_100Hz_to_10Hz("high_rate_DFGM_data.txt", "medium_rate_DFGM_data.txt");
             }
 
-            // Reset to 1 if set to 0 by HK function
-            savePktFlag = 1;
-
             secondsPassed += 1;
-
         }
+
+        // Don't update if receiving packet for HK
+        if (!collectingHK) {
+            update_1HzFile();
+            //update_10HzFile();
+        }
+
+        // Reset to 0 if set to 1 by HK function
+        collectingHK = 0;
     }
 }
 
@@ -498,7 +505,7 @@ DFGM_return STX_getDFGMHK(dfgm_housekeeping *hk) {
 
     // Update HK if buffer has old data
     if (timeDiff > timeThreshold) {
-        savePktFlag = 0;
+        collectingHK = 0;
         status = STX_startDFGM(1);
     }
 

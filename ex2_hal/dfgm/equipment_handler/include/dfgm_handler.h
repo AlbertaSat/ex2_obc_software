@@ -162,11 +162,12 @@ void apply_filter(void);
 void save_second(struct SECOND *second, char * filename); // rename "second"
 void convert_100Hz_to_1Hz(char *filename100Hz, char *filename1Hz);
 //void convert_100Hz_to_10Hz(char *filename100Hz, char *filename10Hz, dfgm_filter_settings *filterSettings);
+void update_1HzFile(void);
+//void update_10HzFile(void);
 
 // Functions called in hardware interface
 DFGM_return STX_startDFGM(int givenRuntime);
 DFGM_return STX_stopDFGM();
-DFGM_return STX_filterDFGM(dfgm_filter_settings * filterSettings);
 DFGM_return STX_getDFGMHK(dfgm_housekeeping *hk);
 
 #endif /* DFGM_HANDLER_H */
