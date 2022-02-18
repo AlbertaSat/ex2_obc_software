@@ -140,11 +140,13 @@ struct SECOND {
     double Zfilt;
 };
 
-typedef struct {
-    int filterMode;
-    time_t startTime;
-    time_t endTime;
-} dfgm_filter_settings;
+// Used for reading and writing data files
+typedef struct __attribute__((packed)) {
+    time_t time;
+    uint32_t X;
+    uint32_t Y;
+    uint32_t Z;
+} dfgm_data_sample_t;
 
 // Functions used in converter
 void dfgm_convert_mag(dfgm_packet_t *const data);
@@ -158,7 +160,7 @@ void dfgm_init();
 void shift_sptr(void);
 void apply_filter(void);
 void save_second(struct SECOND *second, char * filename); // rename "second"
-DFGM_return convert_100Hz_to_1Hz(char *filename100Hz, char *filename1Hz, dfgm_filter_settings *filterSettings);
+void convert_100Hz_to_1Hz(char *filename100Hz, char *filename1Hz);
 //void convert_100Hz_to_10Hz(char *filename100Hz, char *filename10Hz, dfgm_filter_settings *filterSettings);
 
 // Functions called in hardware interface
