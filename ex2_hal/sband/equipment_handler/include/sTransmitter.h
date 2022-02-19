@@ -23,8 +23,6 @@
 
 #include <stdint.h>
 
-#include "i2c.h"
-#include "spi.h"
 #include "HL_het.h"
 #include "HL_gio.h"
 #include "system.h"
@@ -156,11 +154,10 @@
 #define S_FWVER_MINORNUM_BITMASK 0b1111
 #define S_STATUS_TXL_BIT_INDEX 0
 #define S_STATUS_PWRGD_BIT_INDEX 1
-#define S_TEMP_BITMASK 0x0FFF // Top & bottom temperature are 12-bit values
-#define S_TEMP_BITSHIFT 4 // Temps are stored in the first bits across their two 8-bit registers
-#define S_POWER_BITMASK 0x0FFF // Output power and PA Temp are 12-bit values
+#define S_TEMP_BITMASK 0x0FFF    // Top & bottom temperature are 12-bit values
+#define S_TEMP_BITSHIFT 4        // Temps are stored in the first bits across their two 8-bit registers
+#define S_POWER_BITMASK 0x0FFF   // Output power and PA Temp are 12-bit values
 #define S_VOLTAGE_BITMASK 0x1FFF // Voltage is a 13-bit value
-
 
 STX_return read_reg(uint8_t, uint8_t *);
 STX_return write_reg(uint8_t, uint8_t);
@@ -181,7 +178,8 @@ STX_return STX_setControl(uint8_t new_pa, uint8_t new_mode);
 
 STX_return STX_getEncoder(uint8_t *bit_order, uint8_t *scrambler, uint8_t *filter, uint8_t *mod, uint8_t *rate);
 
-STX_return STX_setEncoder(uint8_t new_bit_order, uint8_t new_scrambler, uint8_t new_filter, uint8_t new_mod, uint8_t new_rate);
+STX_return STX_setEncoder(uint8_t new_bit_order, uint8_t new_scrambler, uint8_t new_filter, uint8_t new_mod,
+                          uint8_t new_rate);
 
 STX_return STX_getPaPower(uint8_t *power);
 

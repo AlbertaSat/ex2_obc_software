@@ -20,6 +20,8 @@
 
 #include "sTransmitter.h"
 #include <stdint.h>
+#include "HL_i2c.h"
+#include "i2c_io.h"
 
 /**
  * @brief
@@ -116,7 +118,7 @@ float calculateTemp(uint16_t b) {
  */
 void STX_Enable(void) {
     uint32_t bit = gioGetBit(hetPORT2, 23);
-    if(bit == 0){
+    if (bit == 0) {
         gioSetBit(hetPORT2, 23, 1); // Het2 23 is the S-band enable pin
     }
     gioSetBit(hetPORT2, 21, 1); // Het2 21 is the S-band nRESET pin
@@ -130,8 +132,6 @@ void STX_Enable(void) {
 void STX_Disable(void) {
     gioSetBit(hetPORT2, 23, 0); // 23 is the S-band enable pin on hetPort2
 }
-
-
 
 /**
  * @brief
@@ -238,16 +238,17 @@ STX_return STX_getEncoder(uint8_t *bit_order, uint8_t *scrambler, uint8_t *filte
  * @return STX_return
  *      Success of the function defined in sTransmitter.h
  */
-STX_return STX_setEncoder(uint8_t new_bit_order, uint8_t new_scrambler, uint8_t new_filter, uint8_t new_mod, uint8_t new_rate) {
-    if (new_rate > S_RATE_QUARTER || new_mod > S_MOD_OQPSK ||
-            new_filter > S_FILTER_DISABLE || new_scrambler > S_SCRAMBLER_DISABLE ||
-            new_bit_order > S_BIT_ORDER_LSB) {
+STX_return STX_setEncoder(uint8_t new_bit_order, uint8_t new_scrambler, uint8_t new_filter, uint8_t new_mod,
+                          uint8_t new_rate) {
+    if (new_rate > S_RATE_QUARTER || new_mod > S_MOD_OQPSK || new_filter > S_FILTER_DISABLE ||
+        new_scrambler > S_SCRAMBLER_DISABLE || new_bit_order > S_BIT_ORDER_LSB) {
         return S_BAD_PARAM;
     }
 
     uint8_t new_encoder = (new_rate << S_ENCODER_RATE_BIT_INDEX) | (new_mod << S_ENCODER_MOD_BIT_INDEX) |
-            (new_filter << S_ENCODER_FILTER_BIT_INDEX) | (new_scrambler << S_ENCODER_SCRAMBLER_BIT_INDEX) |
-            (new_bit_order << S_ENCODER_BITORDER_BIT_INDEX);
+                          (new_filter << S_ENCODER_FILTER_BIT_INDEX) |
+                          (new_scrambler << S_ENCODER_SCRAMBLER_BIT_INDEX) |
+                          (new_bit_order << S_ENCODER_BITORDER_BIT_INDEX);
 
     uint8_t mode = 0, pa = 0;
     if (STX_getControl(&pa, &mode) == S_SUCCESS) {
@@ -355,11 +356,11 @@ STX_return STX_getFrequency(float *freq) {
         return S_BAD_READ;
     } else {
 
-        #ifdef SBAND_COMMERCIAL_FREQUENCY
+#ifdef SBAND_COMMERCIAL_FREQUENCY
         *freq = (float)offset / S_FREQ_OFFSET_SCALING + S_FREQ_COMMERCIAL_MIN;
-        #else
+#else
         *freq = (float)offset / S_FREQ_OFFSET_SCALING + S_FREQ_AMATEUR_MIN;
-        #endif
+#endif
 
         return S_SUCCESS;
     }
@@ -376,7 +377,7 @@ STX_return STX_getFrequency(float *freq) {
  *      Success of the function defined in sTransmitter.h
  */
 STX_return STX_setFrequency(float new_frequency) {
-    #ifdef SBAND_COMMERCIAL_FREQUENCY
+#ifdef SBAND_COMMERCIAL_FREQUENCY
 
     // Check if commercial frequency is within allowed bounds
     if ((new_frequency >= S_FREQ_COMMERCIAL_MIN) && (new_frequency <= S_FREQ_COMMERCIAL_MAX)) {
@@ -391,7 +392,7 @@ STX_return STX_setFrequency(float new_frequency) {
         return S_BAD_PARAM;
     }
 
-    #else
+#else
 
     // Check if amateur frequency is within allowed bounds
     if (new_frequency >= S_FREQ_AMATEUR_MIN && new_frequency <= S_FREQ_AMATEUR_MAX) {
@@ -406,8 +407,7 @@ STX_return STX_setFrequency(float new_frequency) {
         return S_BAD_PARAM;
     }
 
-    #endif
-
+#endif
 }
 /**
  * @brief
@@ -555,7 +555,7 @@ STX_return STX_getHK(Sband_Housekeeping *hkStruct) {
     uint8_t address = S_OUTPWR_REG_1; // Output power is the first hk value to collect
 
     // Loop to collect all housekeeping. Values are stored across two 8-bit registers
-    //TODO: use ints instead of floats
+    // TODO: use ints instead of floats
     for (; address < S_LAST_REG; address = address + 2) {
         uint8_t val1 = 0, val2 = 0;
 
