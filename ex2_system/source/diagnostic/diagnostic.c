@@ -51,18 +51,19 @@ static SemaphoreHandle_t charon_watchdog_mtx = NULL;
  * @param pvParameters Task parameters (not used)
  */
 static void uhf_watchdog_daemon(void *pvParameters) {
-    TickType_t delay = get_uhf_watchdog_delay();
     for (;;) {
+        TickType_t delay = get_uhf_watchdog_delay();
         if (eps_get_pwr_chnl(UHF_PWR_CHNL) == 0) {
             ex2_log("UHF not on - power not toggled");
-            return;
+            vTaskDelay(delay);
+            continue;
         }
         // Get status word from UHF
-        char status[32];
+        uint8_t scw[12];
         UHF_return err;
         for (int i = 0; i < watchdog_retries; i++) {
-            err = HAL_UHF_getSCW(status);
-            if (err == U_GOOD_CONFIG) {
+            err = HAL_UHF_getSCW(scw);
+            if (err == U_ANS_SUCCESS) {
                 break;
             } else if (err == U_I2C_IN_PIPE){
                 break;
@@ -71,7 +72,7 @@ static void uhf_watchdog_daemon(void *pvParameters) {
 
         if (err == U_I2C_IN_PIPE){
             ex2_log("UHF in PIPE Mode - power not toggled.");
-        } else if (err != U_GOOD_CONFIG) {
+        } else if (err != U_ANS_SUCCESS) {
             ex2_log("UHF was not responsive - attempting to toggle power.");
 
             // Turn off the UHF.
@@ -83,7 +84,8 @@ static void uhf_watchdog_daemon(void *pvParameters) {
             // Check that the UHF has been turned off.
             if (eps_get_pwr_chnl(UHF_PWR_CHNL) != OFF) {
                 ex2_log("UHF failed to power off.");
-                break;
+                vTaskDelay(delay);
+                continue;
             }
 
             // Turn the UHF back on.
@@ -114,14 +116,15 @@ static void uhf_watchdog_daemon(void *pvParameters) {
  * @param pvParameters Task parameters (not used)
  */
 static void sband_watchdog_daemon(void *pvParameters) {
-    TickType_t delay = get_sband_watchdog_delay();
     for (;;) {
+        TickType_t delay = get_sband_watchdog_delay();
         if (gioGetBit(hetPORT2, 23) == 0) {
             ex2_log("SBAND not enabled - power not toggled");
-            return;
+            vTaskDelay(delay);
+            continue;
         }
         // Get SBAND control values
-        float SBAND_version = 0;
+        uint16_t SBAND_version = 0;
         STX_return err;
         for (int i = 0; i < watchdog_retries; i++) {
             STX_getFirmwareV(&SBAND_version);
@@ -166,22 +169,23 @@ static void sband_watchdog_daemon(void *pvParameters) {
  */
 
 static void charon_watchdog_daemon(void *pvParameters) {
-    TickType_t delay = get_charon_watchdog_delay();
     for (;;) {
+        TickType_t delay = get_charon_watchdog_delay();
         if (eps_get_pwr_chnl(CHARON_PWR_CHNL) == 0) {
             ex2_log("Charon not on - power not toggled");
-            return;
+            vTaskDelay(delay);
+            continue;
         }
 
         // Get Charon gps firmware version
-        uint8_t charon_vesion = 0;
+        uint32_t version = NULL;
         GPS_RETURNSTATE err;
         for (int i = 0; i < watchdog_retries; i++) {
-            err = skytraq_query_software_version(/* TODO: this should pass &charon_version */);
+            err = gps_skytraq_get_software_version(&version);
             if(err == GPS_SUCCESS) break;
         }
 
-        if (err != GPS_SUCCESS) {
+        if ((err != GPS_SUCCESS) || (version == NULL)) {
             ex2_log("Charon was not responsive - attempting to toggle power.");\
 
             // Turn Charon off
@@ -193,7 +197,8 @@ static void charon_watchdog_daemon(void *pvParameters) {
             // Check that Charon has been turned off.
             if (eps_get_pwr_chnl(CHARON_PWR_CHNL) != OFF) {
                 ex2_log("Charon failed to power off.");
-                break;
+                vTaskDelay(delay);
+                continue;
             }
 
             // Turn Charon back on.
@@ -211,7 +216,7 @@ static void charon_watchdog_daemon(void *pvParameters) {
         }
 
         if (xSemaphoreTake(charon_watchdog_mtx, mutex_timeout) == pdPASS) {
-            delay = sband_prv_watchdog_delay;
+            delay = charon_prv_watchdog_delay;
             xSemaphoreGive(charon_watchdog_mtx);
         }
         vTaskDelay(delay);
@@ -311,7 +316,7 @@ SAT_returnState start_diagnostic_daemon(void) {
 #endif
 
 #ifndef CHARON_IS_STUBBED
-    if (xTaskCreate((TaskFunction_t)charon_watchdog_daemon, "charon_watchdog_daemon", 2048, NULL, DIAGNOSTIC_TASK_PRIO,
+    if (xTaskCreate(charon_watchdog_daemon, "charon_watchdog_daemon", 2048, NULL, DIAGNOSTIC_TASK_PRIO,
                     NULL) != pdPASS) {
         ex2_log("FAILED TO CREATE TASK charon_watchdog_daemon.\n");
         return SATR_ERROR;

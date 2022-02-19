@@ -47,7 +47,8 @@
 #include "logger/logger.h"
 #include "file_delivery_app.h"
 #include "ads7128.h"
-#include "skytraq_gps_driver.h"
+#include "pcal9538a.h"
+#include "skytraq_gps.h"
 
 #include <FreeRTOS.h>
 #include <os_task.h>
@@ -114,6 +115,7 @@ void ex2_init(void *pvParameters) {
 #ifndef CHARON_IS_STUBBED
     gps_skytraq_driver_init();
     ads7128Init();
+    setuppcal9538a();
 #endif
 
 
