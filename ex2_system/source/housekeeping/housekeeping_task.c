@@ -13,10 +13,9 @@
  */
 /**
  * @file housekeeping_task.c
- * @author Andrew R. Rooney
+ * @author Andrew R. Rooney, Grace Yi
  * @date 2020-07-23
  */
-#include "housekeeping/housekeeping_task.h"
 
 #include <FreeRTOS.h>
 #include <os_queue.h>
@@ -24,6 +23,7 @@
 #include <os_task.h>
 
 #include "housekeeping_service.h"
+#include "housekeeping_task.h"
 
 static void *housekeeping_daemon(void *pvParameters);
 SAT_returnState start_housekeeping_daemon(void);
@@ -35,13 +35,11 @@ SAT_returnState start_housekeeping_daemon(void);
  *    task parameters (not used)
  */
 static void *housekeeping_daemon(void *pvParameters) {
-    TickType_t hk_delay = pdMS_TO_TICKS(1000);
     uint32_t seconds_delay = 30;
+    TickType_t hk_delay = pdMS_TO_TICKS(1000 * seconds_delay);
     for (;;) {
         // Call housekeeping and have them collect and store data to SD card
         populate_and_store_hk_data();
-
-        hk_delay = pdMS_TO_TICKS(seconds_delay * 1000);
         vTaskDelay(hk_delay);
     }
 }
@@ -53,7 +51,7 @@ static void *housekeeping_daemon(void *pvParameters) {
  *   error report of task creation
  */
 SAT_returnState start_housekeeping_daemon(void) {
-    if (xTaskCreate((TaskFunction_t)housekeeping_daemon, "housekeeping_daemon", 2048, NULL, HOUSEKEEPING_TASK_PRIO,
+    if (xTaskCreate((TaskFunction_t)housekeeping_daemon, "housekeeping_daemon", HK_DAEMON_STACK_SIZE, NULL, HOUSEKEEPING_TASK_PRIO,
                     NULL) != pdPASS) {
         ex2_log("FAILED TO CREATE TASK housekeeping_daemon\n");
         return SATR_ERROR;

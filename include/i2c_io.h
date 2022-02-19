@@ -21,12 +21,12 @@
 #include "HL_i2c.h"
 #include "os_semphr.h"
 
-#define I2C_TIMEOUT_MS 100
+#define I2C_TIMEOUT_MS 1000
 #define I2C_POLLING_TIMEOUT 1000
 #define MAX_I2C_RECV_LEN 20
 
 void init_i2c_driver();
 
-int i2c_Send(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf);
+int i2c_Send(i2cBASE_t *i2c, uint8_t addr, uint16_t size, uint8_t *buf);
 
-int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf);
+int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, uint8_t *buf);

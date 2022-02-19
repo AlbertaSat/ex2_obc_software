@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020  University of Alberta
+ * Copyright (C) 2015  University of Alberta
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -12,19 +12,14 @@
  * GNU General Public License for more details.
  */
 /**
- * @file system_stats.h
- * @author Andrew R. Rooney
- * @date Mar. 6, 2021
+ * @file housekeeping_to_beacon.c
+ * @author Grace Yi
+ * @date 2021-10-27
  */
+#include "beacon_task.h" //contains beacon packets (ie. a summary of housekeeping data)
+#include "housekeeping_service.h" //contains all housekeeping data
+#include "rtcmk.h"                //to get time from RTC
+#include "services.h"
+#include "adcs_handler.h"
 
-#ifndef EX2_SYSTEM_SYSTEM_STATS_H_
-#define EX2_SYSTEM_SYSTEM_STATS_H_
-
-#include "main/system.h"
-#include "uhf.h"
-#include "uTransceiver.h"
-#include "housekeeping_service.h"
-
-SAT_returnState start_system_stats_daemon(void);
-
-#endif /* EX2_SYSTEM_SYSTEM_STATS_H_ */
+#define max(X, Y) (((X) > (Y)) ? (X) : (Y))

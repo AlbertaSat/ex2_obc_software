@@ -17,9 +17,9 @@
  * @date Mar. 6, 2021
  */
 
+#include <beacon_task.h>
 #include "system_tasks.h"
 
-#include "beacon/beacon.h"
 #include "coordinate_management/coordinate_management.h"
 #include "diagnostic/diagnostic.h"
 #include "housekeeping/housekeeping_task.h"
@@ -34,14 +34,18 @@
  *  error report of daemon creation
  */
 SAT_returnState start_system_tasks(void) {
-    TaskHandle_t _ = 0;
-    if (start_beacon_daemon() != SATR_OK || start_coordinate_management_daemon() != SATR_OK ||
-                start_diagnostic_daemon() != SATR_OK || start_housekeeping_daemon() != SATR_OK ||
-                start_system_stats_daemon() != SATR_OK || start_state_daemon() != SATR_OK ||
-        start_task_manager() != SATR_OK || start_logger_daemon(_) != SATR_OK) {
-        ex2_log("Error starting system tasks\r\n");
-        return SATR_ERROR;
-    }
-    ex2_log("All system tasks started\r\n");
-    return SATR_OK;
+
+  TaskHandle_t _;
+  if (//start_beacon_daemon() != SATR_OK ||
+      start_coordinate_management_daemon() != SATR_OK ||
+      start_diagnostic_daemon() != SATR_OK ||
+      start_housekeeping_daemon() != SATR_OK ||
+      //start_system_stats_daemon() != SATR_OK ||
+      //start_state_daemon() != SATR_OK        ||
+      start_logger_daemon(_) != SATR_OK) {
+    ex2_log("Error starting system tasks\r\n");
+    return SATR_ERROR;
+  }
+  ex2_log("All system tasks started\r\n");
+  return SATR_OK;
 }

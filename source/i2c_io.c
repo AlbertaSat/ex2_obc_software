@@ -55,15 +55,18 @@ void init_i2c_driver() {
  * @return
  *   Returns 0 data read, <0 if unable to read data.
  **/
-int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
-    int ret = 0;
+
+int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, uint8_t *buf) {
+    uint8 ret = 0;
     uint32 index = i2c == i2cREG1 ? 0U : 1U;
+    uint32 i2c_mutex_timeout = pdMS_TO_TICKS(25);
 
     if (xSemaphoreTake(i2csemphr_t[index].i2c_mutex, I2C_TIMEOUT_MS) != pdTRUE) {
         return -1;
     }
 
     /* Configure address of Slave to talk to */
+    taskENTER_CRITICAL();
     i2cSetSlaveAdd(i2c, addr);
     i2cSetDirection(i2c, I2C_RECEIVER);
     i2cSetCount(i2c, size);
@@ -71,6 +74,7 @@ int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
     i2cSetStop(i2c);
     i2cSetStart(i2c);
     i2cReceive(i2c, size, buf);
+    taskEXIT_CRITICAL();
 
     if (xSemaphoreTake(i2csemphr_t[index].i2c_block, I2C_TIMEOUT_MS) != pdTRUE) {
         i2cSetStop(i2c);
@@ -79,6 +83,7 @@ int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
 
     /* Clear the Stop condition */
     i2cClearSCD(i2c);
+    vTaskDelay(i2c_mutex_timeout);
     xSemaphoreGive(i2csemphr_t[index].i2c_mutex);
     return ret;
 }
@@ -101,14 +106,18 @@ int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
  * @return
  *   Returns 0 data written, <0 if unable to write data.
  **/
-int i2c_Send(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
-    int ret = 0;
+
+int i2c_Send(i2cBASE_t *i2c, uint8_t addr, uint16_t size, uint8_t *buf) {
+    uint8 ret = 0;
     uint32 index = i2c == i2cREG1 ? 0U : 1U;
+    uint32 i2c_mutex_timeout = pdMS_TO_TICKS(10);
+
     if (xSemaphoreTake(i2csemphr_t[index].i2c_mutex, I2C_TIMEOUT_MS) != pdTRUE) {
         return -1;
     }
 
     /* Configure address of Slave to talk to */
+    taskENTER_CRITICAL();
     i2cSetSlaveAdd(i2c, addr);
     i2cSetDirection(i2c, I2C_TRANSMITTER);
     i2cSetCount(i2c, size);
@@ -116,6 +125,7 @@ int i2c_Send(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
     i2cSetStop(i2c);
     i2cSetStart(i2c);
     i2cSend(i2c, size, buf);
+    taskEXIT_CRITICAL();
 
     if (xSemaphoreTake(i2csemphr_t[index].i2c_block, I2C_TIMEOUT_MS) != pdTRUE) {
         i2cSetStop(i2c);
@@ -129,12 +139,14 @@ int i2c_Send(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
 
     /* Clear the Stop condition */
     i2cClearSCD(i2c);
+    vTaskDelay(i2c_mutex_timeout);
     xSemaphoreGive(i2csemphr_t[index].i2c_mutex);
     return ret;
 }
 
 void i2cNotification(i2cBASE_t *i2c, uint32 flags) {
     uint32 reg = i2c == i2cREG1 ? 0U : 1U;
+    static BaseType_t xHigherPriorityTaskWoken=pdFALSE;
 
     switch (flags) {
 
@@ -149,7 +161,7 @@ void i2cNotification(i2cBASE_t *i2c, uint32 flags) {
         break;
 
     case I2C_SCD_INT:
-        xSemaphoreGiveFromISR(i2csemphr_t[reg].i2c_block, NULL);
+        xSemaphoreGiveFromISR(i2csemphr_t[reg].i2c_block, &xHigherPriorityTaskWoken);
         i2cClearSCD(i2c);
         break;
 
@@ -165,5 +177,5 @@ void i2cNotification(i2cBASE_t *i2c, uint32 flags) {
     default:
         break;
     }
+    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
-

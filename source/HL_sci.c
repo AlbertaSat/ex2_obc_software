@@ -95,7 +95,7 @@ void sciInit(void)
                   | (uint32)((uint32)1U << 1U);  /* asynchronous timing mode */
 
     /** - set baudrate */
-    sciREG1->BRS = 40U;  /* baudrate */
+    sciREG1->BRS = 487U;  /* baudrate */
 
     /** - transmission length */
     sciREG1->FORMAT = 8U - 1U;  /* length */
