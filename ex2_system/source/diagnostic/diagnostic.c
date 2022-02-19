@@ -316,7 +316,7 @@ SAT_returnState start_diagnostic_daemon(void) {
 #endif
 
 #ifndef CHARON_IS_STUBBED
-    if (xTaskCreate(charon_watchdog_daemon, "charon_watchdog_daemon", 2048, NULL, 3,
+    if (xTaskCreate(charon_watchdog_daemon, "charon_watchdog_daemon", 2048, NULL, DIAGNOSTIC_TASK_PRIO,
                     NULL) != pdPASS) {
         ex2_log("FAILED TO CREATE TASK charon_watchdog_daemon.\n");
         return SATR_ERROR;
