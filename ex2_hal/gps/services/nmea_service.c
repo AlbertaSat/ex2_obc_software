@@ -14,9 +14,7 @@
 static char NMEA_buf[NMEASENTENCE_MAXLENGTH];
 static uint32_t wdt_counter = 0;
 
-uint32_t nmea_get_wdt_counter() {
-    return wdt_counter;
-}
+uint32_t nmea_get_wdt_counter() { return wdt_counter; }
 
 /**
  * @brief Starts NMEA decoding service
@@ -30,7 +28,7 @@ void NMEA_service() {
         memset(NMEA_buf, 0, NMEASENTENCE_MAXLENGTH);
         wdt_counter++;
 
-        while(xQueueReceive(NMEA_queue, NMEA_buf, DELAY_WAIT_INTERVAL) != pdPASS) {
+        while (xQueueReceive(NMEA_queue, NMEA_buf, DELAY_WAIT_INTERVAL) != pdPASS) {
             wdt_counter++;
         }
         int i;
