@@ -6,7 +6,7 @@
 #include <stdint.h>
 
 #define GPS_UART_TIMEOUT_MS 2000 * portTICK_PERIOD_MS
-#define GPS_TX_TIMEOUT_MS 1000 *portTICK_PERIOD_MS
+#define GPS_TX_TIMEOUT_MS 1000 * portTICK_PERIOD_MS
 
 bool skytraq_verify_checksum(uint8_t *message);
 

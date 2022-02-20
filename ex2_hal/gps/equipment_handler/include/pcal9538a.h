@@ -19,20 +19,20 @@
  */
 #include <stdint.h>
 
-#define PCAL9538A_ADDR              (0x70)
+#define PCAL9538A_ADDR (0x70)
 #ifdef IS_ATHENA
-#define PCAL9538A_PORT              i2cREG2
+#define PCAL9538A_PORT i2cREG2
 #else
-#define PCAL9538A_PORT              i2cREG1 // port used on dev board
+#define PCAL9538A_PORT i2cREG1 // port used on dev board
 #endif
 
 typedef enum {
-ADCS_CHANNEL = 0,
-DFGM_CHANNEL = 1,
-IRIS_CHANNEL = 2,
-OBC_CHANNEL = 3,
-CHARON_CHANNEL = 4,
-UHF_CHANNEL = 5,
+    ADCS_CHANNEL = 0,
+    DFGM_CHANNEL = 1,
+    IRIS_CHANNEL = 2,
+    OBC_CHANNEL = 3,
+    CHARON_CHANNEL = 4,
+    UHF_CHANNEL = 5,
 } Power_Channel;
 
 uint8_t setuppcal9538a(void);

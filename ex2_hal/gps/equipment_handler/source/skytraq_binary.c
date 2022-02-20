@@ -29,7 +29,6 @@
 
 enum current_sentence { none, binary, nmea } line_type;
 
-
 SemaphoreHandle_t tx_semphr;
 static SemaphoreHandle_t uart_mutex;
 
@@ -91,8 +90,8 @@ bool skytraq_binary_init() {
  * @return GPS_RETURNSTATE Error explaining why the failure occurred
  */
 GPS_RETURNSTATE skytraq_send_message(uint8_t *payload, uint16_t size) {
-    if(xSemaphoreTake(uart_mutex, GPS_UART_TIMEOUT_MS) != pdTRUE) {
-          return UNKNOWN_ERROR;
+    if (xSemaphoreTake(uart_mutex, GPS_UART_TIMEOUT_MS) != pdTRUE) {
+        return UNKNOWN_ERROR;
     }
 
     if (sci_busy) {
@@ -166,7 +165,7 @@ GPS_RETURNSTATE skytraq_send_message(uint8_t *payload, uint16_t size) {
  */
 GPS_RETURNSTATE skytraq_send_message_with_reply(uint8_t *payload, uint16_t size, uint8_t *reply,
                                                 uint16_t reply_len) {
-    //skytraq_send_message will receive a confirmation packet from the gps
+    // skytraq_send_message will receive a confirmation packet from the gps
     GPS_RETURNSTATE worked = skytraq_send_message(payload, size);
 
     if (worked != GPS_SUCCESS) {
@@ -235,7 +234,6 @@ void get_byte() {
         memset(binary_message_buffer, 0, BUFSIZE);
         current_line_type = none;
     }
-
 }
 
 /**
@@ -247,7 +245,7 @@ void get_byte() {
 void gps_sciNotification(sciBASE_t *sci, unsigned flags) {
     portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
 
-    switch(flags) {
+    switch (flags) {
     case SCI_RX_INT:
         get_byte();
         sciReceive(sci, 1, &byte);
