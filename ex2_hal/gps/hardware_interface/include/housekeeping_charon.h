@@ -21,9 +21,9 @@
 #include "skytraq_binary_types.h"
 #include "ads7128.h"
 
-typedef struct __attribute__((packed)){
+typedef struct __attribute__((packed)) {
     uint16_t crc;
-    int      temparray[8];           // Charon temperature array
+    int temparray[8]; // Charon temperature array
 } charon_housekeeping;
 
-GPS_RETURNSTATE Charon_getHK(charon_housekeeping * hk);
+GPS_RETURNSTATE Charon_getHK(charon_housekeeping *hk);
