@@ -27,17 +27,19 @@
  * @return
  *      1 if error, 0 if successful.
  */
-uint8_t setuppcal9538a(void){
+uint8_t setuppcal9538a(void) {
 
     uint16_t data = 0x0100;
 
-    if(i2c_Send(PCAL9538A_PORT, PCAL9538A_ADDR, 2, &data) != 0){//set output value register (0x01) to all be logic low = 0
+    if (i2c_Send(PCAL9538A_PORT, PCAL9538A_ADDR, 2, &data) !=
+        0) { // set output value register (0x01) to all be logic low = 0
         return 1;
     }
 
     data = 0x0300;
 
-    if(i2c_Send(PCAL9538A_PORT, PCAL9538A_ADDR, 2, &data) != 0){//set config register (0x03) to make all pins outputs
+    if (i2c_Send(PCAL9538A_PORT, PCAL9538A_ADDR, 2, &data) !=
+        0) { // set config register (0x03) to make all pins outputs
         return 1;
     }
 
@@ -53,12 +55,12 @@ uint8_t setuppcal9538a(void){
  * @return
  *      1 if error, 0 if successful.
  */
-uint8_t triggerPowerChannelReset(Power_Channel channel){
+uint8_t triggerPowerChannelReset(Power_Channel channel) {
 
     uint8_t data[2] = {0b1, 0b0};
     data[1] = 0b1 << channel;
 
-    if(i2c_Send(PCAL9538A_PORT, PCAL9538A_ADDR, 2, data) != 0){
+    if (i2c_Send(PCAL9538A_PORT, PCAL9538A_ADDR, 2, data) != 0) {
         return 1;
     }
     return 0;

@@ -19,14 +19,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define ADS7128_ADDR              (0x11)
+#define ADS7128_ADDR (0x11)
 #ifdef IS_ATHENA
-#define ADS7128_PORT              i2cREG1
+#define ADS7128_PORT i2cREG1
 #else
-#define ADS7128_PORT              i2cREG1 // port used on dev board
+#define ADS7128_PORT i2cREG1 // port used on dev board
 #endif
 
 bool ads7128Init(void);
-void voltageToTemperature(uint16_t voltage, int* temperature);
-uint8_t readSingleTemp(uint8_t channel, int* temperature);
-uint8_t readAllTemps(int* temperatures);
+void voltageToTemperature(uint16_t voltage, int *temperature);
+uint8_t readSingleTemp(uint8_t channel, int *temperature);
+uint8_t readAllTemps(int *temperatures);
