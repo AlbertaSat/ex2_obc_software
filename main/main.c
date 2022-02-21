@@ -241,7 +241,7 @@ static inline SAT_returnState init_csp_interface() {
     csp_iface_t *uart_iface = NULL;
     csp_iface_t *can_iface = NULL;
     csp_usart_conf_t conf = {.device = "UART",
-                             .baudrate = 19200, /* supported on all platforms */
+                             .baudrate = 115200, /* supported on all platforms */
                              .databits = 8,
                              .stopbits = 2,
                              .paritysetting = 0,
