@@ -367,12 +367,12 @@ Result mock_everyone(All_systems_housekeeping *all_hk_data) {
 Result collect_hk_from_devices(All_systems_housekeeping *all_hk_data) {
 /*populate struct by calling appropriate functions*/
 #ifndef ADCS_IS_STUBBED
-    ADCS_returnState ADCS_return_code = HAL_ADCS_getHK(&all_hk_data->adcs_hk); // ADCS get housekeeeing
-#endif                                                                         /* ADCS Housekeeping */
+    ADCS_returnState ADCS_return_code = HAL_ADCS_getHK(&all_hk_data->adcs_hk); /* ADCS Housekeeping */
+#endif /* ADCS_IS_STUBBED */
 
 #ifndef ATHENA_IS_STUBBED
-    int Athena_return_code = Athena_getHK(&all_hk_data->Athena_hk); // Athena get temperature
-#endif                                                              /* ADCS Housekeeping */
+    int Athena_return_code = Athena_getHK(&all_hk_data->Athena_hk);  /* Athena Housekeeping */
+#endif /* ATHENA_IS_STUBBED */
 
 #ifndef EPS_IS_STUBBED
     eps_refresh_instantaneous_telemetry();
@@ -381,35 +381,35 @@ Result collect_hk_from_devices(All_systems_housekeeping *all_hk_data) {
     // Adding these in order to get the startup telemetry - should be added elsewhere
     eps_refresh_startup_telemetry();
     eps_startup_telemetry_t eps_startup = get_eps_startup_telemetry();
-    EPS_getHK(&all_hk_data->EPS_hk, &all_hk_data->EPS_startup_hk); // EPS get housekeeping
-#endif                                                             /* EPS Housekeeping */
+    EPS_getHK(&all_hk_data->EPS_hk, &all_hk_data->EPS_startup_hk); /* EPS Housekeeping */
+#endif /* EPS_IS_STUBBED */
 
 #ifndef UHF_IS_STUBBED
     UHF_return UHF_return_code;
     if(!uhf_is_busy()){
-        UHF_return_code = UHF_getHK(&all_hk_data->UHF_hk);      //UHF get housekeeping
+        UHF_return_code = UHF_getHK(&all_hk_data->UHF_hk);      /* UHF Housekeeping */
         vTaskDelay(ONE_SECOND);
     }
-#endif /* UHF Housekeeping */
+#endif /* UHF_IS_STUBBED */
 
 #ifndef SBAND_IS_STUBBED
-    STX_return STX_return_code = HAL_S_getHK(&all_hk_data->S_band_hk); // S_band get housekeeping
-#endif                                                                 /* SBAND Housekeeping */
+    STX_return STX_return_code = HAL_S_getHK(&all_hk_data->S_band_hk); /* SBAND Housekeeping */
+#endif /* SBAND_IS_STUBBED */
 
 
 #ifndef HYPERION_IS_STUBBED
 #ifdef HYPERION_PANEL_3U
-    Hyperion_config1_getHK(&all_hk_data->hyperion_hk);
+    Hyperion_config1_getHK(&all_hk_data->hyperion_hk);                  /* Hyperion 3U Housekeeping */
 #endif /* HYPERION_PANEL_3U */
 
 #ifdef HYPERION_PANEL_2U
-    Hyperion_config3_getHK(&all_hk_data->hyperion_hk);
+    Hyperion_config3_getHK(&all_hk_data->hyperion_hk);                  /* Hyperion 2U Housekeeping */
 #endif /* HYPERION_PANEL_2U */
-#endif
+#endif /* HYPERION_IS_STUBBED */
 
 #ifndef CHARON_IS_STUBBED
-    GPS_RETURNSTATE Charon_return_code = Charon_getHK(&all_hk_data->charon_hk);
-#endif /* Charon Housekeeping */
+    GPS_RETURNSTATE Charon_return_code = Charon_getHK(&all_hk_data->charon_hk);  /* Charon Houskeeping */
+#endif /* CHARON_IS_STUBBED */
 
     /*consider if struct should hold error codes returned from these functions*/
     return SUCCESS;
@@ -502,7 +502,10 @@ uint16_t get_size_of_housekeeping(All_systems_housekeeping *all_hk_data) {
                            sizeof(all_hk_data->UHF_hk) +       // currently 48U
                            sizeof(all_hk_data->S_band_hk) +    // currently 32U
                            sizeof(all_hk_data->adcs_hk) +      // currently 178U
-                           sizeof(all_hk_data->hyperion_hk);   // currently 188U
+                           sizeof(all_hk_data->hyperion_hk) + // currently 188U
+                           sizeof(all_hk_data->charon_hk)
+                           //sizeof(all_hk_data->payload_hk)
+                           ;
     return needed_size;
 }
 
@@ -533,19 +536,23 @@ Result write_hk_to_file(uint16_t filenumber, All_systems_housekeeping *all_hk_da
 
     red_errno = 0;
     /*The order of writes and subsequent reads must match*/
-    red_write(fout, &all_hk_data->adcs_hk, sizeof(all_hk_data->adcs_hk));
     red_write(fout, &all_hk_data->hk_timeorder, sizeof(all_hk_data->hk_timeorder));
+    red_write(fout, &all_hk_data->adcs_hk, sizeof(all_hk_data->adcs_hk));
     red_write(fout, &all_hk_data->Athena_hk, sizeof(all_hk_data->Athena_hk));
     red_write(fout, &all_hk_data->EPS_hk, sizeof(all_hk_data->EPS_hk));
     red_write(fout, &all_hk_data->UHF_hk, sizeof(all_hk_data->UHF_hk));
     red_write(fout, &all_hk_data->S_band_hk, sizeof(all_hk_data->S_band_hk));
     red_write(fout, &all_hk_data->hyperion_hk, sizeof(all_hk_data->hyperion_hk));
+    red_write(fout, &all_hk_data->charon_hk, sizeof(all_hk_data->charon_hk));
+    //red_write(fout, &all_hk_data->payload_hk, sizeof(all_hk_data->payload_hk));
 
     if (red_errno != 0) {
         ex2_log("Failed to write to file: '%s'\n", fileName);
         red_close(fout);
-        return SUCCESS;
+        return FAILURE;
     }
+    red_close(fout);
+    return SUCCESS;
 }
 
 /**
@@ -578,13 +585,15 @@ Result read_hk_from_file(uint16_t filenumber, All_systems_housekeeping *all_hk_d
 
     red_errno = 0;
     /*The order of writes and subsequent reads must match*/
-    red_read(fin, &all_hk_data->adcs_hk, sizeof(all_hk_data->adcs_hk));
     red_read(fin, &all_hk_data->hk_timeorder, sizeof(all_hk_data->hk_timeorder));
+    red_read(fin, &all_hk_data->adcs_hk, sizeof(all_hk_data->adcs_hk));
     red_read(fin, &all_hk_data->Athena_hk, sizeof(all_hk_data->Athena_hk));
     red_read(fin, &all_hk_data->EPS_hk, sizeof(all_hk_data->EPS_hk));
     red_read(fin, &all_hk_data->UHF_hk, sizeof(all_hk_data->UHF_hk));
     red_read(fin, &all_hk_data->S_band_hk, sizeof(all_hk_data->S_band_hk));
     red_read(fin, &all_hk_data->hyperion_hk, sizeof(all_hk_data->hyperion_hk));
+    red_read(fin, &all_hk_data->charon_hk, sizeof(all_hk_data->charon_hk));
+    // red_read(fin, &all_hk_data->payload_hk, sizeof(all_hk_data->payload_hk));
 
     if (red_errno != 0) {
         ex2_log("Failed to read: '%c'\n", fileName);
@@ -649,20 +658,6 @@ Result populate_and_store_hk_data(void) {
         ex2_log("Housekeeping data lost\n");
         prv_give_lock(&f_count_lock); // unlock
         return FAILURE;
-    }
-
-    if (dynamic_timestamp_array_handler(MAX_FILES) == SUCCESS) {
-        timestamps[current_file] = temp_hk_data.hk_timeorder.UNIXtimestamp;
-    } else {
-        ex2_log("Warning, failed to malloc for secondary data structure\n");
-    }
-    store_config(0);
-
-    ex2_log("%zu written to disk", current_file);
-
-    ++current_file;
-    if (current_file > MAX_FILES) {
-        current_file = 1;
     }
 
     if (dynamic_timestamp_array_handler(MAX_FILES) == SUCCESS) {
@@ -866,6 +861,9 @@ Result fetch_historic_hk_and_transmit(csp_conn_t *conn, uint16_t limit, uint16_t
         memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.hyperion_hk,
                sizeof(all_hk_data.hyperion_hk));
         used_size += sizeof(all_hk_data.hyperion_hk);
+        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.charon_hk,
+               sizeof(all_hk_data.charon_hk));
+        used_size += sizeof(all_hk_data.charon_hk);
 
         set_packet_length(packet, used_size + 2);
 
@@ -938,11 +936,9 @@ SAT_returnState hk_service_app(csp_conn_t *conn, csp_packet_t *packet) {
         before_id = data16[1];
         before_time = ((uint32_t *)data16)[1];
 
-        if (!csp_send(conn, packet, 50)) {
-            csp_buffer_free(packet);
-            if (fetch_historic_hk_and_transmit(conn, limit, before_id, before_time) != SUCCESS) {
-                return SATR_ERROR;
-            }
+        csp_buffer_free(packet);
+        if (fetch_historic_hk_and_transmit(conn, limit, before_id, before_time) != SUCCESS) {
+            return SATR_ERROR;
         }
         break;
 
@@ -1003,7 +999,7 @@ SAT_returnState start_housekeeping_service(void) {
     TaskHandle_t svc_tsk;
     taskFunctions svc_funcs = {0};
     svc_funcs.getCounterFunction = get_svc_wdt_counter;
-    if (xTaskCreate((TaskFunction_t)housekeeping_service, "start_housekeeping_service", 400, NULL,
+    if (xTaskCreate((TaskFunction_t)housekeeping_service, "start_housekeeping_service", 600, NULL,
                     NORMAL_SERVICE_PRIO, &svc_tsk) != pdPASS) {
         ex2_log("FAILED TO CREATE TASK start_housekeeping_service\n");
         return SATR_ERROR;
