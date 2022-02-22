@@ -54,7 +54,7 @@ bool ads7128Init(void) {
     return 0;
 }
 
-void voltageToTemperature(uint16_t voltage, int *temperature) {
+void voltageToTemperature(uint16_t voltage, int8_t *temperature) {
 
     // Inefficient as balls, currently
     // LUT based off of https://embeddedgurus.com/stack-overflow/2010/01/a-tutorial-on-lookup-tables-in-c/
@@ -90,7 +90,7 @@ void voltageToTemperature(uint16_t voltage, int *temperature) {
  * @return
  *      1 if error, 0 if successful
  */
-uint8_t readSingleTemp(uint8_t channel, int *temperature) { // note int8 max = 127
+uint8_t readSingleTemp(uint8_t channel, int8_t *temperature) { // note int8 max = 127
 
     uint8_t txdata[3] = {0b00001000, 0x11, (0x00 + channel)};
 
@@ -119,8 +119,7 @@ uint8_t readSingleTemp(uint8_t channel, int *temperature) { // note int8 max = 1
  * @return
  *      1 if error, 0 if successful
  */
-uint8_t
-readAllTemps(int *temperatures) { // could rework to read out all 16 registers at once instead of in 8 chunks
+uint8_t readAllTemps(int8_t *temperatures) { // could rework to read out all 16 registers at once instead of in 8 chunks
     for (int i = 0; i < 8; i++) {
         if (readSingleTemp(i, &temperatures[i])) {
             return 1;

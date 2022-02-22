@@ -27,6 +27,6 @@
 #endif
 
 bool ads7128Init(void);
-void voltageToTemperature(uint16_t voltage, int *temperature);
-uint8_t readSingleTemp(uint8_t channel, int *temperature);
-uint8_t readAllTemps(int *temperatures);
+void voltageToTemperature(uint16_t voltage, int8_t *temperature);
+uint8_t readSingleTemp(uint8_t channel, int8_t *temperature);
+uint8_t readAllTemps(int8_t *temperatures);
