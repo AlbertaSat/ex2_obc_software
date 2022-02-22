@@ -47,7 +47,8 @@
 #include "logger/logger.h"
 #include "file_delivery_app.h"
 //#include "ads7128.h"
-//#include "skytraq_gps_driver.h"
+//#include "pcal9538a.h"
+//#include "skytraq_gps.h"
 
 #include <FreeRTOS.h>
 #include <os_task.h>
@@ -59,8 +60,6 @@
 #include "dfgm.h"
 
 //#include "sband_binary_tests.h"
-
-#include "HL_reg_sci.h"
 
 /**
  * The main function must:
@@ -117,6 +116,7 @@ void ex2_init(void *pvParameters) {
 //#ifndef CHARON_IS_STUBBED
 //    gps_skytraq_driver_init();
 //    ads7128Init();
+//    setuppcal9538a();
 //#endif
 
 #ifndef DFGM_IS_STUBBED
@@ -246,7 +246,7 @@ static inline SAT_returnState init_csp_interface() {
     csp_iface_t *uart_iface = NULL;
     csp_iface_t *can_iface = NULL;
     csp_usart_conf_t conf = {.device = "UART",
-                             .baudrate = 19200, /* supported on all platforms */
+                             .baudrate = 115200, /* supported on all platforms */
                              .databits = 8,
                              .stopbits = 2,
                              .paritysetting = 0,
