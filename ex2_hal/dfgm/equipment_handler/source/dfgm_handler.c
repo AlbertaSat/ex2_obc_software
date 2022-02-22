@@ -505,7 +505,7 @@ DFGM_return STX_getDFGMHK(dfgm_housekeeping *hk) {
 
     // Update HK if buffer has old data
     if (timeDiff > timeThreshold) {
-        collectingHK = 0;
+        collectingHK = 1;
         status = STX_startDFGM(1);
     }
 
