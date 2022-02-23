@@ -119,9 +119,9 @@ void ex2_init(void *pvParameters) {
 //    setuppcal9538a();
 //#endif
 
-#ifndef DFGM_IS_STUBBED
-    dfgm_init();
-#endif
+//#ifndef DFGM_IS_STUBBED
+//    dfgm_init();
+//#endif
 
 
     /* Software Initialization */
