@@ -31,7 +31,7 @@ DFGM_return HAL_DFGM_run(int32_t givenRuntime) {
 #ifndef DFGM_IS_STUBBED
     // If DFGM is connected, run
     int runtime = (int) givenRuntime;
-    status = STX_startDFGM(runtime);
+    status = DFGM_startDataCollection(runtime);
 #else
     // If DFGM is not connected, can't run
     status = IS_STUBBED_DFGM;
@@ -43,7 +43,7 @@ DFGM_return HAL_DFGM_stop() {
     DFGM_return status;
 #ifndef DFGM_IS_STUBBED
     // DFGM is connected
-    status = STX_stopDFGM();
+    status = DFGM_stopDataCollection();
 #else
     // DFGM is not connected
     status = IS_STUBBED_DFGM;
@@ -55,7 +55,7 @@ DFGM_return HAL_DFGM_getHK(DFGM_Housekeeping *DFGM_hk) {
     DFGM_return status;
     dfgm_housekeeping hk;
 #ifndef DFGM_IS_STUBBED
-    status = STX_getDFGMHK(&hk);
+    status = DFGM_getHK(&hk);
     DFGM_hk->coreVoltage = hk.coreVoltage;
     DFGM_hk->sensorTemp = hk.sensorTemp;
     DFGM_hk->refTemp = hk.refTemp;
