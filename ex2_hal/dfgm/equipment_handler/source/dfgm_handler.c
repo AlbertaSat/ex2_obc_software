@@ -138,19 +138,43 @@ void dfgm_convert_HK(dfgm_packet_t *const data) {
 }
 
 void update_HK(dfgm_data_t const *data) {
+    int x;
     dfgmHKBuffer.timestamp = data->time;
-    dfgmHKBuffer.coreVoltage = (float) ((data->pkt).hk[0]); // Leave voltage values in mV or V?
-    dfgmHKBuffer.sensorTemp = (float) ((data->pkt).hk[1]);
-    dfgmHKBuffer.refTemp = (float) ((data->pkt).hk[2]);
-    dfgmHKBuffer.boardTemp = (float) ((data->pkt).hk[3]);
-    dfgmHKBuffer.posRailVoltage = (float) ((data->pkt).hk[4]);
-    dfgmHKBuffer.inputVoltage = (float) ((data->pkt).hk[5]);
-    dfgmHKBuffer.refVoltage = (float) ((data->pkt).hk[6]);
-    dfgmHKBuffer.inputCurrent = (float) ((data->pkt).hk[7]);
-    dfgmHKBuffer.reserved1 = (float) ((data->pkt).hk[8]);
-    dfgmHKBuffer.reserved2 = (float) ((data->pkt).hk[9]);
-    dfgmHKBuffer.reserved3 = (float) ((data->pkt).hk[10]);
-    dfgmHKBuffer.reserved4 = (float) ((data->pkt).hk[11]);
+    x = (int) ((data->pkt).hk[0]); // Leave voltage values in mV or V?
+    dfgmHKBuffer.coreVoltage = (float) x;
+
+    x = (int) ((data->pkt).hk[1]);
+    dfgmHKBuffer.sensorTemp = (float) x;
+
+    x = (int) ((data->pkt).hk[2]);
+    dfgmHKBuffer.refTemp = (float) x;
+
+    x = (int) ((data->pkt).hk[3]);
+    dfgmHKBuffer.boardTemp = (float) x;
+
+    x = (int) ((data->pkt).hk[4]);
+    dfgmHKBuffer.posRailVoltage = (float) x;
+
+    x = (int) ((data->pkt).hk[5]);
+    dfgmHKBuffer.inputVoltage = (float) x;
+
+    x = (int) ((data->pkt).hk[6]);
+    dfgmHKBuffer.refVoltage = (float) x;
+
+    x = (int) ((data->pkt).hk[7]);
+    dfgmHKBuffer.inputCurrent = (float) x;
+
+    x = (int) ((data->pkt).hk[8]);
+    dfgmHKBuffer.reserved1 = (float) x;
+
+    x = (int) ((data->pkt).hk[9]);
+    dfgmHKBuffer.reserved2 = (float) x;
+
+    x = (int) ((data->pkt).hk[10]);
+    dfgmHKBuffer.reserved3 = (float) x;
+
+    x = (int) ((data->pkt).hk[11]);
+    dfgmHKBuffer.reserved4 = (float) x;
 }
 
 // File system functions
@@ -445,7 +469,7 @@ void dfgm_rx_task(void *pvParameters) {
                     save_packet(&dat, "high_rate_DFGM_data");
                 }
 
-                printf("HK data: %d %d %d %d %d %d %d %d %d %d %d %d\t", dat.pkt.hk[0], dat.pkt.hk[1],
+                printf("HK data from packet: %ld %d %d %d %d %d %d %d %d %d %d %d %d\t", dat.time, dat.pkt.hk[0], dat.pkt.hk[1],
                        dat.pkt.hk[2], dat.pkt.hk[3], dat.pkt.hk[4], dat.pkt.hk[5], dat.pkt.hk[6],
                        dat.pkt.hk[7], dat.pkt.hk[8], dat.pkt.hk[9], dat.pkt.hk[10], dat.pkt.hk[11]);
 
@@ -463,6 +487,19 @@ void dfgm_rx_task(void *pvParameters) {
             dfgmRuntime = 0;
             collectingHK = 0;
 
+            printf("HK data from buffer: %ld %f %f %f %f %f %f %f %f %f %f %f %f\t", dfgmHKBuffer.timestamp, dfgmHKBuffer.coreVoltage, dfgmHKBuffer.sensorTemp,
+                   dfgmHKBuffer.refTemp, dfgmHKBuffer.boardTemp, dfgmHKBuffer.posRailVoltage, dfgmHKBuffer.inputVoltage,
+                   dfgmHKBuffer.refVoltage, dfgmHKBuffer.inputCurrent, dfgmHKBuffer.reserved1, dfgmHKBuffer.reserved2,
+                   dfgmHKBuffer.reserved3, dfgmHKBuffer.reserved4);
+
+            dfgm_housekeeping HK_DFGM = {0};
+            DFGM_getHK(&HK_DFGM);
+
+            printf("HK data using getHK: %ld %f %f %f %f %f %f %f %f %f %f %f %f\t", HK_DFGM.timestamp, HK_DFGM.coreVoltage, HK_DFGM.sensorTemp,
+                   HK_DFGM.refTemp, HK_DFGM.boardTemp, HK_DFGM.posRailVoltage, HK_DFGM.inputVoltage,
+                   HK_DFGM.refVoltage, HK_DFGM.inputCurrent, HK_DFGM.reserved1, HK_DFGM.reserved2,
+                   HK_DFGM.reserved3, HK_DFGM.reserved4);
+
             // For debugging
             printf("Runtime reset. \t");
 
@@ -472,8 +509,8 @@ void dfgm_rx_task(void *pvParameters) {
             printf("Files cleared. \t");
         } else {
             // Nothing, just wait
-            //printf("Waiting for runtime...\t");
-            //dfgmRuntime = 2;
+            printf("Waiting for runtime...\t");
+            DFGM_startDataCollection(2);
 
         }
     }
@@ -506,7 +543,7 @@ void dfgm_sciNotification(sciBASE_t *sci, unsigned flags) {
 }
 
 //  Hardware interface uses these functions to execute subservices
-DFGM_return STX_startDFGM(int givenRuntime) {
+DFGM_return DFGM_startDataCollection(int givenRuntime) {
     DFGM_return status = DFGM_SUCCESS;
     if (dfgmRuntime == 0 && givenRuntime >= minRuntime) {
         dfgmRuntime = givenRuntime;
@@ -519,14 +556,14 @@ DFGM_return STX_startDFGM(int givenRuntime) {
     return status;
 }
 
-DFGM_return STX_stopDFGM() {
+DFGM_return DFGM_stopDataCollection() {
     dfgmRuntime = 0;
 
     // Will always work whether or not the data collection task is running
     return DFGM_SUCCESS;
 }
 
-DFGM_return STX_getDFGMHK(dfgm_housekeeping *hk) {
+DFGM_return DFGM_getHK(dfgm_housekeeping *hk) {
     DFGM_return status = DFGM_SUCCESS;
     time_t currentTime;
     RTCMK_GetUnix(&currentTime);
@@ -535,9 +572,22 @@ DFGM_return STX_getDFGMHK(dfgm_housekeeping *hk) {
     // Update HK if buffer has old data
     if (timeDiff > timeThreshold) {
         collectingHK = 1;
-        status = STX_startDFGM(1);
+        status = DFGM_startDataCollection(1);
     }
 
-    hk = &dfgmHKBuffer;
+    hk->timestamp = dfgmHKBuffer.timestamp;
+    hk->coreVoltage = dfgmHKBuffer.coreVoltage;
+    hk->sensorTemp = dfgmHKBuffer.sensorTemp;
+    hk->refTemp = dfgmHKBuffer.refTemp;
+    hk->boardTemp = dfgmHKBuffer.boardTemp;
+    hk->posRailVoltage = dfgmHKBuffer.posRailVoltage;
+    hk->inputVoltage = dfgmHKBuffer.inputVoltage;
+    hk->refVoltage = dfgmHKBuffer.refVoltage;
+    hk->inputCurrent = dfgmHKBuffer.inputCurrent;
+    hk->reserved1 = dfgmHKBuffer.reserved1;
+    hk->reserved2 = dfgmHKBuffer.reserved2;
+    hk->reserved3 = dfgmHKBuffer.reserved3;
+    hk->reserved4 = dfgmHKBuffer.reserved4;
+
     return status;
 }

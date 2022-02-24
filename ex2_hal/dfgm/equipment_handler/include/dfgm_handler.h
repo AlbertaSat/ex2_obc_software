@@ -166,8 +166,8 @@ void update_1HzFile(void);
 //void update_10HzFile(void);
 
 // Functions called in hardware interface
-DFGM_return STX_startDFGM(int givenRuntime);
-DFGM_return STX_stopDFGM();
-DFGM_return STX_getDFGMHK(dfgm_housekeeping *hk);
+DFGM_return DFGM_startDataCollection(int givenRuntime);
+DFGM_return DFGM_stopDataCollection();
+DFGM_return DFGM_getHK(dfgm_housekeeping *hk);
 
 #endif /* DFGM_HANDLER_H */
