@@ -402,6 +402,7 @@ void dfgm_rx_task(void *pvParameters) {
     for (;;) {
         // Wait until a valid runtime is given
         if (secondsPassed < dfgmRuntime) {
+            printf("Runtime received!\t");
             // Read first byte from DFGM to trigger interrupt handler
             if (triggerSciNotif) {
                 printf("sciTrigger\t");
@@ -471,9 +472,9 @@ void dfgm_rx_task(void *pvParameters) {
             printf("Files cleared. \t");
         } else {
             // Nothing, just wait
-            printf("Waiting for runtime...\t");
-            dfgmRuntime = 2;
-            printf("Runtime received!\t");
+            //printf("Waiting for runtime...\t");
+            //dfgmRuntime = 2;
+
         }
     }
 }
