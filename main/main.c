@@ -46,9 +46,9 @@
 #include "mocks/rtc.h"
 #include "logger/logger.h"
 #include "file_delivery_app.h"
-//#include "ads7128.h"
-//#include "pcal9538a.h"
-//#include "skytraq_gps.h"
+#include "ads7128.h"
+//#include "skytraq_gps_driver.h"
+#include "task_manager.h"
 
 #include <FreeRTOS.h>
 #include <os_task.h>
@@ -57,9 +57,10 @@
 #include "eps.h"
 #include "sband.h"
 #include "system.h"
-#include "dfgm.h"
 
-//#include "sband_binary_tests.h"
+#include "sband_binary_tests.h"
+
+#include "dfgm.h"
 
 /**
  * The main function must:
@@ -77,7 +78,7 @@
 static void init_filesystem();
 static void init_csp();
 static void init_software();
-//static void flatsat_test();
+static void flatsat_test();
 static inline SAT_returnState init_csp_interface();
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
 static FTP ftp_app;
@@ -113,15 +114,14 @@ void ex2_init(void *pvParameters) {
     // PLACEHOLDER: sband hardware init
 #endif
 
-//#ifndef CHARON_IS_STUBBED
-//    gps_skytraq_driver_init();
-//    ads7128Init();
-//    setuppcal9538a();
-//#endif
+#ifndef CHARON_IS_STUBBED
+    gps_skytraq_driver_init();
+    ads7128Init();
+#endif
 
-//#ifndef DFGM_IS_STUBBED
-//    dfgm_init();
-//#endif
+#ifndef DFGM_IS_STUBBED
+    dfgm_init();
+#endif
 
 
     /* Software Initialization */
@@ -131,20 +131,19 @@ void ex2_init(void *pvParameters) {
     init_software();
     // create_ftp_task(OBC_APP_ID, &ftp_app);
 
-//#ifdef FLATSAT_TEST
-//    /* Test Task */
-//    xTaskCreate(flatsat_test, "flatsat_test", 5000, NULL, 4, NULL);
-//#endif
+
+    /* Test Task */
+    //xTaskCreate(flatsat_test, "flatsat_test", 5000, NULL, 4, NULL);
 
     vTaskDelete(0); // delete self to free up heap
 }
 
-//void flatsat_test(void *pvParameters) {
-//    sband_binary_test();
-//    uhf_binary_test();
-//
-//    vTaskDelete(NULL);
-//}
+void flatsat_test(void *pvParameters) {
+    sband_binary_test();
+    uhf_binary_test();
+
+    vTaskDelete(NULL);
+}
 
 int ex2_main(void) {
     _enable_IRQ_interrupt_(); // enable inturrupts
@@ -163,6 +162,7 @@ int ex2_main(void) {
  */
 void init_software() {
     /* start system tasks and service listeners */
+    start_task_manager();
     if (start_system_tasks() != SATR_OK || start_service_server() != SATR_OK) {
         ex2_log("Initialization error\n");
     }
@@ -246,7 +246,7 @@ static inline SAT_returnState init_csp_interface() {
     csp_iface_t *uart_iface = NULL;
     csp_iface_t *can_iface = NULL;
     csp_usart_conf_t conf = {.device = "UART",
-                             .baudrate = 115200, /* supported on all platforms */
+                             .baudrate = 19200, /* supported on all platforms */
                              .databits = 8,
                              .stopbits = 2,
                              .paritysetting = 0,
