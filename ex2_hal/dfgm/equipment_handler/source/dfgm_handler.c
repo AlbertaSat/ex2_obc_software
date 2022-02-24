@@ -413,6 +413,7 @@ void dfgm_rx_task(void *pvParameters) {
 
             // Collect data for the specified runtime
             while(secondsPassed < dfgmRuntime) {
+                //DFGM_stopDataCollection();
                 printf("Seconds passed: %d\t", secondsPassed);
                 // Receive packet from queue
                 memset(&dat, 0, sizeof(dfgm_data_t));
@@ -445,11 +446,12 @@ void dfgm_rx_task(void *pvParameters) {
                     save_packet(&dat, "high_rate_DFGM_data");
                 }
 
-                printf("HK data from packet: %ld %d %d %d %d %d %d %d %d %d %d %d %d\t", dat.time, dat.pkt.hk[0], dat.pkt.hk[1],
-                       dat.pkt.hk[2], dat.pkt.hk[3], dat.pkt.hk[4], dat.pkt.hk[5], dat.pkt.hk[6],
-                       dat.pkt.hk[7], dat.pkt.hk[8], dat.pkt.hk[9], dat.pkt.hk[10], dat.pkt.hk[11]);
-
                 secondsPassed += 1;
+
+                // Check if data gets corrupt (i.e. gets stored into things with an offset of 1 byte)
+                for (int i = 0; i < 12; i++) {
+                    printf("%d ", dat.pkt.hk[i]);
+                }
             }
 
             // Don't update if receiving packet for HK
@@ -463,19 +465,6 @@ void dfgm_rx_task(void *pvParameters) {
             dfgmRuntime = 0;
             collectingHK = 0;
 
-            printf("HK data from buffer: %ld %f %f %f %f %f %f %f %f %f %f %f %f\t", dfgmHKBuffer.timestamp, dfgmHKBuffer.coreVoltage, dfgmHKBuffer.sensorTemp,
-                   dfgmHKBuffer.refTemp, dfgmHKBuffer.boardTemp, dfgmHKBuffer.posRailVoltage, dfgmHKBuffer.inputVoltage,
-                   dfgmHKBuffer.refVoltage, dfgmHKBuffer.inputCurrent, dfgmHKBuffer.reserved1, dfgmHKBuffer.reserved2,
-                   dfgmHKBuffer.reserved3, dfgmHKBuffer.reserved4);
-
-            dfgm_housekeeping HK_DFGM = {0};
-            DFGM_getHK(&HK_DFGM);
-
-            printf("HK data using getHK: %ld %f %f %f %f %f %f %f %f %f %f %f %f\t", HK_DFGM.timestamp, HK_DFGM.coreVoltage, HK_DFGM.sensorTemp,
-                   HK_DFGM.refTemp, HK_DFGM.boardTemp, HK_DFGM.posRailVoltage, HK_DFGM.inputVoltage,
-                   HK_DFGM.refVoltage, HK_DFGM.inputCurrent, HK_DFGM.reserved1, HK_DFGM.reserved2,
-                   HK_DFGM.reserved3, HK_DFGM.reserved4);
-
             // For debugging
             printf("Runtime reset. \t");
 
@@ -486,7 +475,7 @@ void dfgm_rx_task(void *pvParameters) {
         } else {
             // Nothing, just wait
             printf("Waiting for runtime...\t");
-            DFGM_startDataCollection(2);
+            DFGM_startDataCollection(20);
 
         }
     }
