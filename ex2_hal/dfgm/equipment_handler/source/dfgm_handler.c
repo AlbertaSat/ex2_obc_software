@@ -138,43 +138,19 @@ void dfgm_convert_HK(dfgm_packet_t *const data) {
 }
 
 void update_HK(dfgm_data_t const *data) {
-    int x;
     dfgmHKBuffer.timestamp = data->time;
-    x = (int) ((data->pkt).hk[0]); // Leave voltage values in mV or V?
-    dfgmHKBuffer.coreVoltage = (float) x;
-
-    x = (int) ((data->pkt).hk[1]);
-    dfgmHKBuffer.sensorTemp = (float) x;
-
-    x = (int) ((data->pkt).hk[2]);
-    dfgmHKBuffer.refTemp = (float) x;
-
-    x = (int) ((data->pkt).hk[3]);
-    dfgmHKBuffer.boardTemp = (float) x;
-
-    x = (int) ((data->pkt).hk[4]);
-    dfgmHKBuffer.posRailVoltage = (float) x;
-
-    x = (int) ((data->pkt).hk[5]);
-    dfgmHKBuffer.inputVoltage = (float) x;
-
-    x = (int) ((data->pkt).hk[6]);
-    dfgmHKBuffer.refVoltage = (float) x;
-
-    x = (int) ((data->pkt).hk[7]);
-    dfgmHKBuffer.inputCurrent = (float) x;
-
-    x = (int) ((data->pkt).hk[8]);
-    dfgmHKBuffer.reserved1 = (float) x;
-
-    x = (int) ((data->pkt).hk[9]);
-    dfgmHKBuffer.reserved2 = (float) x;
-
-    x = (int) ((data->pkt).hk[10]);
-    dfgmHKBuffer.reserved3 = (float) x;
-
-    x = (int) ((data->pkt).hk[11]);
-    dfgmHKBuffer.reserved4 = (float) x;
+    dfgmHKBuffer.coreVoltage = (float) ((data->pkt).hk[0]); // Leave voltage values in mV or V?
+    dfgmHKBuffer.sensorTemp = (float) ((data->pkt).hk[1]);
+    dfgmHKBuffer.refTemp = (float) ((data->pkt).hk[2]);
+    dfgmHKBuffer.boardTemp = (float) ((data->pkt).hk[3]);
+    dfgmHKBuffer.posRailVoltage = (float) ((data->pkt).hk[4]);
+    dfgmHKBuffer.inputVoltage = (float) ((data->pkt).hk[5]);
+    dfgmHKBuffer.refVoltage = (float) ((data->pkt).hk[6]);
+    dfgmHKBuffer.inputCurrent = (float) ((data->pkt).hk[7]);
+    dfgmHKBuffer.reserved1 = (float) ((data->pkt).hk[8]);
+    dfgmHKBuffer.reserved2 = (float) ((data->pkt).hk[9]);
+    dfgmHKBuffer.reserved3 = (float) ((data->pkt).hk[10]);
+    dfgmHKBuffer.reserved4 = (float) ((data->pkt).hk[11]);
 }
 
 // File system functions
