@@ -129,8 +129,6 @@ encoding//Debug/ex2_hal/ex2_dfgm_software/equipment_handler/source/subdir_rules.
 encoding//Debug/ex2_hal/ex2_dfgm_software/equipment_handler/source/subdir_vars.mk=UTF-8
 encoding//Debug/ex2_hal/ex2_dfgm_software/hardware_interface/source/subdir_rules.mk=UTF-8
 encoding//Debug/ex2_hal/ex2_dfgm_software/hardware_interface/source/subdir_vars.mk=UTF-8
-encoding//Debug/ex2_hal/ex2_dfgm_software/source/subdir_rules.mk=UTF-8
-encoding//Debug/ex2_hal/ex2_dfgm_software/source/subdir_vars.mk=UTF-8
 encoding//Debug/ex2_hal/ex2_eps_software/hardware_interface/source/mocks/subdir_rules.mk=UTF-8
 encoding//Debug/ex2_hal/ex2_eps_software/hardware_interface/source/mocks/subdir_vars.mk=UTF-8
 encoding//Debug/ex2_hal/ex2_eps_software/hardware_interface/source/subdir_rules.mk=UTF-8
