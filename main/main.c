@@ -87,9 +87,7 @@ void ex2_init(void *pvParameters) {
 
     /* Hardware Initialization */
 
-#if defined(HAS_SD_CARD) // TODO: tolerate non-existent SD Card
     init_filesystem();
-#endif
 
 #ifndef ADCS_IS_STUBBED
     // PLACEHOLDER: adcs hardware init
@@ -167,6 +165,7 @@ void init_software() {
  * Initialize reliance edge file system
  */
 static void init_filesystem() {
+#if defined(HAS_SD_CARD) // TODO: tolerate non-existent SD Card
     int32_t iErr = 0;
     const char *pszVolume0 = gaRedVolConf[0].pszPathPrefix;
     iErr = red_init();
@@ -204,7 +203,8 @@ static void init_filesystem() {
     if (iErr == -1) {
         exit(red_errno);
     }
-#endif
+#endif // IS_ATHENA_V2
+#endif // defined(HAS_SD_CARD)
 }
 
 /**
@@ -312,12 +312,4 @@ void vApplicationMallocFailedHook(void) {
 }
 
 void vApplicationDaemonTaskStartupHook(void) { init_logger_queue(); }
-
-void SciSendBuf(char *buf, uint32_t bufSize) {
-    while (bufSize > 0 && *buf != '\0') {
-        sciSend(sciREG4, 1, *buf);
-        buf++;
-        bufSize--;
-    }
-}
 
