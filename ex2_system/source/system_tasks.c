@@ -38,7 +38,7 @@ SAT_returnState start_system_tasks(void) {
     if (start_beacon_daemon() != SATR_OK || start_coordinate_management_daemon() != SATR_OK ||
                 start_diagnostic_daemon() != SATR_OK || start_housekeeping_daemon() != SATR_OK ||
                 start_system_stats_daemon() != SATR_OK || start_state_daemon() != SATR_OK ||
-        start_task_manager() != SATR_OK || start_logger_daemon(_) != SATR_OK) {
+        start_task_manager() != SATR_OK) {//Removed logger for testing
         ex2_log("Error starting system tasks\r\n");
         return SATR_ERROR;
     }

@@ -120,7 +120,7 @@ void ex2_init(void *pvParameters) {
 #endif
 
 #ifndef DFGM_IS_STUBBED
-    dfgm_init();
+    //dfgm_init();
 #endif
 
 
@@ -246,9 +246,9 @@ static inline SAT_returnState init_csp_interface() {
     csp_iface_t *uart_iface = NULL;
     csp_iface_t *can_iface = NULL;
     csp_usart_conf_t conf = {.device = "UART",
-                             .baudrate = 19200, /* supported on all platforms */
+                             .baudrate = 9600, /* supported on all platforms */
                              .databits = 8,
-                             .stopbits = 2,
+                             .stopbits = 1,
                              .paritysetting = 0,
                              .checkparity = 0};
 
