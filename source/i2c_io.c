@@ -57,7 +57,7 @@ void init_i2c_driver() {
  **/
 
 int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
-    uint8 ret = 0;
+    int ret = 0;
     uint32 index = i2c == i2cREG1 ? 0U : 1U;
     uint32 i2c_mutex_timeout = pdMS_TO_TICKS(25);
 
