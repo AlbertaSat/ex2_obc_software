@@ -400,102 +400,94 @@ void dfgm_rx_task(void *pvParameters) {
     triggerSciNotif = 1;
 
     for (;;) {
-        // Wait until a valid runtime is given
+        // Always receive packets from queue
+        memset(&dat, 0, sizeof(dfgm_data_t));
+        while (received < sizeof(dfgm_packet_t)) {
+            uint8_t *pkt = (uint8_t *)&(dat.pkt);
+            xQueueReceive(dfgmQueue, &(pkt[received]), portMAX_DELAY);
+            received++;
+        }
+        received = 0;
+
+        // If runtime specified, process data
         if (secondsPassed < dfgmRuntime) {
             printf("Runtime received!\t");
-            // Read first byte from DFGM to trigger interrupt handler
-            if (triggerSciNotif) {
-                printf("sciTrigger\t");
-                sciReceive(DFGM_SCI, 1, &dfgmBuffer);
-                triggerSciNotif = 0;
+            printf("Seconds passed: %d\t", secondsPassed);
+
+            // Get time
+            RTCMK_GetUnix(&(dat.time));
+
+            // Don't save or convert raw mag field data if receiving packet for HK
+            if(!collectingHK) {
+                //save_packet(&(dat.pkt), "raw_DFGM_data");
+                dfgm_convert_mag(&(dat.pkt));
+                printf("Mag field data converted!\t");
             }
 
+            dfgm_convert_HK(&(dat.pkt));
+            update_HK(&dat);
 
-            // Collect data for the specified runtime
-            while(secondsPassed < dfgmRuntime) {
-                //DFGM_stopDataCollection();
-                printf("Seconds passed: %d\t", secondsPassed);
-                // Receive packet from queue
-                memset(&dat, 0, sizeof(dfgm_data_t));
-                while (received < sizeof(dfgm_packet_t)) {
-                    uint8_t *pkt = (uint8_t *)&(dat.pkt);
-                    xQueueReceive(dfgmQueue, &(pkt[received]), portMAX_DELAY);
-                    received++;
-                }
-                received = 0;
+            printf("HK data converted!\t");
 
-                printf("Packet received!\t");
-
-                // Time stamp
-                RTCMK_GetUnix(&(dat.time));
-
-                // Don't save or convert raw mag field data if receiving packet for HK
-                if(!collectingHK) {
-                    //save_packet(&(dat.pkt), "raw_DFGM_data");
-                    dfgm_convert_mag(&(dat.pkt));
-                    printf("Mag field data converted!\t");
-                }
-
-                dfgm_convert_HK(&(dat.pkt));
-                update_HK(&dat);
-
-                printf("HK data converted!\t");
-
-                // Don't save if receiving packet for HK
-                if (!collectingHK) {
-                    save_packet(&dat, "high_rate_DFGM_data");
-                }
-
-                secondsPassed += 1;
-
-                // Check if data gets corrupt (i.e. gets stored into things with an offset of 1 byte)
-                for (int i = 0; i < 12; i++) {
-                    printf("%d ", dat.pkt.hk[i]);
-                }
-            }
-
-            // Don't update if receiving packet for HK
+            // Don't save if receiving packet for HK
             if (!collectingHK) {
-                update_1HzFile();
-                //update_10HzFile();
+                save_packet(&dat, "high_rate_DFGM_data");
             }
 
-            // Reset to original state
-            secondsPassed = 0;
-            dfgmRuntime = 0;
-            collectingHK = 0;
+            // Check if data gets corrupted
+            for (int i = 0; i < 12; i++) {
+                printf("%d ", dat.pkt.hk[i]);
+            }
 
-            // For debugging
-            printf("Runtime reset. \t");
+            secondsPassed += 1;
 
-            clear_file("high_rate_DFGM_data");
-            clear_file("survey_rate_DFGM_data");
+            // Before the task stops processing data...
+            if (secondsPassed >= dfgmRuntime) {
+                // Update files if not processing data for HK
+                if (!collectingHK) {
+                    update_1HzFile();
+                    //update_10HzFile();
+                }
 
-            printf("Files cleared. \t");
-        } else {
-            // Nothing, just wait
+                // Reset the task to its original state
+                secondsPassed = 0;
+                dfgmRuntime = 0;
+                collectingHK = 0;
+                printf("Runtime reset. \t");
+
+                // For debugging
+                clear_file("high_rate_DFGM_data");
+                clear_file("survey_rate_DFGM_data");
+                printf("Files cleared. \t");
+            }
+        } else { // else statement only for debugging, not actually needed
+            // Wait for runtime
             printf("Waiting for runtime...\t");
-            DFGM_startDataCollection(20);
-
+            DFGM_startDataCollection(100);
         }
     }
 }
 
 void dfgm_init() {
     TaskHandle_t dfgm_rx_handle;
-    dfgmQueue = xQueueCreate(QUEUE_DEPTH*10, sizeof(uint8_t));
+    dfgmQueue = xQueueCreate(1500, sizeof(uint8_t));
     tx_semphr = xSemaphoreCreateBinary();
     xTaskCreate(dfgm_rx_task, "DFGM RX", 256, NULL, DFGM_RX_PRIO,
                 &dfgm_rx_handle);
+    sciReceive(DFGM_SCI, 1, &dfgmBuffer);
     return;
 }
 
 void dfgm_sciNotification(sciBASE_t *sci, unsigned flags) {
     portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
+    long a;
 
     switch (flags) {
     case SCI_RX_INT:
-        xQueueSendToBackFromISR(dfgmQueue, &dfgmBuffer, &xHigherPriorityTaskWoken);
+        a = xQueueSendToBackFromISR(dfgmQueue, &dfgmBuffer, &xHigherPriorityTaskWoken);
+        if (a != pdPASS) {
+            printf("Uh oh, queue is full!");
+        }
         sciReceive(sci, 1, &dfgmBuffer);
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         break;
