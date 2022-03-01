@@ -58,9 +58,13 @@
 #include "sband.h"
 #include "system.h"
 
-#include "sband_binary_tests.h"
 #include "deployablescontrol.h"
 #include "HL_system.h"
+
+#ifdef FLATSAT_TEST
+#include "sband_binary_tests.h"
+static void flatsat_test();
+#endif
 
 /**
  * The main function must:
@@ -78,7 +82,7 @@
 static void init_filesystem();
 static void init_csp();
 static void init_software();
-static void flatsat_test();
+
 static inline SAT_returnState init_csp_interface();
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
 
@@ -132,12 +136,14 @@ void ex2_init(void *pvParameters) {
     vTaskDelete(0); // delete self to free up heap
 }
 
+#ifdef FLATSAT_TEST
 void flatsat_test(void *pvParameters) {
     sband_binary_test();
     uhf_binary_test();
 
     vTaskDelete(NULL);
 }
+#endif
 
 int ex2_main(void) {
     _enable_IRQ_interrupt_(); // enable inturrupts
@@ -211,8 +217,6 @@ static void init_filesystem() {
  * Initialize CSP network
  */
 static void init_csp() {
-    TC_TM_app_id my_address = OBC_APP_ID;
-
     /* Init CSP with address and default settings */
     csp_conf_t csp_conf;
     csp_conf.address = 1;
@@ -249,8 +253,8 @@ static void init_csp() {
  * with no VIA address
  */
 static inline SAT_returnState init_csp_interface() {
+    int error;
     csp_iface_t *uart_iface = NULL;
-    csp_iface_t *can_iface = NULL;
     csp_usart_conf_t conf = {.device = "UART",
                              .baudrate = 115200, /* supported on all platforms */
                              .databits = 8,
@@ -258,10 +262,13 @@ static inline SAT_returnState init_csp_interface() {
                              .paritysetting = 0,
                              .checkparity = 0};
 
-    int error = csp_can_open_and_add_interface("CAN", &can_iface);
+#ifndef EPS_IS_STUBBED
+    csp_iface_t *can_iface = NULL;
+    error = csp_can_open_and_add_interface("CAN", &can_iface);
     if (error != CSP_ERR_NONE) {
         return SATR_ERROR;
     }
+#endif
 
     error = csp_usart_open_and_add_kiss_interface(&conf, CSP_IF_KISS_DEFAULT_NAME, &uart_iface);
     if (error != CSP_ERR_NONE) {

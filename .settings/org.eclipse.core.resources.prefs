@@ -236,6 +236,8 @@ encoding//Devel/ex2_hal/ex2_uhf_software/hardware_interface/source/subdir_rules.
 encoding//Devel/ex2_hal/ex2_uhf_software/hardware_interface/source/subdir_vars.mk=UTF-8
 encoding//Devel/ex2_services/Services/source/adcs/subdir_rules.mk=UTF-8
 encoding//Devel/ex2_services/Services/source/adcs/subdir_vars.mk=UTF-8
+encoding//Devel/ex2_services/Services/source/cli/subdir_rules.mk=UTF-8
+encoding//Devel/ex2_services/Services/source/cli/subdir_vars.mk=UTF-8
 encoding//Devel/ex2_services/Services/source/communication/subdir_rules.mk=UTF-8
 encoding//Devel/ex2_services/Services/source/communication/subdir_vars.mk=UTF-8
 encoding//Devel/ex2_services/Services/source/housekeeping/subdir_rules.mk=UTF-8
@@ -297,7 +299,6 @@ encoding//Devel/libcsp/src/transport/subdir_vars.mk=UTF-8
 encoding//Devel/main/subdir_rules.mk=UTF-8
 encoding//Devel/main/subdir_vars.mk=UTF-8
 encoding//Devel/makefile=UTF-8
-encoding//Devel/objects.mk=UTF-8
 encoding//Devel/reliance_edge/core/driver/subdir_rules.mk=UTF-8
 encoding//Devel/reliance_edge/core/driver/subdir_vars.mk=UTF-8
 encoding//Devel/reliance_edge/fse/subdir_rules.mk=UTF-8
