@@ -74,9 +74,9 @@ typedef enum {
 #define HK11Offset 0
 
 // For data collection task & HK
-#define minRuntime 1 // in seconds
+#define minRuntime 2 // in seconds; 2 seconds so that it can be filtered
 #define timeThreshold 180 // in seconds
-#define QUEUE_DEPTH 32
+#define QUEUE_DEPTH 2500
 
 // Structs from converter and filter - dfgm_data_tuple_t, dfgm_packet_t, dfgm_data_t, HK data struct etc.
 // SECOND + dfgm_1Hz_file_t combo? should include timestamps, 100Hz data, and filtered data

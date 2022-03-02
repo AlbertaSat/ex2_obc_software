@@ -52,7 +52,7 @@
 
 // Macros
 #ifndef DFGM_RX_PRIO
-#define DFGM_RX_PRIO (tskIDLE_PRIORITY + 1) //configMAX_PRIORITIES - 1
+#define DFGM_RX_PRIO configMAX_PRIORITIES + 1 //(tskIDLE_PRIORITY + 1) //configMAX_PRIORITIES - 1 originally
 #endif
 
 #ifndef DFGM_SCI
@@ -285,88 +285,88 @@ void save_second(struct SECOND *second, char * filename) {
     }
 }
 
-void convert_100Hz_to_1Hz(char *filename100Hz, char *filename1Hz) {
-    /*------------------- Initialization ------------------*/
-    int32_t iErr;
+//void convert_100Hz_to_1Hz(char *filename100Hz, char *filename1Hz) {
+//    /*------------------- Initialization ------------------*/
+//    int32_t iErr;
+//
+//    // Assume file system is already initialized, formatted, and mounted
+//    int32_t dataFile100Hz;
+//    dataFile100Hz = red_open(filename100Hz, RED_O_RDONLY);
+//    if (dataFile100Hz == -1) {
+//        printf("Unexpected error %d from red_open() in filter\r\n", (int)red_errno);
+//        exit(red_errno);
+//    }
+//
+//    sptr[0] = &secBuffer[0];
+//    sptr[1] = &secBuffer[1];
+//
+//    // There must be 2 packets of data before filtering can start
+//    int firstPacketFlag = 1;
+//
+//    /*------------------- Read packets sample by sample ------------------*/
+//    dfgm_data_sample_t dataSample = {0};
+//    int EOF_reached = 0;
+//    int bytes_read = 0;
+//
+//    // Read file sample by sample until EOF is reached
+//    while (1) {
+//        // Assume there are 100 samples per packet in the file
+//        for (int sample = 0; sample < 100; sample++) {
+//            memset(&dataSample, 0, sizeof(dfgm_data_sample_t));
+//            bytes_read = red_read(dataFile100Hz, &dataSample, sizeof(dfgm_data_sample_t));
+//            if (bytes_read == -1) {
+//                printf("Unexpected error %d from red_read() in filter\r\n", (int) red_errno);
+//            } else if (bytes_read == 0){
+//                EOF_reached = 1;
+//                break;
+//            }
+//
+//            sptr[1]->time = dataSample.time;
+//            sptr[1]->X[sample] = dataSample.X;
+//            sptr[1]->Y[sample] = dataSample.Y;
+//            sptr[1]->Z[sample] = dataSample.Z;
+//        }
+//
+//        /*---------------------- Apply filter and save filtered sample to a file ----------------------*/
+//        time_t pktTimeDiff = sptr[1]->time - sptr[0]->time;
+//
+//        if (EOF_reached) {
+//            break;
+//        } else if (firstPacketFlag) {
+//            // Ensure there are at least 2 packets in the buffer before filtering
+//            firstPacketFlag = 0;
+//            shift_sptr();
+//        } else if (!firstPacketFlag && pktTimeDiff != 1) {
+//            // Consecutive packets must belong to the same data set
+//            shift_sptr();
+//        } else {
+//            apply_filter();
+//            save_second(sptr[1], filename1Hz);
+//            shift_sptr();
+//        }
+//    }
+//
+//    iErr = red_close(dataFile100Hz);
+//    if (iErr == -1) {
+//        printf("Unexpected error %d from red_close in filter\r\n", (int) red_errno);
+//    }
+//}
 
-    // Assume file system is already initialized, formatted, and mounted
-    int32_t dataFile100Hz;
-    dataFile100Hz = red_open(filename100Hz, RED_O_RDONLY);
-    if (dataFile100Hz == -1) {
-        printf("Unexpected error %d from red_open() in filter\r\n", (int)red_errno);
-        exit(red_errno);
-    }
-
-    sptr[0] = &secBuffer[0];
-    sptr[1] = &secBuffer[1];
-
-    // There must be 2 packets of data before filtering can start
-    int firstPacketFlag = 1;
-
-    /*------------------- Read packets sample by sample ------------------*/
-    dfgm_data_sample_t dataSample = {0};
-    int EOF_reached = 0;
-    int bytes_read = 0;
-
-    // Read file sample by sample until EOF is reached
-    while (1) {
-        // Assume there are 100 samples per packet in the file
-        for (int sample = 0; sample < 100; sample++) {
-            memset(&dataSample, 0, sizeof(dfgm_data_sample_t));
-            bytes_read = red_read(dataFile100Hz, &dataSample, sizeof(dfgm_data_sample_t));
-            if (bytes_read == -1) {
-                printf("Unexpected error %d from red_read() in filter\r\n", (int) red_errno);
-            } else if (bytes_read == 0){
-                EOF_reached = 1;
-                break;
-            }
-
-            sptr[1]->time = dataSample.time;
-            sptr[1]->X[sample] = dataSample.X;
-            sptr[1]->Y[sample] = dataSample.Y;
-            sptr[1]->Z[sample] = dataSample.Z;
-        }
-
-        /*---------------------- Apply filter and save filtered sample to a file ----------------------*/
-        time_t pktTimeDiff = sptr[1]->time - sptr[0]->time;
-
-        if (EOF_reached) {
-            break;
-        } else if (firstPacketFlag) {
-            // Ensure there are at least 2 packets in the buffer before filtering
-            firstPacketFlag = 0;
-            shift_sptr();
-        } else if (!firstPacketFlag && pktTimeDiff != 1) {
-            // Consecutive packets must belong to the same data set
-            shift_sptr();
-        } else {
-            apply_filter();
-            save_second(sptr[1], filename1Hz);
-            shift_sptr();
-        }
-    }
-
-    iErr = red_close(dataFile100Hz);
-    if (iErr == -1) {
-        printf("Unexpected error %d from red_close in filter\r\n", (int) red_errno);
-    }
-}
-
-void update_1HzFile(void) {
-    char filename1Hz[] = "survey_rate_DFGM_data";
-    char filename100Hz[] = "high_rate_DFGM_data";
-
-    clear_file(filename1Hz);
-    convert_100Hz_to_1Hz(filename100Hz, filename1Hz);
-}
+//void update_1HzFile(void) {
+//    char filename1Hz[] = "survey_rate_DFGM_data";
+//    char filename100Hz[] = "high_rate_DFGM_data";
+//
+//    clear_file(filename1Hz);
+//    convert_100Hz_to_1Hz(filename100Hz, filename1Hz);
+//}
 
 // FreeRTOS
 void dfgm_rx_task(void *pvParameters) {
     static dfgm_data_t dat = {0};
     int received = 0;
     int secondsPassed;
+    int firstPacketFlag;
     int32_t iErr = 0;
-    int triggerSciNotif;
 
     // Set up file system before task is actually run
     const char *pszVolume0 = gaRedVolConf[0].pszPathPrefix;
@@ -392,13 +392,17 @@ void dfgm_rx_task(void *pvParameters) {
 //        exit(red_errno);
 //    }
 
+    // Initialize variables for filtering
+    sptr[0] = &secBuffer[0];
+    sptr[1] = &secBuffer[1];
 
     // Set initial conditions
     secondsPassed = 0;
     dfgmRuntime = 0;
     collectingHK = 0;
-    triggerSciNotif = 1;
+    firstPacketFlag = 1;
 
+    sciReceive(DFGM_SCI, 1, &dfgmBuffer);
     for (;;) {
         // Always receive packets from queue
         memset(&dat, 0, sizeof(dfgm_data_t));
@@ -441,18 +445,37 @@ void dfgm_rx_task(void *pvParameters) {
 
             secondsPassed += 1;
 
-            // Before the task stops processing data...
-            if (secondsPassed >= dfgmRuntime) {
-                // Update files if not processing data for HK
-                if (!collectingHK) {
-                    update_1HzFile();
-                    //update_10HzFile();
+            // Filter 100 Hz packets into 1 Hz
+            if (firstPacketFlag) {
+                // Ensure at least 2 packets in the buffer before filtering
+                firstPacketFlag = 0;
+                shift_sptr();
+                printf("First packet ignored from filtering");
+            } else {
+                // Convert packet into second struct
+                sptr[1]->time = dat.time;
+                for (int sample = 0; sample < 100; sample++) {
+                    sptr[1]->X[sample] = dat.pkt.tup[sample].X;
+                    sptr[1]->Y[sample] = dat.pkt.tup[sample].Y;
+                    sptr[1]->Z[sample] = dat.pkt.tup[sample].Z;
                 }
 
+                apply_filter();
+                save_second(sptr[1], "survey_rate_DFGM_data");
+                shift_sptr();
+                printf("100 Hz packet filtered to 1 Hz!\t");
+            }
+
+            // TODO Filter 100 Hz packets into 10 Hz
+
+
+            // Before the task stops processing data...
+            if (secondsPassed >= dfgmRuntime) {
                 // Reset the task to its original state
                 secondsPassed = 0;
                 dfgmRuntime = 0;
                 collectingHK = 0;
+                firstPacketFlag = 1;
                 printf("Runtime reset. \t");
 
                 // For debugging
@@ -463,18 +486,17 @@ void dfgm_rx_task(void *pvParameters) {
         } else { // else statement only for debugging, not actually needed
             // Wait for runtime
             printf("Waiting for runtime...\t");
-            DFGM_startDataCollection(100);
+            //DFGM_startDataCollection(150);
         }
     }
 }
 
 void dfgm_init() {
     TaskHandle_t dfgm_rx_handle;
-    dfgmQueue = xQueueCreate(1500, sizeof(uint8_t));
+    dfgmQueue = xQueueCreate(QUEUE_DEPTH, sizeof(uint8_t));
     tx_semphr = xSemaphoreCreateBinary();
     xTaskCreate(dfgm_rx_task, "DFGM RX", 256, NULL, DFGM_RX_PRIO,
                 &dfgm_rx_handle);
-    sciReceive(DFGM_SCI, 1, &dfgmBuffer);
     return;
 }
 
