@@ -60,6 +60,8 @@
 #include "system.h"
 
 #include "sband_binary_tests.h"
+#include "deployablescontrol.h"
+#include "HL_system.h"
 
 /**
  * The main function must:

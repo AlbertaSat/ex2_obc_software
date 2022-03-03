@@ -85,8 +85,10 @@
 									<listOptionValue builtIn="false" value="CSP_FREERTOS"/>
 									<listOptionValue builtIn="false" value="SBAND_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="CHARON_IS_STUBBED"/>
+									<listOptionValue builtIn="false" value="CSP_FREERTOS"/>
+									<listOptionValue builtIn="false" value="FLATSAT_TEST"/>
+									<listOptionValue builtIn="false" value="UHF_USE_I2C_CMDS"/>
 									<listOptionValue builtIn="false" value="SYSTEM_APP_ID=_OBC_APP_ID_"/>
-									<listOptionValue builtIn="false" value="IS_3U"/>
 									<listOptionValue builtIn="false" value="EPS_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="IS_3U"/>
 									<listOptionValue builtIn="false" value="ADCS_IS_STUBBED"/>
