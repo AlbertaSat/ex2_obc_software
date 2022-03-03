@@ -74,7 +74,7 @@ typedef enum {
 #define HK11Offset 0
 
 // For data collection task & HK
-#define minRuntime 2 // in seconds; 2 seconds so that it can be filtered
+#define minRuntime 1 // in seconds; 2 seconds so that it can be filtered
 #define timeThreshold 180 // in seconds
 #define QUEUE_DEPTH 2500
 
