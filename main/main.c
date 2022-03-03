@@ -33,6 +33,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <os_task.h>
+#include <HL_system.h>
 
 #include "main/system.h"
 #include "board_io_tests.h"
@@ -215,8 +216,19 @@ static void init_csp() {
 
     /* Init CSP with address and default settings */
     csp_conf_t csp_conf;
-    csp_conf_get_defaults(&csp_conf);
-    csp_conf.address = my_address;
+    csp_conf.address = 1;
+    csp_conf.hostname = "Athena";
+    csp_conf.model = "Ex-Alta2";
+    csp_conf.revision = "2";
+    csp_conf.conn_max =10;
+    csp_conf.conn_queue_length = 10;
+    csp_conf.fifo_length = 25;
+    csp_conf.port_max_bind = 24;
+    csp_conf.rdp_max_window = 20;
+    csp_conf.buffers = 10;
+    csp_conf.buffer_data_size = 1024;
+    csp_conf.conn_dfl_so = CSP_O_NONE;
+
     int error = csp_init(&csp_conf);
     if (error != CSP_ERR_NONE) {
         // ex2_log("csp_init() failed, error: %d\n", error);
