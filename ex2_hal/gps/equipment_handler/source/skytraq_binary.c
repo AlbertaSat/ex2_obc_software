@@ -71,10 +71,6 @@ bool skytraq_binary_init() {
         return false;
     }
 
-    // initialise sci
-    while ((GPS_SCI->FLR & 0x4) == 4)
-        ;
-
     sciEnableNotification(GPS_SCI, SCI_RX_INT);
     sciReceive(GPS_SCI, 1, &byte);
 
