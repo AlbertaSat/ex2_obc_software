@@ -23,7 +23,7 @@
 #include "nmea_service.h"
 #include "rtcmk.h"
 #include "services.h"
-#include "skytraq_gps_driver.h"
+#include "skytraq_gps.h"
 #include "task_manager/task_manager.h"
 #include "time_management/time_management_service.h"
 #include "util/service_utilities.h"
