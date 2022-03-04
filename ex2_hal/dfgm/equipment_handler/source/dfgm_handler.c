@@ -63,9 +63,12 @@
 static uint8_t dfgmBuffer;
 static xQueueHandle dfgmQueue;
 static SemaphoreHandle_t tx_semphr;
-static int dfgmRuntime;
 static dfgm_housekeeping dfgmHKBuffer = {0};
-static int collectingHK;
+
+static int secondsPassed = 0;
+static int dfgmRuntime = 0;
+static int collectingHK = 0;
+static int firstPacketFlag = 1;
 
 // HKScales and HKOffsets array
 const float HKScales[] = {HK0Scale, HK1Scale, HK2Scale, HK3Scale,
@@ -364,8 +367,6 @@ void save_second(struct SECOND *second, char * filename) {
 void dfgm_rx_task(void *pvParameters) {
     static dfgm_data_t dat = {0};
     int received = 0;
-    int secondsPassed;
-    int firstPacketFlag;
     int32_t iErr = 0;
 
     // Set up file system before task is actually run
@@ -536,7 +537,11 @@ DFGM_return DFGM_startDataCollection(int givenRuntime) {
 }
 
 DFGM_return DFGM_stopDataCollection() {
+    secondsPassed = 0;
     dfgmRuntime = 0;
+    collectingHK = 0;
+    firstPacketFlag = 1;
+    printf("Runtime reset. \t");
 
     // Will always work whether or not the data collection task is running
     return DFGM_SUCCESS;
