@@ -417,7 +417,6 @@ void dfgm_rx_task(void *pvParameters) {
         // If runtime specified, process data
         if (secondsPassed < dfgmRuntime) {
             printf("Runtime received!\t");
-            printf("Seconds passed: %d\t", secondsPassed);
 
             // Get time
             RTCMK_GetUnix(&(dat.time));
@@ -445,30 +444,32 @@ void dfgm_rx_task(void *pvParameters) {
             }
 
             secondsPassed += 1;
+            printf("Seconds passed: %d\t", secondsPassed);
 
-            // Filter 100 Hz packets into 1 Hz
-            if (firstPacketFlag) {
-                // Ensure at least 2 packets in the buffer before filtering
-                firstPacketFlag = 0;
-                shift_sptr();
-                printf("First packet ignored from filtering");
-            } else {
-                // Convert packet into second struct
-                sptr[1]->time = dat.time;
-                for (int sample = 0; sample < 100; sample++) {
-                    sptr[1]->X[sample] = dat.pkt.tup[sample].X;
-                    sptr[1]->Y[sample] = dat.pkt.tup[sample].Y;
-                    sptr[1]->Z[sample] = dat.pkt.tup[sample].Z;
+            if (!collectingHK && dfgmRuntime > 1) {
+                // Filter 100 Hz packets into 1 Hz
+                if (firstPacketFlag) {
+                    // Ensure at least 2 packets in the buffer before filtering
+                    firstPacketFlag = 0;
+                    shift_sptr();
+                    printf("First packet ignored from filtering");
+                } else {
+                    // Convert packet into second struct
+                    sptr[1]->time = dat.time;
+                    for (int sample = 0; sample < 100; sample++) {
+                        sptr[1]->X[sample] = dat.pkt.tup[sample].X;
+                        sptr[1]->Y[sample] = dat.pkt.tup[sample].Y;
+                        sptr[1]->Z[sample] = dat.pkt.tup[sample].Z;
+                    }
+
+                    apply_filter();
+                    save_second(sptr[1], "survey_rate_DFGM_data");
+                    shift_sptr();
+                    printf("100 Hz packet filtered to 1 Hz!\t");
                 }
 
-                apply_filter();
-                save_second(sptr[1], "survey_rate_DFGM_data");
-                shift_sptr();
-                printf("100 Hz packet filtered to 1 Hz!\t");
+                // TODO Filter 100 Hz packets into 10 Hz
             }
-
-            // TODO Filter 100 Hz packets into 10 Hz
-
 
             // Before the task stops processing data...
             if (secondsPassed >= dfgmRuntime) {
@@ -527,7 +528,8 @@ DFGM_return DFGM_startDataCollection(int givenRuntime) {
     DFGM_return status = DFGM_SUCCESS;
     if (dfgmRuntime == 0 && givenRuntime >= minRuntime) {
         dfgmRuntime = givenRuntime;
-        status =  DFGM_SUCCESS;
+        printf("\nRuntime set to: %d seconds\t\n", givenRuntime);
+        status = DFGM_SUCCESS;
     } else if (dfgmRuntime != 0) {
         status = DFGM_BUSY;
     } else if (givenRuntime < minRuntime) {
@@ -557,6 +559,9 @@ DFGM_return DFGM_getHK(dfgm_housekeeping *hk) {
     if (timeDiff > timeThreshold) {
         collectingHK = 1;
         status = DFGM_startDataCollection(1);
+        while (collectingHK) {
+            // Wait until Rx Task is done updating the HK data
+        }
     }
 
     hk->timestamp = dfgmHKBuffer.timestamp;
