@@ -25,7 +25,6 @@
 #include "HL_sci.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "system.h"
 #include <stdint.h>
 
@@ -162,7 +161,6 @@ void savePacket(dfgm_data_t *data, char *fileName) {
     int32_t dataFile;
     dataFile = red_open(fileName, RED_O_WRONLY | RED_O_CREAT | RED_O_APPEND);
     if (dataFile == -1) {
-        printf("Unexpected error %d from red_open() in savePacket()\r\n", (int)red_errno);
         exit(red_errno);
     }
 
@@ -177,7 +175,6 @@ void savePacket(dfgm_data_t *data, char *fileName) {
 
         iErr = red_write(dataFile, &dataSample, sizeof(dfgm_data_sample_t));
         if (iErr == -1) {
-            printf("Unexpected error %d from red_write() in savePacket()\r\n", (int)red_errno);
             exit(red_errno);
         }
     }
@@ -185,32 +182,7 @@ void savePacket(dfgm_data_t *data, char *fileName) {
     // close file
     iErr = red_close(dataFile);
     if (iErr == -1) {
-        printf("Unexpected error %d from red_close() in savePacket()\r\n", (int)red_errno);
         exit(red_errno);
-    }
-}
-
-// Might need modification
-void clear_file(char* fileName) {
-    int32_t iErr;
-    int32_t dataFile;
-
-    // Clear file if it exists, otherwise do nothing
-    dataFile = red_open(fileName, RED_O_RDONLY);
-    if (dataFile != -1) {
-        // File opens if it exists
-        iErr = red_close(dataFile);
-        if (iErr == -1) {
-            printf("Unexpected error %d from red_close() in clear_file()\r\n", (int)red_errno);
-            exit(red_errno);
-        }
-
-        // Delete file
-        iErr = red_unlink(fileName);
-        if (iErr == -1) {
-            printf("Unexpected error %d from red_unlink() in clear_file()\r\n", (int)red_errno);
-            exit(red_errno);
-        }
     }
 }
 
@@ -245,7 +217,7 @@ void applyFilter(void) {
 }
 
 void shiftSecondPointer(void) {
-  secondPointer[0] = secondPointer[1];
+    secondPointer[0] = secondPointer[1];
 }
 
 void saveSecond(struct dfgm_second *second, char * fileName) {
@@ -254,7 +226,6 @@ void saveSecond(struct dfgm_second *second, char * fileName) {
     int32_t dataFile;
     dataFile = red_open(fileName, RED_O_WRONLY | RED_O_CREAT | RED_O_APPEND);
     if (dataFile == -1) {
-        printf("Unexpected error %d from red_open() in saveSecond()\r\n", (int)red_errno);
         exit(red_errno);
     }
 
@@ -268,63 +239,12 @@ void saveSecond(struct dfgm_second *second, char * fileName) {
 
     iErr = red_write(dataFile, &dataSample, sizeof(dfgm_data_sample_t));
     if (iErr == -1) {
-        printf("Unexpected error %d from red_write() in saveSecond()\r\n", (int)red_errno);
         exit(red_errno);
     }
 
     iErr = red_close(dataFile);
     if (iErr == -1) {
-        printf("Unexpected error %d from red_close() in saveSecond()\r\n", (int)red_errno);
         exit(red_errno);
-    }
-}
-
-/** FOR DEBUGGING **/
-void print_file(char* fileName) {
-    int32_t iErr;
-    int bytes_read;
-
-    // open file
-    int32_t dataFile;
-    dataFile = red_open(fileName, RED_O_RDONLY);
-    if (dataFile == -1) {
-        printf("Unexpected error %d from red_open() in print_file()\r\n", (int)red_errno);
-        exit(red_errno);
-    }
-
-    // Error check reading the first sample
-    dfgm_data_sample_t dataSample = {0};
-    memset(&dataSample, 0, sizeof(dfgm_data_sample_t));
-    bytes_read = red_read(dataFile, &dataSample, sizeof(dfgm_data_sample_t));
-    if (bytes_read == -1) {
-        printf("Unexpected error %d from red_read() in print_file\r\n", (int) red_errno);
-        exit(red_errno);
-    } else if (bytes_read == 0) {
-        printf("%s is empty!\n", fileName);
-    }
-
-    // Print file sample by sample
-    while (bytes_read != 0) {
-        printf("%ld %f %f %f\n", dataSample.time, dataSample.x, dataSample.y, dataSample.z);
-        memset(&dataSample, 0, sizeof(dfgm_data_sample_t));
-        bytes_read = red_read(dataFile, &dataSample, sizeof(dfgm_data_sample_t));
-    }
-
-    // close file
-    iErr = red_close(dataFile);
-    if (iErr == -1) {
-        printf("Unexpected error %d from red_close() in print_file()\r\n", (int)red_errno);
-        exit(red_errno);
-    }
-}
-void replace_packet_data(dfgm_data_t *dat) {
-    for (int sample = 0; sample < 100; sample++) {
-        float x = -11111.111;
-        float y = -22222.222;
-        float z = -33333.333;
-        (dat->packet).tuple[sample].x = (*(uint32_t *)&x);
-        (dat->packet).tuple[sample].y = (*(uint32_t *)&y);
-        (dat->packet).tuple[sample].z = (*(uint32_t *)&z);
     }
 }
 
@@ -337,7 +257,6 @@ void dfgm_rx_task(void *pvParameters) {
     // initialize reliance edge
     iErr = red_init();
     if (iErr == -1) {
-        printf("Unexpected error %d from red_init()\r\n", (int)red_errno);
         exit(red_errno);
     }
 
@@ -367,7 +286,6 @@ void dfgm_rx_task(void *pvParameters) {
 
         // If runtime specified, process data
         if (secondsPassed < DFGM_runtime) {
-            printf("Runtime received!\t");
 
             // Get time
             RTCMK_GetUnix(&(data.time));
@@ -376,28 +294,17 @@ void dfgm_rx_task(void *pvParameters) {
             if(!collecting_HK) {
                 savePacket(&data, "raw_DFGM_data");
                 DFGM_convertRawMagData(&(data.packet));
-                printf("Mag field data converted!\t");
             }
 
             DFGM_convertRaw_HK_data(&(data.packet));
             update_HK(&data);
-
-            printf("HK data converted!\t");
-
-            //replace_packet_data(&dat); // For filter debugging
 
             // Don't save if receiving packet for HK
             if (!collecting_HK) {
                 savePacket(&data, "high_rate_DFGM_data");
             }
 
-            // Check if data gets corrupted
-            for (int i = 0; i < 12; i++) {
-                printf("%d ", data.packet.HK[i]);
-            }
-
             secondsPassed += 1;
-            printf("Seconds passed: %d\t", secondsPassed);
 
             if (!collecting_HK && DFGM_runtime > 1) {
                 // Convert packet into second struct
@@ -416,12 +323,10 @@ void dfgm_rx_task(void *pvParameters) {
                     // Ensure at least 2 packets in the buffer before filtering
                     firstPacketFlag = 0;
                     shiftSecondPointer();
-                    printf("First packet ignored from filtering");
                 } else {
                     applyFilter();
                     saveSecond(secondPointer[1], "survey_rate_DFGM_data");
                     shiftSecondPointer();
-                    printf("100 Hz packet filtered to 1 Hz!\t");
                 }
 
                 // TODO Filter 100 Hz packets into 10 Hz
@@ -429,26 +334,12 @@ void dfgm_rx_task(void *pvParameters) {
 
             // Before the task stops processing data...
             if (secondsPassed >= DFGM_runtime) {
-                // For debugging
-                if (!collecting_HK && DFGM_runtime > 1) {
-                    print_file("high_rate_DFGM_data");
-                    print_file("survey_rate_DFGM_data");
-                    clear_file("high_rate_DFGM_data");
-                    clear_file("survey_rate_DFGM_data");
-                    printf("Files cleared. \t");
-                }
-
                 // Reset the task to its original state
                 secondsPassed = 0;
                 DFGM_runtime = 0;
                 collecting_HK = 0;
                 firstPacketFlag = 1;
-                printf("Runtime reset. \t");
             }
-        } else { // else statement only for debugging, not actually needed
-            // Wait for runtime
-            printf("Waiting for runtime...\t");
-            //DFGM_startDataCollection(150);
         }
     }
 }
@@ -464,14 +355,10 @@ void DFGM_init() {
 
 void dfgm_sciNotification(sciBASE_t *sci, unsigned flags) {
     portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
-    long a;
 
     switch (flags) {
     case SCI_RX_INT:
         a = xQueueSendToBackFromISR(DFGM_queue, &DFGM_byteBuffer, &xHigherPriorityTaskWoken);
-        if (a != pdPASS) {
-            printf("Uh oh, queue is full!");
-        }
         sciReceive(sci, 1, &DFGM_byteBuffer);
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         break;
@@ -488,7 +375,6 @@ DFGM_return DFGM_startDataCollection(int givenRuntime) {
     DFGM_return status = DFGM_SUCCESS;
     if (DFGM_runtime == 0 && givenRuntime >= MIN_RUNTIME) {
         DFGM_runtime = givenRuntime;
-        printf("\nRuntime set to: %d seconds\t\n", givenRuntime);
         status = DFGM_SUCCESS;
     } else if (DFGM_runtime != 0) {
         status = DFGM_BUSY;
@@ -503,7 +389,6 @@ DFGM_return DFGM_stopDataCollection() {
     DFGM_runtime = 0;
     collecting_HK = 0;
     firstPacketFlag = 1;
-    printf("Runtime reset. \t");
 
     // Will always work whether or not the data collection task is running
     return DFGM_SUCCESS;
