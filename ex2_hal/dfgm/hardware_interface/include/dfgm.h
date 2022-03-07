@@ -41,6 +41,6 @@ typedef struct __attribute__((packed)) {
 
 DFGM_return HAL_DFGM_run(int32_t givenRuntime);
 DFGM_return HAL_DFGM_stop();
-DFGM_return HAL_DFGM_getHK(DFGM_Housekeeping *DFGM_hk);
+DFGM_return HAL_DFGM_get_HK(DFGM_Housekeeping *DFGM_hk);
 
 #endif /* DFGM_H */

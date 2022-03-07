@@ -51,11 +51,11 @@ DFGM_return HAL_DFGM_stop() {
     return status;
 }
 
-DFGM_return HAL_DFGM_getHK(DFGM_Housekeeping *DFGM_hk) {
+DFGM_return HAL_DFGM_get_HK(DFGM_Housekeeping *DFGM_hk) {
     DFGM_return status;
     dfgm_housekeeping hk;
 #ifndef DFGM_IS_STUBBED
-    status = DFGM_getHK(&hk);
+    status = DFGM_get_HK(&hk);
     DFGM_hk->coreVoltage = hk.coreVoltage;
     DFGM_hk->sensorTemp = hk.sensorTemp;
     DFGM_hk->refTemp = hk.refTemp;
