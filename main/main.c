@@ -120,7 +120,7 @@ void ex2_init(void *pvParameters) {
 #endif
 
 #ifndef DFGM_IS_STUBBED
-    dfgm_init();
+    DFGM_init();
 #endif
 
 
