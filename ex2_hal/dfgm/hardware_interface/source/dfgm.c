@@ -70,19 +70,6 @@ DFGM_return HAL_DFGM_getHK(DFGM_Housekeeping *DFGM_hk) {
     DFGM_hk->reserved4 = hk.reserved4;
 #else
     status = IS_STUBBED_DFGM;
-    // Default values to signify DFGM is not connected
-    DFGM_hk->coreVoltage = 1;
-    DFGM_hk->sensorTemp = 1;
-    DFGM_hk->refTemp = 1;
-    DFGM_hk->boardTemp = 1;
-    DFGM_hk->posRailVoltage = 1;
-    DFGM_hk->inputVoltage = 1;
-    DFGM_hk->refVoltage = 1;
-    DFGM_hk->inputCurrent = 1;
-    DFGM_hk->reserved1 = 1;
-    DFGM_hk->reserved2 = 1;
-    DFGM_hk->reserved3 = 1;
-    DFGM_hk->reserved4 = 1;
 #endif
     return status;
 }
