@@ -52,7 +52,7 @@
 
 // Macros
 #ifndef DFGM_RX_PRIO
-#define DFGM_RX_PRIO configMAX_PRIORITIES + 1 //(tskIDLE_PRIORITY + 1) //configMAX_PRIORITIES - 1 originally
+#define DFGM_RX_PRIO (tskIDLE_PRIORITY + 1) //configMAX_PRIORITIES - 1 originally
 #endif
 
 #ifndef DFGM_SCI
@@ -534,23 +534,25 @@ void dfgm_rx_task(void *pvParameters) {
 
             // Before the task stops processing data...
             if (secondsPassed >= dfgmRuntime) {
+                // For debugging
+                if (!collectingHK && dfgmRuntime > 1) {
+                    printf("High rate DFGM data:\t");
+                    print_file("high_rate_DFGM_data");
+
+                    printf("Survey rate data:\t");
+                    print_file("survey_rate_DFGM_data");
+
+                    clear_file("high_rate_DFGM_data");
+                    clear_file("survey_rate_DFGM_data");
+                    printf("Files cleared. \t");
+                }
+
                 // Reset the task to its original state
                 secondsPassed = 0;
                 dfgmRuntime = 0;
                 collectingHK = 0;
                 firstPacketFlag = 1;
                 printf("Runtime reset. \t");
-
-                // For debugging
-                printf("High rate DFGM data:\t");
-                print_file("high_rate_DFGM_data");
-
-                printf("Survey rate data:\t");
-                print_file("survey_rate_DFGM_data");
-
-                clear_file("high_rate_DFGM_data");
-                clear_file("survey_rate_DFGM_data");
-                printf("Files cleared. \t");
             }
         } else { // else statement only for debugging, not actually needed
             // Wait for runtime
