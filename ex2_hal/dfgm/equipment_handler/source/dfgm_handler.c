@@ -173,9 +173,9 @@ void save_packet(dfgm_data_t *data, char *filename) {
     for (int i = 0; i < 100; i++) {
         memset(&dataSample, 0, sizeof(dfgm_data_sample_t));
         dataSample.time = data->time;
-        dataSample.X = (data->pkt).tup[i].X;
-        dataSample.Y = (data->pkt).tup[i].Y;
-        dataSample.Z = (data->pkt).tup[i].Z;
+        dataSample.X = *(float *)&(data->pkt).tup[i].X;
+        dataSample.Y = *(float *)&(data->pkt).tup[i].Y;
+        dataSample.Z = *(float *)&(data->pkt).tup[i].Z;
 
         iErr = red_write(dataFile, &dataSample, sizeof(dfgm_data_sample_t));
         if (iErr == -1) {
@@ -268,12 +268,16 @@ void save_second(struct SECOND *second, char * filename) {
     dataSample.time = second->time;
 
     // Preserve float characteristics
-    float X = second->Xfilt;
-    float Y = second->Yfilt;
-    float Z = second->Zfilt;
-    dataSample.X = (*(uint32_t *)&X);
-    dataSample.Y = (*(uint32_t *)&Y);
-    dataSample.Z = (*(uint32_t *)&Z);
+//    float X = second->Xfilt;
+//    float Y = second->Yfilt;
+//    float Z = second->Zfilt;
+//    dataSample.X = (*(uint32_t *)&X);
+//    dataSample.Y = (*(uint32_t *)&Y);
+//    dataSample.Z = (*(uint32_t *)&Z);
+
+    dataSample.X = (float) second->Xfilt;
+    dataSample.Y = (float) second->Yfilt;
+    dataSample.Z = (float) second->Zfilt;
 
     iErr = red_write(dataFile, &dataSample, sizeof(dfgm_data_sample_t));
     if (iErr == -1) {
@@ -363,6 +367,55 @@ void save_second(struct SECOND *second, char * filename) {
 //    convert_100Hz_to_1Hz(filename100Hz, filename1Hz);
 //}
 
+/** FOR DEBUGGING **/
+void print_file(char* filename) {
+    int32_t iErr;
+    int bytes_read;
+
+    // open file
+    int32_t dataFile;
+    dataFile = red_open(filename, RED_O_RDONLY);
+    if (dataFile == -1) {
+        printf("Unexpected error %d from red_open() in print_file()\r\n", (int)red_errno);
+        exit(red_errno);
+    }
+
+    // Error check reading the first sample
+    dfgm_data_sample_t dataSample = {0};
+    memset(&dataSample, 0, sizeof(dfgm_data_sample_t));
+    bytes_read = red_read(dataFile, &dataSample, sizeof(dfgm_data_sample_t));
+    if (bytes_read == -1) {
+        printf("Unexpected error %d from red_read() in print_file\r\n", (int) red_errno);
+        exit(red_errno);
+    } else if (bytes_read == 0) {
+        printf("%s is empty!\n", filename);
+    }
+
+    // Print file sample by sample
+    while (bytes_read != 0) {
+        printf("%ld %f %f %f\n", dataSample.time, dataSample.X, dataSample.Y, dataSample.Z);
+        memset(&dataSample, 0, sizeof(dfgm_data_sample_t));
+        bytes_read = red_read(dataFile, &dataSample, sizeof(dfgm_data_sample_t));
+    }
+
+    // close file
+    iErr = red_close(dataFile);
+    if (iErr == -1) {
+        printf("Unexpected error %d from red_close() in print_file()\r\n", (int)red_errno);
+        exit(red_errno);
+    }
+}
+void replace_packet_data(dfgm_data_t *dat) {
+    for (int sample = 0; sample < 100; sample++) {
+        float X = -11111.111;
+        float Y = -22222.222;
+        float Z = -33333.333;
+        (dat->pkt).tup[sample].X = (*(uint32_t *)&X);
+        (dat->pkt).tup[sample].Y = (*(uint32_t *)&Y);
+        (dat->pkt).tup[sample].Z = (*(uint32_t *)&Z);
+    }
+}
+
 // FreeRTOS
 void dfgm_rx_task(void *pvParameters) {
     static dfgm_data_t dat = {0};
@@ -396,6 +449,9 @@ void dfgm_rx_task(void *pvParameters) {
     // Initialize variables for filtering
     sptr[0] = &secBuffer[0];
     sptr[1] = &secBuffer[1];
+    float tempX;
+    float tempY;
+    float tempZ;
 
     // Set initial conditions
     secondsPassed = 0;
@@ -423,7 +479,7 @@ void dfgm_rx_task(void *pvParameters) {
 
             // Don't save or convert raw mag field data if receiving packet for HK
             if(!collectingHK) {
-                //save_packet(&(dat.pkt), "raw_DFGM_data");
+                save_packet(&(dat.pkt), "raw_DFGM_data");
                 dfgm_convert_mag(&(dat.pkt));
                 printf("Mag field data converted!\t");
             }
@@ -432,6 +488,8 @@ void dfgm_rx_task(void *pvParameters) {
             update_HK(&dat);
 
             printf("HK data converted!\t");
+
+            replace_packet_data(&dat); // For filter debugging
 
             // Don't save if receiving packet for HK
             if (!collectingHK) {
@@ -447,6 +505,17 @@ void dfgm_rx_task(void *pvParameters) {
             printf("Seconds passed: %d\t", secondsPassed);
 
             if (!collectingHK && dfgmRuntime > 1) {
+                // Convert packet into second struct
+                sptr[1]->time = dat.time;
+                for (int sample = 0; sample < 100; sample++) {
+                    tempX = *(float *)&(dat.pkt).tup[sample].X;
+                    tempY = *(float *)&(dat.pkt).tup[sample].Y;
+                    tempZ = *(float *)&(dat.pkt).tup[sample].Z;
+                    sptr[1]->X[sample] = tempX;
+                    sptr[1]->Y[sample] = tempY;
+                    sptr[1]->Z[sample] = tempZ;
+                }
+
                 // Filter 100 Hz packets into 1 Hz
                 if (firstPacketFlag) {
                     // Ensure at least 2 packets in the buffer before filtering
@@ -454,14 +523,6 @@ void dfgm_rx_task(void *pvParameters) {
                     shift_sptr();
                     printf("First packet ignored from filtering");
                 } else {
-                    // Convert packet into second struct
-                    sptr[1]->time = dat.time;
-                    for (int sample = 0; sample < 100; sample++) {
-                        sptr[1]->X[sample] = dat.pkt.tup[sample].X;
-                        sptr[1]->Y[sample] = dat.pkt.tup[sample].Y;
-                        sptr[1]->Z[sample] = dat.pkt.tup[sample].Z;
-                    }
-
                     apply_filter();
                     save_second(sptr[1], "survey_rate_DFGM_data");
                     shift_sptr();
@@ -481,6 +542,12 @@ void dfgm_rx_task(void *pvParameters) {
                 printf("Runtime reset. \t");
 
                 // For debugging
+                printf("High rate DFGM data:\t");
+                print_file("high_rate_DFGM_data");
+
+                printf("Survey rate data:\t");
+                print_file("survey_rate_DFGM_data");
+
                 clear_file("high_rate_DFGM_data");
                 clear_file("survey_rate_DFGM_data");
                 printf("Files cleared. \t");

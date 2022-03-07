@@ -143,9 +143,9 @@ struct SECOND {
 // Used for reading and writing data files
 typedef struct __attribute__((packed)) {
     time_t time;
-    uint32_t X;
-    uint32_t Y;
-    uint32_t Z;
+    float X;
+    float Y;
+    float Z;
 } dfgm_data_sample_t;
 
 // Functions used in converter
