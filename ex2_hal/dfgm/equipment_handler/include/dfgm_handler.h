@@ -37,83 +37,83 @@ typedef enum {
 
 // Macros for conversions from converter and filter header and source files (QUEUE_DEPTH, etc.)
 // Conversion constants for mag data (Have to be calibrated for each sensor/acquisition system)
-#define XDACScale 1.757421875
-#define XADCScale -0.0353
-#define XOffset 0
-#define YDACScale 2.031835938
-#define YADCScale -0.0267
-#define YOffset 0
-#define ZDACScale 1.934375
-#define ZADCScale -0.0302
-#define ZOffset 0
+#define X_DAC_SCALE 1.757421875
+#define X_ADC_SCALE -0.0353
+#define X_OFFSET 0
+#define Y_DAC_SCALE 2.031835938
+#define Y_ADC_SCALE -0.0267
+#define Y_OFFSET 0
+#define Z_DAC_SCALE 1.934375
+#define Z_ADC_SCALE -0.0302
+#define Z_OFFSET 0
 
 // Conversion constants for HK data (Might have to rearrange for other boards)
-#define HK0Scale (2.5/4096.0 * 1000.0) // for core voltage (in mV)
-#define HK0Offset 0
-#define HK1Scale (2.5*1000000.0/(4096.0*5000.0)) // for sensor temperature
-#define HK1Offset -273.15
-#define HK2Scale 0.0313 // for reference temperature
-#define HK2Offset -20.51
-#define HK3Scale 0.0313 // for board temperature
-#define HK3Offset -20.51
-#define HK4Scale (5.0*2.5/4096.0 * 1000.0) // for positive rail voltage (in mV)
-#define HK4Offset 0
-#define HK5Scale (5.0*2.5/4096.0 * 1000.0) // for input voltage (in mV)
-#define HK5Offset 0
-#define HK6Scale (2.5/4096.0 * 1000.0) // for reference voltage (in mV)
-#define HK6Offset 0
-#define HK7Scale 0.107 // for input current
-#define HK7Offset 0
-#define HK8Scale 1 // for RESERVED
-#define HK8Offset 0
-#define HK9Scale 1 // for RESERVED
-#define HK9Offset 0
-#define HK10Scale 1 // for RESERVED
-#define HK10Offset 0
-#define HK11Scale 1 // for RESERVED
-#define HK11Offset 0
+#define HK_SCALE_0 (2.5/4096.0 * 1000.0) // for core voltage (in mV)
+#define HK_OFFSET_0 0
+#define HK_SCALE_1 (2.5*1000000.0/(4096.0*5000.0)) // for sensor temperature
+#define HK_OFFSET_1 -273.15
+#define HK_SCALE_2 0.0313 // for reference temperature
+#define HK_OFFSET_2 -20.51
+#define HK_SCALE_3 0.0313 // for board temperature
+#define HK_OFFSET_3 -20.51
+#define HK_SCALE_4 (5.0*2.5/4096.0 * 1000.0) // for positive rail voltage (in mV)
+#define HK_OFFSET_4 0
+#define HK_SCALE_5 (5.0*2.5/4096.0 * 1000.0) // for input voltage (in mV)
+#define HK_OFFSET_5 0
+#define HK_SCALE_6 (2.5/4096.0 * 1000.0) // for reference voltage (in mV)
+#define HK_OFFSET_6 0
+#define HK_SCALE_7 0.107 // for input current
+#define HK_OFFSET_7 0
+#define HK_SCALE_8 1 // for RESERVED
+#define HK_OFFSET_8 0
+#define HK_SCALE_9 1 // for RESERVED
+#define HK_OFFSET_9 0
+#define HK_SCALE_10 1 // for RESERVED
+#define HK_OFFSET_10 0
+#define HK_SCALE_11 1 // for RESERVED
+#define HK_OFFSET_11 0
 
 // For data collection task & HK
-#define minRuntime 1 // in seconds; 2 seconds so that it can be filtered
-#define timeThreshold 180 // in seconds
-#define QUEUE_DEPTH 2500
+#define MIN_RUNTIME 1 // in seconds; 2 seconds so that it can be filtered
+#define TIME_THRESHOLD 180 // in seconds
+#define QUEUE_DEPTH 1500
 
 // Structs from converter and filter - dfgm_data_tuple_t, dfgm_packet_t, dfgm_data_t, HK data struct etc.
-// SECOND + dfgm_1Hz_file_t combo? should include timestamps, 100Hz data, and filtered data
+// dfgm_second + dfgm_1Hz_file_t combo? should include timestamps, 100Hz data, and filtered data
 typedef struct __attribute__((packed)) {
-    uint32_t X; // [xdac, xadc]
-    uint32_t Y; // [ydac, yadc]
-    uint32_t Z; // [zdac, zadc]
+    uint32_t x; // [xdac, xadc]
+    uint32_t y; // [ydac, yadc]
+    uint32_t z; // [zdac, zadc]
 } dfgm_data_tuple_t;
 
 typedef struct __attribute__((__packed__)) {
-    uint8  dle;
-    uint8  stx;
-    uint8  pid;
-    uint8  packet_type;
-    uint16 packet_length;
-    uint16 fs;
-    uint32 pps_offset;
-    uint16 hk[12];
-    dfgm_data_tuple_t tup[100];
-    uint16 board_id;
-    uint16 sensor_id;
+    uint8  DLE;
+    uint8  STX;
+    uint8  PID;
+    uint8  packetType;
+    uint16 packetLength;
+    uint16 FS;
+    uint32 PPS_offset;
+    uint16 HK[12];
+    dfgm_data_tuple_t tuple[100];
+    uint16 board_ID;
+    uint16 sensor_ID;
     uint8  reservedA;
     uint8  reservedB;
     uint8  reservedC;
     uint8  reservedD;
     uint8  reservedE;
-    uint8 etx;
-    uint16 crc;
+    uint8 ETX;
+    uint16 CRC;
 } dfgm_packet_t;
 
 typedef struct __attribute__((packed)) {
     time_t time;
-    dfgm_packet_t pkt;
+    dfgm_packet_t packet;
 } dfgm_data_t;
 
 typedef struct {
-    time_t timestamp;
+    time_t time;
     float coreVoltage;
     float sensorTemp;
     float refTemp;
@@ -129,45 +129,40 @@ typedef struct {
 } dfgm_housekeeping;
 
 // Rename this to a more intuitive name
-struct SECOND {
+struct dfgm_second {
     time_t time;
-    double X[100];
-    double Y[100];
-    double Z[100];
-    char flag;
-    double Xfilt;
-    double Yfilt;
-    double Zfilt;
+    double x[100];
+    double y[100];
+    double z[100];
+    double xFiltered;
+    double yFiltered;
+    double zFiltered;
 };
 
 // Used for reading and writing data files
 typedef struct __attribute__((packed)) {
     time_t time;
-    float X;
-    float Y;
-    float Z;
+    float x;
+    float y;
+    float z;
 } dfgm_data_sample_t;
 
 // Functions used in converter
-void dfgm_convert_mag(dfgm_packet_t *const data);
-void dfgm_convert_HK(dfgm_packet_t *const data);
-void save_packet(dfgm_data_t *data, char *filename);
+void DFGM_convertRawMagData(dfgm_packet_t *const data);
+void DFGM_convertRaw_HK_data(dfgm_packet_t *const data);
+void savePacket(dfgm_data_t *data, char *filename);
 
 //void clear_file(char* filename); // Will probably need modifications
-void dfgm_init();
+void DFGM_init();
 
 // Functions used in filters
-void shift_sptr(void);
-void apply_filter(void);
-void save_second(struct SECOND *second, char * filename); // rename "second"
-void convert_100Hz_to_1Hz(char *filename100Hz, char *filename1Hz);
-//void convert_100Hz_to_10Hz(char *filename100Hz, char *filename10Hz, dfgm_filter_settings *filterSettings);
-void update_1HzFile(void);
-//void update_10HzFile(void);
+void shiftSecondPointer(void);
+void applyFilter(void);
+void saveSecond(struct dfgm_second *second, char * filename); // rename "second"
 
 // Functions called in hardware interface
 DFGM_return DFGM_startDataCollection(int givenRuntime);
 DFGM_return DFGM_stopDataCollection();
-DFGM_return DFGM_getHK(dfgm_housekeeping *hk);
+DFGM_return DFGM_get_HK(dfgm_housekeeping *hk);
 
 #endif /* DFGM_HANDLER_H */
