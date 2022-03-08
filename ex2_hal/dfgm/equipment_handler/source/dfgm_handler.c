@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015  University of Alberta
+ * Copyright (C) 2021  University of Alberta
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -12,13 +12,11 @@
  * GNU General Public License for more details.
  */
 /**
- * @file
- * @author
- * @date
+ * @file dfgm_handler.c
+ * @author Daniel Sacro, Robert Taylor, Andrew Rooney
+ * @date 2022-02-08
  */
 
-
-// Headers used in converter.c and filter.c (Reliance Edge, etc.)
 #include "dfgm_handler.h"
 
 #include "FreeRTOS.h"
@@ -42,32 +40,29 @@
 #include <redvolume.h>
 #include "rtcmk.h"
 
-// For debugging...?
-#include "printf.h"
+#define scilinREG PRINTF_SCI // sciREG1 / UART3
 
-#define scilinREG PRINTF_SCI
-
-// Macros
 #ifndef DFGM_RX_PRIO
-#define DFGM_RX_PRIO (tskIDLE_PRIORITY + 1) //configMAX_PRIORITIES - 1 originally
+#define DFGM_RX_PRIO (tskIDLE_PRIORITY + 1)
 #endif
 
+// DFGM_SCI is usually defined as sciREG4 / UART 1 by default
 #ifndef DFGM_SCI
-#define DFGM_SCI scilinREG
+#define DFGM_SCI scilinREG // in case DFGM_SCI is not defined
 #endif
 
-// Static values (dfgm_buffer, DFGM_queue, etc.)
 static uint8_t DFGM_byteBuffer;
 static xQueueHandle DFGM_queue;
 static SemaphoreHandle_t TX_semaphore;
 static dfgm_housekeeping HK_buffer = {0};
 
+// Flags and counters used by the DFGM Rx Task
 static int secondsPassed = 0;
 static int DFGM_runtime = 0;
 static int collecting_HK = 0;
 static int firstPacketFlag = 1;
 
-// HKScales and HKOffsets array
+// Makes HK conversions & calculations easier via looping through each array
 const float HK_scales[] = {HK_SCALE_0, HK_SCALE_1, HK_SCALE_2, HK_SCALE_3,
                           HK_SCALE_4, HK_SCALE_5, HK_SCALE_6, HK_SCALE_7,
                           HK_SCALE_8, HK_SCALE_9, HK_SCALE_10, HK_SCALE_11};
@@ -102,16 +97,22 @@ double filter[81] = {
 
 };
 
-// Coefficients for 10 Hz filter
+// Structs used for filtering
+struct dfgm_second secondBuffer[2];
+struct dfgm_second *secondPointer[2];
 
-
-struct dfgm_second secondBuffer[2]; // dfgm_second buffer
-struct dfgm_second *secondPointer[2]; // dfgm_second pointer
-
-// Converter functions
+/**
+ * @brief
+ *      Converts part of the raw DFGM data packet into useful magnetic field data
+ * @details
+ *      Converts part of the raw DFGM data packet into useful magnetic field data by applying
+ *      a specific formula that deciphers bytes into floating point values
+ * @param dfgm_packet_t *const data
+ *      The DFGM packet that will have part of its raw data converted into useful magnetic field
+ *      data
+ * @return None
+ */
 void DFGM_convertRawMagData(dfgm_packet_t *const data) {
-
-    // convert part of raw data to magnetic field data
     int i;
     for (i = 0; i < 100; i++) {
         short x_DAC = (data->tuple[i].x) >> 16;
@@ -123,23 +124,45 @@ void DFGM_convertRawMagData(dfgm_packet_t *const data) {
         float x = (X_DAC_SCALE * (float)x_DAC + X_ADC_SCALE * (float)x_ADC + X_OFFSET);
         float y = (Y_DAC_SCALE * (float)y_DAC + Y_ADC_SCALE * (float)y_ADC + Y_OFFSET);
         float z = (Z_DAC_SCALE * (float)z_DAC + Z_ADC_SCALE * (float)z_ADC + Z_OFFSET);
+
+        // Because a float is 4 bytes big, its bytes can be stored into a uint32_t data type
         data->tuple[i].x = (*(uint32_t *)&x);
         data->tuple[i].y = (*(uint32_t *)&y);
         data->tuple[i].z = (*(uint32_t *)&z);
     }
 }
 
+/**
+ * @brief
+ *      Converts part of the raw DFGM data packet into useful housekeeping data
+ * @details
+ *      Converts part of the raw DFGM data packet into useful housekeeping data by applying
+ *      a specific formula
+ * @param dfgm_packet_t *const data
+ *      The DFGM packet that will have part of its raw data converted into useful housekeeping
+ *      data
+ * @return None
+ */
 void DFGM_convertRaw_HK_data(dfgm_packet_t *const data) {
-    // convert part of raw data into house keeping data
     for (int i = 0; i < 12; i++) {
         float HK_value = ((float)(data->HK[i]) * HK_scales[i] + HK_offsets[i]);
         data->HK[i] = (uint16_t)HK_value;
     };
 }
 
+/**
+ * @brief
+ *      Updates the DFGM housekeeping data buffer
+ * @details
+ *      Copies the housekeeping data from the most recent DFGM data packet into a housekeeping
+ *      buffer
+ * @param dfgm_data_t *const data
+ *      The DFGM packet that will have its housekeeping data saved into the housekeeping buffer
+ * @return None
+ */
 void update_HK(dfgm_data_t const *data) {
     HK_buffer.time = data->time;
-    HK_buffer.coreVoltage = (float) ((data->packet).HK[0]); // Leave voltage values in mV or V?
+    HK_buffer.coreVoltage = (float) ((data->packet).HK[0]);
     HK_buffer.sensorTemp = (float) ((data->packet).HK[1]);
     HK_buffer.refTemp = (float) ((data->packet).HK[2]);
     HK_buffer.boardTemp = (float) ((data->packet).HK[3]);
@@ -153,18 +176,29 @@ void update_HK(dfgm_data_t const *data) {
     HK_buffer.reserved4 = (float) ((data->packet).HK[11]);
 }
 
-// File system functions
+/**
+ * @brief
+ *      Saves a data packet's samples into a file along with the packet's time stamp
+ * @details
+ *      Converts a packet's data samples from uint32_t into floats, and then saves those values into a file
+ *      along with the packet's time stamp
+ * @param dfgm_data_t *data
+ *      A DFGM data struct containing both the packet data and time stamp needed to save the samples
+ * @param char * fileName
+ *      The name of the file you want to save data to
+ * @return None
+ */
 void savePacket(dfgm_data_t *data, char *fileName) {
     int32_t iErr;
 
-    // open or create file
+    // Open or create file
     int32_t dataFile;
     dataFile = red_open(fileName, RED_O_WRONLY | RED_O_CREAT | RED_O_APPEND);
     if (dataFile == -1) {
         exit(red_errno);
     }
 
-    // Save only mag field data sample by sample w/ timestamps
+    // Save only the magnetic field data from the packet sample by sample with time stamps
     dfgm_data_sample_t dataSample = {0};
     for (int i = 0; i < 100; i++) {
         memset(&dataSample, 0, sizeof(dfgm_data_sample_t));
@@ -179,30 +213,37 @@ void savePacket(dfgm_data_t *data, char *fileName) {
         }
     }
 
-    // close file
+    // Close file
     iErr = red_close(dataFile);
     if (iErr == -1) {
         exit(red_errno);
     }
 }
 
-// Filter functions
+/**
+ * @brief
+ *      Filters and downsamples 100 Hz magnetic field data into 1 Hz data
+ * @details
+ *      Applies the coefficients of a 100 to 1 Hz filter to 2 consecutive seconds of 100 Hz data to create
+ *      a single second of 1 Hz data
+ * @param None
+ * @return None
+ */
 void applyFilter(void) {
-  /*  The 41 point filter is applied to every other data point */
   double xFiltered, yFiltered, zFiltered;
   int i, negsamp, possamp;
 
-  /*  "DC" component centred on the 0 time sample */
+  // "DC" component centered on the 0 time sample
   xFiltered = secondPointer[1]->x[0] * filter[0];
   yFiltered = secondPointer[1]->y[0] * filter[0];
   zFiltered = secondPointer[1]->z[0] * filter[0];
 
-  negsamp = 99; // sample indices
+  // Sample indices
+  negsamp = 99;
   possamp = 1;
 
   // Apply filter to data
   for (i = 1; i < 81; i++) {
-    // Apply filter to data
     xFiltered += (secondPointer[0]->x[negsamp] + secondPointer[1]->x[possamp]) * filter[i];
     yFiltered += (secondPointer[0]->y[negsamp] + secondPointer[1]->y[possamp]) * filter[i];
     zFiltered += (secondPointer[0]->z[negsamp] + secondPointer[1]->z[possamp]) * filter[i];
@@ -210,25 +251,49 @@ void applyFilter(void) {
     possamp += 1;
   }
 
-  // Save filtered data to struct
+  // Copy filtered data
   secondPointer[1]->xFiltered = xFiltered;
   secondPointer[1]->yFiltered = yFiltered;
   secondPointer[1]->zFiltered = zFiltered;
 }
 
+/**
+ * @brief
+ *      Shifts one second pointer (1) to another second pointer (0)
+ * @details
+ *      Sets secondPointer[0] to reference the variable/value that secondPointer[1] was originally
+ *      pointing to. This allows secondPointer[1] to point to a new variable containing a different
+ *      value
+ * @param None
+ * @return None
+ */
 void shiftSecondPointer(void) {
     secondPointer[0] = secondPointer[1];
 }
 
+/**
+ * @brief
+ *      Saves the 1 Hz data from a second struct into a file
+ * @details
+ *      Stores the 1 Hz data sample from the second struct into a dfgm sample struct, then saves
+ *      that struct directly into the file byte by byte with a time stamp
+ * @param struct dfgm_second *second
+ *      The second struct that contains the data you want to save
+ * @param char * fileName
+ *      The name of the file you want to save data to
+ * @return None
+ */
 void saveSecond(struct dfgm_second *second, char * fileName) {
     int32_t iErr;
 
+    // Open or create file
     int32_t dataFile;
     dataFile = red_open(fileName, RED_O_WRONLY | RED_O_CREAT | RED_O_APPEND);
     if (dataFile == -1) {
         exit(red_errno);
     }
 
+    // Store second data into a sample struct
     dfgm_data_sample_t dataSample = {0};
     memset(&dataSample, 0, sizeof(dfgm_data_sample_t));
     dataSample.time = second->time;
@@ -237,42 +302,53 @@ void saveSecond(struct dfgm_second *second, char * fileName) {
     dataSample.y = (float) second->yFiltered;
     dataSample.z = (float) second->zFiltered;
 
+    // Save sample
     iErr = red_write(dataFile, &dataSample, sizeof(dfgm_data_sample_t));
     if (iErr == -1) {
         exit(red_errno);
     }
 
+    // Close file
     iErr = red_close(dataFile);
     if (iErr == -1) {
         exit(red_errno);
     }
 }
 
-// FreeRTOS
+/**
+ * @brief
+ *      FreeRTOS DFGM data collection & processing task
+ * @details
+ *      Constantly receives and reads DFGM data from a queue, but only processes and
+ *      saves that data for a set amount of time when a runtime is given to it
+ * @param void * pvParameters
+ * @return None
+ */
 void dfgm_rx_task(void *pvParameters) {
     static dfgm_data_t data = {0};
     int received = 0;
     int32_t iErr = 0;
 
-    // initialize reliance edge
+    // Initialize reliance edge
     iErr = red_init();
     if (iErr == -1) {
         exit(red_errno);
     }
 
-    // Initialize variables for filtering
+    // Initialize variables for filtering/downsampling
     secondPointer[0] = &secondBuffer[0];
     secondPointer[1] = &secondBuffer[1];
     float tempX;
     float tempY;
     float tempZ;
 
-    // Set initial conditions
+    // Set initial conditions for Rx Task
     secondsPassed = 0;
     DFGM_runtime = 0;
     collecting_HK = 0;
     firstPacketFlag = 1;
 
+    // Trigger dfgm_sciNotification
     sciReceive(DFGM_SCI, 1, &DFGM_byteBuffer);
     for (;;) {
         // Always receive packets from queue
@@ -284,7 +360,7 @@ void dfgm_rx_task(void *pvParameters) {
         }
         received = 0;
 
-        // If runtime specified, process data
+        // If a runtime is specified, process data
         if (secondsPassed < DFGM_runtime) {
 
             // Get time
@@ -306,6 +382,7 @@ void dfgm_rx_task(void *pvParameters) {
 
             secondsPassed += 1;
 
+            // Only try to filter/downsample data when there will be 2 or more packets
             if (!collecting_HK && DFGM_runtime > 1) {
                 // Convert packet into second struct
                 secondPointer[1]->time = data.time;
@@ -318,9 +395,9 @@ void dfgm_rx_task(void *pvParameters) {
                     secondPointer[1]->z[sample] = tempZ;
                 }
 
-                // Filter 100 Hz packets into 1 Hz
+                // Filter 100 Hz data into 1 Hz
                 if (firstPacketFlag) {
-                    // Ensure at least 2 packets in the buffer before filtering
+                    // Ensure there are at least 2 packets in the buffer before filtering
                     firstPacketFlag = 0;
                     shiftSecondPointer();
                 } else {
@@ -328,13 +405,10 @@ void dfgm_rx_task(void *pvParameters) {
                     saveSecond(secondPointer[1], "survey_rate_DFGM_data");
                     shiftSecondPointer();
                 }
-
-                // TODO Filter 100 Hz packets into 10 Hz
             }
 
-            // Before the task stops processing data...
+            // Just before the task stops processing data, reset all flags and counters
             if (secondsPassed >= DFGM_runtime) {
-                // Reset the task to its original state
                 secondsPassed = 0;
                 DFGM_runtime = 0;
                 collecting_HK = 0;
@@ -344,6 +418,14 @@ void dfgm_rx_task(void *pvParameters) {
     }
 }
 
+/**
+ * @brief
+ *      Starts the DFGM data collection & processing task
+ * @details
+ *      Starts the FreeRTOS task responsible for collecting and processing DFGM data packets
+ * @param None
+ * @return None
+ */
 void DFGM_init() {
     TaskHandle_t dfgm_rx_handle;
     DFGM_queue = xQueueCreate(QUEUE_DEPTH, sizeof(uint8_t));
@@ -353,13 +435,24 @@ void DFGM_init() {
     return;
 }
 
+/**
+ * @brief
+ *      Handles incoming data packets from the DFGM board
+ * @details
+ *      Receives data packets from the DFGM board and places it inside a queue
+ *      byte by byte for the DFGM Rx Task to read
+ * @param sciBASE_t *sci
+ *      The sciREG to read from
+ * @param unsigned flags
+ * @return None
+ */
 void dfgm_sciNotification(sciBASE_t *sci, unsigned flags) {
     portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
 
     switch (flags) {
     case SCI_RX_INT:
-        a = xQueueSendToBackFromISR(DFGM_queue, &DFGM_byteBuffer, &xHigherPriorityTaskWoken);
-        sciReceive(sci, 1, &DFGM_byteBuffer);
+        xQueueSendToBackFromISR(DFGM_queue, &DFGM_byteBuffer, &xHigherPriorityTaskWoken);
+        sciReceive(sci, 1, &DFGM_byteBuffer); // Triggers sciNotification again to handle the next byte
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         break;
     case SCI_TX_INT:
@@ -370,13 +463,25 @@ void dfgm_sciNotification(sciBASE_t *sci, unsigned flags) {
     }
 }
 
-//  Hardware interface uses these functions to execute subservices
+/**
+ * @brief
+ *      Tells the DFGM Rx task to begin processing the data it receives for a
+ *      set amount of time
+ * @details
+ *      Sets the DFGM_runtime to a nonzero value, which let's the DFGM Rx task know
+ *      to start processing data for a set amount time
+ * @param int givenRuntime
+ *      The amount of time that the DFGM Rx task should process data for in seconds
+ * @return DFGM_return
+ *      Success report
+ */
 DFGM_return DFGM_startDataCollection(int givenRuntime) {
     DFGM_return status = DFGM_SUCCESS;
     if (DFGM_runtime == 0 && givenRuntime >= MIN_RUNTIME) {
         DFGM_runtime = givenRuntime;
         status = DFGM_SUCCESS;
     } else if (DFGM_runtime != 0) {
+        // DFGM is already running
         status = DFGM_BUSY;
     } else if (givenRuntime < MIN_RUNTIME) {
         status = DFGM_BAD_PARAM;
@@ -384,6 +489,16 @@ DFGM_return DFGM_startDataCollection(int givenRuntime) {
     return status;
 }
 
+/**
+ * @brief
+ *      Tells the DFGM Rx task to stop processing data
+ * @details
+ *      Resets all the counters and flags used by the DFGM Rx Task for data collection
+ *      and processing
+ * @param None
+ * @return DFGM_return
+ *      Success report
+ */
 DFGM_return DFGM_stopDataCollection() {
     secondsPassed = 0;
     DFGM_runtime = 0;
@@ -394,21 +509,34 @@ DFGM_return DFGM_stopDataCollection() {
     return DFGM_SUCCESS;
 }
 
+/**
+ * @brief
+ *      Gets the most recent DFGM housekeeping data
+ * @details
+ *      Gets the most recent DFGM housekeeping data from a buffer. This data is
+ *      guaranteed to be at most 3 minutes old
+ * @param dfgm_housekeeping *hk
+ *      The DFGM housekeeping struct that will be populated with the most recent
+ *      housekeeping data
+ * @return DFGM_return
+ *      Success report
+ */
 DFGM_return DFGM_get_HK(dfgm_housekeeping *hk) {
     DFGM_return status = DFGM_SUCCESS;
     time_t currentTime;
     RTCMK_GetUnix(&currentTime);
     time_t timeDiff = currentTime - HK_buffer.time;
 
-    // Update HK if buffer has old data
+    // Update HK buffer if it has old data
     if (timeDiff > TIME_THRESHOLD) {
         collecting_HK = 1;
         status = DFGM_startDataCollection(1);
         while (collecting_HK) {
-            // Wait until Rx Task is done updating the HK data
+            // Wait until Rx Task is done updating the buffer
         }
     }
 
+    // Copy buffer contents into the dfgm_houskeeping struct
     hk->time = HK_buffer.time;
     hk->coreVoltage = HK_buffer.coreVoltage;
     hk->sensorTemp = HK_buffer.sensorTemp;
