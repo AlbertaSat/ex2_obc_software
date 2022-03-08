@@ -5,3 +5,5 @@ Debug/**
 /test/*.o
 /test/**/*.o
 /Devel/
+*.prefs
+
