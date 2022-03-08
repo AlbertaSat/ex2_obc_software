@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015  University of Alberta
+ * Copyright (C) 2021  University of Alberta
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -12,15 +12,15 @@
  * GNU General Public License for more details.
  */
 /**
- * @file
- * @author
- * @date
+ * @file dfgm.h
+ * @author Daniel Sacro
+ * @date 2022-02-08
  */
 
 #ifndef DFGM_H
 #define DFGM_H
 
-#include "dfgm_handler.h" // Equipment handler
+#include "dfgm_handler.h"
 #include <stdint.h>
 #include <time.h>
 

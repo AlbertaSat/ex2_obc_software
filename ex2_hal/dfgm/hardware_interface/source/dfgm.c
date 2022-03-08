@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015  University of Alberta
+ * Copyright (C) 2021  University of Alberta
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -12,9 +12,9 @@
  * GNU General Public License for more details.
  */
 /**
- * @file
- * @author
- * @date
+ * @file dfgm.c
+ * @author Daniel Sacro
+ * @date 2022-02-08
  */
 
 #include "dfgm.h"
@@ -26,31 +26,59 @@
 
 #include "services.h"
 
+/**
+ * @brief
+ *      Tells the DFGM Rx Task to process data for a set runtime
+ * @details
+ *      Gives the specified runtime to the DFGM Rx Task via an EH function
+ * @param int32_t givenRuntime
+ *      The total amount of time that the DFGM Rx Task should be processing data for
+ *      in seconds
+ * @return DFGM_return
+ *      Success report of the EH function
+ */
 DFGM_return HAL_DFGM_run(int32_t givenRuntime) {
     DFGM_return status;
 #ifndef DFGM_IS_STUBBED
-    // If DFGM is connected, run
+    // DFGM connected to OBC
     int runtime = (int) givenRuntime;
     status = DFGM_startDataCollection(runtime);
 #else
-    // If DFGM is not connected, can't run
+    // DFGM not connected
     status = IS_STUBBED_DFGM;
 #endif
     return status;
 }
 
+/**
+ * @brief
+ *      Tells the DFGM Rx Task to stop processing data
+ * @details
+ *      Calls an EH function to reset the DFGM Rx Task's counters and flags to its default values
+ * @param None
+ * @return DFGM_return
+ *      Success report of the EH function
+ */
 DFGM_return HAL_DFGM_stop() {
     DFGM_return status;
 #ifndef DFGM_IS_STUBBED
-    // DFGM is connected
     status = DFGM_stopDataCollection();
 #else
-    // DFGM is not connected
     status = IS_STUBBED_DFGM;
 #endif
     return status;
 }
 
+/**
+ * @brief
+ *      Gets the DFGM's most recent housekeeping (HK) data
+ * @details
+ *      Retrieves the most recent DFGM HK data. This data will be at most 3 minutes old.
+ * @param DFGM_Housekeeping *DFGM_hk
+ *      A DFGM_Housekeeping struct that will be populated by the most recent DFGM HK data.
+ * @return DFGM_return
+ *      Success report of the EH function
+ */
 DFGM_return HAL_DFGM_get_HK(DFGM_Housekeeping *DFGM_hk) {
     DFGM_return status;
     dfgm_housekeeping hk;
