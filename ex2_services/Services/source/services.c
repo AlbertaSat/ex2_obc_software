@@ -30,6 +30,7 @@
 #include "time_management/time_management_service.h"
 #include "updater/updater.h"
 #include "util/service_utilities.h"
+#include "cli/cli.h"
 
 void csp_server(void *parameters);
 SAT_returnState start_service_server(void);
@@ -48,7 +49,7 @@ SAT_returnState start_service_server(void) {
         pdPASS) {
         return SATR_ERROR;
     }
-
+    start_cli_service();
     if (start_communication_service() != SATR_OK || start_time_management_service() != SATR_OK ||
         start_housekeeping_service() != SATR_OK || start_general_service() != SATR_OK ||
         start_updater_service() != SATR_OK || start_logger_service() != SATR_OK) {
