@@ -25,3 +25,6 @@
 [submodule "ex2_hal/ex2_adcs_software"]
 	path = ex2_hal/ex2_adcs_software
 	url = git@github.com:AlbertaSat/ex2_adcs_software.git
+[submodule "ex2_hal/ex2_dfgm_software"]
+	path = ex2_hal/ex2_dfgm_software
+	url = https://github.com/AlbertaSat/ex2_dfgm_software.git
