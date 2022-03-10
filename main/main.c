@@ -33,6 +33,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <os_task.h>
+#include <HL_system.h>
 
 #include "main/system.h"
 #include "board_io_tests.h"
@@ -47,8 +48,8 @@
 #include "logger/logger.h"
 #include "file_delivery_app.h"
 #include "ads7128.h"
-//#include "skytraq_gps_driver.h"
-#include "task_manager.h"
+#include "pcal9538a.h"
+#include "skytraq_gps.h"
 
 #include <FreeRTOS.h>
 #include <os_task.h>
@@ -57,10 +58,11 @@
 #include "eps.h"
 #include "sband.h"
 #include "system.h"
+#include "dfgm.h"
 
 #include "sband_binary_tests.h"
-
-#include "dfgm.h"
+#include "deployablescontrol.h"
+#include "HL_system.h"
 
 /**
  * The main function must:
@@ -89,9 +91,7 @@ void ex2_init(void *pvParameters) {
 
     /* Hardware Initialization */
 
-#if defined(HAS_SD_CARD) // TODO: tolerate non-existent SD Card
     init_filesystem();
-#endif
 
 #ifndef ADCS_IS_STUBBED
     // PLACEHOLDER: adcs hardware init
@@ -115,8 +115,9 @@ void ex2_init(void *pvParameters) {
 #endif
 
 #ifndef CHARON_IS_STUBBED
-//    gps_skytraq_driver_init();
-//    ads7128Init();
+    gps_skytraq_driver_init();
+    ads7128Init();
+    setuppcal9538a();
 #endif
 
 #ifndef DFGM_IS_STUBBED
@@ -131,9 +132,10 @@ void ex2_init(void *pvParameters) {
     init_software();
     // create_ftp_task(OBC_APP_ID, &ftp_app);
 
-
+#ifdef FLATSAT_TEST
     /* Test Task */
-    //xTaskCreate(flatsat_test, "flatsat_test", 5000, NULL, 4, NULL);
+    xTaskCreate(flatsat_test, "flatsat_test", 5000, NULL, 4, NULL);
+#endif
 
     vTaskDelete(0); // delete self to free up heap
 }
@@ -162,7 +164,6 @@ int ex2_main(void) {
  */
 void init_software() {
     /* start system tasks and service listeners */
-    start_task_manager();
     if (start_system_tasks() != SATR_OK || start_service_server() != SATR_OK) {
         ex2_log("Initialization error\n");
     }
@@ -172,6 +173,7 @@ void init_software() {
  * Initialize reliance edge file system
  */
 static void init_filesystem() {
+#if defined(HAS_SD_CARD) // TODO: tolerate non-existent SD Card
     int32_t iErr = 0;
     const char *pszVolume0 = gaRedVolConf[0].pszPathPrefix;
     iErr = red_init();
@@ -209,7 +211,8 @@ static void init_filesystem() {
     if (iErr == -1) {
         exit(red_errno);
     }
-#endif
+#endif // IS_ATHENA_V2
+#endif // defined(HAS_SD_CARD)
 }
 
 /**
@@ -220,8 +223,19 @@ static void init_csp() {
 
     /* Init CSP with address and default settings */
     csp_conf_t csp_conf;
-    csp_conf_get_defaults(&csp_conf);
-    csp_conf.address = my_address;
+    csp_conf.address = 1;
+    csp_conf.hostname = "Athena";
+    csp_conf.model = "Ex-Alta2";
+    csp_conf.revision = "2";
+    csp_conf.conn_max =10;
+    csp_conf.conn_queue_length = 10;
+    csp_conf.fifo_length = 25;
+    csp_conf.port_max_bind = 24;
+    csp_conf.rdp_max_window = 20;
+    csp_conf.buffers = 10;
+    csp_conf.buffer_data_size = 1024;
+    csp_conf.conn_dfl_so = CSP_O_NONE;
+
     int error = csp_init(&csp_conf);
     if (error != CSP_ERR_NONE) {
         // ex2_log("csp_init() failed, error: %d\n", error);
@@ -248,7 +262,7 @@ static inline SAT_returnState init_csp_interface() {
     csp_usart_conf_t conf = {.device = "UART",
                              .baudrate = 115200, /* supported on all platforms */
                              .databits = 8,
-                             .stopbits = 1,
+                             .stopbits = 2,
                              .paritysetting = 0,
                              .checkparity = 0};
 
@@ -317,11 +331,3 @@ void vApplicationMallocFailedHook(void) {
 }
 
 void vApplicationDaemonTaskStartupHook(void) { init_logger_queue(); }
-
-void SciSendBuf(char *buf, uint32_t bufSize) {
-    while (bufSize > 0 && *buf != '\0') {
-        sciSend(sciREG4, 1, *buf);
-        buf++;
-        bufSize--;
-    }
-}
