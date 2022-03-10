@@ -347,6 +347,20 @@ Result mock_everyone(All_systems_housekeeping *all_hk_data) {
     all_hk_data->hyperion_hk.Star_Dep_Current = tempFloat;
     all_hk_data->hyperion_hk.Zenith_Current = tempFloat;
 
+    // DFGM
+    all_hk_data->DFGM_hk.coreVoltage = tempFloat;
+    all_hk_data->DFGM_hk.sensorTemp = tempFloat;
+    all_hk_data->DFGM_hk.refTemp = tempFloat;
+    all_hk_data->DFGM_hk.boardTemp = tempFloat;
+    all_hk_data->DFGM_hk.posRailVoltage = tempFloat;
+    all_hk_data->DFGM_hk.inputVoltage = tempFloat;
+    all_hk_data->DFGM_hk.refVoltage = tempFloat;
+    all_hk_data->DFGM_hk.inputCurrent = tempFloat;
+    all_hk_data->DFGM_hk.reserved1 = tempFloat;
+    all_hk_data->DFGM_hk.reserved2 = tempFloat;
+    all_hk_data->DFGM_hk.reserved3 = tempFloat;
+    all_hk_data->DFGM_hk.reserved4 = tempFloat;
+
     temp++;
     tempTime += 30;
     return SUCCESS;
@@ -410,6 +424,10 @@ Result collect_hk_from_devices(All_systems_housekeeping *all_hk_data) {
 #ifndef CHARON_IS_STUBBED
     GPS_RETURNSTATE Charon_return_code = Charon_getHK(&all_hk_data->charon_hk);  /* Charon Houskeeping */
 #endif /* CHARON_IS_STUBBED */
+
+#ifndef DFGM_IS_STUBBED
+    DFGM_return DFGM_return_code = HAL_DFGM_get_HK(&all_hk_data->DFGM_hk);  /* DFGM Housekeeping */
+#endif /* DFGM_IS_STUBBED */
 
     /*consider if struct should hold error codes returned from these functions*/
     return SUCCESS;
@@ -503,7 +521,8 @@ uint16_t get_size_of_housekeeping(All_systems_housekeeping *all_hk_data) {
                            sizeof(all_hk_data->S_band_hk) +    // currently 32U
                            sizeof(all_hk_data->adcs_hk) +      // currently 178U
                            sizeof(all_hk_data->hyperion_hk) + // currently 188U
-                           sizeof(all_hk_data->charon_hk)
+                           sizeof(all_hk_data->charon_hk) +
+                           sizeof(all_hk_data->DFGM_hk)
                            //sizeof(all_hk_data->payload_hk)
                            ;
     return needed_size;
@@ -545,6 +564,7 @@ Result write_hk_to_file(uint16_t filenumber, All_systems_housekeeping *all_hk_da
     red_write(fout, &all_hk_data->hyperion_hk, sizeof(all_hk_data->hyperion_hk));
     red_write(fout, &all_hk_data->charon_hk, sizeof(all_hk_data->charon_hk));
     //red_write(fout, &all_hk_data->payload_hk, sizeof(all_hk_data->payload_hk));
+    red_write(fout, &all_hk_data->DFGM_hk, sizeof(all_hk_data->DFGM_hk));
 
     if (red_errno != 0) {
         ex2_log("Failed to write to file: '%s'\n", fileName);
@@ -594,6 +614,7 @@ Result read_hk_from_file(uint16_t filenumber, All_systems_housekeeping *all_hk_d
     red_read(fin, &all_hk_data->hyperion_hk, sizeof(all_hk_data->hyperion_hk));
     red_read(fin, &all_hk_data->charon_hk, sizeof(all_hk_data->charon_hk));
     // red_read(fin, &all_hk_data->payload_hk, sizeof(all_hk_data->payload_hk));
+    red_read(fin, &all_hk_data->DFGM_hk, sizeof(all_hk_data->DFGM_hk));
 
     if (red_errno != 0) {
         ex2_log("Failed to read: '%c'\n", fileName);
