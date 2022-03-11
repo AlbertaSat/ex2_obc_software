@@ -46,7 +46,6 @@
 #include "system_tasks.h"
 #include "mocks/rtc.h"
 #include "logger/logger.h"
-#include "file_delivery_app.h"
 #include "ads7128.h"
 #include "pcal9538a.h"
 #include "skytraq_gps.h"
@@ -82,7 +81,6 @@ static void init_software();
 static void flatsat_test();
 static inline SAT_returnState init_csp_interface();
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
-static FTP ftp_app;
 
 void ex2_init(void *pvParameters) {
 
@@ -125,7 +123,6 @@ void ex2_init(void *pvParameters) {
     /* Start service server, and response server */
     init_csp();
     init_software();
-    // create_ftp_task(OBC_APP_ID, &ftp_app);
 
 #ifdef FLATSAT_TEST
     /* Test Task */
