@@ -22,9 +22,6 @@
 [submodule "ex2_hal/ex2_hyperion_solar_panel_software"]
 	path = ex2_hal/ex2_hyperion_solar_panel_software
 	url = git@github.com:AlbertaSat/ex2_hyperion_solar_panel_software
-[submodule "ex2_ftp"]
-	path = ex2_ftp
-	url = git@github.com:AlbertaSat/CCSDS_FileDeliveryProtocol.git
 [submodule "ex2_hal/ex2_adcs_software"]
 	path = ex2_hal/ex2_adcs_software
 	url = git@github.com:AlbertaSat/ex2_adcs_software.git
