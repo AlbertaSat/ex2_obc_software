@@ -108,18 +108,18 @@ typedef struct __attribute__((packed)) {
 
 typedef struct {
     time_t time;
-    float coreVoltage;
-    float sensorTemp;
-    float refTemp;
-    float boardTemp;
-    float posRailVoltage;
-    float inputVoltage;
-    float refVoltage;
-    float inputCurrent;
-    float reserved1;
-    float reserved2;
-    float reserved3;
-    float reserved4;
+    uint16 coreVoltage;
+    uint16 sensorTemp;
+    uint16 refTemp;
+    uint16 boardTemp;
+    uint16 posRailVoltage;
+    uint16 inputVoltage;
+    uint16 refVoltage;
+    uint16 inputCurrent;
+    uint16 reserved1;
+    uint16 reserved2;
+    uint16 reserved3;
+    uint16 reserved4;
 } dfgm_housekeeping;
 
 struct dfgm_second {

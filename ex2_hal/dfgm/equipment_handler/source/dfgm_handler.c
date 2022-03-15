@@ -162,18 +162,18 @@ void DFGM_convertRaw_HK_data(dfgm_packet_t *const data) {
  */
 void update_HK(dfgm_data_t const *data) {
     HK_buffer.time = data->time;
-    HK_buffer.coreVoltage = (float) ((data->packet).HK[0]);
-    HK_buffer.sensorTemp = (float) ((data->packet).HK[1]);
-    HK_buffer.refTemp = (float) ((data->packet).HK[2]);
-    HK_buffer.boardTemp = (float) ((data->packet).HK[3]);
-    HK_buffer.posRailVoltage = (float) ((data->packet).HK[4]);
-    HK_buffer.inputVoltage = (float) ((data->packet).HK[5]);
-    HK_buffer.refVoltage = (float) ((data->packet).HK[6]);
-    HK_buffer.inputCurrent = (float) ((data->packet).HK[7]);
-    HK_buffer.reserved1 = (float) ((data->packet).HK[8]);
-    HK_buffer.reserved2 = (float) ((data->packet).HK[9]);
-    HK_buffer.reserved3 = (float) ((data->packet).HK[10]);
-    HK_buffer.reserved4 = (float) ((data->packet).HK[11]);
+    HK_buffer.coreVoltage = (data->packet).HK[0];
+    HK_buffer.sensorTemp = (data->packet).HK[1];
+    HK_buffer.refTemp = (data->packet).HK[2];
+    HK_buffer.boardTemp = (data->packet).HK[3];
+    HK_buffer.posRailVoltage = (data->packet).HK[4];
+    HK_buffer.inputVoltage = (data->packet).HK[5];
+    HK_buffer.refVoltage = (data->packet).HK[6];
+    HK_buffer.inputCurrent = (data->packet).HK[7];
+    HK_buffer.reserved1 = (data->packet).HK[8];
+    HK_buffer.reserved2 = (data->packet).HK[9];
+    HK_buffer.reserved3 = (data->packet).HK[10];
+    HK_buffer.reserved4 = (data->packet).HK[11];
 }
 
 /**
