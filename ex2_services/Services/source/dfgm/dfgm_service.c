@@ -164,18 +164,18 @@ SAT_returnState dfgm_service_app(csp_packet_t *packet) {
         status = HAL_DFGM_get_HK(&HK);
 
         // Convert floats from host byte order to server byte order
-        HK.coreVoltage = csp_htonflt(HK.coreVoltage);
-        HK.sensorTemp = csp_htonflt(HK.sensorTemp);
-        HK.refTemp = csp_htonflt(HK.refTemp);
-        HK.boardTemp = csp_htonflt(HK.boardTemp);
-        HK.posRailVoltage = csp_htonflt(HK.posRailVoltage);
-        HK.inputVoltage = csp_htonflt(HK.inputVoltage);
-        HK.refVoltage = csp_htonflt(HK.refVoltage);
-        HK.inputCurrent = csp_htonflt(HK.inputCurrent);
-        HK.reserved1 = csp_htonflt(HK.reserved1);
-        HK.reserved2 = csp_htonflt(HK.reserved2);
-        HK.reserved3 = csp_htonflt(HK.reserved3);
-        HK.reserved4 = csp_htonflt(HK.reserved4);
+        HK.coreVoltage = csp_hton16(HK.coreVoltage);
+        HK.sensorTemp = csp_hton16(HK.sensorTemp);
+        HK.refTemp = csp_hton16(HK.refTemp);
+        HK.boardTemp = csp_hton16(HK.boardTemp);
+        HK.posRailVoltage = csp_hton16(HK.posRailVoltage);
+        HK.inputVoltage = csp_hton16(HK.inputVoltage);
+        HK.refVoltage = csp_hton16(HK.refVoltage);
+        HK.inputCurrent = csp_hton16(HK.inputCurrent);
+        HK.reserved1 = csp_hton16(HK.reserved1);
+        HK.reserved2 = csp_hton16(HK.reserved2);
+        HK.reserved3 = csp_hton16(HK.reserved3);
+        HK.reserved4 = csp_hton16(HK.reserved4);
 
         // Return success report and DFGM HK data
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
