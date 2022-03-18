@@ -32,6 +32,7 @@
 #include "hyperion.h"
 #include "sband.h"
 #include "uhf.h"
+#include "dfgm.h"
 
 /* Housekeeping service address & port*/
 
@@ -76,6 +77,7 @@ typedef struct __attribute__((packed)){
   Hyperion_HouseKeeping hyperion_hk;     //Hyperion housekeeping
   charon_housekeeping charon_hk;         //Charon housekeeping
   //Payload_HouseKeeping payload_hk;       //Payload housekeeping
+  DFGM_Housekeeping DFGM_hk;            //DFGM housekeeping struct
 } All_systems_housekeeping;
 
 
