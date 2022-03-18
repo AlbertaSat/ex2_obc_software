@@ -140,16 +140,7 @@ typedef struct __attribute__((packed)) {
     float z;
 } dfgm_data_sample_t;
 
-// Data processing functions
-void DFGM_convertRawMagData(dfgm_packet_t *const data);
-void DFGM_convertRaw_HK_data(dfgm_packet_t *const data);
-void savePacket(dfgm_data_t *data, char *filename);
 void DFGM_init();
-
-// Filter functions
-void shiftSecondPointer(void);
-void applyFilter(void);
-void saveSecond(struct dfgm_second *second, char * filename);
 
 // Functions called in hardware interface
 DFGM_return DFGM_startDataCollection(int givenRuntime);

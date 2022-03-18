@@ -112,7 +112,7 @@ struct dfgm_second *secondPointer[2];
  *      data
  * @return None
  */
-void DFGM_convertRawMagData(dfgm_packet_t *const data) {
+static void DFGM_convertRawMagData(dfgm_packet_t *const data) {
     int i;
     for (i = 0; i < 100; i++) {
         short x_DAC = (data->tuple[i].x) >> 16;
@@ -143,7 +143,7 @@ void DFGM_convertRawMagData(dfgm_packet_t *const data) {
  *      data
  * @return None
  */
-void DFGM_convertRaw_HK_data(dfgm_packet_t *const data) {
+static void DFGM_convertRaw_HK_data(dfgm_packet_t *const data) {
     for (int i = 0; i < 12; i++) {
         float HK_value = ((float)(data->HK[i]) * HK_scales[i] + HK_offsets[i]);
         data->HK[i] = (uint16_t)HK_value;
@@ -188,7 +188,7 @@ void update_HK(dfgm_data_t const *data) {
  *      The name of the file you want to save data to
  * @return None
  */
-void savePacket(dfgm_data_t *data, char *fileName) {
+static void savePacket(dfgm_data_t *data, char *fileName) {
     int32_t iErr;
 
     // Open or create file
@@ -229,7 +229,7 @@ void savePacket(dfgm_data_t *data, char *fileName) {
  * @param None
  * @return None
  */
-void applyFilter(void) {
+static void applyFilter(void) {
   double xFiltered, yFiltered, zFiltered;
   int i, negsamp, possamp;
 
@@ -267,7 +267,7 @@ void applyFilter(void) {
  * @param None
  * @return None
  */
-void shiftSecondPointer(void) {
+static void shiftSecondPointer(void) {
     secondPointer[0] = secondPointer[1];
 }
 
@@ -283,7 +283,7 @@ void shiftSecondPointer(void) {
  *      The name of the file you want to save data to
  * @return None
  */
-void saveSecond(struct dfgm_second *second, char * fileName) {
+static void saveSecond(struct dfgm_second *second, char * fileName) {
     int32_t iErr;
 
     // Open or create file
