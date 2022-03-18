@@ -57,9 +57,9 @@
 #include "eps.h"
 #include "sband.h"
 #include "system.h"
+#include "dfgm.h"
 
 #include "deployablescontrol.h"
-#include "HL_system.h"
 
 #ifdef FLATSAT_TEST
 #include "sband_binary_tests.h"
@@ -119,6 +119,10 @@ void ex2_init(void *pvParameters) {
     gps_skytraq_driver_init();
     ads7128Init();
     setuppcal9538a();
+#endif
+
+#ifndef DFGM_IS_STUBBED
+    DFGM_init();
 #endif
 
 

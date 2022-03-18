@@ -78,6 +78,9 @@ void csp_sciNotification(sciBASE_t *sci, unsigned flags);
 #pragma WEAK(adcs_sciNotification)
 void adcs_sciNotification(sciBASE_t *sci, unsigned flags);
 
+#pragma WEAK(dfgm_sciNotification)
+void dfgm_sciNotification(sciBASE_t *sci, unsigned flags);
+
 /* USER CODE END */
 #pragma WEAK(esmGroup1Notification)
 void esmGroup1Notification(esmBASE_t *esm, uint32 channel)
@@ -208,6 +211,7 @@ void sciNotification(sciBASE_t *sci, uint32 flags)
     case (uint32_t)GPS_SCI: gps_sciNotification(sci, flags); break;
     case (uint32_t)CSP_SCI: csp_sciNotification(sci, flags); break;
     case (uint32_t)ADCS_SCI: adcs_sciNotification(sci, flags); break;
+    case (uint32_t)DFGM_SCI: dfgm_sciNotification(sci, flags); break;
     }
 /* USER CODE END */
 }
