@@ -16,9 +16,6 @@
 [submodule "ex2_hal/ex2_athena_software"]
 	path = ex2_hal/ex2_athena_software
 	url = git@github.com:AlbertaSat/ex2_athena_software.git
-[submodule "ex2_hal/ex2_hyperion_solar_panel_software"]
-	path = ex2_hal/ex2_hyperion_solar_panel_software
-	url = git@github.com:AlbertaSat/ex2_hyperion_solar_panel_software
 [submodule "ex2_hal/ex2_adcs_software"]
 	path = ex2_hal/ex2_adcs_software
 	url = git@github.com:AlbertaSat/ex2_adcs_software.git
