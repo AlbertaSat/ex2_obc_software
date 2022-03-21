@@ -22,9 +22,65 @@
 
 #include "adc_handler.h"
 
-void hyperion_config_1_value(enum config_1_panel_t panel, enum config_1_channel_type_t channel, float* param);
-void hyperion_config_2_value(config_2_panel_t panel, config_2_channel_type_t channel, float* param);
-void hyperion_config_3_value(config_3_panel_t panel, config_3_channel_type_t channel, float* param);
-pdated 2U hyperion hk.)
-channel references.)
+#define HYPERION_2U_TEMP_PLACEHOLDER -128
+#define HYPERION_2U_PD_PLACEHOLDER 255
+
+typedef struct __attribute__((packed)) {
+    int8_t Nadir_Temp1;
+    int8_t Nadir_Temp_Adc;
+    int8_t Port_Temp1;
+    int8_t Port_Temp2;
+    int8_t Port_Temp3;
+    int8_t Port_Temp_Adc;
+    int8_t Port_Dep_Temp1;
+    int8_t Port_Dep_Temp2;
+    int8_t Port_Dep_Temp3;
+    int8_t Port_Dep_Temp_Adc;
+    int8_t Star_Temp1;
+    int8_t Star_Temp2;
+    int8_t Star_Temp3;
+    int8_t Star_Temp_Adc;
+    int8_t Star_Dep_Temp1;
+    int8_t Star_Dep_Temp2;
+    int8_t Star_Dep_Temp3;
+    int8_t Star_Dep_Temp_Adc;
+    int8_t Zenith_Temp1;
+    int8_t Zenith_Temp2;
+    int8_t Zenith_Temp3;
+    int8_t Zenith_Temp_Adc;
+    uint8_t Nadir_Pd1;
+    uint8_t Port_Pd1;
+    uint8_t Port_Pd2;
+    uint8_t Port_Pd3;
+    uint8_t Port_Dep_Pd1;
+    uint8_t Port_Dep_Pd2;
+    uint8_t Port_Dep_Pd3;
+    uint8_t Star_Pd1;
+    uint8_t Star_Pd2;
+    uint8_t Star_Pd3;
+    uint8_t Star_Dep_Pd1;
+    uint8_t Star_Dep_Pd2;
+    uint8_t Star_Dep_Pd3;
+    uint8_t Zenith_Pd1;
+    uint8_t Zenith_Pd2;
+    uint8_t Zenith_Pd3;
+    uint16_t Port_Voltage;
+    uint16_t Port_Dep_Voltage;
+    uint16_t Star_Voltage;
+    uint16_t Star_Dep_Voltage;
+    uint16_t Zenith_Voltage;
+    uint16_t Port_Current;
+    uint16_t Port_Dep_Current;
+    uint16_t Star_Current;
+    uint16_t Star_Dep_Current;
+    uint16_t Zenith_Current;
+} Hyperion_HouseKeeping;
+
+void hyperion_config_1_value(enum config_1_panel_t panel, enum config_1_channel_type_t channel, void *param);
+void hyperion_config_2_value(enum config_2_panel_t panel, enum config_2_channel_type_t channel, void *param);
+void hyperion_config_3_value(enum config_3_panel_t panel, enum config_3_channel_type_t channel, void *param);
+
+void Hyperion_config1_getHK(Hyperion_HouseKeeping *hyperion_hk);
+void Hyperion_config3_getHK(Hyperion_HouseKeeping *hyperion_hk);
+
 #endif /* EX2_HAL_EX2_HYPERION_SOLAR_PANEL_SOFTWARE_HARDWARE_INTERFACE_INCLUDE_HYPERION_H_ */

@@ -17,27 +17,24 @@
  * @date    2020-06-15
  */
 
-#include <ex2_hal/ex2_hyperion_solar_panel_software/equipment_handler/include/adc_handler.h>
-#include <stdint.h>
+#include "adc_handler.h"
 #include "i2c_io.h"
 #include <stdint.h>
 
 /**
  * @brief
- * 		Initialize ADC_Handler for config 1 (include Port, Port Deployable, Starboard, StarBoard Deployable, Zenith)
- * @details
- * 		
+ * 		Initialize ADC_Handler
+ * @attention
+ * 		this function must be called before getting any values
  * @return
  * 		1 == success
  */
 unsigned char adc_init(uint8_t slave_addr, uint8_t channel) {
-    adc_set_command_reg(slave_addr, channel, 0, 1, 1, 0, 1);
-    for(delay=0;delay<10000000;delay++);
-
+    adc_set_command_reg(slave_addr, channel, AD7291_EXT_REF_SET, AD7291_TSENSE_SET, AD7291_NOISE_DELAY_SET,
+                        AD7291_RESET_SET, AD7291_REPEAT_SET);
     uint8_t reg_sel = 1; // select read register
     adc_set_register_pointer(slave_addr, reg_sel);
-    for(delay=0;delay<1000000;delay++);
-
+    vTaskDelay(AD7291_INIT_DELAY_TICKS);
     return 1;
 }
 
@@ -186,33 +183,21 @@ float adc_calculate_sensor_temp(unsigned short value, float vref) {
 
     // Conversion parameters from temperature sensor datasheet
     // https://www.ti.com/lit/ds/symlink/lmt70.pdf?HQS=dis-dk-null-digikeymode-dsf-pf-null-wwe&ts=1622648303670
-//    float voltage_vect[22] = {1375.219, 1350.441,1300.593,1250.398,1199.884,1149.070,1097.987,1046.647,995.050,943.227,891.178,838.882,786.36,733.608,680.654,627.49,574.117,520.551,466.76,412.739,358.164,302.785};
-//    float slope[22] = {4.958,4.976,5.002,5.036,5.066,5.108,5.121,5.134,5.171,5.194,5.217,5.241,5.264,5.285,5.306,5.327,5.347,5.368,5.391,5.43,5.498,5.538};
-//    float temps[22] = {-55,-50,-40,-30,-20,-10,0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150};
+    // float voltage_vect[22] = {1375.219,
+    // 1350.441,1300.593,1250.398,1199.884,1149.070,1097.987,1046.647,995.050,943.227,891.178,838.882,786.36,733.608,680.654,627.49,574.117,520.551,466.76,412.739,358.164,302.785};
+    // float slope[22] =
+    // {4.958,4.976,5.002,5.036,5.066,5.108,5.121,5.134,5.171,5.194,5.217,5.241,5.264,5.285,5.306,5.327,5.347,5.368,5.391,5.43,5.498,5.538};
+    // float temps[22] = {-55,-50,-40,-30,-20,-10,0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150};
 
-    // Conversion parameters from new temperature sensor datasheet
-    // https://www.ti.com/lit/ds/symlink/tmp235.pdf?HQS=dis-dk-null-digikeymode-dsf-pf-null-wwe&ts=1627422300911&ref_url=https%253A%252F%252Fwww.digikey.ca%252F
-    float voltage_vect[39] = {100,150,200,250,300,350,400,450,500,550,600,650,700,750,800,850,900,950,1000,1050,1100,1150,1200,1250,1300,1350,1400,1450,1500,1550.5,1601,1651.5,1702,1752.5,1805.5,1858.5,1911.5,1964.5,2017.5};
-    float temps[39] = {-40,-35,-30,-35,-20,-15,-10,-5,0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,125,130,135,140,145,150};
+    float voltage_vect[39] = {100,  150,    200,  250,    300,    350,    400,    450,    500,   550,
+                              600,  650,    700,  750,    800,    850,    900,    950,    1000,  1050,
+                              1100, 1150,   1200, 1250,   1300,   1350,   1400,   1450,   1500,  1550.5,
+                              1601, 1651.5, 1702, 1752.5, 1805.5, 1858.5, 1911.5, 1964.5, 2017.5};
+    float temps[39] = {-40, -35, -30, -35, -20, -15, -10, -5,  0,   5,   10,  15,  20,
+                       25,  30,  35,  40,  45,  50,  55,  60,  65,  70,  75,  80,  85,
+                       90,  95,  100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150};
 
-    //interpolates between the previously defined voltage to temperature conversions for the first temperature sensor.
-
-//    if (temp_voltage >= voltage_vect[0] + (temps[1]-temps[0])/2*slope[0]) {
-//        celsius = temps[0]+ (temp_voltage-voltage_vect[0])/slope[0];
-//    } else if (temp_voltage <= voltage_vect[21] -(10)/2 * slope[21]) {
-//        celsius = temps[21]+ (temp_voltage-voltage_vect[21])/slope[21];
-//    } else {
-//        for (i=1; i<20; i++) {
-//            float highvolt = voltage_vect[i] + (temps[i+1]-temps[i])/2 * slope[i];
-//            float lowvolt = voltage_vect[i] -(temps[i]-temps[i-1])/2 * slope[i];
-//            if ((temp_voltage <= highvolt) && (temp_voltage > lowvolt)) {
-//                celsius =  temps[i] - (temp_voltage-voltage_vect[i])/slope[i];
-//                break;
-//            }
-//        }
-//    }
-
-    //interpolates between the previously defined voltage to temperature conversions for the second temperature sensor.
+    // interpolates between the previously defined voltage to temperature conversions.
 
     if (temp_voltage >= voltage_vect[38]) { // If above the highest piecewise voltage
         celsius = temps[38] + (temp_voltage - voltage_vect[38]) / 10;
@@ -226,7 +211,7 @@ float adc_calculate_sensor_temp(unsigned short value, float vref) {
             }
         }
     }
-    
+
     return celsius;
 }
 
@@ -282,9 +267,8 @@ float adc_calculate_sensor_current(unsigned short value, float vref) {
  * @return
  * 		Value in celsius.
  */
-float adc_calculate_sensor_pd(unsigned short value, float vref)
-{
-    float val = adc_calculate_vin(value, vref);
+float adc_calculate_sensor_pd(unsigned short value, float vref) {
+    float val = adc_calculate_vin(value, vref) / PD_MAX_VOLTAGE / 1000 * 100;
 
     return val;
 }
