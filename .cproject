@@ -566,6 +566,8 @@
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/main}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/adcs/equipment_handler/inc}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/adcs/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_dfgm_software/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_dfgm_software/equipment_handler/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/housekeeping}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/src}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include/csp}"/>
@@ -612,6 +614,7 @@
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEFINE.297613285" name="Pre-define NAME (--define, -D)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEFINE" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="SYSTEM_APP_ID=_OBC_APP_ID_"/>
+									<listOptionValue builtIn="false" value="DFGM_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="EPS_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="CHARON_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="IS_3U"/>
@@ -851,6 +854,8 @@
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/adcs/equipment_handler/inc}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/adcs/hardware_interface/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/hyperion_solar_panel/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_dfgm_software/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_dfgm_software/hardware_interface/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/housekeeping}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/src}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include}"/>

@@ -22,10 +22,9 @@ echo "Configuring repository in $PWD"
 ./configure_repo.sh
 
 echo "Importing Project"
-$TOOL_ROOT/ccs/eclipse/eclipse -noSplash -data "$BUILD_WORK_SPACE" -application com.ti.ccstudio.apps.importProject -ccs.location "."
+${BUILD_TOOL_ROOT}/ccs/eclipse/eclipse -noSplash -data "${BUILD_WORK_SPACE}" -application com.ti.ccstudio.apps.importProject -ccs.location "."
 
 echo "Ready to build"
 exit 0
-
 
 
