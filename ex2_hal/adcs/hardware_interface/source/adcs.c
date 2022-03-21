@@ -141,9 +141,14 @@ ADCS_returnState HAL_ADCS_get_node_identification(ADCS_node_identification *node
     #endif
 }
 
-ADCS_returnState HAL_ADCS_get_boot_program_stat(ADCS_boot_program_stat *boot_program_stat) {
-    return ADCS_get_boot_program_stat(&boot_program_stat->mcu_reset_cause, &boot_program_stat->boot_cause,
-                                      &boot_program_stat->boot_count, &boot_program_stat->boot_idx);
+ADCS_returnState HAL_ADCS_get_boot_program_stat(ADCS_boot_program_stat* boot_program_stat) {
+    #ifdef ADCS_IS_STUBBED
+        return IS_STUBBED_A;
+    #else
+        return ADCS_get_boot_program_stat(&boot_program_stat->mcu_reset_cause, &boot_program_stat->boot_cause,
+            &boot_program_stat->boot_count, &boot_program_stat->boot_idx, &boot_program_stat->major_firm_version,
+            &boot_program_stat->minor_firm_version);
+    #endif
 }
 
 ADCS_returnState HAL_ADCS_get_boot_index(ADCS_boot_index *boot_index) {
@@ -179,8 +184,12 @@ ADCS_returnState HAL_ADCS_get_TC_ack(ADCS_TC_ack *TC_ack) {
     #endif
 }
 
-ADCS_returnState HAL_ADCS_get_file_download_buffer(uint16_t *packet_count, uint8_t *file[20]) {
-    return ADCS_get_file_download_buffer(packet_count, file);
+ADCS_returnState HAL_ADCS_get_file_download_buffer(uint16_t *packet_count, uint8_t file[20]) {
+    #ifdef ADCS_IS_STUBBED
+        return IS_STUBBED_A;
+    #else
+        return ADCS_get_file_download_buffer(packet_count, file);
+    #endif
 }
 
 ADCS_returnState HAL_ADCS_get_file_download_block_stat(ADCS_file_download_block_stat *file_download_block_stat) {
@@ -712,12 +721,20 @@ ADCS_returnState HAL_ADCS_get_track_controller(xyz *target) {
     #endif
 }
 
-ADCS_returnState HAL_ADCS_set_log_config(uint8_t *flags_arr[10], uint16_t period, uint8_t dest, uint8_t log) {
-    return ADCS_set_log_config(flags_arr, period, dest, log);
+ADCS_returnState HAL_ADCS_set_log_config(uint8_t flags_arr[10], uint16_t period, uint8_t dest, uint8_t log) {
+    #ifdef ADCS_IS_STUBBED
+        return IS_STUBBED_A;
+    #else
+        return ADCS_set_log_config(flags_arr, period, dest, log);
+    #endif
 }
 
-ADCS_returnState HAL_ADCS_get_log_config(uint8_t *flags_arr[10], uint16_t *period, uint8_t *dest, uint8_t log) {
-    return ADCS_get_log_config(flags_arr, &period, &dest, log);
+ADCS_returnState HAL_ADCS_get_log_config(uint8_t flags_arr[10], uint16_t *period, uint8_t *dest, uint8_t log) {
+    #ifdef ADCS_IS_STUBBED
+        return IS_STUBBED_A;
+    #else
+        return ADCS_get_log_config(flags_arr, period, dest, log);
+    #endif
 }
 
 ADCS_returnState HAL_ADCS_set_inertial_ref(xyz iner_ref) {
@@ -994,63 +1011,3 @@ ADCS_returnState HAL_ADCS_getHK(ADCS_HouseKeeping *adcs_hk) {
         return return_state;
     #endif
     }
-
-    if (temp = HAL_ADCS_get_measurements(&mes) != 0) {
-        return_state = temp;
-    } else {
-        // adcs_hk->Coarse_Sun_Vector = mes.coarse_sun;
-        adcs_hk->Coarse_Sun_Vector_X = mes.coarse_sun.x;
-        adcs_hk->Coarse_Sun_Vector_Y = mes.coarse_sun.y;
-        adcs_hk->Coarse_Sun_Vector_Z = mes.coarse_sun.z;
-        // adcs_hk->Fine_Sun_Vector = mes.sun;
-        adcs_hk->Fine_Sun_Vector_X = mes.sun.x;
-        adcs_hk->Fine_Sun_Vector_Y = mes.sun.y;
-        adcs_hk->Fine_Sun_Vector_Z = mes.sun.z;
-        // adcs_hk->Nadir_Vector = mes.nadir;
-        adcs_hk->Nadir_Vector_X = mes.nadir.x;
-        adcs_hk->Nadir_Vector_Y = mes.nadir.y;
-        adcs_hk->Nadir_Vector_Z = mes.nadir.z;
-        // adcs_hk->Wheel_Speed = mes.wheel_speed;
-        adcs_hk->Wheel_Speed_X = mes.wheel_speed.x;
-        adcs_hk->Wheel_Speed_Y = mes.wheel_speed.y;
-        adcs_hk->Wheel_Speed_Z = mes.wheel_speed.z;
-        // adcs_hk->Mag_Field_Vector = mes.magnetic_field;
-        adcs_hk->Mag_Field_Vector_X = mes.magnetic_field.x;
-        adcs_hk->Mag_Field_Vector_Y = mes.magnetic_field.y;
-        adcs_hk->Mag_Field_Vector_Z = mes.magnetic_field.z;
-    }
-
-    if (temp = HAL_ADCS_get_power_temp(&pwr) != 0) {
-        return_state = temp;
-    } else {
-        adcs_hk->Wheel1_Current = pwr.wheel1_I;
-        adcs_hk->Wheel2_Current = pwr.wheel2_I;
-        adcs_hk->Wheel3_Current = pwr.wheel3_I;
-        adcs_hk->CubeSense1_Current = pwr.cubesense1_3v3_I;
-        adcs_hk->CubeSense2_Current = pwr.cubesense2_3v3_I;
-        adcs_hk->CubeControl_Current3v3 = pwr.cubecontrol_3v3_I;
-        adcs_hk->CubeControl_Current5v0 = pwr.cubecontrol_5v_I;
-        adcs_hk->CubeStar_Current = pwr.cubestar_I;
-        adcs_hk->Magnetorquer_Current = pwr.magnetorquer_I;
-        adcs_hk->CubeStar_Temp = pwr.cubestar_temp;
-        adcs_hk->MCU_Temp = pwr.MCU_temp;
-        // adcs_hk->Rate_Sensor_Temp = pwr.rate_sensor_temp;
-        adcs_hk->Rate_Sensor_Temp_X = pwr.rate_sensor_temp.x;
-        adcs_hk->Rate_Sensor_Temp_Y = pwr.rate_sensor_temp.y;
-        adcs_hk->Rate_Sensor_Temp_Z = pwr.rate_sensor_temp.z;
-    }
-
-    // if (temp = HAL_ADCS_get_sat_pos_LLH(&adcs_hk->Sat_Position_LLH) != 0) return_state = temp;
-    if (temp = HAL_ADCS_get_sat_pos_LLH(&pos) != 0) {
-        return_state = temp;
-    } else {
-        adcs_hk->Sat_Position_LLH_X = pos.x;
-        adcs_hk->Sat_Position_LLH_Y = pos.y;
-        adcs_hk->Sat_Position_LLH_Z = pos.z;
-    }
-
-    if (temp = HAL_ADCS_get_comms_stat(&adcs_hk->Comm_Status) != 0)
-        return_state = temp;
-
-    return return_state;
-}

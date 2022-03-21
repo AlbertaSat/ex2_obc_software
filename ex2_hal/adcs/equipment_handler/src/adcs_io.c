@@ -43,6 +43,7 @@ static SemaphoreHandle_t uart_mutex;
  *      Initialize ADCS driver
  */
 void init_adcs_io() {
+    sciSetBaudrate(ADCS_SCI, 115200);
     tx_semphr = xSemaphoreCreateBinary();
     adcsQueue = xQueueCreate(ADCS_QUEUE_LENGTH, ITEM_SIZE);
     uart_mutex = xSemaphoreCreateMutex();
@@ -90,11 +91,10 @@ ADCS_returnState send_uart_telecommand(uint8_t *command, uint32_t length) {
     *(frame+length+3) = ADCS_EOM;
 
     // Note TC_ID here is included in the command
-    memcpy(&frame[2], &command, length);
-    frame[length + 2] = ADCS_ESC_CHAR;
-    frame[length + 3] = ADCS_EOM;
-    sciSend(ADCS_SCI, frame, length+4);
-    xSemaphoreTake(tx_semphr, portMAX_DELAY); // TODO: make a reasonable timeout
+    sciSend(ADCS_SCI, length+4, frame);
+    if(xSemaphoreTake(tx_semphr, UART_TIMEOUT_MS) != pdTRUE) {
+        return ADCS_UART_FAILED;
+    } // TODO: create response if it times out.
 
     int received = 0;
     uint8_t reply[6] = {1};
@@ -148,8 +148,8 @@ ADCS_returnState send_i2c_telecommand(uint8_t *command, uint32_t length) {
  * 		Telemetry ID byte
  * @param telemetry
  *    Received telemetry data
- * @param length
- * 		Length of the data (in bytes)
+ * @param expected_len
+ * 		Expected length of the data (in bytes)
  *
  */
 ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint32_t length) {
@@ -170,7 +170,10 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint3
     }
 
     int received = 0;
-    uint8_t reply[length + 5];
+    uint8_t *reply = (uint8_t*)pvPortMalloc(length+5);
+    if (reply == NULL) {
+        return ADCS_MALLOC_FAILED;
+    }
 
     xQueueReset(adcsQueue);
 
@@ -185,6 +188,7 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint3
     for (int i = 0; i < length; i++) {
         *(telemetry + i) = reply[3 + i];
     }
+    vPortFree(reply);
     xSemaphoreGive(uart_mutex);
 
     return ADCS_OK;
@@ -231,9 +235,7 @@ ADCS_returnState receive_uart_packet(uint8_t *hole_map, uint8_t *image_bytes) {
  * 		Length of the data (in bytes)
  *
  */
-ADCS_returnState request_i2c_telemetry(uint8_t TM_ID, uint8_t *telemetry,
-                                       uint32_t length)
-{
+ADCS_returnState request_i2c_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint32_t length) {
     i2c_Receive(ADCS_I2C, TM_ID, length, telemetry);
 
     // Read error flag from Communication Status telemetry frame
