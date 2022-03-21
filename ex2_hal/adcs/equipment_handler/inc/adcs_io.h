@@ -15,10 +15,11 @@
 #ifndef ADCS_IO_H
 #define ADCS_IO_H
 
-#include "adcs_types.h"
 #include <stdint.h>
+#include "adcs_types.h"
 
-#define ADCS_ADDR 0x57
+#define ADCS_I2C_ADDR 0x57
+#define UART_TIMEOUT_MS 300
 
 void init_adcs_io();
 
