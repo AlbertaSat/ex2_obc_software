@@ -43,12 +43,12 @@
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/adcs/equipment_handler/inc}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/adcs/hardware_interface/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_hyperion_solar_panel_software/equipment_handler/include}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/housekeeping}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/hyperion_solar_panel/equipment_handler/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/src}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include/ex2_os}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/F021_API}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_hyperion_solar_panel_software/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/hyperion_solar_panel/hardware_interface/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_uhf_software/equipment_handler/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_gps_software/services}"/>
@@ -175,7 +175,7 @@
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include/ex2_os}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/F021_API}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_hyperion_solar_panel_software/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/hyperion_solar_panel/hardware_interface/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_uhf_software/equipment_handler/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_gps_software/services}"/>
@@ -566,13 +566,14 @@
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/adcs/equipment_handler/inc}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/adcs/hardware_interface/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_hyperion_solar_panel_software/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/hyperion_solar_panel/equipment_handler/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/housekeeping}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/src}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include/csp}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include/ex2_os}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/F021_API}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_hyperion_solar_panel_software/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/hyperion_solar_panel/hardware_interface/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_uhf_software/equipment_handler/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_gps_software/services}"/>
@@ -700,7 +701,7 @@
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include/ex2_os}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/F021_API}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_hyperion_solar_panel_software/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/hyperion_solar_panel/hardware_interface/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_uhf_software/equipment_handler/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_gps_software/services}"/>
@@ -850,13 +851,13 @@
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/main}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/adcs/equipment_handler/inc}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/adcs/hardware_interface/include}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_hyperion_solar_panel_software/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/hyperion_solar_panel/equipment_handler/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/housekeeping}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/src}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include/ex2_os}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/F021_API}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_hyperion_solar_panel_software/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/hyperion_solar_panel/hardware_interface/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_uhf_software/equipment_handler/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_gps_software/services}"/>
@@ -978,7 +979,7 @@
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include/ex2_os}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/F021_API}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_hyperion_solar_panel_software/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/hyperion_solar_panel/hardware_interface/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_uhf_software/equipment_handler/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_gps_software/services}"/>
