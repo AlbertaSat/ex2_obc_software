@@ -11,18 +11,14 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-/**
- * @file housekeeping_task.h
- * @author Andrew R. Rooney
- * @date Mar. 6, 2021
- */
-#ifndef EX2_SYSTEM_HOUSEKEEPING_TASK_H_
-#define EX2_SYSTEM_HOUSEKEEPING_TASK_H_
 
-#define HK_DAEMON_STACK_SIZE 12000
-#include "system.h"
+#ifndef UART_I2C_H
+#define UART_I2C_H
 
-SAT_returnState start_housekeeping_daemon(void);
+void uart_send(uint8_t *data, uint32_t length);
+void uart_receive(uint8_t *data, uint32_t length);
 
-#endif /* EX2_SYSTEM_HOUSEKEEPING_TASK_H_ */
+void i2c_send(uint8_t *data, uint32_t length);
+void i2c_receive(uint8_t *data, uint8_t reg, uint32_t length); // reg: the register to read (TLM ID)
 
+#endif
