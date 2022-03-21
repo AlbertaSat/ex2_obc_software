@@ -1,1 +1,1 @@
-../../../../../../ex2_hal/ex2_adcs_software/equipment_handler/src/adcs_handler.c
+../../../../../../ex2_hal/adcs/equipment_handler/src/adcs_handler.c
