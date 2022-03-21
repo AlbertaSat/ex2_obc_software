@@ -323,6 +323,7 @@ encoding//Devel/libcsp/src/transport/subdir_vars.mk=UTF-8
 encoding//Devel/main/subdir_rules.mk=UTF-8
 encoding//Devel/main/subdir_vars.mk=UTF-8
 encoding//Devel/makefile=UTF-8
+encoding//Devel/objects.mk=UTF-8
 encoding//Devel/reliance_edge/core/driver/subdir_rules.mk=UTF-8
 encoding//Devel/reliance_edge/core/driver/subdir_vars.mk=UTF-8
 encoding//Devel/reliance_edge/fse/subdir_rules.mk=UTF-8
