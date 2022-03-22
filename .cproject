@@ -71,7 +71,7 @@
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/os/freertos/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/sband/equipment_handler/include}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_athena_software/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/athena/equipment_handler/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include/ex2_os}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services}"/>
@@ -198,7 +198,7 @@
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/os/freertos/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/sband/equipment_handler/include}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_athena_software/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/athena/equipment_handler/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include/ex2_os}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services}"/>
@@ -341,7 +341,7 @@
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/os/freertos/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/sband/equipment_handler/include}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_athena_software/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/athena/equipment_handler/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/include}"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEFINE.1691608004" name="Pre-define NAME (--define, -D)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEFINE" valueType="definedSymbols">
@@ -415,10 +415,10 @@
 									<listOptionValue builtIn="false" value="${workspace_loc:/can/ex2_hal/ex2_eps_software}"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ex2_obc_software/ex2_hal/ex2_eps_software}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ex2_obc_software/ex2_hal/sband}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ex2_obc_software/ex2_hal/ex2_athena_software}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ex2_obc_software/ex2_hal/athena}&quot;"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/ex2_obc_software/ex2_hal/ex2_eps_software}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/ex2_obc_software/ex2_hal/sband}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/ex2_obc_software/ex2_hal/ex2_athena_software}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/ex2_obc_software/ex2_hal/athena}"/>
 								</option>
 								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.327256589" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
 								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.682402392" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
@@ -459,10 +459,10 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ex2_obc_software/ex2_hal/sband}&quot;"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/can/ex2_hal/ex2_eps_software}"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ex2_obc_software/ex2_hal/ex2_eps_software}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ex2_obc_software/ex2_hal/ex2_athena_software}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ex2_obc_software/ex2_hal/athena}&quot;"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/ex2_obc_software/ex2_hal/ex2_eps_software}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/ex2_obc_software/ex2_hal/sband}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/ex2_obc_software/ex2_hal/ex2_athena_software}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/ex2_obc_software/ex2_hal/athena}"/>
 								</option>
 								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.1415491753" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
 								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.1810041430" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
@@ -506,7 +506,7 @@
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/os/freertos/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/sband/equipment_handler/include}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_athena_software/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/athena/equipment_handler/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/include}"/>
 								</option>
 								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.467477790" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
@@ -603,7 +603,7 @@
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/os/freertos/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/sband/equipment_handler/include}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_athena_software/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/athena/equipment_handler/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include/ex2_os}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services}"/>
@@ -726,7 +726,7 @@
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/os/freertos/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/sband/equipment_handler/include}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_athena_software/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/athena/equipment_handler/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include/ex2_os}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services}"/>
@@ -884,7 +884,7 @@
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/os/freertos/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/sband/equipment_handler/include}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_athena_software/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/athena/equipment_handler/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include/ex2_os}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services}"/>
@@ -1006,7 +1006,7 @@
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/os/freertos/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/sband/equipment_handler/include}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_athena_software/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/athena/equipment_handler/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include/ex2_os}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services}"/>
