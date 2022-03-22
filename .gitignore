@@ -6,4 +6,4 @@ Debug/**
 /test/**/*.o
 /Devel/
 *.prefs
-
+/.settings/
