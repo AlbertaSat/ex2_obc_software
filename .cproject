@@ -49,11 +49,11 @@
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/hyperion_solar_panel/hardware_interface/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_uhf_software/equipment_handler/include}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_gps_software/services}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/gps/services}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/communication}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_gps_software/hardware_interface/include}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_gps_software/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/gps/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/gps/equipment_handler/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/beacon}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/housekeeping}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/coordinate_management}"/>
@@ -177,11 +177,11 @@
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/hyperion_solar_panel/hardware_interface/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_uhf_software/equipment_handler/include}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_gps_software/services}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/gps/services}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/communication}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_gps_software/hardware_interface/include}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_gps_software/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/gps/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/gps/equipment_handler/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/beacon}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/coordinate_management}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/diagnostic}"/>
@@ -276,9 +276,9 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="ex2_hal/adcs/equipment_handler/test|test|ex2_services/Services/source/athena|ex2_services/Services/include/athena|ex2_hal/ex2_gps_software/ceedling-deprecated|ex2_hal/ex2_gps_software/test|libcsp/src/arch/macosx|libcsp/src/drivers/can/can_socketcan.c|ex2_services/ex2_demo_software|libcsp/src/drivers/usart/usart_linux.c|libcsp/src/drivers/usart/usart_windows.c|libcsp/examples|ex2_hal/sband/equipment_handler|libcsp/src/rtable/csp_rtable_cidr.c|libcsp/src/arch/posix|libcsp/src/arch/windows|libcsp/src/bindings" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
-						<entry excluding="ex2_hal/adcs/equipment_handler/src/uart_i2c.c|ex2_hal/adcs/equipment_handler/test|test|ex2_services/Services/source/athena|ex2_services/Services/include/athena|ex2_hal/ex2_gps_software/ceedling-deprecated|ex2_hal/ex2_gps_software/test|libcsp/src/arch/macosx|libcsp/src/drivers/can/can_socketcan.c|ex2_services/ex2_demo_software|libcsp/src/drivers/usart/usart_linux.c|libcsp/src/drivers/usart/usart_windows.c|libcsp/examples|ex2_hal/sband/equipment_handler|libcsp/src/rtable/csp_rtable_cidr.c|libcsp/src/arch/posix|libcsp/src/arch/windows|libcsp/src/bindings" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
-						<entry excluding="ex2_system/source/beacon/beacon_task_BACKUP_2245.c|ex2_system/source/beacon/beacon_task_REMOTE_2245.c|ex2_hal/adcs/equipment_handler/test|test|ex2_services/Services/source/athena|ex2_services/Services/include/athena|ex2_hal/ex2_gps_software/ceedling-deprecated|ex2_hal/ex2_gps_software/test|libcsp/src/arch/macosx|libcsp/src/drivers/can/can_socketcan.c|ex2_services/ex2_demo_software|libcsp/src/drivers/usart/usart_linux.c|libcsp/src/drivers/usart/usart_windows.c|libcsp/examples|ex2_hal/sband/equipment_handler|libcsp/src/rtable/csp_rtable_cidr.c|libcsp/src/arch/posix|libcsp/src/arch/windows|libcsp/src/bindings" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="ex2_hal/adcs/equipment_handler/test|test|ex2_services/Services/source/athena|ex2_services/Services/include/athena|ex2_hal/gps/ceedling-deprecated|ex2_hal/gps/test|libcsp/src/arch/macosx|libcsp/src/drivers/can/can_socketcan.c|ex2_services/ex2_demo_software|libcsp/src/drivers/usart/usart_linux.c|libcsp/src/drivers/usart/usart_windows.c|libcsp/examples|ex2_hal/sband/equipment_handler|libcsp/src/rtable/csp_rtable_cidr.c|libcsp/src/arch/posix|libcsp/src/arch/windows|libcsp/src/bindings" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="ex2_hal/adcs/equipment_handler/src/uart_i2c.c|ex2_hal/adcs/equipment_handler/test|test|ex2_services/Services/source/athena|ex2_services/Services/include/athena|ex2_hal/gps/ceedling-deprecated|ex2_hal/gps/test|libcsp/src/arch/macosx|libcsp/src/drivers/can/can_socketcan.c|ex2_services/ex2_demo_software|libcsp/src/drivers/usart/usart_linux.c|libcsp/src/drivers/usart/usart_windows.c|libcsp/examples|ex2_hal/sband/equipment_handler|libcsp/src/rtable/csp_rtable_cidr.c|libcsp/src/arch/posix|libcsp/src/arch/windows|libcsp/src/bindings" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="ex2_system/source/beacon/beacon_task_BACKUP_2245.c|ex2_system/source/beacon/beacon_task_REMOTE_2245.c|ex2_hal/adcs/equipment_handler/test|test|ex2_services/Services/source/athena|ex2_services/Services/include/athena|ex2_hal/gps/ceedling-deprecated|ex2_hal/gps/test|libcsp/src/arch/macosx|libcsp/src/drivers/can/can_socketcan.c|ex2_services/ex2_demo_software|libcsp/src/drivers/usart/usart_linux.c|libcsp/src/drivers/usart/usart_windows.c|libcsp/examples|ex2_hal/sband/equipment_handler|libcsp/src/rtable/csp_rtable_cidr.c|libcsp/src/arch/posix|libcsp/src/arch/windows|libcsp/src/bindings" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="test/test_ex2_obc_software/ex2_hal/adcs"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="ex2_hal/sband/equipment_handler/test"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="test/test_ex2_obc_software/ex2_system/source/scheduling"/>
@@ -288,7 +288,7 @@
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="ex2_ftp/Program/test/incomplete_requests"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="ex2_hal/sband/equipment_handler/include"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="ex2_hal/sband/equipment_handler/source"/>
-						<entry excluding="ex2_system/source/beacon/beacon_task_BACKUP_2245.c|ex2_system/source/beacon/beacon_task_REMOTE_2245.c|ex2_hal/adcs/equipment_handler/test|test|ex2_services/Services/source/athena|ex2_services/Services/include/athena|ex2_hal/ex2_gps_software/ceedling-deprecated|ex2_hal/ex2_gps_software/test|libcsp/src/arch/macosx|libcsp/src/drivers/can/can_socketcan.c|ex2_services/ex2_demo_software|libcsp/src/drivers/usart/usart_linux.c|libcsp/src/drivers/usart/usart_windows.c|libcsp/examples|ex2_hal/sband/equipment_handler|libcsp/src/rtable/csp_rtable_cidr.c|libcsp/src/arch/posix|libcsp/src/arch/windows|libcsp/src/bindings" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="ex2_system/source/beacon/beacon_task_BACKUP_2245.c|ex2_system/source/beacon/beacon_task_REMOTE_2245.c|ex2_hal/adcs/equipment_handler/test|test|ex2_services/Services/source/athena|ex2_services/Services/include/athena|ex2_hal/gps/ceedling-deprecated|ex2_hal/gps/test|libcsp/src/arch/macosx|libcsp/src/drivers/can/can_socketcan.c|ex2_services/ex2_demo_software|libcsp/src/drivers/usart/usart_linux.c|libcsp/src/drivers/usart/usart_windows.c|libcsp/examples|ex2_hal/sband/equipment_handler|libcsp/src/rtable/csp_rtable_cidr.c|libcsp/src/arch/posix|libcsp/src/arch/windows|libcsp/src/bindings" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -576,12 +576,12 @@
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/hyperion_solar_panel/hardware_interface/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_uhf_software/equipment_handler/include}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_gps_software/services}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/gps/services}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/communication}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/gs_scheduling}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_gps_software/hardware_interface/include}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_gps_software/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/gps/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/gps/equipment_handler/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/beacon}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/coordinate_management}"/>
@@ -705,11 +705,11 @@
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/hyperion_solar_panel/hardware_interface/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_uhf_software/equipment_handler/include}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_gps_software/services}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/gps/services}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/communication}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_gps_software/hardware_interface/include}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_gps_software/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/gps/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/gps/equipment_handler/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/beacon}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/coordinate_management}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/diagnostic}"/>
@@ -804,7 +804,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="ex2_hal/adcs/equipment_handler/test|test|ex2_services/Services/source/athena|ex2_services/Services/include/athena|ex2_hal/ex2_gps_software/ceedling-deprecated|ex2_hal/ex2_gps_software/test|libcsp/src/arch/macosx|libcsp/src/drivers/can/can_socketcan.c|ex2_services/ex2_demo_software|libcsp/src/drivers/usart/usart_linux.c|libcsp/src/drivers/usart/usart_windows.c|libcsp/examples|ex2_hal/sband/equipment_handler|libcsp/src/rtable/csp_rtable_cidr.c|libcsp/src/arch/posix|libcsp/src/arch/windows|libcsp/src/bindings" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="ex2_hal/adcs/equipment_handler/test|test|ex2_services/Services/source/athena|ex2_services/Services/include/athena|ex2_hal/gps/ceedling-deprecated|ex2_hal/gps/test|libcsp/src/arch/macosx|libcsp/src/drivers/can/can_socketcan.c|ex2_services/ex2_demo_software|libcsp/src/drivers/usart/usart_linux.c|libcsp/src/drivers/usart/usart_windows.c|libcsp/examples|ex2_hal/sband/equipment_handler|libcsp/src/rtable/csp_rtable_cidr.c|libcsp/src/arch/posix|libcsp/src/arch/windows|libcsp/src/bindings" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="test/test_ex2_obc_software/ex2_hal/adcs"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="ex2_hal/sband/equipment_handler/test"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="ex2_hal/sband/equipment_handler/include"/>
@@ -863,11 +863,11 @@
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/hyperion_solar_panel/hardware_interface/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_uhf_software/equipment_handler/include}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_gps_software/services}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/gps/services}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/communication}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_gps_software/hardware_interface/include}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_gps_software/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/gps/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/gps/equipment_handler/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/beacon}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/coordinate_management}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/diagnostic}"/>
@@ -985,11 +985,11 @@
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/hyperion_solar_panel/hardware_interface/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_uhf_software/equipment_handler/include}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_gps_software/services}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/gps/services}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/communication}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_gps_software/hardware_interface/include}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_gps_software/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/gps/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/gps/equipment_handler/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/beacon}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/coordinate_management}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/diagnostic}"/>
@@ -1084,7 +1084,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="ex2_hal/adcs/equipment_handler/test|test|ex2_services/Services/source/athena|ex2_services/Services/include/athena|ex2_hal/ex2_gps_software/ceedling-deprecated|ex2_hal/ex2_gps_software/test|libcsp/src/arch/macosx|libcsp/src/drivers/can/can_socketcan.c|ex2_services/ex2_demo_software|libcsp/src/drivers/usart/usart_linux.c|libcsp/src/drivers/usart/usart_windows.c|libcsp/examples|ex2_hal/sband/equipment_handler|libcsp/src/rtable/csp_rtable_cidr.c|libcsp/src/arch/posix|libcsp/src/arch/windows|libcsp/src/bindings" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="ex2_hal/adcs/equipment_handler/test|test|ex2_services/Services/source/athena|ex2_services/Services/include/athena|ex2_hal/gps/ceedling-deprecated|ex2_hal/gps/test|libcsp/src/arch/macosx|libcsp/src/drivers/can/can_socketcan.c|ex2_services/ex2_demo_software|libcsp/src/drivers/usart/usart_linux.c|libcsp/src/drivers/usart/usart_windows.c|libcsp/examples|ex2_hal/sband/equipment_handler|libcsp/src/rtable/csp_rtable_cidr.c|libcsp/src/arch/posix|libcsp/src/arch/windows|libcsp/src/bindings" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="test/test_ex2_obc_software/ex2_hal"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="ex2_hal/sband/equipment_handler/test"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="ex2_hal/sband/equipment_handler/include"/>
