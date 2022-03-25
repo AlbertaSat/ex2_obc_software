@@ -1,9 +1,6 @@
 [submodule "libcsp"]
 	path = libcsp
 	url = git@github.com:AlbertaSat/libcsp.git
-[submodule "ex2_services"]
-	path = ex2_services
-	url = git@github.com:AlbertaSat/ex2_services.git
 [submodule "ex2_hal/ex2_eps_software"]
 	path = ex2_hal/ex2_eps_software
 	url = git@github.com:AlbertaSat/ex2_eps_software.git
