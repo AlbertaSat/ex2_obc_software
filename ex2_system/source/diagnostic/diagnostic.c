@@ -224,6 +224,9 @@ static void charon_watchdog_daemon(void *pvParameters) {
 }
 
 TickType_t get_uhf_watchdog_delay(void) {
+#ifdef UHF_IS_STUBBED
+    return 0;
+#else
     if (xSemaphoreTake(uhf_watchdog_mtx, mutex_timeout) == pdPASS) {
         TickType_t delay = uhf_prv_watchdog_delay;
         xSemaphoreGive(uhf_watchdog_mtx);
@@ -231,9 +234,13 @@ TickType_t get_uhf_watchdog_delay(void) {
     } else {
         return 0;
     }
+#endif
 }
 
 TickType_t get_sband_watchdog_delay(void) {
+#ifdef SBAND_IS_STUBBED
+    return 0;
+#else
     if (xSemaphoreTake(sband_watchdog_mtx, mutex_timeout) == pdPASS) {
         TickType_t delay = sband_prv_watchdog_delay;
         xSemaphoreGive(sband_watchdog_mtx);
@@ -241,9 +248,13 @@ TickType_t get_sband_watchdog_delay(void) {
     } else {
         return 0;
     }
+#endif
 }
 
 TickType_t get_charon_watchdog_delay(void) {
+#ifdef CHARON_IS_STUBBED
+    return 0;
+#else
     if (xSemaphoreTake(charon_watchdog_mtx, mutex_timeout) == pdPASS) {
         TickType_t delay = charon_prv_watchdog_delay;
         xSemaphoreGive(charon_watchdog_mtx);
@@ -251,33 +262,46 @@ TickType_t get_charon_watchdog_delay(void) {
     } else {
         return 0;
     }
+#endif
 }
 
 SAT_returnState set_uhf_watchdog_delay(const TickType_t delay) {
+#ifdef UHF_IS_STUBBED
+    return SATR_ERROR;
+#else
     if (xSemaphoreTake(uhf_watchdog_mtx, mutex_timeout) == pdPASS) {
         uhf_prv_watchdog_delay = delay;
         xSemaphoreGive(uhf_watchdog_mtx);
         return SATR_OK;
     }
     return SATR_ERROR;
+#endif
 }
 
 SAT_returnState set_sband_watchdog_delay(const TickType_t delay) {
+#ifdef SBAND_IS_STUBBED
+    return SATR_ERROR;
+#else
     if (xSemaphoreTake(sband_watchdog_mtx, mutex_timeout) == pdPASS) {
         sband_prv_watchdog_delay = delay;
         xSemaphoreGive(sband_watchdog_mtx);
         return SATR_OK;
     }
     return SATR_ERROR;
+#endif
 }
 
 SAT_returnState set_charon_watchdog_delay(const TickType_t delay) {
+#ifdef CHARON_IS_STUBBED
+    return SATR_ERROR;
+#else
     if (xSemaphoreTake(charon_watchdog_mtx, mutex_timeout) == pdPASS) {
         charon_prv_watchdog_delay = delay;
         xSemaphoreGive(charon_watchdog_mtx);
         return SATR_OK;
     }
     return SATR_ERROR;
+#endif
 }
 
 /**
