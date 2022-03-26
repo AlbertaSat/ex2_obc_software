@@ -24,7 +24,7 @@ static void *leop_daemon(void *pvParameters);
 SAT_returnState start_leop_daemon(void);
 
 
-Deployable_t sw;
+static Deployable_t sw;
 
 static void *leop_daemon(void *pvParameters);
 SAT_returnState start_leop_daemon(void);
@@ -48,61 +48,71 @@ bool hard_switch_status() {
     TickType_t twenty_sec_delay = pdMS_TO_TICKS(20 * 1000);
     int getStatus_retries;
     int successful_deployment = 0;
+    uint16_t burnwire_currents[7] = {0};
+
     //sw = {Port, UHF_P, UHF_Z, Payload, UHF_S, UHF_N, Starboard, DFGM};
     for (getStatus_retries = 0; getStatus_retries <= MAX_RETRIES; getStatus_retries++) {
         sw = 0;
         //Deploy DFGM
-        if (switchstatus(sw) != 1 && getStatus_retries != MAX_RETRIES) {
+        if ((switchstatus(sw) != 1) && (getStatus_retries != MAX_RETRIES)) {
             ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);
-            ex2_log("Manually activated %c\n", sw);
-            activate(sw);
-            vTaskDelay(twenty_sec_delay);
+            ex2_log("Activated %c\n", sw);
+            activate(sw, &burnwire_currents[sw]);
+            vTaskDelay(5000);
         }
-        else if (getStatus_retries == MAX_RETRIES) {
+        else if ((switchstatus(sw) != 1) && (getStatus_retries == MAX_RETRIES)) {
             ex2_log("Check #%d: %c not deployed, exiting the LEOP sequence.\n", &getStatus_retries, sw);
             return false;
         }
     }
-    vTaskDelay(two_min_delay);
+    ex2_log("DFGM deployed, burnwire current = %d\n", burnwire_currents[0]);
+    vTaskDelay(5000);
+    //    vTaskDelay(two_min_delay);
+
+
+
     for (getStatus_retries = 0; getStatus_retries <= MAX_RETRIES; getStatus_retries++) {
         //Deploy UHF
-        for (sw = 1; sw < 5; sw++) {
-            if (switchstatus(sw) != 1 && getStatus_retries != MAX_RETRIES) {
+        for (sw = 1; sw < 4 /* SHOULD BE A 5! */; sw++) {
+            if ((switchstatus(sw) != 1) && (getStatus_retries != MAX_RETRIES)) {
                 ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);
-                ex2_log("Manually activated %c\n", sw);
-                activate(sw);
-                vTaskDelay(twenty_sec_delay);
+                ex2_log("Activated %c\n", sw);
+                activate(sw, &burnwire_currents[sw]);
+                vTaskDelay(5000);
             }
-            else if (getStatus_retries == MAX_RETRIES) {
+            else if ((switchstatus(sw) != 1) && (getStatus_retries == MAX_RETRIES)) {
                 ex2_log("Check #%d: %c not deployed, exiting the LEOP sequence.\n", &getStatus_retries, sw);
                 return false;
             }
             
         }
     }
-    vTaskDelay(four_min_delay);
+    ex2_log("UHF Port deployed, burnwire current = %d\n", burnwire_currents[1]);
+    ex2_log("UHF Zenith deployed, burnwire current = %d\n", burnwire_currents[2]);
+    ex2_log("UHF Starboard deployed, burnwire current = %d\n", burnwire_currents[3]);
+    ex2_log("UHF Nadir deployed, burnwire current = %d\n", burnwire_currents[4]);
+    vTaskDelay(5000);
+//    vTaskDelay(four_min_delay);
+
+
     for (getStatus_retries = 0; getStatus_retries <= MAX_RETRIES; getStatus_retries++) {
         //Deploy solar panels
         for (sw = 5; sw < 8; sw++) {
-            if (switchstatus(sw) != 1 && getStatus_retries != MAX_RETRIES) {
+            if ((switchstatus(sw) != 1) && (getStatus_retries != MAX_RETRIES)) {
                 ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);
-                ex2_log("Manually activated %c\n", sw);
-                activate(sw);
-                vTaskDelay(twenty_sec_delay);
+                ex2_log("Activated %c\n", sw);
+                activate(sw, &burnwire_currents[sw]);
+                vTaskDelay(5000);
             }
-            else if (getStatus_retries == MAX_RETRIES) {
+            else if ((switchstatus(sw) != 1) && (getStatus_retries == MAX_RETRIES)) {
                 ex2_log("Check #%d: %c not deployed, exiting the LEOP sequence.\n", &getStatus_retries, sw);
                 return false;
             }
         }
+        ex2_log("Port Deployable Panel deployed, burnwire current = %d\n", burnwire_currents[5]);
+        ex2_log("Deployable Payload deployed, burnwire current = %d\n", burnwire_currents[6]);
+        ex2_log("Starboard Deployable deployed, burnwire current = %d\n", burnwire_currents[7]);
     }
-    
-    /*if (switchstatus(0) & switchstatus(1) & switchstatus(2) & switchstatus(3) & switchstatus(4) & switchstatus(5) & switchstatus(6) & switchstatus(7) == 1) {
-        return true; 
-    }
-    else {
-        return false;
-    }*/
     return true;
 } 
 
@@ -116,7 +126,9 @@ bool hard_switch_status() {
  * @return void
  */
 bool leop_init() {
-    if (eeprom_get_leop_status() != true) {
+    bool eeprom_flag = false;
+    if (eeprom_flag != true) {
+//    if (eeprom_get_leop_status() != true) {
         //If leop sequence was never executed, check that all hard switches have been deployed
         if (hard_switch_status() == true) {
             //If all hard switch have been deployed, set eeprom flag to TRUE
@@ -125,7 +137,8 @@ bool leop_init() {
         }
         return false;
     }
-    else if (eeprom_get_leop_status() == true) {
+//    else if (eeprom_get_leop_status() == true) {
+    else if (eeprom_flag == true) {
         return true;
     }
 
@@ -144,6 +157,7 @@ static void *leop_daemon(void *pvParameters) {
    
     //for (;;) {
         leop_init();
+        vTaskDelete(0);
     //}
     return 0;
 }
