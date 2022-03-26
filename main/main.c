@@ -58,6 +58,7 @@
 #include "sband.h"
 #include "system.h"
 #include "dfgm.h"
+#include "leop.h"
 
 #include "deployablescontrol.h"
 
@@ -87,6 +88,10 @@ static inline SAT_returnState init_csp_interface();
 void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
 
 void ex2_init(void *pvParameters) {
+
+    /* LEOP */
+
+//    leop_init();
 
     /* Initialization routine */
 
@@ -142,8 +147,8 @@ void ex2_init(void *pvParameters) {
 
 #ifdef FLATSAT_TEST
 void flatsat_test(void *pvParameters) {
-    sband_binary_test();
-    uhf_binary_test();
+//    sband_binary_test();
+//    uhf_binary_test();
 
     vTaskDelete(NULL);
 }
@@ -227,7 +232,7 @@ static void init_csp() {
     csp_conf.hostname = "Athena";
     csp_conf.model = "Ex-Alta2";
     csp_conf.revision = "2";
-    csp_conf.conn_max =10;
+    csp_conf.conn_max =20;
     csp_conf.conn_queue_length = 10;
     csp_conf.fifo_length = 25;
     csp_conf.port_max_bind = 24;
