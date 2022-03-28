@@ -30,6 +30,11 @@
 #define USE_UART
 //#define USE_I2C
 
+static SemaphoreHandle_t adcs_file_download_mutex;
+
+adcs_file_info *adcs_file_list[255] = {NULL};
+uint8_t adcs_file_list_length = 0;
+
 /*************************** General functions ***************************/
 /**
  * @brief
@@ -174,6 +179,162 @@ void get_3x3(float *matrix, uint8_t *address, float coef) {
     for (int i = 0; i < 3; i++) {
         matrix[1 + i] = coef * uint82int16(*(address + 2 * (i + 3)), *(address + 2 * (i + 1) + 1));
         matrix[5 + i] = coef * uint82int16(*(address + 2 * (i + 6)), *(address + 2 * (i + 5) + 1));
+    }
+}
+
+/*************************** File Management TC/TM Sequences ***************************/
+void ADCS_init_file_download_mutex() { adcs_file_download_mutex = xSemaphoreCreateMutex(); }
+
+ADCS_returnState ADCS_get_file_list() {
+    ADCS_returnState ret;
+
+    // Clear the file list
+    uint8_t index = adcs_file_list_length;
+    while (index--) {
+        vPortFree(adcs_file_list[index]);
+    }
+
+    // Fill the file list
+    ret = ADCS_reset_file_list_read_pointer();
+    if (ret != ADCS_OK) {
+        printf("Bad return at file list read pointer\n");
+        return ret;
+    }
+    adcs_file_info info;
+    while (true) {
+
+        while (info.updating == true) {
+            // Request file info until busy updating flag is not set
+            ret = ADCS_get_file_info(&info);
+            if (ret != ADCS_OK) {
+                printf("Bad return at get file info, index = %d\n", index);
+                return ret;
+            }
+            vTaskDelay(ONE_SECOND);
+        }
+
+        if ((info.counter == 0) && (info.size == 0) && (info.time == 0) && (info.crc16_checksum == 0)) {
+            // No more files on the ADCS
+            break;
+        }
+
+        adcs_file_list[index] = (adcs_file_info *)pvPortMalloc(sizeof(adcs_file_info));
+        if (adcs_file_list[index] == NULL) {
+            adcs_file_list_length = index - 1;
+            return ADCS_MALLOC_FAILED;
+        }
+
+        adcs_file_list[index]->type = info.type;
+        adcs_file_list[index]->counter = info.counter;
+        adcs_file_list[index]->updating = info.updating;
+        adcs_file_list[index]->size = info.size;
+        adcs_file_list[index]->time = info.time;
+        adcs_file_list[index]->crc16_checksum = info.crc16_checksum;
+
+        ret = ADCS_advance_file_list_read_pointer();
+        if (ret != ADCS_OK) {
+            printf("Bad return at advance file list read pointer, index = %d\n", index);
+            return ret;
+        }
+
+        index++;
+        info.updating = true;
+    }
+
+    adcs_file_list_length = index;
+    return ret;
+}
+
+ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f) {
+    uint32_t offset = 0;
+
+    // HARDCODED - remove eventually
+    type_f = adcs_file_list[0]->type;
+    counter_f = adcs_file_list[0]->counter;
+    // HARDCODED end
+
+    uint16_t block_length = 1024; // this is the max length of the block to be sent - this is the number of packets
+                                  // sent in a single block (each packet is 20 Bytes)
+    ADCS_load_file_download_block(type_f, counter_f, offset, block_length);
+
+    bool ready = 0;
+    bool param_err;
+
+    uint16_t crc16_checksum;
+
+    while (ready == false) {
+        ADCS_get_file_download_block_stat(&ready, &param_err, &crc16_checksum, &block_length);
+    }
+
+    // Does the file need to be created every time?
+
+    // Initiate saving to a file
+    int32_t iErr;
+    char buf[1024] = "";
+
+    // Get the current working directory
+    red_getcwd(buf, 1024);
+
+    printf("CWD = %s\r\n", buf);
+
+    //    // make the home directory
+    //    iErr = red_mkdir("home");
+    //    if (iErr == -1)
+    //    {
+    //        printf("Unexpected error %d from red_mkdir()\r\n", (int)red_errno);
+    //        //exit(red_errno);
+    //    }
+
+    // change directory to home
+    iErr = red_chdir("home");
+    if (iErr == -1) {
+        printf("Unexpected error %d from red_chdir()\r\n", (int)red_errno);
+        // exit(red_errno);
+    }
+
+    // get the current working directory
+    red_getcwd(buf, 1024);
+
+    printf(stderr, "CWD = %s\r\n", buf);
+
+    int32_t file1;
+
+    // open a text file
+    file1 = red_open("adcs_file.txt", RED_O_RDWR | RED_O_CREAT);
+    if (file1 == -1) {
+        printf("Unexpected error %d from red_open()\r\n", (int)red_errno);
+        exit(red_errno);
+    }
+
+    iErr = red_write(file1, "8 7 6 5 4 3 2 1\r\n", strlen("8 7 6 5 4 3 2 1\r\n"));
+    if (iErr == -1) {
+        printf("Unexpected error %d from red_write()\r\n", (int)red_errno);
+        exit(red_errno);
+    }
+
+    // Set Ignore Hole Map to true
+    bool ignore_hole_map = true;
+
+    uint8_t msg_length = 20; // I think this is the length of the packet in Bytes - not sure
+    uint8_t hole_map[ADCS_HOLE_MAP_SIZE] = {0};
+    uint16_t length_bytes = 20480;
+
+    ADCS_initiate_download_burst(msg_length, ignore_hole_map);
+    ADCS_receive_download_burst(hole_map, file1, length_bytes);
+
+    uint8_t img_buf[100] = {0};
+    red_read(file1, img_buf, 100);
+
+    printf("First 100 bytes of saved file:\r\n");
+    for (int i = 0; i < 100;) {
+        printf("%d %d %d %d %d %d %d %d %d %d\r\n", img_buf[i++], img_buf[i++], img_buf[i++], img_buf[i++],
+               img_buf[i++], img_buf[i++], img_buf[i++], img_buf[i++], img_buf[i++], img_buf[i++]);
+    }
+
+    iErr = red_close(file1);
+    if (iErr == -1) {
+        printf("Unexpected error %d from red_write()\r\n", (int)red_errno);
+        exit(red_errno);
     }
 }
 
@@ -406,15 +567,41 @@ ADCS_returnState ADCS_initiate_download_burst(uint8_t msg_length, bool ignore_ho
     return adcs_telecommand(command, 3);
 }
 
-void ADCS_receive_download_burst(uint8_t *hole_map, uint8_t *image_bytes, uint16_t length_bytes) {
+void ADCS_receive_download_burst(uint8_t *hole_map, int32_t file_des, uint16_t length_bytes) {
+
+    if (xSemaphoreTake(adcs_file_download_mutex, UART_TIMEOUT_MS) != pdTRUE) {
+        return ADCS_UART_FAILED;
+    }
+
 #if defined(USE_UART)
-    for(int i = 0; i < length_bytes/20; i++) {
-        receive_uart_packet(hole_map, image_bytes);
+    for (int i = 0; i < length_bytes / 20; i++) {
+        uint8_t pckt[20] = {0};
+        uint16_t pckt_counter;
+        ADCS_returnState err = receive_file_download_uart_packet(pckt, &pckt_counter);
+
+        if (err == ADCS_UART_FAILED) {
+            // End of file
+            break;
+        } else if (pckt_counter != i) {
+            // Missed a packet (or more) somewhere - fill with zeroes
+            for (int j = 0; j < (pckt_counter - i); j++) {
+                write_pckt_to_file(file_des, "00000000000000000000", ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN);
+            }
+        } else {
+            // Packet received. Write to file
+            write_pckt_to_file(file_des, pckt, ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN);
+
+            // Fill hole map with a 1 indicating packet received
+            // Note hole map is stored little-endian
+            uint8_t hole_map_byte_index = pckt_counter / 8;
+            uint8_t hole_map_bit_index = pckt_counter % 8;
+            *(hole_map + hole_map_byte_index) |= (0x1 << hole_map_bit_index);
+        }
     }
 #elif defined(USE_I2C)
-    //TODO: write receive function for I2C
+    // TODO: write receive function for I2C
 #endif
-
+    xSemaphoreGive(adcs_file_download_mutex);
 }
 
 /*************************** Common TMs ***************************/
@@ -451,25 +638,24 @@ ADCS_returnState ADCS_get_node_identification(uint8_t *node_type, uint8_t *inter
  * 		Possible values: 0-5. Refer to Table 30
  * @param boot_cause
  * 		Possible values: 1,2. Refer to Table 31
+ * @attention
+ * 		The firmware version is not included since it can be requested
+ * in the previous function
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_boot_program_stat(uint8_t* mcu_reset_cause,
-                                            uint8_t* boot_cause,
-                                            uint16_t* boot_count,
-                                            uint8_t* boot_idx,
-                                            uint8_t* major_firm_ver,
-                                            uint8_t* minor_firm_ver) {
-  uint8_t telemetry[6];
-  ADCS_returnState state;
-  state = adcs_telemetry(BOOT_RUNNING_STAT, telemetry, 6);
-  *mcu_reset_cause = telemetry[0] & 0xF;
-  *boot_cause = (telemetry[0] >> 4) & 0xF;
-  *boot_count = telemetry[2] << 8 | telemetry[1];
-  *boot_idx = telemetry[3];
-  *major_firm_ver = telemetry[4];
-  *minor_firm_ver = telemetry[5];
-  return state;
+ADCS_returnState ADCS_get_boot_program_stat(uint8_t *mcu_reset_cause, uint8_t *boot_cause, uint16_t *boot_count,
+                                            uint8_t *boot_idx, uint8_t *major_firm_ver, uint8_t *minor_firm_ver) {
+    uint8_t telemetry[6];
+    ADCS_returnState state;
+    state = adcs_telemetry(BOOT_RUNNING_STAT, telemetry, 6);
+    *mcu_reset_cause = telemetry[0] & 0xF;
+    *boot_cause = (telemetry[0] >> 4) & 0xF;
+    *boot_count = telemetry[2] << 8 | telemetry[1];
+    *boot_idx = telemetry[3];
+    *major_firm_ver = telemetry[4];
+    *minor_firm_ver = telemetry[5];
+    return state;
 }
 
 /**
@@ -540,7 +726,7 @@ ADCS_returnState ADCS_get_TC_ack(uint8_t *last_tc_id, bool *tc_processed, ADCS_r
     state = adcs_telemetry(LAST_TC_ACK_ID, telemetry, 4);
     *last_tc_id = telemetry[0];
     *tc_processed = telemetry[1] & 1;
-    *tc_err_stat = (ADCS_returnState) telemetry[2];
+    *tc_err_stat = (ADCS_returnState)telemetry[2];
     *tc_err_idx = telemetry[3];
     return state;
 }
@@ -558,7 +744,7 @@ ADCS_returnState ADCS_get_file_download_buffer(uint16_t *packet_count, uint8_t f
     ADCS_returnState state;
     state = adcs_telemetry(FILE_DL_BUFFER_ID, telemetry, 22);
     *packet_count = (telemetry[1] << 8) | telemetry[0];
-    memcpy(file, &telemetry[2], 20);
+    memcpy(&(*file), &telemetry[2], 20);
     return state;
 }
 
@@ -572,8 +758,7 @@ ADCS_returnState ADCS_get_file_download_buffer(uint16_t *packet_count, uint8_t f
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_file_download_block_stat(bool *ready, bool *param_err,
-                                                   uint16_t *crc16_checksum,
+ADCS_returnState ADCS_get_file_download_block_stat(bool *ready, bool *param_err, uint16_t *crc16_checksum,
                                                    uint16_t *length) {
     uint8_t telemetry[5];
     ADCS_returnState state;
@@ -595,17 +780,16 @@ ADCS_returnState ADCS_get_file_download_block_stat(bool *ready, bool *param_err,
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_file_info(uint8_t *type, bool *updating, uint8_t *counter, uint32_t *size,
-                                    uint32_t *time, uint16_t *crc16_checksum) {
+ADCS_returnState ADCS_get_file_info(adcs_file_info *info) {
     uint8_t telemetry[12];
     ADCS_returnState state;
     state = adcs_telemetry(FILE_INFO_ID, telemetry, 12);
-    *type = telemetry[0] & 0xF;
-    *updating = (telemetry[0] >> 4) & 1;
-    *counter = telemetry[1];
-    *size = (telemetry[5] << 24) | (telemetry[4] << 16) | (telemetry[3] << 8) | telemetry[2];
-    *time = (telemetry[9] << 24) | (telemetry[8] << 16) | (telemetry[7] << 8) | telemetry[6];
-    *crc16_checksum = (telemetry[11] << 8) | telemetry[10];
+    info->type = telemetry[0] & 0xF;
+    info->updating = (telemetry[0] >> 4) & 1;
+    info->counter = telemetry[1];
+    info->size = (telemetry[5] << 24) | (telemetry[4] << 16) | (telemetry[3] << 8) | telemetry[2];
+    info->time = (telemetry[9] << 24) | (telemetry[8] << 16) | (telemetry[7] << 8) | telemetry[6];
+    info->crc16_checksum = (telemetry[11] << 8) | telemetry[10];
     return state;
 }
 
@@ -698,8 +882,7 @@ ADCS_returnState ADCS_get_EDAC_err_count(uint16_t *single_sram, uint16_t *double
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_comms_stat(uint16_t *TC_num, uint16_t *TM_num,
-                                     uint8_t *flags_arr) {
+ADCS_returnState ADCS_get_comms_stat(uint16_t *TC_num, uint16_t *TM_num, uint8_t *flags_arr) {
     ADCS_returnState state;
     uint8_t telemetry[6];
     state = adcs_telemetry(COMMS_STAT_ID, telemetry, 6);
@@ -788,8 +971,9 @@ ADCS_returnState ADCS_set_hole_map(uint8_t *hole_map, uint8_t num) {
  */
 ADCS_returnState ADCS_set_unix_t(uint32_t unix_t, uint16_t count_ms) {
     uint8_t command[7] = {0};
-    //switch the endianness of the two input variables
-    uint32_t unix_t_le = ((unix_t << 24) & 0xFF000000) | ((unix_t << 8) & 0x00FF0000) | ((unix_t >> 8) & 0x0000FF00) | ((unix_t >> 24) & 0x000000FF);
+    // switch the endianness of the two input variables
+    uint32_t unix_t_le = ((unix_t << 24) & 0xFF000000) | ((unix_t << 8) & 0x00FF0000) |
+                         ((unix_t >> 8) & 0x0000FF00) | ((unix_t >> 24) & 0x000000FF);
     uint16_t count_ms_le = ((count_ms << 8) & 0xFF00) | ((count_ms >> 8) & 0x00FF);
     command[0] = SET_CURRENT_UNIX_TIME;
 
@@ -879,26 +1063,26 @@ ADCS_returnState ADCS_get_hole_map(uint8_t *hole_map, uint8_t num) {
  * 		Success of function defined in adcs_types.h
  */
 
-//ADCS_returnState ADCS_get_unix_t(uint32_t *unix_t, uint16_t *count_ms) {
-//    uint8_t telemetry[6];
-//    uint8_t telemetry_little[6];
-//    ADCS_returnState state;
-//    //The endianness of the memory read is little-endian. This is done manually.
-//    state = adcs_telemetry(GET_CURRENT_UNIX_TIME, telemetry, 6);
+// ADCS_returnState ADCS_get_unix_t(uint32_t *unix_t, uint16_t *count_ms) {
+//     uint8_t telemetry[6];
+//     uint8_t telemetry_little[6];
+//     ADCS_returnState state;
+//     //The endianness of the memory read is little-endian. This is done manually.
+//     state = adcs_telemetry(GET_CURRENT_UNIX_TIME, telemetry, 6);
 //
-//    int i=0;
+//     int i=0;
 //
-//    for (i=0; i<4; ++i){
-//        telemetry_little[i] = telemetry[3-i];
-//    }
-//    for (i=4; i<6; ++i){
-//        telemetry_little[i] = telemetry[5-i+4];
-//    }
+//     for (i=0; i<4; ++i){
+//         telemetry_little[i] = telemetry[3-i];
+//     }
+//     for (i=4; i<6; ++i){
+//         telemetry_little[i] = telemetry[5-i+4];
+//     }
 //
-//    memcpy(unix_t, &telemetry_little[0], 4);
-//    memcpy(count_ms, &telemetry_little[4], 2); // [ms]
-//    return state;
-//}
+//     memcpy(unix_t, &telemetry_little[0], 4);
+//     memcpy(count_ms, &telemetry_little[4], 2); // [ms]
+//     return state;
+// }
 
 ADCS_returnState ADCS_get_unix_t(uint32_t *unix_t, uint16_t *count_ms) {
     ADCS_returnState state;
@@ -1008,25 +1192,25 @@ ADCS_returnState ADCS_copy_program_internal_flash(uint8_t index, uint8_t overwri
  * 		Gets the BootLoader state.
  * @param uptime
  * @param flags_arr
- * 		12 boolean flags from Table 69
+ * 		11 boolean flags from Table 69
  * 		sram1, sram2, sram_latch_not_recovered, sram_latch_recovered,
  * 		sd_initial_err, sd_read_err, sd_write_err, external_flash_err,
  * 		internal_flash_err, eeprom_err, bad_boot_reg, comms_radio_err
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_bootloader_state(uint16_t* uptime,
-                                           uint8_t* flags_arr) {
-  uint8_t telemetry[6];
-  ADCS_returnState state;
-  state = adcs_telemetry(GET_BOOTLOADER_STATE_ID, telemetry, 6);
-  *uptime = (telemetry[1] << 8) + telemetry[0];
-  uint32_t flags;
-  memcpy(&flags, &telemetry[2], 4);
-  for (int i = 0; i < 12; i++) {
-    *(flags_arr + i) = (flags >> i) & 1;
-  }
-  return state;
+ADCS_returnState ADCS_get_bootloader_state(uint16_t *uptime, uint8_t *flags_arr) {
+    uint8_t telemetry[6] = {0};
+    ADCS_returnState state;
+    state = adcs_telemetry(GET_BOOTLOADER_STATE_ID, telemetry, 6);
+    *uptime = (telemetry[1] << 8) + telemetry[0];
+
+    for (int k = 0; k < 2; k++) {
+        for (int i = 0; i < 8; i++) {
+            *(flags_arr + k * 8 + i) = (telemetry[2 + k] >> i) & 1;
+        }
+    }
+    return state;
 }
 
 /**
@@ -1401,14 +1585,13 @@ ADCS_returnState ADCS_get_current_state(adcs_state *data) {
     }
 
     // Frame offset: 16 (Table 149)
-    for(int k = 0; k < 4; k++){
+    for (int k = 0; k < 4; k++) {
         // Frame offset: 16 + 8*k (Table 149)
 
         for (int i = 0; i < 8; i++) {
-            *(data->flags_arr + flags_arr_offset) = (telemetry[2+k] >> i) & 1;
+            *(data->flags_arr + flags_arr_offset) = (telemetry[2 + k] >> i) & 1;
             flags_arr_offset++;
         }
-
     }
 
     // Frame offset: 48 (Table 149)
@@ -1871,9 +2054,7 @@ ADCS_returnState ADCS_get_MTM2_measurements(xyz16 *Mag) {
  * @param coef
  * 		formatted value = rawval * coef;
  */
-void get_current(float *measurement, uint16_t raw, float coef) {
-    *measurement = coef * raw;
-}
+void get_current(float *measurement, uint16_t raw, float coef) { *measurement = coef * raw; }
 
 /**
  * @brief
@@ -1885,9 +2066,7 @@ void get_current(float *measurement, uint16_t raw, float coef) {
  * @param coef
  * 		formatted value = rawval * coef;
  */
-void get_temp(float *measurement, int16_t raw, float coef) {
-    *measurement = coef * raw;
-}
+void get_temp(float *measurement, int16_t raw, float coef) { *measurement = coef * raw; }
 
 /**
  * @brief
@@ -1912,7 +2091,7 @@ ADCS_returnState ADCS_get_power_temp(adcs_pwr_temp *measurements) {
     get_current(&measurements->cubecontrol_5v_I, (telemetry[11] << 8) | telemetry[10],
                 0.48828125); // [mA]
     get_current(&measurements->cubecontrol_vBat_I, (telemetry[13] << 8) | telemetry[12],
-                0.48828125);                                         // [mA]
+                0.48828125);                                                               // [mA]
     get_current(&measurements->wheel1_I, (telemetry[15] << 8) | telemetry[14], 0.01);      // [mA]
     get_current(&measurements->wheel2_I, (telemetry[17] << 8) | telemetry[16], 0.01);      // [mA]
     get_current(&measurements->wheel3_I, (telemetry[19] << 8) | telemetry[18], 0.01);      // [mA]
@@ -1923,9 +2102,9 @@ ADCS_returnState ADCS_get_power_temp(adcs_pwr_temp *measurements) {
     get_temp(&measurements->MCU_temp, (telemetry[27] << 8) | telemetry[26], 1);         // [C]
     get_temp(&measurements->MTM_temp, (telemetry[29] << 8) | telemetry[28], 0.1);       // [C]
     get_temp(&measurements->MTM2_temp, (telemetry[31] << 8) | telemetry[30], 0.1);      // [C]
-    measurements->rate_sensor_temp.x = (telemetry[33] << 8) | telemetry[32];   // [C]
-    measurements->rate_sensor_temp.y = (telemetry[35] << 8) | telemetry[34];   // [C]
-    measurements->rate_sensor_temp.z = (telemetry[37] << 8) | telemetry[36];   // [C]
+    measurements->rate_sensor_temp.x = (telemetry[33] << 8) | telemetry[32];            // [C]
+    measurements->rate_sensor_temp.y = (telemetry[35] << 8) | telemetry[34];            // [C]
+    measurements->rate_sensor_temp.z = (telemetry[37] << 8) | telemetry[36];            // [C]
 
     return state;
 }
@@ -1944,17 +2123,17 @@ ADCS_returnState ADCS_get_power_temp(adcs_pwr_temp *measurements) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_power_control(uint8_t *control) {
-    uint8_t command[4] = {0}; //TODO: FIX power control setting bytes. Right now it only works for cubesense 1
+    uint8_t command[4] = {0}; // TODO: FIX power control setting bytes. Right now it only works for cubesense 1
     command[0] = SET_POWER_CONTROL_ID;
-    //command[1] = 0x10; //sets the cubesense 1 on
+    // command[1] = 0x10; //sets the cubesense 1 on
     for (int i = 0; i < 4; i++) {
-        command[1] = command[1] | (*(control + i) << 2*i);
+        command[1] = command[1] | (*(control + i) << 2 * i);
     }
     for (int i = 0; i < 4; i++) {
-        command[2] = command[2] | (*(control + 4 + i) << 2*i);
+        command[2] = command[2] | (*(control + 4 + i) << 2 * i);
     }
     for (int i = 0; i < 2; i++) {
-        command[3] = command[3] | (*(control + 8 + i) << 2*i);
+        command[3] = command[3] | (*(control + 8 + i) << 2 * i);
     }
     return adcs_telecommand(command, 4);
 }
@@ -1963,7 +2142,7 @@ ADCS_returnState ADCS_set_power_control(uint8_t *control) {
  * @brief
  * 		Gets the power state of some components (Table 184).
  * @param control
- * 		a 10-value array with the values defined in Table 185:
+ * 		an array with the values defined in Table 185:
  * 		0 : off
  * 		1 : on
  * 		2 : keep the same
@@ -2078,12 +2257,12 @@ ADCS_returnState ADCS_get_track_controller(xyz *target) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_set_log_config(uint8_t *flags_arr, uint16_t period, uint8_t dest, uint8_t log) {
+ADCS_returnState ADCS_set_log_config(uint8_t **flags_arr, uint16_t period, uint8_t dest, uint8_t log) {
     uint8_t command[14] = {0};
     command[0] = SET_SD_LOG1_CONFIG_ID + (log - 1);
     for (int j = 0; j < 10; j++) {
         for (int i = 0; i < 8; i++) {
-            command[j + 1] = command[j + 1] | (*(flags_arr + (8 * j) + i) << i);
+            command[j + 1] = command[j + 1] | (*(*flags_arr + (8 * j) + i) << i);
         }
     }
     memcpy(&command[11], &period, 2);
@@ -2118,7 +2297,7 @@ ADCS_returnState ADCS_set_log_config(uint8_t *flags_arr, uint16_t period, uint8_
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_log_config(uint8_t *flags_arr, uint16_t *period, uint8_t *dest, uint8_t log) {
+ADCS_returnState ADCS_get_log_config(uint8_t **flags_arr, uint16_t *period, uint8_t *dest, uint8_t log) {
     uint8_t telemetry[13];
     ADCS_returnState state;
     uint8_t TM_ID = GET_SD_LOG1_CONFIG_ID + (log - 1);
@@ -2130,7 +2309,7 @@ ADCS_returnState ADCS_get_log_config(uint8_t *flags_arr, uint16_t *period, uint8
 
     for (int j = 0; j < 10; j++) {
         for (int i = 0; i < 8; i++) {
-            *(flags_arr + (8 * j) + i) = (telemetry[j] >> i) & 1;
+            *(*flags_arr + (8 * j) + i) = (telemetry[j] >> i) & 1;
         }
     }
     *period = telemetry[11] << 8 | telemetry[10];
@@ -2436,7 +2615,7 @@ ADCS_returnState ADCS_set_star_track_config(cubestar_config config) {
  */
 ADCS_returnState ADCS_get_cubesense_config(cubesense_config *config) {
 
-    uint8_t *telemetry = (uint8_t*)pvPortMalloc(112);
+    uint8_t *telemetry = (uint8_t *)pvPortMalloc(112);
     if (telemetry == NULL) {
         return ADCS_MALLOC_FAILED;
     }
@@ -2445,12 +2624,11 @@ ADCS_returnState ADCS_get_cubesense_config(cubesense_config *config) {
     xyz16 raw_val_angle1, raw_val_angle2;
     uint16_t raw_boresight_x1, raw_boresight_y1;
     uint16_t raw_boresight_x2, raw_boresight_y2;
-    //request cubsense configuration and store in telemetry
+    // request cubsense configuration and store in telemetry
     ADCS_returnState state;
     state = adcs_telemetry(GET_CUBESENSE_CONFIG_ID, telemetry, 112);
 
-
-    //point these values to the pre-function structure
+    // point these values to the pre-function structure
     raw_val_angle1.x = (telemetry[1] << 8) | telemetry[0];
     raw_val_angle1.y = (telemetry[3] << 8) | telemetry[2];
     raw_val_angle1.z = (telemetry[5] << 8) | telemetry[4];
@@ -2471,7 +2649,7 @@ ADCS_returnState ADCS_get_cubesense_config(cubesense_config *config) {
     raw_boresight_x2 = (telemetry[25] << 8) | telemetry[24];
     raw_boresight_y2 = (telemetry[27] << 8) | telemetry[26];
 
-    //convert data as per the ADCS datasheet
+    // convert data as per the ADCS datasheet
     config->cam1_sense.mounting_angle.x = raw_val_angle1.x * coef;
     config->cam1_sense.mounting_angle.y = raw_val_angle1.y * coef;
     config->cam1_sense.mounting_angle.z = raw_val_angle1.z * coef;
@@ -2483,7 +2661,7 @@ ADCS_returnState ADCS_get_cubesense_config(cubesense_config *config) {
     config->cam2_sense.boresight_x = raw_boresight_x2 * coef;
     config->cam2_sense.boresight_y = raw_boresight_y2 * coef;
 
-    //no conversion necessary for the following parameters
+    // no conversion necessary for the following parameters
     config->nadir_max_deviate = telemetry[28];
     config->nadir_max_bad_edge = telemetry[29];
     config->nadir_max_radius = telemetry[30];
@@ -2573,9 +2751,9 @@ ADCS_returnState ADCS_set_cubesense_config(cubesense_config params) {
     command[8] = params.cam1_sense.auto_adjust;
     command[9] = (params.cam1_sense.exposure_t) & 0x00FF;
     command[10] = (params.cam1_sense.exposure_t >> 8) & 0x00FF;
-    command[11] = (raw_boresight_x1) & 0x00FF;
+    command[11] = (raw_boresight_x1)&0x00FF;
     command[12] = (raw_boresight_x1 >> 8) & 0x00FF;
-    command[13] = (raw_boresight_y1) & 0x00FF;
+    command[13] = (raw_boresight_y1)&0x00FF;
     command[14] = (raw_boresight_y1 >> 8) & 0x00FF;
     command[15] = (raw_val_angle2.x) & 0x00FF;
     command[16] = (raw_val_angle2.x >> 8) & 0x00FF;
@@ -2587,9 +2765,9 @@ ADCS_returnState ADCS_set_cubesense_config(cubesense_config params) {
     command[22] = params.cam2_sense.auto_adjust;
     command[23] = (params.cam2_sense.exposure_t) & 0x00FF;
     command[24] = (params.cam2_sense.exposure_t >> 8) & 0x00FF;
-    command[25] = (raw_boresight_x2) & 0x00FF;
+    command[25] = (raw_boresight_x2)&0x00FF;
     command[26] = (raw_boresight_x2 >> 8) & 0x00FF;
-    command[27] = (raw_boresight_y2) & 0x00FF;
+    command[27] = (raw_boresight_y2)&0x00FF;
     command[28] = (raw_boresight_y2 >> 8) & 0x00FF;
     command[29] = params.nadir_max_deviate;
     command[30] = params.nadir_max_bad_edge;
@@ -2599,81 +2777,81 @@ ADCS_returnState ADCS_set_cubesense_config(cubesense_config params) {
     command[34] = (params.cam1_area.area1.x.min >> 8) & 0x00FF;
     command[35] = (params.cam1_area.area1.x.max) & 0x00FF;
     command[36] = (params.cam1_area.area1.x.max >> 8) & 0x00FF;
-    command[37] = (params.cam1_area.area1.y.min ) & 0x00FF;
+    command[37] = (params.cam1_area.area1.y.min) & 0x00FF;
     command[38] = (params.cam1_area.area1.y.min >> 8) & 0x00FF;
     command[39] = (params.cam1_area.area1.y.max) & 0x00FF;
     command[40] = (params.cam1_area.area1.y.max >> 8) & 0x00FF;
-    command[41] = (params.cam1_area.area2.x.min ) & 0x00FF;
+    command[41] = (params.cam1_area.area2.x.min) & 0x00FF;
     command[42] = (params.cam1_area.area2.x.min >> 8) & 0x00FF;
-    command[43] = (params.cam1_area.area2.x.max ) & 0x00FF;
+    command[43] = (params.cam1_area.area2.x.max) & 0x00FF;
     command[44] = (params.cam1_area.area2.x.max >> 8) & 0x00FF;
-    command[45] = (params.cam1_area.area2.y.min ) & 0x00FF;
+    command[45] = (params.cam1_area.area2.y.min) & 0x00FF;
     command[46] = (params.cam1_area.area2.y.min >> 8) & 0x00FF;
-    command[47] = (params.cam1_area.area2.y.max ) & 0x00FF;
+    command[47] = (params.cam1_area.area2.y.max) & 0x00FF;
     command[48] = (params.cam1_area.area2.y.max >> 8) & 0x00FF;
-    command[49] = (params.cam1_area.area3.x.min ) & 0x00FF;
+    command[49] = (params.cam1_area.area3.x.min) & 0x00FF;
     command[50] = (params.cam1_area.area3.x.min >> 8) & 0x00FF;
-    command[51] = (params.cam1_area.area3.x.max  ) & 0x00FF;
+    command[51] = (params.cam1_area.area3.x.max) & 0x00FF;
     command[52] = (params.cam1_area.area3.x.max >> 8) & 0x00FF;
-    command[53] = (params.cam1_area.area3.y.min ) & 0x00FF;
+    command[53] = (params.cam1_area.area3.y.min) & 0x00FF;
     command[54] = (params.cam1_area.area3.y.min >> 8) & 0x00FF;
-    command[55] = (params.cam1_area.area3.y.max  ) & 0x00FF;
+    command[55] = (params.cam1_area.area3.y.max) & 0x00FF;
     command[56] = (params.cam1_area.area3.y.max >> 8) & 0x00FF;
-    command[57] = (params.cam1_area.area4.x.min ) & 0x00FF;
+    command[57] = (params.cam1_area.area4.x.min) & 0x00FF;
     command[58] = (params.cam1_area.area4.x.min >> 8) & 0x00FF;
-    command[59] = (params.cam1_area.area4.x.max ) & 0x00FF;
+    command[59] = (params.cam1_area.area4.x.max) & 0x00FF;
     command[60] = (params.cam1_area.area4.x.max >> 8) & 0x00FF;
     command[61] = (params.cam1_area.area4.y.min) & 0x00FF;
     command[62] = (params.cam1_area.area4.y.min >> 8) & 0x00FF;
-    command[63] = (params.cam1_area.area4.y.max ) & 0x00FF;
+    command[63] = (params.cam1_area.area4.y.max) & 0x00FF;
     command[64] = (params.cam1_area.area4.y.max >> 8) & 0x00FF;
-    command[65] = (params.cam1_area.area5.x.min ) & 0x00FF;
+    command[65] = (params.cam1_area.area5.x.min) & 0x00FF;
     command[66] = (params.cam1_area.area5.x.min >> 8) & 0x00FF;
-    command[67] = (params.cam1_area.area5.x.max ) & 0x00FF;
+    command[67] = (params.cam1_area.area5.x.max) & 0x00FF;
     command[68] = (params.cam1_area.area5.x.max >> 8) & 0x00FF;
-    command[69] = (params.cam1_area.area5.y.min ) & 0x00FF;
+    command[69] = (params.cam1_area.area5.y.min) & 0x00FF;
     command[70] = (params.cam1_area.area5.y.min >> 8) & 0x00FF;
-    command[71] = (params.cam1_area.area5.y.max ) & 0x00FF;
+    command[71] = (params.cam1_area.area5.y.max) & 0x00FF;
     command[72] = (params.cam1_area.area5.y.max >> 8) & 0x00FF;
-    command[73] = (params.cam2_area.area1.x.min ) & 0x00FF;
+    command[73] = (params.cam2_area.area1.x.min) & 0x00FF;
     command[74] = (params.cam2_area.area1.x.min >> 8) & 0x00FF;
-    command[75] = (params.cam2_area.area1.x.max ) & 0x00FF;
+    command[75] = (params.cam2_area.area1.x.max) & 0x00FF;
     command[76] = (params.cam2_area.area1.x.max >> 8) & 0x00FF;
-    command[77] = (params.cam2_area.area1.y.min ) & 0x00FF;
+    command[77] = (params.cam2_area.area1.y.min) & 0x00FF;
     command[78] = (params.cam2_area.area1.y.min >> 8) & 0x00FF;
-    command[79] = (params.cam2_area.area1.y.max ) & 0x00FF;
+    command[79] = (params.cam2_area.area1.y.max) & 0x00FF;
     command[80] = (params.cam2_area.area1.y.max >> 8) & 0x00FF;
-    command[81] = (params.cam2_area.area2.x.min ) & 0x00FF;
+    command[81] = (params.cam2_area.area2.x.min) & 0x00FF;
     command[82] = (params.cam2_area.area2.x.min >> 8) & 0x00FF;
-    command[83] = (params.cam2_area.area2.x.max ) & 0x00FF;
+    command[83] = (params.cam2_area.area2.x.max) & 0x00FF;
     command[84] = (params.cam2_area.area2.x.max >> 8) & 0x00FF;
-    command[85] = (params.cam2_area.area2.y.min ) & 0x00FF;
+    command[85] = (params.cam2_area.area2.y.min) & 0x00FF;
     command[86] = (params.cam2_area.area2.y.min >> 8) & 0x00FF;
-    command[87] = (params.cam2_area.area2.y.max ) & 0x00FF;
+    command[87] = (params.cam2_area.area2.y.max) & 0x00FF;
     command[88] = (params.cam2_area.area2.y.max >> 8) & 0x00FF;
-    command[89] = (params.cam2_area.area3.x.min ) & 0x00FF;
+    command[89] = (params.cam2_area.area3.x.min) & 0x00FF;
     command[90] = (params.cam2_area.area3.x.min >> 8) & 0x00FF;
-    command[91] = (params.cam2_area.area3.x.max ) & 0x00FF;
+    command[91] = (params.cam2_area.area3.x.max) & 0x00FF;
     command[92] = (params.cam2_area.area3.x.max >> 8) & 0x00FF;
-    command[93] = (params.cam2_area.area3.y.min ) & 0x00FF;
+    command[93] = (params.cam2_area.area3.y.min) & 0x00FF;
     command[94] = (params.cam2_area.area3.y.min >> 8) & 0x00FF;
-    command[95] = (params.cam2_area.area3.y.max ) & 0x00FF;
+    command[95] = (params.cam2_area.area3.y.max) & 0x00FF;
     command[96] = (params.cam2_area.area3.y.max >> 8) & 0x00FF;
-    command[97] = (params.cam2_area.area4.x.min ) & 0x00FF;
+    command[97] = (params.cam2_area.area4.x.min) & 0x00FF;
     command[98] = (params.cam2_area.area4.x.min >> 8) & 0x00FF;
-    command[99] = (params.cam2_area.area4.x.max ) & 0x00FF;
+    command[99] = (params.cam2_area.area4.x.max) & 0x00FF;
     command[100] = (params.cam2_area.area4.x.max >> 8) & 0x00FF;
-    command[101] = (params.cam2_area.area4.y.min ) & 0x00FF;
+    command[101] = (params.cam2_area.area4.y.min) & 0x00FF;
     command[102] = (params.cam2_area.area4.y.min >> 8) & 0x00FF;
-    command[103] = (params.cam2_area.area4.y.max ) & 0x00FF;
+    command[103] = (params.cam2_area.area4.y.max) & 0x00FF;
     command[104] = (params.cam2_area.area4.y.max >> 8) & 0x00FF;
-    command[105] = (params.cam2_area.area5.x.min ) & 0x00FF;
+    command[105] = (params.cam2_area.area5.x.min) & 0x00FF;
     command[106] = (params.cam2_area.area5.x.min >> 8) & 0x00FF;
-    command[107] = (params.cam2_area.area5.x.max ) & 0x00FF;
+    command[107] = (params.cam2_area.area5.x.max) & 0x00FF;
     command[108] = (params.cam2_area.area5.x.max >> 8) & 0x00FF;
-    command[109] = (params.cam2_area.area5.y.min ) & 0x00FF;
+    command[109] = (params.cam2_area.area5.y.min) & 0x00FF;
     command[110] = (params.cam2_area.area5.y.min >> 8) & 0x00FF;
-    command[111] = (params.cam2_area.area5.y.max ) & 0x00FF;
+    command[111] = (params.cam2_area.area5.y.max) & 0x00FF;
     command[112] = (params.cam2_area.area5.y.max >> 8) & 0x00FF;
 
     ADCS_returnState result = adcs_telecommand(command, 113);
