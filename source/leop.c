@@ -26,12 +26,6 @@ SAT_returnState start_leop_daemon(void);
 
 static Deployable_t sw;
 
-static void *leop_daemon(void *pvParameters);
-SAT_returnState start_leop_daemon(void);
-
-
-Deployable_t sw;
-
 //LEOP Sequence
 
 /**

@@ -89,15 +89,19 @@ void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
 
 void ex2_init(void *pvParameters) {
 
+    init_filesystem();
+
     /* LEOP */
 
-//    leop_init();
+#ifdef EXECUTE_LEOP
+    if(leop_init() != true){
+        //TODO: Do what if leop fails?
+    }
+#endif
 
     /* Initialization routine */
 
-    /* Hardware Initialization */
-
-    init_filesystem();
+    /* Subsystem Hardware Initialization */
 
 #ifndef ADCS_IS_STUBBED
     // PLACEHOLDER: adcs hardware init
