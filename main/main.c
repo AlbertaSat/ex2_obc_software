@@ -13,7 +13,7 @@
  */
 /**
  * @file main.c
- * @author Andrew Rooney, Haoran Qi, Robert Taylor, Dustin Wagner, Arash Yazdani
+ * @author Andrew Rooney, Haoran Qi, Robert Taylor, Dustin Wagner, Arash Yazdani, Thomas Ganley
  * @date 2020-06-06
  */
 
