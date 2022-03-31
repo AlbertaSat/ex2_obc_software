@@ -91,7 +91,7 @@ static void *beacon_daemon(All_systems_housekeeping* all_hk_data) {
 #ifndef EPS_IS_STUBBED
     if (uhf_status != U_GOOD_CONFIG) {
 
-      if (eps_get_pwr_chnl(UHF_PWR_CHNL) == 1 &&
+      if (eps_get_pwr_chnl(UHF_5V0_PWR_CHNL) == 1 &&
           gioGetBit(UHF_GIO_PORT, UHF_GIO_PIN) == 1) {
         printf("Beacon failed");
       } else

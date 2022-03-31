@@ -130,13 +130,18 @@ typedef enum {
 /* Subsystems Pins & Ports */
 #define UHF_GIO_PORT    hetPORT2
 #define UHF_GIO_PIN     22
-// TODO: Numbers to be set
-#define UHF_PWR_CHNL    8
-//SBAND_PWR_CHNL does not exist as there is no power channel, it is on 5V_AO (always on)
-#define CHARON_PWR_CHNL 7
-#define IRIS_PWR_CHNL   1
-#define DFGM_PWR_CHNL   1
-#define ADCS_PWR_CHNL   1
+
+#define ADCS_5V0_PWR_CHNL 1
+#define DFGM_5V0_PWR_CHNL   2
+#define PYLD_5V0_PWR_CHNL 3
+// Channel 4 was assigned to be 3V3 for 1W UHF in case 2W UHFs didn't work out.
+#define ADCS_3V3_PWR_CHNL 5
+// Channel 6 is the OBC power channel, and should not be accessed by the OBC
+#define CHARON_3V3_PWR_CHNL 7
+#define UHF_5V0_PWR_CHNL    8
+#define DEPLOYABLES_5V0_PWR_CHNL 9
+#define PYLD_3V3_PWR_CHNL 10
+//SBAND_PWR_CHNL does not exist as it is on the 5V_AO (always on) channel
 
 int ex2_main(void);
 void SciSendBuf(char *buf, uint32_t bufSize);

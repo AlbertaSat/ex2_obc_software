@@ -22,6 +22,9 @@
 
 #include "HL_gio.h"
 
+#define DEPLOYABLE_BURNWIRE_DELAY_MS 6500 // Delay 6.5 seconds according to systems requirements
+#define DEPLOYABLES_CURRENT_INDEX DEPLOYABLES_5V0_PWR_CHNL - 1
+
 typedef enum {
     // DFGM
     DFGM = 0,

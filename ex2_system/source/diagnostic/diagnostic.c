@@ -53,7 +53,7 @@ static SemaphoreHandle_t charon_watchdog_mtx = NULL;
 static void uhf_watchdog_daemon(void *pvParameters) {
     for (;;) {
         TickType_t delay = get_uhf_watchdog_delay();
-        if (eps_get_pwr_chnl(UHF_PWR_CHNL) == 0) {
+        if (eps_get_pwr_chnl(UHF_5V0_PWR_CHNL) == 0) {
             ex2_log("UHF not on - power not toggled");
             vTaskDelay(delay);
             continue;
@@ -76,26 +76,26 @@ static void uhf_watchdog_daemon(void *pvParameters) {
             ex2_log("UHF was not responsive - attempting to toggle power.");
 
             // Turn off the UHF.
-            eps_set_pwr_chnl(UHF_PWR_CHNL, OFF);
+            eps_set_pwr_chnl(UHF_5V0_PWR_CHNL, OFF);
 
             // Allow the system to fully power off
             vTaskDelay(reset_wait_period);
 
             // Check that the UHF has been turned off.
-            if (eps_get_pwr_chnl(UHF_PWR_CHNL) != OFF) {
+            if (eps_get_pwr_chnl(UHF_5V0_PWR_CHNL) != OFF) {
                 ex2_log("UHF failed to power off.");
                 vTaskDelay(delay);
                 continue;
             }
 
             // Turn the UHF back on.
-            eps_set_pwr_chnl(UHF_PWR_CHNL, ON);
+            eps_set_pwr_chnl(UHF_5V0_PWR_CHNL, ON);
 
             // Allow the system to fully power on
             vTaskDelay(reset_wait_period);
 
             // Check that the UHF has been turned on
-            if (eps_get_pwr_chnl(UHF_PWR_CHNL) != ON) {
+            if (eps_get_pwr_chnl(UHF_5V0_PWR_CHNL) != ON) {
                 ex2_log("UHF failed to power on.");
             } else {
                 ex2_log("UHF powered back on.");
@@ -171,7 +171,7 @@ static void sband_watchdog_daemon(void *pvParameters) {
 static void charon_watchdog_daemon(void *pvParameters) {
     for (;;) {
         TickType_t delay = get_charon_watchdog_delay();
-        if (eps_get_pwr_chnl(CHARON_PWR_CHNL) == 0) {
+        if (eps_get_pwr_chnl(CHARON_3V3_PWR_CHNL) == 0) {
             ex2_log("Charon not on - power not toggled");
             vTaskDelay(delay);
             continue;
@@ -189,26 +189,26 @@ static void charon_watchdog_daemon(void *pvParameters) {
             ex2_log("Charon was not responsive - attempting to toggle power.");\
 
             // Turn Charon off
-            eps_set_pwr_chnl(CHARON_PWR_CHNL, OFF);
+            eps_set_pwr_chnl(CHARON_3V3_PWR_CHNL, OFF);
 
             // Allow the system to fully power off
             vTaskDelay(reset_wait_period);
 
             // Check that Charon has been turned off.
-            if (eps_get_pwr_chnl(CHARON_PWR_CHNL) != OFF) {
+            if (eps_get_pwr_chnl(CHARON_3V3_PWR_CHNL) != OFF) {
                 ex2_log("Charon failed to power off.");
                 vTaskDelay(delay);
                 continue;
             }
 
             // Turn Charon back on.
-            eps_set_pwr_chnl(CHARON_PWR_CHNL, ON);
+            eps_set_pwr_chnl(CHARON_3V3_PWR_CHNL, ON);
 
             // Allow the system to fully power on
             vTaskDelay(reset_wait_period);
 
             // Check that Charon has been turned on
-            if (eps_get_pwr_chnl(CHARON_PWR_CHNL) != ON) {
+            if (eps_get_pwr_chnl(CHARON_3V3_PWR_CHNL) != ON) {
                 ex2_log("Charon failed to power on.");
             } else {
                 ex2_log("Charon powered back on.");
