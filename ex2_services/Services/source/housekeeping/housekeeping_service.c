@@ -563,8 +563,8 @@ Result write_hk_to_file(uint16_t filenumber, All_systems_housekeeping *all_hk_da
     red_write(fout, &all_hk_data->S_band_hk, sizeof(all_hk_data->S_band_hk));
     red_write(fout, &all_hk_data->hyperion_hk, sizeof(all_hk_data->hyperion_hk));
     red_write(fout, &all_hk_data->charon_hk, sizeof(all_hk_data->charon_hk));
-    //red_write(fout, &all_hk_data->payload_hk, sizeof(all_hk_data->payload_hk));
     red_write(fout, &all_hk_data->DFGM_hk, sizeof(all_hk_data->DFGM_hk));
+    //red_write(fout, &all_hk_data->payload_hk, sizeof(all_hk_data->payload_hk));
 
     if (red_errno != 0) {
         ex2_log("Failed to write to file: '%s'\n", fileName);
@@ -613,8 +613,8 @@ Result read_hk_from_file(uint16_t filenumber, All_systems_housekeeping *all_hk_d
     red_read(fin, &all_hk_data->S_band_hk, sizeof(all_hk_data->S_band_hk));
     red_read(fin, &all_hk_data->hyperion_hk, sizeof(all_hk_data->hyperion_hk));
     red_read(fin, &all_hk_data->charon_hk, sizeof(all_hk_data->charon_hk));
-    // red_read(fin, &all_hk_data->payload_hk, sizeof(all_hk_data->payload_hk));
     red_read(fin, &all_hk_data->DFGM_hk, sizeof(all_hk_data->DFGM_hk));
+    // red_read(fin, &all_hk_data->payload_hk, sizeof(all_hk_data->payload_hk));
 
     if (red_errno != 0) {
         ex2_log("Failed to read: '%c'\n", fileName);
@@ -885,6 +885,9 @@ Result fetch_historic_hk_and_transmit(csp_conn_t *conn, uint16_t limit, uint16_t
         memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.charon_hk,
                sizeof(all_hk_data.charon_hk));
         used_size += sizeof(all_hk_data.charon_hk);
+        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.DFGM_hk,
+               sizeof(all_hk_data.DFGM_hk));
+        used_size += sizeof(all_hk_data.DFGM_hk);
 
         set_packet_length(packet, used_size + 2);
 
