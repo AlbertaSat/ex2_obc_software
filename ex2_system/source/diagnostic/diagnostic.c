@@ -225,7 +225,7 @@ static void charon_watchdog_daemon(void *pvParameters) {
 
 TickType_t get_uhf_watchdog_delay(void) {
 #ifdef UHF_IS_STUBBED
-    return 0;
+    return STUBBED_WATCHDOG_DELAY;
 #else
     if (xSemaphoreTake(uhf_watchdog_mtx, mutex_timeout) == pdPASS) {
         TickType_t delay = uhf_prv_watchdog_delay;
@@ -239,7 +239,7 @@ TickType_t get_uhf_watchdog_delay(void) {
 
 TickType_t get_sband_watchdog_delay(void) {
 #ifdef SBAND_IS_STUBBED
-    return 0;
+    return STUBBED_WATCHDOG_DELAY;
 #else
     if (xSemaphoreTake(sband_watchdog_mtx, mutex_timeout) == pdPASS) {
         TickType_t delay = sband_prv_watchdog_delay;
@@ -253,7 +253,7 @@ TickType_t get_sband_watchdog_delay(void) {
 
 TickType_t get_charon_watchdog_delay(void) {
 #ifdef CHARON_IS_STUBBED
-    return 0;
+    return STUBBED_WATCHDOG_DELAY;
 #else
     if (xSemaphoreTake(charon_watchdog_mtx, mutex_timeout) == pdPASS) {
         TickType_t delay = charon_prv_watchdog_delay;
@@ -267,7 +267,7 @@ TickType_t get_charon_watchdog_delay(void) {
 
 SAT_returnState set_uhf_watchdog_delay(const TickType_t delay) {
 #ifdef UHF_IS_STUBBED
-    return SATR_ERROR;
+    return SATR_OK;
 #else
     if (xSemaphoreTake(uhf_watchdog_mtx, mutex_timeout) == pdPASS) {
         uhf_prv_watchdog_delay = delay;
@@ -280,7 +280,7 @@ SAT_returnState set_uhf_watchdog_delay(const TickType_t delay) {
 
 SAT_returnState set_sband_watchdog_delay(const TickType_t delay) {
 #ifdef SBAND_IS_STUBBED
-    return SATR_ERROR;
+    return SATR_OK;
 #else
     if (xSemaphoreTake(sband_watchdog_mtx, mutex_timeout) == pdPASS) {
         sband_prv_watchdog_delay = delay;
@@ -293,7 +293,7 @@ SAT_returnState set_sband_watchdog_delay(const TickType_t delay) {
 
 SAT_returnState set_charon_watchdog_delay(const TickType_t delay) {
 #ifdef CHARON_IS_STUBBED
-    return SATR_ERROR;
+    return SATR_OK;
 #else
     if (xSemaphoreTake(charon_watchdog_mtx, mutex_timeout) == pdPASS) {
         charon_prv_watchdog_delay = delay;
