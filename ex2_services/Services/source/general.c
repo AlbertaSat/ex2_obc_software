@@ -84,7 +84,7 @@ void general_service(void *param) {
         csp_packet_t *packet;
 
         // wait for connection, timeout
-        if ((conn = csp_accept(sock, CSP_MAX_TIMEOUT)) == NULL) {
+        if ((conn = csp_accept(sock, DELAY_WAIT_TIMEOUT)) == NULL) {
             svc_wdt_counter++;
             /* timeout */
             continue;
@@ -153,7 +153,7 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
         memcpy(&packet->data[OUT_DATA_BYTE], &burnwire_current, sizeof(uint16_t));
         set_packet_length(packet, sizeof(int8_t) + sizeof(uint16_t) + 1); // +1 for subservice
 
-        if (!csp_send(conn, packet, 50)) {
+        if (!csp_send(conn, packet, CSP_TIMEOUT)) {
             csp_buffer_free(packet);
         }
 
@@ -169,10 +169,9 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
         memcpy(&packet->data[OUT_DATA_BYTE], sw, sizeof(sw));
         set_packet_length(packet, sizeof(sw) + 2); // +1 for subservice
 
-        if (!csp_send(conn, packet, 50)) {
+        if (!csp_send(conn, packet, CSP_TIMEOUT)) {
             csp_buffer_free(packet);
         }
-
         break;
     }
 
@@ -182,7 +181,10 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
         unsigned int timeout = get_uhf_watchdog_delay();
         memcpy(&packet->data[OUT_DATA_BYTE], &timeout, sizeof(unsigned int));
         set_packet_length(packet, sizeof(int8_t) + sizeof(unsigned int) + 1); // +1 for subservice
-        csp_send(conn, packet, CSP_TIMEOUT);
+
+        if (!csp_send(conn, packet, CSP_TIMEOUT)) {
+            csp_buffer_free(packet);
+        }
         break;
     }
 
@@ -192,7 +194,10 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
         status = set_uhf_watchdog_delay(timeout_new);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         set_packet_length(packet, sizeof(int8_t) + 1); // +1 for subservice
-        csp_send(conn, packet, CSP_TIMEOUT);
+
+        if (!csp_send(conn, packet, CSP_TIMEOUT)) {
+            csp_buffer_free(packet);
+        }
         break;
     }
 
@@ -202,7 +207,10 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
         unsigned int timeout = get_sband_watchdog_delay();
         memcpy(&packet->data[OUT_DATA_BYTE], &timeout, sizeof(unsigned int));
         set_packet_length(packet, sizeof(int8_t) + sizeof(unsigned int) + 1); // +1 for subservice
-        csp_send(conn, packet, CSP_TIMEOUT);
+
+        if (!csp_send(conn, packet, CSP_TIMEOUT)) {
+            csp_buffer_free(packet);
+        }
         break;
     }
 
@@ -212,7 +220,10 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
         status = set_sband_watchdog_delay(timeout_new);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         set_packet_length(packet, sizeof(int8_t) + 1); // +1 for subservice
-        csp_send(conn, packet, CSP_TIMEOUT);
+
+        if (!csp_send(conn, packet, CSP_TIMEOUT)) {
+            csp_buffer_free(packet);
+        }
         break;
     }
 
@@ -222,7 +233,10 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
         unsigned int timeout = get_charon_watchdog_delay();
         memcpy(&packet->data[OUT_DATA_BYTE], &timeout, sizeof(unsigned int));
         set_packet_length(packet, sizeof(int8_t) + sizeof(unsigned int) + 1); // +1 for subservice
-        csp_send(conn, packet, CSP_TIMEOUT);
+
+        if (!csp_send(conn, packet, CSP_TIMEOUT)) {
+            csp_buffer_free(packet);
+        }
         break;
     }
 
@@ -232,7 +246,10 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
         status = set_charon_watchdog_delay(timeout_new);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         set_packet_length(packet, sizeof(int8_t) + 1); // +1 for subservice
-        csp_send(conn, packet, CSP_TIMEOUT);
+
+        if (!csp_send(conn, packet, CSP_TIMEOUT)) {
+            csp_buffer_free(packet);
+        }
         break;
     }
 
