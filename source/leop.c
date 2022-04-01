@@ -36,9 +36,9 @@ static Deployable_t sw;
  */
 
 bool deploy_all_deployables() {
-    //TODO: uncomment ex2_log and vTaskDelay, they are commented out for testing purposes since Cgreen cannot recognize them
     TickType_t two_min_delay = pdMS_TO_TICKS(120 * 1000);
     TickType_t four_min_delay = pdMS_TO_TICKS(240 * 1000);
+    TickType_t twenty_sec_delay = pdMS_TO_TICKS(20 * 1000);
     int getStatus_retries;
     uint16_t burnwire_currents[7] = {0};
 
@@ -50,7 +50,7 @@ bool deploy_all_deployables() {
             ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);
             ex2_log("Activated %c\n", sw);
             activate(sw, &burnwire_currents[sw]);
-            vTaskDelay(5000);
+            vTaskDelay(twenty_sec_delay);
         }
         else if ((switchstatus(sw) != 1) && (getStatus_retries == MAX_RETRIES)) {
             ex2_log("Check #%d: %c not deployed, exiting the LEOP sequence.\n", &getStatus_retries, sw);
@@ -69,7 +69,7 @@ bool deploy_all_deployables() {
                 ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);
                 ex2_log("Activated %c\n", sw);
                 activate(sw, &burnwire_currents[sw]);
-                vTaskDelay(5000);
+                vTaskDelay(twenty_sec_delay);
             }
             else if ((switchstatus(sw) != 1) && (getStatus_retries == MAX_RETRIES)) {
                 ex2_log("Check #%d: %c not deployed, exiting the LEOP sequence.\n", &getStatus_retries, sw);
@@ -92,7 +92,7 @@ bool deploy_all_deployables() {
                 ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);
                 ex2_log("Activated %c\n", sw);
                 activate(sw, &burnwire_currents[sw]);
-                vTaskDelay(5000);
+                vTaskDelay(twenty_sec_delay);
             }
             else if ((switchstatus(sw) != 1) && (getStatus_retries == MAX_RETRIES)) {
                 ex2_log("Check #%d: %c not deployed, exiting the LEOP sequence.\n", &getStatus_retries, sw);

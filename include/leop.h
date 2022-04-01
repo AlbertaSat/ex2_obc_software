@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  */
 /**
- * @file leop.c
+ * @file leop.h
  * @author Grace Yi
  * @date Oct. 2021
  */
