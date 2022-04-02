@@ -103,6 +103,8 @@ Ensure(leop, leop_init_returns_false_when_switchstatus_false) {
     expect(eeprom_get_leop_status, will_return(false));
     always_expect(switchstatus, will_return(false));
     always_expect(activate, will_return(is_equal_to(0)));
+    always_expect(xTaskGetSchedulerState, will_return(0));
+    always_expect(vTaskDelay);
     //always_expect(eeprom_set_leop_status, will_return(is_true));
     bool open = leop_init();
     assert_that(open, is_false);
@@ -117,6 +119,8 @@ Ensure(leop, hard_switch_status_is_checked_3times) {
     expect(switchstatus, will_return(false));
     expect(activate, will_return(is_equal_to(0)));
     expect(switchstatus, will_return(false));
+    always_expect(xTaskGetSchedulerState, will_return(0));
+    always_expect(vTaskDelay);
     //always_expect(eeprom_set_leop_status, will_return(is_true));
     bool open = leop_init();
     assert_that(open, is_false);
