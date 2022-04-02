@@ -51,7 +51,7 @@ Ensure(adcs, file_upload_packet) {
     struct {
         uint8_t cmd;
         uint8_t id[2];
-        uint8_t data[20];
+        char data[20];
     } packet = { FILE_UPLOAD_PACKET_ID,
                  { 1, 0 },
                  { 0, 1, 2, 3, 4, 5, 6, 7, 8 , 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 }};
