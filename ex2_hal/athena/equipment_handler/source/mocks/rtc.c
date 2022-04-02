@@ -6,7 +6,6 @@
 
 #define SOFTWARE_RTC_STACK_LEN 50
 
-static uint32 unix_time;
 static ex2_time_t utc_time;
 static date_t utc_date;
 

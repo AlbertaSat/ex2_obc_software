@@ -17,6 +17,7 @@
  * @date    2021-12-29
  */
 
+#include <skytraq_gps.h>
 #include "housekeeping_charon.h"
 
 GPS_RETURNSTATE Charon_getHK(charon_housekeeping *hk) {
@@ -26,11 +27,5 @@ GPS_RETURNSTATE Charon_getHK(charon_housekeeping *hk) {
     }
 
     // Read GPS firmware CRC
-    GPS_RETURNSTATE ret = gps_skytraq_get_software_crc(&hk->crc);
-
-    if (ret != GPS_SUCCESS) {
-        return ret;
-    }
-
-    return GPS_SUCCESS;
+    return gps_skytraq_get_software_crc(&hk->crc);
 }

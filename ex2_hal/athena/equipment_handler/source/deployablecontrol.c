@@ -17,6 +17,8 @@
  * @date    2020-08-13
  */
 
+#include <FreeRTOS.h>
+#include <os_task.h>
 #include "HL_gio.h"
 #include "HL_het.h"
 #include "deployablescontrol.h"
@@ -24,7 +26,6 @@
 #define DEPLOYABLE_BURNWIRE_DELAY_MS 6500 // Delay 6.5 seconds according to systems requirements
 
 int activate(Deployable_t knife) {
-    int temp;
     switch (knife) {
     case Port:
         gioSetBit(hetPORT1, 8, 1);
