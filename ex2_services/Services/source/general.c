@@ -30,11 +30,11 @@
 #include <main/system.h>
 #include <os_task.h>
 #include "diagnostic.h"
+#include "deployablescontrol.h"
 
-SAT_returnState general_app(csp_packet_t *packet);
+SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet);
 void general_service(void *param);
 
-csp_conn_t *conn;
 static uint32_t svc_wdt_counter = 0;
 
 static uint32_t get_svc_wdt_counter() { return svc_wdt_counter; }
@@ -80,8 +80,9 @@ void general_service(void *param) {
 
     for (;;) {
         svc_wdt_counter++;
-
+        csp_conn_t *conn;
         csp_packet_t *packet;
+
         // wait for connection, timeout
         if ((conn = csp_accept(sock, DELAY_WAIT_TIMEOUT)) == NULL) {
             svc_wdt_counter++;
@@ -89,17 +90,18 @@ void general_service(void *param) {
             continue;
         }
         svc_wdt_counter++;
-        while ((packet = csp_read(conn, CSP_TIMEOUT)) != NULL) {
-            if (general_app(packet) != SATR_OK) {
-                // something went wrong, this shouldn't happen
+
+        while ((packet = csp_read(conn, 50)) != NULL) {
+            if (general_app(conn, packet) != SATR_OK) {
                 csp_buffer_free(packet);
+                ex2_log("Error responding to packet");
             } else {
                 if (!csp_send(conn, packet, CSP_TIMEOUT)) {
                     csp_buffer_free(packet);
                 }
             }
         }
-        csp_close(conn);
+        csp_close(conn); // frees buffers used
     }
 }
 
@@ -115,13 +117,13 @@ void general_service(void *param) {
  * @return SAT_returnState
  *      success report
  */
-SAT_returnState general_app(csp_packet_t *packet) {
+SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
     uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
     int8_t status;
     char reboot_type;
 
     switch (ser_subtype) {
-    case REBOOT:
+    case REBOOT: {
 
         reboot_type = packet->data[IN_DATA_BYTE];
 
@@ -144,28 +146,97 @@ SAT_returnState general_app(csp_packet_t *packet) {
         }
 
         break;
+    }
 
-    case GET_UHF_WATCHDOG_TIMEOUT:
+    case DEPLOY_DEPLOYABLES: {
+        Deployable_t dep;
+        dep = 0;
+        memcpy(&dep, &packet->data[IN_DATA_BYTE], sizeof(uint8_t));
+        uint16_t burnwire_current = 0;
+        status = deploy(dep, &burnwire_current);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        memcpy(&packet->data[OUT_DATA_BYTE], &burnwire_current, sizeof(uint16_t));
+        set_packet_length(packet, sizeof(int8_t) + sizeof(uint16_t) + 1); // +1 for subservice
+
+        break;
+    }
+
+    case GET_SWITCH_STATUS: {
+        uint8_t sw[8] = {0};
+        for (int i = 0; i < 8; i++) {
+            sw[i] = switchstatus(i);
+        }
+        packet->data[STATUS_BYTE] = 0;
+        memcpy(&packet->data[OUT_DATA_BYTE], sw, sizeof(sw));
+        set_packet_length(packet, sizeof(sw) + 2); // +1 for subservice
+
+        break;
+    }
+
+    case GET_UHF_WATCHDOG_TIMEOUT: {
         status = 0;
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         unsigned int timeout = get_uhf_watchdog_delay();
         memcpy(&packet->data[OUT_DATA_BYTE], &timeout, sizeof(unsigned int));
         set_packet_length(packet, sizeof(int8_t) + sizeof(unsigned int) + 1); // +1 for subservice
-        csp_send(conn, packet, CSP_TIMEOUT);
-        break;
 
-    case SET_UHF_WATCHDOG_TIMEOUT:
+        break;
+    }
+
+    case SET_UHF_WATCHDOG_TIMEOUT: {
         unsigned int timeout_new = 0;
         memcpy(&timeout_new, &packet->data[IN_DATA_BYTE], sizeof(unsigned int));
         status = set_uhf_watchdog_delay(timeout_new);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         set_packet_length(packet, sizeof(int8_t) + 1); // +1 for subservice
-        csp_send(conn, packet, CSP_TIMEOUT);
-        break;
 
-    default:
+        break;
+    }
+
+    case GET_SBAND_WATCHDOG_TIMEOUT: {
+        status = 0;
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        unsigned int timeout = get_sband_watchdog_delay();
+        memcpy(&packet->data[OUT_DATA_BYTE], &timeout, sizeof(unsigned int));
+        set_packet_length(packet, sizeof(int8_t) + sizeof(unsigned int) + 1); // +1 for subservice
+
+        break;
+    }
+
+    case SET_SBAND_WATCHDOG_TIMEOUT: {
+        unsigned int timeout_new = 0;
+        memcpy(&timeout_new, &packet->data[IN_DATA_BYTE], sizeof(unsigned int));
+        status = set_sband_watchdog_delay(timeout_new);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        set_packet_length(packet, sizeof(int8_t) + 1); // +1 for subservice
+
+        break;
+    }
+
+    case GET_CHARON_WATCHDOG_TIMEOUT: {
+        status = 0;
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        unsigned int timeout = get_charon_watchdog_delay();
+        memcpy(&packet->data[OUT_DATA_BYTE], &timeout, sizeof(unsigned int));
+        set_packet_length(packet, sizeof(int8_t) + sizeof(unsigned int) + 1); // +1 for subservice
+
+        break;
+    }
+
+    case SET_CHARON_WATCHDOG_TIMEOUT: {
+        unsigned int timeout_new = 0;
+        memcpy(&timeout_new, &packet->data[IN_DATA_BYTE], sizeof(unsigned int));
+        status = set_charon_watchdog_delay(timeout_new);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        set_packet_length(packet, sizeof(int8_t) + 1); // +1 for subservice
+
+        break;
+    }
+
+    default: {
         ex2_log("No such subservice\n");
         return SATR_PKT_ILLEGAL_SUBSERVICE;
+    }
     }
     return SATR_OK;
 }

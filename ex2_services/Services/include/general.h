@@ -27,8 +27,14 @@ SAT_returnState start_general_service(void);
 
 typedef enum {
     REBOOT = 0,
-    GET_UHF_WATCHDOG_TIMEOUT = 1,
-    SET_UHF_WATCHDOG_TIMEOUT = 2,
+    DEPLOY_DEPLOYABLES = 1,
+    GET_SWITCH_STATUS = 2,
+    GET_UHF_WATCHDOG_TIMEOUT = 3,
+    SET_UHF_WATCHDOG_TIMEOUT = 4,
+    GET_SBAND_WATCHDOG_TIMEOUT = 5,
+    SET_SBAND_WATCHDOG_TIMEOUT = 6,
+    GET_CHARON_WATCHDOG_TIMEOUT = 7,
+    SET_CHARON_WATCHDOG_TIMEOUT = 8,
 } General_Subtype;
 
 typedef enum { bootloader = 'B', golden = 'G', application = 'A' } reboot_mode;
