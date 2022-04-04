@@ -184,7 +184,7 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
     }
 
     case SET_UHF_WATCHDOG_TIMEOUT: {
-        uint8_t timeout_new = 0;
+        unsigned int timeout_new = 0;
         memcpy(&timeout_new, &packet->data[IN_DATA_BYTE], sizeof(unsigned int));
         status = set_uhf_watchdog_delay(timeout_new);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -204,7 +204,7 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
     }
 
     case SET_SBAND_WATCHDOG_TIMEOUT: {
-        uint8_t timeout_new = 0;
+        unsigned int timeout_new = 0;
         memcpy(&timeout_new, &packet->data[IN_DATA_BYTE], sizeof(unsigned int));
         status = set_sband_watchdog_delay(timeout_new);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -224,7 +224,7 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
     }
 
     case SET_CHARON_WATCHDOG_TIMEOUT: {
-        uint8_t timeout_new = 0;
+        unsigned int timeout_new = 0;
         memcpy(&timeout_new, &packet->data[IN_DATA_BYTE], sizeof(unsigned int));
         status = set_charon_watchdog_delay(timeout_new);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
