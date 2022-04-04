@@ -115,7 +115,7 @@ bool deploy_all_deployables() {
  *      Otherwise, skip LEOP sequence
  * @return void
  */
-bool leop_init() {
+bool execute_leop() {
     // TODO: When eeprom is working, use commended code
     bool eeprom_flag = false;
     if (eeprom_flag != true) {
@@ -134,41 +134,4 @@ bool leop_init() {
     }
 
     return false;
-}
-
-
-/**
- * @brief
- *    leop task
- *
- * @param pvParameters
- *    task parameters (not used)
- */
-static void *leop_daemon(void *pvParameters) {
-   
-    //for (;;) {
-        leop_init();
-        vTaskDelete(0);
-    //}
-    return 0;
-}
-
-/**
- * @brief
- *      Start LEOP
- * @details
- *      Starts the FreeRTOS task responsible for LEOP
- * @param None
- * @return SAT_returnState
- *      success report
- */
-SAT_returnState start_leop_daemon(void) {
-  if (xTaskCreate((TaskFunction_t)leop_daemon,
-                  "start_leop", 600, NULL, NORMAL_SERVICE_PRIO,
-                  NULL) != pdPASS) {
-    ex2_log("FAILED TO CREATE TASK start_leop\n");
-    return SATR_ERROR;
-  }
-  ex2_log("leop started\n");
-  return SATR_OK;
 }

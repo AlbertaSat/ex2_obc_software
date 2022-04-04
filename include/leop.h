@@ -32,7 +32,7 @@
 #include "leop_eeprom.h"
 
 #define MAX_RETRIES 3
-bool leop_init();
+bool execute_leop();
 bool deploy_all_deployables();
 
 #endif /* LEOP_H_ */
