@@ -93,7 +93,12 @@ void general_service(void *param) {
 
         while ((packet = csp_read(conn, 50)) != NULL) {
             if (general_app(conn, packet) != SATR_OK) {
+                csp_buffer_free(packet);
                 ex2_log("Error responding to packet");
+            } else{
+                if (!csp_send(conn, packet, CSP_TIMEOUT)) {
+                    csp_buffer_free(packet);
+                }
             }
         }
         csp_close(conn); // frees buffers used
@@ -153,10 +158,6 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
         memcpy(&packet->data[OUT_DATA_BYTE], &burnwire_current, sizeof(uint16_t));
         set_packet_length(packet, sizeof(int8_t) + sizeof(uint16_t) + 1); // +1 for subservice
 
-        if (!csp_send(conn, packet, CSP_TIMEOUT)) {
-            csp_buffer_free(packet);
-        }
-
         break;
     }
 
@@ -169,9 +170,6 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
         memcpy(&packet->data[OUT_DATA_BYTE], sw, sizeof(sw));
         set_packet_length(packet, sizeof(sw) + 2); // +1 for subservice
 
-        if (!csp_send(conn, packet, CSP_TIMEOUT)) {
-            csp_buffer_free(packet);
-        }
         break;
     }
 
@@ -182,9 +180,6 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
         memcpy(&packet->data[OUT_DATA_BYTE], &timeout, sizeof(unsigned int));
         set_packet_length(packet, sizeof(int8_t) + sizeof(unsigned int) + 1); // +1 for subservice
 
-        if (!csp_send(conn, packet, CSP_TIMEOUT)) {
-            csp_buffer_free(packet);
-        }
         break;
     }
 
@@ -195,9 +190,6 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         set_packet_length(packet, sizeof(int8_t) + 1); // +1 for subservice
 
-        if (!csp_send(conn, packet, CSP_TIMEOUT)) {
-            csp_buffer_free(packet);
-        }
         break;
     }
 
@@ -208,9 +200,6 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
         memcpy(&packet->data[OUT_DATA_BYTE], &timeout, sizeof(unsigned int));
         set_packet_length(packet, sizeof(int8_t) + sizeof(unsigned int) + 1); // +1 for subservice
 
-        if (!csp_send(conn, packet, CSP_TIMEOUT)) {
-            csp_buffer_free(packet);
-        }
         break;
     }
 
@@ -221,9 +210,6 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         set_packet_length(packet, sizeof(int8_t) + 1); // +1 for subservice
 
-        if (!csp_send(conn, packet, CSP_TIMEOUT)) {
-            csp_buffer_free(packet);
-        }
         break;
     }
 
@@ -234,9 +220,6 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
         memcpy(&packet->data[OUT_DATA_BYTE], &timeout, sizeof(unsigned int));
         set_packet_length(packet, sizeof(int8_t) + sizeof(unsigned int) + 1); // +1 for subservice
 
-        if (!csp_send(conn, packet, CSP_TIMEOUT)) {
-            csp_buffer_free(packet);
-        }
         break;
     }
 
@@ -247,9 +230,6 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         set_packet_length(packet, sizeof(int8_t) + 1); // +1 for subservice
 
-        if (!csp_send(conn, packet, CSP_TIMEOUT)) {
-            csp_buffer_free(packet);
-        }
         break;
     }
 
