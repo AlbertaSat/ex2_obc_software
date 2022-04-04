@@ -32,10 +32,10 @@
 #include "housekeeping_service.h"
 
 typedef struct __attribute__((packed)) {
-    //common
+    // common
     uint32_t time;
     uint8_t packet_number;
-    //EPS
+    // EPS
     uint8_t eps_mode;
     uint16_t battery_voltage;
     uint16_t battery_input_current;
@@ -44,27 +44,27 @@ typedef struct __attribute__((packed)) {
     uint8_t output_faults[10];
     uint16_t EPS_boot_count;
     uint8_t eps_last_reset_reason;
-    //Watchdogs
+    // Watchdogs
     uint16_t gs_wdt;
     uint8_t obc_wdt;
     uint16_t gs_wdt_expr;
     uint16_t obc_wdt_expr;
-    //Temperatures
+    // Temperatures
     int8_t temps[18];
-    //ADCS
+    // ADCS
     int8_t angular_rate;
     int8_t adcs_control_mode;
-    //UHF
+    // UHF
     uint16_t uhf_uptime;
-    //Payload
+    // Payload
     uint8_t payload_software_version;
 } beacon_packet_1_t;
 
 typedef struct __attribute__((packed)) {
-    //common
+    // common
     uint32_t time;
     uint8_t packet_number;
-    //OBC
+    // OBC
     uint16_t obc_boot_count;
     uint8_t obc_last_reset_reason;
     uint8_t obc_mode;
@@ -75,7 +75,7 @@ typedef struct __attribute__((packed)) {
     uint16_t commands_received;
     uint16_t fec_recovered_packets;
     uint8_t logged_items_count;
-    //Logged Items
+    // Logged Items
     uint32_t log1_timestamp;
     uint8_t log1_code;
     uint32_t log2_timestamp;
@@ -101,7 +101,8 @@ beacon_packet_1_t beacon_packet_one;
 beacon_packet_2_t beacon_packet_two;
 
 /* Updates Beacon Packet with the latest housekeeping data */
-void update_beacon(All_systems_housekeeping *all_hk_data, beacon_packet_1_t *beacon_packet_one, beacon_packet_2_t *beacon_packet_two);
+void update_beacon(All_systems_housekeeping *all_hk_data, beacon_packet_1_t *beacon_packet_one,
+                   beacon_packet_2_t *beacon_packet_two);
 
 SAT_returnState start_beacon_daemon(void);
 

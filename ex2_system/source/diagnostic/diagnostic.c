@@ -65,12 +65,12 @@ static void uhf_watchdog_daemon(void *pvParameters) {
             err = HAL_UHF_getSCW(scw);
             if (err == U_ANS_SUCCESS) {
                 break;
-            } else if (err == U_I2C_IN_PIPE){
+            } else if (err == U_I2C_IN_PIPE) {
                 break;
             }
         }
 
-        if (err == U_I2C_IN_PIPE){
+        if (err == U_I2C_IN_PIPE) {
             ex2_log("UHF in PIPE Mode - power not toggled.");
         } else if (err != U_ANS_SUCCESS) {
             ex2_log("UHF was not responsive - attempting to toggle power.");
@@ -144,14 +144,13 @@ static void sband_watchdog_daemon(void *pvParameters) {
 
             // Disable the SBAND
             STX_Disable();
-            vTaskDelay(10*ONE_SECOND);
+            vTaskDelay(10 * ONE_SECOND);
 
             // Enable the S-band
             STX_Enable();
             vTaskDelay(ONE_SECOND);
 
             ex2_log("SBAND power toggled");
-
         }
 
         if (xSemaphoreTake(sband_watchdog_mtx, mutex_timeout) == pdPASS) {
@@ -182,11 +181,12 @@ static void charon_watchdog_daemon(void *pvParameters) {
         GPS_RETURNSTATE err;
         for (int i = 0; i < watchdog_retries; i++) {
             err = gps_skytraq_get_software_version(&version);
-            if(err == GPS_SUCCESS) break;
+            if (err == GPS_SUCCESS)
+                break;
         }
 
         if ((err != GPS_SUCCESS) || (version == NULL)) {
-            ex2_log("Charon was not responsive - attempting to toggle power.");\
+            ex2_log("Charon was not responsive - attempting to toggle power.");
 
             // Turn Charon off
             eps_set_pwr_chnl(CHARON_3V3_PWR_CHNL, OFF);
@@ -326,8 +326,8 @@ SAT_returnState start_diagnostic_daemon(void) {
 #endif
 
 #ifndef SBAND_IS_STUBBED
-    if (xTaskCreate((TaskFunction_t)sband_watchdog_daemon, "sband_watchdog_daemon", 2048, NULL, DIAGNOSTIC_TASK_PRIO,
-                    NULL) != pdPASS) {
+    if (xTaskCreate((TaskFunction_t)sband_watchdog_daemon, "sband_watchdog_daemon", 2048, NULL,
+                    DIAGNOSTIC_TASK_PRIO, NULL) != pdPASS) {
         ex2_log("FAILED TO CREATE TASK sband_watchdog_daemon.\n");
         return SATR_ERROR;
     }
@@ -340,8 +340,8 @@ SAT_returnState start_diagnostic_daemon(void) {
 #endif
 
 #ifndef CHARON_IS_STUBBED
-    if (xTaskCreate(charon_watchdog_daemon, "charon_watchdog_daemon", 2048, NULL, DIAGNOSTIC_TASK_PRIO,
-                    NULL) != pdPASS) {
+    if (xTaskCreate(charon_watchdog_daemon, "charon_watchdog_daemon", 2048, NULL, DIAGNOSTIC_TASK_PRIO, NULL) !=
+        pdPASS) {
         ex2_log("FAILED TO CREATE TASK charon_watchdog_daemon.\n");
         return SATR_ERROR;
     }

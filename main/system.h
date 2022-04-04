@@ -26,9 +26,9 @@
 #include "FreeRTOS.h"
 
 #ifdef IS_FLATSAT
-    #ifndef IS_ATHENA
-    #error If IS_FLATSAT is defined then IS_ATHENA must be defined
-    #endif
+#ifndef IS_ATHENA
+#error If IS_FLATSAT is defined then IS_ATHENA must be defined
+#endif
 #endif
 
 #define SYSTEM_APP_ID _OBC_APP_ID_
@@ -50,23 +50,23 @@
 #endif
 
 #if defined(IS_ATHENA)
-    #define CSP_SCI sciREG2  //UART2
-    #define ADCS_SCI sciREG3 //UART4
-    #define DFGM_SCI sciREG4 //UART1
-    #define UHF_SCI CSP_SCI  //UART2
+#define CSP_SCI sciREG2  // UART2
+#define ADCS_SCI sciREG3 // UART4
+#define DFGM_SCI sciREG4 // UART1
+#define UHF_SCI CSP_SCI  // UART2
 #if defined(IS_3U)
-    #define GPS_SCI sciREG1  //UART3
+#define GPS_SCI sciREG1 // UART3
 #elif defined(IS_2U)
-    #define PAYLOAD_SCI sciREG1  //UART3
+#define PAYLOAD_SCI sciREG1 // UART3
 #endif
 #else
 // These values are expected to be adjusted based on what the developer is working on
 // NOTE: Multiple definitions of the same sciREG will cause issues in the interrupt switch() statement
-    #define CSP_SCI sciREG2
-    #define GPS_SCI sciREG1
-    #define ADCS_SCI sciREG3
-    #define PAYLOAD_SCI sciREG1
-    #define DFGM_SCI sciREG4
+#define CSP_SCI sciREG2
+#define GPS_SCI sciREG1
+#define ADCS_SCI sciREG3
+#define PAYLOAD_SCI sciREG1
+#define DFGM_SCI sciREG4
 #endif
 
 #ifdef IS_ATHENA
@@ -77,35 +77,35 @@
 #endif
 
 #if defined(IS_ATHENA)
-    #define IRIS_CONFIG_SPI spiREG4 //SPI1
-    #define IRIS_SPI spiREG5        //SPI3
-    #define SBAND_SPI spiREG3       //SPI2
-    #define SD_SPI spiREG1          //?
+#define IRIS_CONFIG_SPI spiREG4 // SPI1
+#define IRIS_SPI spiREG5        // SPI3
+#define SBAND_SPI spiREG3       // SPI2
+#define SD_SPI spiREG1          //?
 #else // These values are expected to be adjusted based on what the developer is working on
-    #define IRIS_CONFIG_SPI spiREG4 //SPI1
-    #define IRIS_SPI spiREG5        //SPI3
-    #define SBAND_SPI spiREG3       //SPI2
-    #define SD_SPI spiREG1          //?
+#define IRIS_CONFIG_SPI spiREG4 // SPI1
+#define IRIS_SPI spiREG5        // SPI3
+#define SBAND_SPI spiREG3       // SPI2
+#define SD_SPI spiREG1          //?
 #endif
 
 #if defined(IS_ATHENA)
-    #define IMU_I2C i2cREG2
-    #define SOLAR_I2C i2cREG1
-    #define TEMPSENSE_I2C i2cREG2
-    #define RTC_I2C i2cREG2
+#define IMU_I2C i2cREG2
+#define SOLAR_I2C i2cREG1
+#define TEMPSENSE_I2C i2cREG2
+#define RTC_I2C i2cREG2
 
-    #define SBAND_I2C i2cREG1
-    #define ADCS_I2C i2cREG1
-    #define UHF_I2C i2cREG1
+#define SBAND_I2C i2cREG1
+#define ADCS_I2C i2cREG1
+#define UHF_I2C i2cREG1
 #else // These values are expected to be adjusted based on what the developer is working on
-    #define IMU_I2C i2cREG2
-    #define SOLAR_I2C i2cREG2
-    #define TEMPSENSE_I2C i2cREG2
-    #define RTC_I2C i2cREG2
+#define IMU_I2C i2cREG2
+#define SOLAR_I2C i2cREG2
+#define TEMPSENSE_I2C i2cREG2
+#define RTC_I2C i2cREG2
 
-    #define SBAND_I2C i2cREG1
-    #define ADCS_I2C i2cREG1
-    #define UHF_I2C i2cREG1
+#define SBAND_I2C i2cREG1
+#define ADCS_I2C i2cREG1
+#define UHF_I2C i2cREG1
 #endif
 
 // watchdog timer expires in 447ms
@@ -117,31 +117,31 @@
 #define CSP_TIMEOUT 100
 
 typedef enum {
-  SATR_OK,
-  SATR_ERROR,
-  SATR_PKT_ILLEGAL_APPID,
-  SATR_PKT_ILLEGAL_SUBSERVICE,
-  SATR_RETURN_FROM_TASK,
-  SATR_BUFFER_ERR,
-  /*LAST*/
-  SATR_LAST
+    SATR_OK,
+    SATR_ERROR,
+    SATR_PKT_ILLEGAL_APPID,
+    SATR_PKT_ILLEGAL_SUBSERVICE,
+    SATR_RETURN_FROM_TASK,
+    SATR_BUFFER_ERR,
+    /*LAST*/
+    SATR_LAST
 } SAT_returnState;
 
 /* Subsystems Pins & Ports */
-#define UHF_GIO_PORT    hetPORT2
-#define UHF_GIO_PIN     22
+#define UHF_GIO_PORT hetPORT2
+#define UHF_GIO_PIN 22
 
 #define ADCS_5V0_PWR_CHNL 1
-#define DFGM_5V0_PWR_CHNL   2
+#define DFGM_5V0_PWR_CHNL 2
 #define PYLD_5V0_PWR_CHNL 3
 // Channel 4 was assigned to be 3V3 for 1W UHF in case 2W UHFs didn't work out.
 #define ADCS_3V3_PWR_CHNL 5
 // Channel 6 is the OBC power channel, and should not be accessed by the OBC
 #define CHARON_3V3_PWR_CHNL 7
-#define UHF_5V0_PWR_CHNL    8
+#define UHF_5V0_PWR_CHNL 8
 #define DEPLOYABLES_5V0_PWR_CHNL 9
 #define PYLD_3V3_PWR_CHNL 10
-//SBAND_PWR_CHNL does not exist as it is on the 5V_AO (always on) channel
+// SBAND_PWR_CHNL does not exist as it is on the 5V_AO (always on) channel
 
 int ex2_main(void);
 void SciSendBuf(char *buf, uint32_t bufSize);

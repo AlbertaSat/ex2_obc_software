@@ -63,7 +63,7 @@
 #include "deployablescontrol.h"
 
 #ifdef FLATSAT_TEST
-#include "sband_binary_tests.h"
+//#include "sband_binary_tests.h"
 static void flatsat_test();
 #endif
 
@@ -94,8 +94,8 @@ void ex2_init(void *pvParameters) {
     /* LEOP */
 
 #ifdef EXECUTE_LEOP
-    if(leop_init() != true){
-        //TODO: Do what if leop fails?
+    if (leop_init() != true) {
+        // TODO: Do what if leop fails?
     }
 #endif
 
@@ -104,7 +104,7 @@ void ex2_init(void *pvParameters) {
     /* Subsystem Hardware Initialization */
 
 #ifndef ADCS_IS_STUBBED
-    // PLACEHOLDER: adcs hardware init
+    init_adcs_io();
 #endif
 
 #ifndef ATHENA_IS_STUBBED
@@ -134,7 +134,6 @@ void ex2_init(void *pvParameters) {
     DFGM_init();
 #endif
 
-
     /* Software Initialization */
 
     /* Start service server, and response server */
@@ -151,8 +150,12 @@ void ex2_init(void *pvParameters) {
 
 #ifdef FLATSAT_TEST
 void flatsat_test(void *pvParameters) {
-//    sband_binary_test();
-//    uhf_binary_test();
+    //    sband_binary_test();
+    //    uhf_binary_test();
+
+    ADCS_TC_ack test_ack;
+
+    HAL_ADCS_get_TC_ack(&test_ack);
 
     vTaskDelete(NULL);
 }
@@ -161,13 +164,15 @@ void flatsat_test(void *pvParameters) {
 int ex2_main(void) {
     _enable_IRQ_interrupt_(); // enable inturrupts
     InitIO();
-    for (int i = 0; i < 1000000; i++);
+    for (int i = 0; i < 1000000; i++)
+        ;
     xTaskCreate(ex2_init, "init", INIT_STACK_SIZE, NULL, INIT_PRIO, NULL);
 
     /* Start FreeRTOS! */
     vTaskStartScheduler();
 
-    for (;;); // Scheduler didn't start
+    for (;;)
+        ; // Scheduler didn't start
 }
 
 /**
@@ -236,7 +241,7 @@ static void init_csp() {
     csp_conf.hostname = "Athena";
     csp_conf.model = "Ex-Alta2";
     csp_conf.revision = "2";
-    csp_conf.conn_max =20;
+    csp_conf.conn_max = 20;
     csp_conf.conn_queue_length = 10;
     csp_conf.fifo_length = 25;
     csp_conf.port_max_bind = 24;
@@ -343,4 +348,3 @@ void vApplicationMallocFailedHook(void) {
 }
 
 void vApplicationDaemonTaskStartupHook(void) { init_logger_queue(); }
-

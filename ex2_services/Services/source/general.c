@@ -95,7 +95,7 @@ void general_service(void *param) {
             if (general_app(conn, packet) != SATR_OK) {
                 csp_buffer_free(packet);
                 ex2_log("Error responding to packet");
-            } else{
+            } else {
                 if (!csp_send(conn, packet, CSP_TIMEOUT)) {
                     csp_buffer_free(packet);
                 }
