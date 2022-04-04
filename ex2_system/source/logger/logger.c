@@ -191,7 +191,7 @@ static void do_output(const char *str) {
     }
 
 #ifndef IS_FLATSAT
-    printf(output_string);
+    printf("%s", output_string);
 #endif
 }
 
@@ -207,7 +207,7 @@ static void do_output(const char *str) {
  */
 void ex2_log(const char *format, ...) {
     const char *main_name = "MAIN";
-    char *task_name;
+    const char *task_name;
 
     if (xTaskGetSchedulerState() == taskSCHEDULER_SUSPENDED) {
         return;

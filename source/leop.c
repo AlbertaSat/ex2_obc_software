@@ -18,6 +18,7 @@
  */
 
 #include "leop.h"
+#include "logger/logger.h"
 
 static void *leop_daemon(void *pvParameters);
 SAT_returnState start_leop_daemon(void);
@@ -42,7 +43,6 @@ Deployable_t sw;
  *      Returns FALSE otherwise
  */
 bool hard_switch_status() {
-    //TODO: uncomment ex2_log and vTaskDelay, they are commented out for testing purposes since Cgreen cannot recognize them
     TickType_t two_min_delay = pdMS_TO_TICKS(120 * 1000);
     TickType_t four_min_delay = pdMS_TO_TICKS(240 * 1000);
     TickType_t twenty_sec_delay = pdMS_TO_TICKS(20 * 1000);
@@ -53,45 +53,45 @@ bool hard_switch_status() {
         sw = 0;
         //Deploy DFGM
         if (switchstatus(sw) != 1 && getStatus_retries != MAX_RETRIES) {
-            //ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);           
-            //ex2_log("Manually activated %c\n", sw);
+            ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);
+            ex2_log("Manually activated %c\n", sw);
             activate(sw);
-            //vTaskDelay(twenty_sec_delay);
+            vTaskDelay(twenty_sec_delay);
         }
         else if (getStatus_retries == MAX_RETRIES) {
-            //ex2_log("Check #%d: %c not deployed, exiting the LEOP sequence.\n", &getStatus_retries, sw);
+            ex2_log("Check #%d: %c not deployed, exiting the LEOP sequence.\n", &getStatus_retries, sw);
             return false;
         }
     }
-    //vTaskDelay(two_min_delay);
+    vTaskDelay(two_min_delay);
     for (getStatus_retries = 0; getStatus_retries <= MAX_RETRIES; getStatus_retries++) {
         //Deploy UHF
         for (sw = 1; sw < 5; sw++) {
             if (switchstatus(sw) != 1 && getStatus_retries != MAX_RETRIES) {
-                //ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);           
-                //ex2_log("Manually activated %c\n", sw); 
+                ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);
+                ex2_log("Manually activated %c\n", sw);
                 activate(sw);
-                //vTaskDelay(twenty_sec_delay);
+                vTaskDelay(twenty_sec_delay);
             }
             else if (getStatus_retries == MAX_RETRIES) {
-                //ex2_log("Check #%d: %c not deployed, exiting the LEOP sequence.\n", &getStatus_retries, sw);
+                ex2_log("Check #%d: %c not deployed, exiting the LEOP sequence.\n", &getStatus_retries, sw);
                 return false;
             }
             
         }
     }
-    //vTaskDelay(four_min_delay);
+    vTaskDelay(four_min_delay);
     for (getStatus_retries = 0; getStatus_retries <= MAX_RETRIES; getStatus_retries++) {
         //Deploy solar panels
         for (sw = 5; sw < 8; sw++) {
             if (switchstatus(sw) != 1 && getStatus_retries != MAX_RETRIES) {
-                //ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);           
-                //ex2_log("Manually activated %c\n", sw); 
+                ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);
+                ex2_log("Manually activated %c\n", sw);
                 activate(sw);
-                //vTaskDelay(twenty_sec_delay);
+                vTaskDelay(twenty_sec_delay);
             }
             else if (getStatus_retries == MAX_RETRIES) {
-                //ex2_log("Check #%d: %c not deployed, exiting the LEOP sequence.\n", &getStatus_retries, sw);
+                ex2_log("Check #%d: %c not deployed, exiting the LEOP sequence.\n", &getStatus_retries, sw);
                 return false;
             }
         }
@@ -128,6 +128,8 @@ bool leop_init() {
     else if (eeprom_get_leop_status() == true) {
         return true;
     }
+
+    return false;
 }
 
 
@@ -143,6 +145,7 @@ static void *leop_daemon(void *pvParameters) {
     //for (;;) {
         leop_init();
     //}
+    return 0;
 }
 
 /**

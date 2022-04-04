@@ -19,6 +19,8 @@
 
 #include "housekeeping_athena.h"
 #include <stdlib.h>
+#include <string.h>
+#include <csp/csp_endian.h>
 #include "os_portmacro.h"
 const uint8_t software_version = 3;
 

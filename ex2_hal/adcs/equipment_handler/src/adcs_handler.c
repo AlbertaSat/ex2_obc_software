@@ -558,7 +558,7 @@ ADCS_returnState ADCS_get_file_download_buffer(uint16_t *packet_count, uint8_t f
     ADCS_returnState state;
     state = adcs_telemetry(FILE_DL_BUFFER_ID, telemetry, 22);
     *packet_count = (telemetry[1] << 8) | telemetry[0];
-    memcpy(&file, &telemetry[2], 20);
+    memcpy(file, &telemetry[2], 20);
     return state;
 }
 
@@ -866,7 +866,7 @@ ADCS_returnState ADCS_get_hole_map(uint8_t *hole_map, uint8_t num) {
     ADCS_returnState state;
     uint8_t TM_ID = GET_HOLE_MAP_ID + num;
     state = adcs_telemetry(TM_ID, telemetry, 16);
-    memcpy(&hole_map, &telemetry[0], 16);
+    memcpy(hole_map, telemetry, 16);
     return state;
 }
 
@@ -2544,9 +2544,6 @@ ADCS_returnState ADCS_get_cubesense_config(cubesense_config *config) {
  */
 ADCS_returnState ADCS_set_cubesense_config(cubesense_config params) {
     uint8_t command[113];
-    if (command == NULL) {
-        return ADCS_MALLOC_FAILED;
-    }
 
     command[0] = SET_CUBESENSE_CONFIG_ID;
 
