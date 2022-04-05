@@ -20,6 +20,10 @@ static bool NMEAParser_decode_sentence();
 static char _sentence[NMEASENTENCE_MAXLENGTH];
 static int _char_offset;
 
+QueueHandle_t NMEA_queue;
+
+SemaphoreHandle_t NMEA_mutex;
+
 const static GPGGA_s GPGGA_invalid = {._time = GPS_INVALID_TIME,
                                       ._latitude_lower = GPS_INVALID_ANGLE,
                                       ._latitude_upper = GPS_INVALID_ANGLE,
