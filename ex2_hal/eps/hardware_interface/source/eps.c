@@ -24,6 +24,7 @@
  */
 
 #include <FreeRTOS.h>
+#include <string.h>
 #include <csp/csp.h>
 #include <csp/csp_endian.h>
 #include <main/system.h>
@@ -306,8 +307,6 @@ static inline void prv_set_startup_telemetry(eps_startup_telemetry_t telem_start
 }
 
 void prv_startup_telemetry_letoh(eps_startup_telemetry_t *telem_startup_buf) {
-    uint8_t i;
-
     telem_startup_buf->timestamp = csp_letohd(telem_startup_buf->timestamp);
     telem_startup_buf->last_reset_reason_reg = csp_letoh32(telem_startup_buf->last_reset_reason_reg);
     telem_startup_buf->bootCnt = csp_letoh32(telem_startup_buf->bootCnt);

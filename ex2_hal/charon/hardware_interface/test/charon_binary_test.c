@@ -32,7 +32,7 @@ bool charon_binary_test(void) {
         channel_to_reset = (Power_Channel)i;
     }
 
-    int temperatures[8] = {0};
+    int8_t temperatures[8] = {0};
     uint8_t threshold = 90;
     uint8_t max_measured_temp = 0;
     printf("Raise temperature of one sensor over 40 deg C to exit loop.\n");
