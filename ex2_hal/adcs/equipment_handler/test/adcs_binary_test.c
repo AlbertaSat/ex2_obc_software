@@ -29,9 +29,9 @@ void binaryTest(void) { // TODO: add enums for all adcs_handler functions called
     //    binaryTest_CubeACP();
     //    printf("CubeACP Tests Complete!");
 
-    printf("CubeSense 1 Tests");
-    binaryTest_CubeSense1();
-    printf("CubeSense 1 Tests Complete!");
+//    printf("CubeSense 1 Tests");
+//    binaryTest_CubeSense1();
+//    printf("CubeSense 1 Tests Complete!");
 
     //    printf("CubeSense 2 Tests");
     //    binaryTest_CubeSense2();
@@ -87,6 +87,8 @@ void binaryTest(void) { // TODO: add enums for all adcs_handler functions called
     //    printf("CubeWheel 3 Tests Complete!");
     //
     //    printf("CubeWheel  Tests Complete!");
+
+    commissioning_initial_angular_rates_est();
 
     // TODO: add checks for "incrementing" and "idle" type values, since those are only checked once
     // instantaneously now
@@ -1501,6 +1503,8 @@ void commissioning_initial_angular_rates_est(void) {
 
     uint8_t flags_arr[80] = {0};
     uint8_t *flags_arr_ptr = flags_arr;
+    uint16_t period;
+    uint8_t sd;
 
     flags_arr[54] = 1; // Estimated Angular Rates
     flags_arr[69] = 1; // Rate Sensor Rates
@@ -1517,14 +1521,18 @@ void commissioning_initial_angular_rates_est(void) {
     }
     printf("\n");
 
-    test_returnState = ADCS_set_log_config(&flags_arr_ptr, TLM_LOG_PERIOD_10s, TLM_LOG_SDCARD_0, TLM_LOG_1);
+    test_returnState = ADCS_set_log_config(flags_arr_ptr, TLM_LOG_PERIOD_10s, TLM_LOG_SDCARD_0, TLM_LOG_1);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_log_config returned %d \n", test_returnState);
         while (1)
             ;
     }
 
-    test_returnState = ADCS_get_log_config(&flags_arr_ptr, TLM_LOG_PERIOD_10s, TLM_LOG_SDCARD_0, TLM_LOG_1);
+    for(int k = 0; k<80; k++){
+        flags_arr_ptr[k] = 0;
+    }
+
+    test_returnState = ADCS_get_log_config(flags_arr_ptr, &period, &sd, TLM_LOG_1);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_log_config returned %d \n", test_returnState);
         while (1)
@@ -1545,7 +1553,7 @@ void commissioning_initial_angular_rates_est(void) {
     // Stop logging after 1 minutes
     vTaskDelay(pdMS_TO_TICKS(60000));
     printf("Stopping Telemetry Logging\n");
-    test_returnState = ADCS_set_log_config(&flags_arr_ptr, TLM_LOG_PERIOD_STOP, TLM_LOG_SDCARD_0, TLM_LOG_1);
+    test_returnState = ADCS_set_log_config(flags_arr_ptr, TLM_LOG_PERIOD_STOP, TLM_LOG_SDCARD_0, TLM_LOG_1);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_log_config returned %d \n", test_returnState);
         while (1)
@@ -1656,7 +1664,7 @@ void commissioning_initial_detumbling(void) {
     }
     printf("\n");
 
-    test_returnState = ADCS_set_log_config(&flags_arr_ptr, TLM_LOG_PERIOD_10s, TLM_LOG_SDCARD_0, TLM_LOG_1);
+    test_returnState = ADCS_set_log_config(flags_arr_ptr, TLM_LOG_PERIOD_10s, TLM_LOG_SDCARD_0, TLM_LOG_1);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_log_config returned %d \n", test_returnState);
         while (1)
@@ -1730,7 +1738,7 @@ void commissioning_initial_detumbling(void) {
     free(measurements);
 
     printf("Stopping Telemetry Logging\n");
-    test_returnState = ADCS_set_log_config(&flags_arr_ptr, TLM_LOG_PERIOD_STOP, TLM_LOG_SDCARD_0, TLM_LOG_1);
+    test_returnState = ADCS_set_log_config(flags_arr_ptr, TLM_LOG_PERIOD_STOP, TLM_LOG_SDCARD_0, TLM_LOG_1);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_log_config returned %d \n", test_returnState);
         while (1)
@@ -1846,14 +1854,14 @@ void commissioning_mag_calibration(void) {
     }
     printf("\n");
 
-    test_returnState = ADCS_set_log_config(&flags_arr_ptr, TLM_LOG_PERIOD_10s, TLM_LOG_SDCARD_0, TLM_LOG_1);
+    test_returnState = ADCS_set_log_config(flags_arr_ptr, TLM_LOG_PERIOD_10s, TLM_LOG_SDCARD_0, TLM_LOG_1);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_log_config returned %d \n", test_returnState);
         while (1)
             ;
     }
 
-    test_returnState = ADCS_get_log_config(&flags_arr_ptr, TLM_LOG_PERIOD_10s, TLM_LOG_SDCARD_0, TLM_LOG_1);
+    test_returnState = ADCS_get_log_config(flags_arr_ptr, TLM_LOG_PERIOD_10s, TLM_LOG_SDCARD_0, TLM_LOG_1);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_log_config returned %d \n", test_returnState);
         while (1)
@@ -1905,7 +1913,7 @@ void commissioning_mag_calibration(void) {
     // Log data for 1 minute
     vTaskDelay(pdMS_TO_TICKS(ONE_MINUTE));
     printf("Stopping Telemetry Logging\n");
-    test_returnState = ADCS_set_log_config(&flags_arr_ptr, TLM_LOG_PERIOD_STOP, TLM_LOG_SDCARD_0, TLM_LOG_1);
+    test_returnState = ADCS_set_log_config(flags_arr_ptr, TLM_LOG_PERIOD_STOP, TLM_LOG_SDCARD_0, TLM_LOG_1);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_log_config returned %d \n", test_returnState);
         while (1)
