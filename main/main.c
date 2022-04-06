@@ -105,6 +105,7 @@ void ex2_init(void *pvParameters) {
     /* Subsystem Hardware Initialization */
 
 #ifndef ADCS_IS_STUBBED
+    // PLACEHOLDER: adcs hardware init
     init_adcs_io();
 #endif
 
@@ -151,12 +152,6 @@ void ex2_init(void *pvParameters) {
 
 #ifdef FLATSAT_TEST
 void flatsat_test(void *pvParameters) {
-    //    sband_binary_test();
-    //    uhf_binary_test();
-
-    ADCS_TC_ack test_ack;
-
-    HAL_ADCS_get_TC_ack(&test_ack);
 
     vTaskDelete(NULL);
 }
