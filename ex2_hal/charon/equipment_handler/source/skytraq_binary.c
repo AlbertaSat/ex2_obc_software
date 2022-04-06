@@ -29,7 +29,7 @@
 
 enum current_sentence { none, binary, nmea } line_type;
 
-SemaphoreHandle_t tx_semphr;
+static SemaphoreHandle_t tx_semphr;
 static SemaphoreHandle_t uart_mutex;
 
 #define BUFSIZE 100

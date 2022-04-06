@@ -20,6 +20,7 @@
 #include "dfgm.h"
 
 #include <FreeRTOS.h>
+#include <string.h>
 #include <csp/csp_endian.h>
 #include <os_queue.h>
 #include <stdint.h>
@@ -81,8 +82,8 @@ DFGM_return HAL_DFGM_stop() {
  */
 DFGM_return HAL_DFGM_get_HK(DFGM_Housekeeping *DFGM_hk) {
     DFGM_return status;
-    dfgm_housekeeping hk;
 #ifndef DFGM_IS_STUBBED
+    dfgm_housekeeping hk;
     status = DFGM_get_HK(&hk);
     DFGM_hk->coreVoltage = hk.coreVoltage;
     DFGM_hk->sensorTemp = hk.sensorTemp;

@@ -48,9 +48,9 @@ enum {
 #define NMEA_QUEUE_ITEM_SIZE NMEASENTENCE_MAXLENGTH
 #define NMEA_QUEUE_MAX_LEN 2
 
-QueueHandle_t NMEA_queue;
+extern QueueHandle_t NMEA_queue;
 
-SemaphoreHandle_t NMEA_mutex;
+extern SemaphoreHandle_t NMEA_mutex;
 
 bool init_NMEA();
 

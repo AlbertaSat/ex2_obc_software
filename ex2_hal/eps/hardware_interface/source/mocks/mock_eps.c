@@ -5,6 +5,7 @@
  *      Author: Andrew
  */
 #include <FreeRTOS.h>
+#include <string.h>
 #include <csp/csp.h>
 #include <csp/csp_endian.h>
 #include <os_task.h>
@@ -68,8 +69,8 @@ static SAT_returnState prv_fill_dummy_data(csp_packet_t *packet) {
             .curBattOut = 10,
             .curOutput = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
             .AOcurOutput = {1, 2},
-            .OutputConverterVoltage = {1, 2, 3, 4},
-            .outputConverterState = {1, 2, 3, 4},
+            .OutputConverterVoltage = {1, 2, 3, 4, 5, 6, 7, 8},
+            .outputConverterState = 10,
             .outputStatus = 10,
             .outputFaultStatus = 10,
             .outputOnDelta = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
