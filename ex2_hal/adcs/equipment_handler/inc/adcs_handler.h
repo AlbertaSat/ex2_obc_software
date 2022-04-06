@@ -606,8 +606,8 @@ ADCS_returnState ADCS_set_attitude_angle(xyz att_angle);
 ADCS_returnState ADCS_get_attitude_angle(xyz *att_angle);
 ADCS_returnState ADCS_set_track_controller(xyz target);
 ADCS_returnState ADCS_get_track_controller(xyz *target);
-ADCS_returnState ADCS_set_log_config(uint8_t **flags_arr, uint16_t period, uint8_t dest, uint8_t log);
-ADCS_returnState ADCS_get_log_config(uint8_t **flags_arr, uint16_t *period, uint8_t *dest, uint8_t log);
+ADCS_returnState ADCS_set_log_config(uint8_t *flags_arr, uint16_t period, uint8_t dest, uint8_t log);
+ADCS_returnState ADCS_get_log_config(uint8_t *flags_arr, uint16_t *period, uint8_t *dest, uint8_t log);
 ADCS_returnState ADCS_set_inertial_ref(xyz iner_ref);
 ADCS_returnState ADCS_get_inertial_ref(xyz *iner_ref);
 

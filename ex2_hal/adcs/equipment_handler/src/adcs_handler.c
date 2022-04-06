@@ -2257,15 +2257,16 @@ ADCS_returnState ADCS_get_track_controller(xyz *target) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_set_log_config(uint8_t **flags_arr, uint16_t period, uint8_t dest, uint8_t log) {
+ADCS_returnState ADCS_set_log_config(uint8_t *flags_arr, uint16_t period, uint8_t dest, uint8_t log) {
     uint8_t command[14] = {0};
     command[0] = SET_SD_LOG1_CONFIG_ID + (log - 1);
     for (int j = 0; j < 10; j++) {
         for (int i = 0; i < 8; i++) {
-            command[j + 1] = command[j + 1] | (*(*flags_arr + (8 * j) + i) << i);
+            command[j + 1] = command[j + 1] | (*(flags_arr + (8 * j) + i) << (7-i));
         }
     }
-    memcpy(&command[11], &period, 2);
+    command[11] = (uint8_t)(period & 255);
+    command[12] = (uint8_t)(period >> 8);
     command[13] = dest;
     ADCS_returnState state;
     if (log == 3) {
@@ -2297,7 +2298,7 @@ ADCS_returnState ADCS_set_log_config(uint8_t **flags_arr, uint16_t period, uint8
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_log_config(uint8_t **flags_arr, uint16_t *period, uint8_t *dest, uint8_t log) {
+ADCS_returnState ADCS_get_log_config(uint8_t *flags_arr, uint16_t *period, uint8_t *dest, uint8_t log) {
     uint8_t telemetry[13];
     ADCS_returnState state;
     uint8_t TM_ID = GET_SD_LOG1_CONFIG_ID + (log - 1);
@@ -2309,7 +2310,7 @@ ADCS_returnState ADCS_get_log_config(uint8_t **flags_arr, uint16_t *period, uint
 
     for (int j = 0; j < 10; j++) {
         for (int i = 0; i < 8; i++) {
-            *(*flags_arr + (8 * j) + i) = (telemetry[j] >> i) & 1;
+            *(flags_arr + (8 * j) + i) = (telemetry[j] >> (7-i)) & 1;
         }
     }
     *period = telemetry[11] << 8 | telemetry[10];
