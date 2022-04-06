@@ -25,7 +25,6 @@
 
 #include "adcs_types.h"
 #include "adcs_io.h"
-#include "adcs_types.h"
 #include "redposix.h"
 #include "FreeRTOS.h"
 
