@@ -167,6 +167,11 @@ SECTIONS
     FEE_CONST_SECTION align(32): {} > FLASH
     FEE_DATA_SECTION : {} > RAM
 
+	.flashAPI :
+	    {
+	        --library = ../lib/F021_API_CortexR4_BE_L2FMC_V3D16.lib (.text)
+	    } > FLASH
+
  	.blinky_section :  RUN = SDRAM, LOAD = FLASH
 		   LOAD_START(BlinkyLoadStart), LOAD_END(BlinkyLoadEnd),  LOAD_SIZE(BlinkySize),
 		   RUN_START(BlinkyStartAddr ), RUN_END(BlinkyEndAddr )
