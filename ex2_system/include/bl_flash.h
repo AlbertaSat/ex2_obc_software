@@ -27,6 +27,7 @@
 
 #include "HL_sys_common.h"
 #include <stdbool.h>
+#include "flash_defines.h"
 
 //*****************************************************************************
 //

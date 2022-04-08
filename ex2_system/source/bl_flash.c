@@ -21,13 +21,13 @@
 // DAMAGES, FOR ANY REASON WHATSOEVER.
 //
 //*****************************************************************************
-
 #define _L2FMC
 #include "bl_eeprom.h"
 #include "bl_flash.h"
 #include "F021.h"
 #include "flash_defines.h"
 #include "F021_API/Helpers.h"
+#include "F021_API/Compatibility.h"
 
 //#define Freq_In_MHz = SYS_CLK_FRE#include "bl_config.h"Q;
 
@@ -96,7 +96,7 @@ BLInternalFlashStartAddrCheck(uint32_t ulAddr, uint32_t ulImgSize)
     // Must be greater than GOLD_MINIMUM_ADDR
     // If flashing to the golden image bank, the size of the image may not write higher than 0x00200000. Which is the start of bank 1
     // if flashing to the application image bank, the image may not write higher than 0x003FFFFF. Which is the end of bank 1
-    if (ulAddr <= GOLD_MINIMUM_ADDR) {
+    if (ulAddr < GOLD_MINIMUM_ADDR) {
         return false;
     } else if (ulAddr < APP_MINIMUM_ADDR  && ulAddr + ulImgSize <= 0x00200000) {
         return true;
@@ -138,14 +138,19 @@ uint32_t Fapi_BlockErase(uint32_t ulAddr, uint32_t Size)
 
     for (i = ucStartBank; i < (ucEndBank + 1); i++){
         Fapi_setActiveFlashBank((Fapi_FlashBankType)i);
-        Fapi_enableMainBankSectors(0xFFFF);                 /* used for API 2.01*/
+        if (i == 7) {
+            Fapi_enableEepromBankSectors(0xFFFF, 0);
+        } else {
+            Fapi_enableMainBankSectors(0xFFFF);                 /* used for API 2.01*/
+        }
         while( FAPI_CHECK_FSM_READY_BUSY != Fapi_Status_FsmReady );
     }
 
     for (i=ucStartSector; i<(ucEndSector+1); i++){
 		Fapi_issueAsyncCommandWithAddress(Fapi_EraseSector, flash_sector[i].start);
     	while( FAPI_CHECK_FSM_READY_BUSY == Fapi_Status_FsmBusy );
-    	while(FAPI_GET_FSM_STATUS != Fapi_Status_Success);
+        while(FAPI_GET_FSM_STATUS != Fapi_Status_Success);
+
     }
 
 //    status =  Flash_Erase_Check((uint32_t)ulAddr, Size);
@@ -159,39 +164,39 @@ uint32_t Fapi_BlockProgram( uint32_t Bank, uint32_t Flash_Address, uint32_t Data
 	register uint32_t src = Data_Address;
 	register uint32_t dst = Flash_Address;
 	uint32_t bytes;
+	int bank_width = Bank == 7 ? 8 : 32;
 
-	if (SizeInBytes < 32)
+	if (SizeInBytes < bank_width)
 		bytes = SizeInBytes;
 	else
-		bytes = 32;
+		bytes = bank_width;
 
-	if ((Fapi_initializeFlashBanks((uint32_t)SYS_CLK_FREQ)) == Fapi_Status_Success){
-		 (void)Fapi_enableAutoEccCalculation();
-		 (void)Fapi_setActiveFlashBank((Fapi_FlashBankType)Bank);
-	     (void)Fapi_enableMainBankSectors(0xFFFF);                    /* used for API 2.01*/
-	}else {
-         return (1);
-	}
+     (void)Fapi_setActiveFlashBank((Fapi_FlashBankType)Bank);
+     if (Bank == 7) {
+         Fapi_enableEepromBankSectors(0xFFFF, 0);
+     } else {
+        (void)Fapi_enableMainBankSectors(0xFFFF);
+     }
 
+	//(void)Fapi_setActiveFlashBank((Fapi_FlashBankType)Bank);
 	while( FAPI_CHECK_FSM_READY_BUSY != Fapi_Status_FsmReady );
-	while( FAPI_GET_FSM_STATUS != Fapi_Status_Success );
+	//while( FAPI_GET_FSM_STATUS != Fapi_Status_Success );
 
     while( SizeInBytes > 0)
 	{
-		Fapi_issueProgrammingCommand((uint32_t *)dst,
+        Fapi_StatusType success = Fapi_issueProgrammingCommand((uint32_t *)dst,
 									 (uint8_t *)src,
 									 (uint32_t) bytes,
 									 0,
 									 0,
 									 Fapi_AutoEccGeneration);
-
  		while( FAPI_CHECK_FSM_READY_BUSY == Fapi_Status_FsmBusy );
         while(FAPI_GET_FSM_STATUS != Fapi_Status_Success);
 
 		src += bytes;
 		dst += bytes;
 		SizeInBytes -= bytes;
-        if ( SizeInBytes < 32){
+        if ( SizeInBytes < bank_width){
            bytes = SizeInBytes;
         }
     }
