@@ -61,7 +61,7 @@ extern int delay_aborted;
 typedef struct __attribute__((packed)) {
     // TODO: determine if second accuracy is needed
     tmElements_t scheduled_time;
-    //char gs_command[MAX_CMD_LENGTH]; // place holder for storing commands, increase/decrease size as needed
+    // char gs_command[MAX_CMD_LENGTH]; // place holder for storing commands, increase/decrease size as needed
     csp_packet_t *embedded_packet;
 } scheduled_commands_t;
 
@@ -91,16 +91,13 @@ static number_of_cmds_t num_of_cmds;
 
 typedef enum { SET_SCHEDULE = 0, GET_SCHEDULE = 1 } Scheduler_Subtype;
 
-SAT_returnState gs_cmds_scheduler_service_app(csp_packet_t *gs_cmds);
-//SAT_returnState gs_cmds_scheduler_service_app(char *gs_cmds);
+SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds);
+//SAT_returnState scheduler_service_app(char *gs_cmds);
 SAT_returnState scheduler_service(void);
 SAT_returnState start_scheduler_service(void);
-SAT_returnState get_scheduled_gs_command();
 SAT_returnState calc_cmd_frequency(scheduled_commands_t* cmds, int number_of_cmds, scheduled_commands_unix_t *sorted_cmds);
 SAT_returnState sort_cmds(scheduled_commands_unix_t *sorted_cmds, int number_of_cmds);
 Result write_cmds_to_file(int32_t fileiFildes, scheduled_commands_unix_t *scheduled_cmds, int number_of_cmds, char *fileName);
-Result execute_non_rep_gs_cmds(void);
-Result execute_rep_gs_cmds(void);
 static scheduled_commands_t *prv_get_cmds_scheduler();
 SAT_returnState vSchedulerHandler (void *pvParameters);
 

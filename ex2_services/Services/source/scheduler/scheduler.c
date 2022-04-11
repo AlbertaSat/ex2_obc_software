@@ -5,7 +5,7 @@
  *      Author: Grace Yi
  */
 
-#include "scheduler.h"
+#include "scheduler/scheduler.h"
 
 char* fileName1 = "VOL0:/gs_cmds.TMP";
 
@@ -26,8 +26,8 @@ int delay_aborted = 0;
  * @return SAT_returnState
  *      SATR_OK or SATR_ERROR
  */
-//SAT_returnState gs_cmds_scheduler_service_app(char *gs_cmds) {
-SAT_returnState gs_cmds_scheduler_service_app(csp_packet_t *gs_cmds) {
+//SAT_returnState scheduler_service_app(char *gs_cmds) {
+SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds) {
     uint8_t ser_subtype = (uint8_t)gs_cmds->data[SUBSERVICE_BYTE];
     //uint8_t ser_subtype = (uint8_t)gs_cmds[0];
     int8_t status;
@@ -38,8 +38,8 @@ SAT_returnState gs_cmds_scheduler_service_app(csp_packet_t *gs_cmds) {
         // allocating buffer for MAX_NUM_CMDS numbers of incoming commands
         scheduled_commands_t *cmds = (scheduled_commands_t*)calloc(MAX_NUM_CMDS, sizeof(scheduled_commands_t));
         // parse the commands
-        int number_of_cmds = prv_set_gs_scheduler(&(gs_cmds->data[SUBSERVICE_BYTE+1]), cmds);
-        //int number_of_cmds = prv_set_gs_scheduler(gs_cmds->data, cmds);
+        int number_of_cmds = prv_set_scheduler(&(gs_cmds->data[SUBSERVICE_BYTE+1]), cmds);
+        //int number_of_cmds = prv_set_scheduler(gs_cmds->data, cmds);
         // calculate frequency of cmds. Non-repetitive commands have a frequency of 0
         scheduled_commands_unix_t *sorted_cmds = (scheduled_commands_unix_t*)calloc(number_of_cmds, sizeof(scheduled_commands_unix_t));
         calc_cmd_frequency(cmds, number_of_cmds, sorted_cmds);
@@ -140,7 +140,7 @@ SAT_returnState gs_cmds_scheduler_service_app(csp_packet_t *gs_cmds) {
  * @return Result
  *      FAILURE or SUCCESS
  */
-int prv_set_gs_scheduler(char *cmd_buff, scheduled_commands_t *cmds) {
+int prv_set_scheduler(char *cmd_buff, scheduled_commands_t *cmds) {
     int number_of_cmds = 0;
     // Parse the commands
     // Initialize counters that point to different locations in the string of commands
@@ -609,9 +609,6 @@ Result write_cmds_to_file(int32_t fileiFildes, scheduled_commands_unix_t *schedu
     red_errno = 0;
     /*The order of writes and subsequent reads must match*/
     red_write(fileiFildes, &scheduled_cmds, needed_size);
-    // red_write(fout, &all_hk_data->hk_timeorder, sizeof(all_hk_data->hk_timeorder));
-    // red_write(fout, &all_hk_data->Athena_hk, sizeof(all_hk_data->Athena_hk));
-    // red_write(fout, &all_hk_data->EPS_hk, sizeof(all_hk_data->EPS_hk));
 
     if (red_errno != 0) {
         ex2_log("Failed to write to file: '%s'\r\n", filename);
@@ -638,7 +635,7 @@ SAT_returnState start_gs_cmds_scheduler_service(void);
  * @return SAT_returnState
  *      success report
  */
-SAT_returnState start_scheduler_service() {
+SAT_returnState start_scheduler_service(void) {
     TaskHandle_t svc_tsk;
         taskFunctions svc_funcs = {0};
         svc_funcs.getCounterFunction = get_svc_wdt_counter;
@@ -670,29 +667,29 @@ SAT_returnState scheduler_service(void) {
 
     /*The code below is for testing only, comment out from final code*/
     //=====================================================================
-    char *schedTime = "* * 1 14 2 2 52";
-    //char *test_command = "050 1 2 3 24 2 52   obc.time_management.get_time()\n 12 * * 14 2 2 52 obc.time_management.get_time()\n ";
-    
-    csp_packet_t *test_cmd, *embedded_packet;
-    embedded_packet->id.dst = 1;
-    embedded_packet->id.dport = 15;
-    embedded_packet->length = 1;
-    embedded_packet->data[0] = 1;
-    test_cmd->length = 15 + sizeof(csp_packet_t);
-    test_cmd->data[0] = 0;
-    memcpy(test_cmd->data[1], schedTime, 15);
-    memcpy(test_cmd->data[16], embedded_packet, sizeof(csp_packet_t));
-    
-    //memcpy(test_cmd->data, test_command, sizeof(test_command));
-    //char *test_cmd = "050 1 2 3 24 2 52   obc.time_management.get_time()\n 12 * * 14 2 2 52 obc.time_management.get_time()\n ";
-    //char *test_cmd = "test string\n ";
-//    uint8_t test_subservice = 11;
-//    uint32_t test_cmd_int = 1646289251;
-//    csp_packet_t *packet = csp_buffer_get(5);
-//    //unsigned int count = 0;
-//    //snprintf((char *) packet->data, csp_buffer_data_size(), "Hello World (%u)", ++count);
-//    memcpy(&packet->data[SUBSERVICE_BYTE],&test_subservice, sizeof(test_subservice));
-//    memcpy(packet->data+1, &test_cmd_int, sizeof(test_cmd_int));
+//    char *schedTime = "* * 1 14 2 2 52";
+//    //char *test_command = "050 1 2 3 24 2 52   obc.time_management.get_time()\n 12 * * 14 2 2 52 obc.time_management.get_time()\n ";
+//
+//    csp_packet_t *test_cmd, *embedded_packet;
+//    embedded_packet->id.dst = 1;
+//    embedded_packet->id.dport = 15;
+//    embedded_packet->length = 1;
+//    embedded_packet->data[0] = 1;
+//    test_cmd->length = 15 + sizeof(csp_packet_t);
+//    test_cmd->data[0] = 0;
+//    memcpy(test_cmd->data[1], schedTime, 15);
+//    memcpy(test_cmd->data[16], embedded_packet, sizeof(csp_packet_t));
+//
+//    //memcpy(test_cmd->data, test_command, sizeof(test_command));
+//    //char *test_cmd = "050 1 2 3 24 2 52   obc.time_management.get_time()\n 12 * * 14 2 2 52 obc.time_management.get_time()\n ";
+//    //char *test_cmd = "test string\n ";
+////    uint8_t test_subservice = 11;
+////    uint32_t test_cmd_int = 1646289251;
+////    csp_packet_t *packet = csp_buffer_get(5);
+////    //unsigned int count = 0;
+////    //snprintf((char *) packet->data, csp_buffer_data_size(), "Hello World (%u)", ++count);
+////    memcpy(&packet->data[SUBSERVICE_BYTE],&test_subservice, sizeof(test_subservice));
+////    memcpy(packet->data+1, &test_cmd_int, sizeof(test_cmd_int));
 //    //packet->length = (strlen((char *) packet->data) + 1); /* include the 0 termination */
 //    packet->length = (5); /* include the 0 termination */
 //    ex2_log("timer started");
@@ -767,7 +764,7 @@ SAT_returnState scheduler_service(void) {
 //        return SATR_ERROR;
 //    }
     
-    gs_cmds_scheduler_service_app(test_cmd);
+//    scheduler_service_app(test_cmd);
 
     //char *test_cmd = "50 1 2 3 24 2 52       obc.time_management.get_time()\n 12 * 13 14 2 2 52 obc.time_management.get_time()\n ";
 //    int test_scanf = 0;
@@ -776,7 +773,7 @@ SAT_returnState scheduler_service(void) {
 //    // allocating buffer for MAX_NUM_CMDS numbers of incoming commands
 //    scheduled_commands_t *cmds = (scheduled_commands_t*)calloc(MAX_NUM_CMDS, sizeof(scheduled_commands_t));
 //    // parse the commands
-//    int number_of_cmds = prv_set_gs_scheduler(test_cmd, cmds);
+//    int number_of_cmds = prv_set_scheduler(test_cmd, cmds);
 //    // calculate frequency of cmds. Non-repetitive commands have a frequency of 0
 //    scheduled_commands_unix_t *sorted_cmds = (scheduled_commands_unix_t*)calloc(number_of_cmds, sizeof(scheduled_commands_unix_t));
 //    calc_cmd_frequency(cmds, number_of_cmds, sorted_cmds);
@@ -799,7 +796,7 @@ SAT_returnState scheduler_service(void) {
 
         while ((packet = csp_read(conn, 50)) != NULL) {
             ex2_log("received packet");
-            if (gs_cmds_scheduler_service_app(packet) != SATR_OK) {
+            if (scheduler_service_app(packet) != SATR_OK) {
                 //TODO: define max # of commands that can be scheduled per CSP packet, incorporate this limit into the gs ops manual
                 ex2_log("Error responding to packet");
                 csp_buffer_free(packet);
@@ -814,32 +811,3 @@ SAT_returnState scheduler_service(void) {
     }
 }
 
-//TODO: keep a log of past commands
-
-
-///*------------------------------------------------------------------------------------------*/
-//    csp_conn_t *conn;
-//    if (!csp_send(conn, packet, 50)) { // why are we all using magic number?
-//            ex2_log("Failed to send packet");
-//            csp_buffer_free(packet);
-//            return FAILURE;
-//        }
-//
-///*------------------------------------------------------------------------------------------*/
-//int csp_sendto_reply(const csp_packet_t * request_packet, csp_packet_t * reply_packet, uint32_t opts, uint32_t timeout) {
-//	if (request_packet == NULL)
-//		return CSP_ERR_INVAL;
-//
-//	return csp_sendto(request_packet->id.pri, request_packet->id.src, request_packet->id.sport, request_packet->id.dport, opts, reply_packet, timeout);
-//}
-//
-///**
-//   Send a packet as a reply to a request (without a connection).
-//   Calls csp_sendto() with the source address and port from the request.
-//   @param[in] request incoming request
-//   @param[in] reply reply packet
-//   @param[in] opts connection options, see @ref CSP_CONNECTION_OPTIONS. -->refer to RDP, this is a bit/flag in the header, but for now this goes into the opt, obc won't respond unless this is present
-//   @param[in] timeout unused as of CSP version 1.6
-//   @return #CSP_ERR_NONE on success, otherwise an error code and the reply must be freed by calling csp_buffer_free().
-//*/
-//int csp_sendto_reply(const csp_packet_t * request, csp_packet_t * reply, uint32_t opts, uint32_t timeout);

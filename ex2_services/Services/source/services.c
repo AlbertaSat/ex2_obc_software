@@ -52,8 +52,8 @@ SAT_returnState start_service_server(void) {
         return SATR_ERROR;
     }
     start_cli_service();
-    if (//start_communication_service() != SATR_OK ||
-        //start_time_management_service() != SATR_OK ||
+    if (start_communication_service() != SATR_OK ||
+        start_time_management_service() != SATR_OK ||
         start_scheduler_service() != SATR_OK ||
         //start_housekeeping_service() != SATR_OK ||
         start_general_service() != SATR_OK ||

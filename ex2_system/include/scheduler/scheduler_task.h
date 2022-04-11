@@ -28,7 +28,7 @@
 #include <os_queue.h>
 #include <FreeRTOS.h>
 #include <os_semphr.h>
-#include "scheduler.h"
+#include "scheduler/scheduler.h"
 #include <redposix.h> //include for file system
 #include "csp_types.h"
 
