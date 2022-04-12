@@ -24,13 +24,10 @@
 #include <csp/csp_endian.h>
 #include <main/system.h>
 
-#include "dfgm.h"
+//#include "dfgm.h" // replace with HAL header
 #include "services.h"
 #include "task_manager/task_manager.h"
 #include "util/service_utilities.h"
-
-#include <limits.h>
-#include <stdint.h>
 
 SAT_returnState 2U_payload_FT_service_app(csp_packet_t *packet);
 
@@ -39,9 +36,9 @@ static uint32_t get_svc_wdt_counter() { return svc_wdt_counter; }
 
 /**
  * @brief
- *      FreeRTOS DFGM server task
+ *      FreeRTOS 2U Payload File Transferring (FT) server task
  * @details
- *      Accepts incoming DFGM service packets and executes
+ *      Accepts incoming 2U Payload FT service packets and executes
  *      the application
  * @param void* param
  * @return None
@@ -84,10 +81,10 @@ void 2U_payload_FT_service(void *param) {
 
 /**
  * @brief
- *      Starts the DFGM server task
+ *      Starts the 2U Payload File Transferring (FT) server task
  * @details
  *      Starts the FreeRTOS task responsible for accepting incoming
- *      DFGM service requests
+ *      2U Payload FT service requests
  * @param None
  * @return SAT_returnState
  *      Success report
@@ -111,7 +108,8 @@ SAT_returnState start_2U_payload_FT_service(void) {
  * @brief
  *      Takes a CSP packet and switches based on the subservice command
  * @details
- *      Reads/Writes data from DFGM EHs using subservices
+ *      Transfers files between the OBC and GS as well as the OBC and 2U
+ *      Payload
  * @param *packet
  *      The CSP packet
  * @return SAT_returnState
@@ -121,8 +119,6 @@ SAT_returnState 2U_payload_FT_service_app(csp_packet_t *packet) {
     uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
     int8_t status;
     SAT_returnState return_state = SATR_OK; // OK until an error is encountered
-    int32_t givenRuntime = 0;
-    int32_t maxRuntime = INT_MAX; // INT_MAX = 2^31 - 1 seconds = ~68.05 yrs
 
     switch (ser_subtype) {
     case 2U_PAYLOAD_DOWNLINK: {
@@ -180,9 +176,6 @@ SAT_returnState 2U_payload_FT_service_app(csp_packet_t *packet) {
         set_packet_length(packet, sizeof(int8_t) + sizeof(HK) + 1);
         break;
     }
-
-
-
 
     default:
         ex2_log("No such subservice!\n");
