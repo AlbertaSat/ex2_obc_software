@@ -29,6 +29,7 @@
 #include "task_manager/task_manager.h"
 #include "util/service_utilities.h"
 
+// TODO - Rename all variables and function names. They cannot begin with a digit
 SAT_returnState 2U_payload_FT_service_app(csp_packet_t *packet);
 
 static uint32_t svc_wdt_counter = 0;
