@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015  University of Alberta
  *
@@ -65,6 +66,8 @@
 // FTP SERVICE
 #define TC_FTP_COMMAND_SERVICE 20
 #define TC_FTP_DATA_SERVICE 21
+// 2U PAYLOAD FILE TRANSFERRING SERVICE
+#define TC_2U_PAYLOAD_FT_SERVICE 22
 
 #define DELAY_WAIT_TIMEOUT 8000
 
@@ -92,3 +95,4 @@ SAT_returnState start_service_server(void);
 void hex_dump(char *stuff, int size);
 
 #endif /* SERVICES_H */
+
