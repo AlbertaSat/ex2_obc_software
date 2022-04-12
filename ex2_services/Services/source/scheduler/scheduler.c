@@ -144,9 +144,9 @@ int prv_set_scheduler(char *cmd_buff, scheduled_commands_t *cmds) {
     int number_of_cmds = 0;
     // Parse the commands
     // Initialize counters that point to different locations in the string of commands
-    int old_str_position = IN_DATA_BYTE;
-    int str_position_1 = IN_DATA_BYTE;
-    int str_position_2 = IN_DATA_BYTE;
+    int old_str_position = 0;
+    int str_position_1 = 0;
+    int str_position_2 = 0;
 
     while (number_of_cmds < MAX_NUM_CMDS) {
         // A carraige followed by a space or nothing indicates there is no more commands
@@ -166,6 +166,7 @@ int prv_set_scheduler(char *cmd_buff, scheduled_commands_t *cmds) {
         while (cmd_buff[str_position_2] == ' ') {
             str_position_2++;
         }
+        //advance the pointers to the first digit of scheduled time
         old_str_position = str_position_2;
         str_position_1 = str_position_2;
         
@@ -399,7 +400,10 @@ int prv_set_scheduler(char *cmd_buff, scheduled_commands_t *cmds) {
         packet->id.dst = dst;
         packet->id.dport = dport;
         packet->length = embeddedSize;
-        memcpy(packet->data[SUBSERVICE_BYTE], cmd_buff[str_position_2], embeddedLength);
+        uint8_t embeddedSubservice = cmd_buff[str_position_2];
+        memcpy(&(packet->data), &(cmd_buff[str_position_2]), embeddedLength);
+        //memcpy(packet->data[SUBSERVICE_BYTE], &embeddedSubservice, embeddedLength);
+        //packet->data[SUBSERVICE_BYTE] = embeddedSubservice;
 
         //clone the buffer to embedded CSP packet struct
         (cmds + number_of_cmds)->embedded_packet = csp_buffer_clone(packet);
