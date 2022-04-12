@@ -154,14 +154,21 @@ int prv_set_scheduler(char *cmd_buff, scheduled_commands_t *cmds) {
         if (cmd_buff[old_str_position] == '\0') {
             break;
         }
-        else {
-            int buf_scanf;
-            char *buf_string = &cmd_buff[old_str_position];
-            int f_scanf = sscanf(buf_string,"%d",&buf_scanf);
-            if (f_scanf != 1) {
-                break;
-            }
+//        else {
+//            int buf_scanf;
+//            char *buf_string = &cmd_buff[old_str_position];
+//            int f_scanf = sscanf(buf_string,"%d",&buf_scanf);
+//            if (f_scanf != 1) {
+//                break;
+//            }
+//        }
+        //Count the number of spaces before the scheduled time
+        while (cmd_buff[str_position_2] == ' ') {
+            str_position_2++;
         }
+        old_str_position = str_position_2;
+        str_position_1 = str_position_2;
+        
         /*-----------------------Fetch time in seconds-----------------------*/
         //Count the number of digits
         while (cmd_buff[str_position_1] != ' ') {
@@ -361,17 +368,44 @@ int prv_set_scheduler(char *cmd_buff, scheduled_commands_t *cmds) {
             (cmds + number_of_cmds)->scheduled_time.Year = (uint8_t)buf_scanf;
         }
 
+        //advance pointers to the first byte of the next field
         old_str_position = str_position_2;
         str_position_1 = str_position_2;
 
-        /*-----------------------Fetch gs command as am embedded CSP packet-----------------------*/
-        //Extract the embedded CSP packet
-        (cmds + number_of_cmds)->embedded_packet = csp_buffer_clone(&cmd_buff[str_position_2]);
+        /*-----------------------Fetch the CSP dst(1 byte), dport(1byte), and data length(2 bytes)-----------------------*/
+        //copy the dst
+        uint8_t dst = cmd_buff[str_position_2];
+        //advance pointer to dport
+        str_position_2++;
+        uint8_t dport = cmd_buff[str_position_2];
+        //advance pointer to first byte of length
+        str_position_2++;
+        uint16_t highByte = cmd_buff[str_position_2];
+        //advance pointer to second byte of length
+        str_position_2++;
+        uint16_t lowByte = cmd_buff[str_position_2];
+        //combine length bytes
+        uint16_t embeddedLength = (highByte << 8) | lowByte;
 
-        //Increment the pointers to read the next line of command
-        int data_len = (int)(cmds + number_of_cmds)->embedded_packet->length;
-        int total_csp_len = sizeof((cmds + number_of_cmds)->embedded_packet->padding) + sizeof((cmds + number_of_cmds)->embedded_packet->length) + sizeof((cmds + number_of_cmds)->embedded_packet->id) + data_len;
-        str_position_2 += total_csp_len;
+        //advance pointers to embedded data field
+        str_position_2++;
+        old_str_position = str_position_2;
+        str_position_1 = str_position_2;
+
+        /*-----------------------Fetch command as am embedded CSP packet-----------------------*/
+        //get CSP buffer to reconstruct the embedded CSP packet
+        uint16_t embeddedSize =  embeddedLength + 2; // +2 for subservice and error
+        csp_packet_t *packet = csp_buffer_get((size_t)embeddedSize);
+        packet->id.dst = dst;
+        packet->id.dport = dport;
+        packet->length = embeddedSize;
+        memcpy(packet->data[SUBSERVICE_BYTE], cmd_buff[str_position_2], embeddedLength);
+
+        //clone the buffer to embedded CSP packet struct
+        (cmds + number_of_cmds)->embedded_packet = csp_buffer_clone(packet);
+
+        //advance the pointers to read the next line of command
+        str_position_2++;
         old_str_position = str_position_2;
         str_position_1 = str_position_2;
 
