@@ -126,7 +126,7 @@ SAT_returnState 2U_payload_FT_service_app(csp_packet_t *packet) {
         // Get filename
 
         // Prepare to send file data
-        // status =
+        // status = HAL_2U_PAYLOAD_getFile();
 
         // Return success report (saying ready to send or abort FT)
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -139,7 +139,7 @@ SAT_returnState 2U_payload_FT_service_app(csp_packet_t *packet) {
         //cnv8_32(&packet->data[IN_DATA_BYTE], &givenRuntime);
 
         // Prepare to receive file data
-        //status =
+        //status = HAL_2U_PAYLOAD_putFile();
 
         // Return success report (saying ready to receive or abort FT)
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -149,7 +149,7 @@ SAT_returnState 2U_payload_FT_service_app(csp_packet_t *packet) {
 
     case 2U_PAYLOAD_STOP_FT: {
         // Tell OBC to stop processing or sending file data
-        // status =
+        //status = HAL_2U_PAYLOAD_stopFileTransfer();
 
         // Return success report
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -159,7 +159,7 @@ SAT_returnState 2U_payload_FT_service_app(csp_packet_t *packet) {
 
     case 2U_PAYLOAD_SEND_BYTES: {
         // Tell OBC to send file data to GS
-        //status =
+        //status = HAL_2U_PAYLOAD_sendDataBytes();
 
         // Return success report and N bytes of file data
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -169,7 +169,7 @@ SAT_returnState 2U_payload_FT_service_app(csp_packet_t *packet) {
 
     case 2U_PAYLOAD_PROCESS_BYTES: {
         // Receive N bytes of file data from the GS and process it
-        // status =
+        // status = HAL_2U_PAYLOAD_receiveDataBytes();
 
         // Return success report (saying ready to receive or abort FT)
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
