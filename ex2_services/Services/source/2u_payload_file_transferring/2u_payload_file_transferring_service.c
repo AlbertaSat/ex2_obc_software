@@ -24,7 +24,7 @@
 #include <csp/csp_endian.h>
 #include <main/system.h>
 
-//#include "dfgm.h" // replace with HAL header
+#include "2u_payload_file_transfer.h"
 #include "services.h"
 #include "task_manager/task_manager.h"
 #include "util/service_utilities.h"

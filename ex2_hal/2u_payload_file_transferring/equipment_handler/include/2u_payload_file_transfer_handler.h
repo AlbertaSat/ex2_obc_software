@@ -29,10 +29,17 @@ typedef enum {
     IS_STUBBED_2U_PAYLOAD = 0
 } payload_FT_return;
 
-payload_FT_return 2U_PAYLOAD_getFile(); // argument should be a file name
-payload_FT_return 2U_PAYLOAD_putFile(); // argument should be filename
+#define MAX_BYTES_TO_READ 900;
+
+typedef struct __attribute__((__packed__)) {
+    uint16 bytesToRead;
+    uint8 byte[MAX_BYTES_TO_READ];
+} filePacket;
+
+payload_FT_return 2U_PAYLOAD_getFile(char * filename); // argument should be a file name
+payload_FT_return 2U_PAYLOAD_putFile(char * filename); // argument should be filename
 payload_FT_return 2U_PAYLOAD_stopFileTransfer();
-payload_FT_return 2U_PAYLOAD_sendDataBytes(); // argument should be a struct containing data bytes
-payload_FT_return 2U_PAYLOAD_receiveDataBytes(); // argument should be a struct containing data bytes
+payload_FT_return 2U_PAYLOAD_sendDataBytes(struct filePacket * outgoingPkt); // argument should be a struct containing data bytes
+payload_FT_return 2U_PAYLOAD_receiveDataBytes(struct filePacket * incomingPkt); // argument should be a struct containing data bytes
 
 #endif /* 2U_PAYLOAD_FT_HANDLER_H */
