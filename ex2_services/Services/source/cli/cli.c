@@ -35,6 +35,7 @@
 #include "rtcmk.h"
 #include <stdlib.h>
 #include "cli/fs_utils.h"
+#include "bl_eeprom.h"
 
 static uint32_t svc_wdt_counter = 0;
 
@@ -46,6 +47,106 @@ static uint32_t get_svc_wdt_counter() { return svc_wdt_counter; }
  * These functions are the implementations of all the commands registered with the
  *  FreeRTOS+CLI controller
  */
+// Small task that reboots the system after 3 second delay
+void vRebootHandler(void *pvParameters) {
+    vTaskDelay(3000);
+    char reboot_type = (char)pvParameters;
+    sw_reset(reboot_type, REQUESTED);
+    vTaskDelete(0); // Delete self just in case the reset fails
+}
+
+static BaseType_t prvRebootCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString) {
+    int parameter_len;
+    const char *parameter = FreeRTOS_CLIGetParameter(
+                /* The command string itself. */
+                pcCommandString,
+                /* Return the next parameter. */
+                1,
+                /* Store the parameter string length. */
+                &parameter_len);
+    if (parameter_len > 1) {
+        snprintf(pcWriteBuffer, xWriteBufferLen, "Invalid Reboot Type\n");
+    } else {
+        switch (*parameter) {
+        case 'A':
+            if (verify_application() == false) {
+                snprintf(pcWriteBuffer, xWriteBufferLen, "Application invalid\n");
+                return pdFALSE;
+            } break;
+        case 'G':
+            if (verify_golden() == false) {
+                snprintf(pcWriteBuffer, xWriteBufferLen, "Golden Image invalid\n");
+                return pdFALSE;
+            } break;
+        case 'B': break;
+        default:
+            snprintf(pcWriteBuffer, xWriteBufferLen, "Invalid Reboot Type\n");
+            return pdFALSE;
+        }
+        snprintf(pcWriteBuffer, xWriteBufferLen, "Rebooting in 3 seconds\n");
+        xTaskCreate(vRebootHandler, "rebooter", 128, *parameter, 4, NULL);
+    }
+    return pdFALSE;
+}
+
+static BaseType_t prvImageTypeCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString) {
+    snprintf(pcWriteBuffer, xWriteBufferLen, "Application Version 1.2\r\n");
+    return pdFALSE;
+}
+
+static BaseType_t prvUptimeCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString) {
+    BaseType_t uptime = (xTaskGetTickCount() / 1000);
+    snprintf(pcWriteBuffer, xWriteBufferLen, "%d Seconds\n", uptime);
+    return pdFALSE;
+}
+
+static BaseType_t prvBootInfoCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString) {
+    boot_info inf = {0};
+    eeprom_get_boot_info(&inf);
+    char *reset_source_str;
+    switch (inf.reason.rstsrc) {
+    case POWERON_RESET:
+        reset_source_str = "POWERON_RESET"; break;
+    case OSC_FAILURE_RESET:
+        reset_source_str = "OSC_FAILURE_RESET"; break;
+    case WATCHDOG_RESET:
+        reset_source_str = "WATCHDOG_RESET"; break;
+    case WATCHDOG2_RESET:
+        reset_source_str = "WATCHDOG2_RESET"; break;
+    case DEBUG_RESET:
+        reset_source_str = "DEBUG_RESET"; break;
+    case INTERCONNECT_RESET:
+        reset_source_str = "INTERCONNECT_RESET"; break;
+    case CPU0_RESET:
+        reset_source_str = "CPU0_RESET"; break;
+    case SW_RESET:
+        reset_source_str = "SW_RESET"; break;
+    case EXT_RESET:
+        reset_source_str = "EXT_RESET"; break;
+    case NO_RESET:
+        reset_source_str = "NO_RESET"; break;
+    default:
+        reset_source_str = "UNDEFINED"; break;
+    }
+
+    char *reason_str;
+    switch (inf.reason.swr_reason) {
+    case NONE:
+        reason_str = "NONE"; break;
+    case UNDEF:
+        reason_str = "UNDEF"; break;
+    case DABORT:
+        reason_str = "DABORT"; break;
+    case PREFETCH:
+        reason_str = "PREFETCH"; break;
+    case REQUESTED:
+        reason_str = "REQUESTED"; break;
+    default:
+        reason_str = "UNDEFINED"; break;
+    }
+    snprintf(pcWriteBuffer, xWriteBufferLen, "Count: %d, Attempts: %d, Reset: %s, Reason: %s\n", inf.count, inf.attempts, reset_source_str, reason_str);
+    return pdFALSE;
+}
 
 static BaseType_t prvTimeCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString) {
     const char *parameter;
@@ -168,6 +269,10 @@ static const CLI_Command_Definition_t xEchoCommand = {"echo", "echo:\n\tEchoes a
 static const CLI_Command_Definition_t xHelloCommand = {"hello", "hello:\n\tSays hello :)\n", prvHelloCommand, 0};
 static const CLI_Command_Definition_t xTimeCommand = {
     "time", "time:\n\tNo parameter: get time\n\tWith parameter: set time to parameter\n", prvTimeCommand, -1};
+static const CLI_Command_Definition_t xImageTypeCommand = {"imagetype", "imagetype:\n\tGet type of image booted\n", prvImageTypeCommand, 0};
+static const CLI_Command_Definition_t xRebootCommand = {"reboot", "reboot:\n\tReboot to a mode. Can be B, G, or A\n", prvRebootCommand, 1};
+static const CLI_Command_Definition_t xBootInfoCommand = {"bootinfo", "bootinfo:\n\tGives a breakdown of the boot info\n", prvBootInfoCommand, 0};
+static const CLI_Command_Definition_t xUptimeCommand = {"uptime", "uptime:\n\tGet uptime in seconds\n", prvUptimeCommand, 0};
 
 /**
  * @brief
@@ -256,6 +361,10 @@ void register_commands() {
     FreeRTOS_CLIRegisterCommand(&xEchoCommand);
     FreeRTOS_CLIRegisterCommand(&xHelloCommand);
     FreeRTOS_CLIRegisterCommand(&xTimeCommand);
+    FreeRTOS_CLIRegisterCommand(&xImageTypeCommand);
+    FreeRTOS_CLIRegisterCommand(&xRebootCommand);
+    FreeRTOS_CLIRegisterCommand(&xBootInfoCommand);
+    FreeRTOS_CLIRegisterCommand(&xUptimeCommand);
     register_fs_utils();
 }
 

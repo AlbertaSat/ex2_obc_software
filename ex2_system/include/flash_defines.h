@@ -38,8 +38,8 @@ typedef struct Banks
 
 
 #if defined (RM57) || defined (TMS570LC43)
-#define NUMBEROFSECTORS 32
-const SECTORS flash_sector[NUMBEROFSECTORS]=
+#define NUMBEROFSECTORS 64
+static const SECTORS flash_sector[NUMBEROFSECTORS]=
 {
   (void *)0x00000000, 0x04000, 0,  0, 0xfff87000,
   (void *)0x00004000, 0x04000, 0,  1, 0xfff87000,
@@ -72,14 +72,51 @@ const SECTORS flash_sector[NUMBEROFSECTORS]=
   (void *)0x00380000, 0x20000, 1, 12, 0xfff87000,
   (void *)0x003A0000, 0x20000, 1, 13, 0xfff87000,
   (void *)0x003C0000, 0x20000, 1, 14, 0xfff87000,
-  (void *)0x003E0000, 0x20000, 1, 15, 0xfff87000
+  (void *)0x003E0000, 0x20000, 1, 15, 0xfff87000,
+
+  (void *)0xF0200000, 0x01000, 7, 0, 0xfff87000,
+  (void *)0xF0201000, 0x01000, 7, 1, 0xfff87000,
+  (void *)0xF0202000, 0x01000, 7, 2, 0xfff87000,
+  (void *)0xF0203000, 0x01000, 7, 3, 0xfff87000,
+  (void *)0xF0204000, 0x01000, 7, 4, 0xfff87000,
+  (void *)0xF0205000, 0x01000, 7, 5, 0xfff87000,
+  (void *)0xF0206000, 0x01000, 7, 6, 0xfff87000,
+  (void *)0xF0207000, 0x01000, 7, 7, 0xfff87000,
+  (void *)0xF0208000, 0x01000, 7, 8, 0xfff87000,
+  (void *)0xF0209000, 0x01000, 7, 9, 0xfff87000,
+  (void *)0xF020A000, 0x01000, 7, 10, 0xfff87000,
+  (void *)0xF020B000, 0x01000, 7, 11, 0xfff87000,
+  (void *)0xF020C000, 0x01000, 7, 12, 0xfff87000,
+  (void *)0xF020D000, 0x01000, 7, 13, 0xfff87000,
+  (void *)0xF020E000, 0x01000, 7, 14, 0xfff87000,
+  (void *)0xF020F000, 0x01000, 7, 15, 0xfff87000,
+  (void *)0xF0210000, 0x01000, 7, 16, 0xfff87000,
+  (void *)0xF0211000, 0x01000, 7, 17, 0xfff87000,
+  (void *)0xF0212000, 0x01000, 7, 18, 0xfff87000,
+  (void *)0xF0213000, 0x01000, 7, 19, 0xfff87000,
+  (void *)0xF0214000, 0x01000, 7, 20, 0xfff87000,
+  (void *)0xF0215000, 0x01000, 7, 21, 0xfff87000,
+  (void *)0xF0216000, 0x01000, 7, 22, 0xfff87000,
+  (void *)0xF0217000, 0x01000, 7, 23, 0xfff87000,
+  (void *)0xF0218000, 0x01000, 7, 24, 0xfff87000,
+  (void *)0xF0219000, 0x01000, 7, 25, 0xfff87000,
+  (void *)0xF021A000, 0x01000, 7, 26, 0xfff87000,
+  (void *)0xF021B000, 0x01000, 7, 27, 0xfff87000,
+  (void *)0xF021C000, 0x01000, 7, 28, 0xfff87000,
+  (void *)0xF021D000, 0x01000, 7, 29, 0xfff87000,
+  (void *)0xF021E000, 0x01000, 7, 30, 0xfff87000,
+  (void *)0xF021F000, 0x01000, 7, 31, 0xfff87000,
+
 };
 
-#define NUMBEROFBANKS 2
-const BANKS flash_bank[NUMBEROFBANKS]=
+
+
+#define NUMBEROFBANKS 3
+static const BANKS flash_bank[NUMBEROFBANKS]=
 {
   (void *) 0x00000000, 0x200000, 0, 0xfff87000, 16,
   (void *) 0x00200000, 0x400000, 1, 0xfff87000, 16,
+  (void *) 0xF0200000, 0x007D00, 7, 0xfff87000, 32
 };
 
 #endif   /* RM57 */

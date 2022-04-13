@@ -31,6 +31,7 @@
 #include <os_task.h>
 #include "diagnostic.h"
 #include "deployablescontrol.h"
+#include "bl_eeprom.h"
 
 SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet);
 void general_service(void *param);
@@ -142,7 +143,7 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
         csp_send(conn, packet, CSP_TIMEOUT);
 
         if (status == 0) {
-            reboot_system(reboot_type);
+            sw_reset(reboot_type, REQUESTED);
         }
 
         break;
