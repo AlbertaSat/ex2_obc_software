@@ -11,19 +11,19 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "HL_system.h"
+#include <F021.h>
+#include "privileged_functions.h"
 
-#define EXISTS_FLAG 0xA5A5A5A5
+#define EXISTS_FLAG 0x5A5A5A5A
 
-#define APP_STATUS_BLOCKNUMBER 2 // status byte reports 1 if program present
-#define APP_STATUS_OFFSET 0
+#define APP_STATUS_BLOCKNUMBER 1 // status byte reports 1 if program present
 #define APP_STATUS_LEN sizeof(image_info)
 
-#define GOLD_STATUS_BLOCKNUMBER 3
-#define GOLD_STATUS_OFFSET 0
+#define GOLD_STATUS_BLOCKNUMBER 2
 #define GOLD_STATUS_LEN sizeof(image_info)
 
-#define GOLD_MINIMUM_ADDR 0x00018000
-#define GOLD_DEFAULT_ADDR 0x00018000
+#define GOLD_MINIMUM_ADDR 0x00020000
+#define GOLD_DEFAULT_ADDR 0x00020000
 #define GOLD_START_BANK 0
 
 #define APP_MINIMUM_ADDR 0x00200000
@@ -32,13 +32,11 @@
 
 #define BOOTLOADER_MAX_ADDR 0x0017FFF
 
-#define BOOT_TYPE_BLOCK 1
-#define BOOT_TYPE_OFFSET 0
-#define BOOT_TYPE_LEN 1
-
-#define BOOT_INFO_BLOCKNUMBER 4
-#define BOOT_INFO_OFFSET 0
+#define BOOT_INFO_BLOCKNUMBER 0
 #define BOOT_INFO_LEN sizeof(boot_info)
+
+#define UPDATE_INFO_BLOCKNUMBER 3
+#define UPDATE_INFO_LEN sizeof(update_info)
 
 // Representation of data which will be stored in FEE flash
 typedef struct __attribute__((packed)) {
@@ -48,12 +46,19 @@ typedef struct __attribute__((packed)) {
     uint16_t crc;
 } image_info;
 
-typedef enum SW_RESET_REASON_ {
+typedef enum {
     NONE,
+    UNDEF,
     DABORT,
     PREFETCH,
     REQUESTED
 } SW_RESET_REASON;
+
+typedef enum SYSTEM_TYPE {
+    BOOTLOADER = 'B',
+    GOLDEN = 'G',
+    APPLICATION = 'A'
+};
 
 typedef struct __attribute__((packed)) {
     resetSource_t rstsrc;
@@ -61,32 +66,41 @@ typedef struct __attribute__((packed)) {
 } boot_reason;
 
 typedef struct __attribute__((packed)) {
+    uint32_t start_address;
+    uint32_t size;
+    uint32_t next_address;
+    uint32_t initialized;
+    uint16_t crc;
+} update_info;
+
+typedef struct __attribute__((packed)) {
+    char type;
     uint32_t count; // total number of boot attempts
     uint32_t attempts; // total attempts since last failure
     boot_reason reason;
 } boot_info;
 
-void sw_reset(SW_RESET_REASON reason);
+void sw_reset(char reboot_type, SW_RESET_REASON reason);
 
 bool eeprom_init();
 
 void eeprom_shutdown();
 
-char eeprom_get_boot_type();
+Fapi_StatusType eeprom_set_app_info(image_info *i);
 
-void eeprom_set_boot_type(char boot);
+Fapi_StatusType eeprom_get_app_info(image_info *i);
 
-void eeprom_set_app_info(image_info i);
+Fapi_StatusType eeprom_set_golden_info(image_info *i);
 
-image_info eeprom_get_app_info();
+Fapi_StatusType eeprom_get_golden_info(image_info *i);
 
-void eeprom_set_golden_info(image_info i);
+Fapi_StatusType eeprom_get_boot_info(boot_info *b);
 
-image_info eeprom_get_golden_info();
+Fapi_StatusType eeprom_set_boot_info(boot_info *b);
 
-boot_info eeprom_get_boot_info();
+Fapi_StatusType eeprom_set_update_info(update_info *u);
 
-void eeprom_set_boot_info(boot_info b);
+Fapi_StatusType eeprom_get_update_info(update_info *u);
 
 bool verify_application();
 
