@@ -12,7 +12,32 @@
  * GNU General Public License for more details.
  */
 /**
- * @file
+ * @file 2u_payload_file_transfer.c
  * @author Daniel Sacro
  * @date 2022-04-12
  */
+
+#include "2u_payload_file_transfer.h"
+#include "services.h"
+
+
+payload_FT_return HAL_2U_PAYLOAD_getFile() {
+    payload_FT_return status;
+    // Call EH
+}
+
+payload_FT_return HAL_2U_PAYLOAD_putFile() {
+    payload_FT_return status;
+}
+
+payload_FT_return HAL_2U_PAYLOAD_stopFileTransfer() {
+    payload_FT_return status;
+}
+
+payload_FT_return HAL_2U_PAYLOAD_sendDataBytes() {
+    payload_FT_return status;
+}
+
+payload_FT_return HAL_2U_PAYLOAD_receiveDataBytes() {
+    payload_FT_return status;
+}

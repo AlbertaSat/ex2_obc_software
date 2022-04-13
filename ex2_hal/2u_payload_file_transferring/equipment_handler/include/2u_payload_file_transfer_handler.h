@@ -12,7 +12,27 @@
  * GNU General Public License for more details.
  */
 /**
- * @file
+ * @file 2u_payload_file_transfer_handler.h
  * @author Daniel Sacro
  * @date 2022-04-12
  */
+
+#ifndef 2U_PAYLOAD_FT_HANDLER_H
+#define 2U_PAYLOAD_FT_HANDLER_H
+
+#include "system.h"
+
+typedef enum {
+    FT_SUCCESS = 0,
+    FT_FAIL,
+
+    IS_STUBBED_2U_PAYLOAD = 0
+} payload_FT_return;
+
+payload_FT_return 2U_PAYLOAD_getFile(); // argument should be a file name
+payload_FT_return 2U_PAYLOAD_putFile(); // argument should be filename
+payload_FT_return 2U_PAYLOAD_stopFileTransfer();
+payload_FT_return 2U_PAYLOAD_sendDataBytes(); // argument should be a struct containing data bytes
+payload_FT_return 2U_PAYLOAD_receiveDataBytes(); // argument should be a struct containing data bytes
+
+#endif /* 2U_PAYLOAD_FT_HANDLER_H */
