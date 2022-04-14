@@ -12,17 +12,27 @@
  * GNU General Public License for more details.
  */
 /**
- * @file 2u_payload_file_transfer_handler.c
+ * @file ft_2u_payload_handler.c
  * @author Daniel Sacro
  * @date 2022-04-12
  */
 
-#include "2u_payload_file_transfer_handler.h"
+#include "ft_2u_payload_handler.h"
+
+#include <string.h>
+
+#include "stdio.h"
+#include <redconf.h>
+#include <redfs.h>
+#include <redfse.h>
+#include <redposix.h>
+#include <redtests.h>
+#include <redvolume.h>
 
 static int32_t fileToSend;
 static int32_t fileToReceive;
 
-payload_FT_return 2U_PAYLOAD_getFile(char * filename) {
+FT_2U_payload_return FT_2U_payload_getFile(char * filename) {
     // Open file
     fileToSend = red_open(filename, RED_O_RDONLY);
     if (fileToSend == -1) {
@@ -32,7 +42,7 @@ payload_FT_return 2U_PAYLOAD_getFile(char * filename) {
     }
 }
 
-payload_FT_return 2U_PAYLOAD_putFile(char * filename) {
+FT_2U_payload_return FT_2U_payload_putFile(char * filename) {
     // Open file
     fileToReceive = red_open(filename, RED_O_RDONLY);
     if (fileToSend == -1) {
@@ -42,7 +52,7 @@ payload_FT_return 2U_PAYLOAD_putFile(char * filename) {
     }
 }
 
-payload_FT_return 2U_PAYLOAD_stopFileTransfer() {
+FT_2U_payload_return FT_2U_payload_stopFileTransfer() {
     // forcibly close all files
     red_close(fileToSend);
     red_close(fileToReceive);
@@ -51,33 +61,36 @@ payload_FT_return 2U_PAYLOAD_stopFileTransfer() {
     return FT_SUCCESS;
 }
 
-payload_FT_return 2U_PAYLOAD_sendDataBytes(struct filePacket * outgoingPkt) {
+FT_2U_payload_return FT_2U_payload_sendDataBytes(filePacket * outgoingPkt) {
+    FT_2U_payload_return status;
     // read from file and place data bytes into a packet
     memset(outgoingPkt, 0, sizeof(outgoingPkt)); // Ensure that pkt is empty, should be done in HAL
-    int bytesRead = red_read(fileToSend, outgoingPkt.byte[0], MAX_BYTES_TO_READ);
+    int bytesRead = red_read(fileToSend, &(outgoingPkt->byte[0]), MAX_BYTES_TO_READ);
 
     // TODO - Error checks
 
     if (bytesRead == -1) {
         // if red_read fails, abort file transfer
         red_close(fileToSend);
-        return FT_FAIL;
+        status = FT_FAIL;
     } else if (bytesRead < MAX_BYTES_TO_READ) {
         // if red_read sends less than the MAX_BYTES_TO_READ, there are no more bytes to send
         outgoingPkt->bytesToRead = bytesRead;
         red_close(fileToSend);
-        return FT_SUCCESS;
+        status = FT_SUCCESS;
     } else {
         // else red_read sends exactly MAX_BYTES_TO_READ, meaning there are more bytes to send
         outgoingPkt->bytesToRead = bytesRead;
-        return FT_SUCCESS;
+        status = FT_SUCCESS;
     }
+    return status;
 }
 
-payload_FT_return 2U_PAYLOAD_receiveDataBytes(struct filePacket * incomingPkt) {
+FT_2U_payload_return FT_2U_payload_receiveDataBytes(filePacket * incomingPkt) {
     // get a packet and write data bytes to a file
+    FT_2U_payload_return status;
     int totBytesInPkt = incomingPkt->bytesToRead;
-    int err = red_write(fileToReceive, outgoingPkt.byte[0], totBytesInPkt);
+    int err = red_write(fileToReceive, &(incomingPkt->byte[0]), totBytesInPkt);
 
     // TODO - Error checks
     if (err == -1) {
@@ -87,12 +100,13 @@ payload_FT_return 2U_PAYLOAD_receiveDataBytes(struct filePacket * incomingPkt) {
     if (totBytesInPkt < MAX_BYTES_TO_READ) {
         // if bytes read from packet is less than the MAX_BYTES_TO_READ, end file transfer
         red_close(fileToReceive);
-        return FT_SUCCESS
+        status = FT_SUCCESS;
     } else {
         // else there are still more packets to be sent from the GS
-        return FT_SUCCESS
+        status = FT_SUCCESS;
     }
 
+    return status;
 
     // automatically close the file if < N bytes are read from the file packet
 }

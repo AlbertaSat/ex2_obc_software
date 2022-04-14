@@ -12,32 +12,37 @@
  * GNU General Public License for more details.
  */
 /**
- * @file 2u_payload_file_transfer.c
+ * @file ft_2u_payload.c
  * @author Daniel Sacro
  * @date 2022-04-12
  */
 
-#include "2u_payload_file_transfer.h"
+#include "ft_2u_payload.h"
 #include "services.h"
 
 
-payload_FT_return HAL_2U_PAYLOAD_getFile() {
-    payload_FT_return status;
+FT_2U_payload_return HAL_FT_2U_PAYLOAD_getFile() {
+    FT_2U_payload_return status;
     // Call EH
+    return status;
 }
 
-payload_FT_return HAL_2U_PAYLOAD_putFile() {
-    payload_FT_return status;
+FT_2U_payload_return HAL_FT_2U_PAYLOAD_putFile() {
+    FT_2U_payload_return status;
+    return status;
 }
 
-payload_FT_return HAL_2U_PAYLOAD_stopFileTransfer() {
-    payload_FT_return status;
+FT_2U_payload_return HAL_FT_2U_PAYLOAD_stopFileTransfer() {
+    FT_2U_payload_return status;
+    return status;
 }
 
-payload_FT_return HAL_2U_PAYLOAD_sendDataBytes() {
-    payload_FT_return status;
+FT_2U_payload_return HAL_FT_2U_PAYLOAD_sendDataBytes() {
+    FT_2U_payload_return status;
+    return status;
 }
 
-payload_FT_return HAL_2U_PAYLOAD_receiveDataBytes() {
-    payload_FT_return status;
+FT_2U_payload_return HAL_FT_2U_PAYLOAD_receiveDataBytes() {
+    FT_2U_payload_return status;
+    return status;
 }

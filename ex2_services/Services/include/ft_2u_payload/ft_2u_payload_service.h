@@ -12,31 +12,32 @@
  * GNU General Public License for more details.
  */
 /**
- * @file
+ * @file ft_2u_payload_service.h
  * @author Daniel Sacro
  * @date
  */
 
-#ifndef 2U_PAYLOAD_FT_SERVICE_H
-#define 2U_PAYLOAD_FT_SERVICE_H
+#ifndef FT_2U_PAYLOAD_SERVICE_H
+#define FT_2U_PAYLOAD_SERVICE_H
 
+#include "ft_2u_payload.h"
+#include "service_utilities.h"
+#include "services.h"
 #include <FreeRTOS.h>
 #include <csp/csp.h>
 #include <csp/csp_endian.h>
-#include <stdio.h>
-
-#include "services.h"
+#include <main/system.h>
 
 typedef enum {
-    2U_PAYLOAD_DOWNLINK = 0,
-    2U_PAYLOAD_UPLINK,
-    2U_PAYLOAD_STOP_FT,
-    2U_PAYLOAD_SEND_BYTES, // Prompts OBC to send N file bytes
-    2U_PAYLOAD_PROCESS_BYTES, // Prompts OBC to process N file bytes
-} 2U_payload_FT_Subtype;
+    FT_2U_PAYLOAD_DOWNLINK = 0,
+    FT_2U_PAYLOAD_UPLINK,
+    FT_2U_PAYLOAD_STOP_FT,
+    FT_2U_PAYLOAD_SEND_BYTES, // Prompts OBC to send N file bytes
+    FT_2U_PAYLOAD_PROCESS_BYTES, // Prompts OBC to process N file bytes
+} FT_2U_payload_subtype;
 
-SAT_returnState 2U_payload_FT_service_app(csp_packet_t *pkt);
+SAT_returnState FT_2U_payload_service_app(csp_packet_t *pkt);
 
-SAT_returnState start_2U_payload_FT_service(void);
+SAT_returnState start_FT_2U_payload_service(void);
 
-#endif /* 2U_PAYLOAD_FT_SERVICE_H */
+#endif /* FT_2U_PAYLOAD_SERVICE_H */
