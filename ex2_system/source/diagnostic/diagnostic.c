@@ -410,17 +410,17 @@ SAT_returnState set_adcs_watchdog_delay(const TickType_t delay) {
  */
 SAT_returnState start_diagnostic_daemon(void) {
 #ifndef UHF_IS_STUBBED
-//    if (xTaskCreate((TaskFunction_t)uhf_watchdog_daemon, "uhf_watchdog_daemon", 2048, NULL, DIAGNOSTIC_TASK_PRIO,
-//                    NULL) != pdPASS) {
-//        ex2_log("FAILED TO CREATE TASK uhf_watchdog_daemon.\n");
-//        return SATR_ERROR;
-//    }
-//    ex2_log("UHF watchdog task started.\n");
-//    uhf_watchdog_mtx = xSemaphoreCreateMutex();
-//    if (uhf_watchdog_mtx == NULL) {
-//        ex2_log("FAILED TO CREATE MUTEX uhf_watchdog_mtx.\n");
-//        return SATR_ERROR;
-//    }
+    if (xTaskCreate((TaskFunction_t)uhf_watchdog_daemon, "uhf_watchdog_daemon", 2048, NULL, DIAGNOSTIC_TASK_PRIO,
+                    NULL) != pdPASS) {
+        ex2_log("FAILED TO CREATE TASK uhf_watchdog_daemon.\n");
+        return SATR_ERROR;
+    }
+    ex2_log("UHF watchdog task started.\n");
+    uhf_watchdog_mtx = xSemaphoreCreateMutex();
+    if (uhf_watchdog_mtx == NULL) {
+        ex2_log("FAILED TO CREATE MUTEX uhf_watchdog_mtx.\n");
+        return SATR_ERROR;
+    }
 #endif
 
 #ifndef SBAND_IS_STUBBED
