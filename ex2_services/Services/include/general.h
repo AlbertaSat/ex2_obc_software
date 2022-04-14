@@ -35,6 +35,8 @@ typedef enum {
     SET_SBAND_WATCHDOG_TIMEOUT = 6,
     GET_CHARON_WATCHDOG_TIMEOUT = 7,
     SET_CHARON_WATCHDOG_TIMEOUT = 8,
+    GET_ADCS_WATCHDOG_TIMEOUT = 9,
+    SET_ADCS_WATCHDOG_TIMEOUT = 10,
 } General_Subtype;
 
 typedef enum { bootloader = 'B', golden = 'G', application = 'A' } reboot_mode;
