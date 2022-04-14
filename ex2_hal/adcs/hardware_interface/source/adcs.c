@@ -584,7 +584,7 @@ ADCS_returnState HAL_ADCS_get_ACP_loop_stat(ADCS_ACP_loop_stat *ACP_loop_stat) {
     #endif
 }
 
-ADCS_returnState HAL_ADCS_get_sat_pos_LLH(xyz *target) {
+ADCS_returnState HAL_ADCS_get_sat_pos_LLH(LLH *target) {
     #ifdef ADCS_IS_STUBBED
         return IS_STUBBED_A;
     #else
@@ -921,7 +921,7 @@ ADCS_returnState HAL_ADCS_getHK(ADCS_HouseKeeping *adcs_hk) {
         adcs_state data;
         adcs_measures mes;
         adcs_pwr_temp pwr;
-        xyz pos;
+        LLH pos;
 
         if (temp = HAL_ADCS_get_current_state(&data) != 0) {
             return_state = temp;
@@ -999,13 +999,20 @@ ADCS_returnState HAL_ADCS_getHK(ADCS_HouseKeeping *adcs_hk) {
         if (temp = HAL_ADCS_get_sat_pos_LLH(&pos) != 0) {
             return_state = temp;
         } else {
-            adcs_hk->Sat_Position_LLH_X = pos.x;
-            adcs_hk->Sat_Position_LLH_Y = pos.y;
-            adcs_hk->Sat_Position_LLH_Z = pos.z;
+            adcs_hk->Sat_Position_LLH_X = pos.latitude;
+            adcs_hk->Sat_Position_LLH_Y = pos.longitude;
+            adcs_hk->Sat_Position_LLH_Z = pos.altitude;
         }
 
-        if (temp = HAL_ADCS_get_comms_stat(&adcs_hk->Comm_Status) != 0)
+        uint16_t comms_stat[5];
+
+        if (temp = HAL_ADCS_get_comms_stat(comms_stat) != 0){
             return_state = temp;
+        } else {
+            adcs_hk->TC_num = comms_stat[0];
+            adcs_hk->TM_num = comms_stat[1];
+            memcpy(&adcs_hk->CommsStat_flags, &comms_stat[2], 6);
+        }
 
         return return_state;
     #endif
