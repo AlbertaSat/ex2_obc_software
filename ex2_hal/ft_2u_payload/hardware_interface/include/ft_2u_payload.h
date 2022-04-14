@@ -22,11 +22,16 @@
 
 #include "ft_2u_payload_handler.h"
 
-FT_2U_payload_return HAL_FT_2U_PAYLOAD_getFile(); // argument should be a file name
-FT_2U_payload_return HAL_FT_2U_PAYLOAD_putFile(); // argument should be filename
+typedef struct __attribute__((__packed__)) {
+    uint16_t bytesToRead;
+    uint8_t byte[MAX_BYTES_TO_READ];
+} FT_2U_PAYLOAD_filePacket;
+
+FT_2U_payload_return HAL_FT_2U_PAYLOAD_getFile(char * filename); // argument should be a file name
+FT_2U_payload_return HAL_FT_2U_PAYLOAD_putFile(char * filename); // argument should be filename
 FT_2U_payload_return HAL_FT_2U_PAYLOAD_stopFileTransfer();
-FT_2U_payload_return HAL_FT_2U_PAYLOAD_sendDataBytes(); // argument should be a struct containing data bytes
-FT_2U_payload_return HAL_FT_2U_PAYLOAD_receiveDataBytes(); // argument should be a struct containing data bytes
+FT_2U_payload_return HAL_FT_2U_PAYLOAD_sendDataBytes(FT_2U_PAYLOAD_filePacket * outgoingPacket); // argument should be a struct containing data bytes
+FT_2U_payload_return HAL_FT_2U_PAYLOAD_receiveDataBytes(FT_2U_PAYLOAD_filePacket * incomingPacket); // argument should be a struct containing data bytes
 
 
 #endif /* FT_2U_PAYLOAD_H */

@@ -33,80 +33,94 @@ static int32_t fileToSend;
 static int32_t fileToReceive;
 
 FT_2U_payload_return FT_2U_payload_getFile(char * filename) {
-    // Open file
+    // Open file for reading
     fileToSend = red_open(filename, RED_O_RDONLY);
     if (fileToSend == -1) {
+        // File doesn't exist (or some other error has occurred)
         return FT_FAIL;
     } else {
+        // File exists and was opened successfully
         return FT_SUCCESS;
     }
 }
 
 FT_2U_payload_return FT_2U_payload_putFile(char * filename) {
-    // Open file
-    fileToReceive = red_open(filename, RED_O_RDONLY);
+    // Open file for writing. Existing data should be overwritten
+    fileToReceive = red_open(filename, RED_O_CREAT | RED_O_WRONLY | RED_O_TRUNC);
     if (fileToSend == -1) {
+        // File could not be opened
         return FT_FAIL;
     } else {
+        // File opened successfully
         return FT_SUCCESS;
     }
 }
 
 FT_2U_payload_return FT_2U_payload_stopFileTransfer() {
-    // forcibly close all files
-    red_close(fileToSend);
-    red_close(fileToReceive);
+    FT_2U_payload_return status = FT_SUCCESS;
+    int err;
 
-    // TODO - Error checking ?
-    return FT_SUCCESS;
+    // Close all files
+    err = red_close(fileToSend);
+    if (err == -1) {
+        // File couldn't close somehow
+        if (red_errno == RED_EIO || red_errno == RED_EUSERS) {
+            // RED_EBADF means the file wasn't open
+            status = FT_FAIL;
+        }
+    }
+
+    err = red_close(fileToReceive);
+    if (err == -1) {
+        // File couldn't close somehow
+        if (red_errno == RED_EIO || red_errno == RED_EUSERS) {
+            // RED_EBADF means the file wasn't open
+            status = FT_FAIL;
+        }
+    }
+
+    return status;
 }
 
 FT_2U_payload_return FT_2U_payload_sendDataBytes(filePacket * outgoingPkt) {
     FT_2U_payload_return status;
-    // read from file and place data bytes into a packet
-    memset(outgoingPkt, 0, sizeof(outgoingPkt)); // Ensure that pkt is empty, should be done in HAL
+
+    // Read from file and place data bytes into a packet
     int bytesRead = red_read(fileToSend, &(outgoingPkt->byte[0]), MAX_BYTES_TO_READ);
-
-    // TODO - Error checks
-
     if (bytesRead == -1) {
-        // if red_read fails, abort file transfer
+        // If reading data fails, abort the file transfer
         red_close(fileToSend);
         status = FT_FAIL;
     } else if (bytesRead < MAX_BYTES_TO_READ) {
-        // if red_read sends less than the MAX_BYTES_TO_READ, there are no more bytes to send
+        // If less than the MAX_BYTES_TO_READ are sent, there are no more bytes to send after
         outgoingPkt->bytesToRead = bytesRead;
-        red_close(fileToSend);
-        status = FT_SUCCESS;
+        status = FT_2U_payload_stopFileTransfer();
     } else {
-        // else red_read sends exactly MAX_BYTES_TO_READ, meaning there are more bytes to send
+        // Else, exactly MAX_BYTES_TO_READ are sent, there are still more bytes to be sent after
         outgoingPkt->bytesToRead = bytesRead;
         status = FT_SUCCESS;
     }
+
     return status;
 }
 
 FT_2U_payload_return FT_2U_payload_receiveDataBytes(filePacket * incomingPkt) {
-    // get a packet and write data bytes to a file
     FT_2U_payload_return status;
+
+    // Get a packet and write data bytes to a file
     int totBytesInPkt = incomingPkt->bytesToRead;
     int err = red_write(fileToReceive, &(incomingPkt->byte[0]), totBytesInPkt);
-
-    // TODO - Error checks
     if (err == -1) {
-        // ABORT FILE TRANSFER
-    }
-
-    if (totBytesInPkt < MAX_BYTES_TO_READ) {
-        // if bytes read from packet is less than the MAX_BYTES_TO_READ, end file transfer
+        // If writing data fails, abort the file transfer
         red_close(fileToReceive);
-        status = FT_SUCCESS;
+        status = FT_FAIL;
+    } else if (totBytesInPkt < MAX_BYTES_TO_READ) {
+        // If less than the MAX_BYTES_TO_READ are in the packet, there are no more bytes to receive
+        status = FT_2U_payload_stopFileTransfer();
     } else {
-        // else there are still more packets to be sent from the GS
+        // Else, exactly MAX_BYTES_TO_READ are received, there are still more bytes to receive
         status = FT_SUCCESS;
     }
 
     return status;
-
-    // automatically close the file if < N bytes are read from the file packet
 }
