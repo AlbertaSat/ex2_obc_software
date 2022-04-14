@@ -132,6 +132,14 @@ SAT_returnState time_management_app(csp_packet_t *packet) {
 
         set_packet_length(packet, sizeof(int8_t) + 1); // +1 for subservice
 
+        // Log the status
+        if (status != 0) {
+                ex2_log("SET_TIME to %d failed", temp_time);
+            }
+        else {
+            ex2_log("SET_TIME to %d successful", temp_time);
+        }
+
         break;
 
     case GET_TIME:
