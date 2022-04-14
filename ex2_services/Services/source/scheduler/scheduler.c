@@ -39,7 +39,6 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds) {
         scheduled_commands_t *cmds = (scheduled_commands_t*)calloc(MAX_NUM_CMDS, sizeof(scheduled_commands_t));
         // parse the commands
         int number_of_cmds = prv_set_scheduler(&(gs_cmds->data[SUBSERVICE_BYTE+1]), cmds);
-        //int number_of_cmds = prv_set_scheduler(gs_cmds->data, cmds);
         // calculate frequency of cmds. Non-repetitive commands have a frequency of 0
         scheduled_commands_unix_t *sorted_cmds = (scheduled_commands_unix_t*)calloc(number_of_cmds, sizeof(scheduled_commands_unix_t));
         calc_cmd_frequency(cmds, number_of_cmds, sorted_cmds);
@@ -52,11 +51,15 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds) {
             // sort the commands
             sort_cmds(sorted_cmds, number_of_cmds);
             // write cmds to file
-            int f_write = write_cmds_to_file(fout, sorted_cmds, number_of_cmds, fileName1);
-            if (f_write != 0) {
-                ex2_log("Failed to create file: '%s'\n", fileName1);
+            int32_t f_write = write_cmds_to_file(fout, sorted_cmds, number_of_cmds, fileName1);
+            if (f_write < 0) {
                 return SATR_ERROR;
             }
+            //----------------------------code below is for testing only, delete after testing is done-------------------------//
+            REDSTAT scheduler_stat;
+            int32_t f_stat = red_fstat(fout, &scheduler_stat);
+            //----------------------------code above is for testing only, delete after testing is done-------------------------//
+
             // close file
             red_close(fout);
             // create the scheduler
@@ -154,14 +157,14 @@ int prv_set_scheduler(char *cmd_buff, scheduled_commands_t *cmds) {
         if (cmd_buff[old_str_position] == '\0') {
             break;
         }
-//        else {
-//            int buf_scanf;
-//            char *buf_string = &cmd_buff[old_str_position];
-//            int f_scanf = sscanf(buf_string,"%d",&buf_scanf);
-//            if (f_scanf != 1) {
-//                break;
-//            }
-//        }
+        else {
+            int buf_scanf;
+            char *buf_string = &cmd_buff[old_str_position];
+            int f_scanf = sscanf(buf_string,"%d",&buf_scanf);
+            if (f_scanf != 1) {
+                break;
+            }
+        }
         //Count the number of spaces before the scheduled time
         while (cmd_buff[str_position_2] == ' ') {
             str_position_2++;
@@ -402,8 +405,7 @@ int prv_set_scheduler(char *cmd_buff, scheduled_commands_t *cmds) {
         packet->length = embeddedSize;
         uint8_t embeddedSubservice = cmd_buff[str_position_2];
         memcpy(&(packet->data), &(cmd_buff[str_position_2]), embeddedLength);
-        //memcpy(packet->data[SUBSERVICE_BYTE], &embeddedSubservice, embeddedLength);
-        //packet->data[SUBSERVICE_BYTE] = embeddedSubservice;
+        //memcpy(&(packet->data), &embeddedSubservice, embeddedLength);
 
         //clone the buffer to embedded CSP packet struct
         (cmds + number_of_cmds)->embedded_packet = csp_buffer_clone(packet);
@@ -489,7 +491,8 @@ SAT_returnState calc_cmd_frequency(scheduled_commands_t *cmds, int number_of_cmd
                 }
 
                 // Copy the address of the embedded CSP packet to the non_reoccurring_cmds list
-                memcpy((non_reoccurring_cmds+j_non_rep)->embedded_packet, (cmds+j)->embedded_packet, sizeof((cmds+j)->embedded_packet));
+                //memcpy(&((non_reoccurring_cmds+j_non_rep)->embedded_packet), &((cmds+j)->embedded_packet), sizeof(csp_packet_t) + (cmds+j)->embedded_packet->length);
+                (non_reoccurring_cmds+j_non_rep)->embedded_packet = csp_buffer_clone((cmds+j)->embedded_packet);
                 (non_reoccurring_cmds+j_non_rep)->frequency = 0; //set frequency to zero for non-repetitive cmds
                 j_non_rep++;
             }
@@ -558,8 +561,8 @@ SAT_returnState calc_cmd_frequency(scheduled_commands_t *cmds, int number_of_cmd
     }
 
     /*--------------------------------Combine non-repetitive and repetitive commands into a single struct--------------------------------*/
-    memcpy(sorted_cmds,repeated_cmds_buff,sizeof(scheduled_commands_unix_t)*j_rep);
-    memcpy((sorted_cmds+j_rep),non_reoccurring_cmds,sizeof(scheduled_commands_unix_t)*j_non_rep);
+    memcpy(sorted_cmds, repeated_cmds_buff, sizeof(scheduled_commands_unix_t)*j_rep);
+    memcpy((sorted_cmds+j_rep), non_reoccurring_cmds, sizeof(scheduled_commands_unix_t)*j_non_rep);
 
     // free calloc
     free(non_reoccurring_cmds);
@@ -642,19 +645,18 @@ Result write_cmds_to_file(int32_t fileiFildes, scheduled_commands_unix_t *schedu
         ex2_log("Failed to open or create file to write: '%s'\r\n", filename);
         return FAILURE;
     }
-    uint32_t needed_size = sizeof(number_of_cmds * sizeof(scheduled_commands_unix_t));
+    uint32_t needed_size = number_of_cmds * sizeof(scheduled_commands_unix_t);
 
     red_errno = 0;
     /*The order of writes and subsequent reads must match*/
-    red_write(fileiFildes, &scheduled_cmds, needed_size);
+    int32_t f_write = red_write(fileiFildes, scheduled_cmds, needed_size);
 
     if (red_errno != 0) {
         ex2_log("Failed to write to file: '%s'\r\n", filename);
-        red_close(fileiFildes);
-        return FAILURE;
+        return f_write;
     }
 
-    return SUCCESS;
+    return f_write;
 }
 
 /*//TODO: is a watchdog needed?
