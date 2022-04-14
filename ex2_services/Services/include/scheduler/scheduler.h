@@ -44,7 +44,7 @@
 #include "logger.h"
 
 #define SCHEDULER_SIZE 1000
-#define MAX_NUM_CMDS 2
+#define MAX_NUM_CMDS 5
 //#define MAX_CMD_LENGTH 50 //TODO: review max cmd length required w mission design/ gs
 #define MAX_BUFFER_LENGTH 500
 #define ASTERISK                                                                                                  \
@@ -72,14 +72,6 @@ typedef struct __attribute__((packed)) {
     //char gs_command[MAX_CMD_LENGTH]; // place holder for storing commands, increase/decrease size as needed
     csp_packet_t *embedded_packet;
 } scheduled_commands_unix_t;
-
-typedef struct __attribute__((packed)) {
-    // TODO: determine if seconds accuracy is needed
-    uint32_t unix_time;
-    uint32_t frequency; //frequency the cmd needs to be executed in seconds, value of 0 means the cmd is not repeated
-    uint16_t length;
-    uint8_t data[]; //length will determine the size of the data array, which contains the scheduled cmd 
-} schedule_history_t;
 
 typedef struct __attribute__((packed)) {
     // TODO: determine if second accuracy is needed

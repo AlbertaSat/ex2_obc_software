@@ -13,9 +13,6 @@ static uint32_t svc_wdt_counter = 0;
 
 static uint32_t get_svc_wdt_counter() { return svc_wdt_counter; }
 
-//int EOL = '\n';
-//int space = ' ';
-//int asterisk = '*';
 int delay_aborted = 0;
 
 /**
@@ -169,7 +166,7 @@ int prv_set_scheduler(char *cmd_buff, scheduled_commands_t *cmds) {
         while (cmd_buff[str_position_2] == ' ') {
             str_position_2++;
         }
-        //advance the pointers to the first digit of scheduled time
+        //Advance the pointers to the first digit of scheduled time
         old_str_position = str_position_2;
         str_position_1 = str_position_2;
         
@@ -411,7 +408,7 @@ int prv_set_scheduler(char *cmd_buff, scheduled_commands_t *cmds) {
         (cmds + number_of_cmds)->embedded_packet = csp_buffer_clone(packet);
 
         //advance the pointers to read the next line of command
-        str_position_2++;
+        str_position_2 += embeddedLength;
         old_str_position = str_position_2;
         str_position_1 = str_position_2;
 
@@ -419,30 +416,7 @@ int prv_set_scheduler(char *cmd_buff, scheduled_commands_t *cmds) {
         if (cmd_buff[str_position_2] == '\n') {
             //TODO: discuss whether this is the best way to log error
             ex2_log("command is empty for command: %d\n", number_of_cmds+1);
-        }
-        while (cmd_buff[str_position_2] != '\n') {
-            str_position_2++;
-        }
-        if (str_position_2 != old_str_position) {
-            char *buf_scanf[MAX_CMD_LENGTH];
-            char *buf_string = &cmd_buff[old_str_position];
-            int f_scanf = sscanf(buf_string,"%s",buf_scanf);
-            if (f_scanf != 1) {
-                ex2_log("Error: unable to scan scheduled command for command: %d\n", number_of_cmds+1);
-                return -1;
-            }
-            memcpy((cmds + number_of_cmds)->gs_command, buf_scanf, (str_position_2 - old_str_position));
-        }
-        //Count the number of spaces in the beginning of the new line
-        str_position_2++;
-        while (cmd_buff[str_position_2] == ' ') {
-            str_position_2++;
-        }
-
-        old_str_position = str_position_2;
-        str_position_1 = str_position_2;
-        //str_position_1++;
-        */
+        }*/
 
         number_of_cmds++;
     }
