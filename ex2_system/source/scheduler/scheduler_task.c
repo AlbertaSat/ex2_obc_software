@@ -62,7 +62,7 @@ SAT_returnState vSchedulerHandler (void *pvParameters) {
     while (scheduler_stat.st_size > 0) {
         // initialize buffer to read the commands
         uint32_t number_of_cmds = scheduler_stat.st_size / sizeof(scheduled_commands_unix_t);
-        // calloc initializes each block with a default value ‘0’
+        // calloc initializes each block with a default value of 0
         scheduled_commands_unix_t* cmds = (scheduled_commands_unix_t*)calloc(number_of_cmds,sizeof(scheduled_commands_unix_t));
         if (cmds == NULL) {
             ex2_log("calloc failed, out of memory");
@@ -87,42 +87,39 @@ SAT_returnState vSchedulerHandler (void *pvParameters) {
             red_close(fout);
             return SATR_ERROR;
         }
+        // close file from SD card
+        f_close = red_close(fout);
+        if (f_close < 0) {
+            printf("Unexpected error %d from red_close()\r\n", (int)red_errno);
+            ex2_log("Failed to close file: '%s'\r\n", fileName1);
+            return SATR_ERROR;
+        }
         // get current unix time
         time_t current_time;
         RTCMK_GetUnix(&current_time);
         // calculate delay until the next command
         int delay_time = (cmds)->unix_time - current_time; //in seconds
         TickType_t delay_ticks = pdMS_TO_TICKS(1000 * delay_time); //in # of ticks
+
         // get the freeRTOS time
         xLastWakeTime = xTaskGetTickCount();
-        // close file from SD card
-        f_close = red_close(fout); 
-        if (f_close < 0) {
-            printf("Unexpected error %d from red_close()\r\n", (int)red_errno);
-            ex2_log("Failed to close file: '%s'\r\n", fileName1);
-            return SATR_ERROR;
-        }
+
         /*-------------------------------wait until it's time to execute the command--------------------------------*/
-        vTaskDelayUntil( &xLastWakeTime, delay_ticks );
+        if (delay_time >= 0) {
+            vTaskDelayUntil( &xLastWakeTime, delay_ticks );
+        }
 
         // if the delay was aborted due to updated schedule
-        if (delay_aborted == 1) {
+        while (delay_aborted == 1) {
             // set Abort delay flag to 0
             delay_aborted = 0;
+            // free cmds buffer since a new one need to be allocated
+            free(cmds);
             // open file from SD card
-            fout = red_open(fileName1, RED_O_RDONLY | RED_O_RDWR); // open or create file to write binary
+            fout = red_open(fileName1, RED_O_RDWR); // open or create file to write binary
             if (fout < 0) {
                 printf("Unexpected error %d from red_open()\r\n", (int)red_errno);
                 ex2_log("Failed to open or create file to write: '%s'\r\n", fileName1);
-                return SATR_ERROR;
-            }
-            // read file
-            red_lseek(fout, 0, 0);
-            f_read = red_read(fout, &cmds, (uint32_t)scheduler_stat.st_size);
-            if (f_read < 0) {
-                printf("Unexpected error %d from red_read()\r\n", (int)red_errno);
-                ex2_log("Failed to read file: '%s'\n", fileName1);
-                red_close(fout);
                 return SATR_ERROR;
             }
             // get file size through file stats
@@ -130,6 +127,19 @@ SAT_returnState vSchedulerHandler (void *pvParameters) {
             if (f_stat < 0) {
                 printf("Unexpected error %d from f_stat()\r\n", (int)red_errno);
                 ex2_log("Failed to read file stats from: '%s'\r\n", fileName1);
+                red_close(fout);
+                return SATR_ERROR;
+            }
+            // initialize buffer to read the commands
+            uint32_t updated_num_cmds = scheduler_stat.st_size / sizeof(scheduled_commands_unix_t);
+            // calloc initializes each block with a default value of 0
+            scheduled_commands_unix_t* cmds = (scheduled_commands_unix_t*)calloc(updated_num_cmds,sizeof(scheduled_commands_unix_t));
+            // read file
+            red_lseek(fout, 0, 0);
+            f_read = red_read(fout, &cmds, (uint32_t)scheduler_stat.st_size);
+            if (f_read < 0) {
+                printf("Unexpected error %d from red_read()\r\n", (int)red_errno);
+                ex2_log("Failed to read file: '%s'\n", fileName1);
                 red_close(fout);
                 return SATR_ERROR;
             }
@@ -150,12 +160,20 @@ SAT_returnState vSchedulerHandler (void *pvParameters) {
             vTaskDelayUntil( &xLastWakeTime, delay_ticks );
         }
 
+        /*------------------------------------keep a history of executed commands------------------------------------*/
+        // store only the useful information into history, discard things like CSP id and padding
+        schedule_history_t schedule_history;
+        schedule_history.unix_time = cmds->unix_time;
+        schedule_history.frequency = cmds->frequency;
+        schedule_history.length = cmds->embedded_packet->length;
+        memcpy(&(schedule_history.data), &(cmds->embedded_packet->data), cmds->embedded_packet->length);
+
         /*------------------------------------execute the scheduled cmds with CSP------------------------------------*/
 
         csp_conn_t *connect;
         csp_packet_t *packet = cmds->embedded_packet;
 
-        connect = csp_connect(CSP_PRIO_NORM, packet->id.dst,  packet->id.dport, CSP_MAX_TIMEOUT, CSP_SO_NONE);
+        connect = csp_connect(CSP_PRIO_NORM, packet->id.dst, packet->id.dport, CSP_MAX_TIMEOUT, CSP_SO_NONE);
 
         int send_packet_test = csp_send(connect, packet, CSP_MAX_TIMEOUT);
         if (send_packet_test != 1) {
@@ -163,14 +181,12 @@ SAT_returnState vSchedulerHandler (void *pvParameters) {
         }
         int close_connection_test = csp_close(connect);
 
-        /*------------------------------------keep a history of executed commands------------------------------------*/
+        /*-------------------------------TODO: test code below, delete after testing-----------------------------------*/
+        RTCMK_GetUnix(&current_time);
+        /*-------------------------------TODO: test code above, delete after testing-----------------------------------*/
 
-        // store only the useful information into history, discard things like CSP id and padding
-        schedule_history_t schedule_history;
-        schedule_history.unix_time = cmds->unix_time;
-        schedule_history.frequency = cmds->frequency;
-        schedule_history.length = cmds->embedded_packet->length;
-        memcpy(schedule_history.data, cmds->embedded_packet->data, cmds->embedded_packet->length);
+        /*------------------------------------update history with executed command status------------------------------------*/
+        schedule_history.status = packet->data[STATUS_BYTE];
 
         // open file that stores the cmd history in the SD card
         int32_t hout = red_open(fileName2, RED_O_RDONLY | RED_O_RDWR);
@@ -181,7 +197,7 @@ SAT_returnState vSchedulerHandler (void *pvParameters) {
             // write the exectued command to cmd history
             uint32_t needed_size = sizeof(schedule_history_t);
             red_errno = 0;
-            red_write(hout, &schedule_history, needed_size);
+            int32_t h_write = red_write(hout, &schedule_history, needed_size);
             if (red_errno != 0) {
                 ex2_log("Failed to write to file: '%s'\r\n", fileName2);
             }
@@ -190,7 +206,7 @@ SAT_returnState vSchedulerHandler (void *pvParameters) {
             int32_t cout = red_open(fileName3, RED_O_CREAT | RED_O_RDWR);
             hist_file_position++;
             red_errno = 0;
-            red_write(cout, &hist_file_position, sizeof(hist_file_position));
+            int32_t c_write = red_write(cout, &hist_file_position, sizeof(hist_file_position));
             if (red_errno != 0) {
                 ex2_log("Failed to write to file: '%s'\r\n", fileName3);
             }
@@ -217,6 +233,17 @@ SAT_returnState vSchedulerHandler (void *pvParameters) {
                 ex2_log("Failed to open file: '%s'\n", fileName3);
             }
 
+            // set the file offset using the history counter
+            red_lseek(hout, hist_file_position, 0);
+
+            // write the executed command to cmd history
+            uint32_t needed_size = sizeof(schedule_history_t) + schedule_history.length;
+            red_errno = 0;
+            red_write(hout, &schedule_history, needed_size);
+            if (red_errno != 0) {
+                ex2_log("Failed to write to file: '%s'\r\n", fileName2);
+            }
+
             // update the history counter, reset to 1 if 100 commands have been exceeded
             hist_file_position++;
             if (hist_file_position > SCHEDULE_HISTORY_SIZE) {
@@ -228,17 +255,6 @@ SAT_returnState vSchedulerHandler (void *pvParameters) {
                 ex2_log("Failed to write to file: '%s'\r\n", fileName3);
             }
 
-            // set the file offset using the history counter
-            red_lseek(hout, hist_file_position - 1, 0);
-
-            // write the exectued command to cmd history
-            uint32_t needed_size = sizeof(schedule_history_t);
-            red_errno = 0;
-            red_write(hout, &schedule_history, needed_size);
-            if (red_errno != 0) {
-                ex2_log("Failed to write to file: '%s'\r\n", fileName2);
-            }
-
             // close file
             red_close(hout);
             red_close(cout);
@@ -246,7 +262,7 @@ SAT_returnState vSchedulerHandler (void *pvParameters) {
 
         /*---------------------------------prepare the scheduler for the next command--------------------------------*/
         // open file from SD card
-        fout = red_open(fileName1, RED_O_RDONLY | RED_O_RDWR); // open or create file to write binary
+        fout = red_open(fileName1, RED_O_RDWR); // open or create file to write binary
         if (fout < 0) {
             printf("Unexpected error %d from red_open()\r\n", (int)red_errno);
             ex2_log("Failed to open or create file to write: '%s'\r\n", fileName1);
@@ -284,7 +300,7 @@ SAT_returnState vSchedulerHandler (void *pvParameters) {
                 // reset the file offset to start of file
                 red_lseek(fout, 0, 0);
                 //TODO: confirm that the file overwrites all old contents, or truncate the file to new length
-                red_write(fout, &cmds+1, needed_size);
+                int32_t f_write = red_write(fout, cmds+1, needed_size);
                 if (red_errno != 0) {
                     ex2_log("Failed to write to file: '%s'\r\n", fileName1);
                     red_close(fout);

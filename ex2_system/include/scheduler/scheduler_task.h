@@ -35,4 +35,12 @@
 extern char* fileName2;
 extern char* fileName3;
 
+typedef struct __attribute__((packed)) {
+    uint32_t unix_time;
+    uint32_t frequency;     //frequency the cmd needs to be executed in seconds, value of 0 means the cmd is not repeated
+    uint16_t length;        //length of data field
+    uint8_t status;         //error status of the executed command
+    uint8_t data[];         //length will determine the size of the data array, which contains the scheduled cmd 
+} schedule_history_t;
+
 #endif /* SCHEDULER_TASK_H_ */
