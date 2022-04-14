@@ -132,10 +132,21 @@ typedef enum {
 #define UHF_GIO_PIN 22
 
 #define ADCS_5V0_PWR_CHNL 1
+#ifdef IS_SN0072_EPS
+#warning "IS_SN0072_EPS swaps assignment for channels 2 and 5 because of incorrect output config of the engineering model Nanoavionics EPS, SN 0072"
+#define ADCS_3V3_PWR_CHNL 2
+#else
 #define DFGM_5V0_PWR_CHNL 2
+#endif
+
 #define PYLD_5V0_PWR_CHNL 3
 // Channel 4 was assigned to be 3V3 for 1W UHF in case 2W UHFs didn't work out.
+#ifdef IS_SN0072_EPS
+#define DFGM_5V0_PWR_CHNL 5
+#else
 #define ADCS_3V3_PWR_CHNL 5
+#endif
+
 // Channel 6 is the OBC power channel, and should not be accessed by the OBC
 #define CHARON_3V3_PWR_CHNL 7
 #define UHF_5V0_PWR_CHNL 8
