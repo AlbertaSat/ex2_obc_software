@@ -62,6 +62,11 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds) {
             if (f_write < 0) {
                 return SATR_ERROR;
             }
+            //----------------------------code below is for testing only, delete after testing is done-------------------------//
+            REDSTAT scheduler_stat;
+            int32_t f_stat = red_fstat(fout, &scheduler_stat);
+            //----------------------------code above is for testing only, delete after testing is done-------------------------//
+
             // close file
             red_close(fout);
             // create the scheduler
