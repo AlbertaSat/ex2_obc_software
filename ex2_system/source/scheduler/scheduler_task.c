@@ -71,7 +71,7 @@ SAT_returnState vSchedulerHandler (void *pvParameters) {
         }
 
         // open file from SD card
-        fout = red_open(fileName1, RED_O_RDONLY | RED_O_RDWR); // open or create file to write binary
+        fout = red_open(fileName1, RED_O_RDWR); // open or create file to write binary
         if (fout < 0) {
             printf("Unexpected error %d from red_open()\r\n", (int)red_errno);
             ex2_log("Failed to open or create file to write: '%s'\n", fileName1);
@@ -79,8 +79,8 @@ SAT_returnState vSchedulerHandler (void *pvParameters) {
             return SATR_ERROR;
         }
         // read file
-        red_lseek(fout, 0, 0);
-        int32_t f_read = red_read(fout, &cmds, (uint32_t)scheduler_stat.st_size);
+        int64_t newFilePosition = red_lseek(fout, 0, RED_SEEK_SET);
+        int32_t f_read = red_read(fout, cmds, (uint32_t)scheduler_stat.st_size);
         if (f_read < 0) {
             printf("Unexpected error %d from red_read()\r\n", (int)red_errno);
             ex2_log("Failed to read file: '%s'\r\n", fileName1);
@@ -91,7 +91,7 @@ SAT_returnState vSchedulerHandler (void *pvParameters) {
         time_t current_time;
         RTCMK_GetUnix(&current_time);
         // calculate delay until the next command
-        int delay_time = current_time - (cmds)->unix_time; //in seconds
+        int delay_time = (cmds)->unix_time - current_time; //in seconds
         TickType_t delay_ticks = pdMS_TO_TICKS(1000 * delay_time); //in # of ticks
         // get the freeRTOS time
         xLastWakeTime = xTaskGetTickCount();
