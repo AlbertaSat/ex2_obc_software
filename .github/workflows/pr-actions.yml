@@ -1,0 +1,14 @@
+name: tag-on-pr-close
+on:
+  push:
+    branches:
+      - master
+jobs:
+  tag-default:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - run: |
+      tagname=$(date +"%Y-%m-%d")
+      git tag $tagname
+      git push $tagname
