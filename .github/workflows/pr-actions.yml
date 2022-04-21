@@ -8,7 +8,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - run: |
-      tagname=`date +"%Y-%m-%d"`
-      git tag $tagname
-      git push origin $tagname
+    - name: tag the default repository
+      run: ./.github/scripts/tag.sh
+      shell: bash
