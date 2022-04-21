@@ -9,6 +9,6 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - run: |
-      tagname=$(date +"%Y-%m-%d")
+      tagname=`date +"%Y-%m-%d"`
       git tag $tagname
-      git push $tagname
+      git push origin $tagname
