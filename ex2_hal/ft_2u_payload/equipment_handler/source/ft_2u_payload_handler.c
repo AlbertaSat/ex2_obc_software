@@ -40,7 +40,7 @@ FT_2U_payload_return FT_2U_payload_getFile(char * filename) {
         return FT_FAIL;
     } else {
         // File exists and was opened successfully
-        return FT_SUCCESS;
+        return FT_DOWNLINK;
     }
 }
 
@@ -52,7 +52,7 @@ FT_2U_payload_return FT_2U_payload_putFile(char * filename) {
         return FT_FAIL;
     } else {
         // File opened successfully
-        return FT_SUCCESS;
+        return FT_UPLINK;
     }
 }
 

@@ -26,6 +26,8 @@
 typedef enum {
     FT_SUCCESS = 0,
     FT_FAIL,
+    FT_DOWNLINK,
+    FT_UPLINK,
 
     IS_STUBBED_2U_PAYLOAD = 0
 } FT_2U_payload_return;
@@ -37,10 +39,10 @@ typedef struct __attribute__((__packed__)) {
     uint8_t byte[MAX_BYTES_TO_READ];
 } filePacket;
 
-FT_2U_payload_return FT_2U_payload_getFile(char * filename); // argument should be a file name
-FT_2U_payload_return FT_2U_payload_putFile(char * filename); // argument should be filename
+FT_2U_payload_return FT_2U_payload_getFile(char * filename);
+FT_2U_payload_return FT_2U_payload_putFile(char * filename);
 FT_2U_payload_return FT_2U_payload_stopFileTransfer();
-FT_2U_payload_return FT_2U_payload_sendDataBytes(filePacket * outgoingPkt); // argument should be a struct containing data bytes
-FT_2U_payload_return FT_2U_payload_receiveDataBytes(filePacket * incomingPkt); // argument should be a struct containing data bytes
+FT_2U_payload_return FT_2U_payload_sendDataBytes(filePacket * outgoingPkt);
+FT_2U_payload_return FT_2U_payload_receiveDataBytes(filePacket * incomingPkt);
 
 #endif /* FT_2U_PAYLOAD_HANDLER_H */

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright (C) 2015  University of Alberta
  *
@@ -34,7 +35,7 @@
 #include "scheduler/scheduler.h"
 #include "file_transfer/ftp.h"
 #include "adcs/adcs_service.h"
-#include "2u_payload_file_transferring/2u_payload_file_transferring_service.h"
+#include "ft_2u_payload/ft_2u_payload_service.h"
 
 #include "printf.h"
 
@@ -64,7 +65,7 @@ SAT_returnState start_service_server(void) {
         start_logger_service() != SATR_OK ||
         start_dfgm_service() != SATR_OK ||
         start_adcs_service() != SATR_OK ||
-        start_2U_payload_FT_service() != SATR_OK ||
+        start_FT_2U_payload_service() != SATR_OK ||
         start_FTP_service() != SATR_OK); {
         return SATR_ERROR;
     }

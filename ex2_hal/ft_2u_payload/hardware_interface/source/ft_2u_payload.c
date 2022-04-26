@@ -56,6 +56,8 @@ FT_2U_payload_return HAL_FT_2U_PAYLOAD_sendDataBytes(FT_2U_PAYLOAD_filePacket * 
     FT_2U_payload_return status;
 #ifndef PAYLOAD_2U_IS_STUBBED
     filePacket outgoingPkt = {0};
+
+    // Get file data SD card and copy to outgoingPacket
     status = FT_2U_payload_sendDataBytes(&outgoingPkt);
     memcpy(outgoingPacket, &outgoingPkt, sizeof(outgoingPkt));
 #else
@@ -68,6 +70,8 @@ FT_2U_payload_return HAL_FT_2U_PAYLOAD_receiveDataBytes(FT_2U_PAYLOAD_filePacket
     FT_2U_payload_return status;
 #ifndef PAYLOAD_2U_IS_STUBBED
     filePacket incomingPkt = {0};
+
+    // Get file data from incomingPacket and save to SD card
     memcpy(&incomingPkt, incomingPacket, sizeof(incomingPkt));
     status = FT_2U_payload_receiveDataBytes(&incomingPkt);
 #else
