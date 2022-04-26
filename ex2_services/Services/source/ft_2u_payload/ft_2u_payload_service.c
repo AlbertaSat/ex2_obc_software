@@ -16,7 +16,6 @@
  * @author Daniel Sacro
  * @date
  */
-
 #include "ft_2u_payload/ft_2u_payload_service.h"
 
 #include <FreeRTOS.h>
@@ -29,7 +28,9 @@
 #include "task_manager/task_manager.h"
 #include "util/service_utilities.h"
 
-// TODO - Rename all variables and function names. They cannot begin with a digit
+#include <stdio.h>
+#include <string.h>
+
 SAT_returnState FT_2U_payload_service_app(csp_packet_t *packet);
 
 static uint32_t svc_wdt_counter = 0;
@@ -120,36 +121,40 @@ SAT_returnState FT_2U_payload_service_app(csp_packet_t *packet) {
     uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
     int8_t status;
     SAT_returnState return_state = SATR_OK; // OK until an error is encountered
+    char * filename;
 
     switch (ser_subtype) {
     case FT_2U_PAYLOAD_DOWNLINK: {
         // Get filename
+        filename = packet->data[IN_DATA_BYTE]
 
         // Prepare to send file data
-        // status = HAL_2U_PAYLOAD_getFile();
+        status = HAL_2U_PAYLOAD_getFile(filename);
 
-        // Return success report (saying ready to send or abort FT)
+        // Return file transfer mode and filename to GS
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-        set_packet_length(packet, sizeof(int8_t) + 1);
+        memcpy(&packet->data[OUT_DATA_BYTE], filename, sizeof(filename));
+        set_packet_length(packet, sizeof(int8_t) + sizeof(filename) + 1);
         break;
     }
 
     case FT_2U_PAYLOAD_UPLINK: {
         // Get filename
-        //cnv8_32(&packet->data[IN_DATA_BYTE], &givenRuntime);
+        filename = packet->data[IN_DATA_BYTE]
 
-        // Prepare to receive file data
-        //status = HAL_2U_PAYLOAD_putFile();
+        // Prepare to receive and process file data
+        status = HAL_2U_PAYLOAD_putFile(filename);
 
-        // Return success report (saying ready to receive or abort FT)
+        // Return file transfer mode and filename to GS
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-        set_packet_length(packet, sizeof(int8_t) + 1);
+        memcpy(&packet->data[OUT_DATA_BYTE], filename, sizeof(filename));
+        set_packet_length(packet, sizeof(int8_t) + sizeof(filename) + 1);
         break;
     }
 
     case FT_2U_PAYLOAD_STOP_FT: {
         // Tell OBC to stop processing or sending file data
-        //status = HAL_2U_PAYLOAD_stopFileTransfer();
+        status = HAL_2U_PAYLOAD_stopFileTransfer();
 
         // Return success report
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -159,22 +164,33 @@ SAT_returnState FT_2U_payload_service_app(csp_packet_t *packet) {
 
     case FT_2U_PAYLOAD_SEND_BYTES: {
         // Tell OBC to send file data to GS
-        //status = HAL_2U_PAYLOAD_sendDataBytes();
+        FT_2U_PAYLOAD_filePacket outgoingPacket;
+        status = HAL_2U_PAYLOAD_sendDataBytes(&outgoingPacket);
 
         // Return success report and N bytes of file data
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-        set_packet_length(packet, sizeof(int8_t) + 1);
+        memcpy(&packet->data[OUT_DATA_BYTE], &outgoingPacket, sizeof(outgoingPacket));
+        set_packet_length(packet, sizeof(int8_t) + sizeof(outgoingPacket) + 1);
         break;
     }
 
     case FT_2U_PAYLOAD_PROCESS_BYTES: {
-        // Receive N bytes of file data from the GS and process it
-        // status = HAL_2U_PAYLOAD_receiveDataBytes();
+        // Receive N bytes of file data from the GS
+        FT_2U_PAYLOAD_filePacket incomingPacket = {0};
+
+        // TODO - Requires testing, but either method below could work for reading bytes from CSP
+
+//        cnv8_16(&packet->data[IN_DATA_BYTE], &incomingPacket.bytesToRead);
+//        memcpy(&incomingPacket.byte, &packet->data[IN_DATA_BYTE + 2], incomingPacket.bytesToRead);
+
+        memcpy(&incomingPacket, &packet->data[IN_DATA_BYTE], sizeof(incomingPacket));
+
+        // Process file data
+        status = HAL_2U_PAYLOAD_receiveDataBytes(&incomingPacket);
 
         // Return success report (saying ready to receive or abort FT)
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-//        memcpy(&packet->data[OUT_DATA_BYTE], &HK, sizeof(HK));
-//        set_packet_length(packet, sizeof(int8_t) + sizeof(HK) + 1);
+        set_packet_length(packet, sizeof(int8_t) + 1);
         break;
     }
 
