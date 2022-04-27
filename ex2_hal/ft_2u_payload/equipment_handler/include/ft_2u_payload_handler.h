@@ -32,7 +32,8 @@ typedef enum {
     IS_STUBBED_2U_PAYLOAD = 0
 } FT_2U_payload_return;
 
-#define MAX_BYTES_TO_READ 900
+// This value should exactly match the value for maxBytesToRead in FT_handler.py on the GS
+#define MAX_BYTES_TO_READ 100
 
 typedef struct __attribute__((__packed__)) {
     uint16_t bytesToRead;
