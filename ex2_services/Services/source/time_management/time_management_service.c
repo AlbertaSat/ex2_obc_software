@@ -20,10 +20,8 @@
 #include <FreeRTOS.h>
 #include <os_task.h>
 
-#include "nmea_service.h"
 #include "rtcmk.h"
 #include "services.h"
-#include "skytraq_gps.h"
 #include "task_manager/task_manager.h"
 #include "time_management/time_management_service.h"
 #include "util/service_utilities.h"
@@ -32,89 +30,13 @@
 #include <main/system.h>
 #include <stdio.h>
 
-#define GPS_TASK_SIZE 200 // TODO: Make make these sizes better
-#define NMEA_TASK_SIZE 200
 #define TIME_MANAGEMENT_SIZE 300
-
-#define MIN_YEAR 1577836800 // 2020-01-01
-#define MAX_YEAR 1893456000 // 2030-01-01
-
-#define DISCIPLINE_DELAY 10000 // every 10 seconds for testing purposes
 
 SAT_returnState time_management_app(csp_packet_t *packet);
 
 static uint32_t svc_wdt_counter = 0;
-static uint32_t rtc_wdt_counter = 0;
 
 static uint32_t get_svc_wdt_counter() { return svc_wdt_counter; }
-
-uint32_t get_rtc_wdt_counter() { return rtc_wdt_counter; }
-
-/**
- * @brief
- *      FreeRTOS service for disciplining RTC
- * @details
- *      Disicplines rtc by asking the gps subsystem for the time and writing that time to the rtc
- * @param none
- * @return none. use FreeRTOS task features to poll
- */
-void RTC_discipline_service(void) {
-
-    ex2_log("GPS Task Started");
-
-    time_t utc_time;
-
-    uint16_t total_delay = 0;
-
-    rtc_wdt_counter++;
-
-    for (;;) {
-        while (total_delay < DISCIPLINE_DELAY) {
-            vTaskDelay(DELAY_WAIT_INTERVAL);
-            total_delay += DELAY_WAIT_INTERVAL;
-            rtc_wdt_counter++;
-        }
-        rtc_wdt_counter++;
-        total_delay = 0;
-        if (!(gps_get_utc_time(&utc_time))) {
-            ex2_log("Couldn't get gps time");
-            continue; // delay wait until gps signal acquired
-        } else {
-            RTCMK_SetUnix(utc_time);
-            ex2_log("Current time: %d", utc_time);
-        }
-        rtc_wdt_counter++;
-    }
-}
-
-/**
- * @brief
- *      Start the gps service tasks
- * @details
- *      Starts the FreeRTOS tasks responsible for disciplining the RTC and for decoding incoming NMEA strings
- * @param rtc_handle: TaskHandle_t* to store RTC discipline service handle as a return
- * @param nmea_handle: TaskHandle_t* to store nmea decoding service handle as a return
- * @return SAT_returnState
- *      success report
- */
-SAT_returnState start_gps_services(TaskHandle_t *rtc_handle, TaskHandle_t *nmea_handle) {
-    if (xTaskCreate((TaskFunction_t)RTC_discipline_service, "RTC_service", GPS_TASK_SIZE, NULL, 1, rtc_handle) !=
-        pdPASS) {
-        return SATR_ERROR;
-    }
-    taskFunctions rtc_funcs = {0};
-    rtc_funcs.getCounterFunction = get_rtc_wdt_counter;
-    ex2_register(*rtc_handle, rtc_funcs);
-
-    if (xTaskCreate((TaskFunction_t)NMEA_service, "NMEA_service", NMEA_TASK_SIZE, NULL, 1, nmea_handle) !=
-        pdPASS) {
-        return SATR_ERROR;
-    }
-    taskFunctions nmea_funcs = {0};
-    nmea_funcs.getCounterFunction = nmea_get_wdt_counter;
-    ex2_register(*nmea_handle, nmea_funcs);
-    return SATR_OK;
-}
 
 /**
  * @brief
@@ -174,10 +96,6 @@ SAT_returnState start_time_management_service(void) {
         return SATR_ERROR;
     }
     ex2_register(svc_tsk, svc_funcs);
-    TaskHandle_t _;
-    if (start_gps_services(&_, &_) != SATR_OK) {
-        return SATR_ERROR;
-    }
 
     return SATR_OK;
 }
