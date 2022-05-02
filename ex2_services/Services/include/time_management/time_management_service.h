@@ -18,7 +18,8 @@
 #include <stdint.h>
 
 #include "services.h"
-
+#define MIN_YEAR 1577836800 // 2020-01-01
+#define MAX_YEAR 1893456000 // 2030-01-01
 #define TIMESTAMP_ISOK(x) (x > MIN_YEAR && x < MAX_YEAR) ? 1 : 0
 
 typedef enum { GET_TIME = 10, SET_TIME = 11 } Time_Management_Subtype; // shared with EPS!
