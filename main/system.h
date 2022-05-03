@@ -67,6 +67,7 @@
 #define ADCS_SCI sciREG3
 #define PAYLOAD_SCI sciREG1
 #define DFGM_SCI sciREG4
+#define UHF_SCI CSP_SCI
 #endif
 
 #ifdef IS_ATHENA
