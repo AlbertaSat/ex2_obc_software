@@ -72,6 +72,7 @@ static void uhf_watchdog_daemon(void *pvParameters) {
             } else if (err == U_I2C_IN_PIPE) {
                 break;
             }
+            vTaskDelay(2*ONE_SECOND);
         }
 
         if (err == U_I2C_IN_PIPE) {
@@ -132,9 +133,8 @@ static void sband_watchdog_daemon(void *pvParameters) {
         STX_return err;
         for (int i = 0; i < watchdog_retries; i++) {
             STX_getFirmwareV(&SBAND_version);
-            if (SBAND_version != 0) {
-                break;
-            }
+            if (SBAND_version != 0) break;
+            vTaskDelay(2*ONE_SECOND);
         }
         if (SBAND_version == 0) {
             // TODO: Currently no way for power toggling to return fail
@@ -185,8 +185,8 @@ static void charon_watchdog_daemon(void *pvParameters) {
         GPS_RETURNSTATE err;
         for (int i = 0; i < watchdog_retries; i++) {
             err = gps_skytraq_get_software_version(&version);
-            if (err == GPS_SUCCESS)
-                break;
+            if (err == GPS_SUCCESS) break;
+            vTaskDelay(2*ONE_SECOND);
         }
 
         if ((err != GPS_SUCCESS) || (version == NULL)) {
@@ -243,14 +243,14 @@ static void adcs_watchdog_daemon(void *pvParameters) {
             continue;
         }
 
-        ADCS_TC_ack test_ack;
+        adcs_state test_state;
 
 
         ADCS_returnState err;
         for (int i = 0; i < watchdog_retries; i++) {
-            err = HAL_ADCS_get_TC_ack(&test_ack);
-            if (err == ADCS_OK)
-                break;
+            err = HAL_ADCS_get_current_state(&test_state);
+            if (err == ADCS_OK) break;
+            vTaskDelay(2*ONE_SECOND);
         }
 
         if (err == ADCS_UART_FAILED) {
