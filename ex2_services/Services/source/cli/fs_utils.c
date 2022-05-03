@@ -276,7 +276,7 @@ static BaseType_t prvSTATCommand(char *pcWriteBuffer, size_t xWriteBufferLen, co
     return pdFALSE;
 }
 
-static BaseType_t prvREADCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString) {}
+static BaseType_t prvREADCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString) { return pdFALSE; }
 
 static BaseType_t prvTRANSACTCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString) {
     // We can guarantee there will be one parameter because FreeRTOS+CLI won't call this function unless it has
