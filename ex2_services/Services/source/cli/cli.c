@@ -23,6 +23,8 @@
 #include <os_task.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include <csp/csp.h>
 #include <csp/csp_endian.h>
 #include <FreeRTOS-Plus-CLI/FreeRTOS_CLI.h>
@@ -33,7 +35,6 @@
 #include "task_manager/task_manager.h"
 #include "printf.h"
 #include "rtcmk.h"
-#include <stdlib.h>
 #include "cli/fs_utils.h"
 #include "bl_eeprom.h"
 
@@ -50,7 +51,7 @@ static uint32_t get_svc_wdt_counter() { return svc_wdt_counter; }
 // Small task that reboots the system after 3 second delay
 void vRebootHandler(void *pvParameters) {
     vTaskDelay(3000);
-    char reboot_type = (char)pvParameters;
+    char reboot_type = (intptr_t) pvParameters;
     sw_reset(reboot_type, REQUESTED);
     vTaskDelete(0); // Delete self just in case the reset fails
 }
@@ -63,7 +64,7 @@ static BaseType_t prvRebootCommand(char *pcWriteBuffer, size_t xWriteBufferLen, 
                 /* Return the next parameter. */
                 1,
                 /* Store the parameter string length. */
-                &parameter_len);
+                (BaseType_t *) &parameter_len);
     if (parameter_len > 1) {
         snprintf(pcWriteBuffer, xWriteBufferLen, "Invalid Reboot Type\n");
     } else {
@@ -84,7 +85,8 @@ static BaseType_t prvRebootCommand(char *pcWriteBuffer, size_t xWriteBufferLen, 
             return pdFALSE;
         }
         snprintf(pcWriteBuffer, xWriteBufferLen, "Rebooting in 3 seconds\n");
-        xTaskCreate(vRebootHandler, "rebooter", 128, *parameter, 4, NULL);
+        intptr_t pv = *parameter;
+        xTaskCreate(vRebootHandler, "rebooter", 128, (void *) pv, 4, NULL);
     }
     return pdFALSE;
 }
