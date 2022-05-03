@@ -22,6 +22,7 @@
  */
 #include "sband.h"
 
+#include <string.h>
 #include <FreeRTOS.h>
 #include <csp/csp_endian.h>
 #include <os_queue.h>
@@ -134,7 +135,6 @@ STX_return HAL_S_getHK(Sband_Housekeeping *S_hk) {
 }
 
 STX_return HAL_S_hk_convert_endianness(Sband_Housekeeping *S_hk) {
-    STX_return status;
     S_hk->Output_Power = csp_htonflt(S_hk->Output_Power);
     S_hk->PA_Temp = csp_htonflt(S_hk->PA_Temp);
     S_hk->Top_Temp = csp_htonflt(S_hk->Top_Temp);
@@ -144,7 +144,7 @@ STX_return HAL_S_hk_convert_endianness(Sband_Housekeeping *S_hk) {
     S_hk->PA_Current = csp_htonflt(S_hk->PA_Current);
     S_hk->PA_Voltage = csp_htonflt(S_hk->PA_Voltage);
     S_hk->PA_Voltage = csp_htonflt(S_hk->PA_Voltage);
-    return status;
+    return S_SUCCESS;
 }
 
 /* The switch operation might be better implemented here than in EH */
