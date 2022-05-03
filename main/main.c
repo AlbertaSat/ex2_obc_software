@@ -60,6 +60,7 @@
 #include "system.h"
 #include "dfgm.h"
 #include "leop.h"
+#include "adcs.h"
 
 #include "deployablescontrol.h"
 
@@ -118,6 +119,7 @@ void ex2_init(void *pvParameters) {
 #endif
 
 #ifndef UHF_IS_STUBBED
+    uhf_uart_init();
     uhf_i2c_init();
 #endif
 
@@ -144,7 +146,7 @@ void ex2_init(void *pvParameters) {
 
 #ifdef FLATSAT_TEST
     /* Test Task */
-    xTaskCreate(flatsat_test, "flatsat_test", 5000, NULL, 4, NULL);
+    xTaskCreate(flatsat_test, "flatsat_test", 1000, NULL, 4, NULL);
 #endif
 
     vTaskDelete(0); // delete self to free up heap
