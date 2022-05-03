@@ -923,7 +923,7 @@ ADCS_returnState HAL_ADCS_getHK(ADCS_HouseKeeping *adcs_hk) {
         adcs_pwr_temp pwr;
         LLH pos;
 
-        if (temp = HAL_ADCS_get_current_state(&data) != 0) {
+        if ((temp = HAL_ADCS_get_current_state(&data)) != ADCS_OK) {
             return_state = temp;
         } else {
             // adcs_hk->Estimated_Angular_Rate = data.est_angular_rate;
@@ -949,7 +949,7 @@ ADCS_returnState HAL_ADCS_getHK(ADCS_HouseKeeping *adcs_hk) {
         }
 
 
-        if (temp = HAL_ADCS_get_measurements(&mes) != 0) {
+        if ((temp = HAL_ADCS_get_measurements(&mes)) != ADCS_OK) {
             return_state = temp;
         } else {
             // adcs_hk->Coarse_Sun_Vector = mes.coarse_sun;
@@ -975,7 +975,7 @@ ADCS_returnState HAL_ADCS_getHK(ADCS_HouseKeeping *adcs_hk) {
         }
 
 
-        if (temp = HAL_ADCS_get_power_temp(&pwr) != 0) {
+        if ((temp = HAL_ADCS_get_power_temp(&pwr)) != ADCS_OK) {
             return_state = temp;
         } else {
             adcs_hk->Wheel1_Current = pwr.wheel1_I;
@@ -995,8 +995,7 @@ ADCS_returnState HAL_ADCS_getHK(ADCS_HouseKeeping *adcs_hk) {
             adcs_hk->Rate_Sensor_Temp_Z = pwr.rate_sensor_temp.z;
         }
 
-        // if (temp = HAL_ADCS_get_sat_pos_LLH(&adcs_hk->Sat_Position_LLH) != 0) return_state = temp;
-        if (temp = HAL_ADCS_get_sat_pos_LLH(&pos) != 0) {
+        if ((temp = HAL_ADCS_get_sat_pos_LLH(&pos)) != ADCS_OK) {
             return_state = temp;
         } else {
             adcs_hk->Sat_Position_LLH_X = pos.latitude;
@@ -1006,7 +1005,7 @@ ADCS_returnState HAL_ADCS_getHK(ADCS_HouseKeeping *adcs_hk) {
 
         uint16_t comms_stat[5];
 
-        if (temp = HAL_ADCS_get_comms_stat(comms_stat) != 0){
+        if ((temp = HAL_ADCS_get_comms_stat(comms_stat)) != ADCS_OK){
             return_state = temp;
         } else {
             adcs_hk->TC_num = comms_stat[0];
