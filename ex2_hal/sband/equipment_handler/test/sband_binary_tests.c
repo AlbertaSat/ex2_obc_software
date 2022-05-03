@@ -21,10 +21,9 @@
 #include "sband_binary_tests.h"
 
 STX_return sband_binary_test(){
-     STX_return ret = S_SUCCESS;
-     // Enable the SBAND
+    // Enable the SBAND
 
-     STX_Enable();
+    STX_Enable();
 //    vTaskDelay(2*ONE_SECOND);
 //    STX_setControl(S_PA_DISABLE, S_CONF_MODE);
 //    STX_setEncoder(S_BIT_ORDER_MSB, S_SCRAMBLER_DISABLE, S_FILTER_ENABLE,S_MOD_QPSK, S_RATE_QUARTER);
@@ -129,5 +128,4 @@ STX_return sband_binary_test(){
 //    ret = STX_getBuffer(2, &overrun);
 //    if(ret != S_SUCCESS) return ret;
 //    printf("Buffer overrun: %d\n\n", overrun);
-    return ret;
 }
