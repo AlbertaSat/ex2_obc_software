@@ -70,7 +70,7 @@ void adcs_sciNotification(sciBASE_t *sci, int flags) {
  */
 ADCS_returnState send_uart_telecommand(uint8_t *command, uint32_t length) {
     if (xSemaphoreTake(uart_mutex, UART_TIMEOUT_MS) != pdTRUE) {
-        return ADCS_UART_FAILED;
+        return ADCS_UART_BUSY;
     } //  TODO: create response if it times out.
 
     uint8_t *frame = (uint8_t *)pvPortMalloc(sizeof(uint8_t) * (length + 4));
@@ -149,7 +149,7 @@ ADCS_returnState send_i2c_telecommand(uint8_t *command, uint32_t length) {
  */
 ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint32_t length) {
     if (xSemaphoreTake(uart_mutex, UART_TIMEOUT_MS) != pdTRUE) {
-        return ADCS_UART_FAILED;
+        return ADCS_UART_BUSY;
     }
 
     uint8_t frame[5];
@@ -196,9 +196,9 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint3
  *    the actual image data
  *
  */
-ADCS_returnState receive_file_download_uart_packet(uint8_t *pckt, uint16_t *pckt_counter) {
+ADCS_returnState receive_file_download_uart_packet(uint8_t *pckt, uint16_t *packet_counter) {
     if (xSemaphoreTake(uart_mutex, UART_TIMEOUT_MS) != pdTRUE) {
-        return ADCS_UART_FAILED;
+        return ADCS_UART_BUSY;
     }
 
     int received = 0;
@@ -227,7 +227,7 @@ ADCS_returnState receive_file_download_uart_packet(uint8_t *pckt, uint16_t *pckt
     return ADCS_OK;
 }
 
-void write_pckt_to_file(uint32_t file_des, uint8_t *pkt_data, uint8_t length) {
+void write_packet_to_file(uint32_t file_des, uint8_t *packet_data, uint8_t length) {
     // Write data to file
     int32_t iErr = red_write(file_des, pkt_data, length);
     if (iErr == -1) {
