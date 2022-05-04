@@ -24,6 +24,11 @@
 #define ADCS_SOM 0x7F;
 #define ADCS_EOM 0xFF;
 
+#define ADCS_UART_FILE_DOWNLOAD_PKT_LEN 27
+#define ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN 20
+#define ADCS_UART_FILE_DOWNLOAD_PKT_RETRIES 10
+#define ADCS_HOLE_MAP_SIZE 128
+
 typedef enum ADCS_returnState {
     ADCS_OK = 0,
     ADCS_INVALID_ID = 1,
@@ -32,8 +37,9 @@ typedef enum ADCS_returnState {
     ADCS_CRC_ERROR = 4,
     ADCS_MALLOC_FAILED = 5,
     ADCS_UART_FAILED = 6,
+    ADCS_UART_BUSY = 7,
 
-    IS_STUBBED_A = 7 // Used for stubbed ADCS in hardware interface
+    IS_STUBBED_A = 0 // Used for stubbed ADCS in hardware interface
 } ADCS_returnState;
 
 typedef enum Common_Telecommand_IDs {

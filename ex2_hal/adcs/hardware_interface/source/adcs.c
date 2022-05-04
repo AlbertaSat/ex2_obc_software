@@ -206,8 +206,7 @@ ADCS_returnState HAL_ADCS_get_file_info(ADCS_file_info *file_info) {
     #ifdef ADCS_IS_STUBBED
         return IS_STUBBED_A;
     #else
-        return ADCS_get_file_info(&file_info->type, &file_info->updating, &file_info->counter, &file_info->size,
-                              &file_info->time, &file_info->crc16_checksum);
+        return ADCS_get_file_info(file_info);
     #endif
 }
 
@@ -721,7 +720,7 @@ ADCS_returnState HAL_ADCS_get_track_controller(xyz *target) {
     #endif
 }
 
-ADCS_returnState HAL_ADCS_set_log_config(uint8_t flags_arr[10], uint16_t period, uint8_t dest, uint8_t log) {
+ADCS_returnState HAL_ADCS_set_log_config(uint8_t *flags_arr, uint16_t period, uint8_t dest, uint8_t log) {
     #ifdef ADCS_IS_STUBBED
         return IS_STUBBED_A;
     #else
@@ -729,7 +728,7 @@ ADCS_returnState HAL_ADCS_set_log_config(uint8_t flags_arr[10], uint16_t period,
     #endif
 }
 
-ADCS_returnState HAL_ADCS_get_log_config(uint8_t flags_arr[10], uint16_t *period, uint8_t *dest, uint8_t log) {
+ADCS_returnState HAL_ADCS_get_log_config(uint8_t *flags_arr, uint16_t *period, uint8_t *dest, uint8_t log) {
     #ifdef ADCS_IS_STUBBED
         return IS_STUBBED_A;
     #else

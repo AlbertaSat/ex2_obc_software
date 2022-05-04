@@ -24,6 +24,9 @@
 #include <stdint.h>
 
 #include "adcs_types.h"
+#include "adcs_io.h"
+#include "redposix.h"
+#include "FreeRTOS.h"
 
 // Structs
 typedef struct {
@@ -463,6 +466,15 @@ typedef struct {
     usercoded_setting usercoded;
 } adcs_config;
 
+typedef struct {
+    uint8_t type;
+    uint8_t counter;
+    bool updating;
+    uint32_t size;
+    uint32_t time;
+    uint16_t crc16_checksum;
+} adcs_file_info;
+
 // General functions
 int16_t uint82int16(uint8_t b1, uint8_t b2);
 int32_t uint82int32(uint8_t *address);
@@ -474,6 +486,11 @@ void get_3x3(float *matrix, uint8_t *address, float coef);
 // send_telecommand
 ADCS_returnState adcs_telecommand(uint8_t *command, uint32_t length);
 ADCS_returnState adcs_telemetry(uint8_t TM_ID, uint8_t *reply, uint32_t length);
+
+// File management TC/TM sequences
+void ADCS_init_file_download_mutex(void);
+ADCS_returnState ADCS_get_file_list(void);
+ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f);
 
 // Common Telecommands
 ADCS_returnState ADCS_reset(void);
@@ -491,43 +508,28 @@ ADCS_returnState ADCS_finalize_upload_block(uint8_t file_dest, uint32_t offset, 
 ADCS_returnState ADCS_reset_upload_block(void);
 ADCS_returnState ADCS_reset_file_list_read_pointer(void);
 ADCS_returnState ADCS_initiate_download_burst(uint8_t msg_length, bool ignore_hole_map);
-void ADCS_receive_download_burst(uint8_t *hole_map, uint8_t *image_bytes, uint16_t length_bytes);
+void ADCS_receive_download_burst(uint8_t *hole_map, int32_t file_des, uint16_t length_bytes);
 
 // Common Telemetry
-ADCS_returnState ADCS_get_node_identification(
-    uint8_t* node_type, uint8_t* interface_ver, uint8_t* major_firm_ver,
-    uint8_t* minor_firm_ver, uint16_t* runtime_s, uint16_t* runtime_ms);
-ADCS_returnState ADCS_get_boot_program_stat(uint8_t* mcu_reset_cause,
-                                            uint8_t* boot_cause,
-                                            uint16_t* boot_count,
-                                            uint8_t* boot_idx,
-                                            uint8_t* major_firm_ver,
-                                            uint8_t* minor_firm_ver);
-ADCS_returnState ADCS_get_boot_index(uint8_t* program_idx, uint8_t* boot_stat);
-ADCS_returnState ADCS_get_last_logged_event(uint32_t* time, uint8_t* event_id,
-                                            uint8_t* event_param);
-ADCS_returnState ADCS_get_SD_format_progress(bool* format_busy,
-                                             bool* erase_all_busy);
-ADCS_returnState ADCS_get_TC_ack(uint8_t* last_tc_id, bool* tc_processed,
-                                 ADCS_returnState* tc_err_stat,
-                                 uint8_t* tc_err_idx);
-ADCS_returnState ADCS_get_file_download_buffer(uint16_t* packet_count,
-                                               uint8_t file[20]);
-ADCS_returnState ADCS_get_file_download_block_stat(bool* ready, bool* param_err,
-                                                   uint16_t* crc16_checksum,
-                                                   uint16_t* length);
-ADCS_returnState ADCS_get_file_info(uint8_t* type, bool* updating,
-                                    uint8_t* counter, uint32_t* size,
-                                    uint32_t* time, uint16_t* crc16_checksum);
-ADCS_returnState ADCS_get_init_upload_stat(bool* busy);
-ADCS_returnState ADCS_get_finalize_upload_stat(bool* busy, bool* err);
-ADCS_returnState ADCS_get_upload_crc16_checksum(uint16_t* checksum);
-ADCS_returnState ADCS_get_SRAM_latchup_count(uint16_t* sram1, uint16_t* sram2);
-ADCS_returnState ADCS_get_EDAC_err_count(uint16_t* single_sram,
-                                         uint16_t* double_sram,
-                                         uint16_t* multi_sram);
-ADCS_returnState ADCS_get_comms_stat(uint16_t* TC_num, uint16_t* TM_num,
-                                     uint8_t* flags_arr);
+ADCS_returnState ADCS_get_node_identification(uint8_t *node_type, uint8_t *interface_ver, uint8_t *major_firm_ver,
+                                              uint8_t *minor_firm_ver, uint16_t *runtime_s, uint16_t *runtime_ms);
+ADCS_returnState ADCS_get_boot_program_stat(uint8_t *mcu_reset_cause, uint8_t *boot_cause, uint16_t *boot_count,
+                                            uint8_t *boot_idx, uint8_t *major_firm_ver, uint8_t *minor_firm_ver);
+ADCS_returnState ADCS_get_boot_index(uint8_t *program_idx, uint8_t *boot_stat);
+ADCS_returnState ADCS_get_last_logged_event(uint32_t *time, uint8_t *event_id, uint8_t *event_param);
+ADCS_returnState ADCS_get_SD_format_progress(bool *format_busy, bool *erase_all_busy);
+ADCS_returnState ADCS_get_TC_ack(uint8_t *last_tc_id, bool *tc_processed, ADCS_returnState *tc_err_stat,
+                                 uint8_t *tc_err_idx);
+ADCS_returnState ADCS_get_file_download_buffer(uint16_t *packet_count, uint8_t file[20]);
+ADCS_returnState ADCS_get_file_download_block_stat(bool *ready, bool *param_err, uint16_t *crc16_checksum,
+                                                   uint16_t *length);
+ADCS_returnState ADCS_get_file_info(adcs_file_info *info);
+ADCS_returnState ADCS_get_init_upload_stat(bool *busy);
+ADCS_returnState ADCS_get_finalize_upload_stat(bool *busy, bool *err);
+ADCS_returnState ADCS_get_upload_crc16_checksum(uint16_t *checksum);
+ADCS_returnState ADCS_get_SRAM_latchup_count(uint16_t *sram1, uint16_t *sram2);
+ADCS_returnState ADCS_get_EDAC_err_count(uint16_t *single_sram, uint16_t *double_sram, uint16_t *multi_sram);
+ADCS_returnState ADCS_get_comms_stat(uint16_t *TC_num, uint16_t *TM_num, uint8_t *flags_arr);
 
 // Common Config Msgs
 ADCS_returnState ADCS_set_cache_en_state(bool en_state);
