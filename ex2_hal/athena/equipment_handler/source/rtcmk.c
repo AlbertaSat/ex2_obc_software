@@ -186,6 +186,34 @@ int RTCMK_RegisterGet(uint8_t addr, RTCMK_Register_TypeDef reg, uint8_t *val) {
     return (int)i2c_Receive(RTCMK_PORT, addr, 1, val);
 }
 
+int RTCMK_EnableInt(uint8_t addr) {
+    uint8_t controlReg = 0;
+    int success = RTCMK_RegisterGet(addr, RTCMK_RegControl, &controlReg);
+    if (success != 0) {
+        return success;
+    }
+
+    uint8_t setReg =  controlReg & 0xFE;
+    success = RTCMK_RegisterSet(addr, RTCMK_RegControl, setReg);
+    if (success != 0) {
+        return success;
+    }
+
+    success = RTCMK_RegisterSet(addr, RTCMK_RegFlag, 0);
+    if (success != 0) {
+        return success;
+    }
+
+    success = RTCMK_RegisterSet(addr, RTCMK_RegCounter, 0);
+    if (success != 0) {
+        return success;
+    }
+
+    setReg = controlReg | 1;
+    success = RTCMK_RegisterSet(addr, RTCMK_RegControl, setReg);
+    return success;
+}
+
 /**
  * @brief
  *   Write 0's to time and calender
