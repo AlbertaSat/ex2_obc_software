@@ -33,7 +33,6 @@ static SemaphoreHandle_t uart_mutex;
  *      Initialize ADCS driver
  */
 void init_adcs_io() {
-    sciSetBaudrate(ADCS_SCI, 115200);
     tx_semphr = xSemaphoreCreateBinary();
     adcsQueue = xQueueCreate(ADCS_QUEUE_LENGTH, ITEM_SIZE);
     uart_mutex = xSemaphoreCreateMutex();
