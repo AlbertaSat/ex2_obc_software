@@ -198,7 +198,7 @@ ADCS_returnState ADCS_get_file_list() {
     // Fill the file list
     ret = ADCS_reset_file_list_read_pointer();
     if (ret != ADCS_OK) {
-        printf("Bad return at file list read pointer\n");
+        ex2_log("Bad return at file list read pointer\n");
         return ret;
     }
     adcs_file_info info;
@@ -208,7 +208,7 @@ ADCS_returnState ADCS_get_file_list() {
             // Request file info until busy updating flag is not set
             ret = ADCS_get_file_info(&info);
             if (ret != ADCS_OK) {
-                printf("Bad return at get file info, index = %d\n", index);
+                ex2_log("Bad return at get file info");
                 return ret;
             }
             vTaskDelay(ONE_SECOND);
@@ -234,7 +234,7 @@ ADCS_returnState ADCS_get_file_list() {
 
         ret = ADCS_advance_file_list_read_pointer();
         if (ret != ADCS_OK) {
-            printf("Bad return at advance file list read pointer, index = %d\n", index);
+            ex2_log("Bad return at advance file list read pointer\n");
             return ret;
         }
 
@@ -271,40 +271,30 @@ ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f) {
     // Get the current working directory
     red_getcwd(buf, 1024);
 
-    printf("CWD = %s\r\n", buf);
-
-    //    // make the home directory
-    //    iErr = red_mkdir("home");
-    //    if (iErr == -1)
-    //    {
-    //        printf("Unexpected error %d from red_mkdir()\r\n", (int)red_errno);
-    //        //exit(red_errno);
-    //    }
+    // make the home directory
+    iErr = red_mkdir("home");
+    if (iErr == -1)
+    {
+        ex2_log("Unexpected error from red_mkdir()\r\n");
+        //exit(red_errno);
+    }
 
     // change directory to home
     iErr = red_chdir("home");
     if (iErr == -1) {
-        printf("Unexpected error %d from red_chdir()\r\n", (int)red_errno);
+        ex2_log("Unexpected error from red_chdir()\r\n");
         // exit(red_errno);
     }
 
     // get the current working directory
     red_getcwd(buf, 1024);
 
-    printf(stderr, "CWD = %s\r\n", buf);
-
     int32_t file1;
 
     // open a text file
     file1 = red_open("adcs_file.txt", RED_O_RDWR | RED_O_CREAT);
     if (file1 == -1) {
-        printf("Unexpected error %d from red_open()\r\n", (int)red_errno);
-        exit(red_errno);
-    }
-
-    iErr = red_write(file1, "8 7 6 5 4 3 2 1\r\n", strlen("8 7 6 5 4 3 2 1\r\n"));
-    if (iErr == -1) {
-        printf("Unexpected error %d from red_write()\r\n", (int)red_errno);
+        ex2_log("Unexpected error from red_open()\r\n");
         exit(red_errno);
     }
 
@@ -317,21 +307,6 @@ ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f) {
 
     ADCS_initiate_download_burst(msg_length, ignore_hole_map);
     ADCS_receive_download_burst(hole_map, file1, length_bytes);
-
-    uint8_t img_buf[100] = {0};
-    red_read(file1, img_buf, 100);
-
-    printf("First 100 bytes of saved file:\r\n");
-    for (int i = 0; i < 100;) {
-        printf("%d %d %d %d %d %d %d %d %d %d\r\n", img_buf[i++], img_buf[i++], img_buf[i++], img_buf[i++],
-               img_buf[i++], img_buf[i++], img_buf[i++], img_buf[i++], img_buf[i++], img_buf[i++]);
-    }
-
-    iErr = red_close(file1);
-    if (iErr == -1) {
-        printf("Unexpected error %d from red_write()\r\n", (int)red_errno);
-        exit(red_errno);
-    }
 }
 
 /*************************** Common TCs ***************************/
@@ -1058,27 +1033,6 @@ ADCS_returnState ADCS_get_hole_map(uint8_t *hole_map, uint8_t num) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-
-// ADCS_returnState ADCS_get_unix_t(uint32_t *unix_t, uint16_t *count_ms) {
-//     uint8_t telemetry[6];
-//     uint8_t telemetry_little[6];
-//     ADCS_returnState state;
-//     //The endianness of the memory read is little-endian. This is done manually.
-//     state = adcs_telemetry(GET_CURRENT_UNIX_TIME, telemetry, 6);
-//
-//     int i=0;
-//
-//     for (i=0; i<4; ++i){
-//         telemetry_little[i] = telemetry[3-i];
-//     }
-//     for (i=4; i<6; ++i){
-//         telemetry_little[i] = telemetry[5-i+4];
-//     }
-//
-//     memcpy(unix_t, &telemetry_little[0], 4);
-//     memcpy(count_ms, &telemetry_little[4], 2); // [ms]
-//     return state;
-// }
 
 ADCS_returnState ADCS_get_unix_t(uint32_t *unix_t, uint16_t *count_ms) {
     ADCS_returnState state;
