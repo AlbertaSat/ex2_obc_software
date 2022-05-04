@@ -37,8 +37,8 @@ void InitIO(void) {
 #else
     gioSetDirection(hetPORT1, 0x9CFF7BEF);
 #endif
-    gioSetDirection(gioPORTA, 0xFFFFFF6F);
-    gioSetDirection(gioPORTB, 0xFFFFFFFF);
+    //gioSetDirection(gioPORTA, 0xFFFFFF6F);
+    //gioSetDirection(gioPORTB, 0xFFFFFFFF);
 
     gioSetBit(hetPORT2, 12, 1); // solar panel power - enable
     gioSetBit(hetPORT1, 20, 1); // IRIS nCONFIG - disable
