@@ -17,6 +17,8 @@
  * @date    2020-06-15
  */
 
+#include <FreeRTOS.h>
+#include <os_task.h>
 #include "adc_handler.h"
 #include "i2c_io.h"
 #include <stdint.h>
