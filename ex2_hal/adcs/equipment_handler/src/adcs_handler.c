@@ -2378,30 +2378,52 @@ ADCS_returnState ADCS_get_inertial_ref(xyz *iner_ref) {
 ADCS_returnState ADCS_set_sgp4_orbit_params(adcs_sgp4 params) {
     uint8_t command[65];
     command[0] = SET_SGP4_ORBIT_PARAMS_ID;
-    memcpy(&command[1], &params, 64);
+    unsigned long long temp[8];
+    memcpy(&temp[0], &params.inclination, 8);
+    memcpy(&temp[1], &params.ECC, 8);
+    memcpy(&temp[2], &params.RAAN, 8);
+    memcpy(&temp[3], &params.AOP, 8);
+    memcpy(&temp[4], &params.Bstar, 8);
+    memcpy(&temp[5], &params.MM, 8);
+    memcpy(&temp[6], &params.MA, 8);
+    memcpy(&temp[7], &params.epoch, 8);
+    int i,k;
+    for(i = 0; i < 8; i++){
+        for(k = 0; k < 8; k++){
+            command[1 + 8*i + k] = ((uint8_t)(temp[i] >> (8*k)) & 0b11111111);
+        }
+    }
     return adcs_telecommand(command, 65);
 }
 
 /**
  * @brief
- * 		Gets the SGP4 orbit parameter.
+ *      Gets the SGP4 orbit parameter.
  * @param params
- * 		Refer to table 194
+ *      Refer to table 194
  * @return
- * 		Success of function defined in adcs_types.h
+ *      Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_get_sgp4_orbit_params(adcs_sgp4 *params) {
     uint8_t telemetry[64];
     ADCS_returnState state;
     state = adcs_telemetry(GET_SGP4_ORBIT_PARAMS_ID, telemetry, 64);
-    memcpy(&params->inclination, &telemetry[0], 8);
-    memcpy(&params->ECC, &telemetry[8], 8);
-    memcpy(&params->RAAN, &telemetry[16], 8);
-    memcpy(&params->AOP, &telemetry[24], 8);
-    memcpy(&params->Bstar, &telemetry[32], 8);
-    memcpy(&params->MM, &telemetry[40], 8);
-    memcpy(&params->MA, &telemetry[48], 8);
-    memcpy(&params->epoch, &telemetry[56], 8);
+
+    unsigned long long temp[8] = {0};
+    for(int i = 0; i < 8; i++){
+        for(int k = 0; k < 8; k++){
+            temp[i] = temp[i] | ((unsigned long long)telemetry[8*i+k] << (8*k));
+        }
+    }
+
+    memcpy(&params->inclination, &temp[0], 8);
+    memcpy(&params->ECC, &temp[1], 8);
+    memcpy(&params->RAAN, &temp[2], 8);
+    memcpy(&params->AOP, &temp[3], 8);
+    memcpy(&params->Bstar, &temp[4], 8);
+    memcpy(&params->MM, &temp[5], 8);
+    memcpy(&params->MA, &temp[6], 8);
+    memcpy(&params->epoch, &temp[7], 8);
     return state;
 }
 
