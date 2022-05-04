@@ -54,11 +54,11 @@ typedef enum {
     REQUESTED
 } SW_RESET_REASON;
 
-typedef enum SYSTEM_TYPE {
+typedef enum {
     BOOTLOADER = 'B',
     GOLDEN = 'G',
     APPLICATION = 'A'
-};
+} SYSTEM_TYPE;
 
 typedef struct __attribute__((packed)) {
     resetSource_t rstsrc;

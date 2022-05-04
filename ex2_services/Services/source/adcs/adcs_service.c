@@ -17,6 +17,7 @@
  * @date Jul 08, 2021
  */
 
+#include <string.h>
 #include "adcs/adcs_service.h"
 #include "task_manager/task_manager.h"
 
