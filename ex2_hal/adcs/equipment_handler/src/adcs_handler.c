@@ -715,7 +715,7 @@ ADCS_returnState ADCS_get_file_download_buffer(uint16_t *packet_count, uint8_t f
     ADCS_returnState state;
     state = adcs_telemetry(FILE_DL_BUFFER_ID, telemetry, 22);
     *packet_count = (telemetry[1] << 8) | telemetry[0];
-    memcpy(&(*file), &telemetry[2], 20);
+    memcpy(file, &telemetry[2], 20);
     return state;
 }
 
