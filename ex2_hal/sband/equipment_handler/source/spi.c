@@ -26,7 +26,7 @@ void SPIMasterTx(spiBASE_t *regset, uint16_t *data, uint32_t length, uint8_t for
 
     dataconfig1_t.CS_HOLD = FALSE;
     dataconfig1_t.WDEL = FALSE; // not sure
-    dataconfig1_t.DFSEL = format;
+    dataconfig1_t.DFSEL = (SPIDATAFMT_t) format;
     dataconfig1_t.CSNR = 0x00; // no CS lines
 
     spiTransmitData(regset, &dataconfig1_t, length, data);

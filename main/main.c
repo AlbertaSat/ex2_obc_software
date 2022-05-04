@@ -36,6 +36,7 @@
 #include <HL_system.h>
 
 #include "main/system.h"
+#include "main/version.h"
 #include "board_io_tests.h"
 #include "services.h"
 #include "subsystems_ids.h"
