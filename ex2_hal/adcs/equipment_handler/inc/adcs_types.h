@@ -37,8 +37,9 @@ typedef enum ADCS_returnState {
     ADCS_CRC_ERROR = 4,
     ADCS_MALLOC_FAILED = 5,
     ADCS_UART_FAILED = 6,
+    ADCS_UART_BUSY = 7,
 
-    IS_STUBBED_A = 7 // Used for stubbed ADCS in hardware interface
+    IS_STUBBED_A = 0 // Used for stubbed ADCS in hardware interface
 } ADCS_returnState;
 
 typedef enum Common_Telecommand_IDs {
