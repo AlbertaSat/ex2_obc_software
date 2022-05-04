@@ -284,6 +284,8 @@ typedef enum {
  *****************************   PROTOTYPES   **********************************
  ******************************************************************************/
 
+int RTCMK_GetMs();
+
 int RTCMK_SetUnix(time_t new_time);
 
 int RTCMK_GetUnix(time_t *unix_time);
@@ -291,6 +293,8 @@ int RTCMK_GetUnix(time_t *unix_time);
 int RTCMK_RegisterSet(uint8_t addr, RTCMK_Register_TypeDef reg, uint8_t val);
 
 int RTCMK_RegisterGet(uint8_t addr, RTCMK_Register_TypeDef reg, uint8_t *val);
+
+int RTCMK_EnableInt(uint8_t addr);
 
 int RTCMK_ResetTime(uint8_t addr);
 
