@@ -196,7 +196,7 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint3
  *    the actual image data
  *
  */
-ADCS_returnState receive_file_download_uart_packet(uint8_t *pckt, uint16_t *packet_counter) {
+ADCS_returnState receive_file_download_uart_packet(uint8_t *packet, uint16_t *packet_counter) {
     if (xSemaphoreTake(uart_mutex, UART_TIMEOUT_MS) != pdTRUE) {
         return ADCS_UART_BUSY;
     }
@@ -219,9 +219,9 @@ ADCS_returnState receive_file_download_uart_packet(uint8_t *pckt, uint16_t *pack
     }
     // First byte in packet is file download burst ID = 119
     // Second and third bytes are the packet counter
-    *pckt_counter = (reply[4] << 8) | reply[3];
+    *packet_counter = (reply[4] << 8) | reply[3];
 
-    memcpy(pckt, &reply[5], ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN);
+    memcpy(packet, &reply[5], ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN);
 
     xSemaphoreGive(uart_mutex);
     return ADCS_OK;
@@ -229,7 +229,7 @@ ADCS_returnState receive_file_download_uart_packet(uint8_t *pckt, uint16_t *pack
 
 void write_packet_to_file(uint32_t file_des, uint8_t *packet_data, uint8_t length) {
     // Write data to file
-    int32_t iErr = red_write(file_des, pkt_data, length);
+    int32_t iErr = red_write(file_des, packet_data, length);
     if (iErr == -1) {
         printf("Unexpected error %d from red_write() in write_pkt_to_file()\r\n", (int)red_errno);
         exit(red_errno);

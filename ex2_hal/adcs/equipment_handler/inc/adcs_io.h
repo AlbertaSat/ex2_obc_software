@@ -43,7 +43,7 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint3
 ADCS_returnState request_i2c_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint32_t length);
 
 // receive downloaded packets over uart
-ADCS_returnState receive_file_download_uart_packet(uint8_t *pckt, uint16_t *packet_counter);
+ADCS_returnState receive_file_download_uart_packet(uint8_t *packet, uint16_t *packet_counter);
 void write_packet_to_file(uint32_t file_des, uint8_t *packet_data, uint8_t length);
 
 #endif /* ADCS_IO_H */
