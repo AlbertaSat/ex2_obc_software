@@ -20,6 +20,7 @@
 #include <FreeRTOS.h>
 #include <csp/csp.h>
 #include <csp/drivers/usart.h>
+#include <csp/drivers/sdr.h>
 #include <csp/interfaces/csp_if_can.h>
 #include <performance_monitor/system_stats.h>
 #include <redconf.h>
@@ -61,8 +62,9 @@
 #include "dfgm.h"
 #include "leop.h"
 #include "adcs.h"
-
 #include "deployablescontrol.h"
+#include "test_sdr.h"
+#include <csp/interfaces/csp_if_sdr.h>
 
 #ifdef FLATSAT_TEST
 //#include "sband_binary_tests.h"
@@ -106,7 +108,6 @@ void ex2_init(void *pvParameters) {
     /* Subsystem Hardware Initialization */
 
 #ifndef ADCS_IS_STUBBED
-    // PLACEHOLDER: adcs hardware init
     init_adcs_io();
 #endif
 
@@ -143,6 +144,10 @@ void ex2_init(void *pvParameters) {
     /* Start service server, and response server */
     init_csp();
     init_software();
+
+#ifdef SDR_TEST
+    start_test_sdr();
+#endif
 
 #ifdef FLATSAT_TEST
     /* Test Task */
@@ -291,10 +296,18 @@ static inline SAT_returnState init_csp_interface() {
         return SATR_ERROR;
     }
 
+    csp_sdr_conf_t uhf_conf = {    .mtu = SDR_UHF_MAX_MTU,
+                                   .baudrate = SDR_UHF_9600_BAUD,
+                                   .uart_baudrate = 115200 };
+        error = csp_sdr_open_and_add_interface(&uhf_conf, "LOOPBACK", NULL);
+        if (error != CSP_ERR_NONE) {
+            return SATR_ERROR;
+        }
+
 #ifndef EPS_IS_STUBBED
     csp_rtable_load("16 KISS, 4 CAN, 10 KISS");
 #else
-    csp_rtable_load("16 KISS, 10 KISS");
+    csp_rtable_load("16 KISS, 10 KISS, 23 UHF");
 #endif
 
     return SATR_OK;
