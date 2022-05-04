@@ -186,6 +186,7 @@ void get_3x3(float *matrix, uint8_t *address, float coef) {
 void ADCS_init_file_download_mutex() { adcs_file_download_mutex = xSemaphoreCreateMutex(); }
 
 ADCS_returnState ADCS_get_file_list() {
+    // TODO: Unfinished and untested function
     ADCS_returnState ret;
 
     // Clear the file list
@@ -246,13 +247,8 @@ ADCS_returnState ADCS_get_file_list() {
 }
 
 ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f) {
+    // TODO: Unfinished and untested function
     uint32_t offset = 0;
-
-    // HARDCODED - remove eventually
-    type_f = adcs_file_list[0]->type;
-    counter_f = adcs_file_list[0]->counter;
-    // HARDCODED end
-
     uint16_t block_length = 1024; // this is the max length of the block to be sent - this is the number of packets
                                   // sent in a single block (each packet is 20 Bytes)
     ADCS_load_file_download_block(type_f, counter_f, offset, block_length);
