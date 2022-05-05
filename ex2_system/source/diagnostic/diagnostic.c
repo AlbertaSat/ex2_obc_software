@@ -27,10 +27,12 @@
 #include "skytraq_binary_types.h"
 #include "skytraq_binary.h"
 #include "system.h"
+#include "adcs.h"
 
 static void uhf_watchdog_daemon(void *pvParameters);
 static void sband_watchdog_daemon(void *pvParameters);
 static void charon_watchdog_daemon(void *pvParameters);
+static void adcs_watchdog_daemon(void *pvParameters);
 SAT_returnState start_diagnostic_daemon(void);
 
 const unsigned int mutex_timeout = pdMS_TO_TICKS(100);
@@ -40,10 +42,12 @@ const unsigned int watchdog_retries = 3;
 static TickType_t uhf_prv_watchdog_delay = ONE_MINUTE;
 static TickType_t sband_prv_watchdog_delay = ONE_MINUTE;
 static TickType_t charon_prv_watchdog_delay = ONE_MINUTE;
+static TickType_t adcs_prv_watchdog_delay = ONE_MINUTE;
 
 static SemaphoreHandle_t uhf_watchdog_mtx = NULL;
 static SemaphoreHandle_t sband_watchdog_mtx = NULL;
 static SemaphoreHandle_t charon_watchdog_mtx = NULL;
+static SemaphoreHandle_t adcs_watchdog_mtx = NULL;
 
 /**
  * @brief Check that the UHF is responsive. If not, toggle power.
@@ -68,6 +72,7 @@ static void uhf_watchdog_daemon(void *pvParameters) {
             } else if (err == U_I2C_IN_PIPE) {
                 break;
             }
+            vTaskDelay(2*ONE_SECOND);
         }
 
         if (err == U_I2C_IN_PIPE) {
@@ -128,9 +133,8 @@ static void sband_watchdog_daemon(void *pvParameters) {
         STX_return err;
         for (int i = 0; i < watchdog_retries; i++) {
             STX_getFirmwareV(&SBAND_version);
-            if (SBAND_version != 0) {
-                break;
-            }
+            if (SBAND_version != 0) break;
+            vTaskDelay(2*ONE_SECOND);
         }
         if (SBAND_version == 0) {
             // TODO: Currently no way for power toggling to return fail
@@ -181,8 +185,8 @@ static void charon_watchdog_daemon(void *pvParameters) {
         GPS_RETURNSTATE err;
         for (int i = 0; i < watchdog_retries; i++) {
             err = gps_skytraq_get_software_version(&version);
-            if (err == GPS_SUCCESS)
-                break;
+            if (err == GPS_SUCCESS) break;
+            vTaskDelay(2*ONE_SECOND);
         }
 
         if ((err != GPS_SUCCESS) || (version == NULL)) {
@@ -218,6 +222,72 @@ static void charon_watchdog_daemon(void *pvParameters) {
         if (xSemaphoreTake(charon_watchdog_mtx, mutex_timeout) == pdPASS) {
             delay = charon_prv_watchdog_delay;
             xSemaphoreGive(charon_watchdog_mtx);
+        }
+        vTaskDelay(delay);
+    }
+}
+
+/**
+ * @brief Check that the ADCS is responsive. If not, toggle power.
+ *
+ * @param pvParameters Task parameters (not used)
+ */
+
+static void adcs_watchdog_daemon(void *pvParameters) {
+    for (;;) {
+        TickType_t delay = get_adcs_watchdog_delay();
+
+        if (eps_get_pwr_chnl(ADCS_3V3_PWR_CHNL) == 0) {
+            ex2_log("ADCS not on - power not toggled");
+            vTaskDelay(delay);
+            continue;
+        }
+
+        adcs_state test_state;
+
+
+        ADCS_returnState err;
+        for (int i = 0; i < watchdog_retries; i++) {
+            err = HAL_ADCS_get_current_state(&test_state);
+            if (err == ADCS_OK) break;
+            vTaskDelay(2*ONE_SECOND);
+        }
+
+        if (err == ADCS_UART_FAILED) {
+            ex2_log("ADCS was not responsive - attempting to toggle power.");
+
+            // Turn the ADCS off
+            eps_set_pwr_chnl(ADCS_3V3_PWR_CHNL, OFF);
+            eps_set_pwr_chnl(ADCS_5V0_PWR_CHNL, OFF);
+
+            // Allow the system to fully power off
+            vTaskDelay(reset_wait_period);
+
+            // Check that the ADCS has been turned off.
+            if ((eps_get_pwr_chnl(ADCS_3V3_PWR_CHNL) != OFF) || (eps_get_pwr_chnl(ADCS_5V0_PWR_CHNL) != OFF)) {
+                ex2_log("ADCS failed to power off.");
+                vTaskDelay(delay);
+                continue;
+            }
+
+            // Turn the ADCS back on.
+            eps_set_pwr_chnl(ADCS_3V3_PWR_CHNL, ON);
+            eps_set_pwr_chnl(ADCS_5V0_PWR_CHNL, ON);
+
+            // Allow the system to fully power on
+            vTaskDelay(reset_wait_period);
+
+            // Check that the ADCS has been turned on
+            if ((eps_get_pwr_chnl(ADCS_3V3_PWR_CHNL) != ON) && (eps_get_pwr_chnl(ADCS_5V0_PWR_CHNL) != ON)) {
+                ex2_log("ADCS failed to power on.");
+            } else {
+                ex2_log("ADCS powered back on.");
+            }
+        }
+
+        if (xSemaphoreTake(adcs_watchdog_mtx, mutex_timeout) == pdPASS) {
+            delay = adcs_prv_watchdog_delay;
+            xSemaphoreGive(adcs_watchdog_mtx);
         }
         vTaskDelay(delay);
     }
@@ -265,6 +335,20 @@ TickType_t get_charon_watchdog_delay(void) {
 #endif
 }
 
+TickType_t get_adcs_watchdog_delay(void) {
+#ifdef ADCS_IS_STUBBED
+    return STUBBED_WATCHDOG_DELAY;
+#else
+    if (xSemaphoreTake(adcs_watchdog_mtx, mutex_timeout) == pdPASS) {
+        TickType_t delay = adcs_prv_watchdog_delay;
+        xSemaphoreGive(adcs_watchdog_mtx);
+        return delay;
+    } else {
+        return 0;
+    }
+#endif
+}
+
 SAT_returnState set_uhf_watchdog_delay(const TickType_t delay) {
 #ifdef UHF_IS_STUBBED
     return SATR_OK;
@@ -303,6 +387,20 @@ SAT_returnState set_charon_watchdog_delay(const TickType_t delay) {
     return SATR_ERROR;
 #endif
 }
+
+SAT_returnState set_adcs_watchdog_delay(const TickType_t delay) {
+#ifdef ADCS_IS_STUBBED
+    return SATR_OK;
+#else
+    if (xSemaphoreTake(adcs_watchdog_mtx, mutex_timeout) == pdPASS) {
+        adcs_prv_watchdog_delay = delay;
+        xSemaphoreGive(adcs_watchdog_mtx);
+        return SATR_OK;
+    }
+    return SATR_ERROR;
+#endif
+}
+
 
 /**
  * Start the diagnostics daemon
@@ -349,6 +447,20 @@ SAT_returnState start_diagnostic_daemon(void) {
     charon_watchdog_mtx = xSemaphoreCreateMutex();
     if (charon_watchdog_mtx == NULL) {
         ex2_log("FAILED TO CREATE MUTEX charon_watchdog_mtx.\n");
+        return SATR_ERROR;
+    }
+#endif
+
+#ifndef ADCS_IS_STUBBED
+    if (xTaskCreate(adcs_watchdog_daemon, "adcs_watchdog_daemon", 2048, NULL, DIAGNOSTIC_TASK_PRIO, NULL) !=
+        pdPASS) {
+        ex2_log("FAILED TO CREATE TASK adcs_watchdog_daemon.\n");
+        return SATR_ERROR;
+    }
+    ex2_log("ADCS watchdog task started.\n");
+    adcs_watchdog_mtx = xSemaphoreCreateMutex();
+    if (adcs_watchdog_mtx == NULL) {
+        ex2_log("FAILED TO CREATE MUTEX adcs_watchdog_mtx.\n");
         return SATR_ERROR;
     }
 #endif

@@ -201,7 +201,14 @@ Result mock_everyone(All_systems_housekeeping *all_hk_data) {
     all_hk_data->adcs_hk.Mag_Field_Vector_X = tempFloat;
     all_hk_data->adcs_hk.Mag_Field_Vector_Y = tempFloat;
     all_hk_data->adcs_hk.Mag_Field_Vector_Z = tempFloat;
-    all_hk_data->adcs_hk.Comm_Status = tempFloat;
+    all_hk_data->adcs_hk.TC_num = tempFloat;
+    all_hk_data->adcs_hk.TM_num = tempFloat;
+    all_hk_data->adcs_hk.CommsStat_flags[0] = tempFloat;
+    all_hk_data->adcs_hk.CommsStat_flags[1] = tempFloat;
+    all_hk_data->adcs_hk.CommsStat_flags[2] = tempFloat;
+    all_hk_data->adcs_hk.CommsStat_flags[3] = tempFloat;
+    all_hk_data->adcs_hk.CommsStat_flags[4] = tempFloat;
+    all_hk_data->adcs_hk.CommsStat_flags[5] = tempFloat;
     all_hk_data->adcs_hk.Wheel1_Current = tempFloat;
     all_hk_data->adcs_hk.Wheel2_Current = tempFloat;
     all_hk_data->adcs_hk.Wheel3_Current = tempFloat;

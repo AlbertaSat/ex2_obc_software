@@ -36,6 +36,12 @@ typedef struct {
 } xyz;
 
 typedef struct {
+    int16_t latitude;
+    int16_t longitude;
+    uint16_t altitude;
+}LLH;
+
+typedef struct {
     int16_t x;
     int16_t y;
     int16_t z;
@@ -578,7 +584,7 @@ ADCS_returnState ADCS_get_current_state(adcs_state *data);
 
 ADCS_returnState ADCS_get_jpg_cnv_progress(uint8_t *percentage, uint8_t *result, uint8_t *file_counter);
 ADCS_returnState ADCS_get_cubeACP_state(uint8_t *flags_arr);
-ADCS_returnState ADCS_get_sat_pos_LLH(xyz *target);
+ADCS_returnState ADCS_get_sat_pos_LLH(LLH *target);
 ADCS_returnState ADCS_get_execution_times(uint16_t *adcs_update, uint16_t *sensor_comms, uint16_t *sgp4_propag,
                                           uint16_t *igrf_model);
 ADCS_returnState ADCS_get_ACP_loop_stat(uint16_t *time, uint8_t *execution_point);

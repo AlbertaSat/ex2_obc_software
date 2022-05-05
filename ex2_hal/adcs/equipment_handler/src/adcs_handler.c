@@ -1639,13 +1639,18 @@ ADCS_returnState ADCS_get_cubeACP_state(uint8_t *flags_arr) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_get_sat_pos_LLH(xyz *target) {
+ADCS_returnState ADCS_get_sat_pos_LLH(LLH *target) {
     uint8_t telemetry[6];
     ADCS_returnState state;
     state = adcs_telemetry(SATELLITE_POSITION_LLH_ID, telemetry, 6);
-    memcpy(&target->x, &telemetry[0], 2);
-    memcpy(&target->y, &telemetry[2], 2);
-    memcpy(&target->z, &telemetry[4], 2);
+
+    uint16_t lat_temp = (telemetry[1] << 8) | telemetry[0];
+    uint16_t long_temp = (telemetry[3] << 8) | telemetry[2];
+    uint16_t alt_temp = (telemetry[5] << 8) | telemetry[4];
+
+    target->latitude = *(int16_t *)(&lat_temp) * 0.01;
+    target->longitude = *(int16_t *)(&long_temp) * 0.01;
+    target->altitude = alt_temp * 0.01;
     return state;
 }
 
@@ -2073,9 +2078,9 @@ ADCS_returnState ADCS_get_power_temp(adcs_pwr_temp *measurements) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_set_power_control(uint8_t *control) {
-    uint8_t command[4] = {0}; // TODO: FIX power control setting bytes. Right now it only works for cubesense 1
+    uint8_t command[4] = {0};
     command[0] = SET_POWER_CONTROL_ID;
-    // command[1] = 0x10; //sets the cubesense 1 on
+
     for (int i = 0; i < 4; i++) {
         command[1] = command[1] | (*(control + i) << 2 * i);
     }
