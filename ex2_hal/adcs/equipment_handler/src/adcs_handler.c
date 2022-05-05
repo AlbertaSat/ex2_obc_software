@@ -556,11 +556,11 @@ void ADCS_receive_download_burst(uint8_t *hole_map, int32_t file_des, uint16_t l
         } else if (pckt_counter != i) {
             // Missed a packet (or more) somewhere - fill with zeroes
             for (int j = 0; j < (pckt_counter - i); j++) {
-                write_pckt_to_file(file_des, "00000000000000000000", ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN);
+                write_packet_to_file(file_des, "00000000000000000000", ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN);
             }
         } else {
             // Packet received. Write to file
-            write_pckt_to_file(file_des, pckt, ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN);
+            write_packet_to_file(file_des, pckt, ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN);
 
             // Fill hole map with a 1 indicating packet received
             // Note hole map is stored little-endian
