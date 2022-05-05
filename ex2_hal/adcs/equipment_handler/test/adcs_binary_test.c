@@ -40,6 +40,30 @@ void binaryTest(void) { // TODO: add enums for all adcs_handler functions called
             ;
     }
 
+
+    // Power Control : CubeControl Signal and/or Motor Power = On (1), All others = Off (0)
+    uint8_t control[10] = {0};
+
+    // Verify Power State(s)
+    printf("Running ADCS_get_power_control...\n");
+    test_returnState = ADCS_get_power_control(control);
+    if (test_returnState != ADCS_OK) {
+        printf("ADCS_get_power_control returned %d \n", test_returnState);
+        while (1);
+    }
+    for (int i = 0; i < 10; i++) {
+        printf("control[%d] = %d \n", i, control[i]);
+    }
+
+    control[Set_CubeCTRLSgn_Power] = 1;
+    control[Set_CubeCTRLMtr_Power] = 1;
+
+    test_returnState = ADCS_set_power_control(control);
+    if (test_returnState != ADCS_OK) {
+        printf("ADCS_set_power_control returned %d \n", test_returnState);
+        while (1);
+    }
+
     printf("ADCS run mode = %d\n", test_adcs_state.run_mode);
 
 
@@ -2730,6 +2754,9 @@ void commandsTest_attitude(void)
 {
     ADCS_returnState test_returnState = ADCS_OK;
 
+    // Power Control : CubeControl Signal and/or Motor Power = On (1), All others = Off (0)
+    uint8_t control[10] = {0};
+
     // Get attitude angles
     xyz *att_angle = (xyz *)pvPortMalloc(sizeof(xyz));
     printf("Getting commanded attitude angles\n");
@@ -2795,6 +2822,17 @@ void commandsTest_attitude(void)
     printf("X angle: %+f\n", att_angle->x);
     printf("Y angle: %+f\n", att_angle->y);
     printf("Z angle: %+f\n\n", att_angle->z);
+
+    printf("Turning power off\n");
+    control[Set_CubeCTRLSgn_Power] = 0;
+    control[Set_CubeCTRLMtr_Power] = 0;
+
+    test_returnState = ADCS_set_power_control(control);
+    if (test_returnState != ADCS_OK) {
+        printf("ADCS_set_power_control returned %d \n", test_returnState);
+        while (1);
+    }
+
 }
 
 void commandsTest_logtest(void)
