@@ -36,8 +36,7 @@ void binaryTest(void) { // TODO: add enums for all adcs_handler functions called
     test_returnState = ADCS_get_current_state(&test_adcs_state);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_current_state returned %d \n", test_returnState);
-        while (1)
-            ;
+        while (1);
     }
 
 
@@ -125,6 +124,7 @@ void binaryTest(void) { // TODO: add enums for all adcs_handler functions called
 
 
     // CubeACP State flags
+    printf("Getting CubeACP state flags:\n");
     uint8_t *flags_arr = (uint8 *)pvPortMalloc(6*sizeof(int8_t));
     test_returnState = ADCS_get_cubeACP_state(flags_arr);
     if (test_returnState != ADCS_OK)
@@ -145,27 +145,58 @@ void binaryTest(void) { // TODO: add enums for all adcs_handler functions called
     // Actuator Commands
     printf("Getting actuator commands\n");
     adcs_actuator *actuator_commands = (adcs_actuator *)pvPortMalloc(sizeof(adcs_actuator));
-    test_returnState = ADCS_get_cubeACP_state(flags_arr);
+    test_returnState = ADCS_get_actuator(actuator_commands);
     if (test_returnState != ADCS_OK)
     {
         printf("ADCS_reset returned %d", test_returnState);
         while(1);
     }
 
-    for (int i = 0; i < 3; i++)
-    {
-        printf("Magnetorquer X cmd = %f\n", actuator_commands->magnetorquer.x);
-        printf("Magnetorquer y cmd = %f\n", actuator_commands->magnetorquer.y);
-        printf("Magnetorquer z cmd = %f\n", actuator_commands->magnetorquer.z);
+
+    printf("Magnetorquer X cmd = %f\n", actuator_commands->magnetorquer.x);
+    printf("Magnetorquer y cmd = %f\n", actuator_commands->magnetorquer.y);
+    printf("Magnetorquer z cmd = %f\n", actuator_commands->magnetorquer.z);
+
+    printf("Wheel Speed X cmd = %f\n", actuator_commands->wheel_speed.x);
+    printf("Wheel Speed y cmd = %f\n", actuator_commands->wheel_speed.y);
+    printf("Wheel Speed z cmd = %f\n\n", actuator_commands->wheel_speed.z);
+
+    xyz16 dutycycle = {800, 0, 0};
+
+    printf("Running MTQ X to max duty cycle\n\n");
+    test_returnState = ADCS_set_magnetorquer_output(dutycycle);
+    if (test_returnState != ADCS_OK) {
+        printf("ADCS_set_magnetorquer_output returned %d \n", test_returnState);
+        while (1)
+            ;
     }
 
-    for (int i = 0; i < 3; i++)
+    printf("Getting actuator commands\n");
+    adcs_actuator *actuator_commands = (adcs_actuator *)pvPortMalloc(sizeof(adcs_actuator));
+    test_returnState = ADCS_get_actuator(actuator_commands);
+    if (test_returnState != ADCS_OK)
     {
-        printf("Wheel Speed X cmd = %f\n", actuator_commands->wheel_speed.x);
-        printf("Wheel Speed y cmd = %f\n", actuator_commands->wheel_speed.y);
-        printf("Wheel Speed z cmd = %f\n", actuator_commands->wheel_speed.z);
+        printf("ADCS_reset returned %d", test_returnState);
+        while(1);
     }
 
+    printf("Magnetorquer X cmd = %f\n", actuator_commands->magnetorquer.x);
+    printf("Magnetorquer y cmd = %f\n", actuator_commands->magnetorquer.y);
+    printf("Magnetorquer z cmd = %f\n", actuator_commands->magnetorquer.z);
+
+    printf("Wheel Speed X cmd = %f\n", actuator_commands->wheel_speed.x);
+    printf("Wheel Speed y cmd = %f\n", actuator_commands->wheel_speed.y);
+    printf("Wheel Speed z cmd = %f\n\n", actuator_commands->wheel_speed.z);
+
+    dutycycle = {0, 0, 0};
+
+    printf("Reseting magnetorquers\n\n");
+    test_returnState = ADCS_set_magnetorquer_output(dutycycle);
+    if (test_returnState != ADCS_OK) {
+        printf("ADCS_set_magnetorquer_output returned %d \n", test_returnState);
+        while (1)
+            ;
+    }
 
     commandsTest_attitude();
 
@@ -2824,9 +2855,6 @@ void commandsTest_attitude(void)
     printf("Z angle: %+f\n\n", att_angle->z);
 
     printf("Turning power off\n");
-    control[Set_CubeCTRLSgn_Power] = 0;
-    control[Set_CubeCTRLMtr_Power] = 0;
-
     test_returnState = ADCS_set_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_power_control returned %d \n", test_returnState);
