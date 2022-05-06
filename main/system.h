@@ -62,9 +62,9 @@
 #else
 // These values are expected to be adjusted based on what the developer is working on
 // NOTE: Multiple definitions of the same sciREG will cause issues in the interrupt switch() statement
-#define CSP_SCI sciREG2
+#define CSP_SCI sciREG3
 #define GPS_SCI sciREG1
-#define ADCS_SCI sciREG3
+#define ADCS_SCI sciREG2
 #define PAYLOAD_SCI sciREG1
 #define DFGM_SCI sciREG4
 #define UHF_SCI CSP_SCI
@@ -131,6 +131,9 @@ typedef enum {
 /* Subsystems Pins & Ports */
 #define UHF_GIO_PORT hetPORT2
 #define UHF_GIO_PIN 22
+
+#define RTC_INT_PORT gioPORTA
+#define RTC_INT_PIN 2
 
 #define ADCS_5V0_PWR_CHNL 1
 #ifdef IS_SN0072_EPS
