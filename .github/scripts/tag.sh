@@ -1,3 +1,6 @@
-tagname=`date +"%Y-%m-%d"`
-git tag $tagname
-git push origin $tagname
+# arg should be a branch name
+ref=$1
+tagdate=`date +"%Y-%m-%d"`
+git tag $tagdate.$ref
+git push origin $tagdate.$ref
+
