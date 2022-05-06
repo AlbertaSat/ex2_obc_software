@@ -31,6 +31,7 @@
 
 #define DEFAULT_INPUT_QUEUE_LEN 10
 #define TASK_NAME_SIZE configMAX_TASK_NAME_LEN + 3
+#define LEVEL_LEN 3 // room for log level
 #define INPUT_QUEUE_ITEM_SIZE PRINT_BUF_LEN + TASK_NAME_SIZE
 
 static bool fs_init; // true if filesystem initialized
@@ -48,8 +49,6 @@ uint32_t next_swap = 800; // I picked a random number of bytes
 uint32_t current_size = 0;
 const char logger_config[] = "VOL0:/syslog.config";
 static bool config_loaded = false;
-
-static void test_logger_daemon(void *pvParameters);
 
 /**
  * @brief
@@ -205,9 +204,10 @@ static void do_output(const char *str) {
  * Will lot of UART if IS_FLATSAT is not defined
  * Prepends calling task name and timestamp
  */
-void ex2_log(const char *format, ...) {
+void sys_log(int level, const char *format, ...) {
     const char *main_name = "MAIN";
     const char *task_name;
+    const char abbreviations[] = { 'P', 'A', 'C', 'E', 'W', 'N', 'I', 'D' };
 
     if (xTaskGetSchedulerState() == taskSCHEDULER_SUSPENDED) {
         return;
@@ -219,14 +219,16 @@ void ex2_log(const char *format, ...) {
         task_name = pcTaskGetName(NULL);
     }
 
-    char buffer[PRINT_BUF_LEN + TASK_NAME_SIZE] = {0};
+    if (level < 0 || level > (int) DEBUG) level = (int) DEBUG;
+
+    char buffer[PRINT_BUF_LEN + TASK_NAME_SIZE + LEVEL_LEN] = {0};
 
     va_list arg;
     va_start(arg, format);
-    vsnprintf(buffer + TASK_NAME_SIZE, PRINT_BUF_LEN, format, arg);
+    char *msg = buffer + TASK_NAME_SIZE + LEVEL_LEN;
+    vsnprintf(msg, PRINT_BUF_LEN, format, arg);
     va_end(arg);
-    snprintf(buffer, PRINT_BUF_LEN + TASK_NAME_SIZE, "[%.*s]%s", TASK_NAME_SIZE,
-             task_name, buffer + TASK_NAME_SIZE);
+    snprintf(buffer, TASK_NAME_SIZE + LEVEL_LEN + PRINT_BUF_LEN, "[%c][%.*s]%s", abbreviations[level], TASK_NAME_SIZE, task_name, msg);
 
     int string_len = strlen(buffer);
     if (buffer[string_len - 1] == '\n') {
