@@ -245,7 +245,7 @@ static BaseType_t prvRMCommand(char *pcWriteBuffer, size_t xWriteBufferLen, cons
 static BaseType_t prvSTATCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString) {
     // We can guarantee there will be one parameter because FreeRTOS+CLI won't call this function unless it has
     // exactly one parameter
-    static bool firstRun;
+    static bool firstRun = true;
     static REDSTAT pStat;
     BaseType_t parameterLen;
     if (firstRun == true) {
@@ -262,15 +262,16 @@ static BaseType_t prvSTATCommand(char *pcWriteBuffer, size_t xWriteBufferLen, co
             return pdFALSE;
         }
         int error = red_fstat(fd, &pStat);
+        red_close(fd);
         if (error < 0) {
             createErrorOutput(pcWriteBuffer, xWriteBufferLen);
             return pdFALSE;
         }
         firstRun = false;
     }
-    const char *fmt = "dev %d\nino %d\nmode %X\nnlink %d\nsize %d\nblocks %d\n";
+    const char *fmt = "dev %d\nino %d\nmode %hX\nnlink %hd\nsize %lld\natime %d\nmtime %d\nctime %d\n";
     int written = snprintf(pcWriteBuffer, xWriteBufferLen, fmt, pStat.st_dev, pStat.st_ino, pStat.st_mode,
-                           pStat.st_nlink, pStat.st_size, pStat.st_blocks);
+                           pStat.st_nlink, pStat.st_size, pStat.st_atime, pStat.st_mtime, pStat.st_ctime);
     firstRun = true;
     memset(&pStat, 0, sizeof(REDSTAT));
     return pdFALSE;
