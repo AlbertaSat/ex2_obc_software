@@ -21,6 +21,7 @@
 
 //TODO: determine the required stack size
 #define SCHEDULER_STACK_SIZE 12000
+#define MAX_DATA_LEN 12     //TODO: determine if this is the best max length
 #define SCHEDULE_HISTORY_SIZE 100 // number of most recent executed commands that will be stored in the history.
                                   // once this # is exceeded, commands in the beginning of the file will be overwritten.
                                   // eg. the 102th command will overwrite the 2nd command. 
@@ -37,10 +38,10 @@ extern char* fileName3;
 
 typedef struct __attribute__((packed)) {
     uint32_t unix_time;
-    uint32_t frequency;     //frequency the cmd needs to be executed in seconds, value of 0 means the cmd is not repeated
-    uint16_t length;        //length of data field
-    uint8_t status;         //error status of the executed command
-    uint8_t data[];         //length will determine the size of the data array, which contains the scheduled cmd 
+    uint32_t frequency;         //frequency the cmd needs to be executed in seconds, value of 0 means the cmd is not repeated
+    uint16_t length;            //length of data field
+    uint8_t status;             //error status of the executed command
+    uint8_t data[MAX_DATA_LEN]; //contains the scheduled cmd, struct member length is constant in order to create a clean loop buffer
 } schedule_history_t;
 
 #endif /* SCHEDULER_TASK_H_ */
