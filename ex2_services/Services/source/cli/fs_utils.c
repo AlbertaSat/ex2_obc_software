@@ -277,7 +277,41 @@ static BaseType_t prvSTATCommand(char *pcWriteBuffer, size_t xWriteBufferLen, co
     return pdFALSE;
 }
 
-static BaseType_t prvREADCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString) { return pdFALSE; }
+static BaseType_t prvREADCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString) {
+    // We can guarantee there will be one parameter because FreeRTOS+CLI won't call this function unless it has
+    // exactly one parameter
+    static bool firstRun = true;
+    BaseType_t parameterLen;
+    static int fd;
+    if (firstRun == true) {
+        const char *parameter = FreeRTOS_CLIGetParameter(
+            /* The command string itself. */
+            pcCommandString,
+            /* Return the first parameter. */
+            1,
+            /* Store the parameter string length. */
+            &parameterLen);
+        fd = red_open(parameter, RED_O_RDONLY);
+        if (fd < 0) {
+            createErrorOutput(pcWriteBuffer, xWriteBufferLen);
+            return pdFALSE;
+        }
+        firstRun = false;
+    }
+    int32_t status = red_read(fd, pcWriteBuffer, xWriteBufferLen);
+    if (status == 0) {
+        red_close(fd);
+        firstRun = true;
+        return pdFALSE;
+    }
+    if (status < 0) {
+        createErrorOutput(pcWriteBuffer, xWriteBufferLen);
+        red_close(fd);
+        firstRun = true;
+        return pdFALSE;
+    }
+    return pdTRUE;
+}
 
 static BaseType_t prvTRANSACTCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString) {
     // We can guarantee there will be one parameter because FreeRTOS+CLI won't call this function unless it has
@@ -299,7 +333,7 @@ static BaseType_t prvTRANSACTCommand(char *pcWriteBuffer, size_t xWriteBufferLen
 
 static BaseType_t prvCPCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString) {
     BaseType_t fromParameterLen;
-    char *copyFrom = FreeRTOS_CLIGetParameter(
+    char *copyFrom = FreeRTOS_CLIGetParameter( // I know there's a warning here, a null terminator needs to be placed in the array :(
         /* The command string itself. */
         pcCommandString,
         /* Return the first parameter. */
