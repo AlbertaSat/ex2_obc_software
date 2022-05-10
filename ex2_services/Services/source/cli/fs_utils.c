@@ -297,6 +297,67 @@ static BaseType_t prvTRANSACTCommand(char *pcWriteBuffer, size_t xWriteBufferLen
     return pdFALSE;
 }
 
+static BaseType_t prvCPCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString) {
+    BaseType_t fromParameterLen;
+    char *copyFrom = FreeRTOS_CLIGetParameter(
+        /* The command string itself. */
+        pcCommandString,
+        /* Return the first parameter. */
+        1,
+        /* Store the parameter string length. */
+        &fromParameterLen);
+    BaseType_t toParameterLen;
+    const char *copyTo = FreeRTOS_CLIGetParameter(
+        /* The command string itself. */
+        pcCommandString,
+        /* Return the second parameter. */
+        2,
+        /* Store the parameter string length. */
+        &toParameterLen);
+    copyFrom[fromParameterLen] = 0;
+    int from_fd = red_open(copyFrom, RED_O_RDONLY);
+    if (from_fd < 0) {
+        createErrorOutput(pcWriteBuffer, xWriteBufferLen);
+        return pdFALSE;
+    }
+    int to_fd = red_open(copyTo, RED_O_WRONLY | RED_O_CREAT);
+    if (to_fd < 0) {
+        createErrorOutput(pcWriteBuffer, xWriteBufferLen);
+        red_close(from_fd);
+        return pdFALSE;
+    }
+    int8_t *buf = pvPortMalloc(512);
+    if (buf == NULL) {
+        snprintf(pcWriteBuffer, xWriteBufferLen, "%s\n", "failed to allocate buffer");
+        red_close(to_fd);
+        red_close(from_fd);
+        return pdFALSE;
+    }
+    bool done = false;
+    while (!done) {
+        int32_t bytes_read = red_read(from_fd, buf, 512);
+        if (bytes_read == 0) {
+            done = true;
+            continue;
+        } 
+        if (bytes_read < 0) {
+            done = true;
+            createErrorOutput(pcWriteBuffer, xWriteBufferLen);
+            continue;
+        }
+        int32_t bytes_written = red_write(to_fd, buf, 512);
+        if (bytes_written < 0) {
+            done = true;
+            createErrorOutput(pcWriteBuffer, xWriteBufferLen);
+            continue; 
+        }
+    }
+    red_close(to_fd);
+    red_close(from_fd);
+    vPortFree(buf);
+    return pdFALSE;
+}
+
 static const CLI_Command_Definition_t xPWDCommand = {"pwd", "pwd:\n\tGet current working directory\n",
                                                      prvPWDCommand, 0};
 static const CLI_Command_Definition_t xLSCommand = {"ls", "ls:\n\tGet list of tiles in cwd\n", prvLSCommand, 0};
@@ -316,6 +377,7 @@ static const CLI_Command_Definition_t xTRANSACTCommand = {
     "transact",
     "transact:\n\tTell Reliance-edge to transact the filesystem.\n\tMust include volume prefix to transact\n",
     prvTRANSACTCommand, 1};
+static const CLI_Command_Definition_t xCPCommand = {"cp", "cp:\n\tCopy first parameter to second parameter\n", prvCPCommand, 2};
 
 void register_fs_utils() {
     FreeRTOS_CLIRegisterCommand(&xPWDCommand);
@@ -328,4 +390,6 @@ void register_fs_utils() {
     FreeRTOS_CLIRegisterCommand(&xSTATCommand);
     FreeRTOS_CLIRegisterCommand(&xREADCommand);
     FreeRTOS_CLIRegisterCommand(&xTRANSACTCommand);
+    FreeRTOS_CLIRegisterCommand(&xCPCommand);
+
 }
