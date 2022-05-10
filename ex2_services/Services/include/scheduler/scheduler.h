@@ -42,10 +42,12 @@
 #include "task_manager.h"
 #include <redposix.h> //include for file system
 #include "logger.h"
+#include "util/service_utilities.h"
 
 #define SCHEDULER_SIZE 1000
 #define MAX_NUM_CMDS 5
-//#define MAX_CMD_LENGTH 50 //TODO: review max cmd length required w mission design/ gs
+#define MAX_DATA_LEN 12     //TODO: determine if this is the best max length
+#define MAX_CMD_LENGTH 10 //TODO: review max cmd length required w mission design/ gs
 #define MAX_BUFFER_LENGTH 500
 #define ASTERISK                                                                                                  \
     255 //'*' is binary 42 in ASCII.
@@ -61,16 +63,22 @@ extern int delay_aborted;
 typedef struct __attribute__((packed)) {
     // TODO: determine if second accuracy is needed
     tmElements_t scheduled_time;
-    // char gs_command[MAX_CMD_LENGTH]; // place holder for storing commands, increase/decrease size as needed
-    csp_packet_t *embedded_packet;
+    uint16_t length;
+    uint16_t dst;
+    uint16_t dport;
+    //uint8_t subservice;
+    char data[MAX_CMD_LENGTH];
 } scheduled_commands_t;
 
 typedef struct __attribute__((packed)) {
     // TODO: determine if seconds accuracy is needed
     uint32_t unix_time;
     uint32_t frequency; //frequency the cmd needs to be executed in seconds, value of 0 means the cmd is not repeated
-    //char gs_command[MAX_CMD_LENGTH]; // place holder for storing commands, increase/decrease size as needed
-    csp_packet_t *embedded_packet;
+    uint16_t length;
+    uint16_t dst;
+    uint16_t dport;
+    //uint8_t subservice;
+    char data[MAX_CMD_LENGTH];
 } scheduled_commands_unix_t;
 
 typedef struct __attribute__((packed)) {
@@ -79,9 +87,18 @@ typedef struct __attribute__((packed)) {
     uint8 rep_cmds;
 } number_of_cmds_t;
 
+typedef struct __attribute__((packed)) {
+    uint32_t unix_time;
+    uint32_t frequency;         //frequency the cmd needs to be executed in seconds, value of 0 means the cmd is not repeated
+    uint8_t dst;
+    uint8_t dport;
+    uint16_t length;            //length of data field
+    uint8_t data[MAX_DATA_LEN]; //contains the scheduled cmd, struct member length is constant in order to create a clean loop buffer
+} get_schedule_t;
+
 static number_of_cmds_t num_of_cmds;
 
-typedef enum { SET_SCHEDULE = 0, GET_SCHEDULE = 1 } Scheduler_Subtype;
+typedef enum { SET_SCHEDULE = 0, GET_SCHEDULE = 1 , REPLACE_SCHEDULE = 2, DELETE_SCHEDULE = 3, PING_SCHEDULE = 4} Scheduler_Subtype;
 
 SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds);
 //SAT_returnState scheduler_service_app(char *gs_cmds);
