@@ -26,6 +26,7 @@
     @brief Implements real-time clock functions.
 */
 #include <redfs.h>
+#include "rtcmk.h"
 
 
 /** @brief Initialize the real time clock.
@@ -74,6 +75,11 @@ uint32_t RedOsClockGetTime(void)
         it targets have no RTC hardware.  If your hardware includes an RTC that
         you would like to use, this function must be customized.
     */
+    time_t unix_time;
+    int status = RTCMK_GetUnix(&unix_time);
+    if (status == 0) {
+        return (uint32_t )unix_time;
+    }
     return 0;
 }
 
