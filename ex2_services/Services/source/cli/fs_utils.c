@@ -277,7 +277,41 @@ static BaseType_t prvSTATCommand(char *pcWriteBuffer, size_t xWriteBufferLen, co
     return pdFALSE;
 }
 
-static BaseType_t prvREADCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString) { return pdFALSE; }
+static BaseType_t prvREADCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString) {
+    // We can guarantee there will be one parameter because FreeRTOS+CLI won't call this function unless it has
+    // exactly one parameter
+    static bool firstRun = true;
+    BaseType_t parameterLen;
+    static int fd;
+    if (firstRun == true) {
+        const char *parameter = FreeRTOS_CLIGetParameter(
+            /* The command string itself. */
+            pcCommandString,
+            /* Return the first parameter. */
+            1,
+            /* Store the parameter string length. */
+            &parameterLen);
+        fd = red_open(parameter, RED_O_RDONLY);
+        if (fd < 0) {
+            createErrorOutput(pcWriteBuffer, xWriteBufferLen);
+            return pdFALSE;
+        }
+        firstRun = false;
+    }
+    int32_t status = red_read(fd, pcWriteBuffer, xWriteBufferLen);
+    if (status == 0) {
+        red_close(fd);
+        firstRun = true;
+        return pdFALSE;
+    }
+    if (status < 0) {
+        createErrorOutput(pcWriteBuffer, xWriteBufferLen);
+        red_close(fd);
+        firstRun = true;
+        return pdFALSE;
+    }
+    return pdTRUE;
+}
 
 static BaseType_t prvTRANSACTCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString) {
     // We can guarantee there will be one parameter because FreeRTOS+CLI won't call this function unless it has
@@ -294,6 +328,67 @@ static BaseType_t prvTRANSACTCommand(char *pcWriteBuffer, size_t xWriteBufferLen
     if (error < 0) {
         createErrorOutput(pcWriteBuffer, xWriteBufferLen);
     }
+    return pdFALSE;
+}
+
+static BaseType_t prvCPCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString) {
+    BaseType_t fromParameterLen;
+    char *copyFrom = FreeRTOS_CLIGetParameter( // I know there's a warning here, a null terminator needs to be placed in the array :(
+        /* The command string itself. */
+        pcCommandString,
+        /* Return the first parameter. */
+        1,
+        /* Store the parameter string length. */
+        &fromParameterLen);
+    BaseType_t toParameterLen;
+    const char *copyTo = FreeRTOS_CLIGetParameter(
+        /* The command string itself. */
+        pcCommandString,
+        /* Return the second parameter. */
+        2,
+        /* Store the parameter string length. */
+        &toParameterLen);
+    copyFrom[fromParameterLen] = 0;
+    int from_fd = red_open(copyFrom, RED_O_RDONLY);
+    if (from_fd < 0) {
+        createErrorOutput(pcWriteBuffer, xWriteBufferLen);
+        return pdFALSE;
+    }
+    int to_fd = red_open(copyTo, RED_O_WRONLY | RED_O_CREAT);
+    if (to_fd < 0) {
+        createErrorOutput(pcWriteBuffer, xWriteBufferLen);
+        red_close(from_fd);
+        return pdFALSE;
+    }
+    int8_t *buf = pvPortMalloc(512);
+    if (buf == NULL) {
+        snprintf(pcWriteBuffer, xWriteBufferLen, "%s\n", "failed to allocate buffer");
+        red_close(to_fd);
+        red_close(from_fd);
+        return pdFALSE;
+    }
+    bool done = false;
+    while (!done) {
+        int32_t bytes_read = red_read(from_fd, buf, 512);
+        if (bytes_read == 0) {
+            done = true;
+            continue;
+        } 
+        if (bytes_read < 0) {
+            done = true;
+            createErrorOutput(pcWriteBuffer, xWriteBufferLen);
+            continue;
+        }
+        int32_t bytes_written = red_write(to_fd, buf, 512);
+        if (bytes_written < 0) {
+            done = true;
+            createErrorOutput(pcWriteBuffer, xWriteBufferLen);
+            continue; 
+        }
+    }
+    red_close(to_fd);
+    red_close(from_fd);
+    vPortFree(buf);
     return pdFALSE;
 }
 
@@ -316,6 +411,7 @@ static const CLI_Command_Definition_t xTRANSACTCommand = {
     "transact",
     "transact:\n\tTell Reliance-edge to transact the filesystem.\n\tMust include volume prefix to transact\n",
     prvTRANSACTCommand, 1};
+static const CLI_Command_Definition_t xCPCommand = {"cp", "cp:\n\tCopy first parameter to second parameter\n", prvCPCommand, 2};
 
 void register_fs_utils() {
     FreeRTOS_CLIRegisterCommand(&xPWDCommand);
@@ -328,4 +424,6 @@ void register_fs_utils() {
     FreeRTOS_CLIRegisterCommand(&xSTATCommand);
     FreeRTOS_CLIRegisterCommand(&xREADCommand);
     FreeRTOS_CLIRegisterCommand(&xTRANSACTCommand);
+    FreeRTOS_CLIRegisterCommand(&xCPCommand);
+
 }
