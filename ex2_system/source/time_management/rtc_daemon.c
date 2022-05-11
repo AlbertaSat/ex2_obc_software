@@ -50,7 +50,7 @@ int RTCMK_GetMs() {
  */
 void RTC_discipline_daemon(void) {
 
-    ex2_log("GPS Task Started");
+    sys_log(INFO, "GPS Task Started");
 
     time_t utc_time;
 
@@ -67,11 +67,11 @@ void RTC_discipline_daemon(void) {
         rtc_wdt_counter++;
         total_delay = 0;
         if (!(gps_get_utc_time(&utc_time))) {
-            ex2_log("Couldn't get gps time");
+            sys_log(NOTICE, "Couldn't get gps time");
             continue; // delay wait until gps signal acquired
         } else {
             RTCMK_SetUnix(utc_time);
-            ex2_log("Current time: %d", utc_time);
+            sys_log(INFO, "Current time: %d", utc_time);
         }
         rtc_wdt_counter++;
     }

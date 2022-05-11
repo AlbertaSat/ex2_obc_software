@@ -20,8 +20,6 @@
 
 #include "services.h"
 
-void ex2_log(const char *format, ...);
-
 void return_packet_header(csp_packet_t *packet);
 
 void set_packet_length(csp_packet_t *packet, uint16_t length);
