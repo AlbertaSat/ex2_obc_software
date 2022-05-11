@@ -39,7 +39,7 @@ void binaryTest(void) { // TODO: add enums for all adcs_handler functions called
        while (1)
            ;
    }
-   printf("ADCS run mode = %d\n", test_adcs_state.run_mode);
+   printf("ADCS run mode = %d\n\n", test_adcs_state.run_mode);
 
 
    // Power Control : CubeControl Signal and/or Motor Power = On (1), All others = Off (0)
@@ -70,19 +70,34 @@ void binaryTest(void) { // TODO: add enums for all adcs_handler functions called
     // commandsTest_bootloader();
 
 
-    // ACP telemetry command test
+    //* ACP telemetry command test:
+    // Acquires CubeACP State flags
+    // Fires magnetorquer X at max duty cycle
+    // Gets commanded actuator
     commandsTest_ACP_telemetry();
 
 
-    // Attitude angle command test
+    //* Attitude angle command test
+    // Will Get-Set-Get commannded attitude
     // commandsTest_attitude();
 
 
-    // Concurrent logging test
+    //* Concurrent logging test:
+    // Will attempt logging using both LOG1 and LOG2
+    // at different periods and w/ diff telemetry
+    // for 1 min
     // commandsTest_logtest();
 
 
-    // Save configuration test
+    //* Configuration commands test:
+    // Get default CSS Config, MTQ Config, and Wheel Configs
+    // Modify CSS Config, MTQ Config, and Wheel Configs
+    //! Make sure to keep track of what you change!
+    // Save new configurations 
+    // Reset ADCS
+    // Wait 6s for bootloader to finish
+    // Re-enable ADCS
+    // Verify modified configs
     // commandsTest_configs();
 
 
@@ -3143,7 +3158,6 @@ void commandsTest_configs(void)
     for(int i = 0; i < 10; i++)
     {
         printf("CSS%d config = %d\n", i, ADCS_config->css.config[i]);
-
     }
     for(int i = 0; i < 10; i++)
     {
@@ -3151,6 +3165,67 @@ void commandsTest_configs(void)
     }
     printf("Threshhold: %d\n\n", ADCS_config->css.threshold);
 
+    printf("Saving configuration...\n\n");
+    test_returnState = ADCS_save_config();
+    if (test_returnState != ADCS_OK)
+    {
+        printf("ADCS_save_config returned %d", test_returnState);
+        while(1);
+    }
+
+    ADCS_reset();
+
+    printf("Waiting 6s for bootloader to finish...\n\n");
+    vTaskDelay(pdMS_TO_TICKS(6000)); // Wait 6s for bootloader duration
+
+
+
+    printf("Re-enabling ADCS\n\n");
+    test_returnState = ADCS_set_enabled_state(1);
+    if (test_returnState != ADCS_OK)
+    {
+        printf("ADCS_set_enabled_state returned %d", test_returnState);
+        while(1);
+    }
+
+    adcs_state test_adcs_state;
+    printf("Running ADCS_get_current_state...\n");
+    test_returnState = ADCS_get_current_state(&test_adcs_state);
+    if (test_returnState != ADCS_OK) {
+        printf("ADCS_get_current_state returned %d \n", test_returnState);
+        while (1)
+            ;
+    }
+    printf("ADCS run mode = %d\n\n", test_adcs_state.run_mode);
+
+
+
+    printf("Verifying config saved after reset:\n");
+    test_returnState = ADCS_get_full_config(ADCS_config);
+    if (test_returnState != ADCS_OK) {
+        printf("ADCS_get_full_config returned %d \n", test_returnState);
+        while (1);
+    }
+    for(int i = 0; i < 10; i++)
+    {
+        printf("CSS%d config = %d\n", i, ADCS_config->css.config[i]);
+    }
+    for(int i = 0; i < 10; i++)
+    {
+        printf("CSS%d relative scale = %f\n", i, ADCS_config->css.rel_scale[i]);
+    }
+    printf("Threshhold: %d\n\n", ADCS_config->css.threshold);
+
+    printf("Wheel 1 config: %u\n", ADCS_config->RW[0]);
+    printf("Wheel 2 config: %u\n", ADCS_config->RW[1]);
+    printf("Wheel 3 config: %u\n", ADCS_config->RW[2]);
+    printf("Wheel 4 config: %u\n\n", ADCS_config->RW[3]); 
+
+    printf("Magnetorquer 1 config: %u\n", ADCS_config->MTQ.x);
+    printf("Magnetorquer 2 config: %u\n", ADCS_config->MTQ.y);
+    printf("Magnetorquer 3 config: %u\n\n", ADCS_config->MTQ.z);
+
+    printf("Config test finished.");
 }
 
 // BELOW HERE LIES CODE THAT IS COMMON FOR MULTIPLE PARTS OF BINARY TEST PLAN. THESE FUNCTIONS
