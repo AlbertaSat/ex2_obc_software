@@ -242,7 +242,7 @@ static void init_csp() {
     csp_conf.model = "Ex-Alta2";
     csp_conf.revision = "2";
     csp_conf.conn_max = 20;
-    csp_conf.conn_queue_length = 10;
+    csp_conf.conn_queue_length = 15;
     csp_conf.fifo_length = 25;
     csp_conf.port_max_bind = 24;
     csp_conf.rdp_max_window = 20;
