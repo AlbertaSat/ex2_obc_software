@@ -105,9 +105,11 @@ SAT_returnState vSchedulerHandler (void *pvParameters) {
         // get current unix time
         time_t current_time;
         RTCMK_GetUnix(&current_time);
+        // get milliseconds from the RTC (only include this if ms accuracy is required)
+        int RTC_ms = RTCMK_GetMs();
         // calculate delay until the next command
         int delay_time = (cmds)->unix_time - current_time; //in seconds
-        TickType_t delay_ticks = pdMS_TO_TICKS(1000 * delay_time); //in # of ticks
+        TickType_t delay_ticks = pdMS_TO_TICKS(1000 * delay_time) - RTC_ms + (cmds)->milliseconds; //in # of ticks, ie. milliseconds
 
         // get the freeRTOS time
         xLastWakeTime = xTaskGetTickCount();

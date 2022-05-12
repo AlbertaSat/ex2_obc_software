@@ -63,6 +63,7 @@ extern int delay_aborted;
 typedef struct __attribute__((packed)) {
     // TODO: determine if second accuracy is needed
     tmElements_t scheduled_time;
+    uint16_t milliseconds;
     uint16_t length;
     uint16_t dst;
     uint16_t dport;
@@ -73,6 +74,7 @@ typedef struct __attribute__((packed)) {
 typedef struct __attribute__((packed)) {
     // TODO: determine if seconds accuracy is needed
     uint32_t unix_time;
+    uint16_t milliseconds;
     uint32_t frequency; //frequency the cmd needs to be executed in seconds, value of 0 means the cmd is not repeated
     uint16_t length;
     uint16_t dst;
@@ -90,6 +92,7 @@ typedef struct __attribute__((packed)) {
 typedef struct __attribute__((packed)) {
     uint32_t unix_time;
     uint32_t frequency;         //frequency the cmd needs to be executed in seconds, value of 0 means the cmd is not repeated
+    uint16_t milliseconds;
     uint8_t dst;
     uint8_t dport;
     uint16_t length;            //length of data field
