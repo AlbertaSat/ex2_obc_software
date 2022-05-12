@@ -98,6 +98,7 @@ void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
 void ex2_init(void *pvParameters) {
 
     init_filesystem();
+    init_csp();
 
     /* LEOP */
 
@@ -113,6 +114,8 @@ void ex2_init(void *pvParameters) {
 
 #ifndef ADCS_IS_STUBBED
     init_adcs_io();
+    ADCS_set_enabled_state(1);
+
 #endif
 
 #ifndef ATHENA_IS_STUBBED
@@ -126,6 +129,8 @@ void ex2_init(void *pvParameters) {
 #ifndef UHF_IS_STUBBED
     uhf_uart_init();
     uhf_i2c_init();
+    uhf_pipe_timer_init();
+    UHF_init_config();
 #endif
 
 #ifndef SBAND_IS_STUBBED
@@ -146,7 +151,7 @@ void ex2_init(void *pvParameters) {
     /* Software Initialization */
 
     /* Start service server, and response server */
-    init_csp();
+
     init_software();
 
 #ifdef SDR_TEST
