@@ -62,12 +62,10 @@ static void uhf_watchdog_daemon(void *pvParameters) {
             vTaskDelay(delay);
             continue;
         }
-        // Get status word from UHF
-        uint8_t scw[12];
         UHF_return err;
         for (int i = 0; i < watchdog_retries; i++) {
-            err = HAL_UHF_getSCW(scw);
-            if (err == U_ANS_SUCCESS) {
+            err = UHF_refresh_state();
+            if (err == U_GOOD_CONFIG) {
                 break;
             } else if (err == U_IN_PIPE) {
                 break;
@@ -77,7 +75,7 @@ static void uhf_watchdog_daemon(void *pvParameters) {
 
         if (err == U_IN_PIPE) {
             ex2_log("UHF in PIPE Mode - power not toggled.");
-        } else if (err != U_ANS_SUCCESS) {
+        } else if (err != U_GOOD_CONFIG) {
             ex2_log("UHF was not responsive - attempting to toggle power.");
 
             // Turn off the UHF.
