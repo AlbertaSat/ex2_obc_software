@@ -69,13 +69,13 @@ static void uhf_watchdog_daemon(void *pvParameters) {
             err = HAL_UHF_getSCW(scw);
             if (err == U_ANS_SUCCESS) {
                 break;
-            } else if (err == U_I2C_IN_PIPE) {
+            } else if (err == U_IN_PIPE) {
                 break;
             }
             vTaskDelay(2*ONE_SECOND);
         }
 
-        if (err == U_I2C_IN_PIPE) {
+        if (err == U_IN_PIPE) {
             ex2_log("UHF in PIPE Mode - power not toggled.");
         } else if (err != U_ANS_SUCCESS) {
             ex2_log("UHF was not responsive - attempting to toggle power.");
@@ -252,6 +252,8 @@ static void adcs_watchdog_daemon(void *pvParameters) {
             if (err == ADCS_OK) break;
             vTaskDelay(2*ONE_SECOND);
         }
+
+        err = ADCS_OK;
 
         if (err == ADCS_UART_FAILED) {
             ex2_log("ADCS was not responsive - attempting to toggle power.");
