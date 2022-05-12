@@ -67,7 +67,9 @@ typedef struct __attribute__((packed)) {
     float Mag_Field_Vector_X;
     float Mag_Field_Vector_Y;
     float Mag_Field_Vector_Z;
-    uint16_t Comm_Status;
+    uint16_t TC_num;
+    uint16_t TM_num;
+    uint8_t CommsStat_flags[6];
     float Wheel1_Current;
     float Wheel2_Current;
     float Wheel3_Current;
@@ -306,7 +308,7 @@ ADCS_returnState HAL_ADCS_get_current_state(adcs_state *data);
 
 ADCS_returnState HAL_ADCS_get_jpg_cnv_progress(ADCS_jpg_cnv_progress *jpg_cnv_progress);
 ADCS_returnState HAL_ADCS_get_cubeACP_state(uint8_t *flags_arr);
-ADCS_returnState HAL_ADCS_get_sat_pos_LLH(xyz *target);
+ADCS_returnState HAL_ADCS_get_sat_pos_LLH(LLH *target);
 ADCS_returnState HAL_ADCS_get_execution_times(ADCS_execution_times *execution_times);
 ADCS_returnState HAL_ADCS_get_ACP_loop_stat(ADCS_ACP_loop_stat *ACP_loop_stat);
 ADCS_returnState HAL_ADCS_get_img_save_progress(ADCS_img_save_progress *img_save_progress);
@@ -328,8 +330,8 @@ ADCS_returnState HAL_ADCS_set_attitude_angle(xyz att_angle);
 ADCS_returnState HAL_ADCS_get_attitude_angle(xyz *att_angle);
 ADCS_returnState HAL_ADCS_set_track_controller(xyz target);
 ADCS_returnState HAL_ADCS_get_track_controller(xyz *target);
-ADCS_returnState HAL_ADCS_set_log_config(uint8_t flags_arr[10], uint16_t period, uint8_t dest, uint8_t log);
-ADCS_returnState HAL_ADCS_get_log_config(uint8_t flags_arr[10], uint16_t *period, uint8_t *dest, uint8_t log);
+ADCS_returnState HAL_ADCS_set_log_config(uint8_t *flags_arr, uint16_t period, uint8_t dest, uint8_t log);
+ADCS_returnState HAL_ADCS_get_log_config(uint8_t *flags_arr, uint16_t *period, uint8_t *dest, uint8_t log);
 ADCS_returnState HAL_ADCS_set_inertial_ref(xyz iner_ref);
 ADCS_returnState HAL_ADCS_get_inertial_ref(xyz *iner_ref);
 

@@ -36,6 +36,7 @@
 #include <HL_system.h>
 
 #include "main/system.h"
+#include "main/version.h"
 #include "board_io_tests.h"
 #include "services.h"
 #include "subsystems_ids.h"
@@ -59,6 +60,7 @@
 #include "system.h"
 #include "dfgm.h"
 #include "leop.h"
+#include "adcs.h"
 
 #include "deployablescontrol.h"
 
@@ -104,6 +106,7 @@ void ex2_init(void *pvParameters) {
     /* Subsystem Hardware Initialization */
 
 #ifndef ADCS_IS_STUBBED
+    // PLACEHOLDER: adcs hardware init
     init_adcs_io();
 #endif
 
@@ -116,6 +119,7 @@ void ex2_init(void *pvParameters) {
 #endif
 
 #ifndef UHF_IS_STUBBED
+    uhf_uart_init();
     uhf_i2c_init();
 #endif
 
@@ -142,7 +146,7 @@ void ex2_init(void *pvParameters) {
 
 #ifdef FLATSAT_TEST
     /* Test Task */
-    xTaskCreate(flatsat_test, "flatsat_test", 5000, NULL, 4, NULL);
+    xTaskCreate(flatsat_test, "flatsat_test", 1000, NULL, 4, NULL);
 #endif
 
     vTaskDelete(0); // delete self to free up heap
@@ -150,12 +154,6 @@ void ex2_init(void *pvParameters) {
 
 #ifdef FLATSAT_TEST
 void flatsat_test(void *pvParameters) {
-    //    sband_binary_test();
-    //    uhf_binary_test();
-
-    ADCS_TC_ack test_ack;
-
-    HAL_ADCS_get_TC_ack(&test_ack);
 
     vTaskDelete(NULL);
 }

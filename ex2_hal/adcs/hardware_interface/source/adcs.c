@@ -206,8 +206,7 @@ ADCS_returnState HAL_ADCS_get_file_info(ADCS_file_info *file_info) {
     #ifdef ADCS_IS_STUBBED
         return IS_STUBBED_A;
     #else
-        return ADCS_get_file_info(&file_info->type, &file_info->updating, &file_info->counter, &file_info->size,
-                              &file_info->time, &file_info->crc16_checksum);
+        return ADCS_get_file_info(file_info);
     #endif
 }
 
@@ -585,7 +584,7 @@ ADCS_returnState HAL_ADCS_get_ACP_loop_stat(ADCS_ACP_loop_stat *ACP_loop_stat) {
     #endif
 }
 
-ADCS_returnState HAL_ADCS_get_sat_pos_LLH(xyz *target) {
+ADCS_returnState HAL_ADCS_get_sat_pos_LLH(LLH *target) {
     #ifdef ADCS_IS_STUBBED
         return IS_STUBBED_A;
     #else
@@ -721,7 +720,7 @@ ADCS_returnState HAL_ADCS_get_track_controller(xyz *target) {
     #endif
 }
 
-ADCS_returnState HAL_ADCS_set_log_config(uint8_t flags_arr[10], uint16_t period, uint8_t dest, uint8_t log) {
+ADCS_returnState HAL_ADCS_set_log_config(uint8_t *flags_arr, uint16_t period, uint8_t dest, uint8_t log) {
     #ifdef ADCS_IS_STUBBED
         return IS_STUBBED_A;
     #else
@@ -729,7 +728,7 @@ ADCS_returnState HAL_ADCS_set_log_config(uint8_t flags_arr[10], uint16_t period,
     #endif
 }
 
-ADCS_returnState HAL_ADCS_get_log_config(uint8_t flags_arr[10], uint16_t *period, uint8_t *dest, uint8_t log) {
+ADCS_returnState HAL_ADCS_get_log_config(uint8_t *flags_arr, uint16_t *period, uint8_t *dest, uint8_t log) {
     #ifdef ADCS_IS_STUBBED
         return IS_STUBBED_A;
     #else
@@ -922,9 +921,9 @@ ADCS_returnState HAL_ADCS_getHK(ADCS_HouseKeeping *adcs_hk) {
         adcs_state data;
         adcs_measures mes;
         adcs_pwr_temp pwr;
-        xyz pos;
+        LLH pos;
 
-        if (temp = HAL_ADCS_get_current_state(&data) != 0) {
+        if ((temp = HAL_ADCS_get_current_state(&data)) != ADCS_OK) {
             return_state = temp;
         } else {
             // adcs_hk->Estimated_Angular_Rate = data.est_angular_rate;
@@ -950,7 +949,7 @@ ADCS_returnState HAL_ADCS_getHK(ADCS_HouseKeeping *adcs_hk) {
         }
 
 
-        if (temp = HAL_ADCS_get_measurements(&mes) != 0) {
+        if ((temp = HAL_ADCS_get_measurements(&mes)) != ADCS_OK) {
             return_state = temp;
         } else {
             // adcs_hk->Coarse_Sun_Vector = mes.coarse_sun;
@@ -976,7 +975,7 @@ ADCS_returnState HAL_ADCS_getHK(ADCS_HouseKeeping *adcs_hk) {
         }
 
 
-        if (temp = HAL_ADCS_get_power_temp(&pwr) != 0) {
+        if ((temp = HAL_ADCS_get_power_temp(&pwr)) != ADCS_OK) {
             return_state = temp;
         } else {
             adcs_hk->Wheel1_Current = pwr.wheel1_I;
@@ -996,17 +995,23 @@ ADCS_returnState HAL_ADCS_getHK(ADCS_HouseKeeping *adcs_hk) {
             adcs_hk->Rate_Sensor_Temp_Z = pwr.rate_sensor_temp.z;
         }
 
-        // if (temp = HAL_ADCS_get_sat_pos_LLH(&adcs_hk->Sat_Position_LLH) != 0) return_state = temp;
-        if (temp = HAL_ADCS_get_sat_pos_LLH(&pos) != 0) {
+        if ((temp = HAL_ADCS_get_sat_pos_LLH(&pos)) != ADCS_OK) {
             return_state = temp;
         } else {
-            adcs_hk->Sat_Position_LLH_X = pos.x;
-            adcs_hk->Sat_Position_LLH_Y = pos.y;
-            adcs_hk->Sat_Position_LLH_Z = pos.z;
+            adcs_hk->Sat_Position_LLH_X = pos.latitude;
+            adcs_hk->Sat_Position_LLH_Y = pos.longitude;
+            adcs_hk->Sat_Position_LLH_Z = pos.altitude;
         }
 
-        if (temp = HAL_ADCS_get_comms_stat(&adcs_hk->Comm_Status) != 0)
+        uint16_t comms_stat[5];
+
+        if ((temp = HAL_ADCS_get_comms_stat(comms_stat)) != ADCS_OK){
             return_state = temp;
+        } else {
+            adcs_hk->TC_num = comms_stat[0];
+            adcs_hk->TM_num = comms_stat[1];
+            memcpy(&adcs_hk->CommsStat_flags, &comms_stat[2], 6);
+        }
 
         return return_state;
     #endif

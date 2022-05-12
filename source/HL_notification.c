@@ -185,6 +185,18 @@ void gioNotification(gioPORT_t *port, uint32 bit)
 {
 /*  enter user code between the USER CODE BEGIN and USER CODE END. */
 /* USER CODE BEGIN (22) */
+    switch ((int) port) {
+    case (int)RTC_INT_PORT: {
+        switch (bit) {
+        case RTC_INT_PIN:
+            rtcInt_gioNotification(port, bit); break;
+        default:
+            return;
+        }
+    }; break;
+    default:
+        return;
+    }
 /* USER CODE END */
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020  University of Alberta
+ * Copyright (C) 2022  University of Alberta
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -11,14 +11,18 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+/*
+ * rtc_daemon.h
+ *
+ *  Created on: May 2, 2022
+ *      Author: Robert Taylor
+ */
 
-#ifndef UART_I2C_H
-#define UART_I2C_H
+#include "system.h"
 
-void uart_send(uint8_t *data, uint32_t length);
-void uart_receive(uint8_t *data, uint32_t length);
+#ifndef EX2_SYSTEM_INCLUDE_TIME_MANAGEMENT_RTC_DAEMON_H_
+#define EX2_SYSTEM_INCLUDE_TIME_MANAGEMENT_RTC_DAEMON_H_
 
-void i2c_send(uint8_t *data, uint32_t length);
-void i2c_receive(uint8_t *data, uint8_t reg, uint32_t length); // reg: the register to read (TLM ID)
+SAT_returnState start_RTC_daemon();
 
-#endif
+#endif /* EX2_SYSTEM_INCLUDE_TIME_MANAGEMENT_RTC_DAEMON_H_ */

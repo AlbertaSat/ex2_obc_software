@@ -24,7 +24,7 @@
 #include "rtcmk.h"    //to get time from RTC
 #include "services.h"
 #include "task_manager/task_manager.h"
-#include "util/service_utilities.h"
+#include "logger/logger.h"
 #include "csp/csp_endian.h"
 
 uint16_t MAX_FILES = 20160; // value is 20160 (7 days) based on 30 second period
@@ -201,7 +201,14 @@ Result mock_everyone(All_systems_housekeeping *all_hk_data) {
     all_hk_data->adcs_hk.Mag_Field_Vector_X = tempFloat;
     all_hk_data->adcs_hk.Mag_Field_Vector_Y = tempFloat;
     all_hk_data->adcs_hk.Mag_Field_Vector_Z = tempFloat;
-    all_hk_data->adcs_hk.Comm_Status = tempFloat;
+    all_hk_data->adcs_hk.TC_num = tempFloat;
+    all_hk_data->adcs_hk.TM_num = tempFloat;
+    all_hk_data->adcs_hk.CommsStat_flags[0] = tempFloat;
+    all_hk_data->adcs_hk.CommsStat_flags[1] = tempFloat;
+    all_hk_data->adcs_hk.CommsStat_flags[2] = tempFloat;
+    all_hk_data->adcs_hk.CommsStat_flags[3] = tempFloat;
+    all_hk_data->adcs_hk.CommsStat_flags[4] = tempFloat;
+    all_hk_data->adcs_hk.CommsStat_flags[5] = tempFloat;
     all_hk_data->adcs_hk.Wheel1_Current = tempFloat;
     all_hk_data->adcs_hk.Wheel2_Current = tempFloat;
     all_hk_data->adcs_hk.Wheel3_Current = tempFloat;
@@ -459,7 +466,7 @@ Result store_config(uint8_t rewrite_all) {
     }
     int32_t fout = red_open(hk_config, RED_O_CREAT | RED_O_RDWR); // open or create file to write binary
     if (fout == -1) {
-        ex2_log("Failed to open or create file to write: '%s'\n", hk_config);
+        sys_log(ERROR, "Failed to open or create file to write: '%s'\n", hk_config);
         return FAILURE;
     }
     red_write(fout, &MAX_FILES, sizeof(MAX_FILES));
@@ -477,12 +484,12 @@ Result store_config(uint8_t rewrite_all) {
 
 Result load_config() {
     if (exists(hk_config) == FILE_NOT_EXIST) {
-        ex2_log("Config file: '%s' does not exist\n", hk_config);
+        sys_log(WARN, "Config file: '%s' does not exist\n", hk_config);
         return FAILURE;
     }
     int32_t fin = red_open(hk_config, RED_O_RDONLY); // open file to read binary
     if (fin == -1) {
-        ex2_log("Failed to open file to read: '%s'\n", hk_config);
+        sys_log(ERROR, "Failed to open file to read: '%s'\n", hk_config);
         return FAILURE;
     }
     red_read(fin, &MAX_FILES, sizeof(MAX_FILES));
@@ -539,7 +546,7 @@ Result write_hk_to_file(uint16_t filenumber, All_systems_housekeeping *all_hk_da
     int32_t fout = red_open(fileName, RED_O_CREAT | RED_O_RDWR); // open or create file to write binary
     if (fout == -1) {
         printf("Unexpected error %d from red_open()\r\n", (int)red_errno);
-        ex2_log("Failed to open or create file to write: '%s'\n", fileName);
+        sys_log(ERROR, "Failed to open or create file to write: '%s'\n", fileName);
         return FAILURE;
     }
     uint16_t needed_size = get_size_of_housekeeping(all_hk_data);
@@ -560,7 +567,7 @@ Result write_hk_to_file(uint16_t filenumber, All_systems_housekeeping *all_hk_da
     // red_write(fout, &all_hk_data->payload_hk, sizeof(all_hk_data->payload_hk));
 
     if (red_errno != 0) {
-        ex2_log("Failed to write to file: '%s'\n", fileName);
+        sys_log(ERROR, "Failed to write to file: '%s'\n", fileName);
         red_close(fout);
         return FAILURE;
     }
@@ -588,7 +595,7 @@ Result read_hk_from_file(uint16_t filenumber, All_systems_housekeeping *all_hk_d
     }
     int32_t fin = red_open(fileName, RED_O_RDONLY); // open file to read binary
     if (fin == -1) {
-        ex2_log("Failed to open file to read: '%c'\n", fileName);
+        sys_log(ERROR, "Failed to open file to read: '%c'\n", fileName);
         return FAILURE;
     }
 
@@ -610,7 +617,7 @@ Result read_hk_from_file(uint16_t filenumber, All_systems_housekeeping *all_hk_d
     // red_read(fin, &all_hk_data->payload_hk, sizeof(all_hk_data->payload_hk));
 
     if (red_errno != 0) {
-        ex2_log("Failed to read: '%c'\n", fileName);
+        sys_log(ERROR, "Failed to read: '%c'\n", fileName);
         red_close(fin);
         return FAILURE;
     }
@@ -649,7 +656,7 @@ Result populate_and_store_hk_data(void) {
     All_systems_housekeeping temp_hk_data;
 
     if (collect_hk_from_devices(&temp_hk_data) == FAILURE) {
-        ex2_log("Error collecting hk data from peripherals\n");
+        sys_log(WARN, "Error collecting hk data from peripherals\n");
     }
 
     // RTC_get_unix_time(&temp_hk_data.hk_timeorder.UNIXtimestamp);
@@ -658,7 +665,7 @@ Result populate_and_store_hk_data(void) {
 
     if (config_loaded == 0) {
         if (load_config() == FAILURE) {
-            ex2_log("couldn't load config");
+            sys_log(WARN, "Couldn't load config");
         }
     }
     config_loaded = 1;
@@ -669,7 +676,7 @@ Result populate_and_store_hk_data(void) {
     temp_hk_data.hk_timeorder.dataPosition = current_file;
 
     if (write_hk_to_file(current_file, &temp_hk_data) != SUCCESS) {
-        ex2_log("Housekeeping data lost\n");
+        sys_log(ERROR, "Housekeeping data lost\n");
         prv_give_lock(&f_count_lock); // unlock
         return FAILURE;
     }
@@ -677,7 +684,7 @@ Result populate_and_store_hk_data(void) {
     if (dynamic_timestamp_array_handler(MAX_FILES) == SUCCESS) {
         timestamps[current_file] = temp_hk_data.hk_timeorder.UNIXtimestamp;
     } else {
-        ex2_log("Warning, failed to malloc for secondary data structure\n");
+        sys_log(WARN, "Warning, failed to malloc for secondary data structure\n");
     }
     store_config(0);
 
