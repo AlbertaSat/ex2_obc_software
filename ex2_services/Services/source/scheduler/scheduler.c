@@ -141,7 +141,10 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds) {
         int32_t fout = red_open(fileName1, RED_O_RDWR); // open or create file to write binary
         if (fout < 0) {
             printf("Unexpected error %d from red_open()\r\n", (int)red_errno);
-            ex2_log("Failed to open or create file to reset: '%s'\n", fileName1);
+            ex2_log("Failed to open file in GET_SCHEDULE: '%s'\n", fileName1);
+            status = 1;
+            memcpy(&gs_cmds->data[STATUS_BYTE], &status, sizeof(int8_t));
+            set_packet_length(gs_cmds, sizeof(int8_t) + 1); // plus one for sub-service
             return SATR_ERROR;
         }
 
@@ -185,13 +188,14 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds) {
                 (get_schedule+i)->dst = (cmds+i)->dst;
                 (get_schedule+i)->dport = (cmds+i)->dport;
                 (get_schedule+i)->length = (cmds+i)->length;
-                memcpy(&((cmds+i)->data), &((get_schedule+i)->data), ((get_schedule+i)->length));
+                memcpy(&(cmds+i)->data, &(get_schedule+i)->data, (get_schedule+i)->length);
             }
+            status = 0;
+            memcpy(&gs_cmds->data[STATUS_BYTE], &status, sizeof(int8_t));
+            memcpy(&gs_cmds->data[OUT_DATA_BYTE], cmds, num_existing_cmds * sizeof(cmds));
+            set_packet_length(gs_cmds, sizeof(int8_t) + num_existing_cmds * sizeof(cmds) + 1); // plus one for sub-service
         }
 
-        status = 0;
-        memcpy(&gs_cmds->data[STATUS_BYTE], &status, sizeof(int8_t));
-        set_packet_length(gs_cmds, sizeof(int8_t) + 1); // plus one for sub-service
         }
         break;
 
@@ -430,6 +434,35 @@ int prv_set_scheduler(char *cmd_buff, scheduled_commands_t *cmds) {
         old_str_position = str_position_2;
         str_position_1 = str_position_2;
         
+        /*-----------------------Fetch time in milliseconds-----------------------*/
+        //Count the number of digits
+        while (cmd_buff[str_position_1] != ' ') {
+            str_position_1++;
+        }
+        str_position_2 = str_position_1;
+        //Count the number of spaces following the digits
+        while (cmd_buff[str_position_2] == ' ') {
+            str_position_2++;
+        }
+        //Scan the value
+        if (cmd_buff[str_position_1 - 1] == '*') {
+            (cmds + number_of_cmds)->milliseconds = ASTERISK;
+        }
+        else {
+            int buf_scanf;
+            char *buf_string = &cmd_buff[old_str_position];
+            int f_scanf = sscanf(buf_string,"%d",&buf_scanf);
+            if (f_scanf != 1) {
+                ex2_log("Error: unable to scan time in milliseconds for command: %d\n", number_of_cmds+1);
+                return -1;
+            }
+            (cmds + number_of_cmds)->milliseconds = (uint8_t)buf_scanf;
+        }
+        
+        old_str_position = str_position_2;
+        str_position_1 = str_position_2;
+        str_position_1++;
+
         /*-----------------------Fetch time in seconds-----------------------*/
         //Count the number of digits
         while (cmd_buff[str_position_1] != ' ') {
@@ -729,6 +762,7 @@ SAT_returnState calc_cmd_frequency(scheduled_commands_t *cmds, int number_of_cmd
                 }
 
                 // Copy the address of the embedded CSP packet to the non_reoccurring_cmds list
+                (non_reoccurring_cmds+j_non_rep)->milliseconds = (cmds+j)->milliseconds;
                 (non_reoccurring_cmds+j_non_rep)->frequency = 0; //set frequency to zero for non-repetitive cmds
                 (non_reoccurring_cmds+j_non_rep)->length = (cmds+j)->length;
                 (non_reoccurring_cmds+j_non_rep)->dst = (cmds+j)->dst;
@@ -763,6 +797,7 @@ SAT_returnState calc_cmd_frequency(scheduled_commands_t *cmds, int number_of_cmd
     for (int j=0; j < j_rep; j++) {
         time_buff.Wday = (reoccurring_cmds+j)->scheduled_time.Wday;
         time_buff.Month = (reoccurring_cmds+j)->scheduled_time.Month;
+        (repeated_cmds_buff+j)->milliseconds = (reoccurring_cmds+j)->milliseconds;
         (repeated_cmds_buff+j)->length = (reoccurring_cmds+j)->length;
         (repeated_cmds_buff+j)->dst = (reoccurring_cmds+j)->dst;
         (repeated_cmds_buff+j)->dport = (reoccurring_cmds+j)->dport;
