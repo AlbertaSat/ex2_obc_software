@@ -31,15 +31,32 @@ static SemaphoreHandle_t uart_mutex;
 /**
  * @Brief
  *      Initialize ADCS driver
+ * @return ADCS_returnState
+ *      Whether or not the driver initialized correctly
  */
-void init_adcs_io() {
+ADCS_returnState init_adcs_io() {
     tx_semphr = xSemaphoreCreateBinary();
+    if (tx_semphr == NULL) {
+        return ADCS_UART_FAILED;
+    }
+
     adcsQueue = xQueueCreate(ADCS_QUEUE_LENGTH, ITEM_SIZE);
+    if(adcsQueue == NULL){
+        return ADCS_UART_FAILED;
+    }
+
     uart_mutex = xSemaphoreCreateMutex();
+    if (uart_mutex == NULL) {
+        return ADCS_UART_FAILED;
+    }
     adcsBuffer = 0;
     sciReceive(ADCS_SCI, 1, &adcsBuffer);
 }
 
+/**
+ * @Brief
+ *      sciNotification for ADCS_SCI. Handles adding to receive queue
+ */
 void adcs_sciNotification(sciBASE_t *sci, int flags) {
     portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
 
@@ -90,8 +107,6 @@ ADCS_returnState send_uart_telecommand(uint8_t *command, uint32_t length) {
     uint8_t reply[6] = {1};
     uint8_t attempts = 0;
 
-    xQueueReset(adcsQueue);
-
     while (received < 6) {
         if (xQueueReceive(adcsQueue, reply + received, UART_TIMEOUT_MS) == pdFAIL) {
             if (++attempts >= 5) {
@@ -104,6 +119,7 @@ ADCS_returnState send_uart_telecommand(uint8_t *command, uint32_t length) {
     }
     ADCS_returnState TC_err_flag = reply[3];
     xSemaphoreGive(uart_mutex);
+    xQueueReset(adcsQueue);
     return TC_err_flag;
 }
 
@@ -160,17 +176,20 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint3
 
     sciSend(ADCS_SCI, 5, frame);
     if (xSemaphoreTake(tx_semphr, UART_TIMEOUT_MS) != pdTRUE) {
+        xSemaphoreGive(uart_mutex);
         return ADCS_UART_FAILED;
     }
 
     int received = 0;
     uint8_t *reply = (uint8_t *)pvPortMalloc(length + 5);
     if (reply == NULL) {
+        xSemaphoreGive(uart_mutex);
         return ADCS_MALLOC_FAILED;
     }
 
     while (received < length + 5) {
         if (xQueueReceive(adcsQueue, reply + received, UART_TIMEOUT_MS) == pdFAIL) {
+            xSemaphoreGive(uart_mutex);
             return ADCS_UART_FAILED;
         } else {
             received++;
@@ -182,7 +201,7 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint3
     }
     vPortFree(reply);
     xSemaphoreGive(uart_mutex);
-
+    xQueueReset(adcsQueue);
     return ADCS_OK;
 }
 
