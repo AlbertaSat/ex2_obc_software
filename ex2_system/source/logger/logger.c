@@ -204,7 +204,7 @@ static void do_output(const char *str) {
  * Will lot of UART if IS_FLATSAT is not defined
  * Prepends calling task name and timestamp
  */
-void sys_log(int level, const char *format, ...) {
+void sys_log(SysLog_Level level, const char *format, ...) {
     const char *main_name = "MAIN";
     const char *task_name;
     const char abbreviations[] = { 'P', 'A', 'C', 'E', 'W', 'N', 'I', 'D' };
@@ -219,7 +219,7 @@ void sys_log(int level, const char *format, ...) {
         task_name = pcTaskGetName(NULL);
     }
 
-    if (level < 0 || level > (int) DEBUG) level = (int) DEBUG;
+    if (level < 0 || level > DEBUG) level = DEBUG;
 
     char buffer[PRINT_BUF_LEN + TASK_NAME_SIZE + LEVEL_LEN] = {0};
 
@@ -228,7 +228,7 @@ void sys_log(int level, const char *format, ...) {
     char *msg = buffer + TASK_NAME_SIZE + LEVEL_LEN;
     vsnprintf(msg, PRINT_BUF_LEN, format, arg);
     va_end(arg);
-    snprintf(buffer, TASK_NAME_SIZE + LEVEL_LEN + PRINT_BUF_LEN, "[%c][%.*s]%s", abbreviations[level], TASK_NAME_SIZE, task_name, msg);
+    snprintf(buffer, TASK_NAME_SIZE + LEVEL_LEN + PRINT_BUF_LEN, "[%c][%.*s]%s", abbreviations[(int) level], TASK_NAME_SIZE, task_name, msg);
 
     int string_len = strlen(buffer);
     if (buffer[string_len - 1] == '\n') {
