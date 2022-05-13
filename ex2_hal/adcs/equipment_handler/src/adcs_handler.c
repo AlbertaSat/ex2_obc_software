@@ -2144,7 +2144,12 @@ ADCS_returnState ADCS_set_attitude_angle(xyz att_angle) {
     raw_val.x = att_angle.x / coef;
     raw_val.y = att_angle.y / coef;
     raw_val.z = att_angle.z / coef;
-    memcpy(&command[1], &raw_val, 6);
+    command[1] = (raw_val.x) & 0x00FF;
+    command[2] = (raw_val.x >> 8) & 0x00FF;
+    command[3] = (raw_val.y) & 0x00FF;
+    command[4] = (raw_val.y >> 8) & 0x00FF;
+    command[5] = (raw_val.z) & 0x00FF;
+    command[6] = (raw_val.z >> 8) & 0x00FF;
     return adcs_telecommand(command, 7);
 }
 

@@ -23,48 +23,50 @@ void binaryTest(void) { // TODO: add enums for all adcs_handler functions called
 
    ADCS_returnState test_returnState = ADCS_OK;
 
-   printf("Enabling ADCS\n\n");
-   test_returnState = ADCS_set_enabled_state(1);
-   if (test_returnState != ADCS_OK)
-   {
-       printf("ADCS_set_enabled_state returned %d", test_returnState);
-       while(1);
-   }
+   //ADCS_reset();
 
-   adcs_state test_adcs_state;
-   printf("Running ADCS_get_current_state...\n");
-   test_returnState = ADCS_get_current_state(&test_adcs_state);
-   if (test_returnState != ADCS_OK) {
-       printf("ADCS_get_current_state returned %d \n", test_returnState);
-       while (1)
-           ;
-   }
-   printf("ADCS run mode = %d\n\n", test_adcs_state.run_mode);
-
-
-   // Power Control : CubeControl Signal and/or Motor Power = On (1), All others = Off (0)
-   uint8_t control[10] = {0};
-
-   // Verify Power State(s)
-   printf("Running ADCS_get_power_control...\n");
-   test_returnState = ADCS_get_power_control(control);
-   if (test_returnState != ADCS_OK) {
-       printf("ADCS_get_power_control returned %d \n", test_returnState);
-       while (1);
-   }
-   for (int i = 0; i < 10; i++) {
-       printf("control[%d] = %d \n", i, control[i]);
-   }
-
-   control[Set_CubeCTRLSgn_Power] = 1;
-   control[Set_CubeCTRLMtr_Power] = 1;
-
-   test_returnState = ADCS_set_power_control(control);
-   if (test_returnState != ADCS_OK) {
-       printf("ADCS_set_power_control returned %d \n", test_returnState);
-       while (1);
-   }
-
+//   printf("Enabling ADCS\n\n");
+//   test_returnState = ADCS_set_enabled_state(1);
+//   if (test_returnState != ADCS_OK)
+//   {
+//       printf("ADCS_set_enabled_state returned %d", test_returnState);
+//       while(1);
+//   }
+//
+//   adcs_state test_adcs_state;
+//   printf("Running ADCS_get_current_state...\n");
+//   test_returnState = ADCS_get_current_state(&test_adcs_state);
+//   if (test_returnState != ADCS_OK) {
+//       printf("ADCS_get_current_state returned %d \n", test_returnState);
+//       while (1)
+//           ;
+//   }
+//   printf("ADCS run mode = %d\n\n", test_adcs_state.run_mode);
+//
+//
+//   // Power Control : CubeControl Signal and/or Motor Power = On (1), All others = Off (0)
+//   uint8_t control[10] = {0};
+//
+//   // Verify Power State(s)
+//   printf("Running ADCS_get_power_control...\n");
+//   test_returnState = ADCS_get_power_control(control);
+//   if (test_returnState != ADCS_OK) {
+//       printf("ADCS_get_power_control returned %d \n", test_returnState);
+//       while (1);
+//   }
+//   for (int i = 0; i < 10; i++) {
+//       printf("control[%d] = %d \n", i, control[i]);
+//   }
+//
+//   control[Set_CubeCTRLSgn_Power] = 1;
+//   control[Set_CubeCTRLMtr_Power] = 1;
+//
+//   test_returnState = ADCS_set_power_control(control);
+//   if (test_returnState != ADCS_OK) {
+//       printf("ADCS_set_power_control returned %d \n", test_returnState);
+//       while (1);
+//   }
+//
 
     // Bootloader command test
     // commandsTest_bootloader();
@@ -74,7 +76,7 @@ void binaryTest(void) { // TODO: add enums for all adcs_handler functions called
     // Acquires CubeACP State flags
     // Fires magnetorquer X at max duty cycle
     // Gets commanded actuator
-    commandsTest_ACP_telemetry();
+    // commandsTest_ACP_telemetry();
 
 
     //* Attitude angle command test
@@ -86,13 +88,13 @@ void binaryTest(void) { // TODO: add enums for all adcs_handler functions called
     // Will attempt logging using both LOG1 and LOG2
     // at different periods and w/ diff telemetry
     // for 1 min
-    // commandsTest_logtest();
+     commandsTest_logtest();
 
 
     //* Configuration commands test:
     // Get default CSS Config, MTQ Config, and Wheel Configs
     // Modify CSS Config, MTQ Config, and Wheel Configs
-    //! Make sure to keep track of what you change!
+    // Make sure to keep track of what you change!
     // Save new configurations 
     // Reset ADCS
     // Wait 6s for bootloader to finish
@@ -101,15 +103,15 @@ void binaryTest(void) { // TODO: add enums for all adcs_handler functions called
     // commandsTest_configs();
 
 
-    printf("Turning off CubeCTRL Signal/Motor\n");
-    control[Set_CubeCTRLSgn_Power] = 0;
-    control[Set_CubeCTRLMtr_Power] = 0;
-
-    test_returnState = ADCS_set_power_control(control);
-    if (test_returnState != ADCS_OK) {
-        printf("ADCS_set_power_control returned %d \n", test_returnState);
-        while (1);
-    }
+//    printf("Turning off CubeCTRL Signal/Motor\n");
+//    control[Set_CubeCTRLSgn_Power] = 0;
+//    control[Set_CubeCTRLMtr_Power] = 0;
+//
+//    test_returnState = ADCS_set_power_control(control);
+//    if (test_returnState != ADCS_OK) {
+//        printf("ADCS_set_power_control returned %d \n", test_returnState);
+//        while (1);
+//    }
 
     // TODO: add checks for "incrementing" and "idle" type values, since those are only checked once
     // instantaneously now
@@ -683,15 +685,15 @@ void binaryTest_CubeSense1(void) {
 
        //Take off the Cam1 cameraÃ¯Â¿Â½s lens cap.
        //Verify the following in Table 5-2 by testing the sensor with a light source (a dark n environment will
-       prevent  false detections).
+       //prevent  false detections).
        //If Cam1 is a nadir sensor then a large light source should be used  (e.g. a desk lamp), or if Cam1 is a
-       Sun sensor then a small light
+       //Sun sensor then a small light
        //source should be used  (e.g. narrow beam flashlight). Vary the distance between the light source and
-       the sensor  until consistent measurements
+       //the sensor  until consistent measurements
        //are observed (normally Ã¯Â¿Â½150mm). If difficulties are  experienced with the nadir sensor, the light
-       source can be covered with white  paper/cloth
+       //source can be covered with white  paper/cloth
        //to create a more uniform light source. Finally, if no results are obtained for  the nadir or Sun
-       sensors, the exposure value can be adjusted.
+       //sensors, the exposure value can be adjusted.
     
        //ADCS_get_raw_sensor() LIGHT BROUGHT CLOSE TO THE CAMERA
        printf("Running ADCS_get_raw_sensor...\n");
@@ -971,13 +973,13 @@ void binaryTest_CubeSense2(void) {
    // nadir or Sun sensors, the exposure value can be adjusted.
 
    // ADCS_get_raw_sensor() LIGHT BROUGHT CLOSE TO THE CAMERA
-   printf("Running ADCS_get_raw_sensor...\n");
-   test_returnState = ADCS_get_raw_sensor(&raw_sensor_measurements);
-   if (test_returnState != ADCS_OK) {
-       printf("ADCS_get_raw_sensor returned %d \n", test_returnState);
-       while (1)
-           ;
-   }
+//   printf("Running ADCS_get_raw_sensor...\n");
+//   test_returnState = ADCS_get_raw_sensor(&raw_sensor_measurements);
+//   if (test_returnState != ADCS_OK) {
+//       printf("ADCS_get_raw_sensor returned %d \n", test_returnState);
+//       while (1)
+//           ;
+//   }
    //    printf("LIGHT HELD CLOSE TO THE CAMERA\n");
    //    printf("cam2.capture_stat = %d \n", raw_sensor_measurements.cam2.capture_stat);
    //    printf("cam2.detect_result = %d \n", raw_sensor_measurements.cam2.detect_result);
@@ -2750,56 +2752,108 @@ void commissioning_initial_y_momentum_activation(void)
 
 void commandsTest_bootloader(void)
 {
-    //* Bootloader Telecommands testing
+//    //* Bootloader Telecommands testing
+//    // Testing running bootloader with ADCS_reset
+//    uint8_t node_type = 0;
+//    uint8_t interface_ver = 0;
+//    uint16_t runtime_s = 0;
+//    uint16_t runtime_ms = 0;
+//    uint8_t major_firm_ver = 0;
+//    uint8_t minor_firm_ver = 0;
+//
+//    ADCS_reset();
+//
+//    ADCS_returnState test_returnState = ADCS_OK;
+//
+//    printf("Running ADCS_get_boot_program_stat...\n");
+//    test_returnState = ADCS_get_node_identification(&node_type, &interface_ver, &major_firm_ver,
+//                                                    &minor_firm_ver, &runtime_s, &runtime_ms);
+//    if (test_returnState != ADCS_OK) {
+//       printf("ADCS_get_boot_program_stat returned %d \n", test_returnState);
+//       while (1)
+//           ;
+//    }
+//
+//    printf("node_type = %d \n", node_type);
+//    printf("interface_ver = %d \n", interface_ver);
+//    printf("runtime_s = %d \n", runtime_s);
+//    printf("runtime_ms = %d \n\n", runtime_ms);
+//    printf("major_firm_ver = %d \n", major_firm_ver);
+//    printf("minor_firm_ver = %d \n\n", minor_firm_ver);
 
-    ADCS_returnState test_returnState = ADCS_OK;
+      //getting boot index to check if we are in bootloader
+      uint8_t mcu_reset_cause = 0;
+      uint8_t boot_cause = 0;
+      uint16_t boot_count = 0;
+      uint8_t boot_idx = 0;
+      uint8_t major_firm_ver = 0;
+      uint8_t minor_firm_ver = 0;
 
-    // Clear Bootloader Error Flags
-    printf("Clearing error flags\n\n");
-    test_returnState = ADCS_clear_err_flags();
-    if (test_returnState != ADCS_OK)
-    {
-        printf("ADCS_clear_err_flags returned %d\n", test_returnState);
-        while(1);
-    }
+      ADCS_returnState test_returnState = ADCS_OK;
+
+      printf("Running ADCS_get_boot_program_stat...\n");
+      test_returnState = ADCS_get_boot_program_stat(&mcu_reset_cause, &boot_cause, &boot_count, &boot_idx,
+                                                     &major_firm_ver, &minor_firm_ver);
+      if (test_returnState != ADCS_OK) {
+           printf("ADCS_get_boot_program_stat returned %d \n", test_returnState);
+           while (1)
+               ;
+       }
+
+      printf("mcu_reset_cause = %d \n", mcu_reset_cause);
+      printf("boot_cause = %d \n", boot_cause);
+      printf("boot_count = %d \n", boot_count);
+      printf("boot_idx = %d \n\n", boot_idx);
+      printf("major_firm_ver = %d \n", major_firm_ver);
+      printf("minor_firm_ver = %d \n\n", minor_firm_ver);
+
+//    // Clear Bootloader Error Flags
+//    printf("Clearing error flags\n\n");
+//    test_returnState = ADCS_clear_err_flags();
+//    if (test_returnState != ADCS_OK)
+//    {
+//        printf("ADCS_clear_err_flags returned %d\n", test_returnState);
+//        while(1);
+//    }
 
 
     // Set Boot Index
-    printf("Setting boot index\n\n");
-    test_returnState = ADCS_set_boot_index(1);
-    if (test_returnState != ADCS_OK)
-    {
-        printf("ADCS_set_boot_index returned %d\n", test_returnState);
-        while(1);
-    }
+
+//    printf("Setting boot index\n\n");
+//    test_returnState = ADCS_set_boot_index(INTERNAL_FLASH_PROGRAM);
+//    if (test_returnState != ADCS_OK)
+//    {
+//        printf("ADCS_set_boot_index returned %d\n", test_returnState);
+//        while(1);
+//    }
 
 
     // Read Program Info
-    printf("Reading program info (Bootloader)\n\n");
-    test_returnState = ADCS_read_program_info(BOOTLOADER);
+//    printf("Reading program info (Bootloader)\n\n");
+//    test_returnState = ADCS_read_program_info(BOOTLOADER);
+//    if (test_returnState != ADCS_OK)
+//    {
+//        printf("ADCS_read_program_info returned %d", test_returnState);
+//        while(1);
+//    }
+
+    printf("Reading Program Info (Internal Flash Program)\n\n");
+    test_returnState = ADCS_read_program_info(INTERNAL_FLASH_PROGRAM);
     if (test_returnState != ADCS_OK)
     {
         printf("ADCS_read_program_info returned %d", test_returnState);
         while(1);
     }
 
-    printf("Reading Program Info (Internal Flash Program)\n\n");
-    test_returnState = ADCS_read_program_info(INTERNAL_FLASH_PROGRAM);
-    if (test_returnState != ADCS_OK)
-    {
-        printf("ADCS_clear_err_flags returned %d", test_returnState);
-        while(1);
-    }
 
-
-    // Clear latched errors
-    printf("Clearing latched errors\n\n");
-    test_returnState = ADCS_clear_latched_errs(true, true);
-    if (test_returnState != ADCS_OK)
-    {
-        printf("ADCS_clear_latched_err returned %d", test_returnState);
-        while(1);
-    }
+//    // Clear latched errors
+//    printf("Clearing latched errors\n\n");
+//    test_returnState = ADCS_clear_latched_errs(true, true);
+//    if (test_returnState != ADCS_OK)
+//    {
+//        printf("ADCS_clear_latched_err returned %d", test_returnState);
+//        while(1);
+//    }
 }
 
 void commandsTest_ACP_telemetry(void)
@@ -2829,8 +2883,9 @@ void commandsTest_ACP_telemetry(void)
 
 
     // Actuator Commands
-    xyz16 dutycycle;
-    dutycycle.x = 800;
+    xyz16 dutycycle = {0, 0, 0};
+    dutycycle.y = 800;
+    dutycycle.z = 800;
     printf("Running Magnetorquer X at max duty cycle\n\n");
     test_returnState = ADCS_set_magnetorquer_output(dutycycle);
     if (test_returnState != ADCS_OK) {
@@ -2975,9 +3030,9 @@ void commandsTest_logtest(void)
     printf("Setting LOG2 (Estimated Angular Rates, 1s)\n");
 
     uint8_t flags_arr2[80] = {0};
-    flags_arr2[26] = 1; // Estimated Angular Rates
+    flags_arr2[27] = 1; // Estimated Angular Rates
 
-    test_returnState = ADCS_set_log_config(flags_arr2, TLM_LOG_PERIOD_1s, TLM_LOG_SDCARD_0, TLM_LOG_1);
+    test_returnState = ADCS_set_log_config(flags_arr2, TLM_LOG_PERIOD_1s, TLM_LOG_SDCARD_0, TLM_LOG_2);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_log_config returned %d \n", test_returnState);
         while (1);
@@ -3056,9 +3111,9 @@ void commandsTest_configs(void)
     printf("Setting MTQ Config:\n");
 
     xyzu8 params;
-    params.x = ADCS_config->MTQ.y;
-    params.y = ADCS_config->MTQ.z;
-    params.z = ADCS_config->MTQ.x;
+    params.x = 0;
+    params.y = 3;
+    params.z = 5;
 
     test_returnState = ADCS_set_MTQ_config(params);
     if (test_returnState != ADCS_OK) {
@@ -3079,91 +3134,91 @@ void commandsTest_configs(void)
 
 
 
-    // Set Wheel config
-    printf("Default Reaction Wheel config:\n");
-    printf("Wheel 1 config: %u\n", ADCS_config->RW[0]);
-    printf("Wheel 2 config: %u\n", ADCS_config->RW[1]);
-    printf("Wheel 3 config: %u\n", ADCS_config->RW[2]);
-    printf("Wheel 4 config: %u\n\n", ADCS_config->RW[3]); //? 4th wheel?
-
-    printf("Setting Wheel config\n");
-    uint8_t RW[4];
-    RW[0] = 1; // -X
-    RW[1] = 3; // -Y
-    RW[3] = 5; // -Z 
-    RW[4] = 6; // Not used
-
-    test_returnState = ADCS_set_RW_config(RW);
-    if (test_returnState != ADCS_OK) {
-        printf("ADCS_set_RW_config returned %d \n", test_returnState);
-        while (1);
-    }
-
-    printf("Verifying sent RW config:\n");
-    test_returnState = ADCS_get_full_config(ADCS_config);
-    if (test_returnState != ADCS_OK) {
-        printf("ADCS_get_full_config returned %d \n", test_returnState);
-        while (1);
-    }
-
-    printf("Wheel 1 config: %u\n", ADCS_config->RW[0]);
-    printf("Wheel 2 config: %u\n", ADCS_config->RW[1]);
-    printf("Wheel 3 config: %u\n", ADCS_config->RW[2]);
-    printf("Wheel 4 config: %u\n\n", ADCS_config->RW[3]); 
-
-
-    
-    // Set CSS config
-    printf("Default CSS config:\n");
-    for(int i = 0; i < 10; i++)
-    {
-        printf("CSS%d config = %d\n", i, ADCS_config->css.config[i]);
-
-    }
-    for(int i = 0; i < 10; i++)
-    {
-        printf("CSS%d relative scale = %f\n", i, ADCS_config->css.rel_scale[i]);
-    }
-    printf("Threshhold: %d\n\n", ADCS_config->css.threshold);
-
-    printf("Setting CSS config\n");
-    css_config *test_css_config = (css_config *)pvPortMalloc(sizeof(css_config));
-    
-    test_css_config->config[0] = 0; test_css_config->rel_scale[0] = 10;
-    test_css_config->config[1] = 1; test_css_config->rel_scale[1] = 10;
-    test_css_config->config[2] = 2; test_css_config->rel_scale[2] = 10;
-    test_css_config->config[3] = 3; test_css_config->rel_scale[3] = 10;
-    test_css_config->config[4] = 4; test_css_config->rel_scale[4] = 10;
-    test_css_config->config[5] = 5; test_css_config->rel_scale[5] = 10;
-    test_css_config->config[6] = 6; test_css_config->rel_scale[6] = 10;
-    test_css_config->config[7] = 0; test_css_config->rel_scale[7] = 10;
-    test_css_config->config[8] = 1; test_css_config->rel_scale[8] = 10;
-    test_css_config->config[9] = 2; test_css_config->rel_scale[9] = 10;
-
-    test_css_config->threshold = ADCS_config->css.threshold;
-
-    test_returnState = ADCS_set_css_config(*test_css_config);
-    if (test_returnState != ADCS_OK)
-    {
-        printf("ADCS_set_css_config returned %d", test_returnState);
-        while(1);
-    }
-
-    printf("Verifying sent CSS config:\n");
-    test_returnState = ADCS_get_full_config(ADCS_config);
-    if (test_returnState != ADCS_OK) {
-        printf("ADCS_get_full_config returned %d \n", test_returnState);
-        while (1);
-    }
-    for(int i = 0; i < 10; i++)
-    {
-        printf("CSS%d config = %d\n", i, ADCS_config->css.config[i]);
-    }
-    for(int i = 0; i < 10; i++)
-    {
-        printf("CSS%d relative scale = %f\n", i, ADCS_config->css.rel_scale[i]);
-    }
-    printf("Threshhold: %d\n\n", ADCS_config->css.threshold);
+//    // Set Wheel config
+//    printf("Default Reaction Wheel config:\n");
+//    printf("Wheel 1 config: %u\n", ADCS_config->RW[0]);
+//    printf("Wheel 2 config: %u\n", ADCS_config->RW[1]);
+//    printf("Wheel 3 config: %u\n", ADCS_config->RW[2]);
+//    printf("Wheel 4 config: %u\n\n", ADCS_config->RW[3]); //? 4th wheel?
+//
+//    printf("Setting Wheel config\n");
+//    uint8_t RW[4];
+//    RW[0] = 1; // -X
+//    RW[1] = 6; // -Y
+//    RW[2] = 6; // -Z
+//    RW[3] = 6; // Not used
+//
+//    test_returnState = ADCS_set_RW_config(RW);
+//    if (test_returnState != ADCS_OK) {
+//        printf("ADCS_set_RW_config returned %d \n", test_returnState);
+//        while (1);
+//    }
+//
+//    printf("Verifying sent RW config:\n");
+//    test_returnState = ADCS_get_full_config(ADCS_config);
+//    if (test_returnState != ADCS_OK) {
+//        printf("ADCS_get_full_config returned %d \n", test_returnState);
+//        while (1);
+//    }
+//
+//    printf("Wheel 1 config: %u\n", ADCS_config->RW[0]);
+//    printf("Wheel 2 config: %u\n", ADCS_config->RW[1]);
+//    printf("Wheel 3 config: %u\n", ADCS_config->RW[2]);
+//    printf("Wheel 4 config: %u\n\n", ADCS_config->RW[3]);
+//
+//
+//
+//    // Set CSS config
+//    printf("Default CSS config:\n");
+//    for(int i = 0; i < 10; i++)
+//    {
+//        printf("CSS%d config = %d\n", i, ADCS_config->css.config[i]);
+//
+//    }
+//    for(int i = 0; i < 10; i++)
+//    {
+//        printf("CSS%d relative scale = %f\n", i, ADCS_config->css.rel_scale[i]);
+//    }
+//    printf("Threshhold: %d\n\n", ADCS_config->css.threshold);
+//
+//    printf("Setting CSS config\n");
+//    css_config *test_css_config = (css_config *)pvPortMalloc(sizeof(css_config));
+//
+//    test_css_config->config[0] = 0; test_css_config->rel_scale[0] = 2;
+//    test_css_config->config[1] = 1; test_css_config->rel_scale[1] = 2;
+//    test_css_config->config[2] = 2; test_css_config->rel_scale[2] = 2;
+//    test_css_config->config[3] = 3; test_css_config->rel_scale[3] = 2;
+//    test_css_config->config[4] = 4; test_css_config->rel_scale[4] = 2;
+//    test_css_config->config[5] = 5; test_css_config->rel_scale[5] = 2;
+//    test_css_config->config[6] = 6; test_css_config->rel_scale[6] = 2;
+//    test_css_config->config[7] = 0; test_css_config->rel_scale[7] = 2;
+//    test_css_config->config[8] = 1; test_css_config->rel_scale[8] = 2;
+//    test_css_config->config[9] = 2; test_css_config->rel_scale[9] = 2;
+//
+//    test_css_config->threshold = ADCS_config->css.threshold;
+//
+//    test_returnState = ADCS_set_css_config(*test_css_config);
+//    if (test_returnState != ADCS_OK)
+//    {
+//        printf("ADCS_set_css_config returned %d", test_returnState);
+//        while(1);
+//    }
+//
+//    printf("Verifying sent CSS config:\n");
+//    test_returnState = ADCS_get_full_config(ADCS_config);
+//    if (test_returnState != ADCS_OK) {
+//        printf("ADCS_get_full_config returned %d \n", test_returnState);
+//        while (1);
+//    }
+//    for(int i = 0; i < 10; i++)
+//    {
+//        printf("CSS%d config = %d\n", i, ADCS_config->css.config[i]);
+//    }
+//    for(int i = 0; i < 10; i++)
+//    {
+//        printf("CSS%d relative scale = %f\n", i, ADCS_config->css.rel_scale[i]);
+//    }
+//    printf("Threshhold: %d\n\n", ADCS_config->css.threshold);
 
     printf("Saving configuration...\n\n");
     test_returnState = ADCS_save_config();
