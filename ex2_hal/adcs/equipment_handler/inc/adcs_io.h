@@ -46,7 +46,7 @@
 #define ADCS_TM_DATA_INDEX 3 // Data excludes TM ID
 #define ADCS_EXTRA_SZ_FOR_STUFFING 6
 #define ADCS_PARSING_BYTE 0x1F
-#define ADCS_ENDING_BYTE 0x7F
+#define ADCS_ENDING_BYTE 0xFF
 #define ADCS_NUM_ENDING_BYTES 2
 
 ADCS_returnState init_adcs_io();
