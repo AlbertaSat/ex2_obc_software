@@ -11,6 +11,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+/**
+ * @file adcs_io.h
+ * @author Andrew Rooney, Arash Yazdani, Vasu Gupta, Thomas Ganley
+ * @date 2020-08-09
+ */
 
 #ifndef ADCS_IO_H
 #define ADCS_IO_H
@@ -29,8 +34,20 @@
 #include <stdbool.h>
 #include <string.h>
 
+#define ADCS_QUEUE_LENGTH 600
+#define ADCS_QUEUE_ITEM_SIZE 1
+
 #define ADCS_I2C_ADDR 0x57
 #define UART_TIMEOUT_MS 1500
+
+#define ADCS_TC_HEADER_SZ 4 // Does not include TC ID
+#define ADCS_TC_ANS_LEN 6
+#define ADCS_TM_HEADER_SZ 5 // Includes TM ID
+#define ADCS_TM_DATA_INDEX 3 // Data excludes TM ID
+#define ADCS_EXTRA_SZ_FOR_STUFFING 6
+#define ADCS_PARSING_BYTE 0x1F
+#define ADCS_ENDING_BYTE 0x7F
+#define ADCS_NUM_ENDING_BYTES 2
 
 ADCS_returnState init_adcs_io();
 
