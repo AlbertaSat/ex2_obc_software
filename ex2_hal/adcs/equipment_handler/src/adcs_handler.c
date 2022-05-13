@@ -310,7 +310,11 @@ ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f) {
 
     ADCS_initiate_download_burst(msg_length, ignore_hole_map);
     ADCS_receive_download_burst(hole_map, file1, length_bytes);
+    
+    char buffer[msg_length];
+    red_read(file1, buffer, msg_length);
 
+    red_close(file1);
     return ADCS_OK;
 }
 
@@ -448,8 +452,7 @@ ADCS_returnState ADCS_advance_file_list_read_pointer(void) {
  * @param file_dest
  * 		Accepted parameters (Table 20):
  * 		EEPROM = 2
- * 		FLASH_PROGRAM_1 - FLASH_PROGRAM_7 = 3-10
- * 		SD_USER_FILE_1 - SD_USER_FILE_8 = 11-17
+ * 		FLASH_PROGRAM_1 - FLASH_PROGRAM_7 = 3-9
  * @param block_size
  * @return
  * 		Success of function defined in adcs_types.h
