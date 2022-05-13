@@ -3283,6 +3283,182 @@ void commandsTest_configs(void)
     printf("Config test finished.");
 }
 
+void commandsTest_configs_unsaved(void)
+{
+    ADCS_returnState test_returnState = ADCS_OK;
+    adcs_config adcs_Config;
+    test_returnState = ADCS_get_full_config(&adcs_Config);
+    if (test_returnState != ADCS_OK)
+    {
+        printf("ADCS_get_full_config returned %d", test_returnState);
+        while(1);
+    }
+
+
+    printf("Default MoI matrix config:\n");
+    printf("Ixx: %f\n", adcs_Config.MoI.diag.x);
+    printf("Iyy: %f\n", adcs_Config.MoI.diag.y);
+    printf("Iyy: %f\n", adcs_Config.MoI.diag.x);
+    printf("Ixy: %f\n", adcs_Config.MoI.nondiag.x);
+    printf("Ixz: %f\n", adcs_Config.MoI.nondiag.x);
+    printf("Iyz: %f\n\n", adcs_Config.MoI.nondiag.x);
+    
+
+    printf("Default Rate Gyro config:\n");
+    printf("Rate Gyro Config1: %u\n", adcs_Config.rate_gyro.gyro.x);
+    printf("Rate Gyro Config2: %u\n", adcs_Config.rate_gyro.gyro.y);
+    printf("Rate Gyro Config3: %u\n", adcs_Config.rate_gyro.gyro.z);
+    printf("X Rate sensor Offset: %f\n", adcs_Config.rate_gyro.sensor_offset.x);
+    printf("Y Rate sensor Offset: %f\n", adcs_Config.rate_gyro.sensor_offset.y);
+    printf("Z Rate sensor Offset: %f\n", adcs_Config.rate_gyro.sensor_offset.z);
+    printf("Rate Sensor Mult: %u\n\n", adcs_Config.rate_gyro.rate_sensor_mult);
+
+    
+    // Set MoI Matrix
+    printf("Setting MoI Matrix:\n\n");
+    moment_inertia_config moi_config;
+    moi_config.diag.x  = 2;
+    moi_config.diag.y = 2;
+    moi_config.diag.z = 2;
+    moi_config.nondiag.x  = 0.5;
+    moi_config.nondiag.y  = -0.5;
+    moi_config.nondiag.z  = 0.5;
+
+    test_returnState = ADCS_set_MoI_mat(moi_config);
+    if (test_returnState != ADCS_OK)
+    {
+        printf("ADCS_set_MoI_mat returned %d", test_returnState);
+        while(1);
+    }
+
+
+    // Set Rate Gyro config
+    printf("Setting Rate Gyro config:\n\n");
+    rate_gyro_config rate_gyro_params;
+    rate_gyro_params.gyro.x = 1;
+    rate_gyro_params.gyro.y = 3;
+    rate_gyro_params.gyro.z = 5;
+    rate_gyro_params.sensor_offset.x = 0.16;
+    rate_gyro_params.sensor_offset.y = -0.16;
+    rate_gyro_params.sensor_offset.z = 0.16;
+    rate_gyro_params.rate_sensor_mult = 1;
+
+    test_returnState = ADCS_set_rate_gyro(rate_gyro_params);
+    if (test_returnState != ADCS_OK)
+    {
+        printf("ADCS_set_rate_gyro returned %d", test_returnState);
+        while(1);
+    }
+
+
+
+    test_returnState = ADCS_get_full_config(&adcs_Config);
+    if (test_returnState != ADCS_OK)
+    {
+        printf("ADCS_get_full_config returned %d", test_returnState);
+        while(1);
+    }
+
+
+    
+    printf("Verifying modified configs:\n");
+    test_returnState = ADCS_get_full_config(&adcs_Config);
+    if (test_returnState != ADCS_OK)
+    {
+        printf("ADCS_get_full_config returned %d", test_returnState);
+        while(1);
+    }
+    printf("Modified MoI matrix config:\n");
+    printf("Ixx: %f\n", adcs_Config.MoI.diag.x);
+    printf("Iyy: %f\n", adcs_Config.MoI.diag.y);
+    printf("Iyy: %f\n", adcs_Config.MoI.diag.x);
+    printf("Ixy: %f\n", adcs_Config.MoI.nondiag.x);
+    printf("Ixz: %f\n", adcs_Config.MoI.nondiag.x);
+    printf("Iyz: %f\n\n", adcs_Config.MoI.nondiag.x);
+    
+
+    printf("Modified Rate Gyro config:\n");
+    printf("Rate Gyro Config1: %u\n", adcs_Config.rate_gyro.gyro.x);
+    printf("Rate Gyro Config2: %u\n", adcs_Config.rate_gyro.gyro.y);
+    printf("Rate Gyro Config3: %u\n", adcs_Config.rate_gyro.gyro.z);
+    printf("X Rate sensor Offset: %f\n", adcs_Config.rate_gyro.sensor_offset.x);
+    printf("Y Rate sensor Offset: %f\n", adcs_Config.rate_gyro.sensor_offset.y);
+    printf("Z Rate sensor Offset: %f\n", adcs_Config.rate_gyro.sensor_offset.z);
+    printf("Rate Sensor Mult: %u\n", adcs_Config.rate_gyro.rate_sensor_mult);
+
+}
+
+void commandsTest_upload(void)
+{
+    //* Upload firmware test 
+    ADCS_returnState test_returnState = ADCS_OK;
+    
+    
+    //Initiate file upload
+    uint8_t file_dest = 3;  // External flash program 1 
+    uint8_t block_size = 0; // Block size ignored, set to 0 (Firmware ref page.159)
+    printf("Initiating file uploadn\n"\n);
+    test_returnState = ADCS_initiate_file_upload(file_dest, block_size);
+    if (test_returnState != ADCS_OK)
+    {
+        pritnf("initiate file upload returned %d", test_returnState);
+        while(1);
+    }
+    
+    // Above code will erase selected flash program area
+    // Suggested wait time: 8s
+    printf("Waiting 8s.\n\n");
+    vTaskDelay(pdMS_TO_TICKS(8000));
+    // Poll completion using Initialize Upload Complete TLM
+    bool busy = true;
+
+    while (busy)
+    {
+        test_returnState = ADCS_get_init_upload_stat(&busy);
+        if (test_returnState != ADCS_OK)
+        {
+            printf("get upload status returned error: %d", test_returnState);
+            while(1);
+        }
+        if (busy) 
+        {
+            printf("Still erasing flash, waiting 1s\n");
+            vTaskDelay(pdMS_TO_TICKS(1000));
+        }
+        else{ 
+            printf("Flash erase complete\n\n");
+        }
+    }
+
+
+    // Send reset upload block
+    printf("Resetting upload block.\n\n");
+    test_returnState = ADCS_reset_upload_block();
+    if (test_returnState != ADCS_OK)
+    {
+        printf("reset upload block returned error: %d", test_returnState);
+        while(1);
+    }
+
+
+
+    // Continuous file packet upload
+    printf("Uploading packets...\n\n");
+    for (uint16_t packet_no = 0; packet_no < 1024, packet_no++)
+    {
+        ADCS_file_upload_packet(packet_no, "");
+    }
+    
+
+    // Obtain hole map
+    uint8_t hole_map[16];
+    uint8_t num;
+    printf("Getting hole map\n");
+    test_returnState = ADCS_get_hole_map
+}
+
+
+
 // BELOW HERE LIES CODE THAT IS COMMON FOR MULTIPLE PARTS OF BINARY TEST PLAN. THESE FUNCTIONS
 // ARE CALLED BY FUNCTIONS ABOVE HERE, AND SHOULD NOT BE RUN IN ISOLATION
 
