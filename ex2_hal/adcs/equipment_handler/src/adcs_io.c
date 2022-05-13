@@ -92,7 +92,7 @@ ADCS_returnState send_uart_telecommand(uint8_t *command, uint32_t length) {
 
     //Stuff the command
     uint8_t stuffed_length = length;
-    uint8_t *stuffed_command;
+    uint8_t *stuffed_command = (uint8_t *)pvPortMalloc((length + 10) * sizeof(uint8_t));
     adcs_byte_stuff(command, stuffed_command, length, &stuffed_length);
 
     // Form the command frame
@@ -107,10 +107,10 @@ ADCS_returnState send_uart_telecommand(uint8_t *command, uint32_t length) {
 
     // Send the command frame
     sciSend(ADCS_SCI, stuffed_length + ADCS_TC_HEADER_SZ, frame);
-    vPortFree(frame);
 
     if (xSemaphoreTake(tx_semphr, UART_TIMEOUT_MS) != pdTRUE) {
         xSemaphoreGive(uart_mutex);
+        vPortFree(frame);
         return ADCS_UART_FAILED;
     } // TODO: create response if it times out.
 
@@ -121,6 +121,7 @@ ADCS_returnState send_uart_telecommand(uint8_t *command, uint32_t length) {
     while (received < ADCS_TC_ANS_LEN) {
         if (xQueueReceive(adcsQueue, reply + received, UART_TIMEOUT_MS) == pdFAIL) {
             xSemaphoreGive(uart_mutex);
+            vPortFree(frame);
             return ADCS_UART_FAILED;
         } else {
             received++;
@@ -130,6 +131,7 @@ ADCS_returnState send_uart_telecommand(uint8_t *command, uint32_t length) {
     ADCS_returnState TC_err_flag = (ADCS_returnState) reply[3];
     xSemaphoreGive(uart_mutex);
     xQueueReset(adcsQueue);
+    vPortFree(frame);
     return TC_err_flag;
 }
 
@@ -210,10 +212,12 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint3
             return ADCS_UART_FAILED;
         } else {
             // Check for EOM
-            if(*(reply + received) = ending_bytes[ending_bytes_index]){
+            if(*(reply + received) == ending_bytes[ending_bytes_index]){
                 ending_bytes_index++;
 
                 if(ending_bytes_index == ADCS_NUM_ENDING_BYTES) end_of_message = true;
+            }else{
+                ending_bytes_index = 0;
             }
             received++;
         }
@@ -225,7 +229,7 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint3
     adcs_byte_destuff((reply + ADCS_TM_DATA_INDEX), thin_reply, received - ADCS_TM_HEADER_SZ, &thin_length);
 
     for (int i = 0; i < thin_length; i++) {
-        *(telemetry + i) = *(thin_reply);
+        *(telemetry + i) = *(thin_reply + i);
     }
     vPortFree(reply);
     vPortFree(thin_reply);
@@ -288,13 +292,6 @@ ADCS_returnState receive_file_download_uart_packet(uint8_t *packet, uint16_t *pa
  *
  */
 static void adcs_byte_stuff(uint8_t *thin_cmd, uint8_t *stuffed_cmd, uint8_t thin_length, uint8_t *stuffed_length){
-    *stuffed_length = thin_length;
-    for(int i = 0; i < thin_length; i++){
-        if(*(thin_cmd + i) == ADCS_PARSING_BYTE) stuffed_length++;
-    }
-
-    stuffed_cmd = (uint8_t *)pvPortMalloc(*stuffed_length * sizeof(uint8_t));
-
     uint8_t stuffed_index = 0;
     for(uint8_t thin_index = 0; thin_index < thin_length; thin_index++){
 
