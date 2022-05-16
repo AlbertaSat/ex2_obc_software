@@ -37,7 +37,7 @@ typedef enum {
     DEBUG,
 } SysLog_Level;
 
-void sys_log(int level, const char *format, ...);
+void sys_log(SysLog_Level level, const char *format, ...);
 
 #define ex2_log(_args_...) sys_log(INFO, _args_)
 
