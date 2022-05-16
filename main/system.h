@@ -71,7 +71,6 @@
 #endif
 
 #ifdef IS_ATHENA
-#define HAS_SD_CARD 1
 #define PRINTF_SCI NULL
 #else
 #define PRINTF_SCI sciREG1
