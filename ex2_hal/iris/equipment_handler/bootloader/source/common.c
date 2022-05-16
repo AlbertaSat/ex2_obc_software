@@ -8,7 +8,7 @@
 #include "FreeRTOS.h"
 #include <stdio.h>
 
-void read_bin_file(uint8_t *buffer, const char *filepath) {
+void read_bin_file(uint16_t *buffer, const char *filepath) {
     FILE *fptr;
     fptr = fopen(filepath, "rb");
 

@@ -17,7 +17,7 @@ uint8_t slave_addr; // What is the slave (Iris-flash; where the user-code start)
 
 uint8_t rx_data;
 uint8_t tx_data;
-int ret;
+int ret; // TODO: Is this the "acknowledgment"
 
 void i2c_bootloader_init() {
    /* i2c initialization */
@@ -70,10 +70,10 @@ void i2c_bootloader_write(uint32_t flash_addr, uint16_t num_bytes, void * bin_fi
             ret = write_packet(&tx_data);
             if (ret < 0); printf("Error");
 
-            /* Ack #1   */
-            if (verify_ack() == 0) write_state = WRITE_OP_CODE;
-            else write_state = WRITE_ERROR;
-            break;
+//            /* Ack #1   */
+//            if (verify_ack() == 0) write_state = WRITE_OP_CODE;
+//            else write_state = WRITE_ERROR;
+//            break;
         }
         case WRITE_OP_CODE:  /* Send op code    */
         {

@@ -10,6 +10,6 @@
 
 #include 'FreeRTOS.h'
 
-void read_bin_file(uint8_t *buffer, const char *filepath);
+void read_bin_file(uint16_t *buffer, const char *filepath);
 
 #endif /* COMMON_H_ */

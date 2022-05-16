@@ -24,15 +24,15 @@
 #define NACK 0x06
 #define DUMMY_BYTE 0xFF
 
-#define OPC_WREN 0x04
-#define OPC_ERUSM 0x0B
+#define OPC_WREN 0x04 //0100
+#define OPC_ERUSM 0x0B //1011
 
-// TODO: Define number of byte during one i2c transaction (Number of bytes will
+// Define number of byte during one i2c transaction (Number of bytes will
 // correspond the page size in the flash memory
 #define TRANSFER_SIZE 8
 #define MAX_NUM_BYTE_TRANSFER 2
 
-// TODO: Define size of STM32 Flash memory (total number of pages)
+// Define size of STM32 Flash memory (total number of pages)
 #define FLASH_MEM_SIZE 128
 #define FLASH_MEM_ADDR_SIZE 4
 
