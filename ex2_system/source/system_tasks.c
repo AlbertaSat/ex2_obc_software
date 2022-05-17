@@ -41,8 +41,8 @@ SAT_returnState start_system_tasks(void) {
   if (start_task_manager() != SATR_OK ||
       //start_beacon_daemon() != SATR_OK ||
       //start_coordinate_management_daemon() != SATR_OK ||
-      start_diagnostic_daemon() != SATR_OK ||
-      start_housekeeping_daemon() != SATR_OK ||
+//      start_diagnostic_daemon() != SATR_OK ||
+//      start_housekeeping_daemon() != SATR_OK ||
       //start_system_stats_daemon() != SATR_OK ||
       start_NMEA_daemon() != SATR_OK ||
       start_RTC_daemon() != SATR_OK ||

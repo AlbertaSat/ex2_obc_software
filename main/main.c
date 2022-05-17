@@ -202,46 +202,46 @@ void init_software() {
  * Initialize reliance edge file system
  */
 static void init_filesystem() {
-#if defined(HAS_SD_CARD) // TODO: tolerate non-existent SD Card
-    int32_t iErr = 0;
-    const char *pszVolume0 = gaRedVolConf[0].pszPathPrefix;
-    iErr = red_init();
-
-    if (iErr == -1) {
-        exit(red_errno);
-    }
-
-#ifdef SD_CARD_REFORMAT
-
-    iErr = red_format(pszVolume0);
-    if (iErr == -1) {
-        exit(red_errno);
-    }
-
-#endif
-
-    iErr = red_mount(pszVolume0);
-
-    if (iErr == -1) {
-        exit(red_errno);
-    }
-
-#ifdef IS_ATHENA_V2 // TODO: make this IS_ATHENA once V2 is actively used
-    iErr = 0;
-    const char *pszVolume1 = gaRedVolConf[1].pszPathPrefix;
-
-    iErr = red_format(pszVolume1);
-    if (iErr == -1) {
-        exit(red_errno);
-    }
-
-    iErr = red_mount(pszVolume1);
-
-    if (iErr == -1) {
-        exit(red_errno);
-    }
-#endif // IS_ATHENA_V2
-#endif // defined(HAS_SD_CARD)
+//#if defined(HAS_SD_CARD) // TODO: tolerate non-existent SD Card
+//    int32_t iErr = 0;
+//    const char *pszVolume0 = gaRedVolConf[0].pszPathPrefix;
+//    iErr = red_init();
+//
+//    if (iErr == -1) {
+//        exit(red_errno);
+//    }
+//
+//#ifdef SD_CARD_REFORMAT
+//
+//    iErr = red_format(pszVolume0);
+//    if (iErr == -1) {
+//        exit(red_errno);
+//    }
+//
+//#endif
+//
+//    iErr = red_mount(pszVolume0);
+//
+//    if (iErr == -1) {
+//        exit(red_errno);
+//    }
+//
+//#ifdef IS_ATHENA_V2 // TODO: make this IS_ATHENA once V2 is actively used
+//    iErr = 0;
+//    const char *pszVolume1 = gaRedVolConf[1].pszPathPrefix;
+//
+//    iErr = red_format(pszVolume1);
+//    if (iErr == -1) {
+//        exit(red_errno);
+//    }
+//
+//    iErr = red_mount(pszVolume1);
+//
+//    if (iErr == -1) {
+//        exit(red_errno);
+//    }
+//#endif // IS_ATHENA_V2
+//#endif // defined(HAS_SD_CARD)
 }
 
 /**
