@@ -65,6 +65,10 @@
 #include "deployablescontrol.h"
 #include "test_sdr.h"
 #include <csp/interfaces/csp_if_sdr.h>
+#include "printf.h"
+
+//#define CSP_USE_SDR
+#define CSP_USE_KISS
 
 #ifdef FLATSAT_TEST
 //#include "sband_binary_tests.h"
@@ -289,26 +293,51 @@ static inline SAT_returnState init_csp_interface() {
     if (error != CSP_ERR_NONE) {
         return SATR_ERROR;
     }
-#endif
+#endif /* EPS_IS_STUBBED */
 
+#if !defined(CSP_USE_KISS) && !defined(CSP_USE_SDR) || defined(CSP_USE_KISS) && defined(CSP_USE_SDR)
+#error "CSP must use one of KISS or SDR"
+#endif /* !defined(CSP_USE_KISS) && !defined(CSP_USE_SDR) || defined(CSP_USE_KISS) && defined(CSP_USE_SDR) */
+
+#if defined(CSP_USE_KISS)
     error = csp_usart_open_and_add_kiss_interface(&conf, CSP_IF_KISS_DEFAULT_NAME, &uart_iface);
     if (error != CSP_ERR_NONE) {
         return SATR_ERROR;
     }
 
+    char *gs_if_name = CSP_IF_KISS_DEFAULT_NAME;
+    int gs_if_addr = 16;
+
+#endif /* defined(CSP_USE_KISS) */
+
+#if defined(CSP_USE_SDR)
+
+#ifdef SDR_TEST
+    char * gs_if_name = "LOOPBACK";
+    int gs_if_addr = 23;
+#else
+    char * gs_if_name = "UHF";
+    int gs_if_addr = 16;
+#endif /* SDR_TEST */
+
     csp_sdr_conf_t uhf_conf = {    .mtu = SDR_UHF_MAX_MTU,
                                    .baudrate = SDR_UHF_9600_BAUD,
                                    .uart_baudrate = 115200 };
-        error = csp_sdr_open_and_add_interface(&uhf_conf, "LOOPBACK", NULL);
-        if (error != CSP_ERR_NONE) {
-            return SATR_ERROR;
-        }
+    error = csp_sdr_open_and_add_interface(&uhf_conf, gs_if_name, NULL);
+    if (error != CSP_ERR_NONE) {
+        return SATR_ERROR;
+    }
+
+#endif /* defined(CSP_USE_SDR) */
+
+    char rtable[128] = {0};
+    snprintf(rtable, 128, "%d %s", gs_if_addr, gs_if_name);
 
 #ifndef EPS_IS_STUBBED
-    csp_rtable_load("16 KISS, 4 CAN, 10 KISS");
-#else
-    csp_rtable_load("16 KISS, 10 KISS, 23 UHF");
-#endif
+    snprintf(rtable, 128, "%s 4 can", rtable);
+#endif /* EPS_IS_STUBBED */
+
+    csp_rtable_load(rtable);
 
     return SATR_OK;
 }
