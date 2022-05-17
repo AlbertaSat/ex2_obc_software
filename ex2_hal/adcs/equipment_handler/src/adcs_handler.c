@@ -2542,7 +2542,12 @@ ADCS_returnState ADCS_set_rate_gyro(rate_gyro_config params) {
     raw_val.x = params.sensor_offset.x / coef;
     raw_val.y = params.sensor_offset.y / coef;
     raw_val.z = params.sensor_offset.z / coef;
-    memcpy(&command[4], &raw_val, 6);
+    command[4] = (raw_val.x) & 0x00FF;
+    command[5] = (raw_val.x >> 8) & 0x00FF;
+    command[6] = (raw_val.y) & 0x00FF;
+    command[7] = (raw_val.y >> 8) & 0x00FF;
+    command[8] = (raw_val.z) & 0x00FF;
+    command[9] = (raw_val.z >> 8) & 0x00FF;
     command[10] = params.rate_sensor_mult;
     return adcs_telecommand(command, 11);
 }
@@ -2969,9 +2974,23 @@ ADCS_returnState ADCS_set_tracking_config(track_ctrl_config params) {
 ADCS_returnState ADCS_set_MoI_mat(moment_inertia_config cell) {
     uint8_t command[25];
     command[0] = SET_MOMENT_INERTIA_MAT_ID;
-    memcpy(&command[1], &cell, 24);
+    unsigned long temp[6];
+    memcpy(&temp[0], &cell.diag.x, 4);
+    memcpy(&temp[1], &cell.diag.y, 4);
+    memcpy(&temp[2], &cell.diag.z, 4);
+    memcpy(&temp[3], &cell.nondiag.x, 4);
+    memcpy(&temp[4], &cell.nondiag.y, 4);
+    memcpy(&temp[5], &cell.nondiag.z, 4);
+
+    int i,k;
+    for(i = 0; i < 6; i++){
+        for(k = 0; k < 4; k++){
+            command[1 + 4*i + k] = ((uint8_t)(temp[i] >> (8*k)) & 0b11111111);
+        }
+    }
     return adcs_telecommand(command, 25);
 }
+
 
 /**
  * @brief
@@ -3121,8 +3140,26 @@ ADCS_returnState ADCS_get_full_config(adcs_config *config) {
     memcpy(&config->rwheel, &telemetry[297], 12);
     config->rwheel.sun_point_facet = telemetry[309] & 0x7F; // 7 bits
     config->rwheel.auto_transit = telemetry[309] & 0x80;    // 8th bit
-    memcpy(&config->tracking, &telemetry[310],
-           65); // tracking + MoI + partially estimation
+
+
+    // This whole function needs to be seriously reworked
+//    memcpy(&config->tracking, &telemetry[310], 65); // tracking + MoI + partially estimation
+
+    unsigned long temp[6] = {0};
+    for(int i = 0; i < 6; i++){
+        for(int k = 0; k < 4; k++){
+            temp[i] = temp[i] | ((unsigned long)telemetry[323 + 4*i + k] << (8*k));
+        }
+    }
+
+    memcpy(&config->MoI.diag.x, &temp[0], 4);
+    memcpy(&config->MoI.diag.y, &temp[1], 4);
+    memcpy(&config->MoI.diag.z, &temp[2], 4);
+    memcpy(&config->MoI.nondiag.x, &temp[3], 4);
+    memcpy(&config->MoI.nondiag.y, &temp[4], 4);
+    memcpy(&config->MoI.nondiag.z, &temp[5], 4);
+
+
     for (int i = 0; i < 6; i++) {
         config->estimation.select_arr[i] = (telemetry[375] >> i) & 1;
     }

@@ -26,7 +26,7 @@ static SemaphoreHandle_t tx_semphr;
 static SemaphoreHandle_t uart_mutex;
 
 static void adcs_byte_stuff(uint8_t *thin_cmd, uint8_t *stuffed_cmd, uint8_t thin_length, uint8_t *stuffed_length);
-static void adcs_byte_destuff(uint8_t *stuffed_reply, uint8_t *thin_reply, uint8_t stuffed_length, uint8_t *thin_length);
+static void adcs_byte_destuff(uint8_t *stuffed_reply, uint8_t *thin_reply, uint16_t stuffed_length, uint16_t *thin_length);
 
 /**
  * @Brief
@@ -225,7 +225,7 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint3
 
     // Destuff the reply
     uint8_t *thin_reply = (uint8_t *)pvPortMalloc((received - ADCS_TM_HEADER_SZ) * sizeof(uint8_t));
-    uint8_t thin_length;
+    uint16_t thin_length;
     adcs_byte_destuff((reply + ADCS_TM_DATA_INDEX), thin_reply, received - ADCS_TM_HEADER_SZ, &thin_length);
 
     for (int i = 0; i < thin_length; i++) {
@@ -320,9 +320,9 @@ static void adcs_byte_stuff(uint8_t *thin_cmd, uint8_t *stuffed_cmd, uint8_t thi
  *      Length of destuffed reply
  *
  */
-static void adcs_byte_destuff(uint8_t *stuffed_reply, uint8_t *thin_reply, uint8_t stuffed_length, uint8_t *thin_length){
-    uint8_t thin_index = 0;
-    for(uint8_t stuffed_index = 0; stuffed_index < stuffed_length; stuffed_index++){
+static void adcs_byte_destuff(uint8_t *stuffed_reply, uint8_t *thin_reply, uint16_t stuffed_length, uint16_t *thin_length){
+    uint16_t thin_index = 0;
+    for(uint16_t stuffed_index = 0; stuffed_index < stuffed_length; stuffed_index++){
         *(thin_reply + thin_index) = *(stuffed_reply + stuffed_index);
         thin_index++;
 

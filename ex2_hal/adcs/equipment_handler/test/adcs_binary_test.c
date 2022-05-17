@@ -23,50 +23,51 @@ void binaryTest(void) { // TODO: add enums for all adcs_handler functions called
 
    ADCS_returnState test_returnState = ADCS_OK;
 
-   //ADCS_reset();
+   ADCS_reset();
+   vTaskDelay(pdMS_TO_TICKS(6000));
 
-//   printf("Enabling ADCS\n\n");
-//   test_returnState = ADCS_set_enabled_state(1);
-//   if (test_returnState != ADCS_OK)
-//   {
-//       printf("ADCS_set_enabled_state returned %d", test_returnState);
-//       while(1);
-//   }
-//
-//   adcs_state test_adcs_state;
-//   printf("Running ADCS_get_current_state...\n");
-//   test_returnState = ADCS_get_current_state(&test_adcs_state);
-//   if (test_returnState != ADCS_OK) {
-//       printf("ADCS_get_current_state returned %d \n", test_returnState);
-//       while (1)
-//           ;
-//   }
-//   printf("ADCS run mode = %d\n\n", test_adcs_state.run_mode);
-//
-//
-//   // Power Control : CubeControl Signal and/or Motor Power = On (1), All others = Off (0)
-//   uint8_t control[10] = {0};
-//
-//   // Verify Power State(s)
-//   printf("Running ADCS_get_power_control...\n");
-//   test_returnState = ADCS_get_power_control(control);
-//   if (test_returnState != ADCS_OK) {
-//       printf("ADCS_get_power_control returned %d \n", test_returnState);
-//       while (1);
-//   }
-//   for (int i = 0; i < 10; i++) {
-//       printf("control[%d] = %d \n", i, control[i]);
-//   }
-//
-//   control[Set_CubeCTRLSgn_Power] = 1;
-//   control[Set_CubeCTRLMtr_Power] = 1;
-//
-//   test_returnState = ADCS_set_power_control(control);
-//   if (test_returnState != ADCS_OK) {
-//       printf("ADCS_set_power_control returned %d \n", test_returnState);
-//       while (1);
-//   }
-//
+   printf("Enabling ADCS\n\n");
+   test_returnState = ADCS_set_enabled_state(1);
+   if (test_returnState != ADCS_OK)
+   {
+       printf("ADCS_set_enabled_state returned %d", test_returnState);
+       while(1);
+   }
+
+   adcs_state test_adcs_state;
+   printf("Running ADCS_get_current_state...\n");
+   test_returnState = ADCS_get_current_state(&test_adcs_state);
+   if (test_returnState != ADCS_OK) {
+       printf("ADCS_get_current_state returned %d \n", test_returnState);
+       while (1)
+           ;
+   }
+   printf("ADCS run mode = %d\n\n", test_adcs_state.run_mode);
+
+
+   // Power Control : CubeControl Signal and/or Motor Power = On (1), All others = Off (0)
+   uint8_t control[10] = {0};
+
+   // Verify Power State(s)
+   printf("Running ADCS_get_power_control...\n");
+   test_returnState = ADCS_get_power_control(control);
+   if (test_returnState != ADCS_OK) {
+       printf("ADCS_get_power_control returned %d \n", test_returnState);
+       while (1);
+   }
+   for (int i = 0; i < 10; i++) {
+       printf("control[%d] = %d \n", i, control[i]);
+   }
+
+   control[Set_CubeCTRLSgn_Power] = 1;
+   control[Set_CubeCTRLMtr_Power] = 1;
+
+   test_returnState = ADCS_set_power_control(control);
+   if (test_returnState != ADCS_OK) {
+       printf("ADCS_set_power_control returned %d \n", test_returnState);
+       while (1);
+   }
+
 
     // Bootloader command test
     // commandsTest_bootloader();
@@ -88,7 +89,7 @@ void binaryTest(void) { // TODO: add enums for all adcs_handler functions called
     // Will attempt logging using both LOG1 and LOG2
     // at different periods and w/ diff telemetry
     // for 1 min
-     commandsTest_logtest();
+    // commandsTest_logtest();
 
 
     //* Configuration commands test:
@@ -103,15 +104,24 @@ void binaryTest(void) { // TODO: add enums for all adcs_handler functions called
     // commandsTest_configs();
 
 
-//    printf("Turning off CubeCTRL Signal/Motor\n");
-//    control[Set_CubeCTRLSgn_Power] = 0;
-//    control[Set_CubeCTRLMtr_Power] = 0;
-//
-//    test_returnState = ADCS_set_power_control(control);
-//    if (test_returnState != ADCS_OK) {
-//        printf("ADCS_set_power_control returned %d \n", test_returnState);
-//        while (1);
-//    }
+    //* Configuration commands test (unsaved):
+    // Modified MoI matrix and Rate Gyro config
+    // commandsTest_configs_unsaved();
+
+    //Set and get unix ID test
+    commandsTest_unix_configID();
+
+
+
+    printf("Turning off CubeCTRL Signal/Motor\n");
+    control[Set_CubeCTRLSgn_Power] = 0;
+    control[Set_CubeCTRLMtr_Power] = 0;
+
+    test_returnState = ADCS_set_power_control(control);
+    if (test_returnState != ADCS_OK) {
+        printf("ADCS_set_power_control returned %d \n", test_returnState);
+        while (1);
+    }
 
     // TODO: add checks for "incrementing" and "idle" type values, since those are only checked once
     // instantaneously now
@@ -3286,6 +3296,8 @@ void commandsTest_configs(void)
 void commandsTest_configs_unsaved(void)
 {
     ADCS_returnState test_returnState = ADCS_OK;
+
+
     adcs_config adcs_Config;
     test_returnState = ADCS_get_full_config(&adcs_Config);
     if (test_returnState != ADCS_OK)
@@ -3298,10 +3310,10 @@ void commandsTest_configs_unsaved(void)
     printf("Default MoI matrix config:\n");
     printf("Ixx: %f\n", adcs_Config.MoI.diag.x);
     printf("Iyy: %f\n", adcs_Config.MoI.diag.y);
-    printf("Iyy: %f\n", adcs_Config.MoI.diag.x);
+    printf("Iyy: %f\n", adcs_Config.MoI.diag.z);
     printf("Ixy: %f\n", adcs_Config.MoI.nondiag.x);
-    printf("Ixz: %f\n", adcs_Config.MoI.nondiag.x);
-    printf("Iyz: %f\n\n", adcs_Config.MoI.nondiag.x);
+    printf("Ixz: %f\n", adcs_Config.MoI.nondiag.y);
+    printf("Iyz: %f\n\n", adcs_Config.MoI.nondiag.z);
     
 
     printf("Default Rate Gyro config:\n");
@@ -3317,12 +3329,12 @@ void commandsTest_configs_unsaved(void)
     // Set MoI Matrix
     printf("Setting MoI Matrix:\n\n");
     moment_inertia_config moi_config;
-    moi_config.diag.x  = 2;
-    moi_config.diag.y = 2;
-    moi_config.diag.z = 2;
-    moi_config.nondiag.x  = 0.5;
-    moi_config.nondiag.y  = -0.5;
-    moi_config.nondiag.z  = 0.5;
+    moi_config.diag.x  = 1.1;
+    moi_config.diag.y = 1.2;
+    moi_config.diag.z = 0.9;
+    moi_config.nondiag.x  = 0.1;
+    moi_config.nondiag.y  = -0.1;
+    moi_config.nondiag.z  = 0.1;
 
     test_returnState = ADCS_set_MoI_mat(moi_config);
     if (test_returnState != ADCS_OK)
@@ -3336,11 +3348,11 @@ void commandsTest_configs_unsaved(void)
     printf("Setting Rate Gyro config:\n\n");
     rate_gyro_config rate_gyro_params;
     rate_gyro_params.gyro.x = 1;
-    rate_gyro_params.gyro.y = 3;
-    rate_gyro_params.gyro.z = 5;
-    rate_gyro_params.sensor_offset.x = 0.16;
-    rate_gyro_params.sensor_offset.y = -0.16;
-    rate_gyro_params.sensor_offset.z = 0.16;
+    rate_gyro_params.gyro.y = 2;
+    rate_gyro_params.gyro.z = 4;
+    rate_gyro_params.sensor_offset.x = 0.361;
+    rate_gyro_params.sensor_offset.y = -0.436;
+    rate_gyro_params.sensor_offset.z = 0.2226;
     rate_gyro_params.rate_sensor_mult = 1;
 
     test_returnState = ADCS_set_rate_gyro(rate_gyro_params);
@@ -3371,10 +3383,10 @@ void commandsTest_configs_unsaved(void)
     printf("Modified MoI matrix config:\n");
     printf("Ixx: %f\n", adcs_Config.MoI.diag.x);
     printf("Iyy: %f\n", adcs_Config.MoI.diag.y);
-    printf("Iyy: %f\n", adcs_Config.MoI.diag.x);
+    printf("Iyy: %f\n", adcs_Config.MoI.diag.z);
     printf("Ixy: %f\n", adcs_Config.MoI.nondiag.x);
-    printf("Ixz: %f\n", adcs_Config.MoI.nondiag.x);
-    printf("Iyz: %f\n\n", adcs_Config.MoI.nondiag.x);
+    printf("Ixz: %f\n", adcs_Config.MoI.nondiag.y);
+    printf("Iyz: %f\n\n", adcs_Config.MoI.nondiag.z);
     
 
     printf("Modified Rate Gyro config:\n");
@@ -3388,6 +3400,73 @@ void commandsTest_configs_unsaved(void)
 
 }
 
+void commandsTest_unix_configID(void)
+{
+    // Set Unix Time
+
+    ADCS_returnState test_returnState = ADCS_OK;
+
+    uint8_t when;
+    uint8_t period;
+    test_returnState = ADCS_get_UnixTime_save_config(&when, &period);
+
+    if (test_returnState != ADCS_OK) {
+        printf("ADCS_get_unix_t_conig returned %d \n", test_returnState);
+        while (1)
+            ;
+    }
+
+    printf("When = %u \n", when);
+    printf("Period = %u \n", period);
+
+    uint32_t time = 1651165879;
+
+    test_returnState = ADCS_set_unix_t(time, 0);
+    if (test_returnState != ADCS_OK) {
+        printf("ADCS_set_unix_t returned %d \n", test_returnState);
+        while (1)
+            ;
+    }
+
+
+    test_returnState = ADCS_set_UnixTime_save_config(1, 0);
+
+    if (test_returnState != ADCS_OK) {
+        printf("ADCS_set_unix_t returned %d \n", test_returnState);
+        while (1)
+            ;
+    }
+
+    test_returnState = ADCS_get_unix_t(&time, 0);
+    if (test_returnState != ADCS_OK) {
+        printf("ADCS_get_power_control returned %d \n", test_returnState);
+        while (1)
+            ;
+    }
+    printf("Unix time set to: %u (s)\n", time);
+
+    ADCS_reset();
+    vTaskDelay(pdMS_TO_TICKS(6000));
+
+    test_returnState = ADCS_get_UnixTime_save_config(&when, &period);
+
+    if (test_returnState != ADCS_OK) {
+        printf("ADCS_get_unix_t_conig returned %d \n", test_returnState);
+        while (1)
+            ;
+    }
+
+
+    test_returnState = ADCS_get_unix_t(&time, 0);
+    if (test_returnState != ADCS_OK) {
+        printf("ADCS_get_power_control returned %d \n", test_returnState);
+        while (1)
+            ;
+    }
+    printf("The updated unix time is: %u (s)\n", time);
+
+}
+
 void commandsTest_upload(void)
 {
     //* Upload firmware test 
@@ -3397,11 +3476,11 @@ void commandsTest_upload(void)
     //Initiate file upload
     uint8_t file_dest = 3;  // External flash program 1 
     uint8_t block_size = 0; // Block size ignored, set to 0 (Firmware ref page.159)
-    printf("Initiating file uploadn\n"\n);
+    printf("Initiating file upload\n\n");
     test_returnState = ADCS_initiate_file_upload(file_dest, block_size);
     if (test_returnState != ADCS_OK)
     {
-        pritnf("initiate file upload returned %d", test_returnState);
+        printf("initiate file upload returned %d", test_returnState);
         while(1);
     }
     
@@ -3444,7 +3523,7 @@ void commandsTest_upload(void)
 
     // Continuous file packet upload
     printf("Uploading packets...\n\n");
-    for (uint16_t packet_no = 0; packet_no < 1024, packet_no++)
+    for (uint16_t packet_no = 0; packet_no < 1024; packet_no++)
     {
         ADCS_file_upload_packet(packet_no, "");
     }
@@ -3454,7 +3533,7 @@ void commandsTest_upload(void)
     uint8_t hole_map[16];
     uint8_t num;
     printf("Getting hole map\n");
-    test_returnState = ADCS_get_hole_map
+//    test_returnState = ADCS_get_hole_map
 }
 
 
