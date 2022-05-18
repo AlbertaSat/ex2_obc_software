@@ -20,6 +20,7 @@
 #include <FreeRTOS.h>
 #include <csp/csp.h>
 #include <csp/drivers/usart.h>
+#include <csp/drivers/sdr.h>
 #include <csp/interfaces/csp_if_can.h>
 #include <performance_monitor/system_stats.h>
 #include <redconf.h>
@@ -61,8 +62,13 @@
 #include "dfgm.h"
 #include "leop.h"
 #include "adcs.h"
-
 #include "deployablescontrol.h"
+#include "test_sdr.h"
+#include <csp/interfaces/csp_if_sdr.h>
+#include "printf.h"
+
+//#define CSP_USE_SDR
+#define CSP_USE_KISS
 
 #ifdef FLATSAT_TEST
 //#include "sband_binary_tests.h"
@@ -106,7 +112,6 @@ void ex2_init(void *pvParameters) {
     /* Subsystem Hardware Initialization */
 
 #ifndef ADCS_IS_STUBBED
-    // PLACEHOLDER: adcs hardware init
     init_adcs_io();
 #endif
 
@@ -143,6 +148,10 @@ void ex2_init(void *pvParameters) {
     /* Start service server, and response server */
     init_csp();
     init_software();
+
+#ifdef SDR_TEST
+    start_test_sdr();
+#endif
 
 #ifdef FLATSAT_TEST
     /* Test Task */
@@ -284,18 +293,51 @@ static inline SAT_returnState init_csp_interface() {
     if (error != CSP_ERR_NONE) {
         return SATR_ERROR;
     }
-#endif
+#endif /* EPS_IS_STUBBED */
 
+#if !defined(CSP_USE_KISS) && !defined(CSP_USE_SDR) || defined(CSP_USE_KISS) && defined(CSP_USE_SDR)
+#error "CSP must use one of KISS or SDR"
+#endif /* !defined(CSP_USE_KISS) && !defined(CSP_USE_SDR) || defined(CSP_USE_KISS) && defined(CSP_USE_SDR) */
+
+#if defined(CSP_USE_KISS)
     error = csp_usart_open_and_add_kiss_interface(&conf, CSP_IF_KISS_DEFAULT_NAME, &uart_iface);
     if (error != CSP_ERR_NONE) {
         return SATR_ERROR;
     }
 
-#ifndef EPS_IS_STUBBED
-    csp_rtable_load("16 KISS, 4 CAN, 10 KISS");
+    char *gs_if_name = CSP_IF_KISS_DEFAULT_NAME;
+    int gs_if_addr = 16;
+
+#endif /* defined(CSP_USE_KISS) */
+
+#if defined(CSP_USE_SDR)
+
+#ifdef SDR_TEST
+    char * gs_if_name = "LOOPBACK";
+    int gs_if_addr = 23;
 #else
-    csp_rtable_load("16 KISS, 10 KISS");
-#endif
+    char * gs_if_name = "UHF";
+    int gs_if_addr = 16;
+#endif /* SDR_TEST */
+
+    csp_sdr_conf_t uhf_conf = {    .mtu = SDR_UHF_MAX_MTU,
+                                   .baudrate = SDR_UHF_9600_BAUD,
+                                   .uart_baudrate = 115200 };
+    error = csp_sdr_open_and_add_interface(&uhf_conf, gs_if_name, NULL);
+    if (error != CSP_ERR_NONE) {
+        return SATR_ERROR;
+    }
+
+#endif /* defined(CSP_USE_SDR) */
+
+    char rtable[128] = {0};
+    snprintf(rtable, 128, "%d %s", gs_if_addr, gs_if_name);
+
+#ifndef EPS_IS_STUBBED
+    snprintf(rtable, 128, "%s 4 can", rtable);
+#endif /* EPS_IS_STUBBED */
+
+    csp_rtable_load(rtable);
 
     return SATR_OK;
 }
