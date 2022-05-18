@@ -58,6 +58,7 @@
 #include "uhf.h"
 #include "eps.h"
 #include "sband.h"
+#include "sTransmitter.h"
 #include "system.h"
 #include "dfgm.h"
 #include "leop.h"
@@ -86,7 +87,7 @@ static void flatsat_test();
  */
 
 #define INIT_PRIO configMAX_PRIORITIES - 1
-#define INIT_STACK_SIZE 3000
+#define INIT_STACK_SIZE 2000
 
 static void init_filesystem();
 static void init_csp();
@@ -160,7 +161,7 @@ void ex2_init(void *pvParameters) {
 
 #ifdef FLATSAT_TEST
     /* Test Task */
-    xTaskCreate(flatsat_test, "flatsat_test", 1000, NULL, 4, NULL);
+    xTaskCreate(flatsat_test, "flatsat_test", 500, NULL, 1, NULL);
 #endif
 
     vTaskDelete(0); // delete self to free up heap
@@ -339,7 +340,7 @@ static inline SAT_returnState init_csp_interface() {
     snprintf(rtable, 128, "%d %s", gs_if_addr, gs_if_name);
 
 #ifndef EPS_IS_STUBBED
-    snprintf(rtable, 128, "%s 4 can", rtable);
+    snprintf(rtable, 128, "%s, 4 CAN", rtable);
 #endif /* EPS_IS_STUBBED */
 
     csp_rtable_load(rtable);
