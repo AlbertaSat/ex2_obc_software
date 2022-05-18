@@ -8,7 +8,7 @@
 // Mocked spi functions
 
 #define SPI_SBAND_BUS_REG spiREG3
-#define SPI_SBAND_DEF_FMT 1 // Defines SPI speed (~8.3 MHz)
+#define SPI_SBAND_DEF_FMT 0
 
 #include "HL_spi.h"
 #include "system.h"
