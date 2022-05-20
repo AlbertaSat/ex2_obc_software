@@ -45,6 +45,11 @@
 #include "util/service_utilities.h"
 
 #define SCHEDULER_SIZE 1000
+#define NO_ERROR 0
+#define CALLOC_ERROR 4
+#define RTC_ERROR 6
+#define MUTEX_ERROR 7
+#define SSCANF_ERROR 8
 #define MAX_NUM_CMDS 5
 #define MAX_DATA_LEN 12     //TODO: determine if this is the best max length
 #define MAX_CMD_LENGTH 10 //TODO: review max cmd length required w mission design/ gs
@@ -67,7 +72,6 @@ typedef struct __attribute__((packed)) {
     uint16_t length;
     uint16_t dst;
     uint16_t dport;
-    //uint8_t subservice;
     char data[MAX_CMD_LENGTH];
 } scheduled_commands_t;
 
@@ -79,7 +83,6 @@ typedef struct __attribute__((packed)) {
     uint16_t length;
     uint16_t dst;
     uint16_t dport;
-    //uint8_t subservice;
     char data[MAX_CMD_LENGTH];
 } scheduled_commands_unix_t;
 
@@ -89,27 +92,16 @@ typedef struct __attribute__((packed)) {
     uint8 rep_cmds;
 } number_of_cmds_t;
 
-typedef struct __attribute__((packed)) {
-    uint32_t unix_time;
-    uint32_t frequency;         //frequency the cmd needs to be executed in seconds, value of 0 means the cmd is not repeated
-    uint16_t milliseconds;
-    uint8_t dst;
-    uint8_t dport;
-    uint16_t length;            //length of data field
-    uint8_t data[MAX_DATA_LEN]; //contains the scheduled cmd, struct member length is constant in order to create a clean loop buffer
-} get_schedule_t;
-
 static number_of_cmds_t num_of_cmds;
 
 typedef enum { SET_SCHEDULE = 0, GET_SCHEDULE = 1 , REPLACE_SCHEDULE = 2, DELETE_SCHEDULE = 3, PING_SCHEDULE = 4} Scheduler_Subtype;
 
-SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds);
+SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t scheduleSemaphore);
 //SAT_returnState scheduler_service_app(char *gs_cmds);
-SAT_returnState scheduler_service(void);
+SAT_returnState scheduler_service(SemaphoreHandle_t scheduleSemaphore);
 SAT_returnState start_scheduler_service(void);
 SAT_returnState calc_cmd_frequency(scheduled_commands_t* cmds, int number_of_cmds, scheduled_commands_unix_t *sorted_cmds);
 SAT_returnState sort_cmds(scheduled_commands_unix_t *sorted_cmds, int number_of_cmds);
-Result write_cmds_to_file(int32_t fileiFildes, scheduled_commands_unix_t *scheduled_cmds, int number_of_cmds, char *fileName);
 static scheduled_commands_t *prv_get_cmds_scheduler();
 SAT_returnState vSchedulerHandler (void *pvParameters);
 
