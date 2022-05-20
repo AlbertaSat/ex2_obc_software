@@ -16,10 +16,13 @@
  * @author Andrew Rooney, Vasu Gupta, Arash Yazdani, Thomas Ganley, Nick Sorensen, Pundeep Hundal
  * @date 2020-08-09
  */
+#include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <FreeRTOS.h>
 #include <os_portable.h>
+#include "logger/logger.h"
+
 #include "adcs_handler.h"
 
 #include <string.h>
@@ -198,7 +201,7 @@ ADCS_returnState ADCS_get_file_list() {
     // Fill the file list
     ret = ADCS_reset_file_list_read_pointer();
     if (ret != ADCS_OK) {
-        ex2_log("Bad return at file list read pointer\n");
+        sys_log(WARN, "Bad return at file list read pointer\n");
         return ret;
     }
     adcs_file_info info;
@@ -208,7 +211,7 @@ ADCS_returnState ADCS_get_file_list() {
             // Request file info until busy updating flag is not set
             ret = ADCS_get_file_info(&info);
             if (ret != ADCS_OK) {
-                ex2_log("Bad return at get file info");
+                sys_log(NOTICE, "Bad return at get file info");
                 return ret;
             }
             vTaskDelay(ONE_SECOND);
@@ -234,7 +237,7 @@ ADCS_returnState ADCS_get_file_list() {
 
         ret = ADCS_advance_file_list_read_pointer();
         if (ret != ADCS_OK) {
-            ex2_log("Bad return at advance file list read pointer\n");
+            sys_log(ERROR, "Bad return at advance file list read pointer\n");
             return ret;
         }
 
@@ -275,14 +278,14 @@ ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f) {
     iErr = red_mkdir("home");
     if (iErr == -1)
     {
-        ex2_log("Unexpected error from red_mkdir()\r\n");
+        sys_log(ERROR, "Unexpected error from red_mkdir()\r\n");
         //exit(red_errno);
     }
 
     // change directory to home
     iErr = red_chdir("home");
     if (iErr == -1) {
-        ex2_log("Unexpected error from red_chdir()\r\n");
+        sys_log(ERROR, "Unexpected error from red_chdir()\r\n");
         // exit(red_errno);
     }
 
@@ -294,7 +297,7 @@ ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f) {
     // open a text file
     file1 = red_open("adcs_file.txt", RED_O_RDWR | RED_O_CREAT);
     if (file1 == -1) {
-        ex2_log("Unexpected error from red_open()\r\n");
+        sys_log(WARN, "Unexpected error from red_open()\r\n");
         exit(red_errno);
     }
 
@@ -307,6 +310,8 @@ ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f) {
 
     ADCS_initiate_download_burst(msg_length, ignore_hole_map);
     ADCS_receive_download_burst(hole_map, file1, length_bytes);
+
+    return ADCS_OK;
 }
 
 /*************************** Common TCs ***************************/
@@ -538,7 +543,7 @@ ADCS_returnState ADCS_initiate_download_burst(uint8_t msg_length, bool ignore_ho
     return adcs_telecommand(command, 3);
 }
 
-void ADCS_receive_download_burst(uint8_t *hole_map, int32_t file_des, uint16_t length_bytes) {
+ADCS_returnState ADCS_receive_download_burst(uint8_t *hole_map, int32_t file_des, uint16_t length_bytes) {
 
     if (xSemaphoreTake(adcs_file_download_mutex, UART_TIMEOUT_MS) != pdTRUE) {
         return ADCS_UART_FAILED;
@@ -573,6 +578,8 @@ void ADCS_receive_download_burst(uint8_t *hole_map, int32_t file_des, uint16_t l
     // TODO: write receive function for I2C
 #endif
     xSemaphoreGive(adcs_file_download_mutex);
+
+    return ADCS_OK;
 }
 
 /*************************** Common TMs ***************************/
