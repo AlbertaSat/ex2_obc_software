@@ -43,9 +43,8 @@ xQueueHandle response_queue;
  *              in connecting. Not typically used for anything.
  */
 void service_response_task(void *param) {
-    TC_TM_app_id my_address = SYSTEM_APP_ID;
     csp_packet_t *packet;
-    uint32_t data;
+
     for (;;) {
         if (xQueueReceive(response_queue, &packet, NORMAL_TICKS_TO_WAIT) == pdPASS) {
             // Connect with a connection-oriented method.

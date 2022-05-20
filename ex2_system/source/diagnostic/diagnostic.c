@@ -21,13 +21,17 @@
 #include <FreeRTOS.h>
 #include <os_task.h>
 #include <os_semphr.h>
+#include "HL_gio.h"
 #include "uhf.h"
 #include "sband.h"
+#include "sTransmitter.h"
 #include "eps.h"
 #include "skytraq_binary_types.h"
 #include "skytraq_binary.h"
+#include "skytraq_gps.h"
 #include "system.h"
 #include "adcs.h"
+#include "logger/logger.h"
 
 static void uhf_watchdog_daemon(void *pvParameters);
 static void sband_watchdog_daemon(void *pvParameters);

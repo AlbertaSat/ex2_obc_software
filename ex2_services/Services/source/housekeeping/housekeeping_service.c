@@ -24,6 +24,7 @@
 #include "rtcmk.h"    //to get time from RTC
 #include "services.h"
 #include "task_manager/task_manager.h"
+#include "util/service_utilities.h"
 #include "logger/logger.h"
 #include "csp/csp_endian.h"
 
