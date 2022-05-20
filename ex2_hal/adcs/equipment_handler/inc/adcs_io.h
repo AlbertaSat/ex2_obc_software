@@ -32,7 +32,7 @@
 #define ADCS_I2C_ADDR 0x57
 #define UART_TIMEOUT_MS 1500
 
-void init_adcs_io();
+ADCS_returnState init_adcs_io();
 
 // sends telecommand over uart/i2c, and return acknowledgment
 ADCS_returnState send_uart_telecommand(uint8_t *command, uint32_t length);

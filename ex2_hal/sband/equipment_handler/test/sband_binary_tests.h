@@ -21,5 +21,7 @@
 #include <stdint.h>
 
 #include "sTransmitter.h"
+#include "spi.h"
 
 STX_return sband_binary_test();
+STX_return sband_inf_tx();

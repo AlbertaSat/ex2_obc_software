@@ -62,22 +62,20 @@ static void uhf_watchdog_daemon(void *pvParameters) {
             vTaskDelay(delay);
             continue;
         }
-        // Get status word from UHF
-        uint8_t scw[12];
         UHF_return err;
         for (int i = 0; i < watchdog_retries; i++) {
-            err = HAL_UHF_getSCW(scw);
-            if (err == U_ANS_SUCCESS) {
+            err = UHF_refresh_state();
+            if (err == U_GOOD_CONFIG) {
                 break;
-            } else if (err == U_I2C_IN_PIPE) {
+            } else if (err == U_IN_PIPE) {
                 break;
             }
             vTaskDelay(2*ONE_SECOND);
         }
 
-        if (err == U_I2C_IN_PIPE) {
+        if (err == U_IN_PIPE) {
             ex2_log("UHF in PIPE Mode - power not toggled.");
-        } else if (err != U_ANS_SUCCESS) {
+        } else if (err != U_GOOD_CONFIG) {
             ex2_log("UHF was not responsive - attempting to toggle power.");
 
             // Turn off the UHF.
@@ -253,6 +251,8 @@ static void adcs_watchdog_daemon(void *pvParameters) {
             vTaskDelay(2*ONE_SECOND);
         }
 
+        err = ADCS_OK;
+
         if (err == ADCS_UART_FAILED) {
             ex2_log("ADCS was not responsive - attempting to toggle power.");
 
@@ -410,7 +410,7 @@ SAT_returnState set_adcs_watchdog_delay(const TickType_t delay) {
  */
 SAT_returnState start_diagnostic_daemon(void) {
 #ifndef UHF_IS_STUBBED
-    if (xTaskCreate((TaskFunction_t)uhf_watchdog_daemon, "uhf_watchdog_daemon", 2048, NULL, DIAGNOSTIC_TASK_PRIO,
+    if (xTaskCreate((TaskFunction_t)uhf_watchdog_daemon, "uhf_watchdog_daemon", 1000, NULL, DIAGNOSTIC_TASK_PRIO,
                     NULL) != pdPASS) {
         ex2_log("FAILED TO CREATE TASK uhf_watchdog_daemon.\n");
         return SATR_ERROR;
@@ -424,7 +424,7 @@ SAT_returnState start_diagnostic_daemon(void) {
 #endif
 
 #ifndef SBAND_IS_STUBBED
-    if (xTaskCreate((TaskFunction_t)sband_watchdog_daemon, "sband_watchdog_daemon", 2048, NULL,
+    if (xTaskCreate((TaskFunction_t)sband_watchdog_daemon, "sband_watchdog_daemon", 1000, NULL,
                     DIAGNOSTIC_TASK_PRIO, NULL) != pdPASS) {
         ex2_log("FAILED TO CREATE TASK sband_watchdog_daemon.\n");
         return SATR_ERROR;
@@ -438,7 +438,7 @@ SAT_returnState start_diagnostic_daemon(void) {
 #endif
 
 #ifndef CHARON_IS_STUBBED
-    if (xTaskCreate(charon_watchdog_daemon, "charon_watchdog_daemon", 2048, NULL, DIAGNOSTIC_TASK_PRIO, NULL) !=
+    if (xTaskCreate(charon_watchdog_daemon, "charon_watchdog_daemon", 1000, NULL, DIAGNOSTIC_TASK_PRIO, NULL) !=
         pdPASS) {
         ex2_log("FAILED TO CREATE TASK charon_watchdog_daemon.\n");
         return SATR_ERROR;
@@ -452,7 +452,7 @@ SAT_returnState start_diagnostic_daemon(void) {
 #endif
 
 #ifndef ADCS_IS_STUBBED
-    if (xTaskCreate(adcs_watchdog_daemon, "adcs_watchdog_daemon", 2048, NULL, DIAGNOSTIC_TASK_PRIO, NULL) !=
+    if (xTaskCreate(adcs_watchdog_daemon, "adcs_watchdog_daemon", 1000, NULL, DIAGNOSTIC_TASK_PRIO, NULL) !=
         pdPASS) {
         ex2_log("FAILED TO CREATE TASK adcs_watchdog_daemon.\n");
         return SATR_ERROR;
