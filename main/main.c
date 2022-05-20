@@ -285,13 +285,6 @@ static void init_csp() {
  */
 static inline SAT_returnState init_csp_interface() {
     int error;
-    csp_iface_t *uart_iface = NULL;
-    csp_usart_conf_t conf = {.device = "UART",
-                             .baudrate = 115200, /* supported on all platforms */
-                             .databits = 8,
-                             .stopbits = 2,
-                             .paritysetting = 0,
-                             .checkparity = 0};
 
 #ifndef EPS_IS_STUBBED
     csp_iface_t *can_iface = NULL;
@@ -306,6 +299,14 @@ static inline SAT_returnState init_csp_interface() {
 #endif /* !defined(CSP_USE_KISS) && !defined(CSP_USE_SDR) || defined(CSP_USE_KISS) && defined(CSP_USE_SDR) */
 
 #if defined(CSP_USE_KISS)
+    csp_usart_conf_t conf = {.device = "UART",
+                             .baudrate = 115200, /* supported on all platforms */
+                             .databits = 8,
+                             .stopbits = 2,
+                             .paritysetting = 0,
+                             .checkparity = 0};
+
+    csp_iface_t *uart_iface = NULL;
     error = csp_usart_open_and_add_kiss_interface(&conf, CSP_IF_KISS_DEFAULT_NAME, &uart_iface);
     if (error != CSP_ERR_NONE) {
         return SATR_ERROR;
