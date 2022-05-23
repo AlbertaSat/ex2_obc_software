@@ -38,3 +38,15 @@ Note: Just `cd` into the submodule and change branches from there if you need so
 	Select `Finish`
 
 7. You  can now build and debug, and flash this project to a Texas Instruments development board!
+
+
+## Contributing
+
+* Branches
+	* Branches must change  or implement one feature
+	* Branches created from branches must be merged in the order they are created
+* Branch Naming
+	* Branches are named as follows: <name_of_author>/<branch_type>/<description_of_branch>
+	* Branch types may be one of the following: {hotfix,bugfix,experimental,feature} 
+* Code style
+	* Code should be formatted with clang using settings in .clang-format
