@@ -93,11 +93,15 @@ ADCS_returnState send_uart_telecommand(uint8_t *command, uint32_t length) {
     //Stuff the command
     uint8_t stuffed_length = length;
     uint8_t *stuffed_command = (uint8_t *)pvPortMalloc((length + 10) * sizeof(uint8_t));
+    if (stuffed_command == NULL) return ADCS_MALLOC_FAILED;
     adcs_byte_stuff(command, stuffed_command, length, &stuffed_length);
 
     // Form the command frame
     uint8_t *frame = (uint8_t *)pvPortMalloc((stuffed_length + ADCS_TC_HEADER_SZ) * sizeof(uint8_t));
-    if (frame == NULL) return ADCS_MALLOC_FAILED;
+    if (frame == NULL){
+        vPortFree(stuffed_command);
+        return ADCS_MALLOC_FAILED;
+    }
     *frame = ADCS_ESC_CHAR;
     *(frame + 1) = ADCS_SOM;
     memcpy((frame + 2), stuffed_command, stuffed_length);
@@ -225,6 +229,10 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint3
 
     // Destuff the reply
     uint8_t *thin_reply = (uint8_t *)pvPortMalloc((received - ADCS_TM_HEADER_SZ) * sizeof(uint8_t));
+    if (thin_reply == NULL){
+        vPortFree(reply);
+        return ADCS_MALLOC_FAILED;
+    }
     uint16_t thin_length;
     adcs_byte_destuff((reply + ADCS_TM_DATA_INDEX), thin_reply, received - ADCS_TM_HEADER_SZ, &thin_length);
 
