@@ -3093,6 +3093,9 @@ ADCS_returnState ADCS_set_asgp4_setting(aspg4_setting setting) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_get_full_config(adcs_config *config) {
+
+    // TODO: There are a few endianness fixes to make to this function
+
     uint8_t telemetry[504];
     float coef;
     ADCS_returnState state;
@@ -3141,9 +3144,6 @@ ADCS_returnState ADCS_get_full_config(adcs_config *config) {
     config->rwheel.sun_point_facet = telemetry[309] & 0x7F; // 7 bits
     config->rwheel.auto_transit = telemetry[309] & 0x80;    // 8th bit
 
-
-    // This whole function needs to be seriously reworked
-//    memcpy(&config->tracking, &telemetry[310], 65); // tracking + MoI + partially estimation
 
     unsigned long temp[6] = {0};
     for(int i = 0; i < 6; i++){
