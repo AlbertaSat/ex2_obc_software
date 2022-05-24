@@ -26,7 +26,7 @@
 #define IMAGE_TRANSFER_SIZE 514 // 512 data bytes + 1 start byte + 1 stop byte
 #define START_FLAG 0xFF //TODO: What char?
 #define STOP_FLAG 0xFF //TODO: What char?
-#define MAX_IMAGE_LENGTH 3 // In bytes
+#define MAX_IMAGE_LENGTH 16 // In bytes
 #define MAX_IMAGE_COUNT 1 // In bytes
 #define HOUSEKEEPING_SIZE 10 // In bytes
 

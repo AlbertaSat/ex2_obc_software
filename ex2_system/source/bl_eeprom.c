@@ -12,7 +12,7 @@
 #include "flash_defines.h"
 #include "F021.h"
 
-unsigned short crc16();
+unsigned short crc16_new();
 
 // @param reboot_type: if 0, preserve boot type
 void sw_reset(char reboot_type, SW_RESET_REASON reason) {
@@ -132,7 +132,7 @@ bool verify_application() {
     image_info app_info = {0};
     eeprom_get_app_info(&app_info);
     if (app_info.exists == EXISTS_FLAG) {
-        if (crc16((char *)app_info.addr, app_info.size) == app_info.crc) {
+        if (crc16_new((char *)app_info.addr, app_info.size) == app_info.crc) {
             return true;
         } else return false;
     } else return false;
@@ -142,13 +142,13 @@ bool verify_golden() {
     image_info app_info = {0};
     eeprom_get_golden_info(&app_info);
     if (app_info.exists == EXISTS_FLAG) {
-        if (crc16((char *)app_info.addr, app_info.size) == app_info.crc) {
+        if (crc16_new((char *)app_info.addr, app_info.size) == app_info.crc) {
             return true;
         } else return false;
     } else return false;
 }
 
-unsigned short crc16( char *ptr, int count)
+unsigned short crc16_new( char *ptr, int count)
 {
    uint16_t crc;
    char i;

@@ -64,6 +64,9 @@ void iris_take_pic() {
 
 uint32_t iris_get_image_length() {
     uint32_t image_length;
+    uint16_t *image_length_buffer;
+
+    int ret;
     controller_state = SEND_COMMAND;
 
 //    send_command(IRIS_GET_IMAGE_LENGTH);
@@ -74,15 +77,20 @@ uint32_t iris_get_image_length() {
         switch (controller_state) {
             case SEND_COMMAND:
             {
-                send_command(IRIS_GET_IMAGE_LENGTH);
-                controller_state = GET_DATA;
-                vTaskDelay(100);
+                ret = send_command(IRIS_GET_IMAGE_LENGTH);
+                if (ret != -1) {
+                    controller_state = GET_DATA;
+                } else {
+                    controller_state = FINISH;
+                }
                 break;
             }
             case GET_DATA:
             {
                 image_length_buffer = get_data(MAX_IMAGE_LENGTH);
                 image_length = ((uint32_t)image_length_buffer[2]<<16) | ((uint32_t)image_length_buffer[1]<<8) | (uint32_t)image_length_buffer[0]; // Concatenate image_length_buffer
+
+                free(image_length_buffer);
                 controller_state = FINISH;
                 break;
             }

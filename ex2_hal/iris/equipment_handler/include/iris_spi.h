@@ -32,20 +32,18 @@
 
 #include "FreeRTOS.h"
 
-#define COMMAND_BLOCKSIZE 1 // In bytes
+#define TRANSFER_SIZE 1 // In bytes
 
 // pre-defined SPI communication constants
 #define VERIFY_FLAG 0xFF // TODO: Confirm verify char
-#define ACK_FLAG 0xAF
+#define ACK_FLAG 0xAA
 #define DUMMY_BYTE 0xDD // TODO: Confirm dummy char
 
 void iris_init();
 // Low level SPI transmit/receive functions (polling for now)
-void spi_write(uint16_t data_length, uint16_t *pTxData);
-// void spi_read(uint16_t data_length, uint16_t pRxData[]);
-void spi_write_read(uint16_t data_length, uint16_t *pTxData, uint16_t pRxData[]);
+void spi_send_and_get(uint16_t *pTxData, uint16_t *pRxData);
 
-int send_command(uint8_t command);
+int send_command(uint16_t command);
 int verify_connection();
 int send_data(uint16_t *tx_buffer, uint16_t data_length);
 uint16_t * get_data(uint16_t data_length); // Data length is obtained from IRIS

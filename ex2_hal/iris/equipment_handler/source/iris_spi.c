@@ -19,79 +19,77 @@
  */
 
 #include "FreeRTOS.h"
+#include "os_timer.h"
+
 #include "iris_spi.h"
 #include "HL_spi.h"
 #include "system.h"
 
-spiBASE_t * spi_handle;
+#define TIMER_ID 1
+
 spiDAT1_t dataconfig;
 
-uint16_t tx_data;
-uint16_t rx_data[];
+static TimerHandle_t xCommandTimer = NULL;
+static BaseType_t is_timer_expired(TimerHandle_t xTimer);
+static void command_timer_callback(TimerHandle_t pxTimer);
+const TickType_t x1second = pdMS_TO_TICKS( 1000UL );
 
 /* TODO
  * - Add synchronization points (i.e. semaphores, mutex) once prelim testing completed
  */
 
 void iris_init() {
-    // Assign spi handle
-    spi_handle = IRIS_SPI;
+    // Initialize timer CHANGED TIMER PRIORITY IN FREERTOS CONFIG FILE!!!!!!!!
+    xCommandTimer = xTimerCreate( (const char *) "Command_Timer",
+                            x1second,
+                            pdFALSE,
+                            (void *) TIMER_ID,
+                            command_timer_callback);
+
+    configASSERT(xCommandTimer);
 
     // Populate SPI config
     dataconfig.CS_HOLD = FALSE;
-    dataconfig.WDEL = FALSE; // not sure
+    dataconfig.WDEL = 2;
     dataconfig.DFSEL = SPI_FMT_0;
     dataconfig.CSNR = SPI_CS_1;
 }
 
-void spi_write(uint16_t data_length, uint16_t *pTxData) { // TODO: Add data length param
-    // SPI master write HAL function
-    spiSendData(spi_handle, &dataconfig, data_length, pTxData);
+void spi_send_and_get(uint16_t *tx_data, uint16_t *rx_data) {
+    // SPI master send 1BYTE and read 1BYTE HAL function
+    spiSendAndGetData(IRIS_SPI, &dataconfig, TRANSFER_SIZE, tx_data, rx_data);
+    while(SpiTxStatus(IRIS_SPI) != SPI_COMPLETED);
 }
 
-void spi_read(uint16_t data_length, uint16_t pRxData[]) { // TODO: Add data length param
-    // SPI master read HAL function
-    spiGetData(spi_handle, &dataconfig, data_length, pRxData);
-}
-
-void spi_write_read(uint16_t data_length, uint16_t *pTxData, uint16_t pRxData[]) { // TODO: Add data length param
-    // SPI master write and read HAL function
-    spiSendAndGetData(spiREG3, &dataconfig, data_length, pTxData, pRxData);
-}
-
-/*  Simple verification test to ensure connection established (Optional)
- *  TODO: Possible name change: test_connection(), start_connection() ??*/
-int verify_connection() {
-    // Transmit verification byte
-    tx_data = VERIFY_FLAG;
-    spi_write_read(COMMAND_BLOCKSIZE, &tx_data, rx_data);
-
-    // Check received byte
-    if (rx_data[0] != VERIFY_FLAG) {
-        return -1; // Bad return
-    }
-    return 0; // Good return
-
-}
-
-int send_command(uint8_t command) {
+int send_command(uint16_t command) {
     // Transmit specified command
-    tx_data = command;
-    spi_write_read(COMMAND_BLOCKSIZE, &tx_data, rx_data);
+    uint16_t rx_data;
 
-    // Check acknowledgment
-    if (rx_data[0] != ACK_FLAG) {
-        return -1; // Bad return
+    xTimerStart(xCommandTimer, 0);
+
+    while (is_timer_expired(xCommandTimer) != pdTRUE) {
+        spi_send_and_get(&command, &rx_data);
+
+        // Check acknowledgment
+        if (rx_data == ACK_FLAG) {
+            xTimerStop(xCommandTimer, 0);
+            return 0;
+        }
+
+        vTaskDelay(10);
     }
-    return 0; // Good return
+
+    xTimerReset(xCommandTimer, 0);
+    return -1;
 }
 
 int send_data(uint16_t *tx_buffer, uint16_t data_length) {
+    uint16_t rx_data = 0x00;
     // Transmit data in tx_buffer
-    spi_write_read(data_length, tx_buffer, rx_data);
+    //spi_write_read(tx_buffer, rx_data);
 
     // Check acknowledgment
-    if (rx_data[0] != ACK_FLAG) {
+    if (rx_data != ACK_FLAG) {
         return -1; // Bad return
     }
     return 0; // Good return
@@ -99,31 +97,35 @@ int send_data(uint16_t *tx_buffer, uint16_t data_length) {
 
 uint16_t * get_data(uint16_t data_length) {
     // Transmit dummy data and receive incoming data
-    uint16_t dummy_data = 0xDD;
-    uint16_t rx_buffer[4];
-    uint16_t dummy_buffer[4] = {0xDD, 0xDD, 0xDD, 0xDD};
-    uint16_t i = 0;
+    uint16_t i;
+    uint16_t dummy = 0xDD;
+    uint16_t rx_data;
+    uint16_t *rx_buf;
 
-//    for (i = 0; i < data_length; i++) {
-//        dummy_buffer[i] = dummy_data;
-//    }
+    rx_buf = (uint16_t*) calloc(data_length, sizeof(uint16_t));
 
-    for (i = 0; i < 16; i++) {
-        spiSendAndGetData(spiREG3, &dataconfig, 1, dummy_buffer, rx_buffer);
-        vTaskDelay(1);
-        //while (SpiTxStatus(spi_handle) == SPI_PENDING);
+    if (rx_buf == NULL) {
+        // TODO: Log error
     }
 
-    //spiGetData(spiREG3, &dataconfig, 4, rx_buffer);
+    for (i = 0; i < data_length; i++) {
+        spi_send_and_get(&dummy, &rx_data);
+        while(SpiTxStatus(spiREG3) != SPI_COMPLETED);
 
-    // TODO: Problem; without delay the last byte going out is not the dummy byte
-//    for (i = 0; i < data_length; i++) {
-//        vTaskDelay(1);
-//        spiSendAndGetData(spiREG3, &dataconfig, 1, &dummy_data, rx_data);
-//    }
+        *(rx_buf + i) = rx_data;
+        vTaskDelay(100);
+    }
 
-    //spi_write_read(data_length, dummy, rx_data); //TODO: Wrapper function
+    return rx_buf;
+}
 
+static BaseType_t is_timer_expired(TimerHandle_t xTimer) {
+     if( xTimerIsTimerActive( xTimer ) != pdFALSE ) {
+         return pdFALSE;
+     }
+     return pdTRUE;
+}
 
-    return rx_data;
+static void command_timer_callback( TimerHandle_t xTimer ) {
+    return; // TODO: Log athena failed to communicate with iris
 }

@@ -20,7 +20,6 @@
 #include <FreeRTOS.h>
 #include <csp/csp.h>
 #include <csp/drivers/usart.h>
-#include <csp/drivers/sdr.h>
 #include <csp/interfaces/csp_if_can.h>
 #include <performance_monitor/system_stats.h>
 #include <redconf.h>
@@ -62,13 +61,10 @@
 #include "dfgm.h"
 #include "leop.h"
 #include "adcs.h"
-#include "deployablescontrol.h"
-#include "test_sdr.h"
-#include <csp/interfaces/csp_if_sdr.h>
-#include "printf.h"
+#include "iris.h"
+#include "iris_spi.h"
 
-//#define CSP_USE_SDR
-#define CSP_USE_KISS
+#include "deployablescontrol.h"
 
 #ifdef FLATSAT_TEST
 //#include "sband_binary_tests.h"
@@ -112,6 +108,7 @@ void ex2_init(void *pvParameters) {
     /* Subsystem Hardware Initialization */
 
 #ifndef ADCS_IS_STUBBED
+    // PLACEHOLDER: adcs hardware init
     init_adcs_io();
 #endif
 
@@ -149,10 +146,6 @@ void ex2_init(void *pvParameters) {
     init_csp();
     init_software();
 
-#ifdef SDR_TEST
-    start_test_sdr();
-#endif
-
 #ifdef FLATSAT_TEST
     /* Test Task */
     xTaskCreate(flatsat_test, "flatsat_test", 1000, NULL, 4, NULL);
@@ -168,13 +161,33 @@ void flatsat_test(void *pvParameters) {
 }
 #endif
 
+TaskHandle_t iris_spi_handle;
+
+
+
+void iris_spi_test(void * pvParameters) {
+    iris_init();
+    //iris_take_pic();
+
+    for(;;) {
+//        spi_write_read(1, &tx_data, rx_data);
+//        vTaskDelay(pdMS_TO_TICKS( 1000UL ));
+        //iris_take_pic();
+
+        iris_get_image_length();
+        vTaskDelay(1);
+    }
+    //vTaskDelay(pdMS_TO_TICKS( 1000UL ));
+}
+
 int ex2_main(void) {
     _enable_IRQ_interrupt_(); // enable inturrupts
     InitIO();
     for (int i = 0; i < 1000000; i++)
         ;
-    xTaskCreate(ex2_init, "init", INIT_STACK_SIZE, NULL, INIT_PRIO, NULL);
-
+    //xTaskCreate(ex2_init, "init", INIT_STACK_SIZE, NULL, INIT_PRIO, NULL);
+    xTaskCreate(iris_spi_test, "IRIS SPI", 256, NULL, (tskIDLE_PRIORITY + 1),
+                &iris_spi_handle);
     /* Start FreeRTOS! */
     vTaskStartScheduler();
 
@@ -293,51 +306,18 @@ static inline SAT_returnState init_csp_interface() {
     if (error != CSP_ERR_NONE) {
         return SATR_ERROR;
     }
-#endif /* EPS_IS_STUBBED */
+#endif
 
-#if !defined(CSP_USE_KISS) && !defined(CSP_USE_SDR) || defined(CSP_USE_KISS) && defined(CSP_USE_SDR)
-#error "CSP must use one of KISS or SDR"
-#endif /* !defined(CSP_USE_KISS) && !defined(CSP_USE_SDR) || defined(CSP_USE_KISS) && defined(CSP_USE_SDR) */
-
-#if defined(CSP_USE_KISS)
     error = csp_usart_open_and_add_kiss_interface(&conf, CSP_IF_KISS_DEFAULT_NAME, &uart_iface);
     if (error != CSP_ERR_NONE) {
         return SATR_ERROR;
     }
 
-    char *gs_if_name = CSP_IF_KISS_DEFAULT_NAME;
-    int gs_if_addr = 16;
-
-#endif /* defined(CSP_USE_KISS) */
-
-#if defined(CSP_USE_SDR)
-
-#ifdef SDR_TEST
-    char * gs_if_name = "LOOPBACK";
-    int gs_if_addr = 23;
-#else
-    char * gs_if_name = "UHF";
-    int gs_if_addr = 16;
-#endif /* SDR_TEST */
-
-    csp_sdr_conf_t uhf_conf = {    .mtu = SDR_UHF_MAX_MTU,
-                                   .baudrate = SDR_UHF_9600_BAUD,
-                                   .uart_baudrate = 115200 };
-    error = csp_sdr_open_and_add_interface(&uhf_conf, gs_if_name, NULL);
-    if (error != CSP_ERR_NONE) {
-        return SATR_ERROR;
-    }
-
-#endif /* defined(CSP_USE_SDR) */
-
-    char rtable[128] = {0};
-    snprintf(rtable, 128, "%d %s", gs_if_addr, gs_if_name);
-
 #ifndef EPS_IS_STUBBED
-    snprintf(rtable, 128, "%s 4 can", rtable);
-#endif /* EPS_IS_STUBBED */
-
-    csp_rtable_load(rtable);
+    csp_rtable_load("16 KISS, 4 CAN, 10 KISS");
+#else
+    csp_rtable_load("16 KISS, 10 KISS");
+#endif
 
     return SATR_OK;
 }
