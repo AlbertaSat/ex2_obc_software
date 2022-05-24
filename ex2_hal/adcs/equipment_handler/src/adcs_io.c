@@ -236,6 +236,7 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint3
     uint8_t *thin_reply = (uint8_t *)pvPortMalloc((received - ADCS_TM_HEADER_SZ) * sizeof(uint8_t));
     if (thin_reply == NULL){
         vPortFree(reply);
+        xSemaphoreGive(adcs_uart_mutex);
         return ADCS_MALLOC_FAILED;
     }
     uint16_t thin_length;
