@@ -23,7 +23,7 @@
 static QueueHandle_t adcsQueue;
 static uint8_t adcsBuffer;
 static SemaphoreHandle_t tx_semphr;
-static SemaphoreHandle_t uart_mutex;
+static SemaphoreHandle_t adcs_uart_mutex;
 
 static void adcs_byte_stuff(uint8_t *thin_cmd, uint8_t *stuffed_cmd, uint8_t thin_length, uint8_t *stuffed_length);
 static void adcs_byte_destuff(uint8_t *stuffed_reply, uint8_t *thin_reply, uint16_t stuffed_length, uint16_t *thin_length);
@@ -46,8 +46,8 @@ ADCS_returnState init_adcs_io() {
         return ADCS_UART_FAILED;
     }
 
-    uart_mutex = xSemaphoreCreateMutex();
-    if (uart_mutex == NULL) {
+    adcs_uart_mutex = xSemaphoreCreateMutex();
+    if (adcs_uart_mutex == NULL) {
         return ADCS_UART_FAILED;
     }
     adcsBuffer = 0;
@@ -86,20 +86,24 @@ void adcs_sciNotification(sciBASE_t *sci, int flags) {
  *
  */
 ADCS_returnState send_uart_telecommand(uint8_t *command, uint32_t length) {
-    if (xSemaphoreTake(uart_mutex, UART_TIMEOUT_MS) != pdTRUE) {
+    if (xSemaphoreTake(adcs_uart_mutex, UART_TIMEOUT_MS) != pdTRUE) {
         return ADCS_UART_BUSY;
     } //  TODO: create response if it times out.
 
     //Stuff the command
     uint8_t stuffed_length = length;
     uint8_t *stuffed_command = (uint8_t *)pvPortMalloc((length + 10) * sizeof(uint8_t));
-    if (stuffed_command == NULL) return ADCS_MALLOC_FAILED;
+    if (stuffed_command == NULL){
+        xSemaphoreGive(adcs_uart_mutex);
+        return ADCS_MALLOC_FAILED;
+    }
     adcs_byte_stuff(command, stuffed_command, length, &stuffed_length);
 
     // Form the command frame
     uint8_t *frame = (uint8_t *)pvPortMalloc((stuffed_length + ADCS_TC_HEADER_SZ) * sizeof(uint8_t));
     if (frame == NULL){
         vPortFree(stuffed_command);
+        xSemaphoreGive(adcs_uart_mutex);
         return ADCS_MALLOC_FAILED;
     }
     *frame = ADCS_ESC_CHAR;
@@ -113,7 +117,7 @@ ADCS_returnState send_uart_telecommand(uint8_t *command, uint32_t length) {
     sciSend(ADCS_SCI, stuffed_length + ADCS_TC_HEADER_SZ, frame);
 
     if (xSemaphoreTake(tx_semphr, UART_TIMEOUT_MS) != pdTRUE) {
-        xSemaphoreGive(uart_mutex);
+        xSemaphoreGive(adcs_uart_mutex);
         vPortFree(frame);
         return ADCS_UART_FAILED;
     } // TODO: create response if it times out.
@@ -124,7 +128,7 @@ ADCS_returnState send_uart_telecommand(uint8_t *command, uint32_t length) {
 
     while (received < ADCS_TC_ANS_LEN) {
         if (xQueueReceive(adcsQueue, reply + received, UART_TIMEOUT_MS) == pdFAIL) {
-            xSemaphoreGive(uart_mutex);
+            xSemaphoreGive(adcs_uart_mutex);
             vPortFree(frame);
             return ADCS_UART_FAILED;
         } else {
@@ -133,7 +137,7 @@ ADCS_returnState send_uart_telecommand(uint8_t *command, uint32_t length) {
     }
 
     ADCS_returnState TC_err_flag = (ADCS_returnState) reply[3];
-    xSemaphoreGive(uart_mutex);
+    xSemaphoreGive(adcs_uart_mutex);
     xQueueReset(adcsQueue);
     vPortFree(frame);
     return TC_err_flag;
@@ -179,7 +183,7 @@ ADCS_returnState send_i2c_telecommand(uint8_t *command, uint32_t length) {
  *
  */
 ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint32_t length) {
-    if (xSemaphoreTake(uart_mutex, UART_TIMEOUT_MS) != pdTRUE) {
+    if (xSemaphoreTake(adcs_uart_mutex, UART_TIMEOUT_MS) != pdTRUE) {
         return ADCS_UART_BUSY;
     }
 
@@ -194,7 +198,7 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint3
     // Send the command frame
     sciSend(ADCS_SCI, ADCS_TM_HEADER_SZ, frame);
     if (xSemaphoreTake(tx_semphr, UART_TIMEOUT_MS) != pdTRUE) {
-        xSemaphoreGive(uart_mutex);
+        xSemaphoreGive(adcs_uart_mutex);
         return ADCS_UART_FAILED;
     }
 
@@ -202,7 +206,7 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint3
 
     uint8_t *reply = (uint8_t *)pvPortMalloc(length + ADCS_TM_HEADER_SZ);
     if (reply == NULL){
-        xSemaphoreGive(uart_mutex);
+        xSemaphoreGive(adcs_uart_mutex);
         return ADCS_MALLOC_FAILED;
     }
 
@@ -212,7 +216,8 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint3
 
     while (!end_of_message) {
         if (xQueueReceive(adcsQueue, reply + received, UART_TIMEOUT_MS) == pdFAIL) {
-            xSemaphoreGive(uart_mutex);
+            xSemaphoreGive(adcs_uart_mutex);
+            vPortFree(reply);
             return ADCS_UART_FAILED;
         } else {
             // Check for EOM
@@ -241,7 +246,7 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint3
     }
     vPortFree(reply);
     vPortFree(thin_reply);
-    xSemaphoreGive(uart_mutex);
+    xSemaphoreGive(adcs_uart_mutex);
     xQueueReset(adcsQueue);
     return ADCS_OK;
 }
@@ -256,7 +261,7 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint3
  *
  */
 ADCS_returnState receive_file_download_uart_packet(uint8_t *packet, uint16_t *packet_counter) {
-    if (xSemaphoreTake(uart_mutex, UART_TIMEOUT_MS) != pdTRUE) {
+    if (xSemaphoreTake(adcs_uart_mutex, UART_TIMEOUT_MS) != pdTRUE) {
         return ADCS_UART_BUSY;
     }
 
@@ -269,7 +274,7 @@ ADCS_returnState receive_file_download_uart_packet(uint8_t *packet, uint16_t *pa
         if (xQueueReceive(adcsQueue, reply + received, 500) == pdFAIL) {
             retries++;
             if (retries >= ADCS_UART_FILE_DOWNLOAD_PKT_RETRIES) {
-                xSemaphoreGive(uart_mutex);
+                xSemaphoreGive(adcs_uart_mutex);
                 return ADCS_UART_FAILED;
             }
         } else {
@@ -282,7 +287,7 @@ ADCS_returnState receive_file_download_uart_packet(uint8_t *packet, uint16_t *pa
 
     memcpy(packet, &reply[5], ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN);
 
-    xSemaphoreGive(uart_mutex);
+    xSemaphoreGive(adcs_uart_mutex);
     return ADCS_OK;
 }
 
