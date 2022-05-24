@@ -15,7 +15,6 @@
  * #define BASE_ADDRESS 0x1FF00000 // Base address of the the flash memory
  */
 
-#define SLAVE_ADDR 0x12345678
 
 #define START_FLAG 0x01
 #define STOP_FLAG 0x02
@@ -64,3 +63,4 @@ int read_packet();
 int verify_ack();
 void i2c_bootloader_write(uint32_t flash_addr, uint16_t num_bytes, void * bin_file);
 void i2c_bootloader_erase();
+void i2c_send_test();

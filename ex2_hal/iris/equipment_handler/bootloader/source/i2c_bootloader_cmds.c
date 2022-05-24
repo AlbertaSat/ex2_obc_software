@@ -12,8 +12,9 @@
 #include "system.h"
 #include <stdio.h>
 
+#define SLAVE_ADDR 0x20
+
 i2cBASE_t * i2c_handle = IRIS_I2C; // temp
-uint8_t slave_addr; // What is the slave (Iris-flash; where the user-code start) address?
 
 uint8_t rx_data;
 uint8_t tx_data;
@@ -25,11 +26,16 @@ void i2c_bootloader_init() {
 }
 
 int write_packet(void *buf_tx_data) {
-    return i2c_Send(i2c_handle, SLAVE_ADDR, TRANSFER_SIZE, buf_tx_data); //Data size is constant as 7-bit data + 1-bit R/W (8 bits), should this be constant?
+    return i2c_Send(IRIS_I2C, SLAVE_ADDR, TRANSFER_SIZE, buf_tx_data); //Data size is constant as 7-bit data + 1-bit R/W (8 bits), should this be constant?
 }
 
 int read_packet() {
-    return i2c_Receive(i2c_handle, SLAVE_ADDR, TRANSFER_SIZE, &rx_data); //Data is stored in buf_tx_data
+    return i2c_Receive(IRIS_I2C, SLAVE_ADDR, TRANSFER_SIZE, &rx_data); //Data is stored in buf_tx_data
+}
+
+void i2c_send_test() {
+    uint8_t data = 0x55;
+    write_packet(data);
 }
 
 int verify_ack() { // Will not be void
