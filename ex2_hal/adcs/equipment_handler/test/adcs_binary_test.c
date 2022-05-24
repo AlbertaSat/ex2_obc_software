@@ -2840,7 +2840,7 @@ void commandsTest_bootloader(void)
 
     // Read Program Info
 //    printf("Reading program info (Bootloader)\n\n");
-//    test_returnState = ADCS_read_program_info(BOOTLOADER);
+//    test_returnState = ADCS_read_program_info(ADCS_BOOTLOADER);
 //    if (test_returnState != ADCS_OK)
 //    {
 //        printf("ADCS_read_program_info returned %d", test_returnState);
