@@ -15,7 +15,7 @@
 #include "FreeRTOS.h"
 
 // Programs List Enumeration Values
-#define BOOTLOADER 0
+#define ADCS_BOOTLOADER 0
 #define INTERNAL_FLASH_PROGRAM 1
 
 // ADCS Run modes
