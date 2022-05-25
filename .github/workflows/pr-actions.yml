@@ -8,21 +8,7 @@ jobs:
   tag-default:
     runs-on: ubuntu-latest
     steps:
-      # extract branch name on pull request
-      - name: extract branch name
-        if: github.event_name == 'pull_request'
-        run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_HEAD_REF})"
-        shell: bash
- 
-      # print branch
-      - name: print branch
-        run: echo $BRANCH_NAME
-
-      - name: show actor
-        run: echo "actor " $GITHUB_ACTOR
-
       - uses: actions/checkout@v3
       - name: tag the default repository
-        if: github.event_name == 'push'
-        run: ./.github/scripts/tag.sh $BRANCH_NAME
+        run: ./.github/scripts/tag.sh "$GITHUB_ACTOR.$GITHUB_SHA"
         shell: bash
