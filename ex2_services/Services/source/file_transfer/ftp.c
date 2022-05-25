@@ -29,10 +29,7 @@
 #include "util/service_utilities.h"
 #include <string.h>
 
-#define WORKER_QUEUE_LEN 10
-#define WORKER_QUEUE_ITEM_SIZE sizeof(void *)
-
-#define FTP_STACK_SIZE 256
+#define FTP_STACK_SIZE 312
 
 typedef enum {
     GET_REQUEST = 0,
@@ -51,6 +48,8 @@ typedef struct {
     uint32_t skip;
     uint32_t count;
 } FTP_t;
+
+static FTP_t current_upload = {0};
 
 SAT_returnState send_download_burst(csp_conn_t *conn, FTP_t *ftp) {
 /*
@@ -116,7 +115,7 @@ SAT_returnState send_download_burst(csp_conn_t *conn, FTP_t *ftp) {
     return SATR_OK;
 }
 
-SAT_returnState FTP_app(csp_packet_t *packet, QueueHandle_t worker_rx_queue, csp_conn_t *conn);
+SAT_returnState FTP_app(csp_packet_t *packet, csp_conn_t *conn);
 
 /**
  * @brief
@@ -133,7 +132,6 @@ void FTP_service(void *param) {
     sock = csp_socket(CSP_SO_NONE);
     csp_bind(sock, TC_FTP_COMMAND_SERVICE);
     csp_listen(sock, SERVICE_BACKLOG_LEN);
-    QueueHandle_t worker_rx_queue = (QueueHandle_t)param;
     svc_wdt_counter++;
     csp_packet_t *packet;
     csp_conn_t *conn;
@@ -150,7 +148,7 @@ void FTP_service(void *param) {
 
         // read and process packets
         while ((packet = csp_read(conn, 50)) != NULL) {
-            if (FTP_app(packet, worker_rx_queue, conn) != SATR_OK) {
+            if (FTP_app(packet, conn) != SATR_OK) {
                 // something went wrong in the subservice
                 csp_buffer_free(packet);
             } else {
@@ -177,9 +175,8 @@ SAT_returnState start_FTP_service(void) {
     TaskHandle_t svc_tsk;
     taskFunctions svc_funcs = {0};
     svc_funcs.getCounterFunction = get_svc_wdt_counter;
-    QueueHandle_t worker_rx_queue = xQueueCreate(WORKER_QUEUE_LEN, WORKER_QUEUE_ITEM_SIZE);
 
-    if (xTaskCreate((TaskFunction_t)FTP_service, "FTP_service", FTP_STACK_SIZE, worker_rx_queue,
+    if (xTaskCreate((TaskFunction_t)FTP_service, "FTP_service", FTP_STACK_SIZE, NULL,
                     NORMAL_SERVICE_PRIO, &svc_tsk) != pdPASS) {
         sys_log(CRITICAL, "FAILED TO CREATE TASK FTP_service");
         return SATR_ERROR;
@@ -200,7 +197,7 @@ SAT_returnState start_FTP_service(void) {
  * @return SAT_returnState
  *      Success or failure
  */
-SAT_returnState FTP_app(csp_packet_t *packet, QueueHandle_t worker_rx_queue, csp_conn_t *conn) {
+SAT_returnState FTP_app(csp_packet_t *packet, csp_conn_t *conn) {
     uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
     int8_t status = 0;
     SAT_returnState return_state = SATR_OK; // OK until an error is encountered
@@ -267,7 +264,7 @@ SAT_returnState FTP_app(csp_packet_t *packet, QueueHandle_t worker_rx_queue, csp
         }
 
         FTP_t ftp = {0};
-        strncpy(&ftp.fname, fname, REDCONF_NAME_MAX);
+        strncpy((char *)&ftp.fname, fname, REDCONF_NAME_MAX);
         ftp.blocksize = blocksize;
         ftp.req_id = req_id;
         memcpy(&ftp.fstat, &stat, sizeof(REDSTAT));
@@ -282,6 +279,102 @@ SAT_returnState FTP_app(csp_packet_t *packet, QueueHandle_t worker_rx_queue, csp
         memcpy(&packet->data[OUT_DATA_BYTE], &stat.st_mtime, sizeof(stat.st_mtime));
         memcpy(&packet->data[OUT_DATA_BYTE + 4], &stat.st_ctime, sizeof(stat.st_ctime));
         reply_len = sizeof(stat.st_mtime) + sizeof(stat.st_ctime);
+        break;
+    }
+    case FTP_START_UPLOAD: {
+        /**
+         * Packet contains:
+         * uint32_t request_id
+         * uint64_t file_size
+         * uint32_t blocksize
+         * char[REDCONF_NAME_MAX] filename
+         */
+        uint32_t req_id;
+        uint64_t file_size;
+        uint32_t blocksize;
+        cnv8_32(&packet->data[IN_DATA_BYTE ], &req_id);
+        memcpy(&file_size, &packet->data[IN_DATA_BYTE +4], sizeof(uint64_t));
+        file_size = csp_ntoh64(file_size);
+        cnv8_32(&packet->data[IN_DATA_BYTE +12], &blocksize);
+        char *fname = (char *)&packet->data[IN_DATA_BYTE + 16];
+        int fd = red_open(fname, RED_O_CREAT | RED_O_RDWR);
+        if (fd < 0) {
+            sys_log(WARN, "Failed to open file red_errno: %d, %s, ", red_errno, fname);
+            status = -1;
+            break;
+        }
+        int red_status = red_ftruncate(fd, file_size);
+        if (red_status < 0) {
+            sys_log(WARN, "Failed to trunc file red_errno: %d, %s, ", red_errno, fname);
+            red_close(fd);
+            status = -1;
+        }
+
+        current_upload.req_id = req_id;
+        current_upload.blocksize = blocksize;
+        current_upload.skip = 0; // TODO: Allow skipping so resume can happen
+        current_upload.count = 0;
+        current_upload.type = POST_REQUEST;
+        strncpy((char *)&(current_upload.fname), fname, REDCONF_NAME_MAX);
+
+        red_status = red_fstat(fd, &current_upload.fstat);
+        if (red_status < 0) {
+            sys_log(WARN, "Failed to stat file red_errno: %d, %s, ", red_errno, fname);
+            red_close(fd);
+            status = -1;
+            break;
+        }
+        red_close(fd);
+        break;
+    }
+    case FTP_UPLOAD_PACKET: {
+        /**
+         * packet contains:
+         * uint32_t req_id
+         * uint32_t count
+         * uint32_t size of this transfer. If less than blocksize then transfer is done
+         * uint8_t data[size]
+         */
+        uint32_t req_id;
+        uint32_t count;
+        uint32_t size;
+        cnv8_32(&packet->data[IN_DATA_BYTE ], &req_id);
+        cnv8_32(&packet->data[IN_DATA_BYTE +4], &count);
+        cnv8_32(&packet->data[IN_DATA_BYTE +8], &size);
+        if (req_id != current_upload.req_id) {
+            sys_log(WARN, "Request IDs don't match");
+            status = -1;
+            break;
+        }
+        if (count != current_upload.count) {
+            sys_log(WARN, "Data out of order");
+            status = -1;
+            break;
+        }
+
+        int fd = red_open(current_upload.fname, RED_O_RDWR);
+        if (fd < 0) {
+            sys_log(WARN, "Failed to open file red_errno: %d, %s, ", red_errno, current_upload.fname);
+            status = -1;
+            break;
+        }
+        if (red_lseek(fd, current_upload.count * current_upload.blocksize, RED_SEEK_SET) < 0) {
+            sys_log(WARN, "Failed to seek file red_errno: %d, %s, ", red_errno, current_upload.fname);
+            red_close(fd);
+            status = -1;
+        }
+        if (red_write(fd, &packet->data[IN_DATA_BYTE + 12], size) < 0) {
+            sys_log(WARN, "Failed to write file red_errno: %d, %s, ", red_errno, current_upload.fname);
+            red_close(fd);
+            status = -1;
+            break;
+        }
+        current_upload.count++;
+        if (size < current_upload.blocksize) {
+            sys_log(INFO, "Done writing file %s", current_upload.fname);
+            memset(&current_upload, 0, sizeof(current_upload));
+        }
+        red_close(fd);
         break;
     }
         default:
