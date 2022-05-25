@@ -83,8 +83,6 @@ int i2c_Receive(i2cBASE_t *i2c, uint8_t addr, uint16_t size, void *buf) {
         i2cSetStop(i2c);
         ret = -1;
     } else {
-        //printf("rec pass\r\n");
-        //printf("%d\r\n", i2csemphr_t[index].hadFailure);
         if (i2csemphr_t[index].hadFailure == true) {
             ret = -1;
             i2csemphr_t[index].hadFailure = false; // reset failure flag
