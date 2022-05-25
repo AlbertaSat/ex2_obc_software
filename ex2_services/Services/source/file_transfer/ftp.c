@@ -86,10 +86,9 @@ SAT_returnState send_download_burst(csp_conn_t *conn, FTP_t *ftp) {
         packet->data[SUBSERVICE_BYTE] = (uint8_t) FTP_DATA_PACKET;
         memcpy(&packet->data[OUT_DATA_BYTE], &current->req_id, sizeof(current->req_id));
 
-        int32_t bytes_read = red_read(fd, &(packet->data[OUT_DATA_BYTE]) + 12, current->blocksize);
+        int32_t bytes_read = red_read(fd, &(packet->data[OUT_DATA_BYTE]) + 10, current->blocksize);
         memcpy(&(packet->data[OUT_DATA_BYTE]) + 4, &bytes_read, sizeof(bytes_read));
         memcpy(&(packet->data[OUT_DATA_BYTE]) + 8, &blocknumber, sizeof(blocknumber));
-
         if (bytes_read == 0) {
             sys_log(INFO, "FTP is done reading file %s", current->fname);
             status = -1;
@@ -98,7 +97,7 @@ SAT_returnState send_download_burst(csp_conn_t *conn, FTP_t *ftp) {
             sys_log(WARN, "Could not read file %s. Errno: %d", current->fname, red_errno);
             status = -1;
         }
-        set_packet_length(packet, bytes_read + 2 * sizeof(int8_t) + 3 * sizeof(uint32_t));
+        set_packet_length(packet, bytes_read + 2 * sizeof(int8_t) + 2 * sizeof(uint32_t) + sizeof(uint16_t));
         memcpy(&packet->data[STATUS_BYTE], &status,
                    sizeof(status)); // 0 for not done, -1 for done
         if (!csp_send(conn, packet, CSP_MAX_TIMEOUT)) {
