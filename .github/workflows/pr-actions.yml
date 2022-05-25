@@ -8,8 +8,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: tag the default repository
+    - name: show actor
       run: echo "actor $env:GITHUB_ACTOR"
-      - echo "branch ${GITHUB_REF#refs/heads/}
-      - ./.github/scripts/tag.sh ${GITHUB_REF#refs/heads/}
+    - name: tag the default repository
+      run: ./.github/scripts/tag.sh ${GITHUB_REF#refs/heads/}
       shell: bash
