@@ -9,5 +9,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: tag the default repository
-      run: ./.github/scripts/tag.sh $BRANCH_NAME
+      run: echo "actor $env:GITHUB_ACTOR"
+      run: echo "branch ${GITHUB_REF#refs/heads/}
+      run: ./.github/scripts/tag.sh ${GITHUB_REF#refs/heads/}
       shell: bash
