@@ -16,7 +16,7 @@ jobs:
  
       # print branch
       - name: print branch
-        run: echo 'branch: ' $BRANCH_NAME
+        run: echo "branch: " $BRANCH_NAME
 
       - name: show actor
         run: echo "actor " $GITHUB_ACTOR
