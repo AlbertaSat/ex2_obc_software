@@ -116,8 +116,21 @@ void ex2_init(void *pvParameters) {
 #ifndef ADCS_IS_STUBBED
     init_adcs_io();
     ADCS_set_enabled_state(1);
+#ifdef FLATSAT_TEST
+    uint8_t control[10] = {0};
+    control[Set_CubeCTRLSgn_Power] = 1;
+    control[Set_CubeCTRLMtr_Power] = 1;
+    control[Set_CubeSense1_Power] = 1;
+    control[Set_CubeSense2_Power] = 1;
+    control[Set_CubeWheel1_Power] = 1;
+    control[Set_CubeWheel2_Power] = 1;
+    control[Set_CubeWheel3_Power] = 1;
+    ADCS_set_power_control(control);
 
-#endif
+    ADCS_set_attitude_estimate_mode(6); // GyroEKF
+    ADCS_set_unix_t(1652976000, 0); // May 19, 2022
+#endif // FLATSAT_TEST
+#endif // ADCS_IS_STUBBED
 
 #ifndef ATHENA_IS_STUBBED
     // PLACEHOLDER: athena hardware init
