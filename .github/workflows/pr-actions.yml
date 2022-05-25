@@ -23,6 +23,6 @@ jobs:
 
       - uses: actions/checkout@v3
       - name: tag the default repository
-        if github.event_name == 'push'
+        if: github.event_name == 'push'
         run: ./.github/scripts/tag.sh $BRANCH_NAME
         shell: bash
