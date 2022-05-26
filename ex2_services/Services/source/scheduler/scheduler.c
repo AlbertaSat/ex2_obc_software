@@ -33,8 +33,8 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds) {
     int8_t status;
 
     switch(ser_subtype) {
-    case SET_SCHEDULE:
-        TaskHandle_t SchedulerHandler;
+    case SET_SCHEDULE: {
+        TaskHandle_t SchedulerHandler = 0;
         // allocating buffer for MAX_NUM_CMDS numbers of incoming commands
         scheduled_commands_t *cmds = (scheduled_commands_t*)calloc(MAX_NUM_CMDS, sizeof(scheduled_commands_t));
         // parse the commands
@@ -61,7 +61,7 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds) {
             red_close(fout);
             // create the scheduler
             //TODO: review stack size
-            xTaskCreate(vSchedulerHandler, "scheduler", 1000, NULL, NORMAL_SERVICE_PRIO, SchedulerHandler);
+            xTaskCreate(vSchedulerHandler, "scheduler", 1000, NULL, NORMAL_SERVICE_PRIO, &SchedulerHandler);
         }
 
         // if file already exists, modify the existing scheduler
@@ -112,15 +112,15 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds) {
         free(sorted_cmds);
 
         break;
-    
-    case GET_SCHEDULE:
+    }
+    case GET_SCHEDULE: {
         //this code is for testing purposes
         status = 0;
         memcpy(&gs_cmds->data[STATUS_BYTE], &status, sizeof(int8_t));
         set_packet_length(gs_cmds, sizeof(int8_t) + 1); // plus one for sub-service
         
         break;
-
+    }
     default:
         ex2_log("No such subservice\n");
         return SATR_PKT_ILLEGAL_SUBSERVICE;
@@ -696,7 +696,7 @@ SAT_returnState start_scheduler_service(void) {
  * @param void* param
  * @return SAT_returnState
  */
-SAT_returnState scheduler_service(void) {
+void scheduler_service(void) {
     csp_socket_t *sock;
     sock = csp_socket(CSP_SO_NONE);
     csp_bind(sock, TC_SCHEDULER_SERVICE);
