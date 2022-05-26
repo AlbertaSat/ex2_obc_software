@@ -597,7 +597,6 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         for (i = 0; i < FRAM_SIZE; i++) {
             U_FRAM.data[i] =
                 (uint8_t)packet->data[IN_DATA_BYTE + sizeof(U_FRAM.addr) + (CHAR_LEN - 1) + CHAR_LEN * i];
-            U_FRAM.data[i] = U_FRAM.data[i];
         }
         status = HAL_UHF_setFRAM(U_FRAM);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));

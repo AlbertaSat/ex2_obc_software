@@ -80,14 +80,12 @@ STX_return sband_binary_test(){
 
     // Send message forever over SPI to fill buffer
     ret = STX_setControl(S_PA_ENABLE, S_DATA_MODE);
-    while(1){
-        for(int i = 0; i < 20; i++){
-            // Loop 20 times aka 1kB
-            SPISbandTx(filler_16, 25);
-        }
-        SPISbandTx(syncword, 3);
-        SPISbandTx(message_16, 25);
+    for(int i = 0; i < 20; i++){
+        // Loop 20 times aka 1kB
+        SPISbandTx(filler_16, 25);
     }
+    SPISbandTx(syncword, 3);
+    SPISbandTx(message_16, 25);
 
     ret = STX_getBuffer(0, &count);
     printf("Buffer count at start of transmission: %d\n", count);
@@ -97,7 +95,7 @@ STX_return sband_binary_test(){
     // Set transmitter to data mode to begin transmission
     ret = STX_setControl(S_PA_ENABLE, S_DATA_MODE);
     while(!transmit){
-        ret = STX_getTR(&transmit);
+        ret = STX_getTR((uint8_t *)&transmit);
         i++;
     }
 
