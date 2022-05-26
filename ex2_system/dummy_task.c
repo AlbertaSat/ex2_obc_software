@@ -26,7 +26,7 @@ void dummy_task(void *pvParameters) {
         delayed_time = 0;
         wdt_counter++;
         ex2_log("Dummy Task Running");
-
+        delayed_time += delay;
         vTaskDelay(delay); // as long as delay is lower than DELAY_WAIT_INTERVAL this is okay
     }
 }
