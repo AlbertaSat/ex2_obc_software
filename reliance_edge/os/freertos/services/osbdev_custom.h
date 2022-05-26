@@ -140,7 +140,7 @@ static REDSTATUS DiskRead(
     //note: assumes 512 byte sectors
     int i;
     for(i=0; i<ulSectorCount; i++){
-        if(SD_Read(bVolNum, pBuffer + (BYTE)(i*512), ullSectorStart + i, 0, 512) == SD_OK){
+        if(SD_Read(bVolNum, (BYTE *)pBuffer + (BYTE)(i*512), ullSectorStart + i, 0, 512) == SD_OK){
             //do nothing
         }
         else{
@@ -184,7 +184,7 @@ static REDSTATUS DiskWrite(
     int i;
     SDRESULTS returnval;
     for(i=0; i<ulSectorCount; i++){
-        returnval = SD_Write(bVolNum, pBuffer + (BYTE)(i*512), ullSectorStart + i);
+        returnval = SD_Write(bVolNum, (BYTE *)pBuffer + (BYTE)(i*512), ullSectorStart + i);
         if(returnval == SD_OK){
             //do nothing
         }
