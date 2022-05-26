@@ -30,6 +30,7 @@
 #include "adcs_io.h"
 #include "adcs_types.h"
 
+
 #define USE_UART
 //#define USE_I2C
 
@@ -146,6 +147,7 @@ void get_xyz(xyz *measurement, uint8_t *address, float coef) {
     measurement->z = coef * uint82int16(*(address + 4), *(address + 5));
 }
 
+
 /**
  * @brief
  * 		a supplementary function for many ACP TMs
@@ -176,13 +178,16 @@ void get_xyz16(xyz16 *measurement, uint8_t *address) {
  * 		formatted value = rawval * coef;
  */
 void get_3x3(float *matrix, uint8_t *address, float coef) {
-    for (int i = 0; i < 3; i++) {
-        matrix[4 * i] = coef * uint82int16(*(address + 2 * i), *(address + 2 * i + 1));
-    }
-    for (int i = 0; i < 3; i++) {
-        matrix[1 + i] = coef * uint82int16(*(address + 2 * (i + 3)), *(address + 2 * (i + 1) + 1));
-        matrix[5 + i] = coef * uint82int16(*(address + 2 * (i + 6)), *(address + 2 * (i + 5) + 1));
-    }
+
+    *matrix = coef * uint82int16(*(address), *(address + 1));
+    *(matrix + 1) = coef * uint82int16(*(address + 2), *(address + 3));
+    *(matrix + 2) = coef * uint82int16(*(address + 4), *(address + 5));
+    *(matrix + 3) = coef * uint82int16(*(address + 6), *(address + 7));
+    *(matrix + 4) = coef * uint82int16(*(address + 8), *(address + 9));
+    *(matrix + 5) = coef * uint82int16(*(address + 10), *(address + 11));
+    *(matrix + 6) = coef * uint82int16(*(address + 12), *(address + 13));
+    *(matrix + 7) = coef * uint82int16(*(address + 14), *(address + 15));
+    *(matrix + 8) = coef * uint82int16(*(address + 16), *(address + 17));
 }
 
 /*************************** File Management TC/TM Sequences ***************************/
@@ -3100,74 +3105,143 @@ ADCS_returnState ADCS_get_full_config(adcs_config *config) {
     float coef;
     ADCS_returnState state;
     state = adcs_telemetry(GET_FULL_CONFIG_ID, telemetry, 504);
+
     memcpy(&config->MTQ, &telemetry[0], 3);
     memcpy(&config->RW[0], &telemetry[3], 4);
     memcpy(&config->rate_gyro, &telemetry[7], 3);
     get_xyz(&config->rate_gyro.sensor_offset, &telemetry[10], 0.001);
     config->rate_gyro.rate_sensor_mult = telemetry[16];
+
     memcpy(&config->css, &telemetry[17], 10);
     coef = 0.01;
     for (int i = 0; i < 10; i++) {
         config->css.rel_scale[i] = telemetry[27 + i] * coef;
     }
+
     config->css.threshold = telemetry[37];
+
     get_xyz(&config->cubesense.cam1_sense.mounting_angle, &telemetry[38], 0.01);
     config->cubesense.cam1_sense.detect_th = telemetry[44];
     config->cubesense.cam1_sense.auto_adjust = telemetry[45] & 1;
-    memcpy(&config->cubesense.cam1_sense.exposure_t, &telemetry[46], 2);
+
+    config->cubesense.cam1_sense.exposure_t = ((telemetry[47] << 8) | telemetry[46]);
+
     config->cubesense.cam1_sense.boresight_x = ((telemetry[49] << 8) | telemetry[48]) * coef;
     config->cubesense.cam1_sense.boresight_y = ((telemetry[51] << 8) | telemetry[50]) * coef;
     get_xyz(&config->cubesense.cam2_sense.mounting_angle, &telemetry[52], 0.01);
     config->cubesense.cam2_sense.detect_th = telemetry[58];
     config->cubesense.cam2_sense.auto_adjust = telemetry[59] & 1;
-    memcpy(&config->cubesense.cam2_sense.exposure_t, &telemetry[60], 2);
+    config->cubesense.cam2_sense.exposure_t = ((telemetry[61] << 8) | telemetry[60]);
     config->cubesense.cam2_sense.boresight_x = ((telemetry[63] << 8) | telemetry[62]) * coef;
     config->cubesense.cam2_sense.boresight_y = ((telemetry[65] << 8) | telemetry[64]) * coef;
-    memcpy(&config->cubesense.nadir_max_deviate, &telemetry[66], 84);
+
+    memcpy(&config->cubesense.nadir_max_deviate, &telemetry[66], 84); // WRONG?????
+
     get_xyz(&config->MTM1.mounting_angle, &telemetry[150], 0.01);
     get_xyz(&config->MTM1.channel_offset, &telemetry[156], 0.001);
     get_3x3(config->MTM1.sensitivity_mat, &telemetry[162], 0.001);
     get_xyz(&config->MTM2.mounting_angle, &telemetry[180], 0.01);
     get_xyz(&config->MTM2.channel_offset, &telemetry[186], 0.001);
     get_3x3(config->MTM2.sensitivity_mat, &telemetry[192], 0.001);
-    get_xyz(&config->star_tracker.mounting_angle, &telemetry[210], 0.01);
-    memcpy(&config->star_tracker.exposure_t, &telemetry[216], 45);
-    config->star_tracker.module_en = telemetry[261] & 0x1;
-    config->star_tracker.loc_predict_en = telemetry[261] & 0x2; // second bit
-    config->star_tracker.search_wid = telemetry[262] / 5;
-    memcpy(&config->detumble, &telemetry[263], 8);
+
+    get_xyz(&config->star_tracker.mounting_angle, &telemetry[210], 0.01);// Don't have this
+    memcpy(&config->star_tracker.exposure_t, &telemetry[216], 45); // Don't have this
+    config->star_tracker.module_en = telemetry[261] & 0x1;// Don't have this
+    config->star_tracker.loc_predict_en = telemetry[261] & 0x2; // Don't have this
+    config->star_tracker.search_wid = telemetry[262] / 5; // Don't have this
+
+    unsigned long temp_detumble[2] = {0};
+    for(int i = 0; i < 2; i++){
+        for(int k = 0; k < 4; k++){
+            temp_detumble[i] = temp_detumble[i] | ((unsigned long)telemetry[263 + 4*i + k] << (8*k));
+        }
+    }
+    memcpy(&config->detumble.spin_gain, &temp_detumble[0], 4);
+    memcpy(&config->detumble.damping_gain, &temp_detumble[1], 4);
+
     coef = 0.001;
     config->detumble.spin_rate = uint82int16(telemetry[271], telemetry[272]) * coef;
-    memcpy(&config->detumble.fast_bDot, &telemetry[273], 4);
-    memcpy(&config->ywheel, &telemetry[277], 20);
-    memcpy(&config->rwheel, &telemetry[297], 12);
+
+    unsigned long temp_fastbDot;
+    for(int k = 0; k < 4; k++){
+        temp_fastbDot |= ((unsigned long)telemetry[273 + k] << (8*k));
+    }
+    memcpy(&config->detumble.fast_bDot, &temp_fastbDot, 4);
+
+    unsigned long temp_ywheel[5] = {0};
+    for(int i = 0; i < 5; i++){
+        for(int k = 0; k < 4; k++){
+            temp_ywheel[i] = temp_ywheel[i] | ((unsigned long)telemetry[277 + 4*i + k] << (8*k));
+        }
+    }
+    memcpy(&config->ywheel.control_gain, &temp_ywheel[0], 4);
+    memcpy(&config->ywheel.damping_gain, &temp_ywheel[1], 4);
+    memcpy(&config->ywheel.proportional_gain, &temp_ywheel[2], 4);
+    memcpy(&config->ywheel.derivative_gain, &temp_ywheel[3], 4);
+    memcpy(&config->ywheel.reference, &temp_ywheel[4], 4);
+
+    unsigned long temp_rwheel[3] = {0};
+    for(int i = 0; i < 3; i++){
+        for(int k = 0; k < 4; k++){
+            temp_rwheel[i] = temp_rwheel[i] | ((unsigned long)telemetry[297 + 4*i + k] << (8*k));
+        }
+    }
+    memcpy(&config->rwheel.proportional_gain, &temp_rwheel[0], 4);
+    memcpy(&config->rwheel.derivative_gain, &temp_rwheel[1], 4);
+    memcpy(&config->rwheel.bias_moment, &temp_rwheel[2], 4);
+
     config->rwheel.sun_point_facet = telemetry[309] & 0x7F; // 7 bits
     config->rwheel.auto_transit = telemetry[309] & 0x80;    // 8th bit
 
+    unsigned long temp_tracking[3] = {0};
+        for(int i = 0; i < 3; i++){
+            for(int k = 0; k < 4; k++){
+                temp_tracking[i] = temp_tracking[i] | ((unsigned long)telemetry[310 + 4*i + k] << (8*k));
+            }
+        }
+        memcpy(&config->tracking.proportional_gain, &temp_tracking[0], 4);
+        memcpy(&config->tracking.derivative_gain, &temp_tracking[1], 4);
+        memcpy(&config->tracking.integral_gain, &temp_tracking[2], 4);
 
-    unsigned long temp[6] = {0};
+    config->tracking.target_facet = telemetry[322];
+
+    unsigned long temp_MoI[6] = {0};
     for(int i = 0; i < 6; i++){
         for(int k = 0; k < 4; k++){
-            temp[i] = temp[i] | ((unsigned long)telemetry[323 + 4*i + k] << (8*k));
+            temp_MoI[i] = temp_MoI[i] | ((unsigned long)telemetry[323 + 4*i + k] << (8*k));
         }
     }
+    memcpy(&config->MoI.diag.x, &temp_MoI[0], 4);
+    memcpy(&config->MoI.diag.y, &temp_MoI[1], 4);
+    memcpy(&config->MoI.diag.z, &temp_MoI[2], 4);
+    memcpy(&config->MoI.nondiag.x, &temp_MoI[3], 4);
+    memcpy(&config->MoI.nondiag.y, &temp_MoI[4], 4);
+    memcpy(&config->MoI.nondiag.z, &temp_MoI[5], 4);
 
-    memcpy(&config->MoI.diag.x, &temp[0], 4);
-    memcpy(&config->MoI.diag.y, &temp[1], 4);
-    memcpy(&config->MoI.diag.z, &temp[2], 4);
-    memcpy(&config->MoI.nondiag.x, &temp[3], 4);
-    memcpy(&config->MoI.nondiag.y, &temp[4], 4);
-    memcpy(&config->MoI.nondiag.z, &temp[5], 4);
-
+    unsigned long temp_estimation[7] = {0};
+    for(int i = 0; i < 7; i++){
+        for(int k = 0; k < 4; k++){
+            temp_estimation[i] = temp_estimation[i] | ((unsigned long)telemetry[347 + 4*i + k] << (8*k));
+        }
+    }
+    memcpy(&config->estimation.MTM_rate_nosie, &temp_estimation[0], 4);
+    memcpy(&config->estimation.EKF_noise, &temp_estimation[1], 4);
+    memcpy(&config->estimation.CSS_noise, &temp_estimation[2], 4);
+    memcpy(&config->estimation.suns_sensor_noise, &temp_estimation[3], 4);
+    memcpy(&config->estimation.nadir_sensor_noise, &temp_estimation[4], 4);
+    memcpy(&config->estimation.MTM_noise, &temp_estimation[5], 4);
+    memcpy(&config->estimation.star_track_noise, &temp_estimation[6], 4);
 
     for (int i = 0; i < 6; i++) {
         config->estimation.select_arr[i] = (telemetry[375] >> i) & 1;
     }
     config->estimation.MTM_mode = (telemetry[375] >> 6) & 0x3;
     config->estimation.MTM_select = telemetry[376] & 0x3;
-    config->estimation.select_arr[7] = (telemetry[376] >> 2) & 1;
+    config->estimation.select_arr[6] = (telemetry[376] >> 2) & 1;
+    config->estimation.select_arr[7] = 0; // Unused
     config->estimation.cam_sample_period = telemetry[377];
     coef = 0.001;
+
     config->aspg4.inclination = ((telemetry[379] << 8) | telemetry[378]) * coef;
     config->aspg4.RAAN = ((telemetry[381] << 8) | telemetry[380]) * coef;
     config->aspg4.ECC = ((telemetry[383] << 8) | telemetry[382]) * coef;

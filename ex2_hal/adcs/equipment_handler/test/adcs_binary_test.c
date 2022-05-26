@@ -17,14 +17,15 @@
 // Make sure to define either "USE_UART" or "USE_I2C" in adcs_handler.c depending on which interface is being
 // tested
 
+#include "adcs_handler.h"
 #include "adcs_binary_test.h"
 
 void binaryTest(void) { // TODO: add enums for all adcs_handler functions called
 
    ADCS_returnState test_returnState = ADCS_OK;
 
-   ADCS_reset();
-   vTaskDelay(pdMS_TO_TICKS(6000));
+   //ADCS_reset();
+   //vTaskDelay(pdMS_TO_TICKS(6000));
 
    printf("Enabling ADCS\n\n");
    test_returnState = ADCS_set_enabled_state(1);
@@ -101,7 +102,7 @@ void binaryTest(void) { // TODO: add enums for all adcs_handler functions called
     // Wait 6s for bootloader to finish
     // Re-enable ADCS
     // Verify modified configs
-    // commandsTest_configs();
+     commandsTest_configs();
 
 
     //* Configuration commands test (unsaved):
@@ -109,7 +110,7 @@ void binaryTest(void) { // TODO: add enums for all adcs_handler functions called
     // commandsTest_configs_unsaved();
 
     //Set and get unix ID test
-    commandsTest_unix_configID();
+    //commandsTest_unix_configID();
 
 
 
@@ -3525,15 +3526,113 @@ void commandsTest_upload(void)
     printf("Uploading packets...\n\n");
     for (uint16_t packet_no = 0; packet_no < 1024; packet_no++)
     {
-        ADCS_file_upload_packet(packet_no, "");
+        //* This command is unacknowledged -- return state not used
+        //ADCS_file_upload_packet(packet_no, /**/);
+    }
+
+
+
+    bool block_remaining = true;
+    while(block_remaining)
+    {
+        //* Check upload
+        printf("Verifying upload...\n");
+        uint8_t *hole_map = (uint8_t *)pvPortMalloc(16 * 8 * sizeof(uint8_t));
+        bool hole_map_complete = false;
+        
+        while(!hole_map_complete)
+        {
+            // Obtain hole map
+            printf("Gathering hole maps:\n");
+            for (uint8_t i = 1; i < 9; i++)
+            {   
+                uint8_t temp[16];
+
+                test_returnState = ADCS_get_hole_map(temp, i);
+                if (test_returnState != ADCS_OK)
+                {
+                    printf("ADCS_get_hole_map returned %d\n", test_returnState);
+                    while(1);
+                }
+
+                // Store ith bitmap into hole_map
+                memcpy(hole_map + (i-1), temp, 16);
+            }
+
+
+            // Check hole maps
+            printf("Checking hole maps\n");
+            hole_map_complete = true;
+
+            for (int i = 0; i < 1024; i++)
+            {
+                if ((hole_map[i >> 3]) & (1 << (i & 0x07)) == 0)
+                {
+                    
+                    
+                    //* This command is unacknowledged -- return state not used
+                    //ADCS_file_upload_packet(i, /**/);
+                    
+
+                    hole_map_complete = false;
+                }
+            }
+
+        }
+
+        vPortFree(hole_map);
+        printf("Hole map complete!\n");
+
+
+
+        //! Before committing uploaded block to flash, checksum test is performed
+        //! OBC should request Block Checksum telemetry frame:
+        // ADCS_get_upload_crc16_checksum();
+
+
+
+        // Send finalize upload block
+        //test_returnState = ADCS_finalize_upload_block(file_dest, /*offset into file*/, /*block length*/);
+        if (test_returnState != ADCS_OK)
+        {
+            printf("ADCS_finalize_upload_block returned %d", test_returnState);
+            while(1);
+        }
+
+
+
+        printf("Waiting block finalization...\n");
+        bool busy = true;
+        bool err;
+        while(busy)
+        {
+            test_returnState = ADCS_get_finalize_upload_stat(&busy, &err);
+            if (test_returnState != ADCS_OK)
+            {
+                printf("ADCS_get_finalize_upload_stat returned %d", test_returnState);
+                while(1);
+            }
+
+            if (err == true)
+            {
+                printf("Error in block finalization!\n");
+                while(1);
+                //! Error handling
+            }
+
+            if (busy){vTaskDelay(pdMS_TO_TICKS(1000));}
+
+        }
+
+
+
+        //! Check if there are blocks remaining
+
+
+
     }
     
 
-    // Obtain hole map
-    uint8_t hole_map[16];
-    uint8_t num;
-    printf("Getting hole map\n");
-//    test_returnState = ADCS_get_hole_map
 }
 
 
