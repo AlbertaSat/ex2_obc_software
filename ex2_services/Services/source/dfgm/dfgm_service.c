@@ -121,7 +121,7 @@ SAT_returnState dfgm_service_app(csp_packet_t *packet) {
     uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
     int8_t status;
     SAT_returnState return_state = SATR_OK; // OK until an error is encountered
-    int32_t givenRuntime = 0;
+    uint32_t givenRuntime = 0;
     int32_t maxRuntime = INT_MAX; // INT_MAX = 2^31 - 1 seconds = ~68.05 yrs
 
     switch (ser_subtype) {
