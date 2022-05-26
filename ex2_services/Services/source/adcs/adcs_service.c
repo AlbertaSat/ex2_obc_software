@@ -846,11 +846,11 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
     }
 
     case ADCS_GET_SAT_POS_LLH: {
-        xyz target;
+        LLH target;
         status = HAL_ADCS_get_sat_pos_LLH(&target);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-        memcpy(&packet->data[OUT_DATA_BYTE], &target, sizeof(xyz));
-        set_packet_length(packet, sizeof(xyz) + sizeof(int8_t) + 1);
+        memcpy(&packet->data[OUT_DATA_BYTE], &target, sizeof(LLH));
+        set_packet_length(packet, sizeof(LLH) + sizeof(int8_t) + 1);
         break;
     }
 
