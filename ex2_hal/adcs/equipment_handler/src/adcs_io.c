@@ -52,6 +52,7 @@ ADCS_returnState init_adcs_io() {
     }
     adcsBuffer = 0;
     sciReceive(ADCS_SCI, 1, &adcsBuffer);
+    return ADCS_OK;
 }
 
 /**
