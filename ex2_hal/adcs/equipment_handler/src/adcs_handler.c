@@ -192,7 +192,6 @@ void get_3x3(float *matrix, uint8_t *address, float coef) {
 void ADCS_init_file_download_mutex() { adcs_file_download_mutex = xSemaphoreCreateMutex(); }
 
 ADCS_returnState ADCS_get_file_list() {
-    // TODO: Unfinished and untested function
     ADCS_returnState ret;
 
     // Clear the file list
@@ -272,23 +271,24 @@ ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f) {
 
     // Initiate saving to a file
     int32_t iErr;
-    char buf[1024] = "";
+    char buf[30] = "";
 
     // Get the current working directory
-    red_getcwd(buf, 1024);
+    red_getcwd(buf, 30);
 
-    // make the home directory
-    iErr = red_mkdir("home");
+    // change directory to adcs
+    iErr = red_chdir("adcs");
     if (iErr == -1) {
-        sys_log(ERROR, "Unexpected error from red_mkdir()\r\n");
-        // exit(red_errno);
-    }
+        // Directory does not exist. Create it
+        iErr = red_mkdir("adcs");
 
-    // change directory to home
-    iErr = red_chdir("home");
-    if (iErr == -1) {
-        sys_log(ERROR, "Unexpected error from red_chdir()\r\n");
-        // exit(red_errno);
+        if (iErr == -1){
+            sys_log(ERROR, "Unexpected error from red_mkdir()\r\n");
+            exit(red_errno);
+        }
+
+        iErr = red_chdir("adcs");
+        if (iErr == -1) sys_log(ERROR, "Unexpected error from red_chdir()\r\n");
     }
 
     // get the current working directory
