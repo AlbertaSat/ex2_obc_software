@@ -756,6 +756,31 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
 
         break;
     }
+    case UHF_GET_SWVER: {
+        uint16_t version;
+        status = HAL_UHF_getSWVersion(&version);
+        if (sizeof(version) + 1 > csp_buffer_data_size()) {
+            return_state = SATR_ERROR;
+        }
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        memcpy(&packet->data[OUT_DATA_BYTE], &version, sizeof(version));
+        set_packet_length(packet, sizeof(int8_t) + sizeof(version) + 1);
+
+        break;
+    }
+    case UHF_GET_PLDSZ: {
+        uint16_t payload_size;
+        status = HAL_UHF_getPayload(&payload_size);
+        if (sizeof(payload_size) + 1 > csp_buffer_data_size()) {
+            return_state = SATR_ERROR;
+        }
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        memcpy(&packet->data[OUT_DATA_BYTE], &payload_size, sizeof(payload_size));
+        set_packet_length(packet, sizeof(int8_t) + sizeof(payload_size) + 1);
+
+        break;
+    }
+
 
     default:
         ex2_log("No such subservice\n");
