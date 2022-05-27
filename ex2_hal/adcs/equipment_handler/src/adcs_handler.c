@@ -217,7 +217,7 @@ ADCS_returnState ADCS_get_file_list() {
                 sys_log(NOTICE, "Bad return at get file info");
                 return ret;
             }
-            vTaskDelay(ONE_SECOND);
+            vTaskDelay(pdMS_TO_TICKS(10));
         }
 
         if ((info.counter == 0) && (info.size == 0) && (info.time == 0) && (info.crc16_checksum == 0)) {

@@ -52,6 +52,7 @@ ADCS_returnState init_adcs_io() {
         return ADCS_UART_FAILED;
     }
     adcsBuffer = 0;
+    xSemaphoreGive(adcs_uart_mutex);
     sciReceive(ADCS_SCI, 1, &adcsBuffer);
     return ADCS_OK;
 }
