@@ -22,6 +22,10 @@
 
 #include "adcs_handler.h"
 
+#define ADCS_DOWNLOAD_QUEUE_SIZE
+#define ADCS_QUEUE_GET_TASK_SIZE configMINIMAL_STACK_SIZE
+#define ADCS_QUEUE_GET_TASK_PRIO (configMAX_PRIORITIES - 1)
+
 typedef struct __attribute__((packed)) {
     // xyz Estimated_Angular_Rate;
     float Estimated_Angular_Rate_X;

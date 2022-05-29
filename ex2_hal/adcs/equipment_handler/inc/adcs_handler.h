@@ -481,6 +481,13 @@ typedef struct {
     uint16_t crc16_checksum;
 } adcs_file_info;
 
+typedef struct {
+    uint8_t type_f;
+    uint8_t counter_f;
+    ADCS_returnState status;
+} adcs_file_download_id;
+
+
 // General functions
 int16_t uint82int16(uint8_t b1, uint8_t b2);
 int32_t uint82int32(uint8_t *address);

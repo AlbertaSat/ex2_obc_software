@@ -251,8 +251,13 @@ ADCS_returnState ADCS_get_file_list() {
     return ret;
 }
 
+void ADCS_download_file_task(void *pvParameters){
+    adcs_file_download_id *id = (adcs_file_download_id *)pvParameters;
+    id->status = ADCS_OK;
+    vTaskDelete(0);
+}
+
 ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f) {
-    // TODO: Unfinished and untested function
     uint32_t offset = 0;
     uint16_t block_length = 1024; // this is the max length of the block to be sent - this is the number of packets
                                   // sent in a single block (each packet is 20 Bytes)
