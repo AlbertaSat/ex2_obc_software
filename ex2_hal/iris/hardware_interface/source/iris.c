@@ -78,11 +78,12 @@ uint32_t iris_get_image_length() {
             case SEND_COMMAND:
             {
                 ret = send_command(IRIS_GET_IMAGE_LENGTH);
-                if (ret != -1) {
-                    controller_state = GET_DATA;
-                } else {
-                    controller_state = FINISH;
-                }
+//                if (ret != -1) {
+//                    controller_state = GET_DATA;
+//                } else {
+//                    controller_state = FINISH;
+//                }
+                controller_state = GET_DATA;
                 break;
             }
             case GET_DATA:

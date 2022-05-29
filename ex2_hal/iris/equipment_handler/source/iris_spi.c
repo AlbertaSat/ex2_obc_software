@@ -24,6 +24,8 @@
 #include "iris_spi.h"
 #include "HL_spi.h"
 #include "system.h"
+#include "HL_gio.h"
+#include "HL_reg_het.h"
 
 #define TIMER_ID 1
 
@@ -38,55 +40,124 @@ const TickType_t x1second = pdMS_TO_TICKS( 1000UL );
  * - Add synchronization points (i.e. semaphores, mutex) once prelim testing completed
  */
 
-void iris_init() {
-    // Initialize timer CHANGED TIMER PRIORITY IN FREERTOS CONFIG FILE!!!!!!!!
-    xCommandTimer = xTimerCreate( (const char *) "Command_Timer",
-                            x1second,
-                            pdFALSE,
-                            (void *) TIMER_ID,
-                            command_timer_callback);
+void NSS_LOW() {
+    gioSetBit(hetPORT1, 8, 0);
+}
 
-    configASSERT(xCommandTimer);
+void NSS_HIGH() {
+    gioSetBit(hetPORT1, 8, 1);
+}
+
+void iris_init() {
 
     // Populate SPI config
     dataconfig.CS_HOLD = FALSE;
     dataconfig.WDEL = 2;
     dataconfig.DFSEL = SPI_FMT_0;
     dataconfig.CSNR = SPI_CS_1;
+
+    gioSetDirection(hetPORT1, 0xFFFFFFFF);
+
+    int i = 0;
+    int j = 0;
+    uint16_t rx_data;
+
+    vTaskDelay(100);
+
+        //xTimerStart(xCommandTimer, 0);
+
+//        // TODO: Send pre-amble
+//        uint16_t preamble = 0xAB;
+//        for (i = 0; i < 30; i++) {
+//            NSS_LOW();
+//
+//            for (j = 0; j < 1000; j++);
+//            spi_send_and_get(&preamble, &rx_data);
+//            vTaskDelay(1);
+//
+//            NSS_HIGH();
+//        }
 }
 
 void spi_send_and_get(uint16_t *tx_data, uint16_t *rx_data) {
-    // SPI master send 1BYTE and read 1BYTE HAL function
-    spiSendAndGetData(IRIS_SPI, &dataconfig, TRANSFER_SIZE, tx_data, rx_data);
+    spi_send(tx_data);
+    spi_get(rx_data);
+}
+
+void spi_send(uint16_t *tx_data) {
+    spiSendData(IRIS_SPI, &dataconfig, TRANSFER_SIZE, tx_data);
     while(SpiTxStatus(IRIS_SPI) != SPI_COMPLETED);
 }
 
+void spi_get(uint16_t *rx_data) {
+    spiGetData(IRIS_SPI, &dataconfig, TRANSFER_SIZE, rx_data);
+    while(SpiRxStatus(IRIS_SPI) != SPI_COMPLETED);
+}
+
+void spi_delay(uint16_t time) {
+    uint16_t i;
+    for (i = 0; i < time; i++);
+}
+
 int send_command(uint16_t command) {
-    // Transmit specified command
     uint16_t rx_data;
+    uint16_t tx_dummy = 0xFF;
 
-    xTimerStart(xCommandTimer, 0);
+    NSS_LOW();
+    spi_delay(10000);
+    spi_send(&command);
+    spi_delay(10000);
+    spi_send_and_get(&tx_dummy, &rx_data);
+    NSS_HIGH();
 
-    while (is_timer_expired(xCommandTimer) != pdTRUE) {
-        spi_send_and_get(&command, &rx_data);
-
-        // Check acknowledgment
-        if (rx_data == ACK_FLAG) {
-            xTimerStop(xCommandTimer, 0);
-            return 0;
-        }
-
-        vTaskDelay(10);
+    if (rx_data == ACK_FLAG) {
+        return 0;
     }
-
-    xTimerReset(xCommandTimer, 0);
     return -1;
 }
 
+//int send_command_1(uint16_t command) {
+//    // Transmit specified command
+//    uint16_t rx_data;
+//    uint16_t rx_dummy;
+//    uint16_t rx_buffer[256];
+//    uint16_t dummy = 0xFF;
+//    uint16_t count = 0;
+//    uint16_t count_1 = 0;
+//    uint16_t com = 0x20;
+//    int ret = -1;
+//    int i = 0;
+//
+//
+//    NSS_LOW();
+//    while (count < 100) {
+//        //NSS_LOW();
+//
+//        //NSS_HIGH();
+//
+//        //if (count % 2 == 0) {
+//            rx_buffer[count] = rx_data;
+////            count_1++;
+////        }
+//
+//        count += 1;
+//
+//        // Check acknowledgment
+//        if (rx_data == ACK_FLAG) {
+//            ret = 0;
+//            break;
+//        }
+//
+//    }
+//    NSS_HIGH();
+//
+//    //xTimerReset(xCommandTimer, 0);
+//    return ret;
+//}
+
 int send_data(uint16_t *tx_buffer, uint16_t data_length) {
     uint16_t rx_data = 0x00;
-    // Transmit data in tx_buffer
-    //spi_write_read(tx_buffer, rx_data);
+
 
     // Check acknowledgment
     if (rx_data != ACK_FLAG) {
@@ -98,25 +169,53 @@ int send_data(uint16_t *tx_buffer, uint16_t data_length) {
 uint16_t * get_data(uint16_t data_length) {
     // Transmit dummy data and receive incoming data
     uint16_t i;
-    uint16_t dummy = 0xDD;
+
+    uint16_t start_byte = 0xF0;
+    uint16_t data_byte = 0xDD;
+    uint16_t dummy = 0xFF;
+    uint16_t stop_byte = 0x0F;
+
     uint16_t rx_data;
-    uint16_t *rx_buf;
+    uint16_t *rx_buffer;
 
-    rx_buf = (uint16_t*) calloc(data_length, sizeof(uint16_t));
 
-    if (rx_buf == NULL) {
+    rx_buffer = (uint16_t*) calloc(data_length, sizeof(uint16_t));
+
+    if (rx_buffer == NULL) {
         // TODO: Log error
     }
 
-    for (i = 0; i < data_length; i++) {
-        spi_send_and_get(&dummy, &rx_data);
-        while(SpiTxStatus(spiREG3) != SPI_COMPLETED);
+    NSS_LOW();
+    spi_delay(10000);
+    spi_send(&start_byte);
+    spi_delay(10000);
+    spi_send_and_get(&dummy, &rx_data);
+    NSS_HIGH();
 
-        *(rx_buf + i) = rx_data;
-        vTaskDelay(100);
+    if (rx_data == ACK_FLAG) {
+        NSS_LOW();
+        for (i = 0; i < data_length; i++) {
+            spi_delay(1200);
+            spi_send(&data_byte);
+            spi_delay(1200);
+            spi_send_and_get(&dummy, &rx_data);
+            rx_buffer[i] = rx_data;
+        }
+        NSS_HIGH();
     }
 
-    return rx_buf;
+    NSS_LOW();
+    spi_delay(10000);
+    spi_send(&stop_byte);
+    spi_delay(10000);
+    spi_send_and_get(&dummy, &rx_data);
+    NSS_HIGH();
+
+    if (rx_data == ACK_FLAG) {
+        return rx_buffer;
+    }
+    return NULL;
+
 }
 
 static BaseType_t is_timer_expired(TimerHandle_t xTimer) {

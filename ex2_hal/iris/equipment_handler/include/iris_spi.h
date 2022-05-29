@@ -40,7 +40,6 @@
 #define DUMMY_BYTE 0xDD // TODO: Confirm dummy char
 
 void iris_init();
-// Low level SPI transmit/receive functions (polling for now)
 void spi_send_and_get(uint16_t *pTxData, uint16_t *pRxData);
 
 int send_command(uint16_t command);
