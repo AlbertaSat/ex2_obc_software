@@ -26,9 +26,10 @@ ADCS_returnState HAL_ADCS_download_file_to_OBC(adcs_file_download_id *id){
     return IS_STUBBED_A;
 #else
     // Spawn high-priority file download task
-    xTaskCreate(ADCS_download_file_task, "ADCS_download_file_task", ADCS_QUEUE_GET_TASK_SIZE, (void *)id, ADCS_QUEUE_GET_TASK_PRIO, NULL);
+    TaskHandle_t xHandle;
+    xTaskCreate(ADCS_download_file_task, "ADCS_download_file_task", ADCS_QUEUE_GET_TASK_SIZE, (void *)id, ADCS_QUEUE_GET_TASK_PRIO, &xHandle);
     // Wait until task finishes
-    while(eTaskGetState() == eRunning);
+    while(eTaskGetState(xHandle) != eDeleted);
     return id->status;
 #endif
 }

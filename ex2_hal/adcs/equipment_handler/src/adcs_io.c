@@ -21,9 +21,12 @@
 #include "adcs_types.h"
 
 static QueueHandle_t adcsQueue;
+static QueueHandle_t adcsFileDownloadQueue;
 static uint8_t adcsBuffer;
 static SemaphoreHandle_t tx_semphr;
 static SemaphoreHandle_t adcs_uart_mutex;
+
+bool downloading_file = false;
 
 static void adcs_byte_stuff(uint8_t *thin_cmd, uint8_t *stuffed_cmd, uint8_t thin_length, uint8_t *stuffed_length);
 static void adcs_byte_destuff(uint8_t *stuffed_reply, uint8_t *thin_reply, uint16_t stuffed_length,
@@ -36,24 +39,32 @@ static void adcs_byte_destuff(uint8_t *stuffed_reply, uint8_t *thin_reply, uint1
  *      Whether or not the driver initialized correctly
  */
 ADCS_returnState init_adcs_io() {
+    // Create tx semaphore
     tx_semphr = xSemaphoreCreateBinary();
+    if (tx_semphr == NULL) return ADCS_UART_FAILED;
 
-    if (tx_semphr == NULL) {
-        return ADCS_UART_FAILED;
-    }
-
+    // Create receive queue
     adcsQueue = xQueueCreate(ADCS_QUEUE_LENGTH, ADCS_QUEUE_ITEM_SIZE);
     if (adcsQueue == NULL) {
         return ADCS_UART_FAILED;
     }
 
+    // Create UART mutex
     adcs_uart_mutex = xSemaphoreCreateMutex();
-    if (adcs_uart_mutex == NULL) {
-        return ADCS_UART_FAILED;
-    }
+    if (adcs_uart_mutex == NULL) return ADCS_UART_FAILED;
+
     adcsBuffer = 0;
     xSemaphoreGive(adcs_uart_mutex);
     sciReceive(ADCS_SCI, 1, &adcsBuffer);
+
+    // Create file download mutex
+    ADCS_returnState ret = ADCS_init_file_download_mutex();
+    if(ret != ADCS_OK) return ret;
+
+    // Create file download queue
+    adcsFileDownloadQueue = xQueueCreate(ADCS_FILE_DOWNLOAD_QUEUE_LENGTH, ADCS_QUEUE_ITEM_SIZE);
+    if(adcsFileDownloadQueue == NULL) return ADCS_UART_FAILED;
+
     return ADCS_OK;
 }
 
@@ -144,6 +155,45 @@ ADCS_returnState send_uart_telecommand(uint8_t *command, uint32_t length) {
     xQueueReset(adcsQueue);
     vPortFree(frame);
     return TC_err_flag;
+}
+
+/**
+ * @brief
+ *      Send telecommand via UART protocol. Expect no reply.
+ * @param TM_ID
+ *      Telemetry ID byte
+ * @param telemetry
+ *    Received telemetry data
+ * @param expected_len
+ *      Expected length of the data (in bytes)
+ *
+ */
+ADCS_returnState send_uart_telecommand_no_reply(uint8_t *command, uint32_t length) {
+    if (xSemaphoreTake(adcs_uart_mutex, UART_TIMEOUT_MS) != pdTRUE) {
+        return ADCS_UART_BUSY;
+    }
+
+    // Form the command frame
+    uint8_t *frame = (uint8_t *)pvPortMalloc((length + ADCS_TC_HEADER_SZ) * sizeof(uint8_t));
+
+    *frame = ADCS_ESC_CHAR;
+    *(frame + 1) = ADCS_SOM;
+    memcpy((frame + 2), command, length);
+    *(frame + length + 2) = ADCS_ESC_CHAR;
+    *(frame + length + 3) = ADCS_EOM;
+
+    // Send the command frame
+    sciSend(ADCS_SCI, length + ADCS_TC_HEADER_SZ, frame);
+
+    if (xSemaphoreTake(tx_semphr, UART_TIMEOUT_MS) != pdTRUE) {
+        xSemaphoreGive(adcs_uart_mutex);
+        vPortFree(frame);
+        return ADCS_UART_FAILED;
+    } // TODO: create response if it times out.
+
+    vPortFree(frame);
+    xSemaphoreGive(adcs_uart_mutex);
+    return ADCS_OK;
 }
 
 /**
@@ -266,33 +316,55 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint3
  *
  */
 ADCS_returnState receive_file_download_uart_packet(uint8_t *packet, uint16_t *packet_counter) {
+
+    uint8_t received = 0;
+    uint8_t *reply = (uint8_t *)pvPortMalloc(sizeof(uint8_t) * (ADCS_UART_FILE_DOWNLOAD_PKT_LEN + 5));
+
+    bool end_of_message = false;
+    const uint8_t ending_bytes[ADCS_NUM_ENDING_BYTES] = {ADCS_PARSING_BYTE, ADCS_ENDING_BYTE};
+    uint8_t ending_bytes_index = 0;
+
+    while (!end_of_message) {
+        if (xQueueReceive(adcsQueue, reply + received, ADCS_FILE_DOWNLOAD_QUEUE_TIMEOUT) == pdFAIL) {
+            vPortFree(reply);
+            return ADCS_UART_FAILED;
+        } else {
+            // Check for EOM
+            if(*(reply + received) == ending_bytes[ending_bytes_index]){
+                ending_bytes_index++;
+
+                if(ending_bytes_index == ADCS_NUM_ENDING_BYTES) end_of_message = true;
+            }else{
+                ending_bytes_index = 0;
+            }
+            received++;
+        }
+    }
+
+    // Destuff the reply
+    uint8_t thin_reply[ADCS_UART_FILE_DOWNLOAD_PKT_LEN - ADCS_TM_HEADER_SZ];
+    uint16_t thin_length;
+    adcs_byte_destuff((reply + ADCS_TM_DATA_INDEX), thin_reply, received - ADCS_TM_HEADER_SZ, &thin_length);
+
+    *packet_counter = (thin_reply[1] << 8) | thin_reply[0];
+
+    memcpy(packet, &thin_reply[2], ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN);
+    vPortFree(reply);
+    return ADCS_OK;
+}
+
+ADCS_returnState adcs_io_enter_file_download_state(){
     if (xSemaphoreTake(adcs_uart_mutex, UART_TIMEOUT_MS) != pdTRUE) {
         return ADCS_UART_BUSY;
     }
 
-    int received = 0;
-    uint8_t reply[ADCS_UART_FILE_DOWNLOAD_PKT_LEN] = {0};
+    downloading_file = true;
+    return ADCS_OK;
+}
 
-    // Receive a UART file download packet
-    while (received < (ADCS_UART_FILE_DOWNLOAD_PKT_LEN)) {
-        uint8_t retries = 0;
-        if (xQueueReceive(adcsQueue, reply + received, 500) == pdFAIL) {
-            retries++;
-            if (retries >= ADCS_UART_FILE_DOWNLOAD_PKT_RETRIES) {
-                xSemaphoreGive(adcs_uart_mutex);
-                return ADCS_UART_FAILED;
-            }
-        } else {
-            received++;
-        }
-    }
-    // First byte in packet is file download burst ID = 119
-    // Second and third bytes are the packet counter
-    *packet_counter = (reply[4] << 8) | reply[3];
-
-    memcpy(packet, &reply[5], ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN);
-
+ADCS_returnState adcs_io_exit_file_download_state(){
     xSemaphoreGive(adcs_uart_mutex);
+    downloading_file = false;
     return ADCS_OK;
 }
 

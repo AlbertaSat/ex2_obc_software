@@ -39,6 +39,12 @@ typedef enum ADCS_returnState {
     ADCS_UART_FAILED = 6,
     ADCS_UART_BUSY = 7,
 
+    //File download errors
+    ADCS_FILE_DNE = 8,
+    ADCS_FILESYSTEM_FAIL = 9,
+    ADCS_FILE_FAIL = 10,
+    ADCS_DOWNLOAD_MUTEX_FAIL = 11,
+
     IS_STUBBED_A = 0 // Used for stubbed ADCS in hardware interface
 } ADCS_returnState;
 
@@ -274,5 +280,12 @@ typedef enum TelemetryLOG_IDs {
     CubeSense2_Current = 70
 
 } TelemetryLOG_IDs;
+
+typedef enum FileType_IDs{
+    TelemetryLogFile = 2,
+    JPGImgFile = 3,
+    BMPImgFile = 4,
+    IndexFile = 15
+} FileType_IDs;
 
 #endif /* ADCS_TYPES_H */

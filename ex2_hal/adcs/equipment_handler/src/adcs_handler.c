@@ -35,8 +35,8 @@
 
 static SemaphoreHandle_t adcs_file_download_mutex;
 
-adcs_file_info *adcs_file_list[255] = {NULL};
-uint8_t adcs_file_list_length = 0;
+adcs_file_info *adcs_file_list[256] = {NULL}; // Information about files on-board the ADCS
+uint8_t adcs_file_list_length = 0; // Number of entries in the file list
 
 /*************************** General functions ***************************/
 /**
@@ -189,7 +189,14 @@ void get_3x3(float *matrix, uint8_t *address, float coef) {
 }
 
 /*************************** File Management TC/TM Sequences ***************************/
-void ADCS_init_file_download_mutex() { adcs_file_download_mutex = xSemaphoreCreateMutex(); }
+ADCS_returnState ADCS_init_file_download_mutex() {
+    adcs_file_download_mutex = xSemaphoreCreateMutex();
+
+    if(adcs_file_download_mutex == NULL){
+        return ADCS_DOWNLOAD_MUTEX_FAIL;
+    }
+    return ADCS_OK;
+}
 
 ADCS_returnState ADCS_get_file_list() {
     ADCS_returnState ret;
@@ -253,75 +260,115 @@ ADCS_returnState ADCS_get_file_list() {
 
 void ADCS_download_file_task(void *pvParameters){
     adcs_file_download_id *id = (adcs_file_download_id *)pvParameters;
-    id->status = ADCS_OK;
+
+    // TEST CODE
+    id->type_f = (*adcs_file_list)->type;
+    id->counter_f = (*adcs_file_list)->counter;
+    // END TEST CODE
+
+    id->status = ADCS_download_file(id->type_f, id->counter_f);
+
     vTaskDelete(0);
 }
 
 ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f) {
-    uint32_t offset = 0;
-    uint16_t block_length = 1024; // this is the max length of the block to be sent - this is the number of packets
-                                  // sent in a single block (each packet is 20 Bytes)
-    ADCS_load_file_download_block(type_f, counter_f, offset, block_length);
 
-    bool ready = 0;
-    bool param_err;
-
-    uint16_t crc16_checksum;
-
-    while (ready == false) {
-        ADCS_get_file_download_block_stat(&ready, &param_err, &crc16_checksum, &block_length);
+    if (xSemaphoreTake(adcs_file_download_mutex, UART_TIMEOUT_MS) != pdTRUE) {
+        return ADCS_DOWNLOAD_MUTEX_FAIL;
     }
 
-    // Does the file need to be created every time?
+    ADCS_returnState ret;
+    adcs_file_info *info;
+    // Check valid type
+    if(((type_f) != TelemetryLogFile) && (type_f != JPGImgFile) && (type_f != BMPImgFile) && (type_f != IndexFile)){
+        xSemaphoreGive(adcs_file_download_mutex);
+        return ADCS_INVALID_PARAMETERS;
+    }
+
+    // Check that the specified file is in the file list
+    int index = 0;
+    for(; index < adcs_file_list_length; index++){
+        if(*(adcs_file_list + index) != NULL){
+            info = *(adcs_file_list + index);
+            if((info->type == type_f) && (info->counter == counter_f)){
+                break;
+            }
+        }
+    }
+    if(index == adcs_file_list_length){
+        // File does not exist on the ADCS
+        xSemaphoreGive(adcs_file_download_mutex);
+        return ADCS_INVALID_PARAMETERS;
+    }
+
+    // Load one block
+    uint32_t size = info->size;
+    uint32_t offset = 0;
+    uint16_t block_length = 5000; //  Load 5kB. Results in 250 20-byte packets when download is initiated.
+    ret = ADCS_load_file_download_block(type_f, counter_f, offset, block_length);
+    if(ret != ADCS_OK){
+        xSemaphoreGive(adcs_file_download_mutex);
+        return ret;
+    }
+
+    // Wait until block is finished loading
+    bool ready = 0;
+    bool param_err;
+    uint16_t crc16_checksum;
+    while (ready == false) {
+        ret = ADCS_get_file_download_block_stat(&ready, &param_err, &crc16_checksum, &block_length);
+        if(ret != ADCS_OK){
+            xSemaphoreGive(adcs_file_download_mutex);
+            return ret;
+        }
+    }
 
     // Initiate saving to a file
     int32_t iErr;
-    char buf[30] = "";
 
-    // Get the current working directory
-    red_getcwd(buf, 30);
-
-    // change directory to adcs
-    iErr = red_chdir("adcs");
+    // Change directory to adcs
+    iErr = red_chdir("VOL0:/adcs");
     if (iErr == -1) {
         // Directory does not exist. Create it
-        iErr = red_mkdir("adcs");
+        iErr = red_mkdir("VOL0:/adcs");
 
         if (iErr == -1){
             sys_log(ERROR, "Unexpected error from red_mkdir()\r\n");
-            exit(red_errno);
+            xSemaphoreGive(adcs_file_download_mutex);
+            return ADCS_FILESYSTEM_FAIL;
         }
 
-        iErr = red_chdir("adcs");
-        if (iErr == -1) sys_log(ERROR, "Unexpected error from red_chdir()\r\n");
+        iErr = red_chdir("VOL0:/adcs");
+        if (iErr == -1){
+            sys_log(ERROR, "Unexpected error from red_chdir()\r\n");
+            xSemaphoreGive(adcs_file_download_mutex);
+            return ADCS_FILESYSTEM_FAIL;
+        }
     }
 
-    // get the current working directory
-    red_getcwd(buf, 1024);
-
-    int32_t file1;
-
-    // open a text file
-    file1 = red_open("adcs_file.txt", RED_O_RDWR | RED_O_CREAT);
+    // Open a binary file
+    int32_t file1 = red_open("VOL0:/adcs/adcs_file.bin", RED_O_RDWR | RED_O_CREAT);
     if (file1 == -1) {
         sys_log(WARN, "Unexpected error from red_open()\r\n");
-        exit(red_errno);
+        xSemaphoreGive(adcs_file_download_mutex);
+        return ADCS_FILE_FAIL;
     }
 
-    // Set Ignore Hole Map to true
-    bool ignore_hole_map = true;
-
-    uint8_t msg_length = 20; // I think this is the length of the packet in Bytes - not sure
+    // Initiate the download burst
     uint8_t hole_map[ADCS_HOLE_MAP_SIZE] = {0};
-    uint16_t length_bytes = 20480;
+    bool ignore_hole_map = true; // Set Ignore Hole Map to true
+    ret = ADCS_initiate_download_burst(ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN, ignore_hole_map);
+    if(ret != ADCS_OK){
+        xSemaphoreGive(adcs_file_download_mutex);
+        return ret;
+    }
 
-    ADCS_initiate_download_burst(msg_length, ignore_hole_map);
-    ADCS_receive_download_burst(hole_map, file1, length_bytes);
+    // Receive the download burst and write to file
+    ADCS_receive_download_burst(hole_map, file1, block_length);
 
-    char buffer[msg_length];
-    red_read(file1, buffer, msg_length);
-
+    // Close file and release download mutex
     red_close(file1);
+    xSemaphoreGive(adcs_file_download_mutex);
     return ADCS_OK;
 }
 
@@ -550,29 +597,31 @@ ADCS_returnState ADCS_initiate_download_burst(uint8_t msg_length, bool ignore_ho
     command[0] = INITIATE_DOWNLOAD_BURST_ID;
     command[1] = msg_length;
     command[2] = ignore_hole_map;
-    return adcs_telecommand(command, 3);
+    return send_uart_telecommand_no_reply(command, 3);
 }
 
-ADCS_returnState ADCS_receive_download_burst(uint8_t *hole_map, int32_t file_des, uint16_t length_bytes) {
+static ADCS_returnState ADCS_receive_download_burst(uint8_t *hole_map, int32_t file_des, uint16_t length_bytes) {
 
-    if (xSemaphoreTake(adcs_file_download_mutex, UART_TIMEOUT_MS) != pdTRUE) {
-        return ADCS_UART_FAILED;
-    }
+    ADCS_returnState err;
+    uint16_t num_packets = length_bytes / ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN + 1;
+    adcs_io_enter_file_download_state();
+    uint8_t pckt[ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN];
+    uint16_t pckt_counter;
 
-#if defined(USE_UART)
-    for (int i = 0; i < length_bytes / 20; i++) {
-        uint8_t pckt[20] = {0};
-        uint16_t pckt_counter;
-        ADCS_returnState err = receive_file_download_uart_packet(pckt, &pckt_counter);
+    for (int i = 0; i < num_packets; i++) {
+
+        err = receive_file_download_uart_packet(pckt, &pckt_counter);
 
         if (err == ADCS_UART_FAILED) {
-            // End of file
+            // End of file or other error
             break;
         } else if (pckt_counter != i) {
             // Missed a packet (or more) somewhere - fill with zeroes
-            for (int j = 0; j < (pckt_counter - i); j++) {
+            int j = 0;
+            for (; j < (pckt_counter - i); j++) {
                 write_packet_to_file(file_des, "00000000000000000000", ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN);
             }
+            i += j;
         } else {
             // Packet received. Write to file
             write_packet_to_file(file_des, pckt, ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN);
@@ -584,12 +633,8 @@ ADCS_returnState ADCS_receive_download_burst(uint8_t *hole_map, int32_t file_des
             *(hole_map + hole_map_byte_index) |= (0x1 << hole_map_bit_index);
         }
     }
-#elif defined(USE_I2C)
-    // TODO: write receive function for I2C
-#endif
-    xSemaphoreGive(adcs_file_download_mutex);
-
-    return ADCS_OK;
+    adcs_io_exit_file_download_state();
+    return err;
 }
 
 /*************************** Common TMs ***************************/
