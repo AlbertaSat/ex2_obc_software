@@ -40,7 +40,10 @@
 #define DUMMY_BYTE 0xDD // TODO: Confirm dummy char
 
 void iris_init();
-void spi_send_and_get(uint16_t *pTxData, uint16_t *pRxData);
+void spi_send(uint16_t *tx_data);
+void spi_get(uint16_t *tx_data);
+void spi_send_and_get(uint16_t *tx_data, uint16_t *rx_data);
+void spi_delay(uint16_t timeout);
 
 int send_command(uint16_t command);
 int verify_connection();

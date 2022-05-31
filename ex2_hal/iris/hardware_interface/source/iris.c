@@ -65,13 +65,9 @@ void iris_take_pic() {
 uint32_t iris_get_image_length() {
     uint32_t image_length;
     uint16_t *image_length_buffer;
-
     int ret;
-    controller_state = SEND_COMMAND;
 
-//    send_command(IRIS_GET_IMAGE_LENGTH);
-//    vTaskDelay(pdMS_TO_TICKS( 100UL ));
-//    image_length_buffer = get_data(3);
+    controller_state = SEND_COMMAND;
 
     while (controller_state != FINISH) {
         switch (controller_state) {

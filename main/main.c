@@ -175,7 +175,7 @@ void iris_spi_test(void * pvParameters) {
         //iris_take_pic();
 
         iris_get_image_length();
-        vTaskDelay(1);
+        vTaskDelay(1000);
     }
     //vTaskDelay(pdMS_TO_TICKS( 1000UL ));
 }

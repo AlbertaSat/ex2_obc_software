@@ -94,9 +94,9 @@ void spi_get(uint16_t *rx_data) {
     while(SpiRxStatus(IRIS_SPI) != SPI_COMPLETED);
 }
 
-void spi_delay(uint16_t time) {
+void spi_delay(uint16_t timeout) {
     uint16_t i;
-    for (i = 0; i < time; i++);
+    for (i = 0; i < timeout; i++);
 }
 
 int send_command(uint16_t command) {
@@ -190,25 +190,23 @@ uint16_t * get_data(uint16_t data_length) {
     spi_send(&start_byte);
     spi_delay(10000);
     spi_send_and_get(&dummy, &rx_data);
-    NSS_HIGH();
 
     if (rx_data == ACK_FLAG) {
-        NSS_LOW();
+        spi_delay(1000);
+        spi_send(&data_byte);
         for (i = 0; i < data_length; i++) {
-            spi_delay(1200);
-            spi_send(&data_byte);
-            spi_delay(1200);
-            spi_send_and_get(&dummy, &rx_data);
+            spi_delay(1000);
+            spi_send_and_get(&data_byte, &rx_data);
             rx_buffer[i] = rx_data;
         }
-        NSS_HIGH();
     }
 
-    NSS_LOW();
+
     spi_delay(10000);
     spi_send(&stop_byte);
     spi_delay(10000);
     spi_send_and_get(&dummy, &rx_data);
+
     NSS_HIGH();
 
     if (rx_data == ACK_FLAG) {
