@@ -186,6 +186,13 @@ void get_3x3(float *matrix, uint8_t *address, float coef) {
 }
 
 /*************************** File Management TC/TM Sequences ***************************/
+
+/**
+ * @brief
+ *      Initialize file download mutex
+ * @return
+ *      Result of mutex creation
+ */
 ADCS_returnState ADCS_init_file_download_mutex() {
     adcs_file_download_mutex = xSemaphoreCreateMutex();
 
@@ -195,6 +202,14 @@ ADCS_returnState ADCS_init_file_download_mutex() {
     return ADCS_OK;
 }
 
+/**
+ * @brief
+ *      Save details about all files on the ADCS into a file.
+ * @detail
+ *      Product is human readable.
+ * @param return
+ *      Success of file creation
+ */
 ADCS_returnState ADCS_get_file_list() {
     ADCS_returnState ret;
 
@@ -274,6 +289,12 @@ ADCS_returnState ADCS_get_file_list() {
     return ret;
 }
 
+/**
+ * @brief
+ *      Function meant to be called as a task to download a file from the ADCS.
+ * @param return
+ *      Success of file download
+ */
 void ADCS_download_file_task(void *pvParameters){
     adcs_file_download_id *id = (adcs_file_download_id *)pvParameters;
 
@@ -282,6 +303,12 @@ void ADCS_download_file_task(void *pvParameters){
     vTaskDelete(0);
 }
 
+/**
+ * @brief
+ *      Download a file from the ADCS and save it as a file on Athena.
+ * @param return
+ *      Success of file creation.
+ */
 ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f) {
 
     if (xSemaphoreTake(adcs_file_download_mutex, UART_TIMEOUT_MS) != pdTRUE) {
@@ -600,6 +627,16 @@ ADCS_returnState ADCS_initiate_download_burst(uint8_t msg_length, bool ignore_ho
     return send_uart_telecommand_no_reply(command, 3);
 }
 
+/**
+ * @brief
+ *      Receives download burst from ADCS and writes packet data to file.
+ * @param hole map
+ *      Tracks missed packets
+ * @param file_des
+ *      File being written to
+ * @param length_bytes
+ *      Length of file being downloaded
+ */
 static ADCS_returnState ADCS_receive_download_burst(uint8_t *hole_map, int32_t file_des, uint16_t length_bytes) {
 
     ADCS_returnState err;
