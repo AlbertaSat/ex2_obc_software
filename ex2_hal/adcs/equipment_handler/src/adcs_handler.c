@@ -316,38 +316,15 @@ ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f) {
     }
 
     ADCS_returnState ret;
-    adcs_file_info *info;
+
     // Check valid type
     if(((type_f) != TelemetryLogFile) && (type_f != JPGImgFile) && (type_f != BMPImgFile) && (type_f != IndexFile)){
         xSemaphoreGive(adcs_file_download_mutex);
         return ADCS_INVALID_PARAMETERS;
     }
 
-    // Load one block
-    uint32_t offset = 0;
-    uint16_t block_length = 5000;
-    ret = ADCS_load_file_download_block(type_f, counter_f, offset, block_length);
-    if(ret != ADCS_OK){
-        xSemaphoreGive(adcs_file_download_mutex);
-        return ret;
-    }
-
-    // Wait until block is finished loading
-    bool ready = 0;
-    bool param_err;
-    uint16_t crc16_checksum;
-    while (ready == false) {
-        ret = ADCS_get_file_download_block_stat(&ready, &param_err, &crc16_checksum, &block_length);
-        if(ret != ADCS_OK){
-            xSemaphoreGive(adcs_file_download_mutex);
-            return ret;
-        }
-    }
-
-    // Initiate saving to a file
-    int32_t iErr;
-
     // Change directory to adcs
+    int32_t iErr;
     iErr = red_chdir("VOL0:/adcs");
     if (iErr == -1) {
         // Directory does not exist. Create it
@@ -366,6 +343,29 @@ ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f) {
             return ADCS_FILESYSTEM_FAIL;
         }
     }
+
+    // Load one block
+    uint32_t offset = 0;
+    uint16_t block_length = 500;
+    ret = ADCS_load_file_download_block(type_f, counter_f, offset, block_length);
+    if(ret != ADCS_OK){
+        xSemaphoreGive(adcs_file_download_mutex);
+        return ret;
+    }
+
+    // Wait until block is finished loading
+    bool ready = 0;
+    bool param_err;
+    uint16_t crc16_checksum;
+    while (ready == false) {
+        ret = ADCS_get_file_download_block_stat(&ready, &param_err, &crc16_checksum, &block_length);
+        if(ret != ADCS_OK){
+            xSemaphoreGive(adcs_file_download_mutex);
+            return ret;
+        }
+    }
+
+
 
     const char file_name[] = "adcs_file.bin";
 
