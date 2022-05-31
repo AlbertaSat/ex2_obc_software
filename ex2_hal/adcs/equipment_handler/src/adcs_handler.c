@@ -35,9 +35,6 @@
 
 static SemaphoreHandle_t adcs_file_download_mutex;
 
-adcs_file_info *adcs_file_list[256] = {NULL}; // Information about files on-board the ADCS
-uint8_t adcs_file_list_length = 0; // Number of entries in the file list
-
 /*************************** General functions ***************************/
 /**
  * @brief
@@ -201,60 +198,79 @@ ADCS_returnState ADCS_init_file_download_mutex() {
 ADCS_returnState ADCS_get_file_list() {
     ADCS_returnState ret;
 
-    // Clear the file list
-    uint8_t index = adcs_file_list_length;
-    while (index--) {
-        vPortFree(adcs_file_list[index]);
-    }
-
-    // Fill the file list
+    // Reset read pointer on the ADCS
     ret = ADCS_reset_file_list_read_pointer();
     if (ret != ADCS_OK) {
         sys_log(WARN, "Bad return at file list read pointer\n");
         return ret;
     }
+
+    // Change file system directory to adcs
+    int32_t iErr = red_chdir("VOL0:/adcs");
+    if (iErr == -1) {
+        // Directory does not exist. Create it
+        iErr = red_mkdir("VOL0:/adcs");
+
+        if (iErr == -1){
+            sys_log(ERROR, "Unexpected error from red_mkdir()\r\n");
+            return ADCS_FILESYSTEM_FAIL;
+        }
+
+        iErr = red_chdir("VOL0:/adcs");
+        if (iErr == -1){
+            sys_log(ERROR, "Unexpected error from red_chdir()\r\n");
+            return ADCS_FILESYSTEM_FAIL;
+        }
+    }
+
+    const char file_name[] = "adcs_file_list.txt";
+
+    // Delete file if it exists already
+    red_unlink(file_name);
+
+    int32_t file1 = red_open(file_name, RED_O_RDWR | RED_O_CREAT);
+    if (file1 == -1) {
+        sys_log(WARN, "Unexpected error from red_open()\r\n");
+        return ADCS_FILE_FAIL;
+    }
+
     adcs_file_info info;
     while (true) {
 
-        while (info.updating == true) {
+         do {
             // Request file info until busy updating flag is not set
             ret = ADCS_get_file_info(&info);
             if (ret != ADCS_OK) {
                 sys_log(NOTICE, "Bad return at get file info");
+                red_close(file1);
                 return ret;
             }
-            vTaskDelay(pdMS_TO_TICKS(10));
-        }
+        } while (info.updating == true);
 
         if ((info.counter == 0) && (info.size == 0) && (info.time == 0) && (info.crc16_checksum == 0)) {
             // No more files on the ADCS
             break;
         }
 
-        adcs_file_list[index] = (adcs_file_info *)pvPortMalloc(sizeof(adcs_file_info));
-        if (adcs_file_list[index] == NULL) {
-            adcs_file_list_length = index - 1;
-            return ADCS_MALLOC_FAILED;
-        }
-
-        adcs_file_list[index]->type = info.type;
-        adcs_file_list[index]->counter = info.counter;
-        adcs_file_list[index]->updating = info.updating;
-        adcs_file_list[index]->size = info.size;
-        adcs_file_list[index]->time = info.time;
-        adcs_file_list[index]->crc16_checksum = info.crc16_checksum;
-
         ret = ADCS_advance_file_list_read_pointer();
         if (ret != ADCS_OK) {
             sys_log(ERROR, "Bad return at advance file list read pointer\n");
+            red_close(file1);
             return ret;
         }
 
-        index++;
-        info.updating = true;
+        // Write to the file
+        char file_info_str[80];
+        snprintf(file_info_str, 80, "Type: %d\n", info.type);
+        snprintf(file_info_str, 80, "%sCnt: %d\n", file_info_str, info.counter);
+        snprintf(file_info_str, 80, "%sUpd: %d\n", file_info_str, (uint8_t)info.updating);
+        snprintf(file_info_str, 80, "%sSize: %d\n", file_info_str, info.size);
+        snprintf(file_info_str, 80, "%sTime: %d\n", file_info_str, info.time);
+        snprintf(file_info_str, 80, "%sCRC: %d\n\n", file_info_str, info.crc16_checksum);
+        red_write(file1, file_info_str, strlen(file_info_str));
     }
 
-    adcs_file_list_length = index;
+    red_close(file1);
     return ret;
 }
 
@@ -276,22 +292,6 @@ ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f) {
     adcs_file_info *info;
     // Check valid type
     if(((type_f) != TelemetryLogFile) && (type_f != JPGImgFile) && (type_f != BMPImgFile) && (type_f != IndexFile)){
-        xSemaphoreGive(adcs_file_download_mutex);
-        return ADCS_INVALID_PARAMETERS;
-    }
-
-    // Check that the specified file is in the file list
-    int index = 0;
-    for(; index < adcs_file_list_length; index++){
-        if(*(adcs_file_list + index) != NULL){
-            info = *(adcs_file_list + index);
-            if((info->type == type_f) && (info->counter == counter_f)){
-                break;
-            }
-        }
-    }
-    if(index == adcs_file_list_length){
-        // File does not exist on the ADCS
         xSemaphoreGive(adcs_file_download_mutex);
         return ADCS_INVALID_PARAMETERS;
     }
@@ -341,7 +341,7 @@ ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f) {
         }
     }
 
-    const char file_name[20] = "adcs_file.bin";
+    const char file_name[] = "adcs_file.bin";
 
     // Delete file if it exists already
     red_unlink(file_name);
@@ -609,7 +609,6 @@ static ADCS_returnState ADCS_receive_download_burst(uint8_t *hole_map, int32_t f
     uint8_t pckt[ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN];
     uint16_t pckt_counter = 0;
 
-    uint16_t data_counter = 0;
     uint8_t dummy_data[20] = {0x33};
 
     for (int i = 0; i < num_packets; i++) {
