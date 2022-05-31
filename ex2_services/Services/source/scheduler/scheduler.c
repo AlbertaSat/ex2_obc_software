@@ -14,7 +14,8 @@ static uint32_t svc_wdt_counter = 0;
 static uint32_t get_svc_wdt_counter() { return svc_wdt_counter; }
 
 int delay_aborted = 0;
-static TaskHandle_t SchedulerHandler;
+int delete_task = 0;
+static TaskHandle_t SchedulerHandler = 0;
 static SemaphoreHandle_t scheduleSemaphore = NULL;
 
 /**
@@ -31,7 +32,7 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
     int8_t status, number_of_cmds;
 
     if (scheduleSemaphore == NULL) {
-        syslog(ERROR, "schedulerSemaphore is NULL, therefore file system cannot be accessed safely");
+        sys_log(ERROR, "schedulerSemaphore is NULL, therefore file system cannot be accessed safely");
         // try to re-create mutex
         scheduleSemaphore = xSemaphoreCreateMutex();
         status = MUTEX_ERROR;
@@ -70,22 +71,24 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
             memcpy(&gs_cmds->data[STATUS_BYTE], &status, sizeof(int8_t));
             return SATR_ERROR;
         }
-        SAT_returnState calc_cmd_status = calc_cmd_frequency(cmds, number_of_cmds, sorted_cmds);
+        int calc_cmd_status = calc_cmd_frequency(cmds, number_of_cmds, sorted_cmds);
         if (calc_cmd_status != SATR_OK) {
+            sys_log(ERROR, "calc_cmd_ferquency failed in SET_SCHEDULE with error %d", calc_cmd_status);
             free(cmds);
             free(sorted_cmds);
             status = calc_cmd_status;
             memcpy(&gs_cmds->data[STATUS_BYTE], &status, sizeof(int8_t));
             return SATR_ERROR;
         }
-            if (xSemaphoreTake(scheduleSemaphore, (TickType_t)DELAY_WAIT_INTERVAL) == pdTRUE) {
+            if (xSemaphoreTake(scheduleSemaphore, (TickType_t)EX2_SEMAPHORE_WAIT) == pdTRUE) {
                 // open file that stores the cmds in the SD card
-                int32_t fout = red_open(fileName1, RED_O_RDONLY | RED_O_RDWR);
+                int32_t fout = red_open(fileName1, RED_O_RDWR);
                 // if file does not exist, create a scheduler
-                if (fout == -1) {
+                if (fout < 0) {
                     fout = red_open(fileName1, RED_O_CREAT | RED_O_RDWR); // open or create file to write binary
                     if (fout < 0) {
                         sys_log(NOTICE, "unexpected error %d from red_open() in SET_SCHEDULE for file: '%s'", (int)red_errno, fileName1);
+                        red_close(fout);
                         xSemaphoreGive(scheduleSemaphore);
                         status = (int)red_errno;
                         memcpy(&gs_cmds->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -114,16 +117,18 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
                         return SATR_ERROR;
                     }
                     // return number of commands to groundstation
-                    memcpy(&gs_cmds->data[OUT_DATA_BYTE], &num_of_cmds, sizeof(int8_t));
+                    gs_cmds->data[OUT_DATA_BYTE] = number_of_cmds;
                     // close file
                     red_close(fout);
+                    xSemaphoreGive(scheduleSemaphore);
                     // create the scheduler
                     // TODO: review stack size
                     xTaskCreate(vSchedulerHandler, "scheduler", 1000, scheduleSemaphore, NORMAL_SERVICE_PRIO, &SchedulerHandler);
+                    sys_log(INFO, "xTaskHandler has been created: %d", SchedulerHandler);
                 }
 
                 // if file already exists, modify the existing scheduler
-                else if (fout != -1) {
+                else if (fout >= 0) {
                     // TODO: use mutex/semaphores to protect the file while being written
                     // get file size through file stats
                     REDSTAT scheduler_stat;
@@ -166,9 +171,8 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
                     // read file
                     red_lseek(fout, 0, RED_SEEK_SET);
                     int32_t f_read = red_read(fout, existing_cmds, (uint32_t)scheduler_stat.st_size);
-                    if (f_read == -1) {
-                        sys_log(ERROR, "unexpected error %d from red_read() in SET_SCHEDULE for file '%s",
-                                (int)red_errno, fileName1);
+                    if (f_read < 0) {
+                        sys_log(ERROR, "unexpected error %d from red_read() in SET_SCHEDULE for file '%s", (int)red_errno, fileName1);
                         red_close(fout);
                         xSemaphoreGive(scheduleSemaphore);
                         free(cmds);
@@ -194,7 +198,8 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
                     }
                     // write new cmds to file
                     red_lseek(fout, 0, RED_SEEK_END);
-                    int32_t f_write = red_write(fout, updated_cmds, total_cmds * sizeof(scheduled_commands_unix_t));
+                    uint32_t needed_size = total_cmds * sizeof(scheduled_commands_unix_t);
+                    int32_t f_write = red_write(fout, updated_cmds, needed_size);
                     if (f_write < 0) {
                         sys_log(ERROR, "unexpected error %d from red_write() in SET_SCHEDULE for file '%s", (int)red_errno, fileName1);
                         red_close(fout);
@@ -211,18 +216,17 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
                     number_of_cmds = total_cmds;
                     // close file
                     red_close(fout);
+                    xSemaphoreGive(scheduleSemaphore);
                     // set Abort delay flag to 1
-                    if (xTaskAbortDelay(SchedulerHandler) == pdPASS) {
-                        delay_aborted = 1;
-                    }
+                    delay_aborted = 1;
+                    xTaskAbortDelay(SchedulerHandler);
                     // free calloc
                     free(existing_cmds);
                     free(updated_cmds);
                 }
-                xSemaphoreGive(scheduleSemaphore);
             } 
             else {
-                syslog(ERROR, "cannot obtain schedulerSemaphore, therefore file system cannot be accessed safely");
+                sys_log(ERROR, "cannot obtain schedulerSemaphore, therefore file system cannot be accessed safely");
                 free(cmds);
                 free(sorted_cmds);
                 status = MUTEX_ERROR;
@@ -242,7 +246,7 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
     break;
 
     case DELETE_SCHEDULE: {
-            if (xSemaphoreTake(scheduleSemaphore, (TickType_t)DELAY_WAIT_INTERVAL) == pdTRUE) {
+            if (xSemaphoreTake(scheduleSemaphore, (TickType_t)EX2_SEMAPHORE_WAIT) == pdTRUE) {
                 // open file from SD card
                 int32_t fout = red_open(fileName1, RED_O_RDWR); // open or create file to write binary
                 if (fout < 0) {
@@ -270,13 +274,12 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
                         red_close(fout);
                         xSemaphoreGive(scheduleSemaphore);
                         free(cmds);
-                        status = SSCANF_ERROR;
+                        status = number_of_cmds;
                         memcpy(&gs_cmds->data[STATUS_BYTE], &status, sizeof(int8_t));
                         return SATR_ERROR;
                     }
                     // calculate frequency of cmds. Non-repetitive commands have a frequency of 0
-                    scheduled_commands_unix_t *sorted_cmds =
-                        (scheduled_commands_unix_t *)calloc(number_of_cmds, sizeof(scheduled_commands_unix_t));
+                    scheduled_commands_unix_t *sorted_cmds = (scheduled_commands_unix_t *)calloc(number_of_cmds, sizeof(scheduled_commands_unix_t));
                     if (number_of_cmds > 0 && sorted_cmds == NULL) {
                         sys_log(ERROR, "calloc for sorted_cmds failed in DELETE_SCHEDULE, out of memory");
                         red_close(fout);
@@ -286,11 +289,13 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
                         memcpy(&gs_cmds->data[STATUS_BYTE], &status, sizeof(int8_t));
                         return SATR_ERROR;
                     }
-                    SAT_returnState calc_cmd_status = calc_cmd_frequency(cmds, number_of_cmds, sorted_cmds);
+                    int calc_cmd_status = calc_cmd_frequency(cmds, number_of_cmds, sorted_cmds);
                     if (calc_cmd_status != SATR_OK) {
+                        sys_log(ERROR, "calc_cmd_ferquency failed in DELETE_SCHEDULE with error %d", calc_cmd_status);
                         red_close(fout);
                         xSemaphoreGive(scheduleSemaphore);
                         free(cmds);
+                        free(sorted_cmds);
                         status = calc_cmd_status;
                         memcpy(&gs_cmds->data[STATUS_BYTE], &status, sizeof(int8_t));
                         return SATR_ERROR;
@@ -301,18 +306,28 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
                         red_close(fout);
                         xSemaphoreGive(scheduleSemaphore);
                         free(cmds);
+                        free(sorted_cmds);
                         status = sort_status;
                         memcpy(&gs_cmds->data[STATUS_BYTE], &status, sizeof(int8_t));
                         return sort_status;
                     }
                     // get existing schedule file size through file stats
                     REDSTAT scheduler_stat;
+                    red_lseek(fout, 0, RED_SEEK_SET);
                     int32_t f_stat = red_fstat(fout, &scheduler_stat);
                     if (f_stat < 0) {
-                        sys_log(ERROR, "unexpected error %d from f_stat() in DELETE_SCHEDULE for file: '%s'", (int)red_errno, fileName1);
+                        if (f_stat < 0) {
+                            sys_log(ERROR, "unexpected error %d from f_stat() in DELETE_SCHEDULE for file: '%s'", (int)red_errno, fileName1);
+                            status = (int)red_errno;
+                        }
+                        else if (f_stat == 0) {
+                            sys_log(ERROR, "no more cmds left, DELETE_SCHEDULE not executed");
+                            status = DELETE_ERROR;
+                        }
                         red_close(fout);
                         xSemaphoreGive(scheduleSemaphore);
-                        status = (int)red_errno;
+                        free(cmds);
+                        free(sorted_cmds);
                         memcpy(&gs_cmds->data[STATUS_BYTE], &status, sizeof(int8_t));
                         return SATR_ERROR;
                     }
@@ -331,8 +346,7 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
                         memcpy(&gs_cmds->data[STATUS_BYTE], &status, sizeof(int8_t));
                         return SATR_ERROR;
                     }
-                    scheduled_commands_unix_t *updated_cmds =
-                        (scheduled_commands_unix_t *)calloc(num_existing_cmds, sizeof(scheduled_commands_unix_t));
+                    scheduled_commands_unix_t *updated_cmds = (scheduled_commands_unix_t *)calloc(num_existing_cmds, sizeof(scheduled_commands_unix_t));
                     if (num_existing_cmds > 0 && updated_cmds == NULL) {
                         sys_log(ERROR, "calloc for updated_cmds failed in DELETE_SCHEDULE, out of memory");
                         red_close(fout);
@@ -348,10 +362,12 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
                     red_lseek(fout, 0, RED_SEEK_SET);
                     int32_t f_read = red_read(fout, existing_cmds, (uint32_t)scheduler_stat.st_size);
                     if (f_read < 0) {
-                        sys_log(ERROR, "unexpected error %d from red_read() in DELETE_SCHEDULE for file: '%s'",
-                                (int)red_errno, fileName1);
+                        sys_log(ERROR, "unexpected error %d from red_read() in DELETE_SCHEDULE for file: '%s'", (int)red_errno, fileName1);
                         red_close(fout);
                         xSemaphoreGive(scheduleSemaphore);
+                        free(cmds);
+                        free(sorted_cmds);
+                        free(existing_cmds);
                         status = (int)red_errno;
                         memcpy(&gs_cmds->data[STATUS_BYTE], &status, sizeof(int8_t));
                         return SATR_ERROR;
@@ -368,8 +384,7 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
                                  (sorted_cmds + j)->data[SUBSERVICE_BYTE])) {
                                 needed_size = needed_size - sizeof(scheduled_commands_unix_t);
                             } else {
-                                memcpy(updated_cmds + cmd_ctr, existing_cmds + i,
-                                       sizeof(scheduled_commands_unix_t));
+                                memcpy(updated_cmds + cmd_ctr, existing_cmds + i, sizeof(scheduled_commands_unix_t));
                                 cmd_ctr++;
                             }
                         }
@@ -416,28 +431,15 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
                         if (f_close < 0) {
                             sys_log(NOTICE, "unexpected error %d from red_close() in DELETE_SCHEDULE for file: '%s'", (int)red_errno, fileName1);
                         }
+                        // set Abort delay flag to 1
+                        delay_aborted = 1;
                     }
                     // If all cmds were deleted, delete the file and worker task
-                    else if (needed_size <= 0) {
-                        vTaskDelete(SchedulerHandler);
-                        // close file
-                        int32_t f_close = red_close(fout);
-                        if (f_close < 0) {
-                            sys_log(NOTICE, "unexpected error %d from red_close() in DELETE_SCHEDULE for file: '%s'", (int)red_errno, fileName1);
-                        }
-                        // delete file once all cmds have been executed
-                        int32_t f_delete = red_unlink(fileName1);
-                        if (f_delete < 0) {
-                            sys_log(ERROR, "DELETE_SCHEDULE failed on error %d from red_unlink() for file: '%s'", (int)red_errno, fileName1);
-                            xSemaphoreGive(scheduleSemaphore);
-                            free(cmds);
-                            free(sorted_cmds);
-                            free(existing_cmds);
-                            free(updated_cmds);
-                            status = (int)red_errno;
-                            memcpy(&gs_cmds->data[STATUS_BYTE], &status, sizeof(int8_t));
-                            return SATR_ERROR;
-                        }
+                    else if (needed_size < sizeof(scheduled_commands_unix_t)) {
+                        // terminate the worker task inside of the worker task
+                        delete_task = 1;
+                        // set Abort delay flag to 1
+                        delay_aborted = 1;
                         // return number of commands to groundstation
                         number_of_cmds = 0;
                     }
@@ -447,12 +449,10 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
                     free(sorted_cmds);
                     free(existing_cmds);
                     free(updated_cmds);
-                    // set Abort delay flag to 1
-                    if (xTaskAbortDelay(SchedulerHandler) == pdPASS) {
-                        delay_aborted = 1;
-                    }
+
+                    xSemaphoreGive(scheduleSemaphore);
+                    xTaskAbortDelay(SchedulerHandler);
                 }
-                xSemaphoreGive(scheduleSemaphore);
             }
 
         status = NO_ERROR;
@@ -463,41 +463,36 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
     break;
 
     case REPLACE_SCHEDULE: {
-            if (xSemaphoreTake(scheduleSemaphore, (TickType_t)DELAY_WAIT_INTERVAL) == pdTRUE) {
+            if (xSemaphoreTake(scheduleSemaphore, (TickType_t)EX2_SEMAPHORE_WAIT) == pdTRUE) {
                 // open file from SD card
+                //TODO: define fout, f_close etc before the switch cases
                 int32_t fout = red_open(fileName1, RED_O_RDONLY); // open file to write binary
+                xSemaphoreGive(scheduleSemaphore);
                 // if file exists, delete old file
                 if (fout >= 0) {
-                    // TODO: consider killing the task inside of the worker task
-                    vTaskDelete(SchedulerHandler);
-                    if (red_close(fout) < 0) {
-                        sys_log(NOTICE, "unexpected error %d from red_close in REPLACE_SCHEDULE for file: '%s'",
-                                (int)red_errno, fileName1);
-                    }
-                    // delete file once all cmds have been executed
-                    int32_t f_delete = red_unlink(fileName1);
-                    if (f_delete < 0) {
-                        sys_log(ERROR, "unexpected error %d from f_delete() in REPLACE_SCHEDULE for file: '%s'", (int)red_errno, fileName1);
-                        xSemaphoreGive(scheduleSemaphore);
-                        status = (int)red_errno;
-                        memcpy(&gs_cmds->data[STATUS_BYTE], &status, sizeof(int8_t));
-                        return SATR_ERROR;
-                    }
+                    // terminate the worker task inside of the worker task
+                    // set Abort delay flag to 1
+                    red_close(fout);
+                    delete_task = 1;
+                    delay_aborted = 1;
+                    eTaskState taskState = eTaskGetState(SchedulerHandler);
+                    sys_log(INFO, "task state is %d", taskState);
+                    sys_log(INFO, "xTaskHandler is %d", SchedulerHandler);
+                    BaseType_t ret = xTaskAbortDelay(SchedulerHandler);
                 }
-
+            }
+            if (xSemaphoreTake(scheduleSemaphore, (TickType_t)EX2_SEMAPHORE_WAIT) == pdTRUE) {
                 // create file for new schedule
-                fout = red_open(fileName1, RED_O_CREAT | RED_O_RDWR);
+                int32_t fout = red_open(fileName1, RED_O_CREAT | RED_O_RDWR);
                 if (fout < 0) {
-                    sys_log(ERROR, "unexpected error %d from red_open() in REPLACE_SCHEDULE for file: '%s'",
-                            (int)red_errno, fileName1);
+                    sys_log(ERROR, "unexpected error %d from red_open() in REPLACE_SCHEDULE for file: '%s'", (int)red_errno, fileName1);
                     xSemaphoreGive(scheduleSemaphore);
                     status = (int)red_errno;
                     memcpy(&gs_cmds->data[STATUS_BYTE], &status, sizeof(int8_t));
                     return SATR_ERROR;
                 }
                 // allocating buffer for MAX_NUM_CMDS numbers of incoming commands
-                scheduled_commands_t *cmds =
-                    (scheduled_commands_t *)calloc(MAX_NUM_CMDS, sizeof(scheduled_commands_t));
+                scheduled_commands_t *cmds = (scheduled_commands_t *)calloc(MAX_NUM_CMDS, sizeof(scheduled_commands_t));
                 if (MAX_NUM_CMDS > 0 && cmds == NULL) {
                     sys_log(ERROR, "calloc for cmds failed in REPLACE_SCHEDULE, out of memory");
                     red_close(fout);
@@ -527,8 +522,9 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
                     memcpy(&gs_cmds->data[STATUS_BYTE], &status, sizeof(int8_t));
                     return SATR_ERROR;
                 }
-                SAT_returnState calc_cmd_status = calc_cmd_frequency(cmds, number_of_cmds, sorted_cmds);
+                int calc_cmd_status = calc_cmd_frequency(cmds, number_of_cmds, sorted_cmds);
                 if (calc_cmd_status != SATR_OK) {
+                    sys_log(ERROR, "calc_cmd_ferquency failed in REPLACE_SCHEDULE with error %d", calc_cmd_status);
                     red_close(fout);
                     xSemaphoreGive(scheduleSemaphore);
                     free(cmds);
@@ -575,13 +571,13 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
                 }
                 // close file
                 red_close(fout);
+                xSemaphoreGive(scheduleSemaphore);
                 // create the scheduler worker task
                 // TODO: review stack size
-                xTaskCreate(vSchedulerHandler, "scheduler", 1000, NULL, NORMAL_SERVICE_PRIO, &SchedulerHandler);
-                xSemaphoreGive(scheduleSemaphore);
+                xTaskCreate(vSchedulerHandler, "scheduler", 1000, scheduleSemaphore, NORMAL_SERVICE_PRIO, &SchedulerHandler);
             } 
             else {
-                syslog(ERROR, "cannot obtain schedulerSemaphore, therefore file system cannot be accessed safely");
+                sys_log(ERROR, "cannot obtain schedulerSemaphore, therefore file system cannot be accessed safely");
                 status = MUTEX_ERROR;
                 memcpy(&gs_cmds->data[STATUS_BYTE], &status, sizeof(int8_t));
                 return SATR_ERROR;
@@ -613,6 +609,7 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
         } else {
             number_of_cmds = 0;
         }
+        red_close(f_ping);
         status = NO_ERROR;
         memcpy(&gs_cmds->data[STATUS_BYTE], &status, sizeof(int8_t));
         memcpy(&gs_cmds->data[OUT_DATA_BYTE], &number_of_cmds, sizeof(int8_t));
@@ -954,10 +951,10 @@ int prv_set_scheduler(char *cmd_buff, scheduled_commands_t *cmds) {
  *      number of commands in @param cmds
  * @param sorted_cmds
  *      pointer to the structure that stores the groundstation commands after frequency has been calculated
- * @return SAT_returnState
- *      SATR_OK or SATR_ERROR
+ * @return int
+ *      SATR_OK or other error codes
  */
-SAT_returnState calc_cmd_frequency(scheduled_commands_t *cmds, int number_of_cmds, scheduled_commands_unix_t *sorted_cmds) {
+int calc_cmd_frequency(scheduled_commands_t *cmds, int number_of_cmds, scheduled_commands_unix_t *sorted_cmds) {
     /*--------------------------------Initialize structures to store sorted commands--------------------------------*/
     // TODO: Confirm that the entire struct has been initialized with zeros
     scheduled_commands_unix_t *non_reoccurring_cmds =
@@ -983,8 +980,7 @@ SAT_returnState calc_cmd_frequency(scheduled_commands_t *cmds, int number_of_cmd
     for (int j = 0; j < number_of_cmds; j++) {
         // Separate the non-repetitve and repetitve commands, the sum of time fields should not exceed the value of
         // ASTERISK (255) if non-repetitive
-        if ((cmds + j)->scheduled_time.Second + (cmds + j)->scheduled_time.Minute +
-                (cmds + j)->scheduled_time.Hour + (cmds + j)->scheduled_time.Month <
+        if ((cmds + j)->scheduled_time.Second + (cmds + j)->scheduled_time.Minute + (cmds + j)->scheduled_time.Hour + (cmds + j)->scheduled_time.Month <
             ASTERISK) {
 
             // Store the non-repetitve commands into the new struct non_reoccurring_cmds
@@ -1056,8 +1052,12 @@ SAT_returnState calc_cmd_frequency(scheduled_commands_t *cmds, int number_of_cmd
             continue;
         }
         // If command repeats every minute
-        if ((reoccurring_cmds + j)->scheduled_time.Hour == ASTERISK &&
+        if (((reoccurring_cmds + j)->scheduled_time.Hour == ASTERISK &&
+            (reoccurring_cmds + j)->scheduled_time.Minute == ASTERISK) || 
             (reoccurring_cmds + j)->scheduled_time.Minute == ASTERISK) {
+            if ((reoccurring_cmds + j)->scheduled_time.Hour != ASTERISK) {
+                (reoccurring_cmds + j)->scheduled_time.Hour = ASTERISK;
+            }
             // TODO: consider edge cases where the hour increases as soon as this function is executed - complete
             rtc_read_hr = RTCMK_ReadHours(RTCMK_ADDR, &time_buff.Hour);
             rtc_read_min = RTCMK_ReadMinutes(RTCMK_ADDR, &time_buff.Minute);
@@ -1106,7 +1106,6 @@ SAT_returnState calc_cmd_frequency(scheduled_commands_t *cmds, int number_of_cmd
     free(reoccurring_cmds);
     free(repeated_cmds_buff);
 
-    // prv_give_lock(cmds);
     return SATR_OK;
 }
 

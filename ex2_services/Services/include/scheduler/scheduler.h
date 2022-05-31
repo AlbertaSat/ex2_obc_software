@@ -45,11 +45,7 @@
 #include "util/service_utilities.h"
 
 #define SCHEDULER_SIZE 1000
-#define NO_ERROR 0
-#define CALLOC_ERROR 4
-#define RTC_ERROR 6
-#define MUTEX_ERROR 7
-#define SSCANF_ERROR 8
+#define EX2_SEMAPHORE_WAIT 8000
 #define MAX_NUM_CMDS 5
 #define MAX_DATA_LEN 12     //TODO: determine if this is the best max length
 #define MAX_CMD_LENGTH 10 //TODO: review max cmd length required w mission design/ gs
@@ -59,10 +55,20 @@
     //TODO: convert the asterisk from 42 to 255 on the python gs code
         // Since seconds and minutes can both use the value 42, to avoid conflict, asterisk will be replaced with 255.
 
+
+// custom scheduler error codes
+#define NO_ERROR 0
+#define CALLOC_ERROR 4
+#define RTC_ERROR 6
+#define MUTEX_ERROR 7
+#define SSCANF_ERROR -2
+#define DELETE_ERROR 8
+#define ABORT_DELAY_ERROR 10
 static char cmd_buff[MAX_BUFFER_LENGTH];
 
 extern char* fileName1;
 extern int delay_aborted;
+extern int delete_task;
 
 // Structure inspired by: https://man7.org/linux/man-pages/man5/crontab.5.html
 typedef struct __attribute__((packed)) {
@@ -100,7 +106,7 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
 //SAT_returnState scheduler_service_app(char *gs_cmds);
 SAT_returnState scheduler_service(SemaphoreHandle_t scheduleSemaphore);
 SAT_returnState start_scheduler_service(void);
-SAT_returnState calc_cmd_frequency(scheduled_commands_t* cmds, int number_of_cmds, scheduled_commands_unix_t *sorted_cmds);
+int calc_cmd_frequency(scheduled_commands_t* cmds, int number_of_cmds, scheduled_commands_unix_t *sorted_cmds);
 SAT_returnState sort_cmds(scheduled_commands_unix_t *sorted_cmds, int number_of_cmds);
 static scheduled_commands_t *prv_get_cmds_scheduler();
 SAT_returnState vSchedulerHandler (void *pvParameters);
