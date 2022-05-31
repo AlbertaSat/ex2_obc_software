@@ -346,8 +346,13 @@ ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f) {
         }
     }
 
+    const char file_name[20] = "adcs_file.bin";
+
+    // Delete file if it exists already
+    red_unlink(file_name);
+
     // Open a binary file
-    int32_t file1 = red_open("VOL0:/adcs/adcs_file.bin", RED_O_RDWR | RED_O_CREAT);
+    int32_t file1 = red_open(file_name, RED_O_RDWR | RED_O_CREAT);
     if (file1 == -1) {
         sys_log(WARN, "Unexpected error from red_open()\r\n");
         xSemaphoreGive(adcs_file_download_mutex);
@@ -607,8 +612,9 @@ static ADCS_returnState ADCS_receive_download_burst(uint8_t *hole_map, int32_t f
     adcs_io_enter_file_download_state();
     uint8_t pckt[ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN];
     uint16_t pckt_counter;
+    int i = 0;
 
-    for (int i = 0; i < num_packets; i++) {
+    for (; i < num_packets; i++) {
 
         err = receive_file_download_uart_packet(pckt, &pckt_counter);
 
@@ -625,7 +631,6 @@ static ADCS_returnState ADCS_receive_download_burst(uint8_t *hole_map, int32_t f
         } else {
             // Packet received. Write to file
             write_packet_to_file(file_des, pckt, ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN);
-
             // Fill hole map with a 1 indicating packet received
             // Note hole map is stored little-endian
             uint8_t hole_map_byte_index = pckt_counter / 8;
