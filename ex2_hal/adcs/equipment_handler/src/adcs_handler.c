@@ -298,7 +298,7 @@ ADCS_returnState ADCS_get_file_list() {
 void ADCS_download_file_task(void *pvParameters){
     adcs_file_download_id *id = (adcs_file_download_id *)pvParameters;
 
-    id->status = ADCS_download_file(id->type_f, id->counter_f);
+    id->type_f = (uint8_t)ADCS_download_file(id->type_f, id->counter_f);
 
     vTaskDelete(0);
 }
@@ -324,7 +324,6 @@ ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f) {
     }
 
     // Load one block
-    uint32_t size = info->size;
     uint32_t offset = 0;
     uint16_t block_length = 5000;
     ret = ADCS_load_file_download_block(type_f, counter_f, offset, block_length);

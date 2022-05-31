@@ -19,7 +19,13 @@
 
 #include "adcs.h"
 
-QueueHandle_t adcs_download_queue;
+ADCS_returnState HAL_ADCS_download_file_list_to_OBC(void){
+#ifdef ADCS_IS_STUBBED
+    return IS_STUBBED_A;
+#else
+    return ADCS_get_file_list();
+#endif
+}
 
 ADCS_returnState HAL_ADCS_download_file_to_OBC(adcs_file_download_id *id){
 #ifdef ADCS_IS_STUBBED
@@ -28,9 +34,11 @@ ADCS_returnState HAL_ADCS_download_file_to_OBC(adcs_file_download_id *id){
     // Spawn high-priority file download task
     TaskHandle_t xHandle;
     xTaskCreate(ADCS_download_file_task, "ADCS_download_file_task", ADCS_QUEUE_GET_TASK_SIZE, (void *)id, ADCS_QUEUE_GET_TASK_PRIO, &xHandle);
-    // Wait until task finishes
+
+    // Wait until task finishes and return
     while(eTaskGetState(xHandle) != eDeleted);
-    return id->status;
+    return (ADCS_returnState)id->type_f; // type_f holds the return value after execution
+
 #endif
 }
 

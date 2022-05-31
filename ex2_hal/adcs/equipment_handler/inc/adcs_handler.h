@@ -484,7 +484,6 @@ typedef struct {
 typedef struct {
     uint8_t type_f;
     uint8_t counter_f;
-    ADCS_returnState status;
 } adcs_file_download_id;
 
 

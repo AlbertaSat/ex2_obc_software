@@ -232,6 +232,7 @@ typedef struct __attribute__((packed)) {
 } ADCS_log_config;
 
 // File Download Function
+ADCS_returnState HAL_ADCS_download_file_list_to_OBC(void);
 ADCS_returnState HAL_ADCS_download_file_to_OBC(adcs_file_download_id *id);
 
 // Common Telecommands
