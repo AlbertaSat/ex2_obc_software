@@ -21,7 +21,6 @@
 #include "adcs_types.h"
 
 static QueueHandle_t adcsQueue;
-static QueueHandle_t adcsFileDownloadQueue;
 static uint8_t adcsBuffer;
 static SemaphoreHandle_t tx_semphr;
 static SemaphoreHandle_t adcs_uart_mutex;
@@ -60,10 +59,6 @@ ADCS_returnState init_adcs_io() {
     // Create file download mutex
     ADCS_returnState ret = ADCS_init_file_download_mutex();
     if(ret != ADCS_OK) return ret;
-
-    // Create file download queue
-    adcsFileDownloadQueue = xQueueCreate(ADCS_FILE_DOWNLOAD_QUEUE_LENGTH, ADCS_QUEUE_ITEM_SIZE);
-    if(adcsFileDownloadQueue == NULL) return ADCS_UART_FAILED;
 
     return ADCS_OK;
 }
@@ -318,7 +313,7 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint3
 ADCS_returnState receive_file_download_uart_packet(uint8_t *packet, uint16_t *packet_counter) {
 
     uint8_t received = 0;
-    uint8_t *reply = (uint8_t *)pvPortMalloc(sizeof(uint8_t) * (ADCS_UART_FILE_DOWNLOAD_PKT_LEN + 5));
+    uint8_t *reply = (uint8_t *)pvPortMalloc(sizeof(uint8_t) * (ADCS_UART_FILE_DOWNLOAD_PKT_LEN + ADCS_EXTRA_SZ_FOR_STUFFING));
 
     bool end_of_message = false;
     const uint8_t ending_bytes[ADCS_NUM_ENDING_BYTES] = {ADCS_PARSING_BYTE, ADCS_ENDING_BYTE};
@@ -357,14 +352,11 @@ ADCS_returnState adcs_io_enter_file_download_state(){
     if (xSemaphoreTake(adcs_uart_mutex, UART_TIMEOUT_MS) != pdTRUE) {
         return ADCS_UART_BUSY;
     }
-
-    downloading_file = true;
     return ADCS_OK;
 }
 
 ADCS_returnState adcs_io_exit_file_download_state(){
     xSemaphoreGive(adcs_uart_mutex);
-    downloading_file = false;
     return ADCS_OK;
 }
 
