@@ -261,11 +261,6 @@ ADCS_returnState ADCS_get_file_list() {
 void ADCS_download_file_task(void *pvParameters){
     adcs_file_download_id *id = (adcs_file_download_id *)pvParameters;
 
-    // TEST CODE
-    id->type_f = (*adcs_file_list)->type;
-    id->counter_f = (*adcs_file_list)->counter;
-    // END TEST CODE
-
     id->status = ADCS_download_file(id->type_f, id->counter_f);
 
     vTaskDelete(0);
@@ -304,7 +299,7 @@ ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f) {
     // Load one block
     uint32_t size = info->size;
     uint32_t offset = 0;
-    uint16_t block_length = 5000; //  Load 5kB. Results in 250 20-byte packets when download is initiated.
+    uint16_t block_length = 5000;
     ret = ADCS_load_file_download_block(type_f, counter_f, offset, block_length);
     if(ret != ADCS_OK){
         xSemaphoreGive(adcs_file_download_mutex);
@@ -608,36 +603,71 @@ ADCS_returnState ADCS_initiate_download_burst(uint8_t msg_length, bool ignore_ho
 static ADCS_returnState ADCS_receive_download_burst(uint8_t *hole_map, int32_t file_des, uint16_t length_bytes) {
 
     ADCS_returnState err;
+
     uint16_t num_packets = length_bytes / ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN + 1;
     adcs_io_enter_file_download_state();
     uint8_t pckt[ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN];
-    uint16_t pckt_counter;
-    int i = 0;
+    uint16_t pckt_counter = 0;
 
-    for (; i < num_packets; i++) {
+    uint16_t data_counter = 0;
+    uint8_t dummy_data[20] = {0x33};
+
+    for (int i = 0; i < num_packets; i++) {
 
         err = receive_file_download_uart_packet(pckt, &pckt_counter);
 
         if (err == ADCS_UART_FAILED) {
             // End of file or other error
             break;
+
         } else if (pckt_counter != i) {
-            // Missed a packet (or more) somewhere - fill with zeroes
+
+            // Missed a packet (or more) somewhere. Stuff.
             int j = 0;
             for (; j < (pckt_counter - i); j++) {
-                write_packet_to_file(file_des, "00000000000000000000", ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN);
+
+                if(!(length_bytes < 20)){
+
+                    // More than 20 bytes remaining. Stuff file with full length of dummy data.
+                    write_packet_to_file(file_des, dummy_data, ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN);
+                    length_bytes -= ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN;
+
+                }else{
+
+                    // Less than 20 bytes remaining. Stuff file with only remaining length of dummy data.
+                    write_packet_to_file(file_des, dummy_data, length_bytes);
+                    length_bytes = 0;
+
+                }
             }
+
             i += j;
+
         } else {
+
             // Packet received. Write to file
-            write_packet_to_file(file_des, pckt, ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN);
-            // Fill hole map with a 1 indicating packet received
-            // Note hole map is stored little-endian
+            if(!(length_bytes < 20)){
+
+                // More than 20 bytes remaining. Write full packet payload to file.
+                write_packet_to_file(file_des, pckt, ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN);
+                length_bytes -= ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN;
+
+            }else{
+
+                // Less than 20 bytes remaining. Write only remaining data from packet to file.
+                write_packet_to_file(file_des, pckt, length_bytes);
+                length_bytes = 0;
+
+            }
+
+            // Fill hole map to indicate packet receipt (stored little-endian)
             uint8_t hole_map_byte_index = pckt_counter / 8;
             uint8_t hole_map_bit_index = pckt_counter % 8;
             *(hole_map + hole_map_byte_index) |= (0x1 << hole_map_bit_index);
+
         }
     }
+
     adcs_io_exit_file_download_state();
     return err;
 }
