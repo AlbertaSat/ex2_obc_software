@@ -3135,7 +3135,57 @@ ADCS_returnState ADCS_get_full_config(adcs_config *config) {
     config->cubesense.cam2_sense.boresight_x = ((telemetry[63] << 8) | telemetry[62]) * coef;
     config->cubesense.cam2_sense.boresight_y = ((telemetry[65] << 8) | telemetry[64]) * coef;
 
-    memcpy(&config->cubesense.nadir_max_deviate, &telemetry[66], 84); // WRONG?????
+    memcpy(&config->cubesense.nadir_max_deviate, &telemetry[66], 16);
+
+    config->cubesense.cam1_area.area1.x.min = (telemetry[71] << 8) | telemetry[70];
+    config->cubesense.cam1_area.area1.x.max = (telemetry[73] << 8) | telemetry[72];
+    config->cubesense.cam1_area.area1.y.min = (telemetry[75] << 8) | telemetry[74];
+    config->cubesense.cam1_area.area1.y.max = (telemetry[77] << 8) | telemetry[76];
+
+    config->cubesense.cam1_area.area2.x.min = (telemetry[79] << 8) | telemetry[78];
+    config->cubesense.cam1_area.area2.x.max = (telemetry[81] << 8) | telemetry[80];
+    config->cubesense.cam1_area.area2.y.min = (telemetry[83] << 8) | telemetry[82];
+    config->cubesense.cam1_area.area2.y.max = (telemetry[85] << 8) | telemetry[84];
+    
+    config->cubesense.cam1_area.area3.x.min = (telemetry[87] << 8) | telemetry[86];
+    config->cubesense.cam1_area.area3.x.max = (telemetry[89] << 8) | telemetry[88];
+    config->cubesense.cam1_area.area3.y.min = (telemetry[91] << 8) | telemetry[90];
+    config->cubesense.cam1_area.area3.y.max = (telemetry[93] << 8) | telemetry[92];
+    
+    config->cubesense.cam1_area.area4.x.min = (telemetry[95] << 8) | telemetry[94];
+    config->cubesense.cam1_area.area4.x.max = (telemetry[97] << 8) | telemetry[96];
+    config->cubesense.cam1_area.area4.y.min = (telemetry[99] << 8) | telemetry[98];
+    config->cubesense.cam1_area.area4.y.max = (telemetry[101] << 8) | telemetry[100];
+    
+    config->cubesense.cam1_area.area5.x.min = (telemetry[103] << 8) | telemetry[102];
+    config->cubesense.cam1_area.area5.x.max = (telemetry[105] << 8) | telemetry[104];
+    config->cubesense.cam1_area.area5.y.min = (telemetry[107] << 8) | telemetry[106];
+    config->cubesense.cam1_area.area5.y.max = (telemetry[109] << 8) | telemetry[108];
+    
+    config->cubesense.cam2_area.area1.x.min = (telemetry[111] << 8) | telemetry[110];
+    config->cubesense.cam2_area.area1.x.max = (telemetry[113] << 8) | telemetry[112];
+    config->cubesense.cam2_area.area1.y.min = (telemetry[115] << 8) | telemetry[114];
+    config->cubesense.cam2_area.area1.y.max = (telemetry[117] << 8) | telemetry[116];
+    
+    config->cubesense.cam2_area.area2.x.min = (telemetry[119] << 8) | telemetry[118];
+    config->cubesense.cam2_area.area2.x.max = (telemetry[121] << 8) | telemetry[120];
+    config->cubesense.cam2_area.area2.y.min = (telemetry[123] << 8) | telemetry[122];
+    config->cubesense.cam2_area.area2.y.max = (telemetry[125] << 8) | telemetry[124];
+    
+    config->cubesense.cam2_area.area3.x.min = (telemetry[127] << 8) | telemetry[126];
+    config->cubesense.cam2_area.area3.x.max = (telemetry[129] << 8) | telemetry[128];
+    config->cubesense.cam2_area.area3.y.min = (telemetry[131] << 8) | telemetry[130];
+    config->cubesense.cam2_area.area3.y.max = (telemetry[133] << 8) | telemetry[132];
+    
+    config->cubesense.cam2_area.area4.x.min = (telemetry[135] << 8) | telemetry[134];
+    config->cubesense.cam2_area.area4.x.max = (telemetry[137] << 8) | telemetry[136];
+    config->cubesense.cam2_area.area4.y.min = (telemetry[139] << 8)  | telemetry[138];
+    config->cubesense.cam2_area.area4.y.max = (telemetry[141] << 8)  | telemetry[140];
+    
+    config->cubesense.cam2_area.area5.x.min = (telemetry[143] << 8)  | telemetry[142];
+    config->cubesense.cam2_area.area5.x.max = (telemetry[145] << 8)  | telemetry[144];
+    config->cubesense.cam2_area.area5.y.min = (telemetry[147] << 8)  | telemetry[146];
+    config->cubesense.cam2_area.area5.y.max = (telemetry[149] << 8)  | telemetry[148];
 
     get_xyz(&config->MTM1.mounting_angle, &telemetry[150], 0.01);
     get_xyz(&config->MTM1.channel_offset, &telemetry[156], 0.001);
