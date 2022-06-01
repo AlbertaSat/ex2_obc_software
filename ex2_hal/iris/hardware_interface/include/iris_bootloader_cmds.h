@@ -12,18 +12,22 @@
 
 #include "FreeRTOS.h"
 #include "iris_i2c.h"
+#include <stdlib.h>
 
-#define OPC_WREN 0x04 // Write opcode
-#define OPC_ERUSM 0x0B // Erase opcode
+#define OPC_WREN 0x31 // Write opcode
+#define N_OPC_WREN 0xCE
+#define OPC_ERUSM 0x44 // Erase opcode
+#define N_OPC_ERUSM 0xBB // Erase opcode
 #define DUMMY_BYTE 0xFF
 
-#define WRITE_METADATA_LENGTH 8
-#define ERASE_METADATA_LENGTH 1
+#define FLASH_MEM_PAGE_SIZE 128
+#define FLASH_NUM_PAGES 512
+
+#define WRITE_PACKET_LENGTH 130
+#define ERASE_PACKET_LENGTH 8
+#define NUM_PAGES_TO_ERASE 1
 #define MAX_NUM_BYTE_TRANSFER 2
 
-#define FLASH_MEM_SIZE 128
-#define FLASH_MEM_ADDR_SIZE 0x80001000
-
-int i2c_write_memory(uint32_t flash_addr, uint16_t num_bytes);
-int i2c_erase_memory();
+int iris_write_page(uint32_t flash_addr);
+int iris_erase_page(uint16_t page_num);
 void i2c_send_test();

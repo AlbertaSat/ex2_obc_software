@@ -11,9 +11,9 @@
 
 #include "FreeRTOS.h"
 
-#define SLAVE_ADDR 0x20
+#define SLAVE_ADDR 0x42
 
 /* TODO: Function prototypes    */
-void iris_i2c_init();
+void iris_i2c_init(); //Move to HAL
 int send_packet(void *buf_tx_data, uint16_t data_length);
 int read_packet(void *buf_rx_data, uint16_t data_length);
