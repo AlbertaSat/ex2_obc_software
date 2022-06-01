@@ -20,9 +20,6 @@
 #include "leop.h"
 #include "logger/logger.h"
 
-static void *leop_daemon(void *pvParameters);
-SAT_returnState start_leop_daemon(void);
-
 #define TWO_MIN_DELAY pdMS_TO_TICKS(120 * 1000)
 #define FOUR_MIN_DELAY pdMS_TO_TICKS(240 * 1000)
 #define TWENTY_SEC_DELAY pdMS_TO_TICKS(20 * 1000)
@@ -41,7 +38,7 @@ bool deploy_all_deployables() {
     Deployable_t sw;
 
     int getStatus_retries;
-    uint16_t burnwire_currents[7] = {0};
+    uint16_t burnwire_currents[8] = {0};
 
     for (getStatus_retries = 0; getStatus_retries <= MAX_RETRIES; getStatus_retries++) {
         sw = DFGM;
