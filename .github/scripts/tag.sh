@@ -3,7 +3,7 @@ author=$1
 hash=$2
 
 tagdate=`date +"%Y-%m-%d"`
-tagstr=$tagdate.$author.${hash:0:10}
+tagstr=$tagdate.$author.${hash:0:8}
 
 git tag $tagstr
 git push origin $tagstr
