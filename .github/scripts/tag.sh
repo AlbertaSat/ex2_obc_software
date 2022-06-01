@@ -1,6 +1,10 @@
-# arg should be a branch name
-ref=$1
+# arg1 is the author's name, arg2 is the git hash
+author=$1
+hash=$2
+
 tagdate=`date +"%Y-%m-%d"`
-git tag $tagdate.$ref
-git push origin $tagdate.$ref
+tagstr=$tagdate.$author.${hash:0:8}
+
+git tag $tagstr
+git push origin $tagstr
 
