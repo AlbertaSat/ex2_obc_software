@@ -21,6 +21,7 @@
 
 //TODO: determine the required stack size
 #define SCHEDULER_STACK_SIZE 12000
+#define MAX_DATA_LEN 12     //TODO: determine if this is the best max length
 #define SCHEDULE_HISTORY_SIZE 100 // number of most recent executed commands that will be stored in the history.
                                   // once this # is exceeded, commands in the beginning of the file will be overwritten.
                                   // eg. the 102th command will overwrite the 2nd command. 
