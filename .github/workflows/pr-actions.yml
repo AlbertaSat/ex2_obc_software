@@ -1,6 +1,5 @@
 name: tag-on-pr-close
 on:
-  pull_request:
   push:
     branches:
       - master
