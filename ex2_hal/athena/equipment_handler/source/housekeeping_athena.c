@@ -25,8 +25,7 @@
 #include "redposix.h"
 #include "bl_eeprom.h"
 #include "redconf.h"
-
-const uint8_t software_version = 3;
+#include "version.h"
 
 /**
  * @brief
@@ -105,11 +104,20 @@ int Athena_getHK(athena_housekeeping *athena_hk) {
     // Get OBC uptime: Seconds = value*10. Max = 655360 seconds (7.6 days)
     athena_hk->OBC_uptime = Athena_get_OBC_uptime();
 
+    // Get boot info
+    boot_info info;
+    if(eeprom_get_boot_info(&info)){
+        return_code = -1;
+    }
+    athena_hk->boot_cnt = info.count;
+    athena_hk->last_reset_reason = info.reason.swr_reason;
+    athena_hk->boot_src = info.reason.rstsrc;
+
     // Get solar panel supply current
     athena_hk->solar_panel_supply_curr = Athena_get_solar_supply_curr();
 
     // placeholder for software version
-    athena_hk->OBC_software_ver = software_version;
+    athena_hk->OBC_software_ver = 0;
 
     if (temporary != 0)
         return_code = temporary;

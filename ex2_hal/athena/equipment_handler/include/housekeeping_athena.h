@@ -45,6 +45,7 @@ typedef struct __attribute__((packed)) {
     long temparray[ATHENA_TEMP_ARRAY_SIZE]; // Athena temperature array
     uint16_t boot_cnt;                      // Total # of OBC boots
     uint8_t last_reset_reason;              //
+    uint16_t boot_src;                      //
     uint8_t OBC_mode;                       //
     uint16_t OBC_uptime;                    // Seconds=value*10 , Max=655360 sec (7.6 days)
     uint8_t solar_panel_supply_curr;        //
@@ -61,13 +62,3 @@ uint16_t Athena_get_OBC_uptime();
 uint8_t Athena_get_solar_supply_curr();
 
 #endif /* HOUSEKEEPING_ATHENA_H */
-
-
-/* TODO add to hk
- * boot counter, source, and reason via Fapi_StatusType eeprom_get_boot_info(boot_info *b);
- * brainstorm other things based off of test plan
- * check get all hk function and modify to fit new ath_hk struct
- * same as above but for beacon, maybe...
- * move this functionality to a hw_interface and not in the equipment handler
- * populate hw_interface with other athena functions if necessary
- */
