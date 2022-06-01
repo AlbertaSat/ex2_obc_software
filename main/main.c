@@ -112,6 +112,7 @@ void ex2_init(void *pvParameters) {
     /* Subsystem Hardware Initialization */
 
 #ifndef ADCS_IS_STUBBED
+    // PLACEHOLDER: adcs hardware init
     init_adcs_io();
 #endif
 
