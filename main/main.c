@@ -104,7 +104,7 @@ void ex2_init(void *pvParameters) {
     /* LEOP */
 
 #ifdef EXECUTE_LEOP
-    if (leop_init() != true) {
+    if (execute_leop() != true) {
         // TODO: Do what if leop fails?
     }
 #endif
