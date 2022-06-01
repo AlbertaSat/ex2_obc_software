@@ -13,14 +13,12 @@
 #include "HL_system.h"
 #include <F021.h>
 #include "privileged_functions.h"
+#include "eeprom.h"
 
-#define EXISTS_FLAG 0x5A5A5A5A
-
-#define APP_STATUS_BLOCKNUMBER 1 // status byte reports 1 if program present
 #define APP_STATUS_LEN sizeof(image_info)
-
-#define GOLD_STATUS_BLOCKNUMBER 2
 #define GOLD_STATUS_LEN sizeof(image_info)
+#define BOOT_INFO_LEN sizeof(boot_info)
+#define UPDATE_INFO_LEN sizeof(update_info)
 
 #define GOLD_MINIMUM_ADDR 0x00020000
 #define GOLD_DEFAULT_ADDR 0x00020000
@@ -31,12 +29,6 @@
 #define APP_START_BANK 1
 
 #define BOOTLOADER_MAX_ADDR 0x0017FFF
-
-#define BOOT_INFO_BLOCKNUMBER 0
-#define BOOT_INFO_LEN sizeof(boot_info)
-
-#define UPDATE_INFO_BLOCKNUMBER 3
-#define UPDATE_INFO_LEN sizeof(update_info)
 
 // Representation of data which will be stored in FEE flash
 typedef struct __attribute__((packed)) {
@@ -81,10 +73,6 @@ typedef struct __attribute__((packed)) {
 } boot_info;
 
 void sw_reset(char reboot_type, SW_RESET_REASON reason);
-
-bool eeprom_init();
-
-void eeprom_shutdown();
 
 Fapi_StatusType eeprom_set_app_info(image_info *i);
 
