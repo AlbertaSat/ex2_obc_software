@@ -22,6 +22,10 @@
 #include <string.h>
 #include <csp/csp_endian.h>
 #include "os_portmacro.h"
+#include "redposix.h"
+#include "bl_eeprom.h"
+#include "redconf.h"
+
 const uint8_t software_version = 3;
 
 /**
@@ -112,6 +116,31 @@ int Athena_getHK(athena_housekeeping *athena_hk) {
 
     // Get solar panel supply current
     athena_hk->solar_panel_supply_curr = Athena_get_solar_supply_curr();
+
+    // Get SD card usage percentages
+#if defined(HAS_SD_CARD)
+    int32_t iErr;
+    REDSTATFS volstat;
+    iErr = red_statvfs(gaRedVolConf[0].pszPathPrefix, &volstat);
+    athena_hk->vol0_usage_percent = (float)(volstat.f_bfree)*100.0/((float)(gaRedVolConf[0].ullSectorCount)) //assuming block size == sector size = 512B
+    if (iErr == -1) {
+        exit(red_errno);
+    }
+
+#ifdef IS_ATHENA_V2
+    iErr = red_statvfs(gaRedVolConf[1].pszPathPrefix, &volstat);
+    athena_hk->vol1_usage_percent = (float)(volstat.f_bfree)*100.0/((float)(gaRedVolConf[1].ullSectorCount)) //assuming block size == sector size = 512B
+    if (iErr == -1) {
+        exit(red_errno);
+    }
+
+#elif //IS_ATHENA_V2
+    athena_hk->vol1_usage_percent = 0;//stub if no card
+#endif //IS_ATHENA_V2
+
+#elif //HAS_SD_CARD
+    athena_hk->vol0_usage_percent = 0;//stub if no card
+#endif //HAS_SD_CARD
 
     if (temporary != 0)
         return_code = temporary;

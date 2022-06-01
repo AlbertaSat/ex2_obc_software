@@ -51,6 +51,8 @@ typedef struct __attribute__((packed)) {
     uint8_t OBC_software_ver;               //
     uint16_t cmds_received;                 // Total # since last boot
     uint16_t pckts_uncovered_by_FEC;        // Total # since last boot
+    uint8_t vol0_usage_percent;             //
+    uint8_t vol1_usage_percent;             //
 } athena_housekeeping;
 
 int Athena_getHK(athena_housekeeping *athena_hk);
@@ -59,3 +61,13 @@ uint16_t Athena_get_OBC_uptime();
 uint8_t Athena_get_solar_supply_curr();
 
 #endif /* HOUSEKEEPING_ATHENA_H */
+
+
+/* TODO add to hk
+ * boot counter, source, and reason via Fapi_StatusType eeprom_get_boot_info(boot_info *b);
+ * brainstorm other things based off of test plan
+ * check get all hk function and modify to fit new ath_hk struct
+ * same as above but for beacon, maybe...
+ * move this functionality to a hw_interface and not in the equipment handler
+ * populate hw_interface with other athena functions if necessary
+ */
