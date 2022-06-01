@@ -45,7 +45,7 @@ uint32_t logger_file_handle = 0;
 
 // uint32_t next_swap = LOGGER_SWAP_PERIOD_MS;
 
-uint32_t next_swap = 1000000; // I picked a random number of bytes
+uint32_t next_swap = 10000; // 10kb seems reasonable..
 uint32_t current_size = 0;
 const char logger_config[] = "VOL0:/syslog.config";
 static bool config_loaded = false;
