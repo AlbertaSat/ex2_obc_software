@@ -4,13 +4,13 @@
  *  Created on: Oct, 2021
  *      Author: Grace Yi
  */
-#include "ti_fee.h"
+#include "eeprom.h"
 #include "leop_eeprom.h"
-
+#include "F021.h"
 
 bool eeprom_get_leop_status() {
-    int out;
-    if ((TI_Fee_ReadSync(LEOP_STATUS_BLOCKNUMBER, LEOP_STATUS_OFFSET, (uint8_t *)(&out), BOOT_TYPE_LEN)) == 1) {
+    bool out;
+    if (eeprom_read(&out, LEOP_INFO_BLOCKNUMBER, sizeof(out)) == Fapi_Status_Success) {
         return true;
     }
     else {
@@ -20,6 +20,6 @@ bool eeprom_get_leop_status() {
 
 bool eeprom_set_leop_status() {
     bool leop_status = true;
-    TI_Fee_WriteSync(LEOP_STATUS_BLOCKNUMBER, (uint8_t *)&leop_status);
+    eeprom_write(&leop_status, LEOP_INFO_BLOCKNUMBER, sizeof(leop_status));
     return true;
 }
