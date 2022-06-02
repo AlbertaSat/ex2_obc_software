@@ -163,8 +163,6 @@ void flatsat_test(void *pvParameters) {
 
 TaskHandle_t iris_spi_handle;
 
-
-
 void iris_spi_test(void * pvParameters) {
     iris_init();
     //iris_take_pic();

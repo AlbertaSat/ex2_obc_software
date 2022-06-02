@@ -37,15 +37,15 @@
 // pre-defined SPI communication constants
 #define VERIFY_FLAG 0xFF // TODO: Confirm verify char
 #define ACK_FLAG 0xAA
-#define DUMMY_BYTE 0xDD // TODO: Confirm dummy char
+#define DUMMY_BYTE 0xFF // TODO: Confirm dummy char
+
 
 void iris_init();
-void spi_send(uint16_t *tx_data);
-void spi_get(uint16_t *tx_data);
-void spi_send_and_get(uint16_t *tx_data, uint16_t *rx_data);
+void spi_send_byte(uint16_t *tx_data);
+void spi_get_byte(uint16_t *rx_data);
+void spi_send_and_get(uint16_t *tx_data, uint16_t *rx_data, uint16_t data_length);
 void spi_delay(uint16_t timeout);
 
 int send_command(uint16_t command);
-int verify_connection();
 int send_data(uint16_t *tx_buffer, uint16_t data_length);
 uint16_t * get_data(uint16_t data_length); // Data length is obtained from IRIS

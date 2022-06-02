@@ -425,7 +425,7 @@ void spiInit(void)
                   | (uint32)((uint32)0U << 20U)  /* shift direction */
                   | (uint32)((uint32)0U << 17U)  /* clock polarity */
                   | (uint32)((uint32)0U << 16U)  /* clock phase */
-                  | (uint32)((uint32)14U << 8U) /* baudrate prescale */
+                  | (uint32)((uint32)74U << 8U) /* baudrate prescale */
                   | (uint32)((uint32)8U << 0U);  /* data word length */
 
     /** - Data Format 1 */
