@@ -56,7 +56,7 @@ uint32_t get_task_count() {
 }
 
 task_info_node *get_new_task_node() {
-    task_info_node *new_node = malloc(sizeof(task_info_node));
+    task_info_node *new_node = pvPortMalloc(sizeof(task_info_node));
     memset(new_node, 0, sizeof(new_node));
     return new_node;
 }
