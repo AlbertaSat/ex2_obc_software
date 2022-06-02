@@ -1362,7 +1362,7 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
  */
 void adcs_service(void *param) {
     // create socket
-    csp_socket_t *sock = csp_socket(CSP_SO_NONE);
+    csp_socket_t *sock = csp_socket(CSP_SO_HMACREQ);
 
     // bind the adcs service to socket
     csp_bind(sock, TC_ADCS_SERVICE);

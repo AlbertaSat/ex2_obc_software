@@ -163,7 +163,7 @@ SAT_returnState start_logger_service(void);
  */
 void logger_service(void *param) {
     csp_socket_t *sock;
-    sock = csp_socket(CSP_SO_NONE);
+    sock = csp_socket(CSP_SO_HMACREQ);
     csp_bind(sock, TC_LOGGER_SERVICE);
     csp_listen(sock, SERVICE_BACKLOG_LEN);
     svc_wdt_counter++;

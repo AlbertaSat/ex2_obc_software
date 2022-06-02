@@ -144,7 +144,7 @@ void vSchedulerHandler (void *pvParameters) {
         csp_conn_t *connect;
         csp_packet_t *packet = cmds->embedded_packet;
 
-        connect = csp_connect(CSP_PRIO_NORM, packet->id.dst,  packet->id.dport, CSP_MAX_TIMEOUT, CSP_SO_NONE);
+        connect = csp_connect(CSP_PRIO_NORM, packet->id.dst,  packet->id.dport, CSP_MAX_TIMEOUT, CSP_SO_HMACREQ);
 
         int send_packet_test = csp_send(connect, packet, CSP_MAX_TIMEOUT);
         if (send_packet_test != 1) {

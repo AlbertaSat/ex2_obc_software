@@ -698,7 +698,7 @@ SAT_returnState start_scheduler_service(void) {
  */
 void scheduler_service(void) {
     csp_socket_t *sock;
-    sock = csp_socket(CSP_SO_NONE);
+    sock = csp_socket(CSP_SO_HMACREQ);
     csp_bind(sock, TC_SCHEDULER_SERVICE);
     csp_listen(sock, SERVICE_BACKLOG_LEN);   // TODO: SERVICE_BACKLOG_LEN constant TBD
     //svc_wdt_counter++;
