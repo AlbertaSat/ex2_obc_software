@@ -177,7 +177,9 @@ void iris_i2c_test(void *pvParameters) {
 
     for (;;) {
         //iris_write_page(flash_addr);
-        iris_erase_page(2);
+        //iris_erase_page(1);
+        //iris_check_bootloader_version();
+        iris_go_to(flash_addr);
         //gio_test();
     }
 }

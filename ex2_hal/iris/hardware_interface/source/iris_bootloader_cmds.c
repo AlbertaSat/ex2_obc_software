@@ -52,9 +52,6 @@ void i2c_send_test() {
 
 int iris_write_page(uint32_t flash_addr) {
     uint8_t num_bytes = FLASH_MEM_PAGE_SIZE;     /* number of bytes is equal to page size of flash memory on iris */
-    uint8_t opc_wren = OPC_WREN;                /* write command opcode */
-    uint8_t n_opc_wren = N_OPC_WREN;              /* command after the write command opcode */
-
     uint8_t *packet = (uint8_t*)calloc(WRITE_PACKET_LENGTH, sizeof(uint8_t));           /*  Allocate bytes equal to page size of flash memory */
     uint8_t flash_mem_checksum = 0x00;
     uint8_t data_checksum = 0x00;
@@ -72,8 +69,8 @@ int iris_write_page(uint32_t flash_addr) {
     vTaskDelay(100);
 
     /* First I2C transaction (2 bytes) */
-    packet[0] = opc_wren;
-    packet[1] = n_opc_wren;
+    packet[0] = OPC_WRITE;
+    packet[1] = N_OPC_WRITE;
     write_packet(packet, 2);
     read_packet(&rx_data, 1);
     memset(packet, 0, WRITE_PACKET_LENGTH*sizeof(uint8_t));
@@ -117,9 +114,6 @@ int iris_write_page(uint32_t flash_addr) {
 
 /* Page number is from 0-511, starting from 0x0800 0000 - 0x0x0800 FFFF */
 int iris_erase_page(uint16_t page_num) {
-    uint8_t opc_erusm = OPC_ERUSM;            /* erase command opcode */
-    uint8_t n_opc_erusm = N_OPC_ERUSM;          /* command after the erase command opcode */
-
     uint8_t *packet = (uint8_t*)calloc(ERASE_PACKET_LENGTH, sizeof(uint8_t));
     uint8_t num_page_erased_checksum = 0x00;
     uint8_t page_num_checksum = 0x00;
@@ -137,8 +131,8 @@ int iris_erase_page(uint16_t page_num) {
     vTaskDelay(100);
 
     /* First I2C transaction (2 bytes) */
-    packet[0] = opc_erusm;
-    packet[1] = n_opc_erusm;
+    packet[0] = OPC_ERASE;
+    packet[1] = N_OPC_ERASE;
     write_packet(packet, 2);
     read_packet(&rx_data, 1);
     memset(packet, 0, ERASE_PACKET_LENGTH);
@@ -173,6 +167,95 @@ int iris_erase_page(uint16_t page_num) {
 
     return ret;
 }
+
+
+int iris_check_bootloader_version() {
+    uint8_t *packet = (uint8_t*)calloc(2, sizeof(uint8_t));
+
+    int ret = 0x00;
+    int i;
+    uint8_t rx_data;
+
+    /* Start initialization sequence before I2C transaction */
+    POWER_OFF();
+    vTaskDelay(100);
+    BOOT_HIGH();
+    vTaskDelay(100);
+    POWER_ON();
+    vTaskDelay(100);
+
+    /* First I2C transaction (2 bytes) */
+    packet[0] = OPC_CHECK_VERSION;
+    packet[1] = N_OPC_CHECK_VERSION;
+    write_packet(packet, 2);
+    read_packet(&rx_data, 1);
+    memset(packet, 0, 2);
+
+    /* Read bootloader version */
+    read_packet(&rx_data, 1);
+
+    /* Wait for ACK/NACK */
+    read_packet(&rx_data, 1);
+
+    /* End I2C transaction by doing end sequence*/
+    BOOT_LOW();
+    vTaskDelay(100);
+    POWER_OFF();
+    vTaskDelay(100);
+    POWER_ON();
+
+    return ret;
+}
+
+int iris_go_to(uint32_t start_addr) {
+    uint8_t opc_erase = OPC_GO;
+    uint8_t n_opc_erase = N_OPC_GO;
+
+    uint8_t *packet = (uint8_t*)calloc(GO_PACKET_LENGTH, sizeof(uint8_t));
+    uint8_t start_addr_checksum = 0x00;
+
+    int ret = 0x00;
+    int i;
+    uint8_t rx_data;
+
+    /* Start initialization sequence before I2C transaction */
+    POWER_OFF();
+    vTaskDelay(100);
+    BOOT_HIGH();
+    vTaskDelay(100);
+    POWER_ON();
+    vTaskDelay(100);
+
+    /* First I2C transaction (2 bytes) */
+    packet[0] = opc_erase;
+    packet[1] = n_opc_erase;
+    write_packet(packet, 2);
+    read_packet(&rx_data, 1);
+    memset(packet, 0, GO_PACKET_LENGTH);
+
+
+    /* Second I2C transaction (5 bytes) */
+    packet[0] = (start_addr >> (8*3)) & 0xff;
+    packet[1] = (start_addr >> (8*2)) & 0xff;
+    packet[2] = (start_addr >> (8*1)) & 0xff;
+    packet[3] = (start_addr >> (8*0)) & 0xff;
+    start_addr_checksum = packet[0] ^ packet[1] ^ packet[2] ^ packet[3];
+    packet[4] = start_addr_checksum;
+    write_packet(packet, 5);
+    read_packet(&rx_data, 1);
+    memset(packet, 0, GO_PACKET_LENGTH);
+
+
+    /* End I2C transaction by doing end sequence*/
+    BOOT_LOW();
+    vTaskDelay(100);
+    POWER_OFF();
+    vTaskDelay(100);
+    POWER_ON();
+
+    return ret;
+}
+
 
 int iris_mass_erase_flash() {
     int ret = 0;
