@@ -546,7 +546,7 @@ uint16_t get_size_of_housekeeping(All_systems_housekeeping *all_hk_data) {
 Result write_hk_to_file(uint16_t filenumber, All_systems_housekeeping *all_hk_data) {
     int32_t fout = red_open(fileName, RED_O_CREAT | RED_O_RDWR); // open or create file to write binary
     if (fout == -1) {
-        printf("Unexpected error %d from red_open()\r\n", (int)red_errno);
+        sys_log(ERROR, "Unexpected error %d from red_open()\r\n", (int)red_errno);
         sys_log(ERROR, "Failed to open or create file to write: '%s'\n", fileName);
         return FAILURE;
     }
