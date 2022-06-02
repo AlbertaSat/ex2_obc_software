@@ -55,7 +55,7 @@ SAT_returnState vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
         // close file from SD card
         f_close = red_close(fout);
         if (f_close < 0) {
-            sys_log(NOTICE, "unexpected error %d from red_close() in vSchedulerHandler for file: '%s'", (int)red_errno, fileName1);
+            sys_log(NOTICE, "error %d from red_close() in vSchedulerHandler for file: '%s'", (int)red_errno, fileName1);
         }
         xSemaphoreGive(scheduleSemaphore);
     }
@@ -92,7 +92,7 @@ SAT_returnState vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
             // close file from SD card
             f_close = red_close(fout);
             if (f_close < 0) {
-                sys_log(NOTICE, "unexpected error %d from red_close() in vSchedulerHandler for file: '%s'", (int)red_errno, fileName1);
+                sys_log(NOTICE, "error %d from red_close() in vSchedulerHandler for file: '%s'", (int)red_errno, fileName1);
             }
             xSemaphoreGive(scheduleSemaphore);
         }
@@ -136,7 +136,7 @@ SAT_returnState vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
         if (delay_time >= 0) {
             vTaskDelayUntil(&xLastWakeTime, delay_ticks);
         }
-        sys_log(INFO, "HELLO THIS IS A FLAG\n");
+        sys_log(INFO, "vTaskDelayUntil executed\n");
 
         // if the delay was aborted due to updated schedule
         while (delay_aborted == 1) {
@@ -191,7 +191,7 @@ SAT_returnState vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
                 // close file from SD card
                 f_close = red_close(fout);
                 if (f_close < 0) {
-                    sys_log(NOTICE, "unexpected error %d from red_close() in vSchedulerHandler for file: '%s'", (int)red_errno, fileName1);
+                    sys_log(NOTICE, "error %d from red_close() in vSchedulerHandler for file: '%s'", (int)red_errno, fileName1);
                 }
                 xSemaphoreGive(scheduleSemaphore);
             }
@@ -292,7 +292,7 @@ SAT_returnState vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
                 // close file
                 f_close = red_close(fout);
                 if (f_close < 0) {
-                    sys_log(NOTICE, "unexpected error %d from red_close() in vSchedulerHandler for file: '%s'", (int)red_errno, fileName1);
+                    sys_log(NOTICE, "error %d from red_close() in vSchedulerHandler for file: '%s'", (int)red_errno, fileName1);
                 }
             }
 
@@ -317,7 +317,7 @@ SAT_returnState vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
                     int32_t f_truc = red_ftruncate(fout, needed_size);
                     if (f_truc < 0) {
                         sys_log(NOTICE,
-                                "unexpected error %d from red_ftruncate() in vSchedulerHandler for file: '%s'",
+                                "error %d from red_ftruncate() in vSchedulerHandler for file: '%s'",
                                 (int)red_errno, fileName1);
                     }
                     // update the file size
@@ -347,7 +347,7 @@ SAT_returnState vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
                     // close file
                     f_close = red_close(fout);
                     if (f_close < 0) {
-                        sys_log(NOTICE, "unexpected error %d from red_close() in vSchedulerHandler for file: '%s'", (int)red_errno, fileName1);
+                        sys_log(NOTICE, "error %d from red_close() in vSchedulerHandler for file: '%s'", (int)red_errno, fileName1);
                     }
                     // delete file once all cmds have been executed
                     int32_t f_delete = red_unlink(fileName1);
