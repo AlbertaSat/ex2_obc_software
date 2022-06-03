@@ -177,9 +177,9 @@ void ex2_init(void *pvParameters) {
 
     init_software();
 
-#ifdef SDR_TEST
+ #ifdef SDR_TEST
     start_test_sdr();
-#endif
+ #endif
 
 #ifdef FLATSAT_TEST
     /* Test Task */
@@ -354,10 +354,11 @@ static inline SAT_returnState init_csp_interface() {
     int gs_if_addr = 16;
 #endif /* SDR_TEST */
 
-    csp_sdr_conf_t uhf_conf = {    .mtu = SDR_UHF_MAX_MTU,
-                                   .baudrate = SDR_UHF_9600_BAUD,
-                                   .uart_baudrate = 115200 };
-    error = csp_sdr_open_and_add_interface(&uhf_conf, gs_if_name, NULL);
+    sdr_uhf_conf_t uhf_conf = {    .mtu = SDR_UHF_MAX_MTU,
+                                   .uhf_baudrate = SDR_UHF_9600_BAUD,
+                                   .uart_baudrate = 115200,
+                                   .rx_callback = sdr_uhf_receive };
+    error = csp_uhf_open_and_add_interface(&uhf_conf, gs_if_name, NULL);
     if (error != CSP_ERR_NONE) {
         return SATR_ERROR;
     }
