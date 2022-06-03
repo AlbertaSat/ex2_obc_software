@@ -22,8 +22,8 @@
 #define N_OPC_CHECK_VERSION 0xFE
 #define OPC_GO 0x21 // Go opcode
 #define N_OPC_GO 0xDE
-#define DUMMY_BYTE 0xFF
 
+#define FLASH_MEM_BASE_ADDR 0x08000000
 #define FLASH_MEM_PAGE_SIZE 128
 #define FLASH_NUM_PAGES 512
 
@@ -32,9 +32,15 @@
 #define CHECK_VERSION_PACKET_LENGTH 2
 #define GO_PACKET_LENGTH 7
 #define NUM_PAGES_TO_ERASE 1
-#define MAX_NUM_BYTE_TRANSFER 2
 
-int iris_write_page(uint32_t flash_addr);
+void BOOT_LOW();
+void BOOT_HIGH();
+void POWER_OFF();
+void POWER_ON();
+
+void iris_pre_sequence();
+void iris_post_sequence();
+int iris_write_page(uint32_t flash_addr, uint8_t * buffer);
 int iris_erase_page(uint16_t page_num);
 int iris_check_bootloader_version();
 int iris_go_to(uint32_t start_addr);

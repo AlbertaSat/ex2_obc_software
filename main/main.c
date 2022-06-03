@@ -67,6 +67,7 @@
 #include <csp/interfaces/csp_if_sdr.h>
 #include "printf.h"
 #include "iris_bootloader_cmds.h"
+#include "common.h"
 
 //#define CSP_USE_SDR
 #define CSP_USE_KISS
@@ -171,15 +172,44 @@ void flatsat_test(void *pvParameters) {
 
 void iris_i2c_test(void *pvParameters) {
     iris_i2c_init();
-    uint32_t flash_addr = 0x08000000;
+    uint32_t flash_addr = FLASH_MEM_BASE_ADDR;
     uint8_t num_bytes = 0x10;
-    int i = 0;
+    uint8_t *buffer;
+    const char * filepath = "/home/jenish/Desktop/ex2_Iris_MCU_Software/Debug/ex2_Iris_MCU_Software.bin";
+    buffer = (uint8_t*) calloc(PAGE_SIZE, sizeof(uint8_t));
+
+    FILE *fptr;
+    fptr = fopen(filepath, "rb");
+
+    if (fptr == NULL) {
+        return NULL;
+    }
+
+    uint16_t fsize = get_file_size(fptr);
+    uint16_t num_pages = get_num_pages(fsize);
 
     for (;;) {
+        iris_pre_sequence();
+        for (int page = 0; page < num_pages; page++) {
+            iris_erase_page(page);
+            read_bin_file(fptr, buffer);
+            iris_write_page(flash_addr, buffer);
+            memset(buffer, 0, FLASH_MEM_PAGE_SIZE);
+
+            flash_addr += FLASH_MEM_PAGE_SIZE;
+        }
+
+        flash_addr = FLASH_MEM_BASE_ADDR;
+
         //iris_write_page(flash_addr);
-        //iris_erase_page(1);
+        //iris_erase_page(0);
+        //iris_mass_erase_flash();
         //iris_check_bootloader_version();
         iris_go_to(flash_addr);
+        iris_post_sequence();
+
+        free(buffer);
+        fclose(fptr);
         //gio_test();
     }
 }

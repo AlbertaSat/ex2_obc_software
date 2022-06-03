@@ -36,6 +36,25 @@ void POWER_ON() {
     gioSetBit(hetPORT1, 8, 1);
 }
 
+void iris_pre_sequence() {
+    /* Start initialization sequence before I2C transaction */
+    POWER_OFF();
+    vTaskDelay(100);
+    BOOT_HIGH();
+    vTaskDelay(100);
+    POWER_ON();
+    vTaskDelay(100);
+}
+
+void iris_post_sequence() {
+    /* End I2C transaction by doing end sequence*/
+    BOOT_LOW();
+    vTaskDelay(100);
+    POWER_OFF();
+    vTaskDelay(100);
+    POWER_ON();
+}
+
 
 void i2c_send_test() {
 
@@ -43,14 +62,14 @@ void i2c_send_test() {
 
     uint32_t flash_addr = 0x08001000;
     uint16_t data_length = 0x000F;
-    iris_write_page(flash_addr);
+    //iris_write_page(flash_addr);
     //i2c_erase_memory();
 
     vTaskDelay(100);
 
 }
 
-int iris_write_page(uint32_t flash_addr) {
+int iris_write_page(uint32_t flash_addr, uint8_t * buffer) {
     uint8_t num_bytes = FLASH_MEM_PAGE_SIZE;     /* number of bytes is equal to page size of flash memory on iris */
     uint8_t *packet = (uint8_t*)calloc(WRITE_PACKET_LENGTH, sizeof(uint8_t));           /*  Allocate bytes equal to page size of flash memory */
     uint8_t flash_mem_checksum = 0x00;
@@ -59,14 +78,6 @@ int iris_write_page(uint32_t flash_addr) {
     int ret = 0x00;
     int i;
     uint8_t rx_data;
-
-    /* Start initialization sequence before I2C transaction */
-    POWER_OFF();
-    vTaskDelay(100);
-    BOOT_HIGH();
-    vTaskDelay(100);
-    POWER_ON();
-    vTaskDelay(100);
 
     /* First I2C transaction (2 bytes) */
     packet[0] = OPC_WRITE;
@@ -93,21 +104,15 @@ int iris_write_page(uint32_t flash_addr) {
     data_checksum ^= packet[0];
     // transmit N+1 bytes of data
     for(i = 0; i < 128; i++){
-        packet[i+1] = i;
+        packet[i+1] = buffer[i];
         data_checksum ^= *(packet + i + 1);
     }
     packet[num_bytes + 1] = data_checksum;
     write_packet(packet, WRITE_PACKET_LENGTH);
     read_packet(&rx_data, 1);
     memset(packet, 0, WRITE_PACKET_LENGTH*sizeof(uint8_t));
-    free(packet);
 
-    /* End I2C transaction by doing end sequence*/
-    BOOT_LOW();
-    vTaskDelay(100);
-    POWER_OFF();
-    vTaskDelay(100);
-    POWER_ON();
+    free(packet);
 
     return ret;
 }
@@ -121,14 +126,6 @@ int iris_erase_page(uint16_t page_num) {
     int ret = 0x00;
     int i;
     uint8_t rx_data;
-
-    /* Start initialization sequence before I2C transaction */
-    POWER_OFF();
-    vTaskDelay(100);
-    BOOT_HIGH();
-    vTaskDelay(100);
-    POWER_ON();
-    vTaskDelay(100);
 
     /* First I2C transaction (2 bytes) */
     packet[0] = OPC_ERASE;
@@ -156,14 +153,8 @@ int iris_erase_page(uint16_t page_num) {
     write_packet(packet, 3);
     read_packet(&rx_data, 1);
     memset(packet, 0, ERASE_PACKET_LENGTH);
-    free(packet);
 
-    /* End I2C transaction by doing end sequence*/
-    BOOT_LOW();
-    vTaskDelay(100);
-    POWER_OFF();
-    vTaskDelay(100);
-    POWER_ON();
+    free(packet);
 
     return ret;
 }
@@ -175,14 +166,6 @@ int iris_check_bootloader_version() {
     int ret = 0x00;
     int i;
     uint8_t rx_data;
-
-    /* Start initialization sequence before I2C transaction */
-    POWER_OFF();
-    vTaskDelay(100);
-    BOOT_HIGH();
-    vTaskDelay(100);
-    POWER_ON();
-    vTaskDelay(100);
 
     /* First I2C transaction (2 bytes) */
     packet[0] = OPC_CHECK_VERSION;
@@ -197,12 +180,7 @@ int iris_check_bootloader_version() {
     /* Wait for ACK/NACK */
     read_packet(&rx_data, 1);
 
-    /* End I2C transaction by doing end sequence*/
-    BOOT_LOW();
-    vTaskDelay(100);
-    POWER_OFF();
-    vTaskDelay(100);
-    POWER_ON();
+    free(packet);
 
     return ret;
 }
@@ -218,13 +196,6 @@ int iris_go_to(uint32_t start_addr) {
     int i;
     uint8_t rx_data;
 
-    /* Start initialization sequence before I2C transaction */
-    POWER_OFF();
-    vTaskDelay(100);
-    BOOT_HIGH();
-    vTaskDelay(100);
-    POWER_ON();
-    vTaskDelay(100);
 
     /* First I2C transaction (2 bytes) */
     packet[0] = opc_erase;
@@ -245,13 +216,7 @@ int iris_go_to(uint32_t start_addr) {
     read_packet(&rx_data, 1);
     memset(packet, 0, GO_PACKET_LENGTH);
 
-
-    /* End I2C transaction by doing end sequence*/
-    BOOT_LOW();
-    vTaskDelay(100);
-    POWER_OFF();
-    vTaskDelay(100);
-    POWER_ON();
+    free(packet);
 
     return ret;
 }
