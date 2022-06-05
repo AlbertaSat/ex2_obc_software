@@ -37,7 +37,7 @@ ADCS_returnState HAL_ADCS_download_file_to_OBC(adcs_file_download_id *id){
 
     // Wait until task finishes and return
     while(eTaskGetState(xHandle) != eDeleted);
-    return (ADCS_returnState)id->type_f; // type_f holds the return value after execution
+    return (ADCS_returnState)id->type; // type_f holds the return value after execution
 
 #endif
 }

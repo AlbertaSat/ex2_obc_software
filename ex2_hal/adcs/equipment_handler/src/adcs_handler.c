@@ -298,7 +298,7 @@ ADCS_returnState ADCS_get_file_list() {
 void ADCS_download_file_task(void *pvParameters){
     adcs_file_download_id *id = (adcs_file_download_id *)pvParameters;
 
-    id->type_f = (uint8_t)ADCS_download_file(id->type_f, id->counter_f);
+    id->type = (uint8_t)ADCS_download_file(id->type, id->counter, id->size, id->file_name);
 
     vTaskDelete(0);
 }
@@ -309,7 +309,7 @@ void ADCS_download_file_task(void *pvParameters){
  * @param return
  *      Success of file creation.
  */
-ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f) {
+ADCS_returnState ADCS_download_file(uint8_t type, uint8_t counter, uint32_t size, char *save_as) {
 
     if (xSemaphoreTake(adcs_file_download_mutex, UART_TIMEOUT_MS) != pdTRUE) {
         return ADCS_DOWNLOAD_MUTEX_FAIL;
@@ -317,8 +317,21 @@ ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f) {
 
     ADCS_returnState ret;
 
-    // Check valid type
-    if(((type_f) != TelemetryLogFile) && (type_f != JPGImgFile) && (type_f != BMPImgFile) && (type_f != IndexFile)){
+    // Check valid type and determine file extension
+    switch(type){
+    case TelemetryLogFile:
+        strcat(save_as, ".tlm");
+        break;
+    case JPGImgFile:
+        strcat(save_as, ".jpg");
+        break;
+    case BMPImgFile:
+        strcat(save_as, ".bmp");
+        break;
+    case IndexFile:
+        strcat(save_as, ".idx");
+        break;
+    default:
         xSemaphoreGive(adcs_file_download_mutex);
         return ADCS_INVALID_PARAMETERS;
     }
@@ -346,8 +359,8 @@ ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f) {
 
     // Load one block
     uint32_t offset = 0;
-    uint16_t block_length = 500;
-    ret = ADCS_load_file_download_block(type_f, counter_f, offset, block_length);
+    uint16_t block_length = 5000;
+    ret = ADCS_load_file_download_block(type, counter, offset, block_length);
     if(ret != ADCS_OK){
         xSemaphoreGive(adcs_file_download_mutex);
         return ret;
@@ -365,15 +378,11 @@ ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f) {
         }
     }
 
-
-
-    const char file_name[] = "adcs_file.bin";
-
     // Delete file if it exists already
-    red_unlink(file_name);
+    red_unlink(save_as);
 
     // Open a binary file
-    int32_t file1 = red_open(file_name, RED_O_RDWR | RED_O_CREAT);
+    int32_t file1 = red_open(save_as, RED_O_RDWR | RED_O_CREAT);
     if (file1 == -1) {
         sys_log(WARN, "Unexpected error from red_open()\r\n");
         xSemaphoreGive(adcs_file_download_mutex);

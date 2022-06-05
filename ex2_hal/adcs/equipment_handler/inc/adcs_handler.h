@@ -481,9 +481,11 @@ typedef struct {
     uint16_t crc16_checksum;
 } adcs_file_info;
 
-typedef struct {
-    uint8_t type_f;
-    uint8_t counter_f;
+typedef struct __attribute__((packed)){
+    uint8_t type;
+    uint8_t counter;
+    uint32_t size;
+    char file_name[20];
 } adcs_file_download_id;
 
 
@@ -502,7 +504,7 @@ ADCS_returnState adcs_telemetry(uint8_t TM_ID, uint8_t *reply, uint32_t length);
 // File management TC/TM sequences
 ADCS_returnState ADCS_init_file_download_mutex(void);
 ADCS_returnState ADCS_get_file_list(void);
-ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f);
+ADCS_returnState ADCS_download_file(uint8_t type, uint8_t counter, uint32_t size, char *save_as);
 void ADCS_download_file_task(void *pvParameters);
 
 // Common Telecommands
