@@ -196,7 +196,7 @@ typedef enum ACP_ConfigMsgs_IDs {
 
 typedef enum PowerCTRL_IDs {
     Set_CubeCTRLSgn_Power = 0,
-    Set_CubeCTRLMtr_Power  = 1,
+    Set_CubeCTRLMtr_Power = 1,
     Set_CubeSense1_Power = 2,
     Set_CubeSense2_Power = 3,
     Set_CubeStar_Power = 4,
@@ -214,13 +214,13 @@ typedef enum TelemetryLOG_IDs {
     Last_Logged_Event = 4,
     SRAM_Latchup_Counter = 3,
     MTQ_Command = 0,
-    Wheel_Speed_Command = 15, //Commanded speed for all 3 reaction wheels
+    Wheel_Speed_Command = 15, // Commanded speed for all 3 reaction wheels
     MAG_Field_Vector = 14,
     Coarse_Sun_Vector = 13,
     Fine_Sun_Vector = 12,
     Nadir_Vector = 11,
     Rate_Sensor_Rates = 10,
-    Wheel_Speed = 9, //Speed of all 3 reaction wheels
+    Wheel_Speed = 9, // Speed of all 3 reaction wheels
     Star1_Body_Vector = 8,
     Star1_Orbit_Vector = 23,
     Star2_Body_Vector = 22,

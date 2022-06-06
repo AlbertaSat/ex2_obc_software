@@ -42,7 +42,7 @@
 
 #define ADCS_TC_HEADER_SZ 4 // Does not include TC ID
 #define ADCS_TC_ANS_LEN 6
-#define ADCS_TM_HEADER_SZ 5 // Includes TM ID
+#define ADCS_TM_HEADER_SZ 5  // Includes TM ID
 #define ADCS_TM_DATA_INDEX 3 // Data excludes TM ID
 #define ADCS_EXTRA_SZ_FOR_STUFFING 6
 #define ADCS_PARSING_BYTE 0x1F
