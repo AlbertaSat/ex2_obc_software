@@ -39,6 +39,7 @@
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/main}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/iris/equipment_handler/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/iris/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/driver}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/leop}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/file_transfer}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/mac_layer}"/>
