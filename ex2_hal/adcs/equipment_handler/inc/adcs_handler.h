@@ -39,7 +39,7 @@ typedef struct {
     int16_t latitude;
     int16_t longitude;
     uint16_t altitude;
-}LLH;
+} LLH;
 
 typedef struct {
     int16_t x;

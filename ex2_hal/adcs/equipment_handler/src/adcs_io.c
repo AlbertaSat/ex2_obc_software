@@ -26,7 +26,8 @@ static SemaphoreHandle_t tx_semphr;
 static SemaphoreHandle_t adcs_uart_mutex;
 
 static void adcs_byte_stuff(uint8_t *thin_cmd, uint8_t *stuffed_cmd, uint8_t thin_length, uint8_t *stuffed_length);
-static void adcs_byte_destuff(uint8_t *stuffed_reply, uint8_t *thin_reply, uint16_t stuffed_length, uint16_t *thin_length);
+static void adcs_byte_destuff(uint8_t *stuffed_reply, uint8_t *thin_reply, uint16_t stuffed_length,
+                              uint16_t *thin_length);
 
 /**
  * @Brief
@@ -42,7 +43,7 @@ ADCS_returnState init_adcs_io() {
     }
 
     adcsQueue = xQueueCreate(ADCS_QUEUE_LENGTH, ADCS_QUEUE_ITEM_SIZE);
-    if(adcsQueue == NULL){
+    if (adcsQueue == NULL) {
         return ADCS_UART_FAILED;
     }
 
@@ -91,10 +92,10 @@ ADCS_returnState send_uart_telecommand(uint8_t *command, uint32_t length) {
         return ADCS_UART_BUSY;
     } //  TODO: create response if it times out.
 
-    //Stuff the command
+    // Stuff the command
     uint8_t stuffed_length = length;
     uint8_t *stuffed_command = (uint8_t *)pvPortMalloc((length + 10) * sizeof(uint8_t));
-    if (stuffed_command == NULL){
+    if (stuffed_command == NULL) {
         xSemaphoreGive(adcs_uart_mutex);
         return ADCS_MALLOC_FAILED;
     }
@@ -102,7 +103,7 @@ ADCS_returnState send_uart_telecommand(uint8_t *command, uint32_t length) {
 
     // Form the command frame
     uint8_t *frame = (uint8_t *)pvPortMalloc((stuffed_length + ADCS_TC_HEADER_SZ) * sizeof(uint8_t));
-    if (frame == NULL){
+    if (frame == NULL) {
         vPortFree(stuffed_command);
         xSemaphoreGive(adcs_uart_mutex);
         return ADCS_MALLOC_FAILED;
@@ -137,7 +138,7 @@ ADCS_returnState send_uart_telecommand(uint8_t *command, uint32_t length) {
         }
     }
 
-    ADCS_returnState TC_err_flag = (ADCS_returnState) reply[3];
+    ADCS_returnState TC_err_flag = (ADCS_returnState)reply[3];
     xSemaphoreGive(adcs_uart_mutex);
     xQueueReset(adcsQueue);
     vPortFree(frame);
@@ -167,7 +168,7 @@ ADCS_returnState send_i2c_telecommand(uint8_t *command, uint32_t length) {
 
     // Confirm telecommand validity by checking the TC Error flag of the last read TC Acknowledge Telemetry Format.
     request_i2c_telemetry(LAST_TC_ACK_ID, tc_ack, 4);
-    ADCS_returnState TC_err_flag = (ADCS_returnState) tc_ack[2];
+    ADCS_returnState TC_err_flag = (ADCS_returnState)tc_ack[2];
 
     return TC_err_flag;
 }
@@ -206,7 +207,7 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint3
     int received = 0;
 
     uint8_t *reply = (uint8_t *)pvPortMalloc(length + ADCS_TM_HEADER_SZ);
-    if (reply == NULL){
+    if (reply == NULL) {
         xSemaphoreGive(adcs_uart_mutex);
         return ADCS_MALLOC_FAILED;
     }
@@ -222,11 +223,12 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint3
             return ADCS_UART_FAILED;
         } else {
             // Check for EOM
-            if(*(reply + received) == ending_bytes[ending_bytes_index]){
+            if (*(reply + received) == ending_bytes[ending_bytes_index]) {
                 ending_bytes_index++;
 
-                if(ending_bytes_index == ADCS_NUM_ENDING_BYTES) end_of_message = true;
-            }else{
+                if (ending_bytes_index == ADCS_NUM_ENDING_BYTES)
+                    end_of_message = true;
+            } else {
                 ending_bytes_index = 0;
             }
             received++;
@@ -235,7 +237,7 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint3
 
     // Destuff the reply
     uint8_t *thin_reply = (uint8_t *)pvPortMalloc((received - ADCS_TM_HEADER_SZ) * sizeof(uint8_t));
-    if (thin_reply == NULL){
+    if (thin_reply == NULL) {
         vPortFree(reply);
         xSemaphoreGive(adcs_uart_mutex);
         return ADCS_MALLOC_FAILED;
@@ -306,14 +308,15 @@ ADCS_returnState receive_file_download_uart_packet(uint8_t *packet, uint16_t *pa
  *      Length of output command
  *
  */
-static void adcs_byte_stuff(uint8_t *thin_cmd, uint8_t *stuffed_cmd, uint8_t thin_length, uint8_t *stuffed_length){
+static void adcs_byte_stuff(uint8_t *thin_cmd, uint8_t *stuffed_cmd, uint8_t thin_length,
+                            uint8_t *stuffed_length) {
     uint8_t stuffed_index = 0;
-    for(uint8_t thin_index = 0; thin_index < thin_length; thin_index++){
+    for (uint8_t thin_index = 0; thin_index < thin_length; thin_index++) {
 
         *(stuffed_cmd + stuffed_index) = *(thin_cmd + thin_index);
         stuffed_index++;
 
-        if(*(thin_cmd + thin_index) == ADCS_PARSING_BYTE){
+        if (*(thin_cmd + thin_index) == ADCS_PARSING_BYTE) {
             /* Byte needs to be stuffed */
             *(stuffed_cmd + stuffed_index) = ADCS_PARSING_BYTE;
             stuffed_index++;
@@ -335,13 +338,14 @@ static void adcs_byte_stuff(uint8_t *thin_cmd, uint8_t *stuffed_cmd, uint8_t thi
  *      Length of destuffed reply
  *
  */
-static void adcs_byte_destuff(uint8_t *stuffed_reply, uint8_t *thin_reply, uint16_t stuffed_length, uint16_t *thin_length){
+static void adcs_byte_destuff(uint8_t *stuffed_reply, uint8_t *thin_reply, uint16_t stuffed_length,
+                              uint16_t *thin_length) {
     uint16_t thin_index = 0;
-    for(uint16_t stuffed_index = 0; stuffed_index < stuffed_length; stuffed_index++){
+    for (uint16_t stuffed_index = 0; stuffed_index < stuffed_length; stuffed_index++) {
         *(thin_reply + thin_index) = *(stuffed_reply + stuffed_index);
         thin_index++;
 
-        if(*(stuffed_reply + stuffed_index) == ADCS_PARSING_BYTE){
+        if (*(stuffed_reply + stuffed_index) == ADCS_PARSING_BYTE) {
             /* Stuffed byte present. Skip the next byte */
             stuffed_index++;
         }

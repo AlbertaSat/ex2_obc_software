@@ -30,7 +30,6 @@
 #include "adcs_io.h"
 #include "adcs_types.h"
 
-
 #define USE_UART
 //#define USE_I2C
 
@@ -146,7 +145,6 @@ void get_xyz(xyz *measurement, uint8_t *address, float coef) {
     measurement->y = coef * uint82int16(*(address + 2), *(address + 3));
     measurement->z = coef * uint82int16(*(address + 4), *(address + 5));
 }
-
 
 /**
  * @brief
@@ -281,10 +279,9 @@ ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f) {
 
     // make the home directory
     iErr = red_mkdir("home");
-    if (iErr == -1)
-    {
+    if (iErr == -1) {
         sys_log(ERROR, "Unexpected error from red_mkdir()\r\n");
-        //exit(red_errno);
+        // exit(red_errno);
     }
 
     // change directory to home
@@ -315,7 +312,7 @@ ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f) {
 
     ADCS_initiate_download_burst(msg_length, ignore_hole_map);
     ADCS_receive_download_burst(hole_map, file1, length_bytes);
-    
+
     char buffer[msg_length];
     red_read(file1, buffer, msg_length);
 
@@ -2237,7 +2234,7 @@ ADCS_returnState ADCS_set_log_config(uint8_t *flags_arr, uint16_t period, uint8_
     command[0] = SET_SD_LOG1_CONFIG_ID + (log - 1);
     for (int j = 0; j < 10; j++) {
         for (int i = 0; i < 8; i++) {
-            command[j + 1] = command[j + 1] | (*(flags_arr + (8 * j) + i) << (7-i));
+            command[j + 1] = command[j + 1] | (*(flags_arr + (8 * j) + i) << (7 - i));
         }
     }
     command[11] = (uint8_t)(period & 255);
@@ -2285,7 +2282,7 @@ ADCS_returnState ADCS_get_log_config(uint8_t *flags_arr, uint16_t *period, uint8
 
     for (int j = 0; j < 10; j++) {
         for (int i = 0; i < 8; i++) {
-            *(flags_arr + (8 * j) + i) = (telemetry[j] >> (7-i)) & 1;
+            *(flags_arr + (8 * j) + i) = (telemetry[j] >> (7 - i)) & 1;
         }
     }
     *period = telemetry[11] << 8 | telemetry[10];
@@ -2362,10 +2359,10 @@ ADCS_returnState ADCS_set_sgp4_orbit_params(adcs_sgp4 params) {
     memcpy(&temp[5], &params.MM, 8);
     memcpy(&temp[6], &params.MA, 8);
     memcpy(&temp[7], &params.epoch, 8);
-    int i,k;
-    for(i = 0; i < 8; i++){
-        for(k = 0; k < 8; k++){
-            command[1 + 8*i + k] = ((uint8_t)(temp[i] >> (8*k)) & 0b11111111);
+    int i, k;
+    for (i = 0; i < 8; i++) {
+        for (k = 0; k < 8; k++) {
+            command[1 + 8 * i + k] = ((uint8_t)(temp[i] >> (8 * k)) & 0b11111111);
         }
     }
     return adcs_telecommand(command, 65);
@@ -2385,9 +2382,9 @@ ADCS_returnState ADCS_get_sgp4_orbit_params(adcs_sgp4 *params) {
     state = adcs_telemetry(GET_SGP4_ORBIT_PARAMS_ID, telemetry, 64);
 
     unsigned long long temp[8] = {0};
-    for(int i = 0; i < 8; i++){
-        for(int k = 0; k < 8; k++){
-            temp[i] = temp[i] | ((unsigned long long)telemetry[8*i+k] << (8*k));
+    for (int i = 0; i < 8; i++) {
+        for (int k = 0; k < 8; k++) {
+            temp[i] = temp[i] | ((unsigned long long)telemetry[8 * i + k] << (8 * k));
         }
     }
 
@@ -2987,15 +2984,14 @@ ADCS_returnState ADCS_set_MoI_mat(moment_inertia_config cell) {
     memcpy(&temp[4], &cell.nondiag.y, 4);
     memcpy(&temp[5], &cell.nondiag.z, 4);
 
-    int i,k;
-    for(i = 0; i < 6; i++){
-        for(k = 0; k < 4; k++){
-            command[1 + 4*i + k] = ((uint8_t)(temp[i] >> (8*k)) & 0b11111111);
+    int i, k;
+    for (i = 0; i < 6; i++) {
+        for (k = 0; k < 4; k++) {
+            command[1 + 4 * i + k] = ((uint8_t)(temp[i] >> (8 * k)) & 0b11111111);
         }
     }
     return adcs_telecommand(command, 25);
 }
-
 
 /**
  * @brief
@@ -3146,46 +3142,46 @@ ADCS_returnState ADCS_get_full_config(adcs_config *config) {
     config->cubesense.cam1_area.area2.x.max = (telemetry[81] << 8) | telemetry[80];
     config->cubesense.cam1_area.area2.y.min = (telemetry[83] << 8) | telemetry[82];
     config->cubesense.cam1_area.area2.y.max = (telemetry[85] << 8) | telemetry[84];
-    
+
     config->cubesense.cam1_area.area3.x.min = (telemetry[87] << 8) | telemetry[86];
     config->cubesense.cam1_area.area3.x.max = (telemetry[89] << 8) | telemetry[88];
     config->cubesense.cam1_area.area3.y.min = (telemetry[91] << 8) | telemetry[90];
     config->cubesense.cam1_area.area3.y.max = (telemetry[93] << 8) | telemetry[92];
-    
+
     config->cubesense.cam1_area.area4.x.min = (telemetry[95] << 8) | telemetry[94];
     config->cubesense.cam1_area.area4.x.max = (telemetry[97] << 8) | telemetry[96];
     config->cubesense.cam1_area.area4.y.min = (telemetry[99] << 8) | telemetry[98];
     config->cubesense.cam1_area.area4.y.max = (telemetry[101] << 8) | telemetry[100];
-    
+
     config->cubesense.cam1_area.area5.x.min = (telemetry[103] << 8) | telemetry[102];
     config->cubesense.cam1_area.area5.x.max = (telemetry[105] << 8) | telemetry[104];
     config->cubesense.cam1_area.area5.y.min = (telemetry[107] << 8) | telemetry[106];
     config->cubesense.cam1_area.area5.y.max = (telemetry[109] << 8) | telemetry[108];
-    
+
     config->cubesense.cam2_area.area1.x.min = (telemetry[111] << 8) | telemetry[110];
     config->cubesense.cam2_area.area1.x.max = (telemetry[113] << 8) | telemetry[112];
     config->cubesense.cam2_area.area1.y.min = (telemetry[115] << 8) | telemetry[114];
     config->cubesense.cam2_area.area1.y.max = (telemetry[117] << 8) | telemetry[116];
-    
+
     config->cubesense.cam2_area.area2.x.min = (telemetry[119] << 8) | telemetry[118];
     config->cubesense.cam2_area.area2.x.max = (telemetry[121] << 8) | telemetry[120];
     config->cubesense.cam2_area.area2.y.min = (telemetry[123] << 8) | telemetry[122];
     config->cubesense.cam2_area.area2.y.max = (telemetry[125] << 8) | telemetry[124];
-    
+
     config->cubesense.cam2_area.area3.x.min = (telemetry[127] << 8) | telemetry[126];
     config->cubesense.cam2_area.area3.x.max = (telemetry[129] << 8) | telemetry[128];
     config->cubesense.cam2_area.area3.y.min = (telemetry[131] << 8) | telemetry[130];
     config->cubesense.cam2_area.area3.y.max = (telemetry[133] << 8) | telemetry[132];
-    
+
     config->cubesense.cam2_area.area4.x.min = (telemetry[135] << 8) | telemetry[134];
     config->cubesense.cam2_area.area4.x.max = (telemetry[137] << 8) | telemetry[136];
-    config->cubesense.cam2_area.area4.y.min = (telemetry[139] << 8)  | telemetry[138];
-    config->cubesense.cam2_area.area4.y.max = (telemetry[141] << 8)  | telemetry[140];
-    
-    config->cubesense.cam2_area.area5.x.min = (telemetry[143] << 8)  | telemetry[142];
-    config->cubesense.cam2_area.area5.x.max = (telemetry[145] << 8)  | telemetry[144];
-    config->cubesense.cam2_area.area5.y.min = (telemetry[147] << 8)  | telemetry[146];
-    config->cubesense.cam2_area.area5.y.max = (telemetry[149] << 8)  | telemetry[148];
+    config->cubesense.cam2_area.area4.y.min = (telemetry[139] << 8) | telemetry[138];
+    config->cubesense.cam2_area.area4.y.max = (telemetry[141] << 8) | telemetry[140];
+
+    config->cubesense.cam2_area.area5.x.min = (telemetry[143] << 8) | telemetry[142];
+    config->cubesense.cam2_area.area5.x.max = (telemetry[145] << 8) | telemetry[144];
+    config->cubesense.cam2_area.area5.y.min = (telemetry[147] << 8) | telemetry[146];
+    config->cubesense.cam2_area.area5.y.max = (telemetry[149] << 8) | telemetry[148];
 
     get_xyz(&config->MTM1.mounting_angle, &telemetry[150], 0.01);
     get_xyz(&config->MTM1.channel_offset, &telemetry[156], 0.001);
@@ -3194,16 +3190,16 @@ ADCS_returnState ADCS_get_full_config(adcs_config *config) {
     get_xyz(&config->MTM2.channel_offset, &telemetry[186], 0.001);
     get_3x3(config->MTM2.sensitivity_mat, &telemetry[192], 0.001);
 
-    get_xyz(&config->star_tracker.mounting_angle, &telemetry[210], 0.01);// Don't have this
-    memcpy(&config->star_tracker.exposure_t, &telemetry[216], 45); // Don't have this
-    config->star_tracker.module_en = telemetry[261] & 0x1;// Don't have this
-    config->star_tracker.loc_predict_en = telemetry[261] & 0x2; // Don't have this
-    config->star_tracker.search_wid = telemetry[262] / 5; // Don't have this
+    get_xyz(&config->star_tracker.mounting_angle, &telemetry[210], 0.01); // Don't have this
+    memcpy(&config->star_tracker.exposure_t, &telemetry[216], 45);        // Don't have this
+    config->star_tracker.module_en = telemetry[261] & 0x1;                // Don't have this
+    config->star_tracker.loc_predict_en = telemetry[261] & 0x2;           // Don't have this
+    config->star_tracker.search_wid = telemetry[262] / 5;                 // Don't have this
 
     unsigned long temp_detumble[2] = {0};
-    for(int i = 0; i < 2; i++){
-        for(int k = 0; k < 4; k++){
-            temp_detumble[i] = temp_detumble[i] | ((unsigned long)telemetry[263 + 4*i + k] << (8*k));
+    for (int i = 0; i < 2; i++) {
+        for (int k = 0; k < 4; k++) {
+            temp_detumble[i] = temp_detumble[i] | ((unsigned long)telemetry[263 + 4 * i + k] << (8 * k));
         }
     }
     memcpy(&config->detumble.spin_gain, &temp_detumble[0], 4);
@@ -3213,15 +3209,15 @@ ADCS_returnState ADCS_get_full_config(adcs_config *config) {
     config->detumble.spin_rate = uint82int16(telemetry[271], telemetry[272]) * coef;
 
     unsigned long temp_fastbDot;
-    for(int k = 0; k < 4; k++){
-        temp_fastbDot |= ((unsigned long)telemetry[273 + k] << (8*k));
+    for (int k = 0; k < 4; k++) {
+        temp_fastbDot |= ((unsigned long)telemetry[273 + k] << (8 * k));
     }
     memcpy(&config->detumble.fast_bDot, &temp_fastbDot, 4);
 
     unsigned long temp_ywheel[5] = {0};
-    for(int i = 0; i < 5; i++){
-        for(int k = 0; k < 4; k++){
-            temp_ywheel[i] = temp_ywheel[i] | ((unsigned long)telemetry[277 + 4*i + k] << (8*k));
+    for (int i = 0; i < 5; i++) {
+        for (int k = 0; k < 4; k++) {
+            temp_ywheel[i] = temp_ywheel[i] | ((unsigned long)telemetry[277 + 4 * i + k] << (8 * k));
         }
     }
     memcpy(&config->ywheel.control_gain, &temp_ywheel[0], 4);
@@ -3231,9 +3227,9 @@ ADCS_returnState ADCS_get_full_config(adcs_config *config) {
     memcpy(&config->ywheel.reference, &temp_ywheel[4], 4);
 
     unsigned long temp_rwheel[3] = {0};
-    for(int i = 0; i < 3; i++){
-        for(int k = 0; k < 4; k++){
-            temp_rwheel[i] = temp_rwheel[i] | ((unsigned long)telemetry[297 + 4*i + k] << (8*k));
+    for (int i = 0; i < 3; i++) {
+        for (int k = 0; k < 4; k++) {
+            temp_rwheel[i] = temp_rwheel[i] | ((unsigned long)telemetry[297 + 4 * i + k] << (8 * k));
         }
     }
     memcpy(&config->rwheel.proportional_gain, &temp_rwheel[0], 4);
@@ -3244,21 +3240,21 @@ ADCS_returnState ADCS_get_full_config(adcs_config *config) {
     config->rwheel.auto_transit = telemetry[309] & 0x80;    // 8th bit
 
     unsigned long temp_tracking[3] = {0};
-        for(int i = 0; i < 3; i++){
-            for(int k = 0; k < 4; k++){
-                temp_tracking[i] = temp_tracking[i] | ((unsigned long)telemetry[310 + 4*i + k] << (8*k));
-            }
+    for (int i = 0; i < 3; i++) {
+        for (int k = 0; k < 4; k++) {
+            temp_tracking[i] = temp_tracking[i] | ((unsigned long)telemetry[310 + 4 * i + k] << (8 * k));
         }
-        memcpy(&config->tracking.proportional_gain, &temp_tracking[0], 4);
-        memcpy(&config->tracking.derivative_gain, &temp_tracking[1], 4);
-        memcpy(&config->tracking.integral_gain, &temp_tracking[2], 4);
+    }
+    memcpy(&config->tracking.proportional_gain, &temp_tracking[0], 4);
+    memcpy(&config->tracking.derivative_gain, &temp_tracking[1], 4);
+    memcpy(&config->tracking.integral_gain, &temp_tracking[2], 4);
 
     config->tracking.target_facet = telemetry[322];
 
     unsigned long temp_MoI[6] = {0};
-    for(int i = 0; i < 6; i++){
-        for(int k = 0; k < 4; k++){
-            temp_MoI[i] = temp_MoI[i] | ((unsigned long)telemetry[323 + 4*i + k] << (8*k));
+    for (int i = 0; i < 6; i++) {
+        for (int k = 0; k < 4; k++) {
+            temp_MoI[i] = temp_MoI[i] | ((unsigned long)telemetry[323 + 4 * i + k] << (8 * k));
         }
     }
     memcpy(&config->MoI.diag.x, &temp_MoI[0], 4);
@@ -3269,9 +3265,9 @@ ADCS_returnState ADCS_get_full_config(adcs_config *config) {
     memcpy(&config->MoI.nondiag.z, &temp_MoI[5], 4);
 
     unsigned long temp_estimation[7] = {0};
-    for(int i = 0; i < 7; i++){
-        for(int k = 0; k < 4; k++){
-            temp_estimation[i] = temp_estimation[i] | ((unsigned long)telemetry[347 + 4*i + k] << (8*k));
+    for (int i = 0; i < 7; i++) {
+        for (int k = 0; k < 4; k++) {
+            temp_estimation[i] = temp_estimation[i] | ((unsigned long)telemetry[347 + 4 * i + k] << (8 * k));
         }
     }
     memcpy(&config->estimation.MTM_rate_nosie, &temp_estimation[0], 4);
