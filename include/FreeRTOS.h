@@ -183,7 +183,7 @@ extern "C" {
 #endif
 
 #ifndef INCLUDE_xQueueGetMutexHolder
-	#define INCLUDE_xQueueGetMutexHolder 1
+	#define INCLUDE_xQueueGetMutexHolder 0
 #endif
 
 #ifndef INCLUDE_xSemaphoreGetMutexHolder

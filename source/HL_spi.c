@@ -423,10 +423,10 @@ void spiInit(void)
                   | (uint32)((uint32)0U << 22U)  /* parity enable */
                   | (uint32)((uint32)0U << 21U)  /* wait on enable */
                   | (uint32)((uint32)0U << 20U)  /* shift direction */
-                  | (uint32)((uint32)1U << 17U)  /* clock polarity */
+                  | (uint32)((uint32)0U << 17U)  /* clock polarity */
                   | (uint32)((uint32)0U << 16U)  /* clock phase */
                   | (uint32)((uint32)4U << 8U) /* baudrate prescale */
-                  | (uint32)((uint32)8U << 0U);  /* data word length */
+                  | (uint32)((uint32)16U << 0U);  /* data word length */
 
     /** - Data Format 1 */
     spiREG3->FMT1 = (uint32)((uint32)0U << 24U)  /* wdelay */

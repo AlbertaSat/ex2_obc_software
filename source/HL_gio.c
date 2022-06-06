@@ -41,6 +41,7 @@
 
 
 /* USER CODE BEGIN (0) */
+#include "HL_reg_gio.h"
 /* USER CODE END */
 
 #include "HL_gio.h"

@@ -75,11 +75,9 @@
 	#error "include FreeRTOS.h must appear in source files before include timers.h"
 #endif
 
-#include "os_task.h"
 /*lint -e537 This headers are only multiply included if the application code
 happens to also be including task.h. */
 #include "os_list.h"
-#include "os_task.h"
 /*lint +e537 */
 
 #ifdef __cplusplus
@@ -492,11 +490,12 @@ BaseType_t xTimerIsTimerActive( TimerHandle_t xTimer ) PRIVILEGED_FUNCTION;
  * Simply returns the handle of the timer service/daemon task.  It it not valid
  * to call xTimerGetTimerDaemonTaskHandle() before the scheduler has been started.
  */
+typedef void * TaskHandle_t;
+
 TaskHandle_t xTimerGetTimerDaemonTaskHandle( void ) PRIVILEGED_FUNCTION;
 
 /**
  * BaseType_t xTimerStart( TimerHandle_t xTimer, TickType_t xTicksToWait );
- *
  *
  * Timer functionality is provided by a timer service/daemon task.  Many of the
  * public FreeRTOS timer API functions send commands to the timer service task

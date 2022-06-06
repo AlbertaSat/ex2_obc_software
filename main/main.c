@@ -37,7 +37,7 @@
 #include <HL_system.h>
 
 #include "main/system.h"
-#include "main/version.h"
+//#include "main/version.h"
 #include "board_io_tests.h"
 #include "services.h"
 #include "subsystems_ids.h"
@@ -67,6 +67,7 @@
 #include "test_sdr.h"
 #include <csp/interfaces/csp_if_sdr.h>
 #include "printf.h"
+#include "sband_binary_tests.h"
 
 //#define CSP_USE_SDR
 #define CSP_USE_KISS
@@ -165,8 +166,10 @@ void ex2_init(void *pvParameters) {
     /* Software Initialization */
 
     /* Start service server, and response server */
+    //sband_binary_test();
+    sband_inf_tx();
 
-    init_software();
+//    init_software();
 
 #ifdef SDR_TEST
     start_test_sdr();
@@ -176,6 +179,7 @@ void ex2_init(void *pvParameters) {
     /* Test Task */
     xTaskCreate(flatsat_test, "flatsat_test", 500, NULL, 1, NULL);
 #endif
+
 
     vTaskDelete(0); // delete self to free up heap
 }

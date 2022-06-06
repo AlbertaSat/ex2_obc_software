@@ -85,19 +85,19 @@ void RTC_discipline_daemon(void) {
  * @return SAT_returnState
  *      success report
  */
-SAT_returnState start_RTC_daemon() {
-    TaskHandle_t rtc_handle;
-    if (xTaskCreate((TaskFunction_t)RTC_discipline_daemon, "RTC_daemon", RTC_DAEMON_TASK_SIZE, NULL, 1, &rtc_handle) !=
-        pdPASS) {
-        return SATR_ERROR;
-    }
-    taskFunctions rtc_funcs = {0};
-    rtc_funcs.getCounterFunction = get_rtc_wdt_counter;
-    ex2_register(rtc_handle, rtc_funcs);
-    RTCMK_EnableInt(RTCMK_ADDR);
-    gioEnableNotification(RTC_INT_PORT, RTC_INT_PIN);
-    return SATR_OK;
-}
+//SAT_returnState start_RTC_daemon() {
+//    TaskHandle_t rtc_handle;
+//    if (xTaskCreate((TaskFunction_t)RTC_discipline_daemon, "RTC_daemon", RTC_DAEMON_TASK_SIZE, NULL, 1, &rtc_handle) !=
+//        pdPASS) {
+//        return SATR_ERROR;
+//    }
+//    taskFunctions rtc_funcs = {0};
+//    rtc_funcs.getCounterFunction = get_rtc_wdt_counter;
+//    ex2_register(rtc_handle, rtc_funcs);
+//    RTCMK_EnableInt(RTCMK_ADDR);
+//    gioEnableNotification(RTC_INT_PORT, RTC_INT_PIN);
+//    return SATR_OK;
+//}
 
 void rtcInt_gioNotification(gioPORT_t *port, uint32 bit) {
     last_second = xTaskGetTickCountFromISR();
