@@ -397,12 +397,11 @@ Result collect_hk_from_devices(All_systems_housekeeping *all_hk_data) {
 #endif                                                              /* ATHENA_IS_STUBBED */
 
 #ifndef EPS_IS_STUBBED
-    eps_refresh_instantaneous_telemetry();
-    eps_instantaneous_telemetry_t eps = get_eps_instantaneous_telemetry();
-
-    // Adding these in order to get the startup telemetry - should be added elsewhere
-    eps_refresh_startup_telemetry();
-    eps_startup_telemetry_t eps_startup = get_eps_startup_telemetry();
+    SAT_returnState EPS_return_code = SATR_OK;
+    if (eps_refresh_instantaneous_telemetry() != SATR_OK)
+        EPS_return_code = SATR_ERROR;
+    if (eps_refresh_startup_telemetry() != SATR_OK)
+        EPS_return_code = SATR_ERROR;
     EPS_getHK(&all_hk_data->EPS_hk, &all_hk_data->EPS_startup_hk); /* EPS Housekeeping */
 #endif                                                             /* EPS_IS_STUBBED */
 

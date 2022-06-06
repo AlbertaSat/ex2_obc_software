@@ -57,8 +57,9 @@ SAT_returnState eps_refresh_instantaneous_telemetry() {
     eps_instantaneous_telemetry_t telembuf;
     int res = csp_ping(EPS_APP_ID, EPS_REQUEST_TIMEOUT, 100, CSP_O_NONE);
 
-    csp_transaction_w_opts(CSP_PRIO_LOW, EPS_APP_ID, EPS_INSTANTANEOUS_TELEMETRY, EPS_REQUEST_TIMEOUT, &cmd,
-                           sizeof(cmd), &telembuf, sizeof(eps_instantaneous_telemetry_t), CSP_O_CRC32);
+    if (csp_transaction_w_opts(CSP_PRIO_LOW, EPS_APP_ID, EPS_INSTANTANEOUS_TELEMETRY, EPS_REQUEST_TIMEOUT, &cmd,
+                               sizeof(cmd), &telembuf, sizeof(eps_instantaneous_telemetry_t), CSP_O_CRC32) <= 1)
+        return SATR_ERROR;
     // data is little endian, must convert to host order
     // refer to the NanoAvionics datasheet for details
     prv_instantaneous_telemetry_letoh(&telembuf);
@@ -70,8 +71,9 @@ SAT_returnState eps_refresh_startup_telemetry() {
     uint8_t cmd = 1; // ' subservice' command defined in ICD Section 24.2.2
     eps_startup_telemetry_t telem_startup_buf;
 
-    csp_transaction_w_opts(CSP_PRIO_LOW, EPS_APP_ID, EPS_INSTANTANEOUS_TELEMETRY, 10000, &cmd, sizeof(cmd),
-                           &telem_startup_buf, sizeof(eps_startup_telemetry_t), CSP_O_CRC32);
+    if (csp_transaction_w_opts(CSP_PRIO_LOW, EPS_APP_ID, EPS_INSTANTANEOUS_TELEMETRY, 10000, &cmd, sizeof(cmd),
+                               &telem_startup_buf, sizeof(eps_startup_telemetry_t), CSP_O_CRC32) <= 1)
+        return SATR_ERROR;
     // data is little endian, must convert to host order
     // refer to the NanoAvionics datasheet for details
     prv_startup_telemetry_letoh(&telem_startup_buf);
