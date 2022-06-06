@@ -49,7 +49,7 @@ static uint32_t get_svc_wdt_counter() { return svc_wdt_counter; }
 void dfgm_service(void *param) {
     // socket initialization
     csp_socket_t *sock;
-    sock = csp_socket(CSP_SO_NONE);
+    sock = csp_socket(CSP_SO_HMACREQ);
     csp_bind(sock, TC_DFGM_SERVICE);
     csp_listen(sock, SERVICE_BACKLOG_LEN);
 

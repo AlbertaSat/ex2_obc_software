@@ -67,6 +67,8 @@
 #include "test_sdr.h"
 #include <csp/interfaces/csp_if_sdr.h>
 #include "printf.h"
+#include "csp/crypto/csp_hmac.h"
+#include "crypto.h"
 #include "csp_debug_wrapper.h"
 
 //#define CSP_USE_SDR
@@ -289,6 +291,10 @@ static void init_csp() {
     if (init_csp_interface() != SATR_OK) {
         exit(SATR_ERROR);
     }
+    char *test_key;
+    int key_len;
+    get_crypto_key(HMAC_KEY, &test_key, &key_len);
+    csp_hmac_set_key(test_key, key_len);
     return;
 }
 
