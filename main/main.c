@@ -67,6 +67,7 @@
 #include "test_sdr.h"
 #include <csp/interfaces/csp_if_sdr.h>
 #include "printf.h"
+#include "csp_debug_wrapper.h"
 
 //#define CSP_USE_SDR
 #define CSP_USE_KISS
@@ -261,6 +262,7 @@ static void init_filesystem() {
  * Initialize CSP network
  */
 static void init_csp() {
+    csp_debug_hook_set(csp_wrap_debug);
     /* Init CSP with address and default settings */
     csp_conf_t csp_conf;
     csp_conf.address = 1;
