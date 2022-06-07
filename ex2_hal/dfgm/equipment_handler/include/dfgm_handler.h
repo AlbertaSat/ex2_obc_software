@@ -73,6 +73,7 @@ typedef enum {
 #define DFGM_MIN_RUNTIME 1 // in seconds
 #define DFGM_TIME_THRESHOLD 20 // in seconds
 #define DFGM_QUEUE_DEPTH 1248
+#define DFGM_FILE_NAME_MAX_SIZE 25
 
 typedef struct __attribute__((packed)) {
     uint32_t x; // [xdac, xadc]

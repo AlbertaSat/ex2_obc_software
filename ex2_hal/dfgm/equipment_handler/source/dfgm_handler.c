@@ -349,9 +349,17 @@ void dfgm_rx_task(void *pvParameters) {
     collecting_HK = 0;
     firstPacketFlag = 1;
 
-    char DFGM_raw_file_name[20] = {0};
-    char DFGM_100Hz_file_name[20] = {0};
-    char DFGM_1Hz_file_name[20] = {0};
+    // Change file system directory to dfgm
+    iErr = red_chdir("VOL0:/dfgm");
+    if (iErr == -1) {
+        // Directory does not exist. Create it
+        iErr = red_mkdir("VOL0:/dfgm");
+        iErr = red_chdir("VOL0:/dfgm");
+    }
+
+    char DFGM_raw_file_name[DFGM_FILE_NAME_MAX_SIZE] = {0};
+    char DFGM_100Hz_file_name[DFGM_FILE_NAME_MAX_SIZE] = {0};
+    char DFGM_1Hz_file_name[DFGM_FILE_NAME_MAX_SIZE] = {0};
 
     // Trigger dfgm_sciNotification
     sciReceive(DFGM_SCI, 1, &DFGM_byteBuffer);
@@ -377,9 +385,9 @@ void dfgm_rx_task(void *pvParameters) {
             RTCMK_GetUnix(&(data.time));
 
             if(firstPacketFlag){
-                snprintf(DFGM_raw_file_name, 20, "%u_%s", (unsigned int)data.time, "rawDFGM");
-                snprintf(DFGM_100Hz_file_name, 20, "%u_%s", (unsigned int)data.time, "100HzDFGM");
-                snprintf(DFGM_1Hz_file_name, 20, "%u_%s", (unsigned int)data.time, "1HzDFGM");
+                snprintf(DFGM_raw_file_name, DFGM_FILE_NAME_MAX_SIZE, "%u_%s", (unsigned int)data.time, "rawDFGM.hex");
+                snprintf(DFGM_100Hz_file_name, DFGM_FILE_NAME_MAX_SIZE, "%u_%s", (unsigned int)data.time, "100HzDFGM.hex");
+                snprintf(DFGM_1Hz_file_name, DFGM_FILE_NAME_MAX_SIZE, "%u_%s", (unsigned int)data.time, "1HzDFGM.hex");
             }
 
             // Don't save or convert raw mag field data if receiving packet for HK
