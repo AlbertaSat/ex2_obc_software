@@ -377,9 +377,9 @@ void dfgm_rx_task(void *pvParameters) {
             RTCMK_GetUnix(&(data.time));
 
             if(firstPacketFlag){
-                snprintf(DFGM_raw_file_name, 20, "%d_%s", (unsigned int)data.time, "rawDFGM");
-                snprintf(DFGM_100Hz_file_name, 20, "%d_%s", (unsigned int)data.time, "100HzDFGM");
-                snprintf(DFGM_1Hz_file_name, 20, "%d_%s", (unsigned int)data.time, "1HzDFGM");
+                snprintf(DFGM_raw_file_name, 20, "%u_%s", (unsigned int)data.time, "rawDFGM");
+                snprintf(DFGM_100Hz_file_name, 20, "%u_%s", (unsigned int)data.time, "100HzDFGM");
+                snprintf(DFGM_1Hz_file_name, 20, "%u_%s", (unsigned int)data.time, "1HzDFGM");
             }
 
             // Don't save or convert raw mag field data if receiving packet for HK
