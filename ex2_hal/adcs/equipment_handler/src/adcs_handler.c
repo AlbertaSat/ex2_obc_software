@@ -357,27 +357,6 @@ ADCS_returnState ADCS_download_file(uint8_t type, uint8_t counter, uint32_t size
         }
     }
 
-    // Load one block
-    uint32_t offset = 0;
-    uint16_t block_length = 5000;
-    ret = ADCS_load_file_download_block(type, counter, offset, block_length);
-    if(ret != ADCS_OK){
-        xSemaphoreGive(adcs_file_download_mutex);
-        return ret;
-    }
-
-    // Wait until block is finished loading
-    bool ready = 0;
-    bool param_err;
-    uint16_t crc16_checksum;
-    while (ready == false) {
-        ret = ADCS_get_file_download_block_stat(&ready, &param_err, &crc16_checksum, &block_length);
-        if(ret != ADCS_OK){
-            xSemaphoreGive(adcs_file_download_mutex);
-            return ret;
-        }
-    }
-
     // Delete file if it exists already
     red_unlink(save_as);
 
@@ -389,17 +368,45 @@ ADCS_returnState ADCS_download_file(uint8_t type, uint8_t counter, uint32_t size
         return ADCS_FILE_FAIL;
     }
 
-    // Initiate the download burst
-    uint8_t hole_map[ADCS_HOLE_MAP_SIZE] = {0};
-    bool ignore_hole_map = true; // Set Ignore Hole Map to true
-    ret = ADCS_initiate_download_burst(ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN, ignore_hole_map);
-    if(ret != ADCS_OK){
-        xSemaphoreGive(adcs_file_download_mutex);
-        return ret;
-    }
+    // Loop over all blocks
+    uint16_t block_length = 20480;
+    for(uint32_t offset = 0; offset < size; offset += block_length){
 
-    // Receive the download burst and write to file
-    ADCS_receive_download_burst(hole_map, file1, block_length);
+        // Load one block
+        ret = ADCS_load_file_download_block(type, counter, offset, block_length);
+        if(ret != ADCS_OK){
+            xSemaphoreGive(adcs_file_download_mutex);
+            return ret;
+        }
+
+        // Wait until block is finished loading
+        bool ready = 0;
+        bool param_err;
+        uint16_t crc16_checksum;
+        while (ready == false) {
+            ret = ADCS_get_file_download_block_stat(&ready, &param_err, &crc16_checksum, &block_length);
+            if(ret != ADCS_OK){
+                xSemaphoreGive(adcs_file_download_mutex);
+                return ret;
+            }
+        }
+
+        // Initiate the download burst
+        uint8_t hole_map[ADCS_HOLE_MAP_SIZE] = {0};
+        bool ignore_hole_map = true; // Set Ignore Hole Map to true
+        adcs_io_enter_file_download_state();
+        ret = ADCS_initiate_download_burst(ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN, ignore_hole_map);
+        if(ret != ADCS_OK){
+            red_close(file1);
+            xSemaphoreGive(adcs_file_download_mutex);
+            adcs_io_exit_file_download_state();
+            return ret;
+        }
+
+        // Receive the download burst and write to file
+        ADCS_receive_download_burst(hole_map, file1, block_length);
+        adcs_io_exit_file_download_state();
+    }
 
     // Close file and release download mutex
     red_close(file1);
@@ -650,7 +657,6 @@ static ADCS_returnState ADCS_receive_download_burst(uint8_t *hole_map, int32_t f
     ADCS_returnState err;
 
     uint16_t num_packets = length_bytes / ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN + 1;
-    adcs_io_enter_file_download_state();
     uint8_t pckt[ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN];
     uint16_t pckt_counter = 0;
 
@@ -711,8 +717,6 @@ static ADCS_returnState ADCS_receive_download_burst(uint8_t *hole_map, int32_t f
 
         }
     }
-
-    adcs_io_exit_file_download_state();
     return err;
 }
 
