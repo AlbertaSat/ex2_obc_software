@@ -349,6 +349,10 @@ void dfgm_rx_task(void *pvParameters) {
     collecting_HK = 0;
     firstPacketFlag = 1;
 
+    char DFGM_raw_file_name[20] = {0};
+    char DFGM_100Hz_file_name[20] = {0};
+    char DFGM_1Hz_file_name[20] = {0};
+
     // Trigger dfgm_sciNotification
     sciReceive(DFGM_SCI, 1, &DFGM_byteBuffer);
     for (;;) {
@@ -372,9 +376,16 @@ void dfgm_rx_task(void *pvParameters) {
             // Get time
             RTCMK_GetUnix(&(data.time));
 
+            if(firstPacketFlag){
+                snprintf(DFGM_raw_file_name, 20, "%d_%s", (unsigned int)data.time, "rawDFGM");
+                snprintf(DFGM_100Hz_file_name, 20, "%d_%s", (unsigned int)data.time, "100HzDFGM");
+                snprintf(DFGM_1Hz_file_name, 20, "%d_%s", (unsigned int)data.time, "1HzDFGM");
+            }
+
             // Don't save or convert raw mag field data if receiving packet for HK
             if(!collecting_HK) {
-                savePacket(&data, "raw_DFGM_data");
+                // Save raw (unconverted) 100Hz data from DFGM
+                savePacket(&data, DFGM_raw_file_name);
                 DFGM_convertRawMagData(&(data.packet));
             }
 
@@ -383,7 +394,8 @@ void dfgm_rx_task(void *pvParameters) {
 
             // Don't save if receiving packet for HK
             if (!collecting_HK) {
-                savePacket(&data, "high_rate_DFGM_data");
+                // Save 100Hz data to DFGM
+                savePacket(&data, DFGM_100Hz_file_name);
             }
 
             secondsPassed += 1;
@@ -408,7 +420,8 @@ void dfgm_rx_task(void *pvParameters) {
                     shiftSecondPointer();
                 } else {
                     applyFilter();
-                    saveSecond(secondPointer[1], "survey_rate_DFGM_data");
+                    // Save 1Hz (filtered) data from DFGM
+                    saveSecond(secondPointer[1], DFGM_1Hz_file_name);
                     shiftSecondPointer();
                 }
             }
@@ -419,6 +432,10 @@ void dfgm_rx_task(void *pvParameters) {
                 DFGM_runtime = 0;
                 collecting_HK = 0;
                 firstPacketFlag = 1;
+                // Erase strings
+                DFGM_raw_file_name[0] = '\0';
+                DFGM_100Hz_file_name[0] = '\0';
+                DFGM_1Hz_file_name[0] = '\0';
             }
         }
     }
