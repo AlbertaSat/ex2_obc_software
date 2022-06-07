@@ -86,7 +86,7 @@ void
 operator delete(void* ptr) _NOEXCEPT
 {
     if (ptr)
-        free(ptr);
+        vPortFree(ptr);
 }
 
 
