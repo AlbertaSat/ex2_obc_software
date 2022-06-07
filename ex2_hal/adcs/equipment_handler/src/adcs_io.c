@@ -164,9 +164,6 @@ ADCS_returnState send_uart_telecommand(uint8_t *command, uint32_t length) {
  *
  */
 ADCS_returnState send_uart_telecommand_no_reply(uint8_t *command, uint32_t length) {
-    if (xSemaphoreTake(adcs_uart_mutex, UART_TIMEOUT_MS) != pdTRUE) {
-        return ADCS_UART_BUSY;
-    }
 
     // Form the command frame
     uint8_t *frame = (uint8_t *)pvPortMalloc((length + ADCS_TC_HEADER_SZ) * sizeof(uint8_t));
@@ -181,13 +178,11 @@ ADCS_returnState send_uart_telecommand_no_reply(uint8_t *command, uint32_t lengt
     sciSend(ADCS_SCI, length + ADCS_TC_HEADER_SZ, frame);
 
     if (xSemaphoreTake(tx_semphr, UART_TIMEOUT_MS) != pdTRUE) {
-        xSemaphoreGive(adcs_uart_mutex);
         vPortFree(frame);
         return ADCS_UART_FAILED;
     } // TODO: create response if it times out.
 
     vPortFree(frame);
-    xSemaphoreGive(adcs_uart_mutex);
     return ADCS_OK;
 }
 
