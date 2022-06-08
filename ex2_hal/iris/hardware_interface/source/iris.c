@@ -13,22 +13,16 @@
  */
 
 #include "FreeRTOS.h"
+#include <stdlib.h>
+
 #include "iris.h"
 #include "iris_spi.h"
 
-uint16_t * image_length_buffer; // 3 byte format
-uint16_t * image_count_buffer; // 1 byte format
-uint16_t * image_data_buffer; // 514 byte format
-housekeeping_data hk_data;
-uint16_t * housekeeping_buffer; // 10 byte format
-
-enum {
-    SEND_COMMAND,
-    SEND_DATA,
-    GET_DATA,
-    FINISH, // May implement this state after getting advice from Iris team
-    ERROR, // TODO: Potentially used for error handling
-} controller_state;
+//uint16_t * image_length_buffer; // 3 byte format
+//uint16_t * image_count_buffer; // 1 byte format
+//uint16_t * image_data_buffer; // 512 byte format
+//housekeeping_data hk_data;
+//uint16_t * housekeeping_buffer; // 10 byte format
 
 /*
  * TODO:
@@ -36,26 +30,32 @@ enum {
  */
 
 void iris_take_pic() {
-    //controller_state = SEND_COMMAND;
+    IRIS_return ret;
+
+    controller_state = SEND_COMMAND;
 
     // Basically try to run through the states one after another until finish is hit
     // TODO: Will need to check for errors (e.g. failed ACK)
-    while (controller_state != FINISH && controller_state != ERROR) {
+    while (controller_state != FINISH && controller_state != ERROR_STATE) {
         switch (controller_state) {
             case SEND_COMMAND:
             {
-                send_command(IRIS_TAKE_PIC);
-                controller_state = FINISH;
+                ret = send_command(IRIS_TAKE_PIC);
+                if (ret == IRIS_ACK) {
+                    controller_state = FINISH;
+                } else {
+                    controller_state = ERROR_STATE;
+                }
                 break;
             }
             case FINISH:
             {
                 break;
             }
-            case ERROR:
+            case ERROR_STATE:
             {
                 break;
-                //TODO: Error handler
+                //TODO: ERROR_STATE handler
             }
         }
     }
@@ -63,17 +63,16 @@ void iris_take_pic() {
 
 uint32_t iris_get_image_length() {
     uint32_t image_length;
-    uint16_t *image_length_buffer;
-    int ret;
+    IRIS_return ret;
 
     controller_state = SEND_COMMAND;
 
-    while (controller_state != FINISH && controller_state != ERROR) {
+    while (controller_state != FINISH && controller_state != ERROR_STATE) {
         switch (controller_state) {
             case SEND_COMMAND:
             {
                 ret = send_command(IRIS_GET_IMAGE_LENGTH);
-                if (ret != -1) {
+                if (ret == IRIS_ACK) {
                     controller_state = GET_DATA;
                 } else {
                     controller_state = FINISH;
@@ -82,8 +81,18 @@ uint32_t iris_get_image_length() {
             }
             case GET_DATA:
             {
-                image_length_buffer = get_data(MAX_IMAGE_LENGTH);
-                image_length = ((uint32_t)image_length_buffer[2]<<16) | ((uint32_t)image_length_buffer[1]<<8) | (uint32_t)image_length_buffer[0]; // Concatenate image_length_buffer
+                uint16_t * image_length_buffer = (uint16_t*) calloc(MAX_IMAGE_LENGTH + 1, sizeof(uint16_t));
+                if (image_length_buffer == NULL) {
+                    // TODO: Log error
+                    return;
+                }
+                ret = get_data(image_length_buffer, MAX_IMAGE_LENGTH + 1);
+                if (ret == IRIS_OK) {
+                    controller_state = FINISH;
+                } else {
+                    controller_state = ERROR_STATE;
+                }
+                image_length = (uint32_t)((uint8_t)image_length_buffer[3]<<16 | (uint8_t)image_length_buffer[2]<<8 | (uint8_t)image_length_buffer[2]); // Concatenate image_length_buffer
 
                 free(image_length_buffer);
                 controller_state = FINISH;
@@ -93,10 +102,10 @@ uint32_t iris_get_image_length() {
             {
                 break;
             }
-            case ERROR:
+            case ERROR_STATE:
             {
                 break;
-                //TODO: Error handler
+                //TODO: ERROR_STATE handler
             }
         }
     }
@@ -105,30 +114,49 @@ uint32_t iris_get_image_length() {
         return image_length;
     }
 
-    //return image_length; // TODO: Need to handle error
+    //return image_length; // TODO: Need to handle ERROR_STATE
 }
 
 void iris_transfer_image(uint32_t image_length) {
-    uint8_t num_transfer;
-    uint8_t count_transfer;
+    uint32_t num_transfer;
+    IRIS_return ret;
 
-    while (controller_state != FINISH && controller_state != ERROR) {
+    controller_state = SEND_COMMAND;
+
+    while (controller_state != FINISH && controller_state != ERROR_STATE) {
         switch (controller_state) {
             case SEND_COMMAND: // Send start image transfer command
             {
-                send_command(IRIS_TRANSFER_IMAGE);
-                controller_state = GET_DATA;
+                ret = send_command(IRIS_TRANSFER_IMAGE);
+                if (ret == IRIS_ACK) {
+                    controller_state = GET_DATA;
+                } else {
+                    controller_state = FINISH;
+                }
                 break;
             }
             case GET_DATA: // Get image data in chunks/blocks
             {
-                num_transfer = (IMAGE_TRANSFER_SIZE + image_length - 1) / IMAGE_TRANSFER_SIZE; // Ceiling division
-                for (count_transfer = 0; count_transfer < num_transfer; count_transfer++) {
-                    image_data_buffer = get_data(IMAGE_TRANSFER_SIZE);
+                uint16_t * image_data_buffer = (uint16_t*) calloc(MAX_IMAGE_LENGTH, sizeof(uint16_t));
+                num_transfer = (IMAGE_TRANSFER_SIZE + image_length) / IMAGE_TRANSFER_SIZE; // Ceiling division
+                for (uint32_t count_transfer = 0; count_transfer < num_transfer; count_transfer++) {
+                    ret = get_data(image_data_buffer, IMAGE_TRANSFER_SIZE);
                     // TODO: Do something with the received data (e.g transfer it to the SD card)
                     // Or just get the data and send it forward to the next stage. Prefer not to have too
                     // much data processing in driver code
+
+                    for (int i = 0; i < MAX_IMAGE_LENGTH; i++) {
+                        if (image_data_buffer[i] != i) {
+                            i = 0;
+                            return;
+                        }
+                    }
+
+
+                    memset(image_data_buffer, 0, MAX_IMAGE_LENGTH);
                 }
+                free(image_data_buffer);
+                controller_state = FINISH;
                 break;
             }
             case FINISH:
@@ -136,30 +164,41 @@ void iris_transfer_image(uint32_t image_length) {
                 break;
                 //TODO: Send appropriate termination command
             }
-            case ERROR:
+            case ERROR_STATE:
             {
                 break;
-                //TODO: Error handler
+                //TODO: ERROR_STATE handler
             }
         }
+    }
+
+    if (controller_state == FINISH) {
+        return;
     }
 }
 
 uint8_t iris_get_image_count() {
     uint8_t image_count;
+    IRIS_return ret;
 
-    while(controller_state != FINISH && controller_state != ERROR) {
+    controller_state = SEND_COMMAND;
+
+    while(controller_state != FINISH && controller_state != ERROR_STATE) {
         switch (controller_state) {
             case SEND_COMMAND:
             {
-                send_command(IRIS_GET_IMAGE_COUNT);
-                controller_state = GET_DATA;
+                ret = send_command(IRIS_GET_IMAGE_COUNT);
+                if (ret == IRIS_ACK) {
+                    controller_state = GET_DATA;
+                } else {
+                    controller_state = FINISH;
+                }
                 break;
             }
             case GET_DATA:
             {
-                image_length_buffer = get_data(MAX_IMAGE_COUNT);
-                image_count = image_length_buffer[0];
+//                image_length_buffer = get_data(MAX_IMAGE_COUNT);
+//                image_count = image_length_buffer[0];
                 break;
             }
             case FINISH:
@@ -167,26 +206,34 @@ uint8_t iris_get_image_count() {
                 break;
                 //TODO: Send appropriate termination command
             }
-            case ERROR:
+            case ERROR_STATE:
             {
                 break;
-                //TODO: Error handler
+                //TODO: ERROR_STATE handler
             }
         }
     }
-    return image_count; // TODO: Need to handle error
+    return image_count; // TODO: Need to handle ERROR_STATE
 }
 
 void iris_toggle_sensor_idle(uint8_t toggle) {
+    IRIS_return ret;
 
-    while (controller_state != FINISH && controller_state != ERROR) {
+    controller_state = SEND_COMMAND;
+
+    while (controller_state != FINISH && controller_state != ERROR_STATE) {
         switch (controller_state) {
             case SEND_COMMAND:
             {
                 if (toggle == 1) {
-                    send_command(IRIS_ON_SENSOR_IDLE);
+                    ret = send_command(IRIS_ON_SENSOR_IDLE);
                 } else {
-                    send_command(IRIS_OFF_SENSOR_IDLE);
+                    ret = send_command(IRIS_OFF_SENSOR_IDLE);
+                }
+                if (ret == IRIS_ACK) {
+                    controller_state = FINISH;
+                } else {
+                    controller_state = ERROR_STATE;
                 }
                 break;
             }
@@ -195,37 +242,58 @@ void iris_toggle_sensor_idle(uint8_t toggle) {
                 break;
                 //TODO: Send appropriate termination command
             }
-            case ERROR:
+            case ERROR_STATE:
             {
-                //TODO: Error handler
+                //TODO: ERROR_STATE handler
             }
         }
     }
 }
 
 housekeeping_data iris_get_housekeeping() {
+    IRIS_return ret;
+    housekeeping_data hk_data;
 
-    while (controller_state != FINISH && controller_state != ERROR) {
+    controller_state = SEND_COMMAND;
+
+    while (controller_state != FINISH && controller_state != ERROR_STATE) {
         switch (controller_state) {
             case SEND_COMMAND:
             {
-                send_command(IRIS_SEND_HOUSEKEEPING);
-                controller_state = GET_DATA;
+                ret = send_command(IRIS_SEND_HOUSEKEEPING);
+                if (ret == IRIS_ACK) {
+                    vTaskDelay(1000);
+                    controller_state = GET_DATA;
+                } else {
+                    controller_state = FINISH;
+                }
                 break;
             }
             case GET_DATA:
             {
                 // Retrieve housekeeping data and store it in a struct
-                housekeeping_buffer = get_data(HOUSEKEEPING_SIZE);
+                uint16_t * housekeeping_buffer = (uint16_t*) calloc(HOUSEKEEPING_SIZE, sizeof(uint16_t));
+                ret = get_data(housekeeping_buffer, HOUSEKEEPING_SIZE);
+
 
                 // Transfer data from buffer to struct
                 // TODO: Verify Endianness and correct order of storage
-                hk_data.vis_temp = housekeeping_buffer[0] << 8 | housekeeping_buffer[1];
-                hk_data.nir_temp = housekeeping_buffer[2] << 8 | housekeeping_buffer[3];
-                hk_data.flash_temp = housekeeping_buffer[4] << 8 | housekeeping_buffer[5];
-                hk_data.gate_temp = housekeeping_buffer[6] << 8 | housekeeping_buffer[7];
+                hk_data.vis_temp = housekeeping_buffer[1] << 8 | housekeeping_buffer[0];
+                hk_data.nir_temp = housekeeping_buffer[3] << 8 | housekeeping_buffer[2];
+                hk_data.flash_temp = housekeeping_buffer[5] << 8 | housekeeping_buffer[4];
+                hk_data.gate_temp = housekeeping_buffer[7] << 8 | housekeeping_buffer[6];
                 hk_data.imagenum = housekeeping_buffer[8];
                 hk_data.software_version = housekeeping_buffer[9];
+                hk_data.errornum = housekeeping_buffer[10];
+                hk_data.MAX_5V_voltage = housekeeping_buffer[12] << 8 | housekeeping_buffer[11];
+                hk_data.MAX_5V_power = housekeeping_buffer[14] << 8 | housekeeping_buffer[13];
+                hk_data.MAX_3V_voltage = housekeeping_buffer[16] << 8 | housekeeping_buffer[15];
+                hk_data.MAX_3V_power = housekeeping_buffer[18] << 8 | housekeeping_buffer[17];
+                hk_data.MIN_5V_voltage = housekeeping_buffer[20] << 8 | housekeeping_buffer[19];
+                hk_data.MIN_3V_voltage = housekeeping_buffer[22] << 8 | housekeeping_buffer[21];
+
+                free(housekeeping_buffer);
+                controller_state = FINISH;
                 break;
             }
             case FINISH:
@@ -233,31 +301,42 @@ housekeeping_data iris_get_housekeeping() {
                 break;
                 //TODO: Send appropriate termination command
             }
-            case ERROR:
+            case ERROR_STATE:
             {
                 break;
-                //TODO: Error handler
+                //TODO: ERROR_STATE handler
             }
         }
     }
-    return hk_data;
+
+    if (controller_state == FINISH) {
+        return;
+    }
 }
 
-void iris_update_sensor_i2c_reg(sensor_reg sr[]) {
+void iris_update_sensor_i2c_reg() {
+    IRIS_return ret;
 
-    while (controller_state != FINISH && controller_state != ERROR) {
+    controller_state = SEND_COMMAND;
+
+    while (controller_state != FINISH && controller_state != ERROR_STATE) {
         switch (controller_state) {
             case SEND_COMMAND:
             {
-                send_command(IRIS_UPDATE_SENSOR_I2C_REG);
-                controller_state = SEND_DATA;
+                ret = send_command(IRIS_UPDATE_SENSOR_I2C_REG);
+                if (ret == IRIS_ACK) {
+                    controller_state = SEND_DATA;
+                } else {
+                    controller_state = FINISH;
+                }
                 break;
             }
             case SEND_DATA:
             {
                 // TODO: Convert sensor_reg into buffer/array/vector. Need to think a bit more on this
                 uint16_t sensor_reg_buffer[] = {0xFFFF, 0xFF};
-                send_data(sensor_reg_buffer, 2); // TODO: Need to take care of explicit declaration
+                uint16_t tx_buffer[4] = {0x02, 0x06, 0x10, 0x14};
+                send_data(tx_buffer, 4); // TODO: Need to take care of explicit declaration
                 break;
             }
             case FINISH:
@@ -265,23 +344,30 @@ void iris_update_sensor_i2c_reg(sensor_reg sr[]) {
                 break;
                 //TODO: Send appropriate termination command
             }
-            case ERROR:
+            case ERROR_STATE:
             {
                 break;
-                //TODO: Error handler
+                //TODO: ERROR_STATE handler
             }
         }
     }
 }
 
 void iris_update_current_limit(uint16_t current_limit) {
+    IRIS_return ret;
 
-    while(controller_state != FINISH && controller_state != ERROR) {
+    controller_state = SEND_COMMAND;
+
+    while(controller_state != FINISH && controller_state != ERROR_STATE) {
         switch (controller_state) {
             case SEND_COMMAND:
             {
                 send_command(IRIS_UPDATE_CURRENT_LIMIT);
-                controller_state = SEND_DATA;
+                if (ret == IRIS_ACK) {
+                    controller_state = SEND_DATA;
+                } else {
+                    controller_state = FINISH;
+                }
                 break;
             }
             case SEND_DATA:
@@ -296,10 +382,10 @@ void iris_update_current_limit(uint16_t current_limit) {
                 break;
                 //TODO: Send appropriate termination command
             }
-            case ERROR:
+            case ERROR_STATE:
             {
                 break;
-                //TODO: Error handler
+                //TODO: ERROR_STATE handler
             }
         }
     }

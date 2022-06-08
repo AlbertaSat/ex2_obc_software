@@ -23,35 +23,37 @@
 #endif /* INCLUDE_IRIS_H_ */
 
 // Iris data transfer constants
-#define IMAGE_TRANSFER_SIZE 514 // 512 data bytes + 1 start byte + 1 stop byte
+#define IMAGE_TRANSFER_SIZE 512 // 512 data bytes + 1 start byte + 1 stop byte
 #define START_FLAG 0xFF //TODO: What char?
 #define STOP_FLAG 0xFF //TODO: What char?
 #define MAX_IMAGE_LENGTH 16 // In bytes
 #define MAX_IMAGE_COUNT 1 // In bytes
-#define HOUSEKEEPING_SIZE 10 // In bytes
+#define HOUSEKEEPING_SIZE 23 // In bytes
 
 // Legal Iris commands
-enum iris_commands {
+typedef enum {
     IRIS_TAKE_PIC = 0x10,
     IRIS_GET_IMAGE_LENGTH = 0x20,
-    IRIS_TRANSFER_IMAGE = 0xFF,
+    IRIS_TRANSFER_IMAGE = 0x31,
     IRIS_GET_IMAGE_COUNT = 0x30,
     IRIS_ON_SENSOR_IDLE = 0x40,
     IRIS_OFF_SENSOR_IDLE = 0x41,
     IRIS_SEND_HOUSEKEEPING = 0x51,
     IRIS_UPDATE_SENSOR_I2C_REG = 0x60,
     IRIS_UPDATE_CURRENT_LIMIT = 0x70,
-};
+} IRIS_COMMANDS;
 
-// Athena-Iris SPI communication state machine
-//enum controller_state {
-//    VERIFY,
-//    SEND_COMMAND,
-//    SEND_DATA,
-//    GET_DATA,
-//    FINISH, // May implement this state after getting advice from Iris team
-//    ERROR, // TODO: Potentially used for error handling
-//};
+enum {
+    SEND_COMMAND,
+    SEND_DATA,
+    GET_DATA,
+    FINISH,
+    ERROR_STATE, // TODO: Potentially used for error handling
+} controller_state;
+
+// pre-defined SPI communication constants
+#define ACK_FLAG 0xAA
+#define NACK_FLAG 0x55
 
 typedef struct __attribute__((__packed__)) {
     uint16_t vis_temp;
@@ -60,6 +62,13 @@ typedef struct __attribute__((__packed__)) {
     uint16_t gate_temp;
     uint8_t imagenum;
     uint8_t software_version;
+    uint8_t errornum;
+    uint16_t MAX_5V_voltage;
+    uint16_t MAX_5V_power;
+    uint16_t MAX_3V_voltage;
+    uint16_t MAX_3V_power;
+    uint16_t MIN_5V_voltage;
+    uint16_t MIN_3V_voltage;
 } housekeeping_data;
 
 typedef struct __attribute__((__packed__)) {
@@ -74,5 +83,5 @@ void iris_transfer_image();
 uint8_t iris_get_image_count();
 void iris_toggle_sensor_idle(uint8_t toggle);
 housekeeping_data iris_get_housekeeping();
-void iris_update_sensor_i2c_reg(sensor_reg sr[]);
+void iris_update_sensor_i2c_reg();
 void iris_update_current_limit(uint16_t current_limit);

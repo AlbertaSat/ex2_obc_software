@@ -32,20 +32,23 @@
 
 #include "FreeRTOS.h"
 
+typedef enum {
+    /* Equipment handler level flags     */
+    IRIS_OK = 0,
+    IRIS_ACK = 1,
+    IRIS_NACK = 2,
+    IRIS_ERROR = 3,
+} IRIS_return;
+
 #define TRANSFER_SIZE 1 // In bytes
-
-// pre-defined SPI communication constants
-#define VERIFY_FLAG 0xFF // TODO: Confirm verify char
-#define ACK_FLAG 0xAA
-#define DUMMY_BYTE 0xFF // TODO: Confirm dummy char
-
+#define DUMMY_BYTE 0xFF
 
 void iris_init();
-void spi_send_byte(uint16_t *tx_data);
-void spi_get_byte(uint16_t *rx_data);
-void spi_send_and_get(uint16_t *tx_data, uint16_t *rx_data, uint16_t data_length);
-void spi_delay(uint16_t timeout);
+static void spi_send(uint16_t *tx_data, uint16_t data_length);
+static void spi_get(uint16_t *rx_data, uint16_t data_length);
+static void spi_send_and_get(uint16_t *tx_data, uint16_t *rx_data, uint16_t data_length);
+static void spi_delay(uint16_t timeout);
 
-int send_command(uint16_t command);
-int send_data(uint16_t *tx_buffer, uint16_t data_length);
-uint16_t * get_data(uint16_t data_length); // Data length is obtained from IRIS
+IRIS_return send_command(uint16_t command);
+IRIS_return send_data(uint16_t *tx_buffer, uint16_t data_length);
+IRIS_return get_data(uint16_t *rx_buffer, uint16_t data_length); // Data length is obtained from IRIS
