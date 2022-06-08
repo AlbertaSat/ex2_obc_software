@@ -29,6 +29,9 @@
 #ifndef IS_ATHENA
 #error If IS_FLATSAT is defined then IS_ATHENA must be defined
 #endif
+#ifndef HAS_SD_CARD
+#warning FlatSat testing requires the SD card on Athena to be present
+#endif
 #endif
 
 #define SYSTEM_APP_ID _OBC_APP_ID_
