@@ -351,12 +351,15 @@ TickType_t get_adcs_watchdog_delay(void) {
 #endif
 }
 
-SAT_returnState set_uhf_watchdog_delay(const TickType_t delay) {
+SAT_returnState set_uhf_watchdog_delay(const unsigned int ms_delay) {
 #ifdef UHF_IS_STUBBED
     return SATR_OK;
 #else
+    if(ms_delay < WATCHDOG_MINIMUM_DELAY_MS){
+        return SATR_ERROR;
+    }
     if (xSemaphoreTake(uhf_watchdog_mtx, mutex_timeout) == pdPASS) {
-        uhf_prv_watchdog_delay = delay;
+        uhf_prv_watchdog_delay = pdMS_TO_TICKS(ms_delay);
         xSemaphoreGive(uhf_watchdog_mtx);
         return SATR_OK;
     }
@@ -364,12 +367,15 @@ SAT_returnState set_uhf_watchdog_delay(const TickType_t delay) {
 #endif
 }
 
-SAT_returnState set_sband_watchdog_delay(const unsigned int delay) {
+SAT_returnState set_sband_watchdog_delay(const unsigned int ms_delay) {
 #ifdef SBAND_IS_STUBBED
     return SATR_OK;
 #else
+    if(ms_delay < WATCHDOG_MINIMUM_DELAY_MS){
+        return SATR_ERROR;
+    }
     if (xSemaphoreTake(sband_watchdog_mtx, mutex_timeout) == pdPASS) {
-        sband_prv_watchdog_delay = pdMS_TO_TICKS(delay);
+        sband_prv_watchdog_delay = pdMS_TO_TICKS(ms_delay);
         xSemaphoreGive(sband_watchdog_mtx);
         return SATR_OK;
     }
@@ -377,12 +383,15 @@ SAT_returnState set_sband_watchdog_delay(const unsigned int delay) {
 #endif
 }
 
-SAT_returnState set_charon_watchdog_delay(const unsigned int delay) {
+SAT_returnState set_charon_watchdog_delay(const unsigned int ms_delay) {
 #ifdef CHARON_IS_STUBBED
     return SATR_OK;
 #else
+    if(ms_delay < WATCHDOG_MINIMUM_DELAY_MS){
+        return SATR_ERROR;
+    }
     if (xSemaphoreTake(charon_watchdog_mtx, mutex_timeout) == pdPASS) {
-        charon_prv_watchdog_delay = pdMS_TO_TICKS(delay);
+        charon_prv_watchdog_delay = pdMS_TO_TICKS(ms_delay);
         xSemaphoreGive(charon_watchdog_mtx);
         return SATR_OK;
     }
@@ -390,12 +399,15 @@ SAT_returnState set_charon_watchdog_delay(const unsigned int delay) {
 #endif
 }
 
-SAT_returnState set_adcs_watchdog_delay(const unsigned int delay) {
+SAT_returnState set_adcs_watchdog_delay(const unsigned int ms_delay) {
 #ifdef ADCS_IS_STUBBED
     return SATR_OK;
 #else
+    if(ms_delay < WATCHDOG_MINIMUM_DELAY_MS){
+        return SATR_ERROR;
+    }
     if (xSemaphoreTake(adcs_watchdog_mtx, mutex_timeout) == pdPASS) {
-        adcs_prv_watchdog_delay = pdMS_TO_TICKS(delay);
+        adcs_prv_watchdog_delay = pdMS_TO_TICKS(ms_delay);
         xSemaphoreGive(adcs_watchdog_mtx);
         return SATR_OK;
     }
