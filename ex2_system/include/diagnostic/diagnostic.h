@@ -23,6 +23,7 @@
 #include "main/system.h"
 
 #define STUBBED_WATCHDOG_DELAY 42
+#define WATCHDOG_MINIMUM_DELAY_MS 30000
 
 SAT_returnState start_diagnostic_daemon(void);
 TickType_t get_uhf_watchdog_delay(void);
