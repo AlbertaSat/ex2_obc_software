@@ -48,8 +48,10 @@
 #define MOCK_RTC_TASK_PRIO (configMAX_PRIORITIES - 1)
 #define TASK_MANAGER_PRIO (tskIDLE_PRIORITY + 3)
 
-#if defined(IS_3U) && defined(IS_2U)
-#error "Can not be both 2U and 3U sized satellites"
+#if (defined(IS_EXALTA2) && defined(IS_AURORASAT)) || (defined(IS_EXALTA2) && defined(IS_YUKONSAT)) || (defined(IS_AURORASAT) && defined(IS_YUKONSAT))
+#error "Too many satellites defined!"
+#elif !defined(IS_EXALTA2) && !defined(IS_YUKONSAT) && !defined(IS_AURORASAT)
+#error "Need to define a satellite!"
 #endif
 
 #if defined(IS_ATHENA)
@@ -57,9 +59,9 @@
 #define ADCS_SCI sciREG3 // UART4
 #define DFGM_SCI sciREG4 // UART1
 #define UHF_SCI CSP_SCI  // UART2
-#if defined(IS_3U)
+#if defined(IS_EXALTA2)
 #define GPS_SCI sciREG1 // UART3
-#elif defined(IS_2U)
+#elif defined(IS_AURORASAT) || defined(IS_YUKONSAT)
 #define PAYLOAD_SCI sciREG1 // UART3
 #endif
 #else

@@ -100,6 +100,7 @@
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEFINE.1282553538" name="Pre-define NAME (--define, -D)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEFINE" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="SBAND_COMMERCIAL_FREQUENCY"/>
+									<listOptionValue builtIn="false" value="IS_EXALTA2"/>
 									<listOptionValue builtIn="false" value="DFGM_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="CSP_FREERTOS"/>
 									<listOptionValue builtIn="false" value="SBAND_IS_STUBBED"/>
@@ -107,7 +108,6 @@
 									<listOptionValue builtIn="false" value="UHF_USE_I2C_CMDS"/>
 									<listOptionValue builtIn="false" value="SYSTEM_APP_ID=_OBC_APP_ID_"/>
 									<listOptionValue builtIn="false" value="EPS_IS_STUBBED"/>
-									<listOptionValue builtIn="false" value="IS_3U"/>
 									<listOptionValue builtIn="false" value="ADCS_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="PAYLOAD_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="UHF_IS_STUBBED"/>
@@ -419,7 +419,6 @@
 									<listOptionValue builtIn="false" value="DFGM_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="EPS_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="CHARON_IS_STUBBED"/>
-									<listOptionValue builtIn="false" value="IS_3U"/>
 									<listOptionValue builtIn="false" value="ADCS_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="UHF_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="WATCHDOG_IS_STUBBED"/>
@@ -719,7 +718,6 @@
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEFINE.1394957072" name="Pre-define NAME (--define, -D)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEFINE" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="SYSTEM_APP_ID=_OBC_APP_ID_"/>
-									<listOptionValue builtIn="false" value="IS_3U"/>
 									<listOptionValue builtIn="false" value="IS_ATHENA"/>
 									<listOptionValue builtIn="false" value="ADCS_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="UHF_IS_STUBBED"/>
@@ -1332,7 +1330,6 @@
 									<listOptionValue builtIn="false" value="UHF_USE_I2C_CMDS"/>
 									<listOptionValue builtIn="false" value="SYSTEM_APP_ID=_OBC_APP_ID_"/>
 									<listOptionValue builtIn="false" value="EPS_IS_STUBBED"/>
-									<listOptionValue builtIn="false" value="IS_3U"/>
 									<listOptionValue builtIn="false" value="ADCS_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="PAYLOAD_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="UHF_IS_STUBBED"/>
