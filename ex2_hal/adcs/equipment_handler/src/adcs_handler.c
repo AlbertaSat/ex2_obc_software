@@ -30,6 +30,7 @@
 #include "adcs_io.h"
 #include "adcs_types.h"
 
+
 #define USE_UART
 //#define USE_I2C
 
@@ -144,6 +145,7 @@ void get_xyz(xyz *measurement, uint8_t *address, float coef) {
     measurement->y = coef * uint82int16(*(address + 2), *(address + 3));
     measurement->z = coef * uint82int16(*(address + 4), *(address + 5));
 }
+
 
 /**
  * @brief
