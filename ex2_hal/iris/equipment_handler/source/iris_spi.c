@@ -89,12 +89,12 @@ IRIS_return send_command(uint16_t command) {
     uint16_t tx_dummy = DUMMY_BYTE;
 
     NSS_LOW();
-    spi_delay(10000);
+    spi_delay(2727);
     spi_send(&command, 1);
-    spi_delay(10000);
+    spi_delay(2727);
     spi_send(&tx_dummy, 1);
     spi_get(&rx_data, 1);
-    spi_delay(10000);
+    spi_delay(2722);
     NSS_HIGH();
 
     if (rx_data == ACK_FLAG) {
@@ -149,8 +149,27 @@ IRIS_return get_data(uint16_t *rx_buffer, uint16_t data_length) {
     spi_send_and_get(&tx_dummy, rx_buffer, data_length);
     spi_delay(1000);
     NSS_HIGH();
+    spi_delay(1000);
 
 //    free(dummy_buffer);
 
     return IRIS_OK;
 }
+
+//IRIS_return get_image_data(uint16_t *rx_buffer, uint16_t data_length, uint16_t index) {
+//    // Transmit dummy data and receive incoming data
+//    uint16_t tx_dummy = 0xFF;
+//    uint16_t *dummy_buffer;
+//
+//    NSS_LOW();
+//    spi_delay(1000);
+//    spi_send(&index, 1); // index is a 16 bit number
+//    spi_delay(10000);
+//    spi_send_and_get(&tx_dummy, rx_buffer, data_length);
+//    spi_delay(1000);
+//    NSS_HIGH();
+//
+////    free(dummy_buffer);
+//
+//    return IRIS_OK;
+//}

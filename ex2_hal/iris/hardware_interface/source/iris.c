@@ -137,7 +137,7 @@ void iris_transfer_image(uint32_t image_length) {
             }
             case GET_DATA: // Get image data in chunks/blocks
             {
-                uint16_t * image_data_buffer = (uint16_t*) calloc(MAX_IMAGE_LENGTH, sizeof(uint16_t));
+                uint16_t * image_data_buffer = (uint16_t*) calloc(IMAGE_TRANSFER_SIZE, sizeof(uint16_t));
                 num_transfer = (IMAGE_TRANSFER_SIZE + image_length) / IMAGE_TRANSFER_SIZE; // Ceiling division
                 for (uint32_t count_transfer = 0; count_transfer < num_transfer; count_transfer++) {
                     ret = get_data(image_data_buffer, IMAGE_TRANSFER_SIZE);
@@ -145,15 +145,16 @@ void iris_transfer_image(uint32_t image_length) {
                     // Or just get the data and send it forward to the next stage. Prefer not to have too
                     // much data processing in driver code
 
-                    for (int i = 0; i < MAX_IMAGE_LENGTH; i++) {
-                        if (image_data_buffer[i] != i) {
-                            i = 0;
-                            return;
-                        }
-                    }
+//                    for (int i = 0; i < IMAGE_TRANSFER_SIZE; i++) {
+//                        if (image_data_buffer[i] != i) {
+//                            i = 0;
+//                            //return;
+//                        }
+//                    }
+//
+//                    vTaskDelay(10);
 
-
-                    memset(image_data_buffer, 0, MAX_IMAGE_LENGTH);
+                    memset(image_data_buffer, 0, MAX_IMAGE_LENGTH + 1);
                 }
                 free(image_data_buffer);
                 controller_state = FINISH;

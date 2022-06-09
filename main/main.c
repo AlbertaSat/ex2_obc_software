@@ -173,8 +173,8 @@ void iris_spi_test(void * pvParameters) {
         //iris_take_pic();
         RESET_IRIS();
         //iris_get_image_length();
-        iris_get_housekeeping();
-        //iris_transfer_image(100000);
+        //iris_get_housekeeping();
+        iris_transfer_image(100000);
         //iris_update_sensor_i2c_reg();
         vTaskDelay(100);
     }
