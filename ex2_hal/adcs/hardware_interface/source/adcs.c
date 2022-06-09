@@ -140,6 +140,232 @@ ADCS_returnState HAL_ADCS_reset_upload_block() {
 #endif
 }
 
+int HAL_ADCS_firmware_upload(uint8_t file_dest, uint8_t block_size) {
+#ifdef ADCS_IS_STUBBED
+    return IS_STUBBED_A;
+#else
+    // ADCS firmware is uploaded in 20kB blocks to the external flash, and each 20kB is uploaded in 20 bytes packets
+    // There are 7 external flashes, each with a size of 512kB
+
+    //---------------------------------------Initialization----------------------------------------//
+    ADCS_returnState state;
+    // send initiate file upload
+    state = ADCS_initiate_file_upload(file_dest, 0);
+    if (state != ADCS_OK) {
+        sys_log(ERROR, "HAL_ADCS_firmware_upload failed at ADCS_initiate_file_upload, state: %d", state);
+        return state;
+    }
+    // wait for the flash erase procedure to finish
+    vTaskDelay(8000);
+    // check if the flash erase is complete
+    bool init_busy_flag = TRUE;
+    int try_again = 0;
+    while (init_busy_flag == TRUE) {
+        state = ADCS_get_init_upload_stat(&init_busy_flag);
+        try_again++;
+        vTaskDelay(1000);
+        if (try_again > 5) {
+            sys_log(ERROR, "HAL_ADCS_firmware_upload failed at ADCS_get_init_upload_stat, flash was not erased");
+            return -1;
+        }
+    }
+    //-----------------------------------------Upload------------------------------------------//
+    // open firware file from reliance edge
+    int32_t fout, f_stat, f_read;
+    fout = red_open(ADCS_Firmware, RED_O_RDWR);
+    if (fout < 0) {
+        sys_log(ERROR, "ADCS firmware file not found, upload firmware");
+        return ADCS_FIRMWARE_NA;
+    }
+    // read the size of the firmware file
+    REDSTAT firmware_stat;
+    f_stat = red_fstat(fout, &firmware_stat);
+    if (firmware_stat.st_size <= 0) {
+        sys_log(ERROR, "ADCS firmware size is <= 0, re-load firmware");
+        return ADCS_FIRMWARE_NA;
+    }
+    // close file
+    red_close(fout);
+    // divide the firmware into 20kB blocks
+    int num_blocks = firmware_stat.st_size / FIRMWARE_BLOCK_SIZE;
+    if (num_blocks > 0) {
+        for (int i = 0; i < num_blocks; i++) {
+            // reset upload block, ie. reset the hole-map
+            state = ADCS_reset_upload_block(void);
+            if (state != ADCS_OK) {
+                sys_log(ERROR, "HAL_ADCS_firmware_upload failed at ADCS_reset_upload_block, state: %d", state);
+                return state;
+            }
+            // file upload packet
+            char *firmware_buff = (char *)calloc(1, FIRMWARE_BLOCK_SIZE);
+            if (firmware_buff == NULL) {
+                sys_log(ERROR, "ADCS firmware_buff calloc failed, out of memory");
+                return CALLOC_FAILED;
+            }
+            // open firware file from reliance edge
+            fout = red_open(ADCS_Firmware, RED_O_RDWR);
+            if (fout < 0) {
+                sys_log(ERROR, "ADCS firmware file not found, upload firmware");
+                free(firmware_buff);
+                return ADCS_FIRMWARE_NA;
+            }
+            red_lseek(fout, i * FIRMWARE_BLOCK_SIZE, RED_SEEK_SET);
+            f_read = red_read(fout, firmware_buff, FIRMWARE_BLOCK_SIZE);
+            if (f_read != FIRMWARE_BLOCK_SIZE) {
+                sys_log(ERROR, "ADCS firmware red_read failed, err #: %d", (int)red_errno);
+                free(firmware_buff);
+                return RED_ERR;
+            }
+            // close file
+            red_close(fout);
+            // divide the firmware block into 20 byte packets
+            uint16_t num_packets = FIRMWARE_BLOCK_SIZE / 20;
+            // TODO: find out if the first packet should be 0, or 1
+            for (int packet_ctr = 0; packet_ctr < num_packets, packet_ctr++) {
+                // upload firmware buffer to ADCS
+                HAL_ADCS_file_upload_packet(packet_ctr, firmware_buff + packet_ctr * 20);
+            }
+            // check hole map for missed packets
+            uint8_t *hole_map = (uint8_t *)calloc(16, sizeof(uint8_t));
+            if (hole_map == NULL) {
+                sys_log(ERROR, "ADCS firmware aborted due to hole_map calloc failure, out of memory");
+                free(firmware_buff);
+                return CALLOC_FAILED;
+            }
+            int hole_map_complete = 0;
+            while (hole_map_complete == 0) {
+                hole_map_complete = 1;
+                for (int j = 1; j <= 8; j++) {
+                    HAL_ADCS_get_hole_map(hole_map + (j - 1) * 2, j);
+                }
+                for (int j = 0; j < 1000; j++) {
+                    if ((holemap[j >> 3] & (1 << (j & 0x07))) == 0) {
+                        // resend missed packet
+                        HAL_ADCS_file_upload_packet(j, firmware_buff + j * 20);
+                        hole_map_complete = 0;
+                    }
+                }
+            }
+            // send finalized block
+            HAL_ADCS_finalize_upload_block(file_dest, (uint32_t)i*FIRMWARE_BLOCK_SIZE, FIRMWARE_BLOCK_SIZE);
+            // upload block complete?
+            bool upload_busy, upload_err;
+            upload_busy = 1;
+            upload_err = 0;
+            while (upload_busy != 0) {
+                ADCS_get_finalize_upload_stat(&upload_busy, &upload_err);
+                if (upload_err == 1) {
+                    sys_log(ERROR, "ADCS_get_finalize_upload_stat error, upload failed");
+                    free(firmware_buff);
+                    free(hole_map);
+                    return UPLOAD_FAILED;
+                }
+                vTaskDelay(500);
+            }
+            free(firmware_buff);
+            free(hole_map);
+        }
+    }
+
+    // upload any remaining block smaller than 20kB
+    int remaining_block_size = firmware_stat.st_size % FIRMWARE_BLOCK_SIZE;
+    if (remaining_block_size != 0) {
+        int remaining_packets = remaining_block_size / 20;
+        // reset upload block, ie. reset the hole-map
+        state = ADCS_reset_upload_block(void);
+        if (state != ADCS_OK) {
+            sys_log(ERROR, "HAL_ADCS_firmware_upload failed at ADCS_reset_upload_block, state: %d", state);
+            return state;
+        }
+        // file upload packet
+        char *firmware_buff = (char *)calloc(1, remaining_block_size);
+        if (firmware_buff == NULL) {
+            sys_log(ERROR, "ADCS firmware_buff calloc failed, out of memory");
+            return CALLOC_FAILED;
+        }
+        // open firware file from reliance edge
+        fout = red_open(ADCS_Firmware, RED_O_RDWR);
+        if (fout < 0) {
+            sys_log(ERROR, "ADCS firmware file not found, upload firmware");
+            free(firmware_buff);
+            return ADCS_FIRMWARE_NA;
+        }
+        red_lseek(fout, num_blocks * FIRMWARE_BLOCK_SIZE, RED_SEEK_SET);
+        f_read = red_read(fout, firmware_buff, remaining_block_size);
+        if (f_read != FIRMWARE_BLOCK_SIZE) {
+            sys_log(ERROR, "ADCS firmware red_read failed, err #: %d", (int)red_errno);
+            free(firmware_buff);
+            return RED_ERR;
+        }
+        // close file
+        red_close(fout);
+        // divide the firmware block into 20 byte packets
+        uint16_t num_packets = remaining_block_size / 20;
+        // TODO: find out if the first packet should be 0, or 1
+        int packet_ctr = 0;
+        for (packet_ctr < num_packets) {
+            // upload firmware buffer to ADCS
+            HAL_ADCS_file_upload_packet(packet_ctr, firmware_buff + packet_ctr * 20);
+            packet_ctr++;
+        }
+        // upload remaining bytes less than 20 bytes
+        uint16_t remaining_bytes = remaining_block_size % 20;
+        if (remaining_bytes != 0) {
+            HAL_ADCS_file_upload_packet(packet_ctr, firmware_buff + num_packets * 20);
+            packet_ctr++;
+        }
+        // check hole map for missed packets
+        int hole_map_num;
+        if (packet_ctr % (16 * 8) != 0) {
+            hole_map_num = packet_ctr / (16 * 8) + 1;
+        }
+        else {
+            hole_map_num = packet_ctr / (16 * 8);
+        }
+        uint8_t *hole_map = (uint8_t *)calloc(hole_map_num*2, sizeof(uint8_t));
+        if (hole_map == NULL) {
+            sys_log(ERROR, "ADCS firmware aborted due to hole_map calloc failure, out of memory");
+            free(firmware_buff);
+            return CALLOC_FAILED;
+        }
+        int hole_map_complete = 0;
+        while (hole_map_complete == 0) {
+            hole_map_complete = 1;
+            for (int j = 1; j <= hole_map_num; j++) {
+                HAL_ADCS_get_hole_map(hole_map + (j - 1) * 2, j);
+            }
+            for (int j = 0; j < packet_ctr; j++) {
+                if ((holemap[j >> 3] & (1 << (j & 0x07))) == 0) {
+                    // resend missed packet
+                    HAL_ADCS_file_upload_packet(j, firmware_buff + j * 20);
+                    hole_map_complete = 0;
+                }
+            }
+        }
+        // send finalized block
+        HAL_ADCS_finalize_upload_block(file_dest, num_blocks*FIRMWARE_BLOCK_SIZE, remaining_block_size);
+        // upload block complete?
+        bool upload_busy, upload_err;
+        upload_busy = 1;
+        upload_err = 0;
+        while (upload_busy != 0) {
+            ADCS_get_finalize_upload_stat(&upload_busy, &upload_err);
+            if (upload_err == 1) {
+                sys_log(ERROR, "ADCS_get_finalize_upload_stat error, upload failed");
+                free(firmware_buff);
+                free(hole_map);
+                return UPLOAD_FAILED;
+            }
+            vTaskDelay(500);
+        }
+        free(firmware_buff);
+        free(hole_map);
+    }
+
+    return ADCS_OK;
+#endif
+}
+
 ADCS_returnState HAL_ADCS_reset_file_list_read_pointer() {
 #if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;

@@ -30,6 +30,7 @@
 #include "adcs_io.h"
 #include "adcs_types.h"
 
+
 #define USE_UART
 //#define USE_I2C
 
@@ -144,6 +145,7 @@ void get_xyz(xyz *measurement, uint8_t *address, float coef) {
     measurement->y = coef * uint82int16(*(address + 2), *(address + 3));
     measurement->z = coef * uint82int16(*(address + 4), *(address + 5));
 }
+
 
 /**
  * @brief
@@ -578,15 +580,16 @@ ADCS_returnState ADCS_initiate_file_upload(uint8_t file_dest, uint8_t block_size
  * @param packet_number
  * 		Packet Number
  * @param file_bytes
- * 		File Bytes
+ * 		max of 20 bytes allowed per transfer
  * @return
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_file_upload_packet(uint16_t packet_number, char *file_bytes) {
     uint8_t command[23];
     command[0] = FILE_UPLOAD_PACKET_ID;
-    command[1] = packet_number & 0xFF;
-    command[2] = packet_number >> 8;
+    memcpy(&command[1], &packet_number, 2);
+    //command[1] = packet_number & 0xFF;
+    //command[2] = packet_number >> 8;
     memcpy(&command[3], file_bytes, 20);
     return adcs_telecommand(command, sizeof(command));
 }
@@ -940,7 +943,7 @@ ADCS_returnState ADCS_get_finalize_upload_stat(bool *busy, bool *err) {
     ADCS_returnState state;
     state = adcs_telemetry(FINIALIZE_UPLOAD_STAT_ID, telemetry, 1);
     *busy = telemetry[0] & 0x1;
-    *busy = telemetry[0] & 0x2;
+    *err = telemetry[0] & 0x2;
     return state;
 }
 
@@ -3340,32 +3343,26 @@ ADCS_returnState ADCS_get_full_config(adcs_config *config) {
     config->cubesense.cam1_area.area2.x.max = (telemetry[81] << 8) | telemetry[80];
     config->cubesense.cam1_area.area2.y.min = (telemetry[83] << 8) | telemetry[82];
     config->cubesense.cam1_area.area2.y.max = (telemetry[85] << 8) | telemetry[84];
-
     config->cubesense.cam1_area.area3.x.min = (telemetry[87] << 8) | telemetry[86];
     config->cubesense.cam1_area.area3.x.max = (telemetry[89] << 8) | telemetry[88];
     config->cubesense.cam1_area.area3.y.min = (telemetry[91] << 8) | telemetry[90];
     config->cubesense.cam1_area.area3.y.max = (telemetry[93] << 8) | telemetry[92];
-
     config->cubesense.cam1_area.area4.x.min = (telemetry[95] << 8) | telemetry[94];
     config->cubesense.cam1_area.area4.x.max = (telemetry[97] << 8) | telemetry[96];
     config->cubesense.cam1_area.area4.y.min = (telemetry[99] << 8) | telemetry[98];
     config->cubesense.cam1_area.area4.y.max = (telemetry[101] << 8) | telemetry[100];
-
     config->cubesense.cam1_area.area5.x.min = (telemetry[103] << 8) | telemetry[102];
     config->cubesense.cam1_area.area5.x.max = (telemetry[105] << 8) | telemetry[104];
     config->cubesense.cam1_area.area5.y.min = (telemetry[107] << 8) | telemetry[106];
     config->cubesense.cam1_area.area5.y.max = (telemetry[109] << 8) | telemetry[108];
-
     config->cubesense.cam2_area.area1.x.min = (telemetry[111] << 8) | telemetry[110];
     config->cubesense.cam2_area.area1.x.max = (telemetry[113] << 8) | telemetry[112];
     config->cubesense.cam2_area.area1.y.min = (telemetry[115] << 8) | telemetry[114];
     config->cubesense.cam2_area.area1.y.max = (telemetry[117] << 8) | telemetry[116];
-
     config->cubesense.cam2_area.area2.x.min = (telemetry[119] << 8) | telemetry[118];
     config->cubesense.cam2_area.area2.x.max = (telemetry[121] << 8) | telemetry[120];
     config->cubesense.cam2_area.area2.y.min = (telemetry[123] << 8) | telemetry[122];
     config->cubesense.cam2_area.area2.y.max = (telemetry[125] << 8) | telemetry[124];
-
     config->cubesense.cam2_area.area3.x.min = (telemetry[127] << 8) | telemetry[126];
     config->cubesense.cam2_area.area3.x.max = (telemetry[129] << 8) | telemetry[128];
     config->cubesense.cam2_area.area3.y.min = (telemetry[131] << 8) | telemetry[130];

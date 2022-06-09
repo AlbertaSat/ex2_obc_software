@@ -27,6 +27,7 @@
 #include "adcs_io.h"
 #include "redposix.h"
 #include "FreeRTOS.h"
+#include "logger.h"
 
 // Structs
 typedef struct __attribute__((packed)) {

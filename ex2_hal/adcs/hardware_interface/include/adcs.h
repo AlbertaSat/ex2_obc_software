@@ -25,6 +25,21 @@
 #define ADCS_DOWNLOAD_QUEUE_SIZE
 #define ADCS_QUEUE_GET_TASK_SIZE (configMINIMAL_STACK_SIZE + 256)
 #define ADCS_QUEUE_GET_TASK_PRIO (configMAX_PRIORITIES - 1)
+#define ADCS_FIRMWARE_NA -2
+#define CALLOC_FAILED -3
+#define RED_ERR -4
+#define UPLOAD_FAILED -5
+#define FIRMWARE_BLOCK_SIZE 20000
+
+// file destinations
+#define ADCS_EEPROM 2
+#define FLASH_PRGM_1 3
+#define FLASH_PRGM_2 4
+#define FLASH_PRGM_3 5
+#define FLASH_PRGM_4 6
+#define FLASH_PRGM_5 7
+#define FLASH_PRGM_6 8
+#define FLASH_PRGM_7 9
 
 typedef struct __attribute__((packed)) {
     // xyz Estimated_Angular_Rate;
@@ -250,6 +265,8 @@ ADCS_returnState HAL_ADCS_file_upload_packet(uint16_t packet_number, char *file_
 ADCS_returnState HAL_ADCS_finalize_upload_block(uint8_t file_dest, uint32_t offset, uint16_t block_length);
 ADCS_returnState HAL_ADCS_reset_upload_block();
 ADCS_returnState HAL_ADCS_reset_file_list_read_pointer();
+// TODO: determine the correct args for this function
+int HAL_ADCS_firmware_upload(uint8_t file_dest, uint8_t block_size);
 ADCS_returnState HAL_ADCS_initiate_download_burst(uint8_t msg_length, bool ignore_hole_map);
 
 // Common Telemetry
