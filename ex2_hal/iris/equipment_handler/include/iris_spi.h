@@ -33,22 +33,20 @@
 #include "FreeRTOS.h"
 
 typedef enum {
-    /* Equipment handler level flags     */
-    IRIS_OK = 0,
-    IRIS_ACK = 1,
-    IRIS_NACK = 2,
-    IRIS_ERROR = 3,
-} IRIS_return;
+    IRIS_ACK = 0,
+    IRIS_NACK = 1,
+    IRIS_LL_ERROR = 2,
+} IrisLowLevelReturn;
 
 #define TRANSFER_SIZE 1 // In bytes
 #define DUMMY_BYTE 0xFF
 
-void iris_init();
+void iris_spi_init();
 static void spi_send(uint16_t *tx_data, uint16_t data_length);
 static void spi_get(uint16_t *rx_data, uint16_t data_length);
 static void spi_send_and_get(uint16_t *tx_data, uint16_t *rx_data, uint16_t data_length);
 static void spi_delay(uint16_t timeout);
 
-IRIS_return send_command(uint16_t command);
-IRIS_return send_data(uint16_t *tx_buffer, uint16_t data_length);
-IRIS_return get_data(uint16_t *rx_buffer, uint16_t data_length); // Data length is obtained from IRIS
+IrisLowLevelReturn send_command(uint16_t command);
+IrisLowLevelReturn send_data(uint16_t *tx_buffer, uint16_t data_length);
+IrisLowLevelReturn get_data(uint16_t *rx_buffer, uint16_t data_length); // Data length is obtained from IRIS

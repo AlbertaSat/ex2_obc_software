@@ -164,17 +164,18 @@ void flatsat_test(void *pvParameters) {
 TaskHandle_t iris_spi_handle;
 
 void iris_spi_test(void * pvParameters) {
-    iris_init();
+    iris_spi_init();
     //iris_take_pic();
+
+    iris_housekeeping_data hk_data;
 
     for(;;) {
 //        spi_write_read(1, &tx_data, rx_data);
 //        vTaskDelay(pdMS_TO_TICKS( 1000UL ));
         //iris_take_pic();
-        RESET_IRIS();
         //iris_get_image_length();
-        //iris_get_housekeeping();
-        iris_transfer_image(100000);
+        //iris_get_housekeeping(hk_data);
+        //iris_transfer_image(100000);
         //iris_update_sensor_i2c_reg();
         vTaskDelay(100);
     }

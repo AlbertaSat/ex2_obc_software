@@ -26,9 +26,14 @@
 #define IMAGE_TRANSFER_SIZE 512 // 512 data bytes + 1 start byte + 1 stop byte
 #define START_FLAG 0xFF //TODO: What char?
 #define STOP_FLAG 0xFF //TODO: What char?
-#define MAX_IMAGE_LENGTH 16 // In bytes
+#define MAX_IMAGE_LENGTH 3 // In bytes
 #define MAX_IMAGE_COUNT 1 // In bytes
 #define HOUSEKEEPING_SIZE 23 // In bytes
+
+typedef enum {
+    IRIS_HAL_OK = 0,
+    IRIS_HAL_ERROR = 1,
+} IrisHALReturn;
 
 // Legal Iris commands
 typedef enum {
@@ -42,6 +47,11 @@ typedef enum {
     IRIS_UPDATE_SENSOR_I2C_REG = 0x60,
     IRIS_UPDATE_CURRENT_LIMIT = 0x70,
 } IRIS_COMMANDS;
+
+typedef enum {
+    IRIS_SENSOR_OFF = 0,
+    IRIS_SENSOR_ON = 1,
+} IRIS_SENSOR_TOOGGLE;
 
 enum {
     SEND_COMMAND,
@@ -69,7 +79,7 @@ typedef struct __attribute__((__packed__)) {
     uint16_t MAX_3V_power;
     uint16_t MIN_5V_voltage;
     uint16_t MIN_3V_voltage;
-} housekeeping_data;
+} iris_housekeeping_data;
 
 typedef struct __attribute__((__packed__)) {
     uint16_t sensor_reg_addr;
@@ -77,11 +87,11 @@ typedef struct __attribute__((__packed__)) {
 } sensor_reg;
 
 // Command functions prototypes
-void iris_take_pic();
-uint32_t iris_get_image_length();
-void iris_transfer_image();
-uint8_t iris_get_image_count();
-void iris_toggle_sensor_idle(uint8_t toggle);
-housekeeping_data iris_get_housekeeping();
-void iris_update_sensor_i2c_reg();
-void iris_update_current_limit(uint16_t current_limit);
+IrisHALReturn iris_take_pic();
+IrisHALReturn iris_get_image_length(uint32_t *image_length);
+IrisHALReturn iris_transfer_image();
+IrisHALReturn iris_get_image_count(uint8_t *image_count);
+IrisHALReturn iris_toggle_sensor_idle(uint8_t toggle);
+IrisHALReturn iris_get_housekeeping(iris_housekeeping_data hk_data);
+IrisHALReturn iris_update_sensor_i2c_reg();
+IrisHALReturn iris_update_current_limit(uint16_t current_limit);
