@@ -199,7 +199,7 @@ IrisHALReturn iris_transfer_image(uint32_t image_length) {
  * @return
  *   Returns the number of images stored on Iris
  **/
-IrisHALReturn iris_get_image_count(uint8_t *image_count) {
+IrisHALReturn iris_get_image_count(uint16_t *image_count) {
     IrisLowLevelReturn ret;
 
     controller_state = SEND_COMMAND;
@@ -218,7 +218,8 @@ IrisHALReturn iris_get_image_count(uint8_t *image_count) {
             }
             case GET_DATA:
             {
-                //TODO: write code to receive image count
+                ret = get_data(image_count, MAX_IMAGE_COUNT);
+                controller_state = FINISH;
                 break;
             }
             case FINISH:
