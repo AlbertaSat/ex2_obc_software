@@ -13,6 +13,7 @@
  */
 
 #include "FreeRTOS.h"
+#include <string.h>
 #include <stdlib.h>
 
 #include "iris.h"
@@ -91,17 +92,19 @@ IrisHALReturn iris_get_image_length(uint32_t *image_length) {
             }
             case GET_DATA:
             {
-                uint16_t * image_length_buffer = (uint16_t*) calloc(MAX_IMAGE_LENGTH + 1, sizeof(uint16_t));
+                uint16_t * image_length_buffer = (uint16_t*) pvPortMalloc(MAX_IMAGE_LENGTH * sizeof(uint16_t));
+                memset(image_length_buffer, 0, MAX_IMAGE_LENGTH);
                 if (image_length_buffer == NULL) {
                     ex2_log("Failed attempt to dynamically allocate memory under iris get image length");
                     return IRIS_HAL_ERROR;;
                 }
-                ret = get_data(image_length_buffer, MAX_IMAGE_LENGTH + 1);
+                ret = get_data(image_length_buffer, MAX_IMAGE_LENGTH);
                 if (ret == IRIS_HAL_OK) {
                     controller_state = FINISH;
                 } else {
                     controller_state = ERROR_STATE;
                 }
+                /* It is expected that the first byte in the buffer will be the LSB */
                 *(image_length) = (uint32_t)((uint8_t)image_length_buffer[2]<<16 | (uint8_t)image_length_buffer[1]<<8 | (uint8_t)image_length_buffer[0]); // Concatenate image_length_buffer
 
                 free(image_length_buffer);
@@ -154,7 +157,8 @@ IrisHALReturn iris_transfer_image(uint32_t image_length) {
             }
             case GET_DATA: // Get image data in chunks/blocks
             {
-                uint16_t * image_data_buffer = (uint16_t*) calloc(IMAGE_TRANSFER_SIZE, sizeof(uint16_t));
+                uint16_t * image_data_buffer = (uint16_t*) pvPortMalloc(IMAGE_TRANSFER_SIZE * sizeof(uint16_t));
+                memset(image_data_buffer, 0, IMAGE_TRANSFER_SIZE);
                 if (image_data_buffer == NULL) {
                     ex2_log("Failed attempt to dynamically allocate memory under iris get image data");
                     return IRIS_HAL_ERROR;;
@@ -166,7 +170,7 @@ IrisHALReturn iris_transfer_image(uint32_t image_length) {
                     // Or just get the data and send it forward to the next stage. Prefer not to have too
                     // much data processing in driver code
 
-                    //memset(image_data_buffer, 0, MAX_IMAGE_LENGTH);
+                    memset(image_data_buffer, 0, IMAGE_TRANSFER_SIZE);
                 }
                 free(image_data_buffer);
                 controller_state = FINISH;
@@ -307,7 +311,8 @@ IrisHALReturn iris_get_housekeeping(iris_housekeeping_data hk_data) {
             case GET_DATA:
             {
 
-                uint16_t * housekeeping_buffer = (uint16_t*) calloc(HOUSEKEEPING_SIZE, sizeof(uint16_t));
+                uint16_t * housekeeping_buffer = (uint16_t*) pvPortMalloc(HOUSEKEEPING_SIZE * sizeof(uint16_t));
+                memset(housekeeping_buffer, 0, HOUSEKEEPING_SIZE);
                 if (housekeeping_buffer == NULL) {
                     ex2_log("Failed attempt to dynamically allocate memory under iris get housekeeping");
                     return IRIS_HAL_ERROR;;
