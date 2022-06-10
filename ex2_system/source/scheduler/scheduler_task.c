@@ -64,7 +64,7 @@ SAT_returnState vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
         // initialize buffer to read the commands
         uint32_t number_of_cmds = scheduler_stat.st_size / sizeof(scheduled_commands_unix_t);
         scheduled_commands_unix_t *cmds = (scheduled_commands_unix_t *)pvPortMalloc(number_of_cmds * sizeof(scheduled_commands_unix_t));
-        memset(cmds, int 0, number_of_cmds * sizeof(scheduled_commands_unix_t));
+        memset(cmds, 0, number_of_cmds * sizeof(scheduled_commands_unix_t));
         if (number_of_cmds > 0 && cmds == NULL) {
             sys_log(ERROR, "pvPortMalloc for cmds failed in vSchedulerHandler, out of memory");
             xSemaphoreGive(scheduleSemaphore);
@@ -172,7 +172,7 @@ SAT_returnState vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
                 // initialize buffer to read the commands
                 uint32_t updated_num_cmds = scheduler_stat.st_size / sizeof(scheduled_commands_unix_t);
                 scheduled_commands_unix_t *cmds = (scheduled_commands_unix_t *)pvPortMalloc(updated_num_cmds * sizeof(scheduled_commands_unix_t));
-                memset(cmds, int 0, updated_num_cmds * sizeof(scheduled_commands_unix_t));
+                memset(cmds, 0, updated_num_cmds * sizeof(scheduled_commands_unix_t));
                 if (updated_num_cmds > 0 && cmds == NULL) {
                     sys_log(ERROR, "pvPortMalloc for cmds failed in vSchedulerHandler, out of memory");
                     red_close(fout);
