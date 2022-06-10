@@ -63,10 +63,10 @@ SAT_returnState vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
     while (scheduler_stat.st_size >= sizeof(scheduled_commands_unix_t)) {
         // initialize buffer to read the commands
         uint32_t number_of_cmds = scheduler_stat.st_size / sizeof(scheduled_commands_unix_t);
-        // calloc initializes each block with a default value of 0
-        scheduled_commands_unix_t *cmds = (scheduled_commands_unix_t *)calloc(number_of_cmds, sizeof(scheduled_commands_unix_t));
+        scheduled_commands_unix_t *cmds = (scheduled_commands_unix_t *)pvPortMalloc(number_of_cmds * sizeof(scheduled_commands_unix_t));
+        memset(cmds, int 0, number_of_cmds * sizeof(scheduled_commands_unix_t));
         if (number_of_cmds > 0 && cmds == NULL) {
-            sys_log(ERROR, "calloc for cmds failed in vSchedulerHandler, out of memory");
+            sys_log(ERROR, "pvPortMalloc for cmds failed in vSchedulerHandler, out of memory");
             xSemaphoreGive(scheduleSemaphore);
             vTaskDelete(0);
         }
@@ -102,10 +102,10 @@ SAT_returnState vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
         packet->id.dport = cmds->dport;
         packet->length = cmds->length;
         memcpy(&(packet->data), &(cmds->data), cmds->length);
-        // keep a log of executed cmds. TODO: use calloc for this
-        char *args = (char *)calloc(1, cmds->length + 1);
+        // keep a log of executed cmds. TODO: use pvPortMalloc for this
+        char *args = (char *)pvPortMalloc(cmds->length + 1);
         if (args == NULL) {
-            sys_log(NOTICE, "calloc for args failed in vSchedulerHandler, out of memory");
+            sys_log(NOTICE, "pvPortMalloc for args failed in vSchedulerHandler, out of memory");
         }
         memcpy(args, &(cmds->data[IN_DATA_BYTE]), cmds->length - 1);
         args[cmds->length] = '\0';
@@ -145,7 +145,7 @@ SAT_returnState vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
             delay_aborted = 0;
             free(cmds);
             free(args);
-            // if delete_task flag is 1, free all calloc and gracefully self-destruct
+            // if delete_task flag is 1, free all pvPortMalloc and gracefully self-destruct
             if (delete_task == 1) {
                 delete_task = 0;
                 sys_log(INFO, "vSchedulerHandler self-destructed");
@@ -171,10 +171,10 @@ SAT_returnState vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
                 }
                 // initialize buffer to read the commands
                 uint32_t updated_num_cmds = scheduler_stat.st_size / sizeof(scheduled_commands_unix_t);
-                // calloc initializes each block with a default value of 0
-                scheduled_commands_unix_t *cmds = (scheduled_commands_unix_t *)calloc(updated_num_cmds, sizeof(scheduled_commands_unix_t));
+                scheduled_commands_unix_t *cmds = (scheduled_commands_unix_t *)pvPortMalloc(updated_num_cmds * sizeof(scheduled_commands_unix_t));
+                memset(cmds, int 0, updated_num_cmds * sizeof(scheduled_commands_unix_t));
                 if (updated_num_cmds > 0 && cmds == NULL) {
-                    sys_log(ERROR, "calloc for cmds failed in vSchedulerHandler, out of memory");
+                    sys_log(ERROR, "pvPortMalloc for cmds failed in vSchedulerHandler, out of memory");
                     red_close(fout);
                     xSemaphoreGive(scheduleSemaphore);
                     vTaskDelete(0);
@@ -202,10 +202,10 @@ SAT_returnState vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
             packet->id.dport = cmds->dport;
             packet->length = cmds->length;
             memcpy(&(packet->data), &(cmds->data), cmds->length);
-            // keep a log of executed cmds. TODO: use calloc for this
-            char *args = (char *)calloc(1, cmds->length + 1);
+            // keep a log of executed cmds. TODO: use pvPortMalloc for this
+            char *args = (char *)pvPortMalloc(cmds->length + 1);
             if (args == NULL) {
-                sys_log(NOTICE, "calloc for args failed in vSchedulerHandler, out of memory");
+                sys_log(NOTICE, "pvPortMalloc for args failed in vSchedulerHandler, out of memory");
             }
             memcpy(args, &(cmds->data[IN_DATA_BYTE]), cmds->length - 1);
             args[cmds->length] = '\0';

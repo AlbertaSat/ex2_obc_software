@@ -43,12 +43,13 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
     switch (ser_subtype) {
     case SET_SCHEDULE: {
         // allocating buffer for MAX_NUM_CMDS numbers of incoming commands
-        scheduled_commands_t *cmds = (scheduled_commands_t *)calloc(MAX_NUM_CMDS, sizeof(scheduled_commands_t));
+        scheduled_commands_t *cmds = (scheduled_commands_t *)pvPortMalloc(MAX_NUM_CMDS * sizeof(scheduled_commands_t));
+        memset(cmds, int 0, MAX_NUM_CMDS * sizeof(scheduled_commands_t));
         //------------------------------------TODO: test code below, to be deleted-----------------------------------//
         //        scheduled_commands_t *cmds = NULL;
         //------------------------------------TODO: test code above, to be deleted-----------------------------------//
         if (MAX_NUM_CMDS > 0 && cmds == NULL) {
-            sys_log(ERROR, "calloc for cmds failed in SET_SCHEDULE, out of memory");
+            sys_log(ERROR, "pvPortMalloc for cmds failed in SET_SCHEDULE, out of memory");
             status = CALLOC_ERROR;
             memcpy(&gs_cmds->data[STATUS_BYTE], &status, sizeof(int8_t));
             return SATR_ERROR;
@@ -62,9 +63,10 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
             return SATR_ERROR;
         }
         // calculate frequency of cmds. Non-repetitive commands have a frequency of 0
-        scheduled_commands_unix_t *sorted_cmds = (scheduled_commands_unix_t *)calloc(number_of_cmds, sizeof(scheduled_commands_unix_t));
+        scheduled_commands_unix_t *sorted_cmds = (scheduled_commands_unix_t *)pvPortMalloc(number_of_cmds * sizeof(scheduled_commands_unix_t));
+        memset(sorted_cmds, int 0, number_of_cmds * sizeof(scheduled_commands_unix_t));
         if (number_of_cmds > 0 && sorted_cmds == NULL) {
-            sys_log(ERROR, "calloc for sorted_cmds failed in SET_SCHEDULE, out of memory");
+            sys_log(ERROR, "pvPortMalloc for sorted_cmds failed in SET_SCHEDULE, out of memory");
             free(cmds);
             status = CALLOC_ERROR;
             memcpy(&gs_cmds->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -143,10 +145,11 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
                     // get number of existing cmds
                     uint32_t num_existing_cmds = scheduler_stat.st_size / sizeof(scheduled_commands_unix_t);
                     int total_cmds = number_of_cmds + num_existing_cmds;
-                    // TODO: use error handling to check calloc was successful
-                    scheduled_commands_unix_t *existing_cmds = (scheduled_commands_unix_t *)calloc(num_existing_cmds, sizeof(scheduled_commands_unix_t));
+                    // TODO: use error handling to check pvPortMalloc was successful
+                    scheduled_commands_unix_t *existing_cmds = (scheduled_commands_unix_t *)pvPortMalloc(num_existing_cmds * sizeof(scheduled_commands_unix_t));
+                    memset(existing_cmds, int 0, num_existing_cmds * sizeof(scheduled_commands_unix_t));
                     if (num_existing_cmds > 0 && existing_cmds == NULL) {
-                        sys_log(ERROR, "calloc for sorted_cmds failed in SET_SCHEDULE, out of memory");
+                        sys_log(ERROR, "pvPortMalloc for sorted_cmds failed in SET_SCHEDULE, out of memory");
                         red_close(fout);
                         xSemaphoreGive(scheduleSemaphore);
                         free(cmds);
@@ -155,9 +158,10 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
                         memcpy(&gs_cmds->data[STATUS_BYTE], &status, sizeof(int8_t));
                         return SATR_ERROR;
                     }
-                    scheduled_commands_unix_t *updated_cmds = (scheduled_commands_unix_t *)calloc(total_cmds, sizeof(scheduled_commands_unix_t));
+                    scheduled_commands_unix_t *updated_cmds = (scheduled_commands_unix_t *)pvPortMalloc(total_cmds * sizeof(scheduled_commands_unix_t));
+                    memset(updated_cmds, int 0, total_cmds * sizeof(scheduled_commands_unix_t));
                     if (total_cmds > 0 && updated_cmds == NULL) {
-                        sys_log(ERROR, "calloc for updated_cmds failed in SET_SCHEDULE, out of memory");
+                        sys_log(ERROR, "pvPortMalloc for updated_cmds failed in SET_SCHEDULE, out of memory");
                         red_close(fout);
                         xSemaphoreGive(scheduleSemaphore);
                         free(cmds);
@@ -237,7 +241,7 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
                     // set Abort delay flag to 1
                     delay_aborted = 1;
                     xTaskAbortDelay(SchedulerHandler);
-                    // free calloc
+                    // free pvPortMalloc
                     free(existing_cmds);
                     free(updated_cmds);
                 }
@@ -251,7 +255,7 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
                 return SATR_ERROR;
             }
 
-        // free calloc
+        // free pvPortMalloc
         free(cmds);
         free(sorted_cmds);
 
@@ -275,9 +279,10 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
                 // if file exists, search for the command to be deleted
                 else if (fout >= 0) {
                     // allocating buffer for MAX_NUM_CMDS numbers of incoming commands
-                    scheduled_commands_t *cmds = (scheduled_commands_t *)calloc(MAX_NUM_CMDS, sizeof(scheduled_commands_t));
+                    scheduled_commands_t *cmds = (scheduled_commands_t *)pvPortMalloc(MAX_NUM_CMDS * sizeof(scheduled_commands_t));
+                    memset(cmds, int 0, MAX_NUM_CMDS * sizeof(scheduled_commands_t));
                     if (MAX_NUM_CMDS > 0 && cmds == NULL) {
-                        sys_log(ERROR, "calloc for cmds failed in DELETE_SCHEDULE, out of memory");
+                        sys_log(ERROR, "pvPortMalloc for cmds failed in DELETE_SCHEDULE, out of memory");
                         red_close(fout);
                         xSemaphoreGive(scheduleSemaphore);
                         status = CALLOC_ERROR;
@@ -296,9 +301,10 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
                         return SATR_ERROR;
                     }
                     // calculate frequency of cmds. Non-repetitive commands have a frequency of 0
-                    scheduled_commands_unix_t *sorted_cmds = (scheduled_commands_unix_t *)calloc(number_of_cmds, sizeof(scheduled_commands_unix_t));
+                    scheduled_commands_unix_t *sorted_cmds = (scheduled_commands_unix_t *)pvPortMalloc(number_of_cmds * sizeof(scheduled_commands_unix_t));
+                    memset(sorted_cmds, int 0, number_of_cmds * sizeof(scheduled_commands_unix_t));
                     if (number_of_cmds > 0 && sorted_cmds == NULL) {
-                        sys_log(ERROR, "calloc for sorted_cmds failed in DELETE_SCHEDULE, out of memory");
+                        sys_log(ERROR, "pvPortMalloc for sorted_cmds failed in DELETE_SCHEDULE, out of memory");
                         red_close(fout);
                         xSemaphoreGive(scheduleSemaphore);
                         free(cmds);
@@ -351,10 +357,11 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
                     // get number of existing cmds
                     uint32_t num_existing_cmds = scheduler_stat.st_size / sizeof(scheduled_commands_unix_t);
                     uint32_t needed_size = (uint32_t)scheduler_stat.st_size;
-                    // TODO: use error handling to check calloc was successful
-                    scheduled_commands_unix_t *existing_cmds = (scheduled_commands_unix_t *)calloc(num_existing_cmds, sizeof(scheduled_commands_unix_t));
+                    // TODO: use error handling to check pvPortMalloc was successful
+                    scheduled_commands_unix_t *existing_cmds = (scheduled_commands_unix_t *)pvPortMalloc(num_existing_cmds * sizeof(scheduled_commands_unix_t));
+                    memset(existing_cmds, int 0, num_existing_cmds * sizeof(scheduled_commands_unix_t));
                     if (num_existing_cmds > 0 && existing_cmds == NULL) {
-                        sys_log(ERROR, "calloc for existing_cmds failed in DELETE_SCHEDULE, out of memory");
+                        sys_log(ERROR, "pvPortMalloc for existing_cmds failed in DELETE_SCHEDULE, out of memory");
                         red_close(fout);
                         xSemaphoreGive(scheduleSemaphore);
                         free(cmds);
@@ -363,9 +370,10 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
                         memcpy(&gs_cmds->data[STATUS_BYTE], &status, sizeof(int8_t));
                         return SATR_ERROR;
                     }
-                    scheduled_commands_unix_t *updated_cmds = (scheduled_commands_unix_t *)calloc(num_existing_cmds, sizeof(scheduled_commands_unix_t));
+                    scheduled_commands_unix_t *updated_cmds = (scheduled_commands_unix_t *)pvPortMalloc(num_existing_cmds * sizeof(scheduled_commands_unix_t));
+                    memset(updated_cmds, int 0, num_existing_cmds * sizeof(scheduled_commands_unix_t));
                     if (num_existing_cmds > 0 && updated_cmds == NULL) {
-                        sys_log(ERROR, "calloc for updated_cmds failed in DELETE_SCHEDULE, out of memory");
+                        sys_log(ERROR, "pvPortMalloc for updated_cmds failed in DELETE_SCHEDULE, out of memory");
                         red_close(fout);
                         xSemaphoreGive(scheduleSemaphore);
                         free(cmds);
@@ -469,7 +477,7 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
                         sys_log(NOTICE, "error %d from red_close() in DELETE_SCHEDULE for file: '%s'", (int)red_errno, fileName1);
                     }
 
-                    // free calloc
+                    // free pvPortMalloc
                     free(cmds);
                     free(sorted_cmds);
                     free(existing_cmds);
@@ -517,9 +525,10 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
                     return SATR_ERROR;
                 }
                 // allocating buffer for MAX_NUM_CMDS numbers of incoming commands
-                scheduled_commands_t *cmds = (scheduled_commands_t *)calloc(MAX_NUM_CMDS, sizeof(scheduled_commands_t));
+                scheduled_commands_t *cmds = (scheduled_commands_t *)pvPortMalloc(MAX_NUM_CMDS * sizeof(scheduled_commands_t));
+                memset(cmds, int 0, MAX_NUM_CMDS * sizeof(scheduled_commands_t));
                 if (MAX_NUM_CMDS > 0 && cmds == NULL) {
-                    sys_log(ERROR, "calloc for cmds failed in REPLACE_SCHEDULE, out of memory");
+                    sys_log(ERROR, "pvPortMalloc for cmds failed in REPLACE_SCHEDULE, out of memory");
                     red_close(fout);
                     xSemaphoreGive(scheduleSemaphore);
                     status = CALLOC_ERROR;
@@ -537,9 +546,10 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
                     return SATR_ERROR;
                 }
                 // calculate frequency of cmds. Non-repetitive commands have a frequency of 0
-                scheduled_commands_unix_t *sorted_cmds = (scheduled_commands_unix_t *)calloc(number_of_cmds, sizeof(scheduled_commands_unix_t));
+                scheduled_commands_unix_t *sorted_cmds = (scheduled_commands_unix_t *)pvPortMalloc(number_of_cmds * sizeof(scheduled_commands_unix_t));
+                memset(sorted_cmds, int 0, number_of_cmds * sizeof(scheduled_commands_unix_t));
                 if (number_of_cmds > 0 && sorted_cmds == NULL) {
-                    sys_log(ERROR, "calloc for sorted_cmds failed in REPLACE_SCHEDULE, out of memory");
+                    sys_log(ERROR, "pvPortMalloc for sorted_cmds failed in REPLACE_SCHEDULE, out of memory");
                     red_close(fout);
                     xSemaphoreGive(scheduleSemaphore);
                     free(cmds);
@@ -601,7 +611,7 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
                 // TODO: review stack size
                 xTaskCreate(vSchedulerHandler, "scheduler", 1000, scheduleSemaphore, NORMAL_SERVICE_PRIO, &SchedulerHandler);
 
-                // free calloc
+                // free pvPortMalloc
                 free(cmds);
                 free(sorted_cmds);
             } 
@@ -986,14 +996,16 @@ int prv_set_scheduler(char *cmd_buff, scheduled_commands_t *cmds) {
 int calc_cmd_frequency(scheduled_commands_t *cmds, int number_of_cmds, scheduled_commands_unix_t *sorted_cmds) {
     /*--------------------------------Initialize structures to store sorted commands--------------------------------*/
     // TODO: Confirm that the entire struct has been initialized with zeros
-    scheduled_commands_unix_t *non_reoccurring_cmds = (scheduled_commands_unix_t *)calloc(number_of_cmds, sizeof(scheduled_commands_unix_t));
+    scheduled_commands_unix_t *non_reoccurring_cmds = (scheduled_commands_unix_t *)pvPortMalloc(number_of_cmds * sizeof(scheduled_commands_unix_t));
+    memset(non_reoccurring_cmds, int 0, number_of_cmds * sizeof(scheduled_commands_unix_t));
     if (number_of_cmds > 0 && non_reoccurring_cmds == NULL) {
-        sys_log(ERROR, "calloc for non_reoccurring_cmds failed, out of memory");
+        sys_log(ERROR, "pvPortMalloc for non_reoccurring_cmds failed, out of memory");
         return CALLOC_ERROR;
     }
-    scheduled_commands_t *reoccurring_cmds = (scheduled_commands_t *)calloc(number_of_cmds, sizeof(scheduled_commands_t));
+    scheduled_commands_t *reoccurring_cmds = (scheduled_commands_t *)pvPortMalloc(number_of_cmds * sizeof(scheduled_commands_t));
+    memset(reoccurring_cmds, int 0, number_of_cmds * sizeof(scheduled_commands_t));
     if (number_of_cmds > 0 && reoccurring_cmds == NULL) {
-        sys_log(ERROR, "calloc for reoccurring_cmds failed, out of memory");
+        sys_log(ERROR, "pvPortMalloc for reoccurring_cmds failed, out of memory");
         free(non_reoccurring_cmds);
         return CALLOC_ERROR;
     }
@@ -1040,9 +1052,10 @@ int calc_cmd_frequency(scheduled_commands_t *cmds, int number_of_cmds, scheduled
     /*--------------------------------calculate the frequency of repeated cmds--------------------------------*/
     static tmElements_t time_buff;
     // TODO: check that all callocs have been freed
-    scheduled_commands_unix_t *repeated_cmds_buff = (scheduled_commands_unix_t *)calloc(j_rep, sizeof(scheduled_commands_unix_t));
+    scheduled_commands_unix_t *repeated_cmds_buff = (scheduled_commands_unix_t *)pvPortMalloc(j_rep * sizeof(scheduled_commands_unix_t));
+    memset(repeated_cmds_buff, int 0, j_rep * sizeof(scheduled_commands_unix_t));
     if (j_rep > 0 && repeated_cmds_buff == NULL) {
-        sys_log(ERROR, "calloc for repeated_cmds_buff failed, out of memory");
+        sys_log(ERROR, "pvPortMalloc for repeated_cmds_buff failed, out of memory");
         free(non_reoccurring_cmds);
         free(reoccurring_cmds);
         return CALLOC_ERROR;
@@ -1127,7 +1140,7 @@ int calc_cmd_frequency(scheduled_commands_t *cmds, int number_of_cmds, scheduled
     memcpy(sorted_cmds, repeated_cmds_buff, sizeof(scheduled_commands_unix_t) * j_rep);
     memcpy((sorted_cmds + j_rep), non_reoccurring_cmds, sizeof(scheduled_commands_unix_t) * j_non_rep);
 
-    // free calloc
+    // free pvPortMalloc
     free(non_reoccurring_cmds);
     free(reoccurring_cmds);
     free(repeated_cmds_buff);
