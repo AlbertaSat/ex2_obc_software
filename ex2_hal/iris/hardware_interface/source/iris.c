@@ -302,7 +302,6 @@ IrisHALReturn iris_get_housekeeping(iris_housekeeping_data hk_data) {
             {
                 ret = send_command(IRIS_SEND_HOUSEKEEPING);
                 if (ret == IRIS_ACK) {
-                    vTaskDelay(1000);
                     controller_state = GET_DATA;
                 } else {
                     controller_state = FINISH;
