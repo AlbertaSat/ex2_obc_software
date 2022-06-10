@@ -18,14 +18,6 @@
  * @date    2022-05-03
  */
 
- /**
-  - spi_init()
-  - spi_master_write() - MOSI
-  - spi_master_read() - MISO
-  - spi_set_data_length()
-  - spi_set_cs_high() - Toggle CS (chip select) OFF
-  - spi_set_cs_low() - Toggle CS (chip select) ON
- */
 #ifndef INCLUDE_IRIS_SPI_H_
 #define INCLUDE_IRIS_SPI_H_
 #endif /* INCLUDE_IRIS_SPI_H_ */
@@ -38,7 +30,6 @@ typedef enum {
     IRIS_LL_ERROR = 2,
 } IrisLowLevelReturn;
 
-#define TRANSFER_SIZE 1 // In bytes
 #define DUMMY_BYTE 0xFF
 
 void iris_spi_init();

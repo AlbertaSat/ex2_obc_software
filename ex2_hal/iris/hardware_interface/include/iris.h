@@ -23,9 +23,7 @@
 #endif /* INCLUDE_IRIS_H_ */
 
 // Iris data transfer constants
-#define IMAGE_TRANSFER_SIZE 512 // 512 data bytes + 1 start byte + 1 stop byte
-#define START_FLAG 0xFF //TODO: What char?
-#define STOP_FLAG 0xFF //TODO: What char?
+#define IMAGE_TRANSFER_SIZE 512 // 512 data bytes
 #define MAX_IMAGE_LENGTH 3 // In bytes
 #define MAX_IMAGE_COUNT 1 // In bytes
 #define HOUSEKEEPING_SIZE 23 // In bytes

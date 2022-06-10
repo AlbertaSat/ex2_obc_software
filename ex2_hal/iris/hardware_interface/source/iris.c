@@ -155,6 +155,10 @@ IrisHALReturn iris_transfer_image(uint32_t image_length) {
             case GET_DATA: // Get image data in chunks/blocks
             {
                 uint16_t * image_data_buffer = (uint16_t*) calloc(IMAGE_TRANSFER_SIZE, sizeof(uint16_t));
+                if (image_data_buffer == NULL) {
+                    ex2_log("Failed attempt to dynamically allocate memory under iris get image data");
+                    return IRIS_HAL_ERROR;;
+                }
                 num_transfer = (IMAGE_TRANSFER_SIZE + image_length) / IMAGE_TRANSFER_SIZE; // Ceiling division
                 for (uint32_t count_transfer = 0; count_transfer < num_transfer; count_transfer++) {
                     ret = get_data(image_data_buffer, IMAGE_TRANSFER_SIZE);
@@ -304,6 +308,10 @@ IrisHALReturn iris_get_housekeeping(iris_housekeeping_data hk_data) {
             {
 
                 uint16_t * housekeeping_buffer = (uint16_t*) calloc(HOUSEKEEPING_SIZE, sizeof(uint16_t));
+                if (housekeeping_buffer == NULL) {
+                    ex2_log("Failed attempt to dynamically allocate memory under iris get housekeeping");
+                    return IRIS_HAL_ERROR;;
+                }
                 ret = get_data(housekeeping_buffer, HOUSEKEEPING_SIZE);
 
                 // Transfer data from buffer to struct
