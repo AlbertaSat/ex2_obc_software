@@ -21,6 +21,7 @@
 #define DFGM_HANDLER_H
 
 #include "system.h"
+#include "logger.h"
 #include <stdint.h>
 #include <time.h>
 

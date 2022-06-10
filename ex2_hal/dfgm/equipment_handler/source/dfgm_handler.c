@@ -352,9 +352,19 @@ void dfgm_rx_task(void *pvParameters) {
     // Change file system directory to dfgm
     iErr = red_chdir("VOL0:/dfgm");
     if (iErr == -1) {
-        // Directory does not exist. Create it
-        iErr = red_mkdir("VOL0:/dfgm");
+        if((red_errno == RED_ENOENT) || (red_errno = RED_ENOTDIR)){
+            // Directory does not exist. Create it
+            iErr = red_mkdir("VOL0:/dfgm");
+            if(iErr == -1){
+                sys_log(CRITICAL, "Problem creating the DFGM directory. DFGM services not usable");
+                vTaskDelete(NULL);
+            }
+        }
         iErr = red_chdir("VOL0:/dfgm");
+        if(iErr == -1){
+            sys_log(CRITICAL, "Problem changing into the DFGM directory. DFGM services not usable");
+            vTaskDelete(NULL);
+        }
     }
 
     char DFGM_raw_file_name[DFGM_FILE_NAME_MAX_SIZE] = {0};
