@@ -30,7 +30,6 @@
 #include "adcs_io.h"
 #include "adcs_types.h"
 
-
 #define USE_UART
 //#define USE_I2C
 
@@ -145,7 +144,6 @@ void get_xyz(xyz *measurement, uint8_t *address, float coef) {
     measurement->y = coef * uint82int16(*(address + 2), *(address + 3));
     measurement->z = coef * uint82int16(*(address + 4), *(address + 5));
 }
-
 
 /**
  * @brief
@@ -588,8 +586,8 @@ ADCS_returnState ADCS_file_upload_packet(uint16_t packet_number, char *file_byte
     uint8_t command[23];
     command[0] = FILE_UPLOAD_PACKET_ID;
     memcpy(&command[1], &packet_number, 2);
-    //command[1] = packet_number & 0xFF;
-    //command[2] = packet_number >> 8;
+    // command[1] = packet_number & 0xFF;
+    // command[2] = packet_number >> 8;
     memcpy(&command[3], file_bytes, 20);
     return adcs_telecommand(command, sizeof(command));
 }

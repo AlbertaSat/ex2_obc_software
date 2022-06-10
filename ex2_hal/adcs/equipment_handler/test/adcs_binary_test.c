@@ -2782,10 +2782,10 @@ void commandsTest_bootloader(void) {
     // Read Program Info
     printf("Reading program info (Bootloader)\n\n");
     test_returnState = ADCS_read_program_info(ADCS_BOOTLOADER);
-    if (test_returnState != ADCS_OK)
-    {
+    if (test_returnState != ADCS_OK) {
         printf("ADCS_read_program_info returned %d", test_returnState);
-        while(1);
+        while (1)
+            ;
     }
 
     printf("Reading Program Info (Internal Flash Program)\n\n");
@@ -3358,10 +3358,10 @@ void commandsTest_unix_configID(void) {
     }
     printf("Unix time set to: %u (s)\n", time);
 
-//    ADCS_reset();
-//    vTaskDelay(pdMS_TO_TICKS(6000));
-//
-//    test_returnState = ADCS_get_UnixTime_save_config(&when, &period);
+    //    ADCS_reset();
+    //    vTaskDelay(pdMS_TO_TICKS(6000));
+    //
+    //    test_returnState = ADCS_get_UnixTime_save_config(&when, &period);
 
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_unix_t_conig returned %d \n", test_returnState);
@@ -3385,14 +3385,14 @@ void commandsTest_upload(void) {
     // check where the current flash is uploaded to
     printf("Reading Program Info (Internal Flash Program)\n\n");
     test_returnState = ADCS_read_program_info(INTERNAL_FLASH_PROGRAM);
-    if (test_returnState != ADCS_OK)
-    {
+    if (test_returnState != ADCS_OK) {
         printf("ADCS_read_program_info returned %d", test_returnState);
-        while(1);
+        while (1)
+            ;
     }
-    
-    //Initiate file upload
-    uint8_t file_dest = 3;  // External flash program 1 
+
+    // Initiate file upload
+    uint8_t file_dest = 3;  // External flash program 1
     uint8_t block_size = 0; // Block size ignored, set to 0 (Firmware ref page.159)
     printf("Initiating file upload\n\n");
     test_returnState = ADCS_initiate_file_upload(file_dest, block_size);
