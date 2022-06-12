@@ -21,25 +21,8 @@
 #include "northern_spirit_handler.h"
 #include "northern_spirit_io.h"
 
-// #define IS_YUKONSAT
-#define IS_AURORASAT
-
-#if defined(IS_YUKONSAT) && defined(IS_AURORASAT)
-#error Cannot have both IS_YUKONSAT and IS_AURORASAT defined
-#endif
-
-
 // Functions fulfilling functionality common to AuroraSat and YukonSat
 
-
-
-#ifdef IS_YUKONSAT
-// Functions fulfilling functionality specific to YukonSat
-
-#endif
-
-#ifdef IS_AURORASAT
-// Functions fulfilling functionality specific to AuroraSat
 NS_return NS_get_heartbeat(uint8_t* heartbeat){
     uint8_t command[3] = {'h', 'h', 'h'};
     uint8_t answer[ARI_HEARTBEAT_ANS_LEN] = {0};
@@ -81,5 +64,14 @@ NS_return NS_get_telemetry(uint8_t* telemetry){
     }
     return NS_OK;
 }
+
+#ifdef IS_YUKONSAT
+// Functions fulfilling functionality specific to YukonSat
+
+#endif
+
+#ifdef IS_AURORASAT
+// Functions fulfilling functionality specific to AuroraSat
+
 
 #endif
