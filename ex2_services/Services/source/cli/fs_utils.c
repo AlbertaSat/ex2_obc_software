@@ -333,7 +333,7 @@ static BaseType_t prvTRANSACTCommand(char *pcWriteBuffer, size_t xWriteBufferLen
 
 static BaseType_t prvCPCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString) {
     BaseType_t fromParameterLen;
-    char *copyFrom = FreeRTOS_CLIGetParameter( // I know there's a warning here, a null terminator needs to be placed in the array :(
+    char *copyFrom = (char *)FreeRTOS_CLIGetParameter( // I know casting away from const is bad, a null terminator needs to be placed in the array :(
         /* The command string itself. */
         pcCommandString,
         /* Return the first parameter. */

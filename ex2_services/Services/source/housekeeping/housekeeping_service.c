@@ -24,6 +24,7 @@
 #include "rtcmk.h"    //to get time from RTC
 #include "services.h"
 #include "task_manager/task_manager.h"
+#include "util/service_utilities.h"
 #include "logger/logger.h"
 #include "csp/csp_endian.h"
 
@@ -396,12 +397,11 @@ Result collect_hk_from_devices(All_systems_housekeeping *all_hk_data) {
 #endif                                                              /* ATHENA_IS_STUBBED */
 
 #ifndef EPS_IS_STUBBED
-    eps_refresh_instantaneous_telemetry();
-    eps_instantaneous_telemetry_t eps = get_eps_instantaneous_telemetry();
-
-    // Adding these in order to get the startup telemetry - should be added elsewhere
-    eps_refresh_startup_telemetry();
-    eps_startup_telemetry_t eps_startup = get_eps_startup_telemetry();
+    SAT_returnState EPS_return_code = SATR_OK;
+    if (eps_refresh_instantaneous_telemetry() != SATR_OK)
+        EPS_return_code = SATR_ERROR;
+    if (eps_refresh_startup_telemetry() != SATR_OK)
+        EPS_return_code = SATR_ERROR;
     EPS_getHK(&all_hk_data->EPS_hk, &all_hk_data->EPS_startup_hk); /* EPS Housekeeping */
 #endif                                                             /* EPS_IS_STUBBED */
 
@@ -545,7 +545,7 @@ uint16_t get_size_of_housekeeping(All_systems_housekeeping *all_hk_data) {
 Result write_hk_to_file(uint16_t filenumber, All_systems_housekeeping *all_hk_data) {
     int32_t fout = red_open(fileName, RED_O_CREAT | RED_O_RDWR); // open or create file to write binary
     if (fout == -1) {
-        printf("Unexpected error %d from red_open()\r\n", (int)red_errno);
+        sys_log(ERROR, "Unexpected error %d from red_open()\r\n", (int)red_errno);
         sys_log(ERROR, "Failed to open or create file to write: '%s'\n", fileName);
         return FAILURE;
     }
@@ -984,7 +984,7 @@ SAT_returnState start_housekeeping_service(void);
  */
 void housekeeping_service(void *param) {
     csp_socket_t *sock;
-    sock = csp_socket(CSP_SO_NONE);
+    sock = csp_socket(CSP_SO_HMACREQ);
     csp_bind(sock, TC_HOUSEKEEPING_SERVICE);
     csp_listen(sock, SERVICE_BACKLOG_LEN);
     svc_wdt_counter++;

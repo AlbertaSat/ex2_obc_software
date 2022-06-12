@@ -93,12 +93,12 @@ typedef enum { SET_SCHEDULE = 0, GET_SCHEDULE = 1 } Scheduler_Subtype;
 
 SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds);
 //SAT_returnState scheduler_service_app(char *gs_cmds);
-SAT_returnState scheduler_service(void);
+void scheduler_service(void);
 SAT_returnState start_scheduler_service(void);
 SAT_returnState calc_cmd_frequency(scheduled_commands_t* cmds, int number_of_cmds, scheduled_commands_unix_t *sorted_cmds);
 SAT_returnState sort_cmds(scheduled_commands_unix_t *sorted_cmds, int number_of_cmds);
 Result write_cmds_to_file(int32_t fileiFildes, scheduled_commands_unix_t *scheduled_cmds, int number_of_cmds, char *fileName);
 static scheduled_commands_t *prv_get_cmds_scheduler();
-SAT_returnState vSchedulerHandler (void *pvParameters);
+void vSchedulerHandler (void *pvParameters);
 
 #endif /* EX2_SYSTEM_INCLUDE_SCHEDULER_H_ */

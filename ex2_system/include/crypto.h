@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021  University of Alberta
+ * Copyright (C) 2022  University of Alberta
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -11,17 +11,22 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-/**
- * @file sband_binary_test.h
- * @author Thomas Ganley
- * @date 2021-12-06
+/*
+ * hmac_key.h
+ *
+ *  Created on: Jun. 2, 2022
+ *      Author: Robert Taylor
  */
 
-#include <stdio.h>
-#include <stdint.h>
+#ifndef EX2_SYSTEM_INCLUDE_CRYPTO_H_
+#define EX2_SYSTEM_INCLUDE_CRYPTO_H_
 
-#include "sTransmitter.h"
-#include "spi.h"
+typedef enum {
+    HMAC_KEY,
+    ENCRYPT_KEY,
+} CRYPTO_KEY_T;
 
-STX_return sband_binary_test();
-STX_return sband_inf_tx();
+void get_crypto_key(CRYPTO_KEY_T type, char **key, int *key_len);
+void set_crypto_key(CRYPTO_KEY_T type, char *key, int *key_len);
+
+#endif /* EX2_SYSTEM_INCLUDE_CRYPTO_H_ */

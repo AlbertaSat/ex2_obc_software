@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021  University of Alberta
+ * Copyright (C) 2022  University of Alberta
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -11,17 +11,16 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-/**
- * @file sband_binary_test.h
- * @author Thomas Ganley
- * @date 2021-12-06
- */
 
-#include <stdio.h>
+#ifndef FTP_H
+#define FTP_H
+
 #include <stdint.h>
 
-#include "sTransmitter.h"
-#include "spi.h"
+#include "services.h"
 
-STX_return sband_binary_test();
-STX_return sband_inf_tx();
+typedef enum {FTP_GET_FILE_SIZE, FTP_REQUEST_BURST_DOWNLOAD, FTP_DATA_PACKET, FTP_START_UPLOAD, FTP_UPLOAD_PACKET } FTP_Subtype;
+
+SAT_returnState start_FTP_service(void);
+
+#endif /* FTP_H */
