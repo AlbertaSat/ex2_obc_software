@@ -82,7 +82,7 @@ void iris_spi_init() {
  *   Number of bytes to transmit and receive
  *
  **/
-static void iris_spi_send_and_get(uint16_t *tx_data, uint16_t *rx_data, uint16_t data_length) {
+void iris_spi_send_and_get(uint16_t *tx_data, uint16_t *rx_data, uint16_t data_length) {
     spiSendAndGetData(IRIS_SPI, &dataconfig, data_length, tx_data, rx_data);
     while ((SpiTxStatus(IRIS_SPI) != SPI_COMPLETED) && (SpiRxStatus(IRIS_SPI) != SPI_COMPLETED));
 }
@@ -98,7 +98,7 @@ static void iris_spi_send_and_get(uint16_t *tx_data, uint16_t *rx_data, uint16_t
  *   Number of bytes to transmit
  *
  **/
-static void iris_spi_send(uint16_t *tx_data, uint16_t data_length) {
+void iris_spi_send(uint16_t *tx_data, uint16_t data_length) {
     spiSendData(IRIS_SPI, &dataconfig, data_length, tx_data);
     while(SpiTxStatus(IRIS_SPI) != SPI_COMPLETED);
 }
@@ -114,7 +114,7 @@ static void iris_spi_send(uint16_t *tx_data, uint16_t data_length) {
  *   Number of bytes to receive
  *
  **/
-static void iris_spi_get(uint16_t *rx_data, uint16_t data_length) {
+void iris_spi_get(uint16_t *rx_data, uint16_t data_length) {
     spiGetData(IRIS_SPI, &dataconfig, data_length, rx_data);
     while(SpiRxStatus(IRIS_SPI) != SPI_COMPLETED);
 }
@@ -135,7 +135,7 @@ static void iris_spi_get(uint16_t *rx_data, uint16_t data_length) {
  *   Number of ticks for non FreeRTOS delay
  *
  **/
-static void iris_spi_delay(uint16_t ticks) {
+void iris_spi_delay(uint16_t ticks) {
     uint16_t i;
     for (i = 0; i < ticks; i++);
 }
