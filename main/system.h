@@ -63,6 +63,7 @@
 #define GPS_SCI sciREG1 // UART3
 #define PAYLOAD_SCI NULL
 #elif defined(IS_AURORASAT) || defined(IS_YUKONSAT)
+#define GPS_SCI NULL
 #define PAYLOAD_SCI sciREG1 // UART3
 #define GPS_SCI NULL
 #endif

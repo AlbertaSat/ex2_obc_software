@@ -36,14 +36,23 @@
 
 static QueueHandle_t nsQueue;
 static uint8_t nsBuffer;
-static SemaphoreHandle_t tx_semphr;
+static SemaphoreHandle_t ns_tx_semphr;
 static SemaphoreHandle_t uart_mutex;
 
-void init_ns_io() {
-    sciSetBaudrate(PAYLOAD_SCI, 9600);
-    tx_semphr = xSemaphoreCreateBinary();
+NS_return init_ns_io() {
+    ns_tx_semphr = xSemaphoreCreateBinary();
+    if(ns_tx_semphr == NULL){
+        return NS_FAIL;
+    }
     nsQueue = xQueueCreate(NS_QUEUE_LENGTH, ITEM_SIZE);
+    if(nsQueue == NULL){
+        return NS_FAIL;
+    }
     uart_mutex = xSemaphoreCreateMutex();
+    if(uart_mutex == NULL){
+        return NS_FAIL;
+    }
+    xSemaphoreGive(uart_mutex);
     nsBuffer = 0;
     sciReceive(PAYLOAD_SCI, 1, &nsBuffer);
 }
@@ -58,7 +67,7 @@ void ns_sciNotification(sciBASE_t *sci, int flags) {
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         break;
     case SCI_TX_INT:
-        xSemaphoreGiveFromISR(tx_semphr, &xHigherPriorityTaskWoken);
+        xSemaphoreGiveFromISR(ns_tx_semphr, &xHigherPriorityTaskWoken);
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         break;
     default:
@@ -68,12 +77,13 @@ void ns_sciNotification(sciBASE_t *sci, int flags) {
 
 NS_return send_NS_command(uint8_t* command, uint32_t command_length, uint8_t* answer, uint8_t answer_length) {
     if(xSemaphoreTake(uart_mutex, NS_SEMAPHORE_TIMEOUT_MS) != pdTRUE){
-        return NS_UART_FAIL;
+        return NS_UART_BUSY;
     }
 
     sciSend(PAYLOAD_SCI, command_length, command);
 
-    if(xSemaphoreTake(tx_semphr, NS_SEMAPHORE_TIMEOUT_MS) != pdTRUE){
+    if(xSemaphoreTake(ns_tx_semphr, NS_SEMAPHORE_TIMEOUT_MS) != pdTRUE){
+        xSemaphoreGive(uart_mutex);
         return NS_UART_FAIL;
     }
 
@@ -81,18 +91,22 @@ NS_return send_NS_command(uint8_t* command, uint32_t command_length, uint8_t* an
     uint8_t* reply = (uint8_t *)pvPortMalloc(answer_length*sizeof(uint8_t));
 
     if (reply == NULL){
-        return NS_UART_FAIL;
+        xSemaphoreGive(uart_mutex);
+        return NS_MALLOC_FAIL;
     }
 
     while (received < answer_length) {
-        if(!xQueueReceive(nsQueue, (reply+received), NS_UART_TIMEOUT_MS))return NS_UART_FAIL;
+        if(xQueueReceive(nsQueue, (reply+received), NS_UART_TIMEOUT_MS) != pdPASS){
+            vPortFree(reply);
+            xSemaphoreGive(uart_mutex);
+            return NS_UART_FAIL;
+        }
         received++;
     }
 
     memcpy(answer, reply, answer_length);
 
     vPortFree(reply);
-
     xSemaphoreGive(uart_mutex);
     return NS_OK;
 }

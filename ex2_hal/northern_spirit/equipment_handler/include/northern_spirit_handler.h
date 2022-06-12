@@ -30,10 +30,13 @@
 #define NS_TELEMETRY_ANS_LEN 48
 
 typedef enum{
-    NS_OK = 0,
-    NS_BAD_CMD = 1,
-    NS_BAD_ANS = 2,
-    NS_UART_FAIL = 3,
+    NS_OK,
+    NS_FAIL,
+    NS_BAD_CMD,
+    NS_BAD_ANS,
+    NS_UART_FAIL,
+    NS_UART_BUSY,
+    NS_MALLOC_FAIL,
 }NS_return;
 
 NS_return NS_get_heartbeat(uint8_t* heartbeat);

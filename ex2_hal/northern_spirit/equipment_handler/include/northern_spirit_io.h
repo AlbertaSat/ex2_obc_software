@@ -29,9 +29,9 @@
 #include <stdbool.h>
 #include <string.h>
 
-#define NS_SEMAPHORE_TIMEOUT_MS 100
-#define NS_UART_TIMEOUT_MS 10000
+#define NS_SEMAPHORE_TIMEOUT_MS pdMS_TO_TICKS(100)
+#define NS_UART_TIMEOUT_MS pdMS_TO_TICKS(200)
 
-void init_ns_io();
+NS_return init_ns_io();
 
 NS_return send_NS_command(uint8_t* command, uint32_t command_length, uint8_t* answer, uint8_t answer_length);
