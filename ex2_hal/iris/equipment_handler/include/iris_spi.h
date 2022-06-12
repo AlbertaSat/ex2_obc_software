@@ -33,11 +33,11 @@ typedef enum {
 #define DUMMY_BYTE 0xFF
 
 void iris_spi_init();
-static void spi_send(uint16_t *tx_data, uint16_t data_length);
-static void spi_get(uint16_t *rx_data, uint16_t data_length);
-static void spi_send_and_get(uint16_t *tx_data, uint16_t *rx_data, uint16_t data_length);
-static void spi_delay(uint16_t timeout);
+static void iris_spi_send(uint16_t *tx_data, uint16_t data_length);
+static void iris_spi_get(uint16_t *rx_data, uint16_t data_length);
+static void iris_spi_send_and_get(uint16_t *tx_data, uint16_t *rx_data, uint16_t data_length);
+static void iris_spi_delay(uint16_t timeout);
 
-IrisLowLevelReturn send_command(uint16_t command);
-IrisLowLevelReturn send_data(uint16_t *tx_buffer, uint16_t data_length);
-IrisLowLevelReturn get_data(uint16_t *rx_buffer, uint16_t data_length); // Data length is obtained from IRIS
+IrisLowLevelReturn iris_send_command(uint16_t command);
+IrisLowLevelReturn iris_send_data(uint16_t *tx_buffer, uint16_t data_length);
+IrisLowLevelReturn iris_get_data(uint16_t *rx_buffer, uint16_t data_length); // Data length is obtained from IRIS

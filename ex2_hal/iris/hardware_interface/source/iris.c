@@ -42,7 +42,7 @@ IrisHALReturn iris_take_pic() {
         switch (controller_state) {
             case SEND_COMMAND:
             {
-                ret = send_command(IRIS_TAKE_PIC);
+                ret = iris_send_command(IRIS_TAKE_PIC);
                 if (ret == IRIS_ACK) {
                     controller_state = FINISH;
                 } else {
@@ -82,7 +82,7 @@ IrisHALReturn iris_get_image_length(uint32_t *image_length) {
         switch (controller_state) {
             case SEND_COMMAND:
             {
-                ret = send_command(IRIS_GET_IMAGE_LENGTH);
+                ret = iris_send_command(IRIS_GET_IMAGE_LENGTH);
                 if (ret == IRIS_ACK) {
                     controller_state = GET_DATA;
                 } else {
@@ -93,7 +93,7 @@ IrisHALReturn iris_get_image_length(uint32_t *image_length) {
             case GET_DATA:
             {
                 uint16_t image_length_buffer[MAX_IMAGE_LENGTH];
-                ret = get_data(image_length_buffer, MAX_IMAGE_LENGTH);
+                ret = iris_get_data(image_length_buffer, MAX_IMAGE_LENGTH);
                 if (ret == IRIS_HAL_OK) {
                     controller_state = FINISH;
                 } else {
@@ -141,7 +141,7 @@ IrisHALReturn iris_transfer_image(uint32_t image_length) {
         switch (controller_state) {
             case SEND_COMMAND: // Send start image transfer command
             {
-                ret = send_command(IRIS_TRANSFER_IMAGE);
+                ret = iris_send_command(IRIS_TRANSFER_IMAGE);
                 if (ret == IRIS_ACK) {
                     controller_state = GET_DATA;
                 } else {
@@ -159,7 +159,7 @@ IrisHALReturn iris_transfer_image(uint32_t image_length) {
                 }
                 num_transfer = (IMAGE_TRANSFER_SIZE + image_length) / IMAGE_TRANSFER_SIZE; // Ceiling division
                 for (uint32_t count_transfer = 0; count_transfer < num_transfer; count_transfer++) {
-                    ret = get_data(image_data_buffer, IMAGE_TRANSFER_SIZE);
+                    ret = iris_get_data(image_data_buffer, IMAGE_TRANSFER_SIZE);
                     // TODO: Do something with the received data (e.g transfer it to the SD card)
                     // Or just get the data and send it forward to the next stage. Prefer not to have too
                     // much data processing in driver code
@@ -202,7 +202,7 @@ IrisHALReturn iris_get_image_count(uint16_t *image_count) {
         switch (controller_state) {
             case SEND_COMMAND:
             {
-                ret = send_command(IRIS_GET_IMAGE_COUNT);
+                ret = iris_send_command(IRIS_GET_IMAGE_COUNT);
                 if (ret == IRIS_ACK) {
                     controller_state = GET_DATA;
                 } else {
@@ -212,7 +212,7 @@ IrisHALReturn iris_get_image_count(uint16_t *image_count) {
             }
             case GET_DATA:
             {
-                ret = get_data(image_count, MAX_IMAGE_COUNT);
+                ret = iris_get_data(image_count, MAX_IMAGE_COUNT);
                 controller_state = FINISH;
                 break;
             }
@@ -251,9 +251,9 @@ IrisHALReturn iris_toggle_sensor_idle(IRIS_SENSOR_TOOGGLE toggle) {
             case SEND_COMMAND:
             {
                 if (toggle == IRIS_SENSOR_ON) {
-                    ret = send_command(IRIS_ON_SENSOR_IDLE);
+                    ret = iris_send_command(IRIS_ON_SENSOR_IDLE);
                 } else if (toggle == IRIS_SENSOR_OFF) {
-                    ret = send_command(IRIS_OFF_SENSOR_IDLE);
+                    ret = iris_send_command(IRIS_OFF_SENSOR_IDLE);
                 }
                 if (ret == IRIS_ACK) {
                     controller_state = FINISH;
@@ -294,7 +294,7 @@ IrisHALReturn iris_get_housekeeping(iris_housekeeping_data hk_data) {
         switch (controller_state) {
             case SEND_COMMAND:
             {
-                ret = send_command(IRIS_SEND_HOUSEKEEPING);
+                ret = iris_send_command(IRIS_SEND_HOUSEKEEPING);
                 if (ret == IRIS_ACK) {
                     controller_state = GET_DATA;
                 } else {
@@ -306,7 +306,7 @@ IrisHALReturn iris_get_housekeeping(iris_housekeeping_data hk_data) {
             {
 
                 uint16_t housekeeping_buffer[HOUSEKEEPING_SIZE];
-                ret = get_data(housekeeping_buffer, HOUSEKEEPING_SIZE);
+                ret = iris_get_data(housekeeping_buffer, HOUSEKEEPING_SIZE);
                 if (ret == IRIS_HAL_OK) {
                     controller_state = FINISH;
                 } else {
@@ -364,7 +364,7 @@ IrisHALReturn iris_update_sensor_i2c_reg() {
         switch (controller_state) {
             case SEND_COMMAND:
             {
-                ret = send_command(IRIS_UPDATE_SENSOR_I2C_REG);
+                ret = iris_send_command(IRIS_UPDATE_SENSOR_I2C_REG);
                 if (ret == IRIS_ACK) {
                     controller_state = SEND_DATA;
                 } else {
@@ -377,7 +377,7 @@ IrisHALReturn iris_update_sensor_i2c_reg() {
                 // TODO: Convert sensor_reg into buffer/array/vector. Need to think a bit more on this
                 //uint16_t sensor_reg_buffer[] = {0xFFFF, 0xFF};
                 uint16_t tx_buffer[4] = {0x02, 0x06, 0x10, 0x14};
-                ret = send_data(tx_buffer, 4); // TODO: Need to take care of explicit declaration
+                ret = iris_send_data(tx_buffer, 4); // TODO: Need to take care of explicit declaration
 
                 if (ret != IRIS_ACK) {
                     ex2_log("Updating Iris sensor registers failed");
@@ -420,7 +420,7 @@ IrisHALReturn iris_update_current_limit(uint16_t current_limit) {
         switch (controller_state) {
             case SEND_COMMAND:
             {
-                send_command(IRIS_UPDATE_CURRENT_LIMIT);
+                iris_send_command(IRIS_UPDATE_CURRENT_LIMIT);
                 if (ret == IRIS_ACK) {
                     controller_state = SEND_DATA;
                 } else {
@@ -432,7 +432,7 @@ IrisHALReturn iris_update_current_limit(uint16_t current_limit) {
             {
                 // TODO: Convert sensor_reg into buffer/array/vector. Need to think a bit more on this
                 uint16_t current_limit_buffer[] = {current_limit};
-                send_data(current_limit_buffer, 1); // TODO: Need to take care of explicit declaration
+                iris_send_data(current_limit_buffer, 1); // TODO: Need to take care of explicit declaration
                 break;
             }
             case FINISH:
