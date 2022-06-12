@@ -200,7 +200,7 @@ void iris_i2c_test(void *pvParameters) {
     uint8_t num_bytes = 0x10;
     uint8_t *buffer;
     const char * filepath = "/home/jenish/Desktop/ex2_Iris_MCU_Software/Debug/ex2_Iris_MCU_Software.bin";
-    buffer = (uint8_t*) calloc(PAGE_SIZE, sizeof(uint8_t));
+    buffer = (uint8_t*) calloc(128, sizeof(uint8_t));
 
     FILE *fptr;
     fptr = fopen(filepath, "rb");
