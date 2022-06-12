@@ -24,42 +24,35 @@
 // Functions fulfilling functionality common to AuroraSat and YukonSat
 
 NS_return NS_get_heartbeat(uint8_t* heartbeat){
-    uint8_t command[3] = {'h', 'h', 'h'};
-    uint8_t answer[ARI_HEARTBEAT_ANS_LEN] = {0};
+    uint8_t command[NS_STANDARD_CMD_LEN] = {'h', 'h', 'h'};
+    uint8_t answer[NS_HEARTBEAT_ANS_LEN] = {0};
 
-    send_NS_command(command, 3, answer, ARI_HEARTBEAT_ANS_LEN);
+    send_NS_command(command, NS_STANDARD_CMD_LEN, answer, NS_HEARTBEAT_ANS_LEN);
 
     *heartbeat = answer[0];
-
-    for(int i = 0; i < ARI_HEARTBEAT_ANS_LEN; i++){
-        printf("Heartbeat answer[%x]: %x\n", i, answer[i]);
-    }
     return NS_OK;
 }
 
 NS_return NS_get_software_version(uint8_t* version){
-    uint8_t command[3] = {'v', 'v', 'v'};
-    uint8_t answer[ARI_SWVERSION_ANS_LEN] = {0};
+    uint8_t command[NS_STANDARD_CMD_LEN] = {'v', 'v', 'v'};
+    uint8_t answer[NS_SWVERSION_ANS_LEN] = {0};
 
-    send_NS_command(command, sizeof(command), answer, sizeof(answer));
+    send_NS_command(command, NS_STANDARD_CMD_LEN, answer, NS_SWVERSION_ANS_LEN);
 
-    memcpy(version, answer, ARI_SWVERSION_ANS_LEN);
+    memcpy(version, answer, NS_SWVERSION_ANS_LEN);
 
-    for(int i = 0; i < ARI_SWVERSION_ANS_LEN; i++){
-        printf("Version answer[%x]: %x\n", i, answer[i]);
-    }
     return NS_OK;
 }
 
 NS_return NS_get_telemetry(uint8_t* telemetry){
-    uint8_t command[3] = {'t', 't', 't'};
-    uint8_t answer[ARI_TELEMETRY_ANS_LEN] = {0};
+    uint8_t command[NS_STANDARD_CMD_LEN] = {'t', 't', 't'};
+    uint8_t answer[NS_TELEMETRY_ANS_LEN] = {0};
 
-    send_NS_command(command, sizeof(command), answer, sizeof(answer));
+    send_NS_command(command, NS_STANDARD_CMD_LEN, answer, NS_TELEMETRY_ANS_LEN);
 
-    memcpy(telemetry, answer, ARI_TELEMETRY_ANS_LEN);
+    memcpy(telemetry, answer, NS_TELEMETRY_ANS_LEN);
 
-    for(int i = 0; i < ARI_TELEMETRY_ANS_LEN; i++){
+    for(int i = 0; i < NS_TELEMETRY_ANS_LEN; i++){
         printf("Telemetry answer[%x]: %x\n", i, answer[i]);
     }
     return NS_OK;

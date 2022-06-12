@@ -23,9 +23,11 @@
 
 #include <stdint.h>
 
-#define ARI_HEARTBEAT_ANS_LEN 1
-#define ARI_SWVERSION_ANS_LEN 7
-#define ARI_TELEMETRY_ANS_LEN 48
+#define NS_STANDARD_CMD_LEN 3
+
+#define NS_HEARTBEAT_ANS_LEN 1
+#define NS_SWVERSION_ANS_LEN 7
+#define NS_TELEMETRY_ANS_LEN 48
 
 typedef enum{
     NS_OK = 0,
