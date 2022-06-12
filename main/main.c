@@ -190,6 +190,11 @@ void iris_i2c_test(void *pvParameters) {
 
     for (;;) {
         iris_pre_sequence();
+//        iris_mass_erase_flash();
+//        vTaskDelay(500);
+//        iris_post_sequence();
+//
+//        iris_pre_sequence();
         for (int page = 0; page < num_pages; page++) {
             iris_erase_page(page);
             read_bin_file(fptr, buffer);

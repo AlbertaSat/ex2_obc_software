@@ -186,9 +186,6 @@ int iris_check_bootloader_version() {
 }
 
 int iris_go_to(uint32_t start_addr) {
-    uint8_t opc_erase = OPC_GO;
-    uint8_t n_opc_erase = N_OPC_GO;
-
     uint8_t *packet = (uint8_t*)calloc(GO_PACKET_LENGTH, sizeof(uint8_t));
     uint8_t start_addr_checksum = 0x00;
 
@@ -196,10 +193,9 @@ int iris_go_to(uint32_t start_addr) {
     int i;
     uint8_t rx_data;
 
-
     /* First I2C transaction (2 bytes) */
-    packet[0] = opc_erase;
-    packet[1] = n_opc_erase;
+    packet[0] = OPC_GO;
+    packet[1] = N_OPC_GO;
     write_packet(packet, 2);
     read_packet(&rx_data, 1);
     memset(packet, 0, GO_PACKET_LENGTH);
@@ -223,11 +219,47 @@ int iris_go_to(uint32_t start_addr) {
 
 
 int iris_mass_erase_flash() {
-    int ret = 0;
+    uint8_t packet[MASS_ERASE_PACKET_LENGTH];
+    uint16_t num_pages_to_erase = 512;
+    uint8_t checksum = 0x00;
 
-    for (int page_num = 0; page_num < 512; page_num++) {
-        iris_erase_page(page_num);
-        // TODO: Verify return
+    int ret = 0x00;
+    int i;
+    uint8_t rx_data;
+
+    /* First I2C transaction (2 bytes) */
+    packet[0] = OPC_ERASE;
+    packet[1] = N_OPC_ERASE;
+    write_packet(packet, 2);
+    read_packet(&rx_data, 1);
+    memset(packet, 0, MASS_ERASE_PACKET_LENGTH);
+
+
+    /* Second I2C transaction (3 bytes) */
+    packet[0] = ((num_pages_to_erase - 1) >> (8*1)) & 0xff;
+    packet[1] = ((num_pages_to_erase - 1) >> (8*0)) & 0xff;
+    checksum = packet[0] ^ packet[1];
+    packet[2] = checksum;
+    write_packet(packet, 3);
+    read_packet(&rx_data, 1);
+    memset(packet, 0, MASS_ERASE_PACKET_LENGTH);
+
+    /* Second I2C transaction (3 bytes) */
+    uint16_t index;
+    uint16_t page = 0x01;
+    checksum = 0x00;
+    for (index = 0; index < (num_pages_to_erase * 2); index+=2) {
+        packet[index] = (page >> (8*1)) & 0xff;
+        packet[index+1] = (page >> (8*0)) & 0xff;
+        checksum ^= (packet[index] ^ packet[index+1]);
+
+        page += 0x01;
     }
+    packet[1024] = checksum;
+    write_packet(packet, 1025);
+    read_packet(&rx_data, 1);
+    memset(packet, 0, MASS_ERASE_PACKET_LENGTH);
+
+    return ret;
 }
 
