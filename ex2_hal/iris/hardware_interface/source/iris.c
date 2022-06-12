@@ -166,7 +166,7 @@ IrisHALReturn iris_transfer_image(uint32_t image_length) {
 
                     memset(image_data_buffer, 0, IMAGE_TRANSFER_SIZE);
                 }
-                free(image_data_buffer);
+                vPortFree(image_data_buffer);
                 controller_state = FINISH;
                 break;
             }
