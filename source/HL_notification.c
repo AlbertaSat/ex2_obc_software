@@ -72,6 +72,9 @@
 #pragma WEAK(gps_sciNotification)
 void gps_sciNotification(sciBASE_t *sci, unsigned flags);
 
+#pragma WEAK(ns_sciNotification)
+void ns_sciNotification(sciBASE_t *sci, unsigned flags);
+
 #pragma WEAK(csp_sciNotification)
 void csp_sciNotification(sciBASE_t *sci, unsigned flags);
 
