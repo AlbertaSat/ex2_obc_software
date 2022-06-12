@@ -20,7 +20,6 @@
 
 #ifndef INCLUDE_IRIS_SPI_H_
 #define INCLUDE_IRIS_SPI_H_
-#endif /* INCLUDE_IRIS_SPI_H_ */
 
 #include "FreeRTOS.h"
 
@@ -41,3 +40,5 @@ void iris_spi_delay(uint16_t timeout);
 IrisLowLevelReturn iris_send_command(uint16_t command);
 IrisLowLevelReturn iris_send_data(uint16_t *tx_buffer, uint16_t data_length);
 IrisLowLevelReturn iris_get_data(uint16_t *rx_buffer, uint16_t data_length); // Data length is obtained from IRIS
+
+#endif /* INCLUDE_IRIS_SPI_H_ */

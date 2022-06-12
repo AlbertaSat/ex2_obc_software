@@ -20,7 +20,6 @@
 
 #ifndef INCLUDE_IRIS_H_
 #define INCLUDE_IRIS_H_
-#endif /* INCLUDE_IRIS_H_ */
 
 // Iris data transfer constants
 #define IMAGE_TRANSFER_SIZE 512 // 512 data bytes
@@ -93,3 +92,5 @@ IrisHALReturn iris_toggle_sensor_idle(uint8_t toggle);
 IrisHALReturn iris_get_housekeeping(iris_housekeeping_data hk_data);
 IrisHALReturn iris_update_sensor_i2c_reg();
 IrisHALReturn iris_update_current_limit(uint16_t current_limit);
+
+#endif /* INCLUDE_IRIS_H_ */
