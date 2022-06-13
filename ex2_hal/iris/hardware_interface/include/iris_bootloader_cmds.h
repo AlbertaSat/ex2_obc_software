@@ -14,6 +14,7 @@
 #include "iris_i2c.h"
 #include <stdlib.h>
 
+/* Opcodes for write, erase, etc. N_* is the NOR of OPC_* */
 #define OPC_WRITE 0x31 // Write opcode
 #define N_OPC_WRITE 0xCE
 #define OPC_ERASE 0x44 // Erase opcode
@@ -46,4 +47,3 @@ int iris_erase_page(uint16_t page_num);
 int iris_check_bootloader_version();
 int iris_go_to(uint32_t start_addr);
 int iris_mass_erase_flash();
-void i2c_send_test();

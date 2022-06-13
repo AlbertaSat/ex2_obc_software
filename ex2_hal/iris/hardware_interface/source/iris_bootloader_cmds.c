@@ -14,6 +14,18 @@
 #include "FreeRTOS.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+
+/* Optimization points
+ * - As of now, the mass erase functionality is not verified and
+ *   still WIP. We would like to have this functionality working in
+ *   the future. But, we can manage with erasing individual pages for
+ *   now
+ * - When combining both i2c and spi drivers for iris, it will nice to
+ *   have all of the GIO outputs in a different file (e.g. iris_gio.c)
+ * - Also instead of using ints for good or bad return we should integrate
+ *   the iris status flags. This is implemented in the spi feature
+ */
 
 void iris_i2c_init() {
    /* i2c initialization */
@@ -53,20 +65,6 @@ void iris_post_sequence() {
     POWER_OFF();
     vTaskDelay(100);
     POWER_ON();
-}
-
-
-void i2c_send_test() {
-
-    iris_i2c_init();
-
-    uint32_t flash_addr = 0x08001000;
-    uint16_t data_length = 0x000F;
-    //iris_write_page(flash_addr);
-    //i2c_erase_memory();
-
-    vTaskDelay(100);
-
 }
 
 int iris_write_page(uint32_t flash_addr, uint8_t * buffer) {
@@ -124,7 +122,6 @@ int iris_erase_page(uint16_t page_num) {
     uint8_t page_num_checksum = 0x00;
 
     int ret = 0x00;
-    int i;
     uint8_t rx_data;
 
     /* First I2C transaction (2 bytes) */
@@ -164,7 +161,6 @@ int iris_check_bootloader_version() {
     uint8_t *packet = (uint8_t*)calloc(2, sizeof(uint8_t));
 
     int ret = 0x00;
-    int i;
     uint8_t rx_data;
 
     /* First I2C transaction (2 bytes) */
@@ -190,7 +186,6 @@ int iris_go_to(uint32_t start_addr) {
     uint8_t start_addr_checksum = 0x00;
 
     int ret = 0x00;
-    int i;
     uint8_t rx_data;
 
     /* First I2C transaction (2 bytes) */
@@ -224,7 +219,6 @@ int iris_mass_erase_flash() {
     uint8_t checksum = 0x00;
 
     int ret = 0x00;
-    int i;
     uint8_t rx_data;
 
     /* First I2C transaction (2 bytes) */
