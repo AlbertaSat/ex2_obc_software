@@ -30,7 +30,7 @@
  * @return
  *   Returns 0 data written, <0 if unable to write data.
  **/
-int write_packet(void *buf_tx_data, uint16_t data_length) {
+int iris_write_packet(void *buf_tx_data, uint16_t data_length) {
     return i2c_Send(IRIS_I2C, SLAVE_ADDR, data_length, buf_tx_data);
 }
 
@@ -47,6 +47,6 @@ int write_packet(void *buf_tx_data, uint16_t data_length) {
  * @return
  *   Returns 0 data read, <0 if unable to read data.
  **/
-int read_packet(void *buf_rx_data, uint16_t data_length) {
+int iris_read_packet(void *buf_rx_data, uint16_t data_length) {
     return i2c_Receive(IRIS_I2C, SLAVE_ADDR, data_length, &buf_rx_data);
 }

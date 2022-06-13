@@ -6,7 +6,6 @@
  */
 
 #include "iris_bootloader_cmds.h"
-#include "common.h"
 #include "i2c_io.h"
 #include "HL_gio.h"
 #include "HL_reg_het.h"
@@ -24,7 +23,8 @@
  * - When combining both i2c and spi drivers for Iris, it will nice to
  *   have all of the GIO outputs in a different file (e.g. iris_gio.c)
  * - Also instead of using ints for good or bad return we should integrate
- *   the Iris status flags. This is implemented in the spi feature
+ *   the Iris status flags. This is implemented in the spi feature. Once both
+ *   features are merged, we can update this file
  */
 
 /**
@@ -121,8 +121,8 @@ int iris_write_page(uint32_t flash_addr, uint8_t * buffer) {
     /* First I2C transaction (2 bytes) */
     packet[0] = OPC_WRITE;
     packet[1] = N_OPC_WRITE;
-    write_packet(packet, 2);
-    read_packet(&rx_data, 1);
+    iris_write_packet(packet, 2);
+    iris_read_packet(&rx_data, 1);
     memset(packet, 0, WRITE_PACKET_LENGTH*sizeof(uint8_t));
 
 
@@ -133,8 +133,8 @@ int iris_write_page(uint32_t flash_addr, uint8_t * buffer) {
     packet[3] = (flash_addr >> (8*0)) & 0xff;
     flash_mem_checksum = packet[0] ^ packet[1] ^ packet[2] ^ packet[3];
     packet[4] = flash_mem_checksum;
-    write_packet(packet, 5);
-    read_packet(&rx_data, 1);
+    iris_write_packet(packet, 5);
+    iris_read_packet(&rx_data, 1);
     memset(packet, 0, WRITE_PACKET_LENGTH*sizeof(uint8_t));
 
 
@@ -147,8 +147,8 @@ int iris_write_page(uint32_t flash_addr, uint8_t * buffer) {
         data_checksum ^= *(packet + i + 1);
     }
     packet[num_bytes + 1] = data_checksum;
-    write_packet(packet, WRITE_PACKET_LENGTH);
-    read_packet(&rx_data, 1);
+    iris_write_packet(packet, WRITE_PACKET_LENGTH);
+    iris_read_packet(&rx_data, 1);
     memset(packet, 0, WRITE_PACKET_LENGTH*sizeof(uint8_t));
 
     return ret;
@@ -179,8 +179,8 @@ int iris_erase_page(uint16_t page_num) {
     /* First I2C transaction (2 bytes) */
     packet[0] = OPC_ERASE;
     packet[1] = N_OPC_ERASE;
-    write_packet(packet, 2);
-    read_packet(&rx_data, 1);
+    iris_write_packet(packet, 2);
+    iris_read_packet(&rx_data, 1);
     memset(packet, 0, ERASE_PACKET_LENGTH);
 
 
@@ -189,8 +189,8 @@ int iris_erase_page(uint16_t page_num) {
     packet[1] = NUM_PAGES_TO_ERASE - 1;
     num_page_erased_checksum = packet[0] ^ packet[1];
     packet[2] = num_page_erased_checksum;
-    write_packet(packet, 3);
-    read_packet(&rx_data, 1);
+    iris_write_packet(packet, 3);
+    iris_read_packet(&rx_data, 1);
     memset(packet, 0, ERASE_PACKET_LENGTH);
 
 
@@ -199,8 +199,8 @@ int iris_erase_page(uint16_t page_num) {
     packet[1] = (page_num >> (8*0)) & 0xff;
     page_num_checksum = packet[0] ^ packet[1];
     packet[2] = page_num_checksum;
-    write_packet(packet, 3);
-    read_packet(&rx_data, 1);
+    iris_write_packet(packet, 3);
+    iris_read_packet(&rx_data, 1);
     memset(packet, 0, ERASE_PACKET_LENGTH);
 
     return ret;
@@ -222,15 +222,15 @@ int iris_check_bootloader_version(uint8_t *version) {
     /* First I2C transaction (2 bytes) */
     packet[0] = OPC_CHECK_VERSION;
     packet[1] = N_OPC_CHECK_VERSION;
-    write_packet(packet, 2);
-    read_packet(&rx_data, 1);
+    iris_write_packet(packet, 2);
+    iris_read_packet(&rx_data, 1);
     memset(packet, 0, 2);
 
     /* Read bootloader version */
-    read_packet(&version, 1);
+    iris_read_packet(&version, 1);
 
     /* Wait for ACK/NACK */
-    read_packet(&rx_data, 1);
+    iris_read_packet(&rx_data, 1);
 
     return ret;
 }
@@ -256,8 +256,8 @@ int iris_go_to(uint32_t start_addr) {
     /* First I2C transaction (2 bytes) */
     packet[0] = OPC_GO;
     packet[1] = N_OPC_GO;
-    write_packet(packet, 2);
-    read_packet(&rx_data, 1);
+    iris_write_packet(packet, 2);
+    iris_read_packet(&rx_data, 1);
     memset(packet, 0, GO_PACKET_LENGTH);
 
 
@@ -268,8 +268,8 @@ int iris_go_to(uint32_t start_addr) {
     packet[3] = (start_addr >> (8*0)) & 0xff;
     start_addr_checksum = packet[0] ^ packet[1] ^ packet[2] ^ packet[3];
     packet[4] = start_addr_checksum;
-    write_packet(packet, 5);
-    read_packet(&rx_data, 1);
+    iris_write_packet(packet, 5);
+    iris_read_packet(&rx_data, 1);
     memset(packet, 0, GO_PACKET_LENGTH);
 
     return ret;
@@ -293,8 +293,8 @@ int iris_mass_erase_flash() {
     /* First I2C transaction (2 bytes) */
     packet[0] = OPC_ERASE;
     packet[1] = N_OPC_ERASE;
-    write_packet(packet, 2);
-    read_packet(&rx_data, 1);
+    iris_write_packet(packet, 2);
+    iris_read_packet(&rx_data, 1);
     memset(packet, 0, MASS_ERASE_PACKET_LENGTH);
 
 
@@ -303,8 +303,8 @@ int iris_mass_erase_flash() {
     packet[1] = ((num_pages_to_erase - 1) >> (8*0)) & 0xff;
     checksum = packet[0] ^ packet[1];
     packet[2] = checksum;
-    write_packet(packet, 3);
-    read_packet(&rx_data, 1);
+    iris_write_packet(packet, 3);
+    iris_read_packet(&rx_data, 1);
     memset(packet, 0, MASS_ERASE_PACKET_LENGTH);
 
     /* Second I2C transaction (3 bytes) */
@@ -319,8 +319,8 @@ int iris_mass_erase_flash() {
         page += 0x01;
     }
     packet[1024] = checksum;
-    write_packet(packet, 1025);
-    read_packet(&rx_data, 1);
+    iris_write_packet(packet, 1025);
+    iris_read_packet(&rx_data, 1);
     memset(packet, 0, MASS_ERASE_PACKET_LENGTH);
 
     return ret;

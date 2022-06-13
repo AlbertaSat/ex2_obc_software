@@ -12,7 +12,7 @@
 
 #define SLAVE_ADDR 0x42
 
-int write_packet(void *buf_tx_data, uint16_t data_length);
-int read_packet(void *buf_rx_data, uint16_t data_length);
+int iris_write_packet(void *buf_tx_data, uint16_t data_length);
+int iris_read_packet(void *buf_rx_data, uint16_t data_length);
 
 #endif /* INCLUDE_IRIS_I2C_H_ */
