@@ -37,7 +37,7 @@
 
 NS_return init_ns_io();
 
-NS_return send_NS_command(uint8_t* command, uint32_t command_length, uint8_t* answer, uint8_t answer_length);
-NS_return expect_NS_response(uint8_t length, uint8_t *response);
+NS_return NS_sendAndReceive(uint8_t* command, uint32_t command_length, uint8_t* answer, uint8_t answer_length);
+NS_return NS_expectResponse(uint8_t length, uint8_t *response);
 
 #endif // NORTHERN_SPIRIT_IO_H

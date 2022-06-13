@@ -44,7 +44,7 @@ NS_return NS_capture_image(void){
     uint8_t standard_answer[NS_STANDARD_ANS_LEN + NS_STANDARD_ANS_LEN];
 
     // Initiate image capture and receive first two acks
-    NS_return return_val = send_NS_command(command, NS_STANDARD_CMD_LEN, standard_answer, NS_STANDARD_ANS_LEN + NS_STANDARD_ANS_LEN);
+    NS_return return_val = NS_sendAndReceive(command, NS_STANDARD_CMD_LEN, standard_answer, NS_STANDARD_ANS_LEN + NS_STANDARD_ANS_LEN);
     if(return_val != NS_OK){
         xSemaphoreGive(ns_command_mutex);
         return return_val;
@@ -55,7 +55,7 @@ NS_return NS_capture_image(void){
 
     // Receive final ack
     uint8_t final_ack[NS_STANDARD_ANS_LEN];
-    return_val = expect_NS_response(NS_STANDARD_ANS_LEN, final_ack);
+    return_val = NS_expectResponse(NS_STANDARD_ANS_LEN, final_ack);
     if(return_val != NS_OK){
         xSemaphoreGive(ns_command_mutex);
         return return_val;
@@ -72,7 +72,7 @@ NS_return NS_confirm_downlink(void){
     uint8_t command[NS_STANDARD_CMD_LEN] = {'g', 'g', 'g'};
     uint8_t answer[NS_STANDARD_ANS_LEN + NS_STANDARD_ANS_LEN];
 
-    NS_return return_val = send_NS_command(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN + NS_STANDARD_ANS_LEN);
+    NS_return return_val = NS_sendAndReceive(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN + NS_STANDARD_ANS_LEN);
 
     xSemaphoreGive(ns_command_mutex);
     return return_val;
@@ -85,7 +85,7 @@ NS_return NS_get_heartbeat(uint8_t *heartbeat){
     uint8_t command[NS_STANDARD_CMD_LEN] = {'h', 'h', 'h'};
     uint8_t answer[NS_STANDARD_ANS_LEN];
 
-    NS_return return_val = send_NS_command(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN);
+    NS_return return_val = NS_sendAndReceive(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN);
 
     *heartbeat = answer[0];
     xSemaphoreGive(ns_command_mutex);
@@ -99,7 +99,7 @@ NS_return NS_get_software_version(uint8_t *version){
     uint8_t command[NS_STANDARD_CMD_LEN] = {'v', 'v', 'v'};
     uint8_t answer[NS_STANDARD_ANS_LEN + NS_SWVERSION_DATA_LEN + NS_STANDARD_ANS_LEN];
 
-    NS_return return_val = send_NS_command(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN + NS_SWVERSION_DATA_LEN + NS_STANDARD_ANS_LEN);
+    NS_return return_val = NS_sendAndReceive(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN + NS_SWVERSION_DATA_LEN + NS_STANDARD_ANS_LEN);
 
     memcpy(version, (answer + NS_STANDARD_ANS_LEN), NS_SWVERSION_DATA_LEN);
     xSemaphoreGive(ns_command_mutex);
@@ -114,7 +114,7 @@ NS_return NS_get_telemetry(uint8_t *telemetry){
     uint8_t answer[NS_STANDARD_ANS_LEN];
 
     // Initiate telemetry command and receive ack
-    NS_return return_val = send_NS_command(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN);
+    NS_return return_val = NS_sendAndReceive(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN);
 
     if(return_val != NS_OK){
         xSemaphoreGive(ns_command_mutex);
@@ -126,7 +126,7 @@ NS_return NS_get_telemetry(uint8_t *telemetry){
 
     // Receive telemetry data
     uint8_t response_data[NS_TELEMETRY_DATA_LEN + NS_STANDARD_ANS_LEN];
-    return_val = expect_NS_response(NS_TELEMETRY_DATA_LEN + NS_STANDARD_ANS_LEN, response_data);
+    return_val = NS_expectResponse(NS_TELEMETRY_DATA_LEN + NS_STANDARD_ANS_LEN, response_data);
 
     if(return_val != NS_OK){
         xSemaphoreGive(ns_command_mutex);
