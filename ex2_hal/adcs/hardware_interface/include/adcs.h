@@ -266,7 +266,7 @@ ADCS_returnState HAL_ADCS_finalize_upload_block(uint8_t file_dest, uint32_t offs
 ADCS_returnState HAL_ADCS_reset_upload_block();
 ADCS_returnState HAL_ADCS_reset_file_list_read_pointer();
 // TODO: determine the correct args for this function
-int HAL_ADCS_firmware_upload(uint8_t file_dest, uint8_t block_size);
+int HAL_ADCS_firmware_upload(uint8_t file_dest, char *filename);
 ADCS_returnState HAL_ADCS_initiate_download_burst(uint8_t msg_length, bool ignore_hole_map);
 
 // Common Telemetry
