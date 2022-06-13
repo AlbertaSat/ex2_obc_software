@@ -23,6 +23,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "logger.h"
 
 // Lengths of commands being sent
 #define NS_STANDARD_CMD_LEN 3
