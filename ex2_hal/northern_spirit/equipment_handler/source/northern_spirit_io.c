@@ -118,7 +118,7 @@ NS_return expect_NS_response(uint8_t length, uint8_t *response){
     }
     uint8_t received = 0;
     while(received < length){
-        if(xQueueReceive(nsQueue, (response+received), NS_UART_TIMEOUT_MS) != pdPASS){
+        if(xQueueReceive(nsQueue, (response+received), NS_UART_LONG_TIMEOUT_MS) != pdPASS){
             xSemaphoreGive(uart_mutex);
             return NS_UART_FAIL;
         }else{

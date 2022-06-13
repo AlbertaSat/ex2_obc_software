@@ -41,9 +41,25 @@ NS_return NS_capture_image(void){
         return NS_HANDLER_BUSY;
     }
     uint8_t command[NS_STANDARD_CMD_LEN] = {'c', 'c', 'c'};
-    uint8_t answer[NS_STANDARD_ANS_LEN + NS_STANDARD_ANS_LEN + NS_STANDARD_ANS_LEN];
+    uint8_t standard_answer[NS_STANDARD_ANS_LEN + NS_STANDARD_ANS_LEN];
 
-    NS_return return_val = send_NS_command(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN + NS_STANDARD_ANS_LEN + NS_STANDARD_ANS_LEN);
+    // Initiate image capture and receive first two acks
+    NS_return return_val = send_NS_command(command, NS_STANDARD_CMD_LEN, standard_answer, NS_STANDARD_ANS_LEN + NS_STANDARD_ANS_LEN);
+    if(return_val != NS_OK){
+        xSemaphoreGive(ns_command_mutex);
+        return return_val;
+    }
+
+    // Wait until image is captured
+    vTaskDelay(NS_IMAGE_COLLECTION_DELAY);
+
+    // Receive final ack
+    uint8_t final_ack[NS_STANDARD_ANS_LEN];
+    return_val = expect_NS_response(NS_STANDARD_ANS_LEN, final_ack);
+    if(return_val != NS_OK){
+        xSemaphoreGive(ns_command_mutex);
+        return return_val;
+    }
 
     xSemaphoreGive(ns_command_mutex);
     return return_val;
@@ -97,6 +113,7 @@ NS_return NS_get_telemetry(uint8_t *telemetry){
     uint8_t command[NS_STANDARD_CMD_LEN] = {'t', 't', 't'};
     uint8_t answer[NS_STANDARD_ANS_LEN];
 
+    // Initiate telemetry command and receive ack
     NS_return return_val = send_NS_command(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN);
 
     if(return_val != NS_OK){
@@ -104,8 +121,10 @@ NS_return NS_get_telemetry(uint8_t *telemetry){
         return return_val;
     }
 
+    // Wait until telemetry is collected
     vTaskDelay(NS_TELEMETRY_COLLECTION_DELAY);
 
+    // Receive telemetry data
     uint8_t response_data[NS_TELEMETRY_DATA_LEN + NS_STANDARD_ANS_LEN];
     return_val = expect_NS_response(NS_TELEMETRY_DATA_LEN + NS_STANDARD_ANS_LEN, response_data);
 

@@ -33,6 +33,7 @@
 
 #define NS_SEMAPHORE_TIMEOUT_MS pdMS_TO_TICKS(500)
 #define NS_UART_TIMEOUT_MS pdMS_TO_TICKS(500)
+#define NS_UART_LONG_TIMEOUT_MS pdMS_TO_TICKS(5000)
 
 NS_return init_ns_io();
 
