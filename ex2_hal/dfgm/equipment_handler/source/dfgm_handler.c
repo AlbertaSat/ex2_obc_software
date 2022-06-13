@@ -330,12 +330,6 @@ void dfgm_rx_task(void *pvParameters) {
     int received = 0;
     int32_t iErr = 0;
 
-    // Initialize reliance edge
-    iErr = red_init();
-    if (iErr == -1) {
-        exit(red_errno);
-    }
-
     // Initialize variables for filtering/downsampling
     secondPointer[0] = &secondBuffer[0];
     secondPointer[1] = &secondBuffer[1];
@@ -350,21 +344,33 @@ void dfgm_rx_task(void *pvParameters) {
     firstPacketFlag = 1;
 
     // Change file system directory to dfgm
-    iErr = red_chdir("VOL0:/dfgm");
-    if (iErr == -1) {
-        if((red_errno == RED_ENOENT) || (red_errno = RED_ENOTDIR)){
-            // Directory does not exist. Create it
-            iErr = red_mkdir("VOL0:/dfgm");
-            if(iErr == -1){
-                sys_log(CRITICAL, "Problem creating the DFGM directory. DFGM services not usable");
-                vTaskDelete(NULL);
-            }
-        }
-        iErr = red_chdir("VOL0:/dfgm");
-        if(iErr == -1){
-            sys_log(CRITICAL, "Problem changing into the DFGM directory. DFGM services not usable");
+    for(uint8_t retries = 0; retries <= 3; retries++){
+
+        if(retries == 3){
+            sys_log(CRITICAL, "Could not enter DFGM directory after multiple attempts. DFGM services not usable");
             vTaskDelete(NULL);
         }
+
+        iErr = red_chdir("VOL0:/dfgm");
+        if (iErr == -1) {
+            if((red_errno == RED_ENOENT) || (red_errno == RED_ENOTDIR)){
+                // Directory does not exist. Create it
+                iErr = red_mkdir("VOL0:/dfgm");
+                if(iErr == -1){
+                    sys_log(ERROR, "Problem creating the DFGM directory");
+                    vTaskDelay(20*ONE_SECOND);
+                    continue;
+                }
+            }
+            iErr = red_chdir("VOL0:/dfgm");
+            if(iErr == -1){
+                sys_log(ERROR, "Problem changing into the DFGM directory");
+                vTaskDelay(20*ONE_SECOND);
+                continue;
+            }
+        }
+        sys_log(INFO, "Successfully entered DFGM directory");
+        break;
     }
 
     char DFGM_raw_file_name[DFGM_FILE_NAME_MAX_SIZE] = {0};
