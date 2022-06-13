@@ -87,7 +87,7 @@ NS_return send_NS_command(uint8_t* command, uint32_t command_length, uint8_t* an
         return NS_UART_FAIL;
     }
 
-    int received = 0;
+    uint8_t received = 0;
     uint8_t* reply = (uint8_t *)pvPortMalloc(answer_length*sizeof(uint8_t));
 
     if (reply == NULL){
@@ -100,13 +100,32 @@ NS_return send_NS_command(uint8_t* command, uint32_t command_length, uint8_t* an
             vPortFree(reply);
             xSemaphoreGive(uart_mutex);
             return NS_UART_FAIL;
+        }else{
+            received++;
         }
-        received++;
     }
 
     memcpy(answer, reply, answer_length);
 
     vPortFree(reply);
+    xSemaphoreGive(uart_mutex);
+    return NS_OK;
+}
+
+NS_return expect_NS_response(uint8_t length, uint8_t *response){
+    if(xSemaphoreTake(uart_mutex, NS_SEMAPHORE_TIMEOUT_MS) != pdTRUE){
+        return NS_UART_BUSY;
+    }
+    uint8_t received = 0;
+    while(received < length){
+        if(xQueueReceive(nsQueue, (response+received), NS_UART_TIMEOUT_MS) != pdPASS){
+            xSemaphoreGive(uart_mutex);
+            return NS_UART_FAIL;
+        }else{
+            received++;
+        }
+    }
+
     xSemaphoreGive(uart_mutex);
     return NS_OK;
 }

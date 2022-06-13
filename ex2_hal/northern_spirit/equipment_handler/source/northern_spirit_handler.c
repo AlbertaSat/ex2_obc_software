@@ -21,41 +21,90 @@
 #include "northern_spirit_handler.h"
 #include "northern_spirit_io.h"
 
+static SemaphoreHandle_t ns_command_mutex;
+
 // Functions fulfilling functionality common to AuroraSat and YukonSat
 
-NS_return NS_get_heartbeat(uint8_t* heartbeat){
-    uint8_t command[NS_STANDARD_CMD_LEN] = {'h', 'h', 'h'};
-    uint8_t answer[NS_HEARTBEAT_ANS_LEN] = {0};
-
-    send_NS_command(command, NS_STANDARD_CMD_LEN, answer, NS_HEARTBEAT_ANS_LEN);
-
-    *heartbeat = answer[0];
-    return NS_OK;
-}
-
-NS_return NS_get_software_version(uint8_t* version){
-    uint8_t command[NS_STANDARD_CMD_LEN] = {'v', 'v', 'v'};
-    uint8_t answer[NS_SWVERSION_ANS_LEN] = {0};
-
-    send_NS_command(command, NS_STANDARD_CMD_LEN, answer, NS_SWVERSION_ANS_LEN);
-
-    memcpy(version, answer, NS_SWVERSION_ANS_LEN);
-
-    return NS_OK;
-}
-
-NS_return NS_get_telemetry(uint8_t* telemetry){
-    uint8_t command[NS_STANDARD_CMD_LEN] = {'t', 't', 't'};
-    uint8_t answer[NS_TELEMETRY_ANS_LEN] = {0};
-
-    send_NS_command(command, NS_STANDARD_CMD_LEN, answer, NS_TELEMETRY_ANS_LEN);
-
-    memcpy(telemetry, answer, NS_TELEMETRY_ANS_LEN);
-
-    for(int i = 0; i < NS_TELEMETRY_ANS_LEN; i++){
-        printf("Telemetry answer[%x]: %x\n", i, answer[i]);
+NS_return NS_handler_init(){
+    ns_command_mutex = xSemaphoreCreateMutex();
+    if(ns_command_mutex == NULL){
+        return NS_FAIL;
+    }
+    if(init_ns_io() != NS_OK){
+        return NS_FAIL;
     }
     return NS_OK;
+}
+
+NS_return NS_capture_image(void){
+    if(xSemaphoreTake(ns_command_mutex, NS_COMMAND_MUTEX_TIMEOUT) != pdTRUE){
+        return NS_HANDLER_BUSY;
+    }
+    uint8_t command[NS_STANDARD_CMD_LEN] = {'c', 'c', 'c'};
+    uint8_t answer[NS_CAPTURE_IMAGE_ANS_LEN];
+
+    NS_return return_val = send_NS_command(command, NS_STANDARD_CMD_LEN, answer, NS_HEARTBEAT_ANS_LEN);
+
+    xSemaphoreGive(ns_command_mutex);
+    return return_val;
+}
+
+NS_return NS_get_heartbeat(uint8_t *heartbeat){
+    if(xSemaphoreTake(ns_command_mutex, NS_COMMAND_MUTEX_TIMEOUT) != pdTRUE){
+        return NS_HANDLER_BUSY;
+    }
+    uint8_t command[NS_STANDARD_CMD_LEN] = {'h', 'h', 'h'};
+    uint8_t answer[NS_HEARTBEAT_ANS_LEN];
+
+    NS_return return_val = send_NS_command(command, NS_STANDARD_CMD_LEN, answer, NS_HEARTBEAT_ANS_LEN);
+
+    *heartbeat = answer[0];
+    xSemaphoreGive(ns_command_mutex);
+    return return_val;
+}
+
+NS_return NS_get_software_version(uint8_t *version){
+    if(xSemaphoreTake(ns_command_mutex, NS_COMMAND_MUTEX_TIMEOUT) != pdTRUE){
+        return NS_HANDLER_BUSY;
+    }
+    uint8_t command[NS_STANDARD_CMD_LEN] = {'v', 'v', 'v'};
+    uint8_t answer[NS_SWVERSION_ANS_LEN];
+
+    NS_return return_val = send_NS_command(command, NS_STANDARD_CMD_LEN, answer, NS_SWVERSION_ANS_LEN);
+
+    memcpy(version, answer, NS_SWVERSION_ANS_LEN);
+    xSemaphoreGive(ns_command_mutex);
+    return return_val;
+}
+
+NS_return NS_get_telemetry(uint8_t *telemetry){
+    if(xSemaphoreTake(ns_command_mutex, NS_COMMAND_MUTEX_TIMEOUT) != pdTRUE){
+        return NS_HANDLER_BUSY;
+    }
+    uint8_t command[NS_STANDARD_CMD_LEN] = {'t', 't', 't'};
+    uint8_t answer[NS_TELEMETRY_ANS_LEN];
+
+    NS_return return_val = send_NS_command(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_CMD_LEN);
+
+    if(return_val != NS_OK){
+        xSemaphoreGive(ns_command_mutex);
+        return return_val;
+    }
+
+    vTaskDelay(NS_TELEMETRY_COLLECTION_DELAY);
+
+    uint8_t response_data[NS_TELEMETRY_DATA_LEN + NS_STANDARD_ANS_LEN];
+    return_val = expect_NS_response(NS_TELEMETRY_DATA_LEN + NS_STANDARD_ANS_LEN, response_data);
+
+    if(return_val != NS_OK){
+        xSemaphoreGive(ns_command_mutex);
+        return return_val;
+    }
+
+    memcpy(telemetry, response_data, NS_TELEMETRY_DATA_LEN);
+
+    xSemaphoreGive(ns_command_mutex);
+    return return_val;
 }
 
 #ifdef IS_YUKONSAT
