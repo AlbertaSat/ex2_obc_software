@@ -19,6 +19,7 @@
  */
 
 #include "iris_i2c.h"
+#include "common.h"
 #include "FreeRTOS.h"
 #include "i2c_io.h"
 #include "system.h"

@@ -19,6 +19,7 @@
  */
 
 #include "iris_bootloader_cmds.h"
+#include "common.h"
 #include "i2c_io.h"
 #include "HL_gio.h"
 #include "HL_reg_het.h"
