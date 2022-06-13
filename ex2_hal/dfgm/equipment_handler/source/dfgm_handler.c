@@ -343,43 +343,39 @@ void dfgm_rx_task(void *pvParameters) {
     collecting_HK = 0;
     firstPacketFlag = 1;
 
-    // Change file system directory to dfgm
-    for(uint8_t retries = 0; retries <= 3; retries++){
-
-        if(retries == 3){
-            sys_log(CRITICAL, "Could not enter DFGM directory after multiple attempts. DFGM services not usable");
-            vTaskDelete(NULL);
-        }
-
-        iErr = red_chdir("VOL0:/dfgm");
-        if (iErr == -1) {
-            if((red_errno == RED_ENOENT) || (red_errno == RED_ENOTDIR)){
-                // Directory does not exist. Create it
-                iErr = red_mkdir("VOL0:/dfgm");
-                if(iErr == -1){
-                    sys_log(ERROR, "Problem creating the DFGM directory");
-                    vTaskDelay(20*ONE_SECOND);
-                    continue;
-                }
-            }
-            iErr = red_chdir("VOL0:/dfgm");
-            if(iErr == -1){
-                sys_log(ERROR, "Problem changing into the DFGM directory");
-                vTaskDelay(20*ONE_SECOND);
-                continue;
-            }
-        }
-        sys_log(INFO, "Successfully entered DFGM directory");
-        break;
-    }
-
     char DFGM_raw_file_name[DFGM_FILE_NAME_MAX_SIZE] = {0};
     char DFGM_100Hz_file_name[DFGM_FILE_NAME_MAX_SIZE] = {0};
     char DFGM_1Hz_file_name[DFGM_FILE_NAME_MAX_SIZE] = {0};
 
     // Trigger dfgm_sciNotification
     sciReceive(DFGM_SCI, 1, &DFGM_byteBuffer);
+    bool dfgm_directory_initialized = false;
     for (;;) {
+
+        if(!dfgm_directory_initialized){
+            // Enter DFGM directory
+            iErr = red_chdir("VOL0:/dfgm");
+            if (iErr == -1) {
+                if((red_errno == RED_ENOENT) || (red_errno == RED_ENOTDIR)){
+                    // Directory does not exist. Create it
+                    iErr = red_mkdir("VOL0:/dfgm");
+                    if(iErr == -1){
+                        sys_log(ERROR, "Problem %d creating the DFGM directory", red_errno);
+                        vTaskDelay(10*ONE_SECOND);
+                        continue;
+                    }
+                }
+                iErr = red_chdir("VOL0:/dfgm");
+                if(iErr == -1){
+                    sys_log(ERROR, "Problem %d changing into the DFGM directory", red_errno);
+                    vTaskDelay(10*ONE_SECOND);
+                    continue;
+                }
+            }
+            sys_log(INFO, "Successfully entered DFGM directory");
+            dfgm_directory_initialized = true;
+        }
+
         received = 0;
         // Always receive packets from queue
         memset(&data, 0, sizeof(dfgm_data_t));
