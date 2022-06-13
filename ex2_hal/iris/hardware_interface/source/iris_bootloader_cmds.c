@@ -21,33 +21,57 @@
  *   still WIP. We would like to have this functionality working in
  *   the future. But, we can manage with erasing individual pages for
  *   now
- * - When combining both i2c and spi drivers for iris, it will nice to
+ * - When combining both i2c and spi drivers for Iris, it will nice to
  *   have all of the GIO outputs in a different file (e.g. iris_gio.c)
  * - Also instead of using ints for good or bad return we should integrate
- *   the iris status flags. This is implemented in the spi feature
+ *   the Iris status flags. This is implemented in the spi feature
  */
 
+/**
+ * @brief
+ *   Initialize i2c driver for Iris programming
+ **/
 void iris_i2c_init() {
    /* i2c initialization */
     init_i2c_driver();
 }
 
+/**
+ * @brief
+ *  Pull boot line low
+ **/
 void BOOT_LOW() {
     gioSetBit(hetPORT1, 14, 0);
 }
 
+/**
+ * @brief
+ *  Pull boot line high
+ **/
 void BOOT_HIGH() {
     gioSetBit(hetPORT1, 14, 1);
 }
 
+/**
+ * @brief
+ *  Pull power line low
+ **/
 void POWER_OFF() {
     gioSetBit(hetPORT1, 8, 0);
 }
 
+/**
+ * @brief
+ *  Pull power line high
+ **/
 void POWER_ON() {
     gioSetBit(hetPORT1, 8, 1);
 }
 
+/**
+ * @brief
+ *  GIO sequence to put Iris in boot mode
+ **/
 void iris_pre_sequence() {
     /* Start initialization sequence before I2C transaction */
     POWER_OFF();
@@ -58,6 +82,10 @@ void iris_pre_sequence() {
     vTaskDelay(100);
 }
 
+/**
+ * @brief
+ *  GIO sequence to put Iris out of boot mode
+ **/
 void iris_post_sequence() {
     /* End I2C transaction by doing end sequence*/
     BOOT_LOW();
@@ -67,14 +95,27 @@ void iris_post_sequence() {
     POWER_ON();
 }
 
+/**
+ * @brief
+ *   Write page in flash memory on Iris
+ *
+ * @param[in] flash_addr
+ *   Starting flash address from which writing is desired
+ *
+ * @param[in] buffer
+ *   Pointer to write data
+ *
+ * @return
+ *   Returns 0 data written, <0 if unable to write data.
+ **/
 int iris_write_page(uint32_t flash_addr, uint8_t * buffer) {
-    uint8_t num_bytes = FLASH_MEM_PAGE_SIZE;     /* number of bytes is equal to page size of flash memory on iris */
-    uint8_t *packet = (uint8_t*)calloc(WRITE_PACKET_LENGTH, sizeof(uint8_t));           /*  Allocate bytes equal to page size of flash memory */
+    /* number of bytes is equal to page size of flash memory on Iris */
+    uint8_t num_bytes = FLASH_MEM_PAGE_SIZE;
+    /*  Allocate bytes equal to page size of flash memory */
+    static uint8_t packet[WRITE_PACKET_LENGTH];
     uint8_t flash_mem_checksum = 0x00;
     uint8_t data_checksum = 0x00;
-
     int ret = 0x00;
-    int i;
     uint8_t rx_data;
 
     /* First I2C transaction (2 bytes) */
@@ -101,7 +142,7 @@ int iris_write_page(uint32_t flash_addr, uint8_t * buffer) {
     packet[0] = num_bytes - 1;
     data_checksum ^= packet[0];
     // transmit N+1 bytes of data
-    for(i = 0; i < 128; i++){
+    for(int i = 0; i < FLASH_MEM_PAGE_SIZE; i++){
         packet[i+1] = buffer[i];
         data_checksum ^= *(packet + i + 1);
     }
@@ -110,14 +151,25 @@ int iris_write_page(uint32_t flash_addr, uint8_t * buffer) {
     read_packet(&rx_data, 1);
     memset(packet, 0, WRITE_PACKET_LENGTH*sizeof(uint8_t));
 
-    free(packet);
-
     return ret;
 }
 
-/* Page number is from 0-511, starting from 0x0800 0000 - 0x0x0800 FFFF */
+/**
+ * @brief
+ *   Erase page in flash memory on Iris
+ *
+ * @param[in] page_num
+ *   Page index to be erased. Page number is from 0-511,
+ *   starting from 0x0800 0000 - 0x0x0800 FFFF
+ *
+ * @param[in] buffer
+ *   Pointer to write data
+ *
+ * @return
+ *   Returns 0 data erased, <0 if unable to erase data.
+ **/
 int iris_erase_page(uint16_t page_num) {
-    uint8_t *packet = (uint8_t*)calloc(ERASE_PACKET_LENGTH, sizeof(uint8_t));
+    static uint8_t packet[ERASE_PACKET_LENGTH];
     uint8_t num_page_erased_checksum = 0x00;
     uint8_t page_num_checksum = 0x00;
 
@@ -151,14 +203,18 @@ int iris_erase_page(uint16_t page_num) {
     read_packet(&rx_data, 1);
     memset(packet, 0, ERASE_PACKET_LENGTH);
 
-    free(packet);
-
     return ret;
 }
 
-
-int iris_check_bootloader_version() {
-    uint8_t *packet = (uint8_t*)calloc(2, sizeof(uint8_t));
+/**
+ * @brief
+ *   Checks i2c bootloader version on Iris
+ *
+ * @return
+ *   Returns 0 if version obtained, <0 if unable to get version.
+ **/
+int iris_check_bootloader_version(uint8_t *version) {
+    static uint8_t packet[CHECK_VERSION_PACKET_LENGTH];
 
     int ret = 0x00;
     uint8_t rx_data;
@@ -171,18 +227,27 @@ int iris_check_bootloader_version() {
     memset(packet, 0, 2);
 
     /* Read bootloader version */
-    read_packet(&rx_data, 1);
+    read_packet(&version, 1);
 
     /* Wait for ACK/NACK */
     read_packet(&rx_data, 1);
 
-    free(packet);
-
     return ret;
 }
 
+/**
+ * @brief
+ *   Jumps to user application code located in the internal Flash
+ *   memory.
+ *
+ * @param[in] flash_addr
+ *   Flash address to jump to
+ *
+ * @return
+ *   Returns 0 jump is successfully, <0 if unable to jump.
+ **/
 int iris_go_to(uint32_t start_addr) {
-    uint8_t *packet = (uint8_t*)calloc(GO_PACKET_LENGTH, sizeof(uint8_t));
+    static uint8_t packet[GO_PACKET_LENGTH];
     uint8_t start_addr_checksum = 0x00;
 
     int ret = 0x00;
@@ -207,14 +272,18 @@ int iris_go_to(uint32_t start_addr) {
     read_packet(&rx_data, 1);
     memset(packet, 0, GO_PACKET_LENGTH);
 
-    free(packet);
-
     return ret;
 }
 
-
+/**
+ * @brief
+ *   Erase entire flash program memory. TODO: Not yet being verified
+ *
+ * @return
+ *   Returns 0 flash memory is erased, <0 if unable to mass erase.
+ **/
 int iris_mass_erase_flash() {
-    uint8_t packet[MASS_ERASE_PACKET_LENGTH];
+    static uint8_t packet[MASS_ERASE_PACKET_LENGTH];
     uint16_t num_pages_to_erase = 512;
     uint8_t checksum = 0x00;
 

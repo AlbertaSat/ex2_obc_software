@@ -17,10 +17,36 @@
  *   that we can load .bin file accurately to iris.
  */
 
+/**
+ * @brief
+ *   Transmits bytes via the I2C bus
+ *
+ * @param[in] buf_tx_data
+ *   Pointer to transmit data buffer
+ *
+ * @param[in] data_length
+ *   Number of bytes to transmit
+
+ * @return
+ *   Returns 0 data written, <0 if unable to write data.
+ **/
 int write_packet(void *buf_tx_data, uint16_t data_length) {
-    return i2c_Send(IRIS_I2C, SLAVE_ADDR, data_length, buf_tx_data); //Data size is constant as 7-bit data + 1-bit R/W (8 bits), should this be constant?
+    return i2c_Send(IRIS_I2C, SLAVE_ADDR, data_length, buf_tx_data);
 }
 
+/**
+ * @brief
+ *   Receives bytes via the I2C bus
+ *
+ * @param[in] buf_tx_data
+ *   Pointer to receive data buffer
+ *
+ * @param[in] data_length
+ *   Number of bytes to receive
+
+ * @return
+ *   Returns 0 data read, <0 if unable to read data.
+ **/
 int read_packet(void *buf_rx_data, uint16_t data_length) {
-    return i2c_Receive(IRIS_I2C, SLAVE_ADDR, data_length, &buf_rx_data); //Data is stored in buf_tx_data
+    return i2c_Receive(IRIS_I2C, SLAVE_ADDR, data_length, &buf_rx_data);
 }
