@@ -18,8 +18,8 @@
  * @date 2021-10-22
  */
 
-#ifndef NORTHERN_SPIRIT_HANDLER
-#define NORTHERN_SPIRIT_HANDLER
+#ifndef NORTHERN_SPIRIT_HANDLER_H
+#define NORTHERN_SPIRIT_HANDLER_H
 
 #include <stdint.h>
 
@@ -28,10 +28,9 @@
 
 // Lengths of expected answers
 #define NS_STANDARD_ANS_LEN 2
-#define NS_HEARTBEAT_ANS_LEN 2
-#define NS_SWVERSION_ANS_LEN 11
-#define NS_TELEMETRY_DATA_LEN 74
-#define NS_CAPTURE_IMAGE_ANS_LEN 1
+
+#define NS_SWVERSION_DATA_LEN 7
+#define NS_TELEMETRY_DATA_LEN 72
 
 #define NS_TELEMETRY_COLLECTION_DELAY pdMS_TO_TICKS(30000)
 #define NS_COMMAND_MUTEX_TIMEOUT pdMS_TO_TICKS(2000)
@@ -52,4 +51,4 @@ NS_return NS_get_heartbeat(uint8_t* heartbeat);
 NS_return NS_get_software_version(uint8_t* version);
 NS_return NS_get_telemetry(uint8_t* telemetry);
 
-#endif // NORTHERN_SPIRIT_HANDLER
+#endif // NORTHERN_SPIRIT_HANDLER_H

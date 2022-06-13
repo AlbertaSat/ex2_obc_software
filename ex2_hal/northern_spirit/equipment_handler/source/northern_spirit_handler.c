@@ -41,9 +41,22 @@ NS_return NS_capture_image(void){
         return NS_HANDLER_BUSY;
     }
     uint8_t command[NS_STANDARD_CMD_LEN] = {'c', 'c', 'c'};
-    uint8_t answer[NS_CAPTURE_IMAGE_ANS_LEN];
+    uint8_t answer[NS_STANDARD_ANS_LEN + NS_STANDARD_ANS_LEN + NS_STANDARD_ANS_LEN];
 
-    NS_return return_val = send_NS_command(command, NS_STANDARD_CMD_LEN, answer, NS_HEARTBEAT_ANS_LEN);
+    NS_return return_val = send_NS_command(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN + NS_STANDARD_ANS_LEN + NS_STANDARD_ANS_LEN);
+
+    xSemaphoreGive(ns_command_mutex);
+    return return_val;
+}
+
+NS_return NS_confirm_downlink(void){
+    if(xSemaphoreTake(ns_command_mutex, NS_COMMAND_MUTEX_TIMEOUT) != pdTRUE){
+        return NS_HANDLER_BUSY;
+    }
+    uint8_t command[NS_STANDARD_CMD_LEN] = {'g', 'g', 'g'};
+    uint8_t answer[NS_STANDARD_ANS_LEN + NS_STANDARD_ANS_LEN];
+
+    NS_return return_val = send_NS_command(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN + NS_STANDARD_ANS_LEN);
 
     xSemaphoreGive(ns_command_mutex);
     return return_val;
@@ -54,9 +67,9 @@ NS_return NS_get_heartbeat(uint8_t *heartbeat){
         return NS_HANDLER_BUSY;
     }
     uint8_t command[NS_STANDARD_CMD_LEN] = {'h', 'h', 'h'};
-    uint8_t answer[NS_HEARTBEAT_ANS_LEN];
+    uint8_t answer[NS_STANDARD_ANS_LEN];
 
-    NS_return return_val = send_NS_command(command, NS_STANDARD_CMD_LEN, answer, NS_HEARTBEAT_ANS_LEN);
+    NS_return return_val = send_NS_command(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN);
 
     *heartbeat = answer[0];
     xSemaphoreGive(ns_command_mutex);
@@ -68,11 +81,11 @@ NS_return NS_get_software_version(uint8_t *version){
         return NS_HANDLER_BUSY;
     }
     uint8_t command[NS_STANDARD_CMD_LEN] = {'v', 'v', 'v'};
-    uint8_t answer[NS_SWVERSION_ANS_LEN];
+    uint8_t answer[NS_STANDARD_ANS_LEN + NS_SWVERSION_DATA_LEN + NS_STANDARD_ANS_LEN];
 
-    NS_return return_val = send_NS_command(command, NS_STANDARD_CMD_LEN, answer, NS_SWVERSION_ANS_LEN);
+    NS_return return_val = send_NS_command(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN + NS_SWVERSION_DATA_LEN + NS_STANDARD_ANS_LEN);
 
-    memcpy(version, answer, NS_SWVERSION_ANS_LEN);
+    memcpy(version, (answer + NS_STANDARD_ANS_LEN), NS_SWVERSION_DATA_LEN);
     xSemaphoreGive(ns_command_mutex);
     return return_val;
 }
@@ -82,9 +95,9 @@ NS_return NS_get_telemetry(uint8_t *telemetry){
         return NS_HANDLER_BUSY;
     }
     uint8_t command[NS_STANDARD_CMD_LEN] = {'t', 't', 't'};
-    uint8_t answer[NS_TELEMETRY_ANS_LEN];
+    uint8_t answer[NS_STANDARD_ANS_LEN];
 
-    NS_return return_val = send_NS_command(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_CMD_LEN);
+    NS_return return_val = send_NS_command(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN);
 
     if(return_val != NS_OK){
         xSemaphoreGive(ns_command_mutex);

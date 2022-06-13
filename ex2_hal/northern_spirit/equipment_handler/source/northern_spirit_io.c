@@ -104,7 +104,7 @@ NS_return send_NS_command(uint8_t* command, uint32_t command_length, uint8_t* an
             received++;
         }
     }
-
+    xQueueReset(nsQueue);
     memcpy(answer, reply, answer_length);
 
     vPortFree(reply);

@@ -17,6 +17,8 @@
  * @author Thomas Ganley
  * @date 2021-10-26
  */
+#ifndef NORTHERN_SPIRIT_IO_H
+#define NORTHERN_SPIRIT_IO_H
 
 #include "northern_spirit_handler.h"
 #include "FreeRTOS.h"
@@ -35,3 +37,6 @@
 NS_return init_ns_io();
 
 NS_return send_NS_command(uint8_t* command, uint32_t command_length, uint8_t* answer, uint8_t answer_length);
+NS_return expect_NS_response(uint8_t length, uint8_t *response);
+
+#endif // NORTHERN_SPIRIT_IO_H
