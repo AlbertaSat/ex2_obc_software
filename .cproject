@@ -305,10 +305,10 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="libcsp/src/arch/macosx|ex2_sdr/third_party/viterbi/tests|ex2_hal/adcs/equipment_handler/src/uart_i2c.c|libcsp/src/rtable/csp_rtable_cidr.c|ex2_sdr/lib/error_control/scrambler.cpp|libcsp/src/bindings|ex2_services/Services/include/athena|ex2_hal/charon/test|ex2_sdr/unit_tests|ex2_hal/adcs/equipment_handler/test|ex2_sdr/src|libcsp/src/drivers/usart/usart_windows.c|ex2_services/Services/source/athena|libcsp/src/drivers/usart/usart_linux.c|libcsp/src/drivers/can/can_socketcan.c|libcsp/src/arch/posix|ex2_sdr/lib/error_control/crc.cpp|ex2_sdr/lib/utilities/version.cpp|ex2_sdr/include/error_control|libcsp/src/bindings|libcsp/examples|libcsp/src/arch/windows|ex2_hal/charon/ceedling-deprecated|test|ex2_sdr/lib/mac_layer/circular_buffer.c|ex2_hal/sband/equipment_handler|ex2_sdr/lib/error_control/qcldpc" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="ex2_hal/sband/equipment_handler/test"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="ex2_hal/sband/equipment_handler/include"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="ex2_hal/sband/equipment_handler/source"/>
+						<entry excluding="ex2_sdr/gnuradio|ex2_sdr/gnuradio/utils|libcsp/src/arch/macosx|ex2_sdr/third_party/viterbi/tests|ex2_hal/adcs/equipment_handler/src/uart_i2c.c|libcsp/src/rtable/csp_rtable_cidr.c|ex2_sdr/lib/error_control/scrambler.cpp|libcsp/src/bindings|ex2_services/Services/include/athena|ex2_hal/charon/test|ex2_sdr/unit_tests|ex2_hal/adcs/equipment_handler/test|ex2_sdr/src|libcsp/src/drivers/usart/usart_windows.c|ex2_services/Services/source/athena|libcsp/src/drivers/usart/usart_linux.c|libcsp/src/drivers/can/can_socketcan.c|libcsp/src/arch/posix|ex2_sdr/lib/error_control/crc.cpp|ex2_sdr/lib/utilities/version.cpp|ex2_sdr/include/error_control|libcsp/examples|libcsp/src/arch/windows|ex2_hal/charon/ceedling-deprecated|test|ex2_sdr/lib/mac_layer/circular_buffer.c|ex2_hal/sband/equipment_handler|ex2_sdr/lib/error_control/qcldpc" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
