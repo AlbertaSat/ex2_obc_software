@@ -22,15 +22,18 @@
 #define NORTHERN_SPIRIT_HANDLER_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 // Lengths of commands being sent
 #define NS_STANDARD_CMD_LEN 3
+#define NS_SUBCODED_CMD_LEN 6
 
 // Lengths of expected answers
 #define NS_STANDARD_ANS_LEN 2
 
-#define NS_SWVERSION_DATA_LEN 7
+#define NS_FLAG_DATA_LEN 1
 #define NS_TELEMETRY_DATA_LEN 72
+#define NS_SWVERSION_DATA_LEN 7
 
 #define NS_IMAGE_COLLECTION_DELAY pdMS_TO_TICKS(10000)
 #define NS_TELEMETRY_COLLECTION_DELAY pdMS_TO_TICKS(30000)
@@ -46,6 +49,11 @@ typedef enum{
     NS_UART_BUSY,
     NS_MALLOC_FAIL,
 }NS_return;
+
+typedef enum{
+    CameraStatus = 'c',
+    SDcardStatus = 's',
+}NS_flag_subcodes;
 
 NS_return NS_capture_image(void);
 NS_return NS_get_heartbeat(uint8_t* heartbeat);
