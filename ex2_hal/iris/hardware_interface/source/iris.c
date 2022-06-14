@@ -132,7 +132,7 @@ IrisHALReturn iris_get_image_length(uint32_t *image_length) {
  *   Returns IRIS_HAL_OK if equipment handler returns IRIS_ACK, else IRIS_HAL_ERROR
  **/
 IrisHALReturn iris_transfer_image(uint32_t image_length) {
-    uint32_t num_transfer;
+    uint16_t num_transfer;
     IrisLowLevelReturn ret;
 
     controller_state = SEND_COMMAND;
@@ -147,6 +147,7 @@ IrisHALReturn iris_transfer_image(uint32_t image_length) {
                 } else {
                     controller_state = FINISH;
                 }
+                vTaskDelay(100);
                 break;
             }
             case GET_DATA: // Get image data in chunks/blocks
@@ -157,7 +158,9 @@ IrisHALReturn iris_transfer_image(uint32_t image_length) {
                     ex2_log("Failed attempt to dynamically allocate memory under iris get image data");
                     return IRIS_HAL_ERROR;;
                 }
-                num_transfer = (IMAGE_TRANSFER_SIZE + image_length) / IMAGE_TRANSFER_SIZE; // Ceiling division
+                num_transfer = (uint16_t) ((IMAGE_TRANSFER_SIZE + image_length) / IMAGE_TRANSFER_SIZE); // Ceiling division
+                iris_send_data(&num_transfer, 1);
+                vTaskDelay(100);
                 for (uint32_t count_transfer = 0; count_transfer < num_transfer; count_transfer++) {
                     ret = iris_get_data(image_data_buffer, IMAGE_TRANSFER_SIZE);
                     // TODO: Do something with the received data (e.g transfer it to the SD card)
@@ -165,6 +168,8 @@ IrisHALReturn iris_transfer_image(uint32_t image_length) {
                     // much data processing in driver code
 
                     memset(image_data_buffer, 0, IMAGE_TRANSFER_SIZE);
+
+                    vTaskDelay(50);
                 }
                 vPortFree(image_data_buffer);
                 controller_state = FINISH;
@@ -300,6 +305,7 @@ IrisHALReturn iris_get_housekeeping(iris_housekeeping_data hk_data) {
                 } else {
                     controller_state = FINISH;
                 }
+                vTaskDelay(100);
                 break;
             }
             case GET_DATA:
@@ -330,6 +336,8 @@ IrisHALReturn iris_get_housekeeping(iris_housekeeping_data hk_data) {
                 hk_data.MIN_3V_voltage = housekeeping_buffer[22] << 8 | housekeeping_buffer[21];
 
                 controller_state = FINISH;
+
+                vTaskDelay(100);
                 break;
             }
             case FINISH:
