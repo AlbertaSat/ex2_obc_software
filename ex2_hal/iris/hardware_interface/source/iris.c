@@ -92,7 +92,7 @@ IrisHALReturn iris_get_image_length(uint32_t *image_length) {
             }
             case GET_DATA:
             {
-                uint16_t image_length_buffer[MAX_IMAGE_LENGTH];
+                static uint16_t image_length_buffer[MAX_IMAGE_LENGTH];
                 ret = iris_get_data(image_length_buffer, MAX_IMAGE_LENGTH);
                 if (ret == IRIS_HAL_OK) {
                     controller_state = FINISH;
@@ -151,12 +151,8 @@ IrisHALReturn iris_transfer_image(uint32_t image_length) {
             }
             case GET_DATA: // Get image data in chunks/blocks
             {
-                uint16_t * image_data_buffer = (uint16_t*) pvPortMalloc(IMAGE_TRANSFER_SIZE * sizeof(uint16_t));
+                static uint16_t image_data_buffer[IMAGE_TRANSFER_SIZE];
                 memset(image_data_buffer, 0, IMAGE_TRANSFER_SIZE);
-                if (image_data_buffer == NULL) {
-                    ex2_log("Failed attempt to dynamically allocate memory under iris get image data");
-                    return IRIS_HAL_ERROR;;
-                }
                 num_transfer = (IMAGE_TRANSFER_SIZE + image_length) / IMAGE_TRANSFER_SIZE; // Ceiling division
                 for (uint32_t count_transfer = 0; count_transfer < num_transfer; count_transfer++) {
                     ret = iris_get_data(image_data_buffer, IMAGE_TRANSFER_SIZE);
@@ -166,7 +162,6 @@ IrisHALReturn iris_transfer_image(uint32_t image_length) {
 
                     memset(image_data_buffer, 0, IMAGE_TRANSFER_SIZE);
                 }
-                vPortFree(image_data_buffer);
                 controller_state = FINISH;
                 break;
             }
@@ -305,7 +300,7 @@ IrisHALReturn iris_get_housekeeping(iris_housekeeping_data hk_data) {
             case GET_DATA:
             {
 
-                uint16_t housekeeping_buffer[HOUSEKEEPING_SIZE];
+                static uint16_t housekeeping_buffer[HOUSEKEEPING_SIZE];
                 ret = iris_get_data(housekeeping_buffer, HOUSEKEEPING_SIZE);
                 if (ret == IRIS_HAL_OK) {
                     controller_state = FINISH;
