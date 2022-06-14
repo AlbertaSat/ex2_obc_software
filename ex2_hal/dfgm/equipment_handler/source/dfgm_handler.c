@@ -473,7 +473,7 @@ void DFGM_init() {
     TaskHandle_t dfgm_rx_handle;
     DFGM_queue = xQueueCreate(DFGM_QUEUE_DEPTH, sizeof(uint8_t));
     TX_semaphore = xSemaphoreCreateBinary();
-    xTaskCreate(dfgm_rx_task, "DFGM RX", 256, NULL, DFGM_RX_PRIO,
+    xTaskCreate(dfgm_rx_task, "DFGM RX", DFGM_RX_TASK_SIZE, NULL, DFGM_RX_PRIO,
                 &dfgm_rx_handle);
     return;
 }
