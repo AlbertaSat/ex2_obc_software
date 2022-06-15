@@ -352,14 +352,19 @@ void dfgm_rx_task(void *pvParameters) {
     // Trigger dfgm_sciNotification
     sciReceive(DFGM_SCI, 1, &DFGM_byteBuffer);
     for (;;) {
+        received = 0;
         // Always receive packets from queue
         memset(&data, 0, sizeof(dfgm_data_t));
         while (received < sizeof(dfgm_packet_t)) {
             uint8_t *pkt = (uint8_t *)&(data.packet);
-            xQueueReceive(DFGM_queue, &(pkt[received]), portMAX_DELAY);
-            received++;
+            if(xQueueReceive(DFGM_queue, &(pkt[received]), pdMS_TO_TICKS(100)) != pdTRUE){
+                // No packet yet, or we started mid-way through a packet. Restart.
+                received = 0;
+            }else{
+                received++;
+            }
         }
-        received = 0;
+
 
         // If a runtime is specified, process data
         if (secondsPassed < DFGM_runtime) {
@@ -429,7 +434,7 @@ void dfgm_rx_task(void *pvParameters) {
  */
 void DFGM_init() {
     TaskHandle_t dfgm_rx_handle;
-    DFGM_queue = xQueueCreate(QUEUE_DEPTH, sizeof(uint8_t));
+    DFGM_queue = xQueueCreate(DFGM_QUEUE_DEPTH, sizeof(uint8_t));
     TX_semaphore = xSemaphoreCreateBinary();
     xTaskCreate(dfgm_rx_task, "DFGM RX", 256, NULL, DFGM_RX_PRIO,
                 &dfgm_rx_handle);
@@ -478,13 +483,13 @@ void dfgm_sciNotification(sciBASE_t *sci, unsigned flags) {
  */
 DFGM_return DFGM_startDataCollection(int givenRuntime) {
     DFGM_return status = DFGM_SUCCESS;
-    if (DFGM_runtime == 0 && givenRuntime >= MIN_RUNTIME) {
+    if (DFGM_runtime == 0 && givenRuntime >= DFGM_MIN_RUNTIME) {
         DFGM_runtime = givenRuntime;
         status = DFGM_SUCCESS;
     } else if (DFGM_runtime != 0) {
         // DFGM is already running
         status = DFGM_BUSY;
-    } else if (givenRuntime < MIN_RUNTIME) {
+    } else if (givenRuntime < DFGM_MIN_RUNTIME) {
         status = DFGM_BAD_PARAM;
     }
     return status;
@@ -529,7 +534,7 @@ DFGM_return DFGM_get_HK(dfgm_housekeeping *hk) {
     time_t timeDiff = currentTime - HK_buffer.time;
 
     // Update HK buffer if it has old data
-    if (timeDiff > TIME_THRESHOLD) {
+    if (timeDiff > DFGM_TIME_THRESHOLD) {
         collecting_HK = 1;
         status = DFGM_startDataCollection(1);
         while (collecting_HK) {

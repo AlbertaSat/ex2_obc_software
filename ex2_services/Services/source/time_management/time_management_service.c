@@ -48,7 +48,7 @@ static uint32_t get_svc_wdt_counter() { return svc_wdt_counter; }
  */
 void time_management_service(void *param) {
     csp_socket_t *sock;
-    sock = csp_socket(CSP_SO_NONE); // require RDP connection
+    sock = csp_socket(CSP_SO_HMACREQ); // require RDP connection
     csp_bind(sock, TC_TIME_MANAGEMENT_SERVICE);
     csp_listen(sock, SERVICE_BACKLOG_LEN);
     svc_wdt_counter++;

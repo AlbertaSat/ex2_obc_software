@@ -13,7 +13,7 @@
 #include "task_manager/task_manager.h"
 #include "NMEAParser.h"
 
-#define NMEA_TASK_SIZE 256
+#define NMEA_TASK_SIZE 384
 
 static uint32_t wdt_counter = 0;
 

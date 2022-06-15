@@ -29,6 +29,9 @@
 #ifndef IS_ATHENA
 #error If IS_FLATSAT is defined then IS_ATHENA must be defined
 #endif
+#ifndef HAS_SD_CARD
+#warning FlatSat testing requires the SD card on Athena to be present
+#endif
 #endif
 
 #define SYSTEM_APP_ID _OBC_APP_ID_
@@ -39,14 +42,16 @@
 #define HOUSEKEEPING_TASK_PRIO (tskIDLE_PRIORITY + 1)
 #define COORDINATE_MANAGEMENT_TASK_PRIO (tskIDLE_PRIORITY + 1)
 #define BEACON_TASK_PRIO (tskIDLE_PRIORITY + 1)
-#define DIAGNOSTIC_TASK_PRIO (tskIDLE_PRIORITY + 1)
+#define DIAGNOSTIC_TASK_PRIO (tskIDLE_PRIORITY + 2)
 #define SYSTEM_STATS_TASK_PRIO (tskIDLE_PRIORITY + 1)
 #define LOGGER_TASK_PRIO (tskIDLE_PRIORITY + 2)
 #define MOCK_RTC_TASK_PRIO (configMAX_PRIORITIES - 1)
 #define TASK_MANAGER_PRIO (tskIDLE_PRIORITY + 3)
 
-#if defined(IS_3U) && defined(IS_2U)
-#error "Can not be both 2U and 3U sized satellites"
+#if (defined(IS_EXALTA2) && defined(IS_AURORASAT)) || (defined(IS_EXALTA2) && defined(IS_YUKONSAT)) || (defined(IS_AURORASAT) && defined(IS_YUKONSAT))
+#error "Too many satellites defined!"
+#elif !defined(IS_EXALTA2) && !defined(IS_YUKONSAT) && !defined(IS_AURORASAT)
+#error "Need to define a satellite!"
 #endif
 
 #if defined(IS_ATHENA)
@@ -54,9 +59,9 @@
 #define ADCS_SCI sciREG3 // UART4
 #define DFGM_SCI sciREG4 // UART1
 #define UHF_SCI CSP_SCI  // UART2
-#if defined(IS_3U)
+#if defined(IS_EXALTA2)
 #define GPS_SCI sciREG1 // UART3
-#elif defined(IS_2U)
+#elif defined(IS_AURORASAT) || defined(IS_YUKONSAT)
 #define PAYLOAD_SCI sciREG1 // UART3
 #endif
 #else

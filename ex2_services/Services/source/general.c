@@ -32,6 +32,7 @@
 #include "diagnostic.h"
 #include "deployablescontrol.h"
 #include "bl_eeprom.h"
+#include "uhf_pipe_timer.h"
 
 SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet);
 void general_service(void *param);
@@ -74,7 +75,7 @@ SAT_returnState start_general_service(void) {
  */
 void general_service(void *param) {
     csp_socket_t *sock;
-    sock = csp_socket(CSP_SO_NONE); // require RDP connection
+    sock = csp_socket(CSP_SO_HMACREQ); // require RDP connection
     csp_bind(sock, TC_GENERAL_SERVICE);
     csp_listen(sock, SERVICE_BACKLOG_LEN);
     svc_wdt_counter++;
@@ -151,7 +152,6 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
 
     case DEPLOY_DEPLOYABLES: {
         Deployable_t dep;
-        dep = 0;
         memcpy(&dep, &packet->data[IN_DATA_BYTE], sizeof(uint8_t));
         uint16_t burnwire_current = 0;
         status = deploy(dep, &burnwire_current);
@@ -165,7 +165,7 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
     case GET_SWITCH_STATUS: {
         uint8_t sw[8] = {0};
         for (int i = 0; i < 8; i++) {
-            sw[i] = switchstatus(i);
+            sw[i] = (uint8_t)switchstatus(i);
         }
         packet->data[STATUS_BYTE] = 0;
         memcpy(&packet->data[OUT_DATA_BYTE], sw, sizeof(sw));
@@ -248,6 +248,16 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
         unsigned int timeout_new = 0;
         memcpy(&timeout_new, &packet->data[IN_DATA_BYTE], sizeof(unsigned int));
         status = set_adcs_watchdog_delay(timeout_new);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        set_packet_length(packet, sizeof(int8_t) + 1); // +1 for subservice
+
+        break;
+    }
+
+    case UHF_IS_IN_PIPE_NOTIFICATION: {
+        uint8_t timeout_new;
+        memcpy(&timeout_new, &packet->data[IN_DATA_BYTE], sizeof(uint8_t));
+        status = uhf_pipe_timer_activate(timeout_new);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         set_packet_length(packet, sizeof(int8_t) + 1); // +1 for subservice
 

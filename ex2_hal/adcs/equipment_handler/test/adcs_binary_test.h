@@ -14,6 +14,10 @@
 #include "adcs_io.h"
 #include "FreeRTOS.h"
 
+// Programs List Enumeration Values
+#define ADCS_BOOTLOADER 0
+#define INTERNAL_FLASH_PROGRAM 1
+
 // ADCS Run modes
 #define ONEHZ_LOOP_ENABLE 1
 
@@ -29,9 +33,10 @@
 // TLM Logging
 #define TLM_LOG_SDCARD_0 0
 #define TLM_LOG_PERIOD_10s 10
-#define TLM_LOG_PERIOD_1s   1
+#define TLM_LOG_PERIOD_1s 1
 #define TLM_LOG_PERIOD_STOP 0
 #define TLM_LOG_1 1
+#define TLM_LOG_2 2
 
 void binaryTest(void);
 
@@ -41,7 +46,7 @@ void binaryTest_CubeSense1(void);
 void ReactionWheels_Common_Test(uint8_t wheel_number);
 void binaryTest_CubeACP();
 
-void commissioning_initial_angular_rates_est(void);
+void commissioning_init_angular_rates_est(void);
 void commissioning_initial_detumbling(void);
 void commissioning_mag_calibration(void);
 void commissioning_ang_rate_pitch_angle_est(void);
