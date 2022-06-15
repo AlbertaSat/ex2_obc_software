@@ -52,12 +52,12 @@ IrisHALReturn iris_take_pic() {
             }
             case FINISH:
             {
-                ex2_log("Iris returns ACK on take a picture command");
+                sys_log(INFO, "Iris returns ACK on take a picture command");
                 return IRIS_HAL_OK;
             }
             case ERROR_STATE:
             {
-                ex2_log("Iris returns NACK on take a picture command");
+                sys_log(INFO, "Iris returns NACK on take a picture command");
                 return IRIS_HAL_ERROR;
             }
         }
@@ -92,7 +92,7 @@ IrisHALReturn iris_get_image_length(uint32_t *image_length) {
             }
             case GET_DATA:
             {
-                uint16_t image_length_buffer[MAX_IMAGE_LENGTH];
+                static uint16_t image_length_buffer[MAX_IMAGE_LENGTH];
                 ret = iris_get_data(image_length_buffer, MAX_IMAGE_LENGTH);
                 if (ret == IRIS_HAL_OK) {
                     controller_state = FINISH;
@@ -107,12 +107,12 @@ IrisHALReturn iris_get_image_length(uint32_t *image_length) {
             }
             case FINISH:
             {
-                ex2_log("Iris returns ACK on get image length command");
+                sys_log(INFO, "Iris returns ACK on get image length command");
                 return IRIS_HAL_OK;
             }
             case ERROR_STATE:
             {
-                ex2_log("Iris returns NACK on get image length command");
+                sys_log(INFO, "Iris returns NACK on get image length command");
                 return IRIS_HAL_ERROR;
             }
         }
@@ -152,15 +152,9 @@ IrisHALReturn iris_transfer_image(uint32_t image_length) {
             }
             case GET_DATA: // Get image data in chunks/blocks
             {
-                uint16_t * image_data_buffer = (uint16_t*) pvPortMalloc(IMAGE_TRANSFER_SIZE * sizeof(uint16_t));
+                static uint16_t image_data_buffer[IMAGE_TRANSFER_SIZE];
                 memset(image_data_buffer, 0, IMAGE_TRANSFER_SIZE);
-                if (image_data_buffer == NULL) {
-                    ex2_log("Failed attempt to dynamically allocate memory under iris get image data");
-                    return IRIS_HAL_ERROR;;
-                }
-                num_transfer = (uint16_t) ((IMAGE_TRANSFER_SIZE + image_length) / IMAGE_TRANSFER_SIZE); // Ceiling division
-                iris_send_data(&num_transfer, 1);
-                vTaskDelay(100);
+                num_transfer = (IMAGE_TRANSFER_SIZE + image_length) / IMAGE_TRANSFER_SIZE; // Ceiling division
                 for (uint32_t count_transfer = 0; count_transfer < num_transfer; count_transfer++) {
                     ret = iris_get_data(image_data_buffer, IMAGE_TRANSFER_SIZE);
                     // TODO: Do something with the received data (e.g transfer it to the SD card)
@@ -171,18 +165,17 @@ IrisHALReturn iris_transfer_image(uint32_t image_length) {
 
                     vTaskDelay(50);
                 }
-                vPortFree(image_data_buffer);
                 controller_state = FINISH;
                 break;
             }
             case FINISH:
             {
-                ex2_log("Iris returns ACK on transfer image command");
+                sys_log(INFO, "Iris returns ACK on transfer image command");
                 return IRIS_HAL_OK;
             }
             case ERROR_STATE:
             {
-                ex2_log("Iris returns NACK on transfer image command");
+                sys_log(INFO, "Iris returns NACK on transfer image command");
                 return IRIS_HAL_ERROR;
             }
         }
@@ -223,12 +216,12 @@ IrisHALReturn iris_get_image_count(uint16_t *image_count) {
             }
             case FINISH:
             {
-                ex2_log("Iris returns ACK on transfer image command");
+                sys_log(INFO, "Iris returns ACK on transfer image command");
                 return IRIS_HAL_OK;
             }
             case ERROR_STATE:
             {
-                ex2_log("Iris returns NACK on transfer image command");
+                sys_log(INFO, "Iris returns NACK on transfer image command");
                 return IRIS_HAL_ERROR;
             }
         }
@@ -269,12 +262,12 @@ IrisHALReturn iris_toggle_sensor_idle(IRIS_SENSOR_TOOGGLE toggle) {
             }
             case FINISH:
             {
-                ex2_log("Iris returns ACK on toggling sensor command");
+                sys_log(INFO, "Iris returns ACK on toggling sensor command");
                 return IRIS_HAL_OK;
             }
             case ERROR_STATE:
             {
-                ex2_log("Iris returns NACK on toggling sensor command");
+                sys_log(INFO, "Iris returns NACK on toggling sensor command");
                 return IRIS_HAL_ERROR;
             }
         }
@@ -311,7 +304,7 @@ IrisHALReturn iris_get_housekeeping(iris_housekeeping_data hk_data) {
             case GET_DATA:
             {
 
-                uint16_t housekeeping_buffer[HOUSEKEEPING_SIZE];
+                static uint16_t housekeeping_buffer[HOUSEKEEPING_SIZE];
                 ret = iris_get_data(housekeeping_buffer, HOUSEKEEPING_SIZE);
                 if (ret == IRIS_HAL_OK) {
                     controller_state = FINISH;
@@ -342,12 +335,12 @@ IrisHALReturn iris_get_housekeeping(iris_housekeeping_data hk_data) {
             }
             case FINISH:
             {
-                ex2_log("Iris returns ACK on housekeeping command");
+                sys_log(INFO, "Iris returns ACK on housekeeping command");
                 return IRIS_HAL_OK;
             }
             case ERROR_STATE:
             {
-                ex2_log("Iris returns NACK on housekeeping command");
+                sys_log(INFO, "Iris returns NACK on housekeeping command");
                 return IRIS_HAL_ERROR;
             }
         }
@@ -388,19 +381,19 @@ IrisHALReturn iris_update_sensor_i2c_reg() {
                 ret = iris_send_data(tx_buffer, 4); // TODO: Need to take care of explicit declaration
 
                 if (ret != IRIS_ACK) {
-                    ex2_log("Updating Iris sensor registers failed");
+                    sys_log(INFO, "Updating Iris sensor registers failed");
                     return IRIS_HAL_ERROR;
                 }
                 break;
             }
             case FINISH:
             {
-                ex2_log("Iris returns ACK on update sensor register command");
+                sys_log(INFO, "Iris returns ACK on update sensor register command");
                 return IRIS_HAL_OK;
             }
             case ERROR_STATE:
             {
-                ex2_log("Iris returns NACK on update sensor register command");
+                sys_log(INFO, "Iris returns NACK on update sensor register command");
                 return IRIS_HAL_ERROR;
                 //TODO: ERROR_STATE handler
             }
@@ -441,16 +434,18 @@ IrisHALReturn iris_update_current_limit(uint16_t current_limit) {
                 // TODO: Convert sensor_reg into buffer/array/vector. Need to think a bit more on this
                 uint16_t current_limit_buffer[] = {current_limit};
                 iris_send_data(current_limit_buffer, 1); // TODO: Need to take care of explicit declaration
+
+                controller_state = FINISH;
                 break;
             }
             case FINISH:
             {
-                ex2_log("Iris returns ACK on update current limit command");
+                sys_log(INFO, "Iris successful on update current limit command");
                 return IRIS_HAL_OK;
             }
             case ERROR_STATE:
             {
-                ex2_log("Iris returns NACK on update current limit command");
+                sys_log(WARN, "Iris failure on update current limit command");
                 return IRIS_HAL_ERROR;
             }
         }
