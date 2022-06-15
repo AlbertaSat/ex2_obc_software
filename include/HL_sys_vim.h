@@ -100,6 +100,8 @@ extern void vPortYeildWithinAPI(void);
 extern void gioLowLevelInterrupt(void);
 extern void mibspi1LowLevelInterrupt(void);
 extern void can2HighLevelInterrupt(void);
+extern void mibspi3HighInterruptLevel(void);
+extern void mibspi3LowLevelInterrupt(void);
 extern void mibspi5HighLevelInterrupt(void);
 extern void mibspi5LowLevelInterrupt(void);
 extern void sci3HighLevelInterrupt(void);
@@ -311,8 +313,8 @@ typedef struct vim_config_reg
                                     |(uint32)((uint32)0U << 2U)\
                                     |(uint32)((uint32)1U << 3U)\
                                     |(uint32)((uint32)0U << 4U)\
-                                    |(uint32)((uint32)0U << 5U)\
-                                    |(uint32)((uint32)0U << 6U)\
+                                    |(uint32)((uint32)1U << 5U)\
+                                    |(uint32)((uint32)1U << 6U)\
                                     |(uint32)((uint32)0U << 7U)\
                                     |(uint32)((uint32)0U << 8U)\
                                     |(uint32)((uint32)0U << 9U)\
