@@ -19,6 +19,7 @@
 
 #include "adcs_handler.h"
 #include "adcs_binary_test.h"
+#include "printf.h"
 
 void binaryTest(void) { // TODO: add enums for all adcs_handler functions called
 
@@ -31,8 +32,7 @@ void binaryTest(void) { // TODO: add enums for all adcs_handler functions called
     test_returnState = ADCS_set_enabled_state(1);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_enabled_state returned %d", test_returnState);
-        while (1)
-            ;
+        return test_returnState;
     }
 
     adcs_state test_adcs_state;
@@ -40,7 +40,7 @@ void binaryTest(void) { // TODO: add enums for all adcs_handler functions called
     test_returnState = ADCS_get_current_state(&test_adcs_state);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_current_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     printf("ADCS run mode = %d\n\n", test_adcs_state.run_mode);
@@ -53,7 +53,7 @@ void binaryTest(void) { // TODO: add enums for all adcs_handler functions called
     test_returnState = ADCS_get_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     for (int i = 0; i < 10; i++) {
@@ -66,7 +66,7 @@ void binaryTest(void) { // TODO: add enums for all adcs_handler functions called
     test_returnState = ADCS_set_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -114,7 +114,7 @@ void binaryTest(void) { // TODO: add enums for all adcs_handler functions called
     test_returnState = ADCS_set_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -133,7 +133,7 @@ void binaryTest_Bootloader(void) {
     test_returnState = ADCS_get_bootloader_state(&uptime, flags_arr);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_bootloader_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -165,7 +165,7 @@ void binaryTest_Bootloader(void) {
                                                   &major_firm_ver, &minor_firm_ver);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_boot_program_stat returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -184,7 +184,7 @@ void binaryTest_Bootloader(void) {
     test_returnState = ADCS_get_boot_index(&program_idx, &boot_stat);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_boot_index returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -200,7 +200,7 @@ void binaryTest_Bootloader(void) {
     test_returnState = ADCS_get_comms_stat(&TC_num, &TM_num, flags_arr); // TODO: fix this
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_comms_stat returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -223,7 +223,7 @@ void binaryTest_CubeACP(void) {
     test_returnState = ADCS_get_ACP_loop_stat(&time, &execution_point);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_comms_stat returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -243,7 +243,7 @@ void binaryTest_CubeACP(void) {
                                                   &major_firm_ver, &minor_firm_ver);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_boot_program_stat returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -267,7 +267,7 @@ void binaryTest_CubeACP(void) {
                                                     &runtime_s, &runtime_ms);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_node_identification returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -284,7 +284,7 @@ void binaryTest_CubeACP(void) {
     test_returnState = ADCS_get_boot_index(&program_idx, &boot_stat);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_boot_index returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -300,7 +300,7 @@ void binaryTest_CubeACP(void) {
     test_returnState = ADCS_get_comms_stat(&TC_num, &TM_num, &flags_arr);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_comms_stat returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -316,7 +316,7 @@ void binaryTest_CubeACP(void) {
     test_returnState = ADCS_get_unix_t(&unix_t, &count_ms);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_unix_t returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     printf("unix_t = %d \n", unix_t);
@@ -330,7 +330,7 @@ void binaryTest_CubeACP(void) {
     test_returnState = ADCS_get_SRAM_latchup_count(&sram1, &sram2);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_SRAM_latchup_count %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -346,7 +346,7 @@ void binaryTest_CubeACP(void) {
     test_returnState = ADCS_get_EDAC_err_count(&single_sram, &double_sram, &multi_sram);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_EDAC_err_count %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -364,7 +364,7 @@ void binaryTest_CubeACP(void) {
     test_returnState = ADCS_get_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     for (int i = 0; i < 10; i++) {
@@ -380,7 +380,7 @@ void binaryTest_CubeACP(void) {
     test_returnState = ADCS_get_current_state(&test_adcs_state);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_current_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -402,7 +402,7 @@ void binaryTest_CubeACP(void) {
         printf("all other states (frame offsets 12 to 47) == 0 \n");
     } else {
         printf("all other states (frame offsets 12 to 47) != 0... halting code execution\n");
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -411,7 +411,7 @@ void binaryTest_CubeACP(void) {
     test_returnState = ADCS_set_enabled_state(1);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_enabled_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -424,7 +424,7 @@ void binaryTest_CubeACP(void) {
     test_returnState = ADCS_get_comms_stat(&TC_num, &TM_num, &flags_arr);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_comms_stat returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -440,7 +440,7 @@ void binaryTest_CubeACP(void) {
     test_returnState = ADCS_get_execution_times(&adcs_update, &sensor_comms, &sgp4_propag, &igrf_model);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_execution_times returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -477,7 +477,7 @@ void binaryTest_CubeACP(void) {
         printf("all other states** (frame offsets 12 to 47) == 0 \n");
     } else {
         printf("all other states** (frame offsets 12 to 47) != 0... halting code execution\n");
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -488,7 +488,7 @@ void binaryTest_CubeACP(void) {
     test_returnState = ADCS_get_current_state(&test_adcs_state);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_current_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -511,7 +511,7 @@ void binaryTest_CubeSense1(void) {
     test_returnState = ADCS_get_current_state(&test_adcs_state);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_current_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -530,7 +530,7 @@ void binaryTest_CubeSense1(void) {
     test_returnState = ADCS_get_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     for (int i = 0; i < 10; i++) {
@@ -548,7 +548,7 @@ void binaryTest_CubeSense1(void) {
     test_returnState = ADCS_set_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -557,7 +557,7 @@ void binaryTest_CubeSense1(void) {
     test_returnState = ADCS_get_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     for (int i = 0; i < 10; i++) {
@@ -580,7 +580,7 @@ void binaryTest_CubeSense1(void) {
         &params); // this function should be tested and checked before the command is sent
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_cubesense_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -597,7 +597,7 @@ void binaryTest_CubeSense1(void) {
         ADCS_set_cubesense_config(params); // this function should be tested and checked before the command is sent
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_cubesense_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -606,7 +606,7 @@ void binaryTest_CubeSense1(void) {
         &params); // this function should be tested and checked before the command is sent
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_cubesense_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     // this is commented out because the dev board reads the wrong error state
@@ -617,7 +617,7 @@ void binaryTest_CubeSense1(void) {
     test_returnState = ADCS_get_current_state(&test_adcs_state);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_current_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -650,7 +650,7 @@ void binaryTest_CubeSense1(void) {
     power_temp_measurements = (adcs_pwr_temp *)pvPortMalloc(sizeof(adcs_pwr_temp));
     if (power_temp_measurements == NULL) {
         printf("malloc issues");
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -658,7 +658,7 @@ void binaryTest_CubeSense1(void) {
     test_returnState = ADCS_get_power_temp(power_temp_measurements);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_temp returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -672,14 +672,14 @@ void binaryTest_CubeSense1(void) {
     raw_sensor_measurements = (adcs_raw_sensor *)pvPortMalloc(sizeof(adcs_raw_sensor));
     if (raw_sensor_measurements == NULL) {
         printf("malloc issues");
-        while (1)
+        return test_returnState;
             ;
     }
     printf("Running ADCS_get_raw_sensor...\n");
     test_returnState = ADCS_get_raw_sensor(raw_sensor_measurements);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_raw_sensor returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -705,7 +705,7 @@ void binaryTest_CubeSense1(void) {
     test_returnState = ADCS_get_raw_sensor(raw_sensor_measurements);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_raw_sensor returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     printf("LIGHT HELD CLOSE TO THE CAMERA");
@@ -719,7 +719,7 @@ void binaryTest_CubeSense1(void) {
     test_returnState = ADCS_get_raw_sensor(raw_sensor_measurements);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_raw_sensor returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     printf("LIGHT MOVING UP");
@@ -733,7 +733,7 @@ void binaryTest_CubeSense1(void) {
     test_returnState = ADCS_get_raw_sensor(raw_sensor_measurements);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_raw_sensor returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     printf("LIGHT MOVING DOWN");
@@ -747,7 +747,7 @@ void binaryTest_CubeSense1(void) {
     test_returnState = ADCS_get_raw_sensor(raw_sensor_measurements);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_raw_sensor returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     printf("LIGHT MOVING RIGHT");
@@ -761,7 +761,7 @@ void binaryTest_CubeSense1(void) {
     test_returnState = ADCS_get_raw_sensor(raw_sensor_measurements);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_raw_sensor returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     printf("LIGHT MOVING LEFT");
@@ -786,7 +786,7 @@ void binaryTest_CubeSense1(void) {
     test_returnState = ADCS_save_img(camera, img_size);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_save_img returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -801,7 +801,7 @@ void binaryTest_CubeSense1(void) {
     test_returnState = ADCS_get_img_save_progress(&percentage, &status);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_img_save_progress returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -816,7 +816,7 @@ void binaryTest_CubeSense1(void) {
     test_returnState = ADCS_get_img_save_progress(&percentage, &status);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_img_save_progress returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -855,7 +855,7 @@ void binaryTest_CubeSense2(void) {
     test_returnState = ADCS_get_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     for (int i = 0; i < 10; i++) {
@@ -871,7 +871,7 @@ void binaryTest_CubeSense2(void) {
     test_returnState = ADCS_set_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -889,7 +889,7 @@ void binaryTest_CubeSense2(void) {
     test_returnState = ADCS_get_cubesense_config(&params);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_cubesense_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -903,7 +903,7 @@ void binaryTest_CubeSense2(void) {
         ADCS_set_cubesense_config(params); // this function should be tested and checked before the command is sent
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_cubesense_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -914,7 +914,7 @@ void binaryTest_CubeSense2(void) {
     test_returnState = ADCS_get_current_state(&test_adcs_state);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_current_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -938,7 +938,7 @@ void binaryTest_CubeSense2(void) {
         printf("all other states (frame offsets 12 to 47) == 0 \n");
     } else {
         printf("all other states (frame offsets 12 to 47) != 0... halting code execution\n");
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -949,7 +949,7 @@ void binaryTest_CubeSense2(void) {
     test_returnState = ADCS_get_power_temp(&power_temp_measurements);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_temp returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -963,7 +963,7 @@ void binaryTest_CubeSense2(void) {
     test_returnState = ADCS_get_raw_sensor(&raw_sensor_measurements);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_raw_sensor returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -986,7 +986,7 @@ void binaryTest_CubeSense2(void) {
     //   test_returnState = ADCS_get_raw_sensor(&raw_sensor_measurements);
     //   if (test_returnState != ADCS_OK) {
     //       printf("ADCS_get_raw_sensor returned %d \n", test_returnState);
-    //       while (1)
+    //       return test_returnState;
     //           ;
     //   }
     //    printf("LIGHT HELD CLOSE TO THE CAMERA\n");
@@ -1126,7 +1126,7 @@ void binaryTest_CubeControl_Sgn_MCU(void) {
     test_returnState = ADCS_get_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     for (int i = 0; i < 10; i++) {
@@ -1144,7 +1144,7 @@ void binaryTest_CubeControl_Sgn_MCU(void) {
     test_returnState = ADCS_set_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -1153,7 +1153,7 @@ void binaryTest_CubeControl_Sgn_MCU(void) {
     test_returnState = ADCS_get_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     for (int i = 0; i < 10; i++) {
@@ -1168,7 +1168,7 @@ void binaryTest_CubeControl_Sgn_MCU(void) {
     test_returnState = ADCS_get_current_state(&test_adcs_state);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_current_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -1192,7 +1192,7 @@ void binaryTest_CubeControl_Sgn_MCU(void) {
         printf("all other states (frame offsets 12 to 47) == 0 \n");
     } else {
         printf("all other states (frame offsets 12 to 47) != 0... halting code execution\n");
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -1201,7 +1201,7 @@ void binaryTest_CubeControl_Sgn_MCU(void) {
     power_temp_measurements = (adcs_pwr_temp *)pvPortMalloc(sizeof(adcs_pwr_temp));
     if (power_temp_measurements == NULL) {
         printf("malloc issues");
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -1209,7 +1209,7 @@ void binaryTest_CubeControl_Sgn_MCU(void) {
     test_returnState = ADCS_get_power_temp(power_temp_measurements);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_temp returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -1231,14 +1231,14 @@ void binaryTest_CubeControl_Sgn_MCU(void) {
         raw_sensor_measurements = (adcs_raw_sensor *)pvPortMalloc(sizeof(adcs_raw_sensor));
         if (raw_sensor_measurements == NULL) {
             printf("malloc issues");
-            while (1)
+            return test_returnState;
                 ;
         }
         printf("Running ADCS_get_raw_sensor...\n");
         test_returnState = ADCS_get_raw_sensor(raw_sensor_measurements);
         if (test_returnState != ADCS_OK) {
             printf("ADCS_get_raw_sensor returned %d \n", test_returnState);
-            while (1)
+            return test_returnState;
                 ;
         }
 
@@ -1267,7 +1267,7 @@ void binaryTest_CubeTorquers_Sgn_MCU(void) {
     test_returnState = ADCS_set_attitude_ctrl_mode(0, 0XFFFF); // no timeout (infinite time)
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_attitude_ctrl_mode returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -1288,7 +1288,7 @@ void binaryTest_CubeTorquers_Sgn_MCU(void) {
     test_returnState = ADCS_set_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 }
@@ -1313,7 +1313,7 @@ void binaryTest_CubeControl_Motor_MCU(void) {
     test_returnState = ADCS_get_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     for (int i = 0; i < 10; i++) {
@@ -1331,7 +1331,7 @@ void binaryTest_CubeControl_Motor_MCU(void) {
     test_returnState = ADCS_set_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -1340,7 +1340,7 @@ void binaryTest_CubeControl_Motor_MCU(void) {
     test_returnState = ADCS_get_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     for (int i = 0; i < 10; i++) {
@@ -1357,7 +1357,7 @@ void binaryTest_CubeControl_Motor_MCU(void) {
     test_returnState = ADCS_get_current_state(&test_adcs_state);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_current_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -1388,7 +1388,7 @@ void binaryTest_CubeControl_Motor_MCU(void) {
     power_temp_measurements = (adcs_pwr_temp *)pvPortMalloc(sizeof(adcs_pwr_temp));
     if (power_temp_measurements == NULL) {
         printf("malloc issues");
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -1396,7 +1396,7 @@ void binaryTest_CubeControl_Motor_MCU(void) {
     test_returnState = ADCS_get_power_temp(power_temp_measurements);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_temp returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -1410,7 +1410,7 @@ void binaryTest_CubeControl_Motor_MCU(void) {
     measurements = (adcs_measures *)pvPortMalloc(sizeof(adcs_measures));
     if (measurements == NULL) {
         printf("malloc issues");
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -1419,7 +1419,7 @@ void binaryTest_CubeControl_Motor_MCU(void) {
         test_returnState = ADCS_get_measurements(measurements);
         if (test_returnState != ADCS_OK) {
             printf("ADCS_get_measurements returned %d \n", test_returnState);
-            while (1)
+            return test_returnState;
                 ;
         }
         printf("Angular Rate X = %+f \n",
@@ -1482,7 +1482,7 @@ void commissioning_initial_angular_rates_est(void) {
     test_returnState = ADCS_set_enabled_state(ONEHZ_LOOP_ENABLE);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_enabled_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -1494,7 +1494,7 @@ void commissioning_initial_angular_rates_est(void) {
     test_returnState = ADCS_get_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     for (int i = 0; i < 10; i++) {
@@ -1507,7 +1507,7 @@ void commissioning_initial_angular_rates_est(void) {
     test_returnState = ADCS_set_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -1515,7 +1515,7 @@ void commissioning_initial_angular_rates_est(void) {
     test_returnState = ADCS_get_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     for (int i = 0; i < 10; i++) {
@@ -1526,7 +1526,7 @@ void commissioning_initial_angular_rates_est(void) {
     test_returnState = ADCS_set_attitude_estimate_mode(MAG_RATE_FILTER_MODE);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -1556,7 +1556,7 @@ void commissioning_initial_angular_rates_est(void) {
     test_returnState = ADCS_set_log_config(flags_arr_ptr, TLM_LOG_PERIOD_10s, TLM_LOG_SDCARD_0, TLM_LOG_1);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_log_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -1567,7 +1567,7 @@ void commissioning_initial_angular_rates_est(void) {
     test_returnState = ADCS_get_log_config(flags_arr_ptr, &period, &sd, TLM_LOG_1);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_log_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -1588,7 +1588,7 @@ void commissioning_initial_angular_rates_est(void) {
     test_returnState = ADCS_set_log_config(flags_arr_ptr, TLM_LOG_PERIOD_STOP, TLM_LOG_SDCARD_0, TLM_LOG_1);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_log_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -1598,7 +1598,7 @@ void commissioning_initial_angular_rates_est(void) {
     test_returnState = ADCS_set_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 }
@@ -1615,7 +1615,7 @@ void commissioning_initial_detumbling(void) {
     test_returnState = ADCS_set_enabled_state(ONEHZ_LOOP_ENABLE);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_enabled_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -1627,7 +1627,7 @@ void commissioning_initial_detumbling(void) {
     test_returnState = ADCS_get_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     for (int i = 0; i < 10; i++) {
@@ -1640,7 +1640,7 @@ void commissioning_initial_detumbling(void) {
     test_returnState = ADCS_set_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -1648,7 +1648,7 @@ void commissioning_initial_detumbling(void) {
     test_returnState = ADCS_get_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -1660,7 +1660,7 @@ void commissioning_initial_detumbling(void) {
     test_returnState = ADCS_set_attitude_estimate_mode(MEMS_RATE_SENSING_MODE);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -1669,7 +1669,7 @@ void commissioning_initial_detumbling(void) {
     test_returnState = ADCS_get_current_state(&test_adcs_state);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_current_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     printf("att_ctrl_mode = %d \n", test_adcs_state.att_ctrl_mode);
@@ -1698,14 +1698,14 @@ void commissioning_initial_detumbling(void) {
     test_returnState = ADCS_set_log_config(flags_arr, TLM_LOG_PERIOD_10s, TLM_LOG_SDCARD_0, TLM_LOG_1);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_log_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
     test_returnState = ADCS_get_log_config(flags_arr, TLM_LOG_PERIOD_10s, TLM_LOG_SDCARD_0, TLM_LOG_1);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_log_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -1726,7 +1726,7 @@ void commissioning_initial_detumbling(void) {
     test_returnState = ADCS_set_attitude_ctrl_mode(DETUMBLING_MODE, 600);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_attitude_ctrl_mode returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -1735,7 +1735,7 @@ void commissioning_initial_detumbling(void) {
     test_returnState = ADCS_get_current_state(&test_adcs_state);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_current_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     printf("att_ctrl_mode = %d \n", test_adcs_state.att_ctrl_mode);
@@ -1745,7 +1745,7 @@ void commissioning_initial_detumbling(void) {
     measurements = (adcs_measures *)pvPortMalloc(sizeof(adcs_measures));
     if (measurements == NULL) {
         printf("malloc issues");
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -1756,7 +1756,7 @@ void commissioning_initial_detumbling(void) {
         test_returnState = ADCS_get_measurements(measurements);
         if (test_returnState != ADCS_OK) {
             printf("ADCS_get_measurements returned %d \n", test_returnState);
-            while (1)
+            return test_returnState;
                 ;
         }
         printf("Angular Rate X = %+f \n",
@@ -1772,7 +1772,7 @@ void commissioning_initial_detumbling(void) {
     test_returnState = ADCS_set_log_config(flags_arr, TLM_LOG_PERIOD_STOP, TLM_LOG_SDCARD_0, TLM_LOG_1);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_log_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -1800,7 +1800,7 @@ void commissioning_initial_detumbling(void) {
     test_returnState = ADCS_set_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 }
@@ -1818,7 +1818,7 @@ void commissioning_mag_calibration(void) {
     test_returnState = ADCS_set_enabled_state(ONEHZ_LOOP_ENABLE);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_enabled_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -1827,7 +1827,7 @@ void commissioning_mag_calibration(void) {
     test_returnState = ADCS_get_current_state(&test_adcs_state);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_current_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     printf("run_mode = %d \n", test_adcs_state.run_mode);
@@ -1840,7 +1840,7 @@ void commissioning_mag_calibration(void) {
     test_returnState = ADCS_get_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     for (int i = 0; i < 10; i++) {
@@ -1853,7 +1853,7 @@ void commissioning_mag_calibration(void) {
     test_returnState = ADCS_set_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -1861,7 +1861,7 @@ void commissioning_mag_calibration(void) {
     test_returnState = ADCS_get_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     for (int i = 0; i < 10; i++) {
@@ -1872,7 +1872,7 @@ void commissioning_mag_calibration(void) {
     test_returnState = ADCS_set_attitude_estimate_mode(MAG_RATE_FILTER_MODE);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_attitude_estimate_mode returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -1880,7 +1880,7 @@ void commissioning_mag_calibration(void) {
     test_returnState = ADCS_get_current_state(&test_adcs_state);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_current_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     printf("att_estimate_mode = %d \n", test_adcs_state.att_estimate_mode);
@@ -1910,14 +1910,14 @@ void commissioning_mag_calibration(void) {
     test_returnState = ADCS_set_log_config(flags_arr, TLM_LOG_PERIOD_10s, TLM_LOG_SDCARD_0, TLM_LOG_1);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_log_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
     test_returnState = ADCS_get_log_config(flags_arr, &period, &sd, TLM_LOG_1);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_log_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -1970,7 +1970,7 @@ void commissioning_mag_calibration(void) {
     test_returnState = ADCS_set_log_config(flags_arr, TLM_LOG_PERIOD_STOP, TLM_LOG_SDCARD_0, TLM_LOG_1);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_log_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -1980,7 +1980,7 @@ void commissioning_mag_calibration(void) {
     test_returnState = ADCS_set_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 }
@@ -1997,7 +1997,7 @@ void commissioning_ang_rate_pitch_angle_est(void) {
     test_returnState = ADCS_set_enabled_state(ONEHZ_LOOP_ENABLE);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_enabled_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2006,7 +2006,7 @@ void commissioning_ang_rate_pitch_angle_est(void) {
     test_returnState = ADCS_get_current_state(&test_adcs_state);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_current_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2018,7 +2018,7 @@ void commissioning_ang_rate_pitch_angle_est(void) {
     test_returnState = ADCS_get_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     for (int i = 0; i < 10; i++) {
@@ -2031,7 +2031,7 @@ void commissioning_ang_rate_pitch_angle_est(void) {
     test_returnState = ADCS_set_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2039,7 +2039,7 @@ void commissioning_ang_rate_pitch_angle_est(void) {
     test_returnState = ADCS_get_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     for (int i = 0; i < 10; i++) {
@@ -2050,7 +2050,7 @@ void commissioning_ang_rate_pitch_angle_est(void) {
     test_returnState = ADCS_set_attitude_estimate_mode(MAG_RATE_FILTER_W_PITCH_EST);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_attitude_estimate_mode returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2058,7 +2058,7 @@ void commissioning_ang_rate_pitch_angle_est(void) {
     test_returnState = ADCS_get_current_state(&test_adcs_state);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_current_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     printf("att_estimate_mode = %d \n", test_adcs_state.att_estimate_mode);
@@ -2068,7 +2068,7 @@ void commissioning_ang_rate_pitch_angle_est(void) {
     test_returnState = ADCS_set_attitude_ctrl_mode(Y_THOMSON_MODE, 0); // 0 Timeout == infinite
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_attitude_ctrl_mode returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2077,7 +2077,7 @@ void commissioning_ang_rate_pitch_angle_est(void) {
     test_returnState = ADCS_get_current_state(&test_adcs_state);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_current_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2107,14 +2107,14 @@ void commissioning_ang_rate_pitch_angle_est(void) {
     test_returnState = ADCS_set_log_config(flags_arr, TLM_LOG_PERIOD_10s, TLM_LOG_SDCARD_0, TLM_LOG_1);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_log_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
     test_returnState = ADCS_get_log_config(flags_arr, &period, &sd, TLM_LOG_1);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_log_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2137,7 +2137,7 @@ void commissioning_ang_rate_pitch_angle_est(void) {
     test_returnState = ADCS_set_log_config(flags_arr, TLM_LOG_PERIOD_STOP, TLM_LOG_SDCARD_0, TLM_LOG_1);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_log_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2147,7 +2147,7 @@ void commissioning_ang_rate_pitch_angle_est(void) {
     test_returnState = ADCS_set_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 }
@@ -2164,7 +2164,7 @@ void commissioning_ywheel_ramp_up_test(void) {
     test_returnState = ADCS_set_enabled_state(ONEHZ_LOOP_ENABLE);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_enabled_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2173,7 +2173,7 @@ void commissioning_ywheel_ramp_up_test(void) {
     test_returnState = ADCS_get_current_state(&test_adcs_state);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_current_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2187,7 +2187,7 @@ void commissioning_ywheel_ramp_up_test(void) {
     test_returnState = ADCS_get_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     for (int i = 0; i < 10; i++) {
@@ -2201,7 +2201,7 @@ void commissioning_ywheel_ramp_up_test(void) {
     test_returnState = ADCS_set_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2209,7 +2209,7 @@ void commissioning_ywheel_ramp_up_test(void) {
     test_returnState = ADCS_get_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     for (int i = 0; i < 10; i++) {
@@ -2220,7 +2220,7 @@ void commissioning_ywheel_ramp_up_test(void) {
     test_returnState = ADCS_set_attitude_estimate_mode(MAG_RATE_FILTER_W_PITCH_EST);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_attitude_estimate_mode returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2228,7 +2228,7 @@ void commissioning_ywheel_ramp_up_test(void) {
     test_returnState = ADCS_get_current_state(&test_adcs_state);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_current_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     printf("att_estimate_mode = %d \n", test_adcs_state.att_estimate_mode);
@@ -2238,7 +2238,7 @@ void commissioning_ywheel_ramp_up_test(void) {
     test_returnState = ADCS_set_attitude_ctrl_mode(0, 0); // 0 Timeout == infinite
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_attitude_ctrl_mode returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2247,7 +2247,7 @@ void commissioning_ywheel_ramp_up_test(void) {
     test_returnState = ADCS_get_current_state(&test_adcs_state);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_current_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     printf("att_ctrl_mode = %d \n", test_adcs_state.att_ctrl_mode);
@@ -2279,14 +2279,14 @@ void commissioning_ywheel_ramp_up_test(void) {
     test_returnState = ADCS_set_log_config(flags_arr, TLM_LOG_PERIOD_1s, TLM_LOG_SDCARD_0, TLM_LOG_1);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_log_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
     test_returnState = ADCS_get_log_config(flags_arr, &period, &sd, TLM_LOG_1);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_log_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2312,7 +2312,7 @@ void commissioning_ywheel_ramp_up_test(void) {
     test_returnState = ADCS_set_wheel_speed(speed);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_current_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2320,7 +2320,7 @@ void commissioning_ywheel_ramp_up_test(void) {
     measurements = (adcs_measures *)pvPortMalloc(sizeof(adcs_measures));
     if (measurements == NULL) {
         printf("malloc issues");
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2332,7 +2332,7 @@ void commissioning_ywheel_ramp_up_test(void) {
     test_returnState = ADCS_set_wheel_speed(speed);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_current_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2341,7 +2341,7 @@ void commissioning_ywheel_ramp_up_test(void) {
     test_returnState = ADCS_set_attitude_ctrl_mode(Y_THOMSON_MODE, 0); // 0 Timeout == infinite
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_attitude_ctrl_mode returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2350,7 +2350,7 @@ void commissioning_ywheel_ramp_up_test(void) {
     test_returnState = ADCS_get_current_state(&test_adcs_state);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_current_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     printf("att_ctrl_mode = %d \n", test_adcs_state.att_ctrl_mode);
@@ -2360,7 +2360,7 @@ void commissioning_ywheel_ramp_up_test(void) {
     test_returnState = ADCS_set_log_config(flags_arr, TLM_LOG_PERIOD_STOP, TLM_LOG_SDCARD_0, TLM_LOG_1);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_log_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2370,7 +2370,7 @@ void commissioning_ywheel_ramp_up_test(void) {
     test_returnState = ADCS_set_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 }
@@ -2387,7 +2387,7 @@ void commissioning_initial_y_momentum_activation(void) {
     test_returnState = ADCS_set_enabled_state(ONEHZ_LOOP_ENABLE);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_enabled_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2396,7 +2396,7 @@ void commissioning_initial_y_momentum_activation(void) {
     test_returnState = ADCS_get_current_state(&test_adcs_state);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_current_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     printf("run_mode = %d \n", test_adcs_state.run_mode);
@@ -2409,7 +2409,7 @@ void commissioning_initial_y_momentum_activation(void) {
     test_returnState = ADCS_get_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     for (int i = 0; i < 10; i++) {
@@ -2422,7 +2422,7 @@ void commissioning_initial_y_momentum_activation(void) {
     test_returnState = ADCS_set_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2430,7 +2430,7 @@ void commissioning_initial_y_momentum_activation(void) {
     test_returnState = ADCS_get_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     for (int i = 0; i < 10; i++) {
@@ -2443,14 +2443,14 @@ void commissioning_initial_y_momentum_activation(void) {
     test_returnState = ADCS_set_unix_t(time, 0);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_unix_t returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
     test_returnState = ADCS_get_unix_t(&time, 0);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     printf("Unix Time : %ul(s)\n", time);
@@ -2472,7 +2472,7 @@ void commissioning_initial_y_momentum_activation(void) {
     test_returnState = ADCS_get_sgp4_orbit_params(&orbital_params);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_sgp4_orbit_params returned %d", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     printf("Orbit params before:\n");
@@ -2497,14 +2497,14 @@ void commissioning_initial_y_momentum_activation(void) {
     test_returnState = ADCS_set_sgp4_orbit_params(orbital_params);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_sgp4_orbit_params returned %d", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
     test_returnState = ADCS_get_sgp4_orbit_params(&orbital_params);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_sgp4_orbit_params returned %d", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     printf("Orbit params after:\n");
@@ -2537,7 +2537,7 @@ void commissioning_initial_y_momentum_activation(void) {
     test_returnState = ADCS_get_full_config(&ADCS_config);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_full_config returned %d\n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2550,7 +2550,7 @@ void commissioning_initial_y_momentum_activation(void) {
     test_returnState = ADCS_set_estimation_config(est_params);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_estimation_config returned %d", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2558,7 +2558,7 @@ void commissioning_initial_y_momentum_activation(void) {
     test_returnState = ADCS_set_attitude_estimate_mode(MAG_RATE_FILTER_W_PITCH_EST);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_attitude_estimate_mode returned %d\n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2566,7 +2566,7 @@ void commissioning_initial_y_momentum_activation(void) {
     test_returnState = ADCS_get_current_state(&test_adcs_state);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_current_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     printf("att_estimate_mode = %d \n\n\n", test_adcs_state.att_estimate_mode);
@@ -2599,14 +2599,14 @@ void commissioning_initial_y_momentum_activation(void) {
     test_returnState = ADCS_set_log_config(flags_arr, TLM_LOG_PERIOD_10s, TLM_LOG_SDCARD_0, TLM_LOG_1);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_log_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
     test_returnState = ADCS_get_log_config(flags_arr, &period, &sd, TLM_LOG_1);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_log_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2630,7 +2630,7 @@ void commissioning_initial_y_momentum_activation(void) {
     test_returnState = ADCS_set_attitude_ctrl_mode(3, 60);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_attitude_ctrl_mode returned %d\n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2638,7 +2638,7 @@ void commissioning_initial_y_momentum_activation(void) {
     test_returnState = ADCS_get_current_state(&test_adcs_state);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_current_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     printf("att_estimate_mode = %d \n\n\n", test_adcs_state.att_ctrl_mode);
@@ -2650,7 +2650,7 @@ void commissioning_initial_y_momentum_activation(void) {
     test_returnState = ADCS_set_attitude_ctrl_mode(4, 0);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_attitude_ctrl_mode returned %d\n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2658,7 +2658,7 @@ void commissioning_initial_y_momentum_activation(void) {
     test_returnState = ADCS_get_current_state(&test_adcs_state);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_current_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     printf("att_estimate_mode = %d \n", test_adcs_state.att_ctrl_mode);
@@ -2670,7 +2670,7 @@ void commissioning_initial_y_momentum_activation(void) {
     test_returnState = ADCS_set_attitude_estimate_mode(6);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_attitude_estimate_mode returned %d\n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2678,7 +2678,7 @@ void commissioning_initial_y_momentum_activation(void) {
     test_returnState = ADCS_get_current_state(&test_adcs_state);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_current_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     printf("att_estimate_mode = %d \n\n\n", test_adcs_state.att_estimate_mode);
@@ -2689,7 +2689,7 @@ void commissioning_initial_y_momentum_activation(void) {
     test_returnState = ADCS_set_log_config(flags_arr, TLM_LOG_PERIOD_STOP, TLM_LOG_SDCARD_0, TLM_LOG_1);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_log_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2699,7 +2699,7 @@ void commissioning_initial_y_momentum_activation(void) {
     test_returnState = ADCS_set_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 }
@@ -2723,7 +2723,7 @@ void commandsTest_bootloader(void) {
     //                                                    &minor_firm_ver, &runtime_s, &runtime_ms);
     //    if (test_returnState != ADCS_OK) {
     //       printf("ADCS_get_boot_program_stat returned %d \n", test_returnState);
-    //       while (1)
+    //       return test_returnState;
     //           ;
     //    }
     //
@@ -2749,7 +2749,7 @@ void commandsTest_bootloader(void) {
                                                   &major_firm_ver, &minor_firm_ver);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_boot_program_stat returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2792,7 +2792,7 @@ void commandsTest_bootloader(void) {
     test_returnState = ADCS_read_program_info(INTERNAL_FLASH_PROGRAM);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_read_program_info returned %d", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2816,7 +2816,7 @@ void commandsTest_ACP_telemetry(void) {
     test_returnState = ADCS_get_cubeACP_state(flags_arr);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_reset returned %d", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2834,7 +2834,7 @@ void commandsTest_ACP_telemetry(void) {
     test_returnState = ADCS_set_magnetorquer_output(dutycycle);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_magnetorquer_output returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2843,7 +2843,7 @@ void commandsTest_ACP_telemetry(void) {
     test_returnState = ADCS_get_actuator(actuator_commands);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_actuator returned %d", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2867,7 +2867,7 @@ void commandsTest_attitude(void) {
     test_returnState = ADCS_get_attitude_angle(&att_angle);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_clear_err_flags returned %d", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2884,7 +2884,7 @@ void commandsTest_attitude(void) {
     test_returnState = ADCS_set_attitude_angle(att_angle);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_clear_err_flags returned %d", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2893,7 +2893,7 @@ void commandsTest_attitude(void) {
     test_returnState = ADCS_get_attitude_angle(&att_angle);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_clear_err_flags returned %d", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2910,7 +2910,7 @@ void commandsTest_attitude(void) {
     test_returnState = ADCS_set_attitude_angle(att_angle);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_clear_err_flags returned %d", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2919,7 +2919,7 @@ void commandsTest_attitude(void) {
     test_returnState = ADCS_get_attitude_angle(&att_angle);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_clear_err_flags returned %d", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2939,7 +2939,7 @@ void commandsTest_logtest(void) {
     test_returnState = ADCS_set_attitude_estimate_mode(MAG_RATE_FILTER_MODE);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2948,7 +2948,7 @@ void commandsTest_logtest(void) {
     test_returnState = ADCS_get_current_state(&test_adcs_state);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_current_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     printf("att_estimate_mode = %d \n", test_adcs_state.att_estimate_mode);
@@ -2964,7 +2964,7 @@ void commandsTest_logtest(void) {
     test_returnState = ADCS_set_log_config(flags_arr1, TLM_LOG_PERIOD_10s, TLM_LOG_SDCARD_0, TLM_LOG_1);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_log_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2977,7 +2977,7 @@ void commandsTest_logtest(void) {
     test_returnState = ADCS_set_log_config(flags_arr2, TLM_LOG_PERIOD_1s, TLM_LOG_SDCARD_0, TLM_LOG_2);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_log_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -2990,7 +2990,7 @@ void commandsTest_logtest(void) {
     test_returnState = ADCS_get_log_config(flags_arr1, &period_log1, &sd_log1, TLM_LOG_1);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_log_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -3000,7 +3000,7 @@ void commandsTest_logtest(void) {
     test_returnState = ADCS_get_log_config(flags_arr1, &period_log2, &sd_log2, TLM_LOG_2);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_log_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -3016,7 +3016,7 @@ void commandsTest_logtest(void) {
     test_returnState = ADCS_set_log_config(flags_arr1, TLM_LOG_PERIOD_STOP, TLM_LOG_SDCARD_0, TLM_LOG_1);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_log_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -3024,7 +3024,7 @@ void commandsTest_logtest(void) {
     test_returnState = ADCS_set_log_config(flags_arr2, TLM_LOG_PERIOD_STOP, TLM_LOG_SDCARD_0, TLM_LOG_2);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_log_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 }
@@ -3040,7 +3040,7 @@ void commandsTest_configs(void) {
     test_returnState = ADCS_get_full_config(ADCS_config);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_full_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -3060,7 +3060,7 @@ void commandsTest_configs(void) {
     test_returnState = ADCS_set_MTQ_config(params);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_full_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -3068,7 +3068,7 @@ void commandsTest_configs(void) {
     test_returnState = ADCS_get_full_config(ADCS_config);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_full_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -3093,14 +3093,14 @@ void commandsTest_configs(void) {
     //    test_returnState = ADCS_set_RW_config(RW);
     //    if (test_returnState != ADCS_OK) {
     //        printf("ADCS_set_RW_config returned %d \n", test_returnState);
-    //        while (1);
+    //        return test_returnState;;
     //    }
     //
     //    printf("Verifying sent RW config:\n");
     //    test_returnState = ADCS_get_full_config(ADCS_config);
     //    if (test_returnState != ADCS_OK) {
     //        printf("ADCS_get_full_config returned %d \n", test_returnState);
-    //        while (1);
+    //        return test_returnState;;
     //    }
     //
     //    printf("Wheel 1 config: %u\n", ADCS_config->RW[0]);
@@ -3150,7 +3150,7 @@ void commandsTest_configs(void) {
     //    test_returnState = ADCS_get_full_config(ADCS_config);
     //    if (test_returnState != ADCS_OK) {
     //        printf("ADCS_get_full_config returned %d \n", test_returnState);
-    //        while (1);
+    //        return test_returnState;;
     //    }
     //    for(int i = 0; i < 10; i++)
     //    {
@@ -3166,7 +3166,7 @@ void commandsTest_configs(void) {
     test_returnState = ADCS_save_config();
     if (test_returnState != ADCS_OK) {
         printf("ADCS_save_config returned %d", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -3179,7 +3179,7 @@ void commandsTest_configs(void) {
     test_returnState = ADCS_set_enabled_state(1);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_enabled_state returned %d", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -3188,7 +3188,7 @@ void commandsTest_configs(void) {
     test_returnState = ADCS_get_current_state(&test_adcs_state);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_current_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     printf("ADCS run mode = %d\n\n", test_adcs_state.run_mode);
@@ -3197,7 +3197,7 @@ void commandsTest_configs(void) {
     test_returnState = ADCS_get_full_config(ADCS_config);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_full_config returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     for (int i = 0; i < 10; i++) {
@@ -3227,7 +3227,7 @@ void commandsTest_configs_unsaved(void) {
     test_returnState = ADCS_get_full_config(&adcs_Config);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_full_config returned %d", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -3261,7 +3261,7 @@ void commandsTest_configs_unsaved(void) {
     test_returnState = ADCS_set_MoI_mat(moi_config);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_MoI_mat returned %d", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -3279,14 +3279,14 @@ void commandsTest_configs_unsaved(void) {
     test_returnState = ADCS_set_rate_gyro(rate_gyro_params);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_rate_gyro returned %d", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
     test_returnState = ADCS_get_full_config(&adcs_Config);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_full_config returned %d", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -3294,7 +3294,7 @@ void commandsTest_configs_unsaved(void) {
     test_returnState = ADCS_get_full_config(&adcs_Config);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_full_config returned %d", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     printf("Modified MoI matrix config:\n");
@@ -3326,7 +3326,7 @@ void commandsTest_unix_configID(void) {
 
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_unix_t_conig returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -3338,7 +3338,7 @@ void commandsTest_unix_configID(void) {
     test_returnState = ADCS_set_unix_t(time, 0);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_unix_t returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -3346,14 +3346,14 @@ void commandsTest_unix_configID(void) {
 
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_unix_t returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
     test_returnState = ADCS_get_unix_t(&time, 0);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     printf("Unix time set to: %u (s)\n", time);
@@ -3365,14 +3365,14 @@ void commandsTest_unix_configID(void) {
 
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_unix_t_conig returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
     test_returnState = ADCS_get_unix_t(&time, 0);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     printf("The updated unix time is: %u (s)\n", time);
@@ -3389,7 +3389,7 @@ void commandsTest_upload(void) {
     test_returnState = ADCS_initiate_file_upload(file_dest, block_size);
     if (test_returnState != ADCS_OK) {
         printf("initiate file upload returned %d", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -3404,7 +3404,7 @@ void commandsTest_upload(void) {
         test_returnState = ADCS_get_init_upload_stat(&busy);
         if (test_returnState != ADCS_OK) {
             printf("get upload status returned error: %d", test_returnState);
-            while (1)
+            return test_returnState;
                 ;
         }
         if (busy) {
@@ -3420,7 +3420,7 @@ void commandsTest_upload(void) {
     test_returnState = ADCS_reset_upload_block();
     if (test_returnState != ADCS_OK) {
         printf("reset upload block returned error: %d", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -3447,7 +3447,7 @@ void commandsTest_upload(void) {
                 test_returnState = ADCS_get_hole_map(temp, i);
                 if (test_returnState != ADCS_OK) {
                     printf("ADCS_get_hole_map returned %d\n", test_returnState);
-                    while (1)
+                    return test_returnState;
                         ;
                 }
 
@@ -3481,7 +3481,7 @@ void commandsTest_upload(void) {
         // test_returnState = ADCS_finalize_upload_block(file_dest, /*offset into file*/, /*block length*/);
         if (test_returnState != ADCS_OK) {
             printf("ADCS_finalize_upload_block returned %d", test_returnState);
-            while (1)
+            return test_returnState;
                 ;
         }
 
@@ -3492,13 +3492,13 @@ void commandsTest_upload(void) {
             test_returnState = ADCS_get_finalize_upload_stat(&busy, &err);
             if (test_returnState != ADCS_OK) {
                 printf("ADCS_get_finalize_upload_stat returned %d", test_returnState);
-                while (1)
+                return test_returnState;
                     ;
             }
 
             if (err == true) {
                 printf("Error in block finalization!\n");
-                while (1)
+                return test_returnState;
                     ;
                 //! Error handling
             }
@@ -3531,7 +3531,7 @@ void CubeMag_Common_Test(bool signalMCU) {
     test_returnState = ADCS_get_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     for (int i = 0; i < 10; i++) {
@@ -3549,7 +3549,7 @@ void CubeMag_Common_Test(bool signalMCU) {
     test_returnState = ADCS_set_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -3558,7 +3558,7 @@ void CubeMag_Common_Test(bool signalMCU) {
     test_returnState = ADCS_get_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     for (int i = 0; i < 10; i++) {
@@ -3581,7 +3581,7 @@ void CubeMag_Common_Test(bool signalMCU) {
     test_returnState = ADCS_set_MTM_op_mode(MTM_op_mode);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_MTM_op_mode returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -3595,7 +3595,7 @@ void CubeMag_Common_Test(bool signalMCU) {
         test_returnState = ADCS_get_current_state(&test_adcs_state);
         if (test_returnState != ADCS_OK) {
             printf("ADCS_get_current_state returned %d \n", test_returnState);
-            while (1)
+            return test_returnState;
                 ;
         }
 
@@ -3614,7 +3614,7 @@ void CubeMag_Common_Test(bool signalMCU) {
     raw_sensor_measurements = (adcs_raw_sensor *)pvPortMalloc(sizeof(adcs_raw_sensor));
     if (raw_sensor_measurements == NULL) {
         printf("malloc issues");
-        while (1)
+        return test_returnState;
             ;
     }
     xyz16 mtm2;
@@ -3625,7 +3625,7 @@ void CubeMag_Common_Test(bool signalMCU) {
         test_returnState = ADCS_get_raw_sensor(raw_sensor_measurements);
         if (test_returnState != ADCS_OK) {
             printf("ADCS_get_raw_sensor returned %d \n", test_returnState);
-            while (1)
+            return test_returnState;
                 ;
         }
 
@@ -3639,7 +3639,7 @@ void CubeMag_Common_Test(bool signalMCU) {
         test_returnState = ADCS_get_MTM2_measurements(&mtm2);
         if (test_returnState != ADCS_OK) {
             printf("ADCS_get_MTM2_measurement returned %d \n", test_returnState);
-            while (1)
+            return test_returnState;
                 ;
         }
 
@@ -3657,7 +3657,7 @@ void CubeMag_Common_Test(bool signalMCU) {
     measurements = (adcs_measures *)pvPortMalloc(sizeof(adcs_measures));
     if (measurements == NULL) {
         printf("malloc issues");
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -3666,7 +3666,7 @@ void CubeMag_Common_Test(bool signalMCU) {
         test_returnState = ADCS_get_measurements(measurements);
         if (test_returnState != ADCS_OK) {
             printf("ADCS_get_measurements returned %d \n", test_returnState);
-            while (1)
+            return test_returnState;
                 ;
         }
         printf("Magnetic Field X = %+f \n",
@@ -3697,7 +3697,7 @@ void CubeTorquers_Common_Test(void) {
     test_returnState = ADCS_get_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     for (int i = 0; i < 10; i++) {
@@ -3715,7 +3715,7 @@ void CubeTorquers_Common_Test(void) {
     test_returnState = ADCS_set_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -3723,7 +3723,7 @@ void CubeTorquers_Common_Test(void) {
     test_returnState = ADCS_get_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     for (int i = 0; i < 10; i++) {
@@ -3734,7 +3734,7 @@ void CubeTorquers_Common_Test(void) {
     power_temp_measurements = (adcs_pwr_temp *)pvPortMalloc(sizeof(adcs_pwr_temp));
     if (power_temp_measurements == NULL) {
         printf("malloc issues");
-        while (1)
+        return test_returnState;
             ;
     }
     int16_t maxDuty = 800;
@@ -3764,7 +3764,7 @@ void CubeTorquers_Common_Test(void) {
         test_returnState = ADCS_set_magnetorquer_output(dutycycle);
         if (test_returnState != ADCS_OK) {
             printf("ADCS_set_magnetorquer_output returned %d \n", test_returnState);
-            while (1)
+            return test_returnState;
                 ;
         }
         // Confirm the current measurement and the direction of the magnetic field in the table  below.
@@ -3777,7 +3777,7 @@ void CubeTorquers_Common_Test(void) {
         test_returnState = ADCS_get_power_temp(power_temp_measurements);
         if (test_returnState != ADCS_OK) {
             printf("ADCS_get_power_temp returned %d \n", test_returnState);
-            while (1)
+            return test_returnState;
                 ;
         }
 
@@ -3792,7 +3792,7 @@ void CubeTorquers_Common_Test(void) {
         test_returnState = ADCS_set_magnetorquer_output(dutycycle);
         if (test_returnState != ADCS_OK) {
             printf("ADCS_set_magnetorquer_output returned %d \n", test_returnState);
-            while (1)
+            return test_returnState;
                 ;
         }
         // Confirm the current measurement and the direction of the magnetic field in the table  below.
@@ -3805,7 +3805,7 @@ void CubeTorquers_Common_Test(void) {
         test_returnState = ADCS_get_power_temp(power_temp_measurements);
         if (test_returnState != ADCS_OK) {
             printf("ADCS_get_power_temp returned %d \n", test_returnState);
-            while (1)
+            return test_returnState;
                 ;
         }
 
@@ -3820,7 +3820,7 @@ void CubeTorquers_Common_Test(void) {
         test_returnState = ADCS_set_magnetorquer_output(dutycycle);
         if (test_returnState != ADCS_OK) {
             printf("ADCS_set_magnetorquer_output returned %d \n", test_returnState);
-            while (1)
+            return test_returnState;
                 ;
         }
 
@@ -3831,7 +3831,7 @@ void CubeTorquers_Common_Test(void) {
         test_returnState = ADCS_get_power_temp(power_temp_measurements);
         if (test_returnState != ADCS_OK) {
             printf("ADCS_get_power_temp returned %d \n", test_returnState);
-            while (1)
+            return test_returnState;
                 ;
         }
 
@@ -3857,7 +3857,7 @@ void ReactionWheels_Common_Test(uint8_t wheel_number) {
     test_returnState = ADCS_get_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     for (int i = 0; i < 10; i++) {
@@ -3882,7 +3882,7 @@ void ReactionWheels_Common_Test(uint8_t wheel_number) {
     test_returnState = ADCS_set_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -3895,7 +3895,7 @@ void ReactionWheels_Common_Test(uint8_t wheel_number) {
     test_returnState = ADCS_get_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     for (int i = 0; i < 10; i++) {
@@ -3908,7 +3908,7 @@ void ReactionWheels_Common_Test(uint8_t wheel_number) {
     test_returnState = ADCS_get_current_state(&test_adcs_state);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_get_current_state returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -3951,7 +3951,7 @@ void ReactionWheels_Common_Test(uint8_t wheel_number) {
     measurements = (adcs_measures *)pvPortMalloc(sizeof(adcs_measures));
     if (measurements == NULL) {
         printf("malloc issues");
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -3959,7 +3959,7 @@ void ReactionWheels_Common_Test(uint8_t wheel_number) {
     power_temp_measurements = (adcs_pwr_temp *)pvPortMalloc(sizeof(adcs_pwr_temp));
     if (power_temp_measurements == NULL) {
         printf("malloc issues");
-        while (1)
+        return test_returnState;
             ;
     }
 
@@ -3986,7 +3986,7 @@ void ReactionWheels_Common_Test(uint8_t wheel_number) {
         test_returnState = ADCS_set_wheel_speed(speed);
         if (test_returnState != ADCS_OK) {
             printf("ADCS_get_current_state returned %d \n", test_returnState);
-            while (1)
+            return test_returnState;
                 ;
         }
 
@@ -3998,7 +3998,7 @@ void ReactionWheels_Common_Test(uint8_t wheel_number) {
             test_returnState = ADCS_get_measurements(measurements);
             if (test_returnState != ADCS_OK) {
                 printf("ADCS_get_measurements returned %d \n", test_returnState);
-                while (1)
+                return test_returnState;
                     ;
             }
             printf("X Wheel Speed = %+f \n",
@@ -4013,7 +4013,7 @@ void ReactionWheels_Common_Test(uint8_t wheel_number) {
         test_returnState = ADCS_get_power_temp(power_temp_measurements);
         if (test_returnState != ADCS_OK) {
             printf("ADCS_get_power_temp returned %d \n", test_returnState);
-            while (1)
+            return test_returnState;
                 ;
         }
 
@@ -4040,7 +4040,7 @@ void ReactionWheels_Common_Test(uint8_t wheel_number) {
     test_returnState = ADCS_set_power_control(control);
     if (test_returnState != ADCS_OK) {
         printf("ADCS_set_power_control returned %d \n", test_returnState);
-        while (1)
+        return test_returnState;
             ;
     }
     vPortFree(control);
