@@ -23,7 +23,7 @@
 
 #include "FreeRTOS.h"
 
-#define SLAVE_ADDR 0x42
+#define IRIS_SLAVE_ADDR 0x42
 
 int iris_write_packet(void *buf_tx_data, uint16_t data_length);
 int iris_read_packet(void *buf_rx_data, uint16_t data_length);

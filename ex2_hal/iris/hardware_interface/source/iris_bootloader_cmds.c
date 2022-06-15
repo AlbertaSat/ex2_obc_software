@@ -24,8 +24,6 @@
 #include "HL_reg_het.h"
 #include "iris_i2c.h"
 #include "FreeRTOS.h"
-#include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 
 /* Optimization points

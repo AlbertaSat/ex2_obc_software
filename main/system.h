@@ -89,7 +89,6 @@
 #else // These values are expected to be adjusted based on what the developer is working on
 #define IRIS_CONFIG_SPI spiREG4 // SPI1
 #define IRIS_SPI spiREG5        // SPI3
-#define IRIS_I2C i2cREG1        // I2C1
 #define SBAND_SPI spiREG3       // SPI2
 #define SD_SPI spiREG1          //?
 #endif
@@ -108,6 +107,7 @@
 #define SOLAR_I2C i2cREG2
 #define TEMPSENSE_I2C i2cREG2
 #define RTC_I2C i2cREG2
+#define IRIS_I2C i2cREG1
 
 #define SBAND_I2C i2cREG1
 #define ADCS_I2C i2cREG1
