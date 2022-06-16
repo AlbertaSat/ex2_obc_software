@@ -34,20 +34,22 @@
 #include <stdbool.h>
 #include <string.h>
 
-#define ADCS_QUEUE_LENGTH 600
+#define ADCS_QUEUE_LENGTH 1000
 #define ADCS_QUEUE_ITEM_SIZE 1
 
 #define ADCS_I2C_ADDR 0x57
-#define UART_TIMEOUT_MS 1500
+#define UART_TIMEOUT_MS pdMS_TO_TICKS(1000)
+#define FILE_DOWNLOAD_SEMPHR_TIMEOUT_MS pdMS_TO_TICKS(2000)
 #define ADCS_FILE_DOWNLOAD_QUEUE_TIMEOUT pdMS_TO_TICKS(500)
 
 #define ADCS_TC_HEADER_SZ 4 // Does not include TC ID
 #define ADCS_TC_ANS_LEN 6
 #define ADCS_TM_HEADER_SZ 5  // Includes TM ID
 #define ADCS_TM_DATA_INDEX 3 // Data excludes TM ID
-#define ADCS_EXTRA_SZ_FOR_STUFFING 6
+#define ADCS_EXTRA_SZ_FOR_STUFFING 10
 #define ADCS_PARSING_BYTE 0x1F
 #define ADCS_ENDING_BYTE 0xFF
+#define ADCS_STARTING_BYTE 0x7F
 #define ADCS_NUM_ENDING_BYTES 2
 
 ADCS_returnState init_adcs_io();
@@ -63,7 +65,7 @@ ADCS_returnState request_i2c_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint32
 
 // receive downloaded packets over uart
 ADCS_returnState receive_file_download_uart_packet(uint8_t *packet, uint16_t *packet_counter);
-void write_packet_to_file(uint32_t file_des, uint8_t *packet_data, uint8_t length);
+void write_packet_to_file(int32_t file_des, uint8_t *packet_data, uint8_t length);
 ADCS_returnState adcs_io_exit_file_download_state();
 ADCS_returnState adcs_io_enter_file_download_state();
 

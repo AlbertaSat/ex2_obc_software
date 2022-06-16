@@ -167,6 +167,9 @@ ADCS_returnState send_uart_telecommand_no_reply(uint8_t *command, uint32_t lengt
 
     // Form the command frame
     uint8_t *frame = (uint8_t *)pvPortMalloc((length + ADCS_TC_HEADER_SZ) * sizeof(uint8_t));
+    if(frame == NULL){
+        return ADCS_MALLOC_FAILED;
+    }
 
     *frame = ADCS_ESC_CHAR;
     *(frame + 1) = ADCS_SOM;
@@ -307,44 +310,63 @@ ADCS_returnState request_uart_telemetry(uint8_t TM_ID, uint8_t *telemetry, uint3
  */
 ADCS_returnState receive_file_download_uart_packet(uint8_t *packet, uint16_t *packet_counter) {
 
-    uint8_t received = 0;
-    uint8_t *reply = (uint8_t *)pvPortMalloc(sizeof(uint8_t) * (ADCS_UART_FILE_DOWNLOAD_PKT_LEN + ADCS_EXTRA_SZ_FOR_STUFFING));
+    uint8_t received = 0; // Number of bytes received from the queue
+    uint8_t reply[ADCS_UART_FILE_DOWNLOAD_PKT_LEN + ADCS_EXTRA_SZ_FOR_STUFFING];
 
     bool end_of_message = false;
-    const uint8_t ending_bytes[ADCS_NUM_ENDING_BYTES] = {ADCS_PARSING_BYTE, ADCS_ENDING_BYTE};
-    uint8_t ending_bytes_index = 0;
+    bool start_of_message = false;
+    const uint8_t ending_bytes[2] = {ADCS_PARSING_BYTE, ADCS_ENDING_BYTE};
+    const uint8_t starting_bytes[3] = {ADCS_PARSING_BYTE, ADCS_STARTING_BYTE, INITIATE_DOWNLOAD_BURST_ID};
 
     while (!end_of_message) {
-        if (xQueueReceive(adcsQueue, reply + received, ADCS_FILE_DOWNLOAD_QUEUE_TIMEOUT) == pdFAIL) {
-            vPortFree(reply);
-            return ADCS_UART_FAILED;
-        } else {
-            // Check for EOM
-            if(*(reply + received) == ending_bytes[ending_bytes_index]){
-                ending_bytes_index++;
 
-                if(ending_bytes_index == ADCS_NUM_ENDING_BYTES) end_of_message = true;
-            }else{
-                ending_bytes_index = 0;
-            }
+        if (xQueueReceive(adcsQueue, &reply[received], ADCS_FILE_DOWNLOAD_QUEUE_TIMEOUT) == pdFAIL) {
+            return ADCS_UART_FAILED;
+
+        } else if (!start_of_message){
             received++;
+            // Parse for SOM
+            if(memcmp(&reply[0], starting_bytes, 3) == 0){
+                start_of_message = true;
+            }else if(received == 3){
+                reply[0] = reply[1];
+                reply[1] = reply[2];
+                received--;
+            }
+
+        } else if (received < 25){
+            // Packets are at least 27 bytes long
+            received++;
+
+        } else {
+            received++;
+            // Parse for EOM
+            if(memcmp(&reply[received - 2], ending_bytes, 2) == 0){
+                end_of_message = true;
+            }
+            if(received >= (ADCS_UART_FILE_DOWNLOAD_PKT_LEN + ADCS_EXTRA_SZ_FOR_STUFFING)){
+                // Something has gone terribly wrong in the queue
+                return ADCS_INCORRECT_LENGTH;
+            }
         }
     }
+
+
 
     // Destuff the reply
     uint8_t thin_reply[ADCS_UART_FILE_DOWNLOAD_PKT_LEN - ADCS_TM_HEADER_SZ];
     uint16_t thin_length;
-    adcs_byte_destuff((reply + ADCS_TM_DATA_INDEX), thin_reply, received - ADCS_TM_HEADER_SZ, &thin_length);
+    adcs_byte_destuff(&reply[3], thin_reply, received - ADCS_TM_HEADER_SZ, &thin_length);
 
     *packet_counter = (thin_reply[1] << 8) | thin_reply[0];
 
     memcpy(packet, &thin_reply[2], ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN);
-    vPortFree(reply);
+
     return ADCS_OK;
 }
 
 ADCS_returnState adcs_io_enter_file_download_state(){
-    if (xSemaphoreTake(adcs_uart_mutex, UART_TIMEOUT_MS) != pdTRUE) {
+    if (xSemaphoreTake(adcs_uart_mutex, FILE_DOWNLOAD_SEMPHR_TIMEOUT_MS) != pdTRUE) {
         return ADCS_UART_BUSY;
     }
     return ADCS_OK;
@@ -413,7 +435,7 @@ static void adcs_byte_destuff(uint8_t *stuffed_reply, uint8_t *thin_reply, uint1
     *thin_length = thin_index;
 }
 
-void write_packet_to_file(uint32_t file_des, uint8_t *packet_data, uint8_t length) {
+void write_packet_to_file(int32_t file_des, uint8_t *packet_data, uint8_t length) {
     // Write data to file
     int32_t iErr = red_write(file_des, packet_data, length);
     if (iErr == -1) {
