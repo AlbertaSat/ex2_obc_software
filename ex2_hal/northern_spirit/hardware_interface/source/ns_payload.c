@@ -20,4 +20,10 @@
 
 #include "ns_payload.h"
 
-
+NS_return HAL_NS_get_HK(ns_telemetry *tlm){
+#ifndef PAYLOAD_IS_STUBBED
+    return NS_get_telemetry(tlm->array);
+#else
+    return NS_IS_STUBBED;
+#endif
+}

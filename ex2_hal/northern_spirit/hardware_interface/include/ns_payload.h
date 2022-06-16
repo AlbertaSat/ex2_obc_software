@@ -23,6 +23,6 @@
 
 #include "northern_spirit_handler.h"
 
-
+NS_return HAL_NS_get_HK(ns_telemetry *tlm);
 
 #endif /* EX2_HAL_NORTHERN_SPIRIT_HARDWARE_INTERFACE_INCLUDE_NS_PAYLOAD_H_ */
