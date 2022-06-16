@@ -198,7 +198,7 @@ void get_3x3(float *matrix, uint8_t *address, float coef) {
 ADCS_returnState ADCS_init_file_download_mutex() {
     adcs_file_download_mutex = xSemaphoreCreateMutex();
 
-    if(adcs_file_download_mutex == NULL){
+    if (adcs_file_download_mutex == NULL) {
         return ADCS_DOWNLOAD_MUTEX_FAIL;
     }
     return ADCS_OK;
@@ -228,13 +228,13 @@ ADCS_returnState ADCS_get_file_list() {
         // Directory does not exist. Create it
         iErr = red_mkdir("VOL0:/adcs");
 
-        if (iErr == -1){
+        if (iErr == -1) {
             sys_log(ERROR, "Unexpected error from red_mkdir()\r\n");
             return ADCS_FILESYSTEM_FAIL;
         }
 
         iErr = red_chdir("VOL0:/adcs");
-        if (iErr == -1){
+        if (iErr == -1) {
             sys_log(ERROR, "Unexpected error from red_chdir()\r\n");
             return ADCS_FILESYSTEM_FAIL;
         }
@@ -254,7 +254,7 @@ ADCS_returnState ADCS_get_file_list() {
     adcs_file_info info;
     while (true) {
 
-         do {
+        do {
             // Request file info until busy updating flag is not set
             ret = ADCS_get_file_info(&info);
             if (ret != ADCS_OK) {
@@ -297,12 +297,13 @@ ADCS_returnState ADCS_get_file_list() {
  * @param return
  *      Success of file download
  */
-void ADCS_download_file_task(void *pvParameters){
+void ADCS_download_file_task(void *pvParameters) {
     adcs_file_download_id *id = (adcs_file_download_id *)pvParameters;
 
     ADCS_returnState status = (uint8_t)ADCS_download_file(id->type, id->counter, id->size, id->file_name);
 
-    sys_log(INFO, "ADCS file download type %d counter %d name %s returned: %d\r\n", id->type, id->counter, id->file_name, status);
+    sys_log(INFO, "ADCS file download type %d counter %d name %s returned: %d\r\n", id->type, id->counter,
+            id->file_name, status);
     vTaskDelete(0);
 }
 
@@ -321,7 +322,7 @@ ADCS_returnState ADCS_download_file(uint8_t type, uint8_t counter, uint32_t size
     ADCS_returnState ret;
 
     // Check valid type and determine file extension
-    switch(type){
+    switch (type) {
     case TelemetryLogFile:
         strncat(save_as, ".tlm", REDCONF_NAME_MAX);
         break;
@@ -343,23 +344,23 @@ ADCS_returnState ADCS_download_file(uint8_t type, uint8_t counter, uint32_t size
     int32_t iErr;
     iErr = red_chdir("VOL0:/adcs");
     if (iErr == -1) {
-        if((red_errno == RED_ENOENT) || (red_errno == RED_ENOTDIR)){
+        if ((red_errno == RED_ENOENT) || (red_errno == RED_ENOTDIR)) {
             // Directory does not exist. Create it
             iErr = red_mkdir("VOL0:/adcs");
 
-            if (iErr == -1){
+            if (iErr == -1) {
                 sys_log(ERROR, "Unexpected error %d from red_mkdir()\r\n", red_errno);
                 xSemaphoreGive(adcs_file_download_mutex);
                 return ADCS_FILESYSTEM_FAIL;
             }
 
             iErr = red_chdir("VOL0:/adcs");
-            if (iErr == -1){
+            if (iErr == -1) {
                 sys_log(ERROR, "Unexpected error %d from red_chdir()\r\n", red_errno);
                 xSemaphoreGive(adcs_file_download_mutex);
                 return ADCS_FILESYSTEM_FAIL;
             }
-        }else{
+        } else {
             sys_log(ERROR, "Unexpected error %d from red_chdir\r\n", red_errno);
             xSemaphoreGive(adcs_file_download_mutex);
             return ADCS_FILESYSTEM_FAIL;
@@ -379,11 +380,11 @@ ADCS_returnState ADCS_download_file(uint8_t type, uint8_t counter, uint32_t size
 
     // Loop over all blocks
     uint16_t block_length = 20480;
-    for(uint32_t offset = 0; offset < size; offset += block_length){
+    for (uint32_t offset = 0; offset < size; offset += block_length) {
 
         // Load one block
         ret = ADCS_load_file_download_block(type, counter, offset, block_length);
-        if(ret != ADCS_OK){
+        if (ret != ADCS_OK) {
             xSemaphoreGive(adcs_file_download_mutex);
             return ret;
         }
@@ -394,7 +395,7 @@ ADCS_returnState ADCS_download_file(uint8_t type, uint8_t counter, uint32_t size
         uint16_t crc16_checksum;
         while (ready == false) {
             ret = ADCS_get_file_download_block_stat(&ready, &param_err, &crc16_checksum, &block_length);
-            if(ret != ADCS_OK){
+            if (ret != ADCS_OK) {
                 xSemaphoreGive(adcs_file_download_mutex);
                 return ret;
             }
@@ -405,7 +406,7 @@ ADCS_returnState ADCS_download_file(uint8_t type, uint8_t counter, uint32_t size
         bool ignore_hole_map = true; // Set Ignore Hole Map to true
         adcs_io_enter_file_download_state();
         ret = ADCS_initiate_download_burst(ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN, ignore_hole_map);
-        if(ret != ADCS_OK){
+        if (ret != ADCS_OK) {
             red_close(file1);
             xSemaphoreGive(adcs_file_download_mutex);
             adcs_io_exit_file_download_state();
@@ -666,7 +667,8 @@ static ADCS_returnState ADCS_receive_download_burst(uint8_t *hole_map, int32_t f
     ADCS_returnState err;
 
     uint16_t num_packets = length_bytes / ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN;
-    if((length_bytes % 20) != 0) num_packets++;
+    if ((length_bytes % 20) != 0)
+        num_packets++;
     uint8_t pckt[ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN];
     uint16_t pckt_counter = 0;
 
@@ -686,13 +688,13 @@ static ADCS_returnState ADCS_receive_download_burst(uint8_t *hole_map, int32_t f
             int j = 0;
             for (; j < (pckt_counter - i); j++) {
 
-                if(!(length_bytes < 20)){
+                if (!(length_bytes < 20)) {
 
                     // More than 20 bytes remaining. Stuff file with full length of dummy data.
                     write_packet_to_file(file_des, dummy_data, ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN);
                     length_bytes -= ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN;
 
-                }else{
+                } else {
 
                     // Less than 20 bytes remaining. Stuff file with only remaining length of dummy data.
                     write_packet_to_file(file_des, dummy_data, length_bytes);
@@ -706,18 +708,17 @@ static ADCS_returnState ADCS_receive_download_burst(uint8_t *hole_map, int32_t f
         } else {
 
             // Packet received. Write to file
-            if(!(length_bytes < 20)){
+            if (!(length_bytes < 20)) {
 
                 // More than 20 bytes remaining. Write full packet payload to file.
                 write_packet_to_file(file_des, pckt, ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN);
                 length_bytes -= ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN;
 
-            }else{
+            } else {
 
                 // Less than 20 bytes remaining. Write only remaining data from packet to file.
                 write_packet_to_file(file_des, pckt, length_bytes);
                 length_bytes = 0;
-
             }
         }
     }

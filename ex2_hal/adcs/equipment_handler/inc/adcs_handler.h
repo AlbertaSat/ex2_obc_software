@@ -481,13 +481,12 @@ typedef struct {
     uint16_t crc16_checksum;
 } adcs_file_info;
 
-typedef struct __attribute__((packed)){
+typedef struct __attribute__((packed)) {
     uint8_t type;
     uint8_t counter;
     uint32_t size;
     char file_name[REDCONF_NAME_MAX];
 } adcs_file_download_id;
-
 
 // General functions
 int16_t uint82int16(uint8_t b1, uint8_t b2);

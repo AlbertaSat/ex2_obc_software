@@ -40,7 +40,8 @@ static void adcs_byte_destuff(uint8_t *stuffed_reply, uint8_t *thin_reply, uint1
 ADCS_returnState init_adcs_io() {
     // Create tx semaphore
     tx_semphr = xSemaphoreCreateBinary();
-    if (tx_semphr == NULL) return ADCS_UART_FAILED;
+    if (tx_semphr == NULL)
+        return ADCS_UART_FAILED;
 
     // Create receive queue
     adcsQueue = xQueueCreate(ADCS_QUEUE_LENGTH, ADCS_QUEUE_ITEM_SIZE);
@@ -50,7 +51,8 @@ ADCS_returnState init_adcs_io() {
 
     // Create UART mutex
     adcs_uart_mutex = xSemaphoreCreateMutex();
-    if (adcs_uart_mutex == NULL) return ADCS_UART_FAILED;
+    if (adcs_uart_mutex == NULL)
+        return ADCS_UART_FAILED;
 
     adcsBuffer = 0;
     xSemaphoreGive(adcs_uart_mutex);
@@ -58,7 +60,8 @@ ADCS_returnState init_adcs_io() {
 
     // Create file download mutex
     ADCS_returnState ret = ADCS_init_file_download_mutex();
-    if(ret != ADCS_OK) return ret;
+    if (ret != ADCS_OK)
+        return ret;
 
     return ADCS_OK;
 }
@@ -167,7 +170,7 @@ ADCS_returnState send_uart_telecommand_no_reply(uint8_t *command, uint32_t lengt
 
     // Form the command frame
     uint8_t *frame = (uint8_t *)pvPortMalloc((length + ADCS_TC_HEADER_SZ) * sizeof(uint8_t));
-    if(frame == NULL){
+    if (frame == NULL) {
         return ADCS_MALLOC_FAILED;
     }
 
@@ -323,35 +326,33 @@ ADCS_returnState receive_file_download_uart_packet(uint8_t *packet, uint16_t *pa
         if (xQueueReceive(adcsQueue, &reply[received], ADCS_FILE_DOWNLOAD_QUEUE_TIMEOUT) == pdFAIL) {
             return ADCS_UART_FAILED;
 
-        } else if (!start_of_message){
+        } else if (!start_of_message) {
             received++;
             // Parse for SOM
-            if(memcmp(&reply[0], starting_bytes, 3) == 0){
+            if (memcmp(&reply[0], starting_bytes, 3) == 0) {
                 start_of_message = true;
-            }else if(received == 3){
+            } else if (received == 3) {
                 reply[0] = reply[1];
                 reply[1] = reply[2];
                 received--;
             }
 
-        } else if (received < 25){
+        } else if (received < 25) {
             // Packets are at least 27 bytes long
             received++;
 
         } else {
             received++;
             // Parse for EOM
-            if(memcmp(&reply[received - 2], ending_bytes, 2) == 0){
+            if (memcmp(&reply[received - 2], ending_bytes, 2) == 0) {
                 end_of_message = true;
             }
-            if(received >= (ADCS_UART_FILE_DOWNLOAD_PKT_LEN + ADCS_EXTRA_SZ_FOR_STUFFING)){
+            if (received >= (ADCS_UART_FILE_DOWNLOAD_PKT_LEN + ADCS_EXTRA_SZ_FOR_STUFFING)) {
                 // Something has gone terribly wrong in the queue
                 return ADCS_INCORRECT_LENGTH;
             }
         }
     }
-
-
 
     // Destuff the reply
     uint8_t thin_reply[ADCS_UART_FILE_DOWNLOAD_PKT_LEN - ADCS_TM_HEADER_SZ];
@@ -365,14 +366,14 @@ ADCS_returnState receive_file_download_uart_packet(uint8_t *packet, uint16_t *pa
     return ADCS_OK;
 }
 
-ADCS_returnState adcs_io_enter_file_download_state(){
+ADCS_returnState adcs_io_enter_file_download_state() {
     if (xSemaphoreTake(adcs_uart_mutex, FILE_DOWNLOAD_SEMPHR_TIMEOUT_MS) != pdTRUE) {
         return ADCS_UART_BUSY;
     }
     return ADCS_OK;
 }
 
-ADCS_returnState adcs_io_exit_file_download_state(){
+ADCS_returnState adcs_io_exit_file_download_state() {
     xSemaphoreGive(adcs_uart_mutex);
     return ADCS_OK;
 }

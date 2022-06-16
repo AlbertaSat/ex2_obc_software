@@ -39,7 +39,7 @@ typedef enum ADCS_returnState {
     ADCS_UART_FAILED = 6,
     ADCS_UART_BUSY = 7,
 
-    //File download errors
+    // File download errors
     ADCS_FILE_DNE = 8,
     ADCS_FILESYSTEM_FAIL = 9,
     ADCS_FILE_FAIL = 10,
@@ -282,11 +282,6 @@ typedef enum TelemetryLOG_IDs {
 
 } TelemetryLOG_IDs;
 
-typedef enum FileType_IDs{
-    TelemetryLogFile = 2,
-    JPGImgFile = 3,
-    BMPImgFile = 4,
-    IndexFile = 15
-} FileType_IDs;
+typedef enum FileType_IDs { TelemetryLogFile = 2, JPGImgFile = 3, BMPImgFile = 4, IndexFile = 15 } FileType_IDs;
 
 #endif /* ADCS_TYPES_H */
