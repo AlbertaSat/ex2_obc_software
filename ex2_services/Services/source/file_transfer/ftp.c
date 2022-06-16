@@ -29,7 +29,7 @@
 #include "util/service_utilities.h"
 #include <string.h>
 
-#define FTP_STACK_SIZE 312
+#define FTP_STACK_SIZE 500
 
 typedef enum {
     GET_REQUEST = 0,
