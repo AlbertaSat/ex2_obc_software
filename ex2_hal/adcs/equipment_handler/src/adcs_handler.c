@@ -710,12 +710,6 @@ static ADCS_returnState ADCS_receive_download_burst(uint8_t *hole_map, int32_t f
                 length_bytes = 0;
 
             }
-
-            // Fill hole map to indicate packet receipt (stored little-endian)
-            uint8_t hole_map_byte_index = pckt_counter / 8;
-            uint8_t hole_map_bit_index = pckt_counter % 8;
-            *(hole_map + hole_map_byte_index) |= (0x1 << hole_map_bit_index);
-
         }
     }
     return err;
