@@ -35,6 +35,8 @@
 
 static SemaphoreHandle_t adcs_file_download_mutex;
 
+static ADCS_returnState ADCS_receive_download_burst(uint8_t *hole_map, int32_t file_des, uint16_t length_bytes);
+
 /*************************** General functions ***************************/
 /**
  * @brief
@@ -298,8 +300,9 @@ ADCS_returnState ADCS_get_file_list() {
 void ADCS_download_file_task(void *pvParameters){
     adcs_file_download_id *id = (adcs_file_download_id *)pvParameters;
 
-    id->type = (uint8_t)ADCS_download_file(id->type, id->counter, id->size, id->file_name);
+    ADCS_returnState status = (uint8_t)ADCS_download_file(id->type, id->counter, id->size, id->file_name);
 
+    sys_log(INFO, "ADCS file download type %d counter %d name %s returned: %d\r\n", id->type, id->counter, id->file_name, status);
     vTaskDelete(0);
 }
 
@@ -320,16 +323,16 @@ ADCS_returnState ADCS_download_file(uint8_t type, uint8_t counter, uint32_t size
     // Check valid type and determine file extension
     switch(type){
     case TelemetryLogFile:
-        strcat(save_as, ".tlm");
+        strncat(save_as, ".tlm", REDCONF_NAME_MAX);
         break;
     case JPGImgFile:
-        strcat(save_as, ".jpg");
+        strncat(save_as, ".jpg", REDCONF_NAME_MAX);
         break;
     case BMPImgFile:
-        strcat(save_as, ".bmp");
+        strncat(save_as, ".bmp", REDCONF_NAME_MAX);
         break;
     case IndexFile:
-        strcat(save_as, ".idx");
+        strncat(save_as, ".idx", REDCONF_NAME_MAX);
         break;
     default:
         xSemaphoreGive(adcs_file_download_mutex);
@@ -340,18 +343,24 @@ ADCS_returnState ADCS_download_file(uint8_t type, uint8_t counter, uint32_t size
     int32_t iErr;
     iErr = red_chdir("VOL0:/adcs");
     if (iErr == -1) {
-        // Directory does not exist. Create it
-        iErr = red_mkdir("VOL0:/adcs");
+        if((red_errno == RED_ENOENT) || (red_errno == RED_ENOTDIR)){
+            // Directory does not exist. Create it
+            iErr = red_mkdir("VOL0:/adcs");
 
-        if (iErr == -1){
-            sys_log(ERROR, "Unexpected error from red_mkdir()\r\n");
-            xSemaphoreGive(adcs_file_download_mutex);
-            return ADCS_FILESYSTEM_FAIL;
-        }
+            if (iErr == -1){
+                sys_log(ERROR, "Unexpected error %d from red_mkdir()\r\n", red_errno);
+                xSemaphoreGive(adcs_file_download_mutex);
+                return ADCS_FILESYSTEM_FAIL;
+            }
 
-        iErr = red_chdir("VOL0:/adcs");
-        if (iErr == -1){
-            sys_log(ERROR, "Unexpected error from red_chdir()\r\n");
+            iErr = red_chdir("VOL0:/adcs");
+            if (iErr == -1){
+                sys_log(ERROR, "Unexpected error %d from red_chdir()\r\n", red_errno);
+                xSemaphoreGive(adcs_file_download_mutex);
+                return ADCS_FILESYSTEM_FAIL;
+            }
+        }else{
+            sys_log(ERROR, "Unexpected error %d from red_chdir\r\n", red_errno);
             xSemaphoreGive(adcs_file_download_mutex);
             return ADCS_FILESYSTEM_FAIL;
         }

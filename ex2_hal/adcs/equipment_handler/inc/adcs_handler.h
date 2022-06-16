@@ -485,7 +485,7 @@ typedef struct __attribute__((packed)){
     uint8_t type;
     uint8_t counter;
     uint32_t size;
-    char file_name[20];
+    char file_name[REDCONF_NAME_MAX];
 } adcs_file_download_id;
 
 
@@ -523,7 +523,6 @@ ADCS_returnState ADCS_finalize_upload_block(uint8_t file_dest, uint32_t offset, 
 ADCS_returnState ADCS_reset_upload_block(void);
 ADCS_returnState ADCS_reset_file_list_read_pointer(void);
 ADCS_returnState ADCS_initiate_download_burst(uint8_t msg_length, bool ignore_hole_map);
-static ADCS_returnState ADCS_receive_download_burst(uint8_t *hole_map, int32_t file_des, uint16_t length_bytes);
 
 // Common Telemetry
 ADCS_returnState ADCS_get_node_identification(uint8_t *node_type, uint8_t *interface_ver, uint8_t *major_firm_ver,
