@@ -33,6 +33,7 @@
 #include "sband.h"
 #include "uhf.h"
 #include "dfgm.h"
+#include "ns_payload.h"
 
 /* Housekeeping service address & port*/
 
@@ -76,7 +77,7 @@ typedef struct __attribute__((packed)) {
     Sband_Housekeeping S_band_hk;           // S-band housekeeping struct
     Hyperion_HouseKeeping hyperion_hk;      // Hyperion housekeeping
     charon_housekeeping charon_hk;          // Charon housekeeping
-    // Payload_HouseKeeping payload_hk;       //Payload housekeeping
+    ns_telemetry NS_hk;                     // Northern SPIRIT housekeeping
     DFGM_Housekeeping DFGM_hk; // DFGM housekeeping struct
 } All_systems_housekeeping;
 
