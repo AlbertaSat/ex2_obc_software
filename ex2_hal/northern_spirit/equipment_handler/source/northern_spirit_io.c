@@ -88,9 +88,10 @@ NS_return NS_sendAndReceive(uint8_t* command, uint32_t command_length, uint8_t* 
     }
 
     uint8_t received = 0;
-    uint8_t* reply = (uint8_t *)pvPortMalloc(answer_length*sizeof(uint8_t));
+    uint8_t* reply = (uint8_t *)pvPortMalloc(answer_length * sizeof(uint8_t));
 
     if (reply == NULL){
+        xQueueReset(nsQueue);
         xSemaphoreGive(uart_mutex);
         return NS_MALLOC_FAIL;
     }

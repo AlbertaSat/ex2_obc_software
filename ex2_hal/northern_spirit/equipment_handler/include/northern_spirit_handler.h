@@ -33,11 +33,12 @@
 #define NS_STANDARD_ANS_LEN 2
 
 #define NS_FLAG_DATA_LEN 1
-#define NS_TELEMETRY_DATA_LEN 72
+#define NS_ENCODED_TELEMETRY_DATA_LEN 64
+#define NS_DECODED_TELEMETRY_DATA_LEN 48
 #define NS_SWVERSION_DATA_LEN 7
 
 #define NS_IMAGE_COLLECTION_DELAY pdMS_TO_TICKS(10000)
-#define NS_TELEMETRY_COLLECTION_DELAY pdMS_TO_TICKS(30000)
+#define NS_TELEMETRY_COLLECTION_DELAY pdMS_TO_TICKS(15000)
 #define NS_COMMAND_MUTEX_TIMEOUT pdMS_TO_TICKS(2000)
 
 typedef enum{
@@ -49,7 +50,13 @@ typedef enum{
     NS_UART_FAIL,
     NS_UART_BUSY,
     NS_MALLOC_FAIL,
+
+    NS_IS_STUBBED = 0
 }NS_return;
+
+typedef struct{
+    uint8_t array[NS_DECODED_TELEMETRY_DATA_LEN];
+}ns_telemetry;
 
 typedef enum{
     CameraStatus = 'c',

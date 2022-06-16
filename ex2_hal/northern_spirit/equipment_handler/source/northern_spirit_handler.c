@@ -20,6 +20,7 @@
 
 #include "northern_spirit_handler.h"
 #include "northern_spirit_io.h"
+#include "base_64.h"
 
 static SemaphoreHandle_t ns_command_mutex;
 
@@ -127,15 +128,21 @@ NS_return NS_get_telemetry(uint8_t *telemetry){
     vTaskDelay(NS_TELEMETRY_COLLECTION_DELAY);
 
     // Receive telemetry data
-    uint8_t response_data[NS_TELEMETRY_DATA_LEN + NS_STANDARD_ANS_LEN];
-    return_val = NS_expectResponse(NS_TELEMETRY_DATA_LEN + NS_STANDARD_ANS_LEN, response_data);
+    char response_data[NS_ENCODED_TELEMETRY_DATA_LEN + NS_STANDARD_ANS_LEN];
+    return_val = NS_expectResponse(NS_ENCODED_TELEMETRY_DATA_LEN + NS_STANDARD_ANS_LEN, (uint8_t *)response_data);
 
     if(return_val != NS_OK){
         xSemaphoreGive(ns_command_mutex);
         return return_val;
     }
 
-    memcpy(telemetry, response_data, NS_TELEMETRY_DATA_LEN);
+    size_t decoded_len;
+    unsigned char *decoded_data = base64_decode(response_data, NS_ENCODED_TELEMETRY_DATA_LEN, &decoded_len);
+    if((decoded_data == NULL) || (decoded_len != NS_DECODED_TELEMETRY_DATA_LEN)){
+        return NS_FAIL;
+    }
+
+    memcpy(telemetry, decoded_data, decoded_len);
 
     xSemaphoreGive(ns_command_mutex);
     return return_val;
