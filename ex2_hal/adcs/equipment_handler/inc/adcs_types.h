@@ -44,6 +44,7 @@ typedef enum ADCS_returnState {
     ADCS_FILESYSTEM_FAIL = 9,
     ADCS_FILE_FAIL = 10,
     ADCS_DOWNLOAD_MUTEX_FAIL = 11,
+    ADCS_TASK_FAIL = 12,
 
     IS_STUBBED_A = 0 // Used for stubbed ADCS in hardware interface
 } ADCS_returnState;

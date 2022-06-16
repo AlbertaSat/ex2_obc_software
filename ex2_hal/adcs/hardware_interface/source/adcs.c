@@ -33,12 +33,11 @@ ADCS_returnState HAL_ADCS_download_file_to_OBC(adcs_file_download_id *id){
 #else
     // Spawn high-priority file download task
     TaskHandle_t xHandle;
-    xTaskCreate(ADCS_download_file_task, "ADCS_download_file_task", ADCS_QUEUE_GET_TASK_SIZE, (void *)id, ADCS_QUEUE_GET_TASK_PRIO, &xHandle);
-
-    // Wait until task finishes and return
-    while(eTaskGetState(xHandle) != eDeleted);
-    return (ADCS_returnState)id->type; // type_f holds the return value after execution
-
+    if(xTaskCreate(ADCS_download_file_task, "ADCS_download_file_task", ADCS_QUEUE_GET_TASK_SIZE, (void *)id, ADCS_QUEUE_GET_TASK_PRIO, &xHandle) == pdPASS){
+        return ADCS_OK;
+    }else{
+        return ADCS_TASK_FAIL;
+    }
 #endif
 }
 
