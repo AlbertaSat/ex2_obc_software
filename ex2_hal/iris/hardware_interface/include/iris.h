@@ -28,9 +28,11 @@
 #define HOUSEKEEPING_SIZE 23 // In bytes
 
 typedef enum {
+    // TODO: Add more meaningful return types
     IRIS_HAL_OK = 0,
-    IRIS_HAL_ERROR = 1,
-} IrisHALReturn;
+    IRIS_HAL_FAILURE = 1,
+    IRIS_HAL_ERROR = 2,
+} Iris_HAL_return;
 
 // Legal Iris commands
 typedef enum {
@@ -48,7 +50,7 @@ typedef enum {
 typedef enum {
     IRIS_SENSOR_OFF = 0,
     IRIS_SENSOR_ON = 1,
-} IRIS_SENSOR_TOOGGLE;
+} IRIS_SENSOR_TOGGLE;
 
 enum {
     SEND_COMMAND,
@@ -84,13 +86,13 @@ typedef struct __attribute__((__packed__)) {
 } sensor_reg;
 
 // Command functions prototypes
-IrisHALReturn iris_take_pic();
-IrisHALReturn iris_get_image_length(uint32_t *image_length);
-IrisHALReturn iris_transfer_image();
-IrisHALReturn iris_get_image_count(uint16_t *image_count);
-IrisHALReturn iris_toggle_sensor_idle(uint8_t toggle);
-IrisHALReturn iris_get_housekeeping(iris_housekeeping_data hk_data);
-IrisHALReturn iris_update_sensor_i2c_reg();
-IrisHALReturn iris_update_current_limit(uint16_t current_limit);
+Iris_HAL_return iris_take_pic();
+Iris_HAL_return iris_get_image_length(uint32_t *image_length);
+Iris_HAL_return iris_transfer_image();
+Iris_HAL_return iris_get_image_count(uint16_t *image_count);
+Iris_HAL_return iris_toggle_sensor_idle(uint8_t toggle);
+Iris_HAL_return iris_get_housekeeping(iris_housekeeping_data hk_data);
+Iris_HAL_return iris_update_sensor_i2c_reg();
+Iris_HAL_return iris_update_current_limit(uint16_t current_limit);
 
 #endif /* INCLUDE_IRIS_H_ */

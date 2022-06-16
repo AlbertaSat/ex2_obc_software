@@ -33,7 +33,7 @@
  * @return
  *   Returns IRIS_HAL_OK if equipment handler returns IRIS_ACK, else IRIS_HAL_ERROR
  **/
-IrisHALReturn iris_take_pic() {
+Iris_HAL_return iris_take_pic() {
     IrisLowLevelReturn ret;
 
     controller_state = SEND_COMMAND;
@@ -73,7 +73,7 @@ IrisHALReturn iris_take_pic() {
  * @return
  *   Returns the length in bytes of image stored on Iris
  **/
-IrisHALReturn iris_get_image_length(uint32_t *image_length) {
+Iris_HAL_return iris_get_image_length(uint32_t *image_length) {
     IrisLowLevelReturn ret;
 
     controller_state = SEND_COMMAND;
@@ -131,7 +131,7 @@ IrisHALReturn iris_get_image_length(uint32_t *image_length) {
  * @return
  *   Returns IRIS_HAL_OK if equipment handler returns IRIS_ACK, else IRIS_HAL_ERROR
  **/
-IrisHALReturn iris_transfer_image(uint32_t image_length) {
+Iris_HAL_return iris_transfer_image(uint32_t image_length) {
     uint32_t num_transfer;
     IrisLowLevelReturn ret;
 
@@ -188,7 +188,7 @@ IrisHALReturn iris_transfer_image(uint32_t image_length) {
  * @return
  *   Returns the number of images stored on Iris
  **/
-IrisHALReturn iris_get_image_count(uint16_t *image_count) {
+Iris_HAL_return iris_get_image_count(uint16_t *image_count) {
     IrisLowLevelReturn ret;
 
     controller_state = SEND_COMMAND;
@@ -236,7 +236,7 @@ IrisHALReturn iris_get_image_count(uint16_t *image_count) {
  * @return
  *   Returns IRIS_HAL_OK if equipment handler returns IRIS_ACK, else IRIS_HAL_ERROR
  **/
-IrisHALReturn iris_toggle_sensor_idle(IRIS_SENSOR_TOOGGLE toggle) {
+Iris_HAL_return iris_toggle_sensor_idle(IRIS_SENSOR_TOGGLE toggle) {
     IrisLowLevelReturn ret;
 
     controller_state = SEND_COMMAND;
@@ -280,7 +280,7 @@ IrisHALReturn iris_toggle_sensor_idle(IRIS_SENSOR_TOOGGLE toggle) {
  * @return
  *   Returns a housekeeping data structure
  **/
-IrisHALReturn iris_get_housekeeping(iris_housekeeping_data hk_data) {
+Iris_HAL_return iris_get_housekeeping(iris_housekeeping_data hk_data) {
     IrisLowLevelReturn ret;
 
     controller_state = SEND_COMMAND;
@@ -350,7 +350,7 @@ IrisHALReturn iris_get_housekeeping(iris_housekeeping_data hk_data) {
  * @return
  *   Returns IRIS_HAL_OK if equipment handler returns IRIS_ACK, else IRIS_HAL_ERROR
  **/
-IrisHALReturn iris_update_sensor_i2c_reg() {
+Iris_HAL_return iris_update_sensor_i2c_reg() {
     IrisLowLevelReturn ret;
 
     controller_state = SEND_COMMAND;
@@ -406,7 +406,7 @@ IrisHALReturn iris_update_sensor_i2c_reg() {
  * @return
  *   Returns IRIS_HAL_OK if equipment handler returns IRIS_ACK, else IRIS_HAL_ERROR
  **/
-IrisHALReturn iris_update_current_limit(uint16_t current_limit) {
+Iris_HAL_return iris_update_current_limit(uint16_t current_limit) {
     IrisLowLevelReturn ret;
 
     controller_state = SEND_COMMAND;
