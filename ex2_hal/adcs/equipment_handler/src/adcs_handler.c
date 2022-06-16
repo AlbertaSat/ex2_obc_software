@@ -361,7 +361,7 @@ ADCS_returnState ADCS_download_file(uint8_t type, uint8_t counter, uint32_t size
     red_unlink(save_as);
 
     // Open a binary file
-    int32_t file1 = red_open(save_as, RED_O_RDWR | RED_O_CREAT);
+    int32_t file1 = red_open(save_as, RED_O_WRONLY | RED_O_CREAT);
     if (file1 == -1) {
         sys_log(WARN, "Unexpected error from red_open()\r\n");
         xSemaphoreGive(adcs_file_download_mutex);
@@ -656,7 +656,8 @@ static ADCS_returnState ADCS_receive_download_burst(uint8_t *hole_map, int32_t f
 
     ADCS_returnState err;
 
-    uint16_t num_packets = length_bytes / ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN + 1;
+    uint16_t num_packets = length_bytes / ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN;
+    if((length_bytes % 20) != 0) num_packets++;
     uint8_t pckt[ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN];
     uint16_t pckt_counter = 0;
 
@@ -667,7 +668,7 @@ static ADCS_returnState ADCS_receive_download_burst(uint8_t *hole_map, int32_t f
         err = receive_file_download_uart_packet(pckt, &pckt_counter);
 
         if (err == ADCS_UART_FAILED) {
-            // End of file or other error
+            // End of file earlier than expected or other error
             break;
 
         } else if (pckt_counter != i) {
@@ -687,7 +688,7 @@ static ADCS_returnState ADCS_receive_download_burst(uint8_t *hole_map, int32_t f
                     // Less than 20 bytes remaining. Stuff file with only remaining length of dummy data.
                     write_packet_to_file(file_des, dummy_data, length_bytes);
                     length_bytes = 0;
-
+                    break;
                 }
             }
 
