@@ -102,6 +102,7 @@
 #define SBAND_I2C i2cREG1
 #define ADCS_I2C i2cREG1
 #define UHF_I2C i2cREG1
+#define IRIS_I2C i2cREG1
 #else // These values are expected to be adjusted based on what the developer is working on
 #define IMU_I2C i2cREG2
 #define SOLAR_I2C i2cREG2
