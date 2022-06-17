@@ -196,6 +196,8 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
         boot_program_stat.boot_cause = csp_hton32((uint32_t)boot_program_stat.boot_cause);
         boot_program_stat.boot_count = csp_hton32((uint32_t)boot_program_stat.boot_count);
         boot_program_stat.boot_idx = csp_hton32((uint32_t)boot_program_stat.boot_idx);
+        boot_program_stat.major_firm_version = csp_hton32((uint32_t)boot_program_stat.major_firm_version);
+        boot_program_stat.minor_firm_version = csp_hton32((uint32_t)boot_program_stat.minor_firm_version);
 
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         memcpy(&packet->data[OUT_DATA_BYTE], &boot_program_stat, sizeof(boot_program_stat));
@@ -425,8 +427,8 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
     }
 
     case ADCS_GET_COMMS_STAT: {
-        uint16_t comm_status = 0;
-        status = HAL_ADCS_get_comms_stat(&comm_status);
+        uint16_t comm_status[5];
+        status = HAL_ADCS_get_comms_stat(comm_status);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
 
         if (sizeof(comm_status) + 1 > csp_buffer_data_size()) {
@@ -435,8 +437,12 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
 
         // only write the result if status is okay
         if (status == SATR_OK) {
-            comm_status = csp_hton32((uint32_t)comm_status);
-            memcpy(&packet->data[OUT_DATA_BYTE], &comm_status, sizeof(comm_status));
+            comm_status[0] = csp_hton16(comm_status[0]);
+            comm_status[1] = csp_hton16(comm_status[1]);
+            comm_status[2] = csp_hton16(comm_status[2]);
+            comm_status[3] = csp_hton16(comm_status[3]);
+            comm_status[4] = csp_hton16(comm_status[4]);
+            memcpy(&packet->data[OUT_DATA_BYTE], comm_status, sizeof(comm_status));
         }
         set_packet_length(packet, sizeof(comm_status) + sizeof(int8_t) + 1);
 
@@ -1020,29 +1026,23 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
     }
 
     case ADCS_SET_POWER_CONTROL: {
-        uint8_t control = packet->data[IN_DATA_BYTE];
-        status = HAL_ADCS_set_power_control(&control);
-        if (sizeof(control) + 1 > csp_buffer_data_size()) {
-            return_state = SATR_ERROR;
-        }
-        control = csp_hton32((uint32_t)control);
-
+        uint8_t control[10];
+        memcpy(control, &packet->data[IN_DATA_BYTE], 10);
+        status = HAL_ADCS_set_power_control(control);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-        memcpy(&packet->data[OUT_DATA_BYTE], &control, sizeof(control));
-        set_packet_length(packet, sizeof(control) + sizeof(int8_t) + 1);
+        set_packet_length(packet, sizeof(int8_t) + 1);
         break;
     }
 
     case ADCS_GET_POWER_CONTROL: {
-        uint8_t control;
-        status = HAL_ADCS_get_power_control(&control);
+        uint8_t control[10];
+        status = HAL_ADCS_get_power_control(control);
         if (sizeof(control) + 1 > csp_buffer_data_size()) {
             return_state = SATR_ERROR;
         }
-        control = csp_hton32((uint32_t)control);
 
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-        memcpy(&packet->data[OUT_DATA_BYTE], &control, sizeof(control));
+        memcpy(&packet->data[OUT_DATA_BYTE], control, sizeof(control));
         set_packet_length(packet, sizeof(control) + sizeof(int8_t) + 1);
         break;
     }

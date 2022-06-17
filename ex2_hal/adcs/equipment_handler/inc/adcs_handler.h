@@ -29,31 +29,31 @@
 #include "FreeRTOS.h"
 
 // Structs
-typedef struct {
+typedef struct __attribute__((packed)) {
     float x;
     float y;
     float z;
 } xyz;
 
-typedef struct {
+typedef struct __attribute__((packed)) {
     int16_t latitude;
     int16_t longitude;
     uint16_t altitude;
 } LLH;
 
-typedef struct {
+typedef struct __attribute__((packed)) {
     int16_t x;
     int16_t y;
     int16_t z;
 } xyz16;
 
-typedef struct {
+typedef struct __attribute__((packed)){
     uint8_t x;
     uint8_t y;
     uint8_t z;
 } xyzu8;
 
-typedef struct {
+typedef struct __attribute__((packed)){
     int32_t x;
     int32_t y;
     int32_t z;
@@ -95,7 +95,7 @@ typedef struct {
     xyzu8 vel_std_dev;
 } sim_sensor_data;
 
-typedef struct {
+typedef struct __attribute__((packed)) {
     uint8_t att_estimate_mode;
     uint8_t att_ctrl_mode;
     uint8_t run_mode;
@@ -159,7 +159,7 @@ typedef struct {
     uint8_t detect_result;
 } cam_sensor;
 
-typedef struct {
+typedef struct __attribute__((packed)){
     cam_sensor cam1;
     cam_sensor cam2;
     uint8_t css[10];
@@ -351,7 +351,7 @@ typedef struct {
     float boresight_y;
 } camsensor_config;
 
-typedef struct {
+typedef struct __attribute__((packed)){
     camsensor_config cam1_sense;
     camsensor_config cam2_sense;
     uint8_t nadir_max_deviate;

@@ -942,7 +942,7 @@ ADCS_returnState HAL_ADCS_getHK(ADCS_HouseKeeping *adcs_hk) {
     return IS_STUBBED_A;
 #else
     ADCS_returnState temp;
-    ADCS_returnState return_state = 0;
+    ADCS_returnState return_state = ADCS_OK;
     adcs_state data;
     adcs_measures mes;
     adcs_pwr_temp pwr;
