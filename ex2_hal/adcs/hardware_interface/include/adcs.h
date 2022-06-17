@@ -26,10 +26,14 @@
 #define ADCS_QUEUE_GET_TASK_SIZE (configMINIMAL_STACK_SIZE + 256)
 #define ADCS_QUEUE_GET_TASK_PRIO (configMAX_PRIORITIES - 1)
 #define ADCS_FIRMWARE_NA -2
-#define CALLOC_FAILED -3
+#define MALLOC_FAILED -3
 #define RED_ERR -4
 #define UPLOAD_FAILED -5
-#define FIRMWARE_BLOCK_SIZE 20000
+#define CRC16_MISMATCH -6
+#define FIRMWARE_BLOCK_SIZE 20000   // each block is 20kB
+#define PACKET_SIZE 20              // each packet is 20 bytes
+#define HOLE_MAP_SIZE 16            // each hole map is 16 bytes
+#define MAX_CRC16_RETRIES 3
 
 // file destinations
 #define ADCS_EEPROM 2
@@ -250,6 +254,9 @@ typedef struct __attribute__((packed)) {
 ADCS_returnState HAL_ADCS_download_file_list_to_OBC(void);
 ADCS_returnState HAL_ADCS_download_file_to_OBC(adcs_file_download_id *id);
 
+// CRC16 checksum calculation
+uint16_t CRC_Calc(char *filename);
+
 // Common Telecommands
 ADCS_returnState HAL_ADCS_reset();
 ADCS_returnState HAL_ADCS_reset_log_pointer();
@@ -261,7 +268,7 @@ ADCS_returnState HAL_ADCS_load_file_download_block(uint8_t file_type, uint8_t co
                                                    uint16_t block_length);
 ADCS_returnState HAL_ADCS_advance_file_list_read_pointer();
 ADCS_returnState HAL_ADCS_initiate_file_upload(uint8_t file_dest, uint8_t block_size);
-ADCS_returnState HAL_ADCS_file_upload_packet(uint16_t packet_number, char *file_bytes);
+ADCS_returnState HAL_ADCS_file_upload_packet(uint16_t packet_number, uint8_t *file_bytes, int packet_size);
 ADCS_returnState HAL_ADCS_finalize_upload_block(uint8_t file_dest, uint32_t offset, uint16_t block_length);
 ADCS_returnState HAL_ADCS_reset_upload_block();
 ADCS_returnState HAL_ADCS_reset_file_list_read_pointer();
