@@ -25,6 +25,8 @@
 #include <main/system.h>
 #include <stdio.h>
 
+#include "iris.h"
+
 #define IRIS_SIZE 1000
 
 SAT_returnState iris_service_app(csp_packet_t *packet);
@@ -58,7 +60,7 @@ void iris_service(void *param) {
         }
         svc_wdt_counter++;
         while ((packet = csp_read(conn, 50)) != NULL) {
-            if (iris_app(packet) != SATR_OK) {
+            if (iris_service_app(packet) != SATR_OK) {
                 // something went wrong, this shouldn't happen
                 csp_buffer_free(packet);
             } else {
@@ -113,17 +115,72 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
 
     switch (ser_subtype) {
     case IRIS_POWER_ON:
-        // TODO
+        /* TODO:
+         *
+         */
     case IRIS_POWER_OFF:
-        // TODO
+        /* TODO:
+         *
+         */
     case IRIS_TAKE_IMAGE:
-        // TODO
+        /*
+         * HAL Function execution path
+         * 1. Turn on iris sensors
+         * 2. Send take a pic command
+         * 3. Turn off iris sensors
+         */
+        status = iris_toggle_sensor_idle(IRIS_SENSOR_ON);
+        if (status == IRIS_HAL_OK) {
+            status = iris_take_pic();
+        }
+        status = iris_toggle_sensor_idle(IRIS_SENSOR_OFF);
+
+        // Return success/failure report
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));
+        set_packet_length(packet, sizeof(uint8_t) + 1);
     case IRIS_DELIVER_IMAGE:
-        // TODO
+        /*
+         * HAL function execution path
+         * 1. Get image length
+         * 2. Transfer image
+         */
+        uint32_t image_length;
+
+        status = iris_get_image_length(&image_length);
+
+        if (status == IRIS_HAL_OK && image_length != NULL) {
+            status = iris_transfer_image(image_length);
+        }
+
+        // Return success/failure report
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));
+        set_packet_length(packet, sizeof(uint8_t) + 1);
     case IRIS_PROGRAM_FLASH:
         // TODO
     case IRIS_GET_HK:
-        // TODO
+        // Get Iris housekeeping data
+        iris_housekeeping_data HK = {0};
+        status = iris_get_housekeeping(&HK);
+
+        HK.vis_temp = csp_hton16(HK.vis_temp);
+        HK.nir_temp = csp_hton16(HK.nir_temp);
+        HK.flash_temp = csp_hton16(HK.flash_temp);
+        HK.gate_temp = csp_hton16(HK.gate_temp);
+        HK.imagenum = csp_hton8(HK.imagenum);
+        HK.software_version = csp_hton8(HK.software_version);
+        HK.errornum = csp_hton8(HK.errornum);
+        HK.MAX_5V_voltage = csp_hton16(HK.MAX_5V_voltage);
+        HK.MAX_5V_power = csp_hton16(HK.MAX_5V_power);
+        HK.MAX_3V_voltage = csp_hton16(HK.MAX_3V_voltage);
+        HK.MAX_3V_power = csp_hton16(HK.MAX_3V_power);
+        HK.MIN_5V_voltage = csp_hton16(HK.MIN_5V_voltage);
+        HK.MIN_3V_voltage = csp_hton16(HK.MIN_3V_voltage);
+
+        // Return success/failure report and Iris housekeeping data
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        memcpy(&packet->data[OUT_DATA_BYTE], &HK, sizeof(HK));
+        set_packet_length(packet, sizeof(int8_t) + sizeof(HK) + 1);
+        break;
     default:
         ex2_log("No such subservice\n");
         return SATR_PKT_ILLEGAL_SUBSERVICE;

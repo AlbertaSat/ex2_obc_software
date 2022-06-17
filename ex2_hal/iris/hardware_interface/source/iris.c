@@ -280,7 +280,7 @@ Iris_HAL_return iris_toggle_sensor_idle(IRIS_SENSOR_TOGGLE toggle) {
  * @return
  *   Returns a housekeeping data structure
  **/
-Iris_HAL_return iris_get_housekeeping(iris_housekeeping_data hk_data) {
+Iris_HAL_return iris_get_housekeeping(iris_housekeeping_data *hk_data) {
     IrisLowLevelReturn ret;
 
     controller_state = SEND_COMMAND;
@@ -310,19 +310,19 @@ Iris_HAL_return iris_get_housekeeping(iris_housekeeping_data hk_data) {
 
                 // Transfer data from buffer to struct
                 // TODO: Verify Endianness and correct order of storage
-                hk_data.vis_temp = housekeeping_buffer[1] << 8 | housekeeping_buffer[0];
-                hk_data.nir_temp = housekeeping_buffer[3] << 8 | housekeeping_buffer[2];
-                hk_data.flash_temp = housekeeping_buffer[5] << 8 | housekeeping_buffer[4];
-                hk_data.gate_temp = housekeeping_buffer[7] << 8 | housekeeping_buffer[6];
-                hk_data.imagenum = housekeeping_buffer[8];
-                hk_data.software_version = housekeeping_buffer[9];
-                hk_data.errornum = housekeeping_buffer[10];
-                hk_data.MAX_5V_voltage = housekeeping_buffer[12] << 8 | housekeeping_buffer[11];
-                hk_data.MAX_5V_power = housekeeping_buffer[14] << 8 | housekeeping_buffer[13];
-                hk_data.MAX_3V_voltage = housekeeping_buffer[16] << 8 | housekeeping_buffer[15];
-                hk_data.MAX_3V_power = housekeeping_buffer[18] << 8 | housekeeping_buffer[17];
-                hk_data.MIN_5V_voltage = housekeeping_buffer[20] << 8 | housekeeping_buffer[19];
-                hk_data.MIN_3V_voltage = housekeeping_buffer[22] << 8 | housekeeping_buffer[21];
+                hk_data->vis_temp = housekeeping_buffer[1] << 8 | housekeeping_buffer[0];
+                hk_data->nir_temp = housekeeping_buffer[3] << 8 | housekeeping_buffer[2];
+                hk_data->flash_temp = housekeeping_buffer[5] << 8 | housekeeping_buffer[4];
+                hk_data->gate_temp = housekeeping_buffer[7] << 8 | housekeeping_buffer[6];
+                hk_data->imagenum = housekeeping_buffer[8];
+                hk_data->software_version = housekeeping_buffer[9];
+                hk_data->errornum = housekeeping_buffer[10];
+                hk_data->MAX_5V_voltage = housekeeping_buffer[12] << 8 | housekeeping_buffer[11];
+                hk_data->MAX_5V_power = housekeeping_buffer[14] << 8 | housekeeping_buffer[13];
+                hk_data->MAX_3V_voltage = housekeeping_buffer[16] << 8 | housekeeping_buffer[15];
+                hk_data->MAX_3V_power = housekeeping_buffer[18] << 8 | housekeeping_buffer[17];
+                hk_data->MIN_5V_voltage = housekeeping_buffer[20] << 8 | housekeeping_buffer[19];
+                hk_data->MIN_3V_voltage = housekeeping_buffer[22] << 8 | housekeeping_buffer[21];
 
                 controller_state = FINISH;
                 break;
