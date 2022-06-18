@@ -173,11 +173,14 @@ void iris_spi_test(void * pvParameters) {
     for(;;) {
 //        spi_write_read(1, &tx_data, rx_data);
 //        vTaskDelay(pdMS_TO_TICKS( 1000UL ));
-        //iris_take_pic();
-        //iris_get_image_length();
-        //iris_get_housekeeping(hk_data);
-        //iris_get_image_count(&image_count);
-        iris_transfer_image(2000000);
+//        iris_take_pic();
+//        iris_get_image_length(1000);
+//        iris_transfer_image(2000000);
+//        iris_get_image_count(&image_count);
+//        iris_toggle_sensor_idle(0);
+//        iris_toggle_sensor_idle(1);
+        iris_get_housekeeping(hk_data);
+
         //iris_update_sensor_i2c_reg();
     }
     //vTaskDelay(pdMS_TO_TICKS( 1000UL ));
