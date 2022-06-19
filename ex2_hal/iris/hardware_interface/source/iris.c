@@ -155,13 +155,15 @@ IrisHALReturn iris_transfer_image(uint32_t image_length) {
                 static uint16_t image_data_buffer[IMAGE_TRANSFER_SIZE];
                 memset(image_data_buffer, 0, IMAGE_TRANSFER_SIZE);
                 num_transfer = (IMAGE_TRANSFER_SIZE + image_length) / IMAGE_TRANSFER_SIZE; // Ceiling division
+                iris_send_data(&num_transfer, 1);
+                vTaskDelay(100);
                 for (uint32_t count_transfer = 0; count_transfer < num_transfer; count_transfer++) {
                     ret = iris_get_data(image_data_buffer, IMAGE_TRANSFER_SIZE);
                     // TODO: Do something with the received data (e.g transfer it to the SD card)
                     // Or just get the data and send it forward to the next stage. Prefer not to have too
                     // much data processing in driver code
 
-                    memset(image_data_buffer, 0, IMAGE_TRANSFER_SIZE);
+                    //memset(image_data_buffer, 0, IMAGE_TRANSFER_SIZE);
 
                     vTaskDelay(50);
                 }

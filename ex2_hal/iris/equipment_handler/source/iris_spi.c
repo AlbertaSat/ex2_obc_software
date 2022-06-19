@@ -201,19 +201,19 @@ IrisLowLevelReturn iris_send_data(uint16_t *tx_buffer, uint16_t data_length) {
     NSS_LOW();
     iris_spi_delay(1000);
     iris_spi_send_and_get(tx_buffer, &rx_data, data_length);
-    vTaskDelay(100);
-    iris_spi_send(&tx_dummy, 1);
-    iris_spi_get(&rx_data, 1);
+//    iris_spi_send(&tx_dummy, 1);
+//    iris_spi_get(&rx_data, 1);
     iris_spi_delay(1000);
     NSS_HIGH();
 
-    if (rx_data == ACK_FLAG) {
-        return IRIS_ACK;
-    } else if (rx_data == NACK_FLAG) {
-        return IRIS_NACK;
-    } else {
-        return IRIS_LL_ERROR;
-    }
+//    if (rx_data == ACK_FLAG) {
+//        return IRIS_ACK;
+//    } else if (rx_data == NACK_FLAG) {
+//        return IRIS_NACK;
+//    } else {
+//        return IRIS_LL_ERROR;
+//    }
+   return IRIS_ACK;
 }
 
 /**
