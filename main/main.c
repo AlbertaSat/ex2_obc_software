@@ -62,6 +62,7 @@
 #include "dfgm.h"
 #include "leop.h"
 #include "adcs.h"
+#include "iris.h"
 #include "ns_payload.h"
 #include "deployablescontrol.h"
 #include "test_sdr.h"
@@ -96,7 +97,7 @@ static void flatsat_test();
  */
 
 #define INIT_PRIO configMAX_PRIORITIES - 1
-#define INIT_STACK_SIZE 2000
+#define INIT_STACK_SIZE 3000
 
 static void init_filesystem();
 static void init_csp();
@@ -108,7 +109,6 @@ void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
 void ex2_init(void *pvParameters) {
 
     init_filesystem();
-    init_csp();
 
     /* LEOP */
 
@@ -152,8 +152,6 @@ void ex2_init(void *pvParameters) {
 #if UHF_IS_STUBBED == 0
     uhf_uart_init();
     uhf_i2c_init();
-    uhf_pipe_timer_init();
-    UHF_init_config();
 #endif
 
 #if SBAND_IS_STUBBED == 0
@@ -183,7 +181,7 @@ void ex2_init(void *pvParameters) {
     /* Software Initialization */
 
     /* Start service server, and response server */
-
+    init_csp();
     init_software();
 
 #if SDR_TEST == 1
@@ -192,7 +190,7 @@ void ex2_init(void *pvParameters) {
 
 #if FLATSAT_TEST == 1
     /* Test Task */
-    xTaskCreate(flatsat_test, "flatsat_test", 500, NULL, 1, NULL);
+    xTaskCreate(flatsat_test, "flatsat_test", 1000, NULL, 4, NULL);
 #endif
 
     vTaskDelete(0); // delete self to free up heap
@@ -202,13 +200,40 @@ void ex2_init(void *pvParameters) {
 void flatsat_test(void *pvParameters) { vTaskDelete(NULL); }
 #endif
 
+TaskHandle_t iris_spi_handle;
+
+void iris_spi_test(void * pvParameters) {
+    iris_spi_init();
+    //iris_take_pic();
+
+    iris_housekeeping_data hk_data;
+    uint16_t image_count;
+    uint32_t image_length;
+
+    for(;;) {
+//        spi_write_read(1, &tx_data, rx_data);
+//        vTaskDelay(pdMS_TO_TICKS( 1000UL ));
+//        iris_take_pic();
+        iris_get_image_length(&image_length);
+        iris_transfer_image(image_length);
+//        iris_get_image_count(&image_count);
+//        iris_toggle_sensor_idle(0);
+//        iris_toggle_sensor_idle(1);
+        iris_get_housekeeping(&hk_data);
+
+        //iris_update_sensor_i2c_reg();
+    }
+    //vTaskDelay(pdMS_TO_TICKS( 1000UL ));
+}
+
 int ex2_main(void) {
     _enable_IRQ_interrupt_(); // enable inturrupts
     InitIO();
     for (int i = 0; i < 1000000; i++)
         ;
-    xTaskCreate(ex2_init, "init", INIT_STACK_SIZE, NULL, INIT_PRIO, NULL);
-
+    //xTaskCreate(ex2_init, "init", INIT_STACK_SIZE, NULL, INIT_PRIO, NULL);
+    xTaskCreate(iris_spi_test, "IRIS SPI", 256, NULL, (tskIDLE_PRIORITY + 1),
+                &iris_spi_handle);
     /* Start FreeRTOS! */
     vTaskStartScheduler();
 
@@ -285,7 +310,6 @@ static void init_filesystem() {
  * Initialize CSP network
  */
 static void init_csp() {
-    csp_debug_hook_set(csp_wrap_debug);
     /* Init CSP with address and default settings */
     csp_conf_t csp_conf;
     csp_conf.address = 1;
@@ -312,10 +336,6 @@ static void init_csp() {
     if (init_csp_interface() != SATR_OK) {
         exit(SATR_ERROR);
     }
-    char *test_key;
-    int key_len;
-    get_crypto_key(HMAC_KEY, &test_key, &key_len);
-    csp_hmac_set_key(test_key, key_len);
     return;
 }
 
@@ -344,11 +364,13 @@ static inline SAT_returnState init_csp_interface() {
                              .paritysetting = 0,
                              .checkparity = 0};
 
-    csp_iface_t *uart_iface = NULL;
-    error = csp_usart_open_and_add_kiss_interface(&conf, CSP_IF_KISS_DEFAULT_NAME, &uart_iface);
+#ifndef EPS_IS_STUBBED
+    csp_iface_t *can_iface = NULL;
+    error = csp_can_open_and_add_interface("CAN", &can_iface);
     if (error != CSP_ERR_NONE) {
         return SATR_ERROR;
     }
+#endif
 
     char *gs_if_name = CSP_IF_KISS_DEFAULT_NAME;
     int gs_if_addr = 16;
