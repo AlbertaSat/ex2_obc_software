@@ -255,7 +255,7 @@ static void adcs_watchdog_daemon(void *pvParameters) {
             vTaskDelay(2*ONE_SECOND);
         }
 
-        if (err != ADCS_OK) {
+        if ((err != ADCS_OK) && (err != ADCS_UART_BUSY)) {
             ex2_log("ADCS was not responsive - attempting to toggle power.");
 
             // Turn the ADCS off
