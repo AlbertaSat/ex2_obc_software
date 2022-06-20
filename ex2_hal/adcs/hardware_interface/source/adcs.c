@@ -37,6 +37,7 @@ ADCS_returnState HAL_ADCS_download_file_to_OBC(adcs_file_download_id *id) {
                     ADCS_QUEUE_GET_TASK_PRIO, &xHandle) == pdPASS) {
         return ADCS_OK;
     } else {
+        vPortFree(id);
         return ADCS_TASK_FAIL;
     }
 #endif

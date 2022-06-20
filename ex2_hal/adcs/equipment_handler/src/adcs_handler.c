@@ -300,10 +300,11 @@ ADCS_returnState ADCS_get_file_list() {
 void ADCS_download_file_task(void *pvParameters) {
     adcs_file_download_id *id = (adcs_file_download_id *)pvParameters;
 
-    ADCS_returnState status = (uint8_t)ADCS_download_file(id->type, id->counter, id->size, id->file_name);
+    ADCS_returnState status = ADCS_download_file(id->type, id->counter, id->size, id->file_name);
 
     sys_log(INFO, "ADCS file download type %d counter %d name %s returned: %d\r\n", id->type, id->counter,
             id->file_name, status);
+    vPortFree(id);
     vTaskDelete(0);
 }
 
