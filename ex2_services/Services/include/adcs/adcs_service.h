@@ -136,7 +136,9 @@ typedef enum {
     ADCS_SET_ESTIMATION_CONFIG,
     ADCS_SET_USERCODED_SETTING,
     ADCS_SET_ASGP4_SETTING,
-    ADCS_GET_FULL_CONFIG
+    ADCS_GET_FULL_CONFIG,
+    ADCS_DOWNLOAD_FILE_LIST_TO_OBC,
+    ADCS_DOWNLOAD_FILE_TO_OBC
 } ADCS_Subtype;
 
 SAT_returnState adcs_service_app(csp_packet_t *packet);
