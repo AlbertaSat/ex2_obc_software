@@ -15,6 +15,7 @@
 #include "FreeRTOS.h"
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "iris.h"
 #include "iris_spi.h"
@@ -144,6 +145,13 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
     uint16_t num_transfer;
     IrisLowLevelReturn ret;
 
+    FILE *fptr;
+    fptr = fopen("/home/jenish/Desktop/new_repo/ex2_obc_software/ex2_hal/iris/hardware_interface/source/sample.jpg","wb");
+
+    if(fptr == NULL){
+      return;
+    }
+
     controller_state = SEND_COMMAND;
 
     while (controller_state != FINISH && controller_state != ERROR_STATE) {
@@ -162,6 +170,7 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
             case GET_DATA: // Get image data in chunks/blocks
             {
                 static uint16_t image_data_buffer[IMAGE_TRANSFER_SIZE];
+                static uint8_t image_data_buffer_8Bit[IMAGE_TRANSFER_SIZE];
                 memset(image_data_buffer, 0, IMAGE_TRANSFER_SIZE);
                 num_transfer = (uint16_t) ((image_length + (IMAGE_TRANSFER_SIZE - 1)) / IMAGE_TRANSFER_SIZE); // TODO: Ceiling division not working 100%
 
@@ -172,8 +181,12 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
                     // Or just get the data and send it forward to the next stage. Prefer not to have too
                     // much data processing in driver code
 
-                    //memset(image_data_buffer, 0, IMAGE_TRANSFER_SIZE);
+                    for (int i = 0; i < 512; i++) {
+                        image_data_buffer_8Bit[i] = (image_data_buffer[i] >> (8*0)) & 0xff;
+                    }
 
+                    //memset(image_data_buffer, 0, IMAGE_TRANSFER_SIZE);
+                    fwrite(image_data_buffer_8Bit , 1 , 512 , fptr);
                 }
                 controller_state = FINISH;
                 break;
