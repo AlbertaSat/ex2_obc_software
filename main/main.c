@@ -122,24 +122,7 @@ void ex2_init(void *pvParameters) {
 
     /* Subsystem Hardware Initialization */
 
-#if ADCS_IS_STUBBED == 0
-    init_adcs_io();
-    ADCS_set_enabled_state(1);
-#if FLATSAT_TEST == 1
-    uint8_t control[10] = {0};
-    control[Set_CubeCTRLSgn_Power] = 1;
-    control[Set_CubeCTRLMtr_Power] = 1;
-    control[Set_CubeSense1_Power] = 1;
-    control[Set_CubeSense2_Power] = 1;
-    control[Set_CubeWheel1_Power] = 1;
-    control[Set_CubeWheel2_Power] = 1;
-    control[Set_CubeWheel3_Power] = 1;
-    ADCS_set_power_control(control);
 
-    ADCS_set_attitude_estimate_mode(6); // GyroEKF
-    ADCS_set_unix_t(1652976000, 0);     // May 19, 2022
-#endif                                  // FLATSAT_TEST
-#endif                                  // ADCS_IS_STUBBED
 
 #if ATHENA_IS_STUBBED == 0
     initAthena();
@@ -232,8 +215,9 @@ int ex2_main(void) {
     InitIO();
     for (int i = 0; i < 1000000; i++)
         ;
-    // xTaskCreate(ex2_init, "init", INIT_STACK_SIZE, NULL, INIT_PRIO, NULL);
-    xTaskCreate(iris_spi_test, "IRIS SPI", 256, NULL, (tskIDLE_PRIORITY + 1), &iris_spi_handle);
+    //xTaskCreate(ex2_init, "init", INIT_STACK_SIZE, NULL, INIT_PRIO, NULL);
+    xTaskCreate(iris_spi_test, "IRIS SPI", 256, NULL, (tskIDLE_PRIORITY + 1),
+                &iris_spi_handle);
     /* Start FreeRTOS! */
     vTaskStartScheduler();
 
