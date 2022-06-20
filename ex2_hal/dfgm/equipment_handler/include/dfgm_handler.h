@@ -21,6 +21,7 @@
 #define DFGM_HANDLER_H
 
 #include "system.h"
+#include "logger.h"
 #include <stdint.h>
 #include <time.h>
 
@@ -70,9 +71,11 @@ typedef enum {
 #define HK_OFFSET_11 0
 
 // Misc. macros
-#define MIN_RUNTIME 1 // in seconds
-#define TIME_THRESHOLD 180 // in seconds
-#define QUEUE_DEPTH 1500
+#define DFGM_MIN_RUNTIME 1 // in seconds
+#define DFGM_TIME_THRESHOLD 20 // in seconds
+#define DFGM_QUEUE_DEPTH 1248
+#define DFGM_FILE_NAME_MAX_SIZE 25
+#define DFGM_RX_TASK_SIZE 500
 
 typedef struct __attribute__((packed)) {
     uint32_t x; // [xdac, xadc]

@@ -45,7 +45,7 @@ uint32_t logger_file_handle = 0;
 
 // uint32_t next_swap = LOGGER_SWAP_PERIOD_MS;
 
-uint32_t next_swap = 800; // I picked a random number of bytes
+uint32_t next_swap = 10000; // 10kb seems reasonable..
 uint32_t current_size = 0;
 const char logger_config[] = "VOL0:/syslog.config";
 static bool config_loaded = false;
@@ -174,7 +174,7 @@ static void do_output(const char *str) {
 
     uint32_t uptime = (uint32_t)(xTaskGetTickCount() / configTICK_RATE_HZ);
 
-    snprintf(output_string, STRING_MAX_LEN, "[%010d]%s\r\n", uptime, str);
+    snprintf(output_string, STRING_MAX_LEN, "%010d,%s\r\n", uptime, str);
     size_t string_length = strlen(output_string);
     current_size += string_length;
 
@@ -228,7 +228,7 @@ void sys_log(SysLog_Level level, const char *format, ...) {
     char *msg = buffer + TASK_NAME_SIZE + LEVEL_LEN;
     vsnprintf(msg, PRINT_BUF_LEN, format, arg);
     va_end(arg);
-    snprintf(buffer, TASK_NAME_SIZE + LEVEL_LEN + PRINT_BUF_LEN, "[%c][%.*s]%s", abbreviations[(int) level], TASK_NAME_SIZE, task_name, msg);
+    snprintf(buffer, TASK_NAME_SIZE + LEVEL_LEN + PRINT_BUF_LEN, "%c,%.*s,%s", abbreviations[(int) level], TASK_NAME_SIZE, task_name, msg);
 
     int string_len = strlen(buffer);
     if (buffer[string_len - 1] == '\n') {

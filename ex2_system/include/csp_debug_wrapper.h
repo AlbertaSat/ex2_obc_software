@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021  University of Alberta
+ * Copyright (C) 2022  University of Alberta
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -11,17 +11,18 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-/**
- * @file sband_binary_test.h
- * @author Thomas Ganley
- * @date 2021-12-06
+/*
+ * csp_debug_wrapper.h
+ *
+ *  Created on: Jun. 2, 2022
+ *      Author: Robert Taylor
  */
 
-#include <stdio.h>
-#include <stdint.h>
+#ifndef EX2_SYSTEM_INCLUDE_CSP_DEBUG_WRAPPER_H_
+#define EX2_SYSTEM_INCLUDE_CSP_DEBUG_WRAPPER_H_
 
-#include "sTransmitter.h"
-#include "spi.h"
+#include "csp_debug.h"
 
-STX_return sband_binary_test();
-STX_return sband_inf_tx();
+void csp_wrap_debug(csp_debug_level_t level, const char *format, va_list args);
+
+#endif /* EX2_SYSTEM_INCLUDE_CSP_DEBUG_WRAPPER_H_ */

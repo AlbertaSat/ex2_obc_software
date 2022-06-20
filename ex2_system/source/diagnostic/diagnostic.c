@@ -21,13 +21,17 @@
 #include <FreeRTOS.h>
 #include <os_task.h>
 #include <os_semphr.h>
+#include "HL_gio.h"
 #include "uhf.h"
 #include "sband.h"
+#include "sTransmitter.h"
 #include "eps.h"
 #include "skytraq_binary_types.h"
 #include "skytraq_binary.h"
+#include "skytraq_gps.h"
 #include "system.h"
 #include "adcs.h"
+#include "logger/logger.h"
 
 static void uhf_watchdog_daemon(void *pvParameters);
 static void sband_watchdog_daemon(void *pvParameters);
@@ -62,22 +66,20 @@ static void uhf_watchdog_daemon(void *pvParameters) {
             vTaskDelay(delay);
             continue;
         }
-        // Get status word from UHF
-        uint8_t scw[12];
         UHF_return err;
         for (int i = 0; i < watchdog_retries; i++) {
-            err = HAL_UHF_getSCW(scw);
-            if (err == U_ANS_SUCCESS) {
+            err = UHF_refresh_state();
+            if (err == U_GOOD_CONFIG) {
                 break;
-            } else if (err == U_I2C_IN_PIPE) {
+            } else if (err == U_IN_PIPE) {
                 break;
             }
             vTaskDelay(2*ONE_SECOND);
         }
 
-        if (err == U_I2C_IN_PIPE) {
+        if (err == U_IN_PIPE) {
             ex2_log("UHF in PIPE Mode - power not toggled.");
-        } else if (err != U_ANS_SUCCESS) {
+        } else if (err != U_GOOD_CONFIG) {
             ex2_log("UHF was not responsive - attempting to toggle power.");
 
             // Turn off the UHF.
@@ -253,7 +255,7 @@ static void adcs_watchdog_daemon(void *pvParameters) {
             vTaskDelay(2*ONE_SECOND);
         }
 
-        if (err == ADCS_UART_FAILED) {
+        if (err != ADCS_OK) {
             ex2_log("ADCS was not responsive - attempting to toggle power.");
 
             // Turn the ADCS off
@@ -349,12 +351,15 @@ TickType_t get_adcs_watchdog_delay(void) {
 #endif
 }
 
-SAT_returnState set_uhf_watchdog_delay(const TickType_t delay) {
+SAT_returnState set_uhf_watchdog_delay(const unsigned int ms_delay) {
 #ifdef UHF_IS_STUBBED
     return SATR_OK;
 #else
+    if(ms_delay < WATCHDOG_MINIMUM_DELAY_MS){
+        return SATR_ERROR;
+    }
     if (xSemaphoreTake(uhf_watchdog_mtx, mutex_timeout) == pdPASS) {
-        uhf_prv_watchdog_delay = delay;
+        uhf_prv_watchdog_delay = pdMS_TO_TICKS(ms_delay);
         xSemaphoreGive(uhf_watchdog_mtx);
         return SATR_OK;
     }
@@ -362,12 +367,15 @@ SAT_returnState set_uhf_watchdog_delay(const TickType_t delay) {
 #endif
 }
 
-SAT_returnState set_sband_watchdog_delay(const TickType_t delay) {
+SAT_returnState set_sband_watchdog_delay(const unsigned int ms_delay) {
 #ifdef SBAND_IS_STUBBED
     return SATR_OK;
 #else
+    if(ms_delay < WATCHDOG_MINIMUM_DELAY_MS){
+        return SATR_ERROR;
+    }
     if (xSemaphoreTake(sband_watchdog_mtx, mutex_timeout) == pdPASS) {
-        sband_prv_watchdog_delay = delay;
+        sband_prv_watchdog_delay = pdMS_TO_TICKS(ms_delay);
         xSemaphoreGive(sband_watchdog_mtx);
         return SATR_OK;
     }
@@ -375,12 +383,15 @@ SAT_returnState set_sband_watchdog_delay(const TickType_t delay) {
 #endif
 }
 
-SAT_returnState set_charon_watchdog_delay(const TickType_t delay) {
+SAT_returnState set_charon_watchdog_delay(const unsigned int ms_delay) {
 #ifdef CHARON_IS_STUBBED
     return SATR_OK;
 #else
+    if(ms_delay < WATCHDOG_MINIMUM_DELAY_MS){
+        return SATR_ERROR;
+    }
     if (xSemaphoreTake(charon_watchdog_mtx, mutex_timeout) == pdPASS) {
-        charon_prv_watchdog_delay = delay;
+        charon_prv_watchdog_delay = pdMS_TO_TICKS(ms_delay);
         xSemaphoreGive(charon_watchdog_mtx);
         return SATR_OK;
     }
@@ -388,12 +399,15 @@ SAT_returnState set_charon_watchdog_delay(const TickType_t delay) {
 #endif
 }
 
-SAT_returnState set_adcs_watchdog_delay(const TickType_t delay) {
+SAT_returnState set_adcs_watchdog_delay(const unsigned int ms_delay) {
 #ifdef ADCS_IS_STUBBED
     return SATR_OK;
 #else
+    if(ms_delay < WATCHDOG_MINIMUM_DELAY_MS){
+        return SATR_ERROR;
+    }
     if (xSemaphoreTake(adcs_watchdog_mtx, mutex_timeout) == pdPASS) {
-        adcs_prv_watchdog_delay = delay;
+        adcs_prv_watchdog_delay = pdMS_TO_TICKS(ms_delay);
         xSemaphoreGive(adcs_watchdog_mtx);
         return SATR_OK;
     }
@@ -410,7 +424,7 @@ SAT_returnState set_adcs_watchdog_delay(const TickType_t delay) {
  */
 SAT_returnState start_diagnostic_daemon(void) {
 #ifndef UHF_IS_STUBBED
-    if (xTaskCreate((TaskFunction_t)uhf_watchdog_daemon, "uhf_watchdog_daemon", 2048, NULL, DIAGNOSTIC_TASK_PRIO,
+    if (xTaskCreate((TaskFunction_t)uhf_watchdog_daemon, "uhf_watchdog_daemon", 1000, NULL, DIAGNOSTIC_TASK_PRIO,
                     NULL) != pdPASS) {
         ex2_log("FAILED TO CREATE TASK uhf_watchdog_daemon.\n");
         return SATR_ERROR;
@@ -424,7 +438,7 @@ SAT_returnState start_diagnostic_daemon(void) {
 #endif
 
 #ifndef SBAND_IS_STUBBED
-    if (xTaskCreate((TaskFunction_t)sband_watchdog_daemon, "sband_watchdog_daemon", 2048, NULL,
+    if (xTaskCreate((TaskFunction_t)sband_watchdog_daemon, "sband_watchdog_daemon", 1000, NULL,
                     DIAGNOSTIC_TASK_PRIO, NULL) != pdPASS) {
         ex2_log("FAILED TO CREATE TASK sband_watchdog_daemon.\n");
         return SATR_ERROR;
@@ -438,7 +452,7 @@ SAT_returnState start_diagnostic_daemon(void) {
 #endif
 
 #ifndef CHARON_IS_STUBBED
-    if (xTaskCreate(charon_watchdog_daemon, "charon_watchdog_daemon", 2048, NULL, DIAGNOSTIC_TASK_PRIO, NULL) !=
+    if (xTaskCreate(charon_watchdog_daemon, "charon_watchdog_daemon", 1000, NULL, DIAGNOSTIC_TASK_PRIO, NULL) !=
         pdPASS) {
         ex2_log("FAILED TO CREATE TASK charon_watchdog_daemon.\n");
         return SATR_ERROR;
@@ -452,7 +466,7 @@ SAT_returnState start_diagnostic_daemon(void) {
 #endif
 
 #ifndef ADCS_IS_STUBBED
-    if (xTaskCreate(adcs_watchdog_daemon, "adcs_watchdog_daemon", 2048, NULL, DIAGNOSTIC_TASK_PRIO, NULL) !=
+    if (xTaskCreate(adcs_watchdog_daemon, "adcs_watchdog_daemon", 1000, NULL, DIAGNOSTIC_TASK_PRIO, NULL) !=
         pdPASS) {
         ex2_log("FAILED TO CREATE TASK adcs_watchdog_daemon.\n");
         return SATR_ERROR;

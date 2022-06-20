@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021  University of Alberta
+ * Copyright (C) 2015  University of Alberta
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -11,17 +11,21 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-/**
- * @file sband_binary_test.h
- * @author Thomas Ganley
- * @date 2021-12-06
+/*
+ * i2c_driver.h
+ *
+ *  Created on: May 10, 2022
+ *      Author: jenish
  */
 
-#include <stdio.h>
-#include <stdint.h>
+#ifndef INCLUDE_IRIS_I2C_H_
+#define INCLUDE_IRIS_I2C_H_
 
-#include "sTransmitter.h"
-#include "spi.h"
+#include "FreeRTOS.h"
 
-STX_return sband_binary_test();
-STX_return sband_inf_tx();
+#define IRIS_SLAVE_ADDR 0x42
+
+int iris_write_packet(void *buf_tx_data, uint16_t data_length);
+int iris_read_packet(void *buf_rx_data, uint16_t data_length);
+
+#endif /* INCLUDE_IRIS_I2C_H_ */

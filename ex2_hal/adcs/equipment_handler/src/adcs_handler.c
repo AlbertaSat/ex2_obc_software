@@ -16,10 +16,13 @@
  * @author Andrew Rooney, Vasu Gupta, Arash Yazdani, Thomas Ganley, Nick Sorensen, Pundeep Hundal
  * @date 2020-08-09
  */
+#include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <FreeRTOS.h>
 #include <os_portable.h>
+#include "logger/logger.h"
+
 #include "adcs_handler.h"
 
 #include <string.h>
@@ -173,13 +176,16 @@ void get_xyz16(xyz16 *measurement, uint8_t *address) {
  * 		formatted value = rawval * coef;
  */
 void get_3x3(float *matrix, uint8_t *address, float coef) {
-    for (int i = 0; i < 3; i++) {
-        matrix[4 * i] = coef * uint82int16(*(address + 2 * i), *(address + 2 * i + 1));
-    }
-    for (int i = 0; i < 3; i++) {
-        matrix[1 + i] = coef * uint82int16(*(address + 2 * (i + 3)), *(address + 2 * (i + 1) + 1));
-        matrix[5 + i] = coef * uint82int16(*(address + 2 * (i + 6)), *(address + 2 * (i + 5) + 1));
-    }
+
+    *matrix = coef * uint82int16(*(address), *(address + 1));
+    *(matrix + 1) = coef * uint82int16(*(address + 2), *(address + 3));
+    *(matrix + 2) = coef * uint82int16(*(address + 4), *(address + 5));
+    *(matrix + 3) = coef * uint82int16(*(address + 6), *(address + 7));
+    *(matrix + 4) = coef * uint82int16(*(address + 8), *(address + 9));
+    *(matrix + 5) = coef * uint82int16(*(address + 10), *(address + 11));
+    *(matrix + 6) = coef * uint82int16(*(address + 12), *(address + 13));
+    *(matrix + 7) = coef * uint82int16(*(address + 14), *(address + 15));
+    *(matrix + 8) = coef * uint82int16(*(address + 16), *(address + 17));
 }
 
 /*************************** File Management TC/TM Sequences ***************************/
@@ -198,7 +204,7 @@ ADCS_returnState ADCS_get_file_list() {
     // Fill the file list
     ret = ADCS_reset_file_list_read_pointer();
     if (ret != ADCS_OK) {
-        ex2_log("Bad return at file list read pointer\n");
+        sys_log(WARN, "Bad return at file list read pointer\n");
         return ret;
     }
     adcs_file_info info;
@@ -208,7 +214,7 @@ ADCS_returnState ADCS_get_file_list() {
             // Request file info until busy updating flag is not set
             ret = ADCS_get_file_info(&info);
             if (ret != ADCS_OK) {
-                ex2_log("Bad return at get file info");
+                sys_log(NOTICE, "Bad return at get file info");
                 return ret;
             }
             vTaskDelay(ONE_SECOND);
@@ -234,7 +240,7 @@ ADCS_returnState ADCS_get_file_list() {
 
         ret = ADCS_advance_file_list_read_pointer();
         if (ret != ADCS_OK) {
-            ex2_log("Bad return at advance file list read pointer\n");
+            sys_log(ERROR, "Bad return at advance file list read pointer\n");
             return ret;
         }
 
@@ -273,16 +279,15 @@ ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f) {
 
     // make the home directory
     iErr = red_mkdir("home");
-    if (iErr == -1)
-    {
-        ex2_log("Unexpected error from red_mkdir()\r\n");
-        //exit(red_errno);
+    if (iErr == -1) {
+        sys_log(ERROR, "Unexpected error from red_mkdir()\r\n");
+        // exit(red_errno);
     }
 
     // change directory to home
     iErr = red_chdir("home");
     if (iErr == -1) {
-        ex2_log("Unexpected error from red_chdir()\r\n");
+        sys_log(ERROR, "Unexpected error from red_chdir()\r\n");
         // exit(red_errno);
     }
 
@@ -294,7 +299,7 @@ ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f) {
     // open a text file
     file1 = red_open("adcs_file.txt", RED_O_RDWR | RED_O_CREAT);
     if (file1 == -1) {
-        ex2_log("Unexpected error from red_open()\r\n");
+        sys_log(WARN, "Unexpected error from red_open()\r\n");
         exit(red_errno);
     }
 
@@ -307,6 +312,12 @@ ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f) {
 
     ADCS_initiate_download_burst(msg_length, ignore_hole_map);
     ADCS_receive_download_burst(hole_map, file1, length_bytes);
+
+    char buffer[msg_length];
+    red_read(file1, buffer, msg_length);
+
+    red_close(file1);
+    return ADCS_OK;
 }
 
 /*************************** Common TCs ***************************/
@@ -443,8 +454,7 @@ ADCS_returnState ADCS_advance_file_list_read_pointer(void) {
  * @param file_dest
  * 		Accepted parameters (Table 20):
  * 		EEPROM = 2
- * 		FLASH_PROGRAM_1 - FLASH_PROGRAM_7 = 3-10
- * 		SD_USER_FILE_1 - SD_USER_FILE_8 = 11-17
+ * 		FLASH_PROGRAM_1 - FLASH_PROGRAM_7 = 3-9
  * @param block_size
  * @return
  * 		Success of function defined in adcs_types.h
@@ -538,7 +548,7 @@ ADCS_returnState ADCS_initiate_download_burst(uint8_t msg_length, bool ignore_ho
     return adcs_telecommand(command, 3);
 }
 
-void ADCS_receive_download_burst(uint8_t *hole_map, int32_t file_des, uint16_t length_bytes) {
+ADCS_returnState ADCS_receive_download_burst(uint8_t *hole_map, int32_t file_des, uint16_t length_bytes) {
 
     if (xSemaphoreTake(adcs_file_download_mutex, UART_TIMEOUT_MS) != pdTRUE) {
         return ADCS_UART_FAILED;
@@ -573,6 +583,8 @@ void ADCS_receive_download_burst(uint8_t *hole_map, int32_t file_des, uint16_t l
     // TODO: write receive function for I2C
 #endif
     xSemaphoreGive(adcs_file_download_mutex);
+
+    return ADCS_OK;
 }
 
 /*************************** Common TMs ***************************/
@@ -2137,7 +2149,12 @@ ADCS_returnState ADCS_set_attitude_angle(xyz att_angle) {
     raw_val.x = att_angle.x / coef;
     raw_val.y = att_angle.y / coef;
     raw_val.z = att_angle.z / coef;
-    memcpy(&command[1], &raw_val, 6);
+    command[1] = (raw_val.x) & 0x00FF;
+    command[2] = (raw_val.x >> 8) & 0x00FF;
+    command[3] = (raw_val.y) & 0x00FF;
+    command[4] = (raw_val.y >> 8) & 0x00FF;
+    command[5] = (raw_val.z) & 0x00FF;
+    command[6] = (raw_val.z >> 8) & 0x00FF;
     return adcs_telecommand(command, 7);
 }
 
@@ -2217,7 +2234,7 @@ ADCS_returnState ADCS_set_log_config(uint8_t *flags_arr, uint16_t period, uint8_
     command[0] = SET_SD_LOG1_CONFIG_ID + (log - 1);
     for (int j = 0; j < 10; j++) {
         for (int i = 0; i < 8; i++) {
-            command[j + 1] = command[j + 1] | (*(flags_arr + (8 * j) + i) << (7-i));
+            command[j + 1] = command[j + 1] | (*(flags_arr + (8 * j) + i) << (7 - i));
         }
     }
     command[11] = (uint8_t)(period & 255);
@@ -2265,7 +2282,7 @@ ADCS_returnState ADCS_get_log_config(uint8_t *flags_arr, uint16_t *period, uint8
 
     for (int j = 0; j < 10; j++) {
         for (int i = 0; i < 8; i++) {
-            *(flags_arr + (8 * j) + i) = (telemetry[j] >> (7-i)) & 1;
+            *(flags_arr + (8 * j) + i) = (telemetry[j] >> (7 - i)) & 1;
         }
     }
     *period = telemetry[11] << 8 | telemetry[10];
@@ -2342,10 +2359,10 @@ ADCS_returnState ADCS_set_sgp4_orbit_params(adcs_sgp4 params) {
     memcpy(&temp[5], &params.MM, 8);
     memcpy(&temp[6], &params.MA, 8);
     memcpy(&temp[7], &params.epoch, 8);
-    int i,k;
-    for(i = 0; i < 8; i++){
-        for(k = 0; k < 8; k++){
-            command[1 + 8*i + k] = ((uint8_t)(temp[i] >> (8*k)) & 0b11111111);
+    int i, k;
+    for (i = 0; i < 8; i++) {
+        for (k = 0; k < 8; k++) {
+            command[1 + 8 * i + k] = ((uint8_t)(temp[i] >> (8 * k)) & 0b11111111);
         }
     }
     return adcs_telecommand(command, 65);
@@ -2365,9 +2382,9 @@ ADCS_returnState ADCS_get_sgp4_orbit_params(adcs_sgp4 *params) {
     state = adcs_telemetry(GET_SGP4_ORBIT_PARAMS_ID, telemetry, 64);
 
     unsigned long long temp[8] = {0};
-    for(int i = 0; i < 8; i++){
-        for(int k = 0; k < 8; k++){
-            temp[i] = temp[i] | ((unsigned long long)telemetry[8*i+k] << (8*k));
+    for (int i = 0; i < 8; i++) {
+        for (int k = 0; k < 8; k++) {
+            temp[i] = temp[i] | ((unsigned long long)telemetry[8 * i + k] << (8 * k));
         }
     }
 
@@ -2527,7 +2544,12 @@ ADCS_returnState ADCS_set_rate_gyro(rate_gyro_config params) {
     raw_val.x = params.sensor_offset.x / coef;
     raw_val.y = params.sensor_offset.y / coef;
     raw_val.z = params.sensor_offset.z / coef;
-    memcpy(&command[4], &raw_val, 6);
+    command[4] = (raw_val.x) & 0x00FF;
+    command[5] = (raw_val.x >> 8) & 0x00FF;
+    command[6] = (raw_val.y) & 0x00FF;
+    command[7] = (raw_val.y >> 8) & 0x00FF;
+    command[8] = (raw_val.z) & 0x00FF;
+    command[9] = (raw_val.z >> 8) & 0x00FF;
     command[10] = params.rate_sensor_mult;
     return adcs_telecommand(command, 11);
 }
@@ -2954,7 +2976,20 @@ ADCS_returnState ADCS_set_tracking_config(track_ctrl_config params) {
 ADCS_returnState ADCS_set_MoI_mat(moment_inertia_config cell) {
     uint8_t command[25];
     command[0] = SET_MOMENT_INERTIA_MAT_ID;
-    memcpy(&command[1], &cell, 24);
+    unsigned long temp[6];
+    memcpy(&temp[0], &cell.diag.x, 4);
+    memcpy(&temp[1], &cell.diag.y, 4);
+    memcpy(&temp[2], &cell.diag.z, 4);
+    memcpy(&temp[3], &cell.nondiag.x, 4);
+    memcpy(&temp[4], &cell.nondiag.y, 4);
+    memcpy(&temp[5], &cell.nondiag.z, 4);
+
+    int i, k;
+    for (i = 0; i < 6; i++) {
+        for (k = 0; k < 4; k++) {
+            command[1 + 4 * i + k] = ((uint8_t)(temp[i] >> (8 * k)) & 0b11111111);
+        }
+    }
     return adcs_telecommand(command, 25);
 }
 
@@ -3059,63 +3094,200 @@ ADCS_returnState ADCS_set_asgp4_setting(aspg4_setting setting) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_get_full_config(adcs_config *config) {
+
+    // TODO: There are a few endianness fixes to make to this function
+
     uint8_t telemetry[504];
     float coef;
     ADCS_returnState state;
     state = adcs_telemetry(GET_FULL_CONFIG_ID, telemetry, 504);
+
     memcpy(&config->MTQ, &telemetry[0], 3);
     memcpy(&config->RW[0], &telemetry[3], 4);
     memcpy(&config->rate_gyro, &telemetry[7], 3);
     get_xyz(&config->rate_gyro.sensor_offset, &telemetry[10], 0.001);
     config->rate_gyro.rate_sensor_mult = telemetry[16];
+
     memcpy(&config->css, &telemetry[17], 10);
     coef = 0.01;
     for (int i = 0; i < 10; i++) {
         config->css.rel_scale[i] = telemetry[27 + i] * coef;
     }
+
     config->css.threshold = telemetry[37];
+
     get_xyz(&config->cubesense.cam1_sense.mounting_angle, &telemetry[38], 0.01);
     config->cubesense.cam1_sense.detect_th = telemetry[44];
     config->cubesense.cam1_sense.auto_adjust = telemetry[45] & 1;
-    memcpy(&config->cubesense.cam1_sense.exposure_t, &telemetry[46], 2);
+
+    config->cubesense.cam1_sense.exposure_t = ((telemetry[47] << 8) | telemetry[46]);
+
     config->cubesense.cam1_sense.boresight_x = ((telemetry[49] << 8) | telemetry[48]) * coef;
     config->cubesense.cam1_sense.boresight_y = ((telemetry[51] << 8) | telemetry[50]) * coef;
     get_xyz(&config->cubesense.cam2_sense.mounting_angle, &telemetry[52], 0.01);
     config->cubesense.cam2_sense.detect_th = telemetry[58];
     config->cubesense.cam2_sense.auto_adjust = telemetry[59] & 1;
-    memcpy(&config->cubesense.cam2_sense.exposure_t, &telemetry[60], 2);
+    config->cubesense.cam2_sense.exposure_t = ((telemetry[61] << 8) | telemetry[60]);
     config->cubesense.cam2_sense.boresight_x = ((telemetry[63] << 8) | telemetry[62]) * coef;
     config->cubesense.cam2_sense.boresight_y = ((telemetry[65] << 8) | telemetry[64]) * coef;
-    memcpy(&config->cubesense.nadir_max_deviate, &telemetry[66], 84);
+
+    memcpy(&config->cubesense.nadir_max_deviate, &telemetry[66], 16);
+
+    config->cubesense.cam1_area.area1.x.min = (telemetry[71] << 8) | telemetry[70];
+    config->cubesense.cam1_area.area1.x.max = (telemetry[73] << 8) | telemetry[72];
+    config->cubesense.cam1_area.area1.y.min = (telemetry[75] << 8) | telemetry[74];
+    config->cubesense.cam1_area.area1.y.max = (telemetry[77] << 8) | telemetry[76];
+
+    config->cubesense.cam1_area.area2.x.min = (telemetry[79] << 8) | telemetry[78];
+    config->cubesense.cam1_area.area2.x.max = (telemetry[81] << 8) | telemetry[80];
+    config->cubesense.cam1_area.area2.y.min = (telemetry[83] << 8) | telemetry[82];
+    config->cubesense.cam1_area.area2.y.max = (telemetry[85] << 8) | telemetry[84];
+
+    config->cubesense.cam1_area.area3.x.min = (telemetry[87] << 8) | telemetry[86];
+    config->cubesense.cam1_area.area3.x.max = (telemetry[89] << 8) | telemetry[88];
+    config->cubesense.cam1_area.area3.y.min = (telemetry[91] << 8) | telemetry[90];
+    config->cubesense.cam1_area.area3.y.max = (telemetry[93] << 8) | telemetry[92];
+
+    config->cubesense.cam1_area.area4.x.min = (telemetry[95] << 8) | telemetry[94];
+    config->cubesense.cam1_area.area4.x.max = (telemetry[97] << 8) | telemetry[96];
+    config->cubesense.cam1_area.area4.y.min = (telemetry[99] << 8) | telemetry[98];
+    config->cubesense.cam1_area.area4.y.max = (telemetry[101] << 8) | telemetry[100];
+
+    config->cubesense.cam1_area.area5.x.min = (telemetry[103] << 8) | telemetry[102];
+    config->cubesense.cam1_area.area5.x.max = (telemetry[105] << 8) | telemetry[104];
+    config->cubesense.cam1_area.area5.y.min = (telemetry[107] << 8) | telemetry[106];
+    config->cubesense.cam1_area.area5.y.max = (telemetry[109] << 8) | telemetry[108];
+
+    config->cubesense.cam2_area.area1.x.min = (telemetry[111] << 8) | telemetry[110];
+    config->cubesense.cam2_area.area1.x.max = (telemetry[113] << 8) | telemetry[112];
+    config->cubesense.cam2_area.area1.y.min = (telemetry[115] << 8) | telemetry[114];
+    config->cubesense.cam2_area.area1.y.max = (telemetry[117] << 8) | telemetry[116];
+
+    config->cubesense.cam2_area.area2.x.min = (telemetry[119] << 8) | telemetry[118];
+    config->cubesense.cam2_area.area2.x.max = (telemetry[121] << 8) | telemetry[120];
+    config->cubesense.cam2_area.area2.y.min = (telemetry[123] << 8) | telemetry[122];
+    config->cubesense.cam2_area.area2.y.max = (telemetry[125] << 8) | telemetry[124];
+
+    config->cubesense.cam2_area.area3.x.min = (telemetry[127] << 8) | telemetry[126];
+    config->cubesense.cam2_area.area3.x.max = (telemetry[129] << 8) | telemetry[128];
+    config->cubesense.cam2_area.area3.y.min = (telemetry[131] << 8) | telemetry[130];
+    config->cubesense.cam2_area.area3.y.max = (telemetry[133] << 8) | telemetry[132];
+
+    config->cubesense.cam2_area.area4.x.min = (telemetry[135] << 8) | telemetry[134];
+    config->cubesense.cam2_area.area4.x.max = (telemetry[137] << 8) | telemetry[136];
+    config->cubesense.cam2_area.area4.y.min = (telemetry[139] << 8) | telemetry[138];
+    config->cubesense.cam2_area.area4.y.max = (telemetry[141] << 8) | telemetry[140];
+
+    config->cubesense.cam2_area.area5.x.min = (telemetry[143] << 8) | telemetry[142];
+    config->cubesense.cam2_area.area5.x.max = (telemetry[145] << 8) | telemetry[144];
+    config->cubesense.cam2_area.area5.y.min = (telemetry[147] << 8) | telemetry[146];
+    config->cubesense.cam2_area.area5.y.max = (telemetry[149] << 8) | telemetry[148];
+
     get_xyz(&config->MTM1.mounting_angle, &telemetry[150], 0.01);
     get_xyz(&config->MTM1.channel_offset, &telemetry[156], 0.001);
     get_3x3(config->MTM1.sensitivity_mat, &telemetry[162], 0.001);
     get_xyz(&config->MTM2.mounting_angle, &telemetry[180], 0.01);
     get_xyz(&config->MTM2.channel_offset, &telemetry[186], 0.001);
     get_3x3(config->MTM2.sensitivity_mat, &telemetry[192], 0.001);
-    get_xyz(&config->star_tracker.mounting_angle, &telemetry[210], 0.01);
-    memcpy(&config->star_tracker.exposure_t, &telemetry[216], 45);
-    config->star_tracker.module_en = telemetry[261] & 0x1;
-    config->star_tracker.loc_predict_en = telemetry[261] & 0x2; // second bit
-    config->star_tracker.search_wid = telemetry[262] / 5;
-    memcpy(&config->detumble, &telemetry[263], 8);
+
+    get_xyz(&config->star_tracker.mounting_angle, &telemetry[210], 0.01); // Don't have this
+    memcpy(&config->star_tracker.exposure_t, &telemetry[216], 45);        // Don't have this
+    config->star_tracker.module_en = telemetry[261] & 0x1;                // Don't have this
+    config->star_tracker.loc_predict_en = telemetry[261] & 0x2;           // Don't have this
+    config->star_tracker.search_wid = telemetry[262] / 5;                 // Don't have this
+
+    unsigned long temp_detumble[2] = {0};
+    for (int i = 0; i < 2; i++) {
+        for (int k = 0; k < 4; k++) {
+            temp_detumble[i] = temp_detumble[i] | ((unsigned long)telemetry[263 + 4 * i + k] << (8 * k));
+        }
+    }
+    memcpy(&config->detumble.spin_gain, &temp_detumble[0], 4);
+    memcpy(&config->detumble.damping_gain, &temp_detumble[1], 4);
+
     coef = 0.001;
     config->detumble.spin_rate = uint82int16(telemetry[271], telemetry[272]) * coef;
-    memcpy(&config->detumble.fast_bDot, &telemetry[273], 4);
-    memcpy(&config->ywheel, &telemetry[277], 20);
-    memcpy(&config->rwheel, &telemetry[297], 12);
+
+    unsigned long temp_fastbDot;
+    for (int k = 0; k < 4; k++) {
+        temp_fastbDot |= ((unsigned long)telemetry[273 + k] << (8 * k));
+    }
+    memcpy(&config->detumble.fast_bDot, &temp_fastbDot, 4);
+
+    unsigned long temp_ywheel[5] = {0};
+    for (int i = 0; i < 5; i++) {
+        for (int k = 0; k < 4; k++) {
+            temp_ywheel[i] = temp_ywheel[i] | ((unsigned long)telemetry[277 + 4 * i + k] << (8 * k));
+        }
+    }
+    memcpy(&config->ywheel.control_gain, &temp_ywheel[0], 4);
+    memcpy(&config->ywheel.damping_gain, &temp_ywheel[1], 4);
+    memcpy(&config->ywheel.proportional_gain, &temp_ywheel[2], 4);
+    memcpy(&config->ywheel.derivative_gain, &temp_ywheel[3], 4);
+    memcpy(&config->ywheel.reference, &temp_ywheel[4], 4);
+
+    unsigned long temp_rwheel[3] = {0};
+    for (int i = 0; i < 3; i++) {
+        for (int k = 0; k < 4; k++) {
+            temp_rwheel[i] = temp_rwheel[i] | ((unsigned long)telemetry[297 + 4 * i + k] << (8 * k));
+        }
+    }
+    memcpy(&config->rwheel.proportional_gain, &temp_rwheel[0], 4);
+    memcpy(&config->rwheel.derivative_gain, &temp_rwheel[1], 4);
+    memcpy(&config->rwheel.bias_moment, &temp_rwheel[2], 4);
+
     config->rwheel.sun_point_facet = telemetry[309] & 0x7F; // 7 bits
     config->rwheel.auto_transit = telemetry[309] & 0x80;    // 8th bit
-    memcpy(&config->tracking, &telemetry[310],
-           65); // tracking + MoI + partially estimation
+
+    unsigned long temp_tracking[3] = {0};
+    for (int i = 0; i < 3; i++) {
+        for (int k = 0; k < 4; k++) {
+            temp_tracking[i] = temp_tracking[i] | ((unsigned long)telemetry[310 + 4 * i + k] << (8 * k));
+        }
+    }
+    memcpy(&config->tracking.proportional_gain, &temp_tracking[0], 4);
+    memcpy(&config->tracking.derivative_gain, &temp_tracking[1], 4);
+    memcpy(&config->tracking.integral_gain, &temp_tracking[2], 4);
+
+    config->tracking.target_facet = telemetry[322];
+
+    unsigned long temp_MoI[6] = {0};
+    for (int i = 0; i < 6; i++) {
+        for (int k = 0; k < 4; k++) {
+            temp_MoI[i] = temp_MoI[i] | ((unsigned long)telemetry[323 + 4 * i + k] << (8 * k));
+        }
+    }
+    memcpy(&config->MoI.diag.x, &temp_MoI[0], 4);
+    memcpy(&config->MoI.diag.y, &temp_MoI[1], 4);
+    memcpy(&config->MoI.diag.z, &temp_MoI[2], 4);
+    memcpy(&config->MoI.nondiag.x, &temp_MoI[3], 4);
+    memcpy(&config->MoI.nondiag.y, &temp_MoI[4], 4);
+    memcpy(&config->MoI.nondiag.z, &temp_MoI[5], 4);
+
+    unsigned long temp_estimation[7] = {0};
+    for (int i = 0; i < 7; i++) {
+        for (int k = 0; k < 4; k++) {
+            temp_estimation[i] = temp_estimation[i] | ((unsigned long)telemetry[347 + 4 * i + k] << (8 * k));
+        }
+    }
+    memcpy(&config->estimation.MTM_rate_nosie, &temp_estimation[0], 4);
+    memcpy(&config->estimation.EKF_noise, &temp_estimation[1], 4);
+    memcpy(&config->estimation.CSS_noise, &temp_estimation[2], 4);
+    memcpy(&config->estimation.suns_sensor_noise, &temp_estimation[3], 4);
+    memcpy(&config->estimation.nadir_sensor_noise, &temp_estimation[4], 4);
+    memcpy(&config->estimation.MTM_noise, &temp_estimation[5], 4);
+    memcpy(&config->estimation.star_track_noise, &temp_estimation[6], 4);
+
     for (int i = 0; i < 6; i++) {
         config->estimation.select_arr[i] = (telemetry[375] >> i) & 1;
     }
     config->estimation.MTM_mode = (telemetry[375] >> 6) & 0x3;
     config->estimation.MTM_select = telemetry[376] & 0x3;
-    config->estimation.select_arr[7] = (telemetry[376] >> 2) & 1;
+    config->estimation.select_arr[6] = (telemetry[376] >> 2) & 1;
+    config->estimation.select_arr[7] = 0; // Unused
     config->estimation.cam_sample_period = telemetry[377];
     coef = 0.001;
+
     config->aspg4.inclination = ((telemetry[379] << 8) | telemetry[378]) * coef;
     config->aspg4.RAAN = ((telemetry[381] << 8) | telemetry[380]) * coef;
     config->aspg4.ECC = ((telemetry[383] << 8) | telemetry[382]) * coef;

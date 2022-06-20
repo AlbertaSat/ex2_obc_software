@@ -56,7 +56,7 @@ static uint32_t get_svc_wdt_counter() { return svc_wdt_counter; }
  */
 void communication_service(void *param) {
     csp_socket_t *sock;
-    sock = csp_socket(CSP_SO_NONE);
+    sock = csp_socket(CSP_SO_HMACREQ);
     csp_bind(sock, TC_COMMUNICATION_SERVICE);
     csp_listen(sock, SERVICE_BACKLOG_LEN);
 
@@ -597,7 +597,6 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         for (i = 0; i < FRAM_SIZE; i++) {
             U_FRAM.data[i] =
                 (uint8_t)packet->data[IN_DATA_BYTE + sizeof(U_FRAM.addr) + (CHAR_LEN - 1) + CHAR_LEN * i];
-            U_FRAM.data[i] = U_FRAM.data[i];
         }
         status = HAL_UHF_setFRAM(U_FRAM);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -757,6 +756,31 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
 
         break;
     }
+    case UHF_GET_SWVER: {
+        uint16_t version;
+        status = HAL_UHF_getSWVersion(&version);
+        if (sizeof(version) + 1 > csp_buffer_data_size()) {
+            return_state = SATR_ERROR;
+        }
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        memcpy(&packet->data[OUT_DATA_BYTE], &version, sizeof(version));
+        set_packet_length(packet, sizeof(int8_t) + sizeof(version) + 1);
+
+        break;
+    }
+    case UHF_GET_PLDSZ: {
+        uint16_t payload_size;
+        status = HAL_UHF_getPayload(&payload_size);
+        if (sizeof(payload_size) + 1 > csp_buffer_data_size()) {
+            return_state = SATR_ERROR;
+        }
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        memcpy(&packet->data[OUT_DATA_BYTE], &payload_size, sizeof(payload_size));
+        set_packet_length(packet, sizeof(int8_t) + sizeof(payload_size) + 1);
+
+        break;
+    }
+
 
     default:
         ex2_log("No such subservice\n");

@@ -13,6 +13,7 @@
 #include "eps.h"
 #include "main/system.h"
 #include "util/service_utilities.h"
+#include "logger/logger.h"
 
 static SAT_returnState prv_fill_dummy_data(csp_packet_t *packet);
 void nop();

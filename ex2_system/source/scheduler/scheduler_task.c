@@ -30,7 +30,7 @@ char* fileName3 = "VOL0:/hist_count.TMP";
  * @return SAT_returnState
  *      SATR_OK or SATR_ERROR
  */
-SAT_returnState vSchedulerHandler (void *pvParameters) {
+void vSchedulerHandler (void *pvParameters) {
     TickType_t xLastWakeTime;
     uint8_t hist_file_position = 0;
 
@@ -40,7 +40,6 @@ SAT_returnState vSchedulerHandler (void *pvParameters) {
         printf("Unexpected error %d from red_open()\r\n", (int)red_errno);
         ex2_log("Failed to open or create file to write: '%s'\r\n", fileName1);
         vTaskDelete(0);
-        return SATR_ERROR;
     }
     // get file size through file stats
     REDSTAT scheduler_stat;
@@ -49,14 +48,12 @@ SAT_returnState vSchedulerHandler (void *pvParameters) {
         printf("Unexpected error %d from f_stat()\r\n", (int)red_errno);
         ex2_log("Failed to read file stats from: '%s'\r\n", fileName1);
         red_close(fout);
-        return SATR_ERROR;
     }
     // close file from SD card
     int32_t f_close = red_close(fout); 
     if (f_close < 0) {
         printf("Unexpected error %d from red_close()\r\n", (int)red_errno);
         ex2_log("Failed to close file: '%s'\n", fileName1);
-        return SATR_ERROR;
     }
     // while the scheduler has cmds scheduled
     while (scheduler_stat.st_size > 0) {
@@ -67,7 +64,6 @@ SAT_returnState vSchedulerHandler (void *pvParameters) {
         if (cmds == NULL) {
             ex2_log("calloc failed, out of memory");
             vTaskDelete(0);
-            return SATR_ERROR;
         }
 
         // open file from SD card
@@ -76,7 +72,6 @@ SAT_returnState vSchedulerHandler (void *pvParameters) {
             printf("Unexpected error %d from red_open()\r\n", (int)red_errno);
             ex2_log("Failed to open or create file to write: '%s'\n", fileName1);
             vTaskDelete(0);
-            return SATR_ERROR;
         }
         // read file
         red_lseek(fout, 0, 0);
@@ -85,7 +80,6 @@ SAT_returnState vSchedulerHandler (void *pvParameters) {
             printf("Unexpected error %d from red_read()\r\n", (int)red_errno);
             ex2_log("Failed to read file: '%s'\r\n", fileName1);
             red_close(fout);
-            return SATR_ERROR;
         }
         // get current unix time
         time_t current_time;
@@ -100,7 +94,6 @@ SAT_returnState vSchedulerHandler (void *pvParameters) {
         if (f_close < 0) {
             printf("Unexpected error %d from red_close()\r\n", (int)red_errno);
             ex2_log("Failed to close file: '%s'\r\n", fileName1);
-            return SATR_ERROR;
         }
         /*-------------------------------wait until it's time to execute the command--------------------------------*/
         vTaskDelayUntil( &xLastWakeTime, delay_ticks );
@@ -114,7 +107,6 @@ SAT_returnState vSchedulerHandler (void *pvParameters) {
             if (fout < 0) {
                 printf("Unexpected error %d from red_open()\r\n", (int)red_errno);
                 ex2_log("Failed to open or create file to write: '%s'\r\n", fileName1);
-                return SATR_ERROR;
             }
             // read file
             red_lseek(fout, 0, 0);
@@ -123,7 +115,6 @@ SAT_returnState vSchedulerHandler (void *pvParameters) {
                 printf("Unexpected error %d from red_read()\r\n", (int)red_errno);
                 ex2_log("Failed to read file: '%s'\n", fileName1);
                 red_close(fout);
-                return SATR_ERROR;
             }
             // get file size through file stats
             f_stat = red_fstat(fout, &scheduler_stat);
@@ -131,7 +122,6 @@ SAT_returnState vSchedulerHandler (void *pvParameters) {
                 printf("Unexpected error %d from f_stat()\r\n", (int)red_errno);
                 ex2_log("Failed to read file stats from: '%s'\r\n", fileName1);
                 red_close(fout);
-                return SATR_ERROR;
             }
             // get current unix time
             RTCMK_GetUnix(&current_time);
@@ -145,7 +135,6 @@ SAT_returnState vSchedulerHandler (void *pvParameters) {
             if (f_close < 0) {
                 printf("Unexpected error %d from red_close()\r\n", (int)red_errno);
                 ex2_log("Failed to close file: '%s'\r\n", fileName1);
-                return SATR_ERROR;
             }
             vTaskDelayUntil( &xLastWakeTime, delay_ticks );
         }
@@ -155,7 +144,7 @@ SAT_returnState vSchedulerHandler (void *pvParameters) {
         csp_conn_t *connect;
         csp_packet_t *packet = cmds->embedded_packet;
 
-        connect = csp_connect(CSP_PRIO_NORM, packet->id.dst,  packet->id.dport, CSP_MAX_TIMEOUT, CSP_SO_NONE);
+        connect = csp_connect(CSP_PRIO_NORM, packet->id.dst,  packet->id.dport, CSP_MAX_TIMEOUT, CSP_SO_HMACREQ);
 
         int send_packet_test = csp_send(connect, packet, CSP_MAX_TIMEOUT);
         if (send_packet_test != 1) {
@@ -250,7 +239,6 @@ SAT_returnState vSchedulerHandler (void *pvParameters) {
         if (fout < 0) {
             printf("Unexpected error %d from red_open()\r\n", (int)red_errno);
             ex2_log("Failed to open or create file to write: '%s'\r\n", fileName1);
-            return SATR_ERROR;
         }
 
         // if the command is repetitive, add its next execution to the scheduler
@@ -265,14 +253,12 @@ SAT_returnState vSchedulerHandler (void *pvParameters) {
             if (red_errno != 0) {
                 ex2_log("Failed to write to file: '%s'\r\n", fileName1);
                 red_close(fout);
-                return SATR_ERROR;
             }
             // close file
             f_close = red_close(fout); 
             if (f_close < 0) {
                 printf("Unexpected error %d from red_close()\r\n", (int)red_errno);
                 ex2_log("Failed to close file: '%s'\r\n", fileName1);
-                return SATR_ERROR;
             }
         }
 
@@ -288,14 +274,12 @@ SAT_returnState vSchedulerHandler (void *pvParameters) {
                 if (red_errno != 0) {
                     ex2_log("Failed to write to file: '%s'\r\n", fileName1);
                     red_close(fout);
-                    return SATR_ERROR;
                 }
                 // truncate file to new size
                 int32_t f_truc = red_ftruncate(fout, needed_size);
                 if (red_errno != 0) {
                     ex2_log("Failed to truncate file: '%s'\r\n", fileName1);
                     red_close(fout);
-                    return SATR_ERROR;
                 }
                 // update the file size
                 f_stat = red_fstat(fout, &scheduler_stat);
@@ -303,14 +287,12 @@ SAT_returnState vSchedulerHandler (void *pvParameters) {
                     printf("Unexpected error %d from f_stat()\r\n", (int)red_errno);
                     ex2_log("Failed to read file stats from: '%s'\r\n", fileName1);
                     red_close(fout);
-                    return SATR_ERROR;
                 }
                 // close file
                 f_close = red_close(fout); 
                 if (f_close < 0) {
                     printf("Unexpected error %d from red_close()\r\n", (int)red_errno);
                     ex2_log("Failed to close file: '%s'\r\n", fileName1);
-                    return SATR_ERROR;
                 }
             }
 
@@ -323,14 +305,12 @@ SAT_returnState vSchedulerHandler (void *pvParameters) {
                 if (f_close < 0) {
                     printf("Unexpected error %d from red_close()\r\n", (int)red_errno);
                     ex2_log("Failed to close file: '%s'\r\n", fileName1);
-                    return SATR_ERROR;
                 }
                 // delete file once all cmds have been executed
                 int32_t f_delete = red_unlink(fileName1);
                 if (f_delete < 0) {
                     printf("Unexpected error %d from f_delete()\r\n", (int)red_errno);
                     ex2_log("Failed to close file: '%s'\r\n", fileName1);
-                    return SATR_ERROR;
                 }
             }
         }
@@ -339,5 +319,4 @@ SAT_returnState vSchedulerHandler (void *pvParameters) {
     }
     // self destruct when there are no more commands left
     vTaskDelete(0);
-    return SATR_OK;
 }

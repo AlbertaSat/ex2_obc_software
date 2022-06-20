@@ -7,7 +7,7 @@ jobs:
   tag-default:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: tag the default repository
-      run: ./.github/scripts/tag.sh ${{ github.ref_name }}
-      shell: bash
+      - uses: actions/checkout@v3
+      - name: tag the default repository
+        run: ./.github/scripts/tag.sh "$GITHUB_ACTOR" "$GITHUB_SHA"
+        shell: bash

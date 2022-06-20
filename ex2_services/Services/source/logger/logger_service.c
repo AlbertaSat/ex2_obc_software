@@ -117,7 +117,7 @@ SAT_returnState logger_service_app(csp_packet_t *packet) {
     uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
     int8_t status;
     uint32_t *data32;
-    int32_t file_size;
+    uint32_t file_size;
     char *log_file;
 
     switch (ser_subtype) {
@@ -163,7 +163,7 @@ SAT_returnState start_logger_service(void);
  */
 void logger_service(void *param) {
     csp_socket_t *sock;
-    sock = csp_socket(CSP_SO_NONE);
+    sock = csp_socket(CSP_SO_HMACREQ);
     csp_bind(sock, TC_LOGGER_SERVICE);
     csp_listen(sock, SERVICE_BACKLOG_LEN);
     svc_wdt_counter++;
