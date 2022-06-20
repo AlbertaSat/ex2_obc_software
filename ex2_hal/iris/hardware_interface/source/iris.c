@@ -15,6 +15,7 @@
 #include "FreeRTOS.h"
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "iris.h"
 #include "iris_gio.h"
