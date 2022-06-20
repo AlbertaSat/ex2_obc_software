@@ -169,13 +169,14 @@ void iris_spi_test(void * pvParameters) {
 
     iris_housekeeping_data hk_data;
     uint16_t image_count;
+    uint32_t image_length;
 
     for(;;) {
 //        spi_write_read(1, &tx_data, rx_data);
 //        vTaskDelay(pdMS_TO_TICKS( 1000UL ));
 //        iris_take_pic();
-//        iris_get_image_length(1000);
-        iris_transfer_image(20000);
+        iris_get_image_length(&image_length);
+        iris_transfer_image(image_length);
 //        iris_get_image_count(&image_count);
 //        iris_toggle_sensor_idle(0);
 //        iris_toggle_sensor_idle(1);
