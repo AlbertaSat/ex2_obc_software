@@ -71,15 +71,6 @@
 #include "crypto.h"
 #include "csp_debug_wrapper.h"
 
-#define SDR_TEST 0
-
-#if SDR_TEST == 1
-#include "test_sdr.h"
-
-static sdr_interface_data_t *test_uhf_ifdata;
-static sdr_interface_data_t *test_sband_ifdata;
-#endif // SDR_TEST
-
 #if FLATSAT_TEST == 1
 //#include "sband_binary_tests.h"
 static void flatsat_test();
@@ -119,24 +110,7 @@ void ex2_init(void *pvParameters) {
 
     /* Subsystem Hardware Initialization */
 
-#if ADCS_IS_STUBBED == 0
-    init_adcs_io();
-    ADCS_set_enabled_state(1);
-#if FLATSAT_TEST == 1
-    uint8_t control[10] = {0};
-    control[Set_CubeCTRLSgn_Power] = 1;
-    control[Set_CubeCTRLMtr_Power] = 1;
-    control[Set_CubeSense1_Power] = 1;
-    control[Set_CubeSense2_Power] = 1;
-    control[Set_CubeWheel1_Power] = 1;
-    control[Set_CubeWheel2_Power] = 1;
-    control[Set_CubeWheel3_Power] = 1;
-    ADCS_set_power_control(control);
 
-    ADCS_set_attitude_estimate_mode(6); // GyroEKF
-    ADCS_set_unix_t(1652976000, 0);     // May 19, 2022
-#endif                                  // FLATSAT_TEST
-#endif                                  // ADCS_IS_STUBBED
 
 #if ATHENA_IS_STUBBED == 0
     // PLACEHOLDER: athena hardware init
