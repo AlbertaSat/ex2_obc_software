@@ -62,16 +62,13 @@ void iris_spi_init() {
     // Populate SPI config
     dataconfig.CS_HOLD = FALSE;
     dataconfig.WDEL = 0;
+    /* NOTE: Using SPIREG3 for testing purpose, may be change once
+     * final pinout is decided
+     */
     dataconfig.DFSEL = SPI_FMT_1;
     dataconfig.CSNR = SPI_CS_1;
 
     gioSetDirection(hetPORT1, 0xFFFFFFFF);
-
-    NSS_HIGH();
-    iris_spi_delay(10000);
-    NSS_LOW();
-    iris_spi_delay(10000);
-    NSS_HIGH();
 }
 
 /**
@@ -90,7 +87,7 @@ void iris_spi_init() {
  **/
 void iris_spi_send_and_get(uint16_t *tx_data, uint16_t *rx_data, uint16_t data_length) {
     spiSendAndGetData(IRIS_SPI, &dataconfig, data_length, tx_data, rx_data);
-    while (SpiRxStatus(IRIS_SPI) != SPI_COMPLETED);
+    while ((SpiTxStatus(IRIS_SPI) != SPI_COMPLETED) && (SpiRxStatus(IRIS_SPI) != SPI_COMPLETED));
 }
 
 /**
@@ -201,19 +198,19 @@ IrisLowLevelReturn iris_send_data(uint16_t *tx_buffer, uint16_t data_length) {
     NSS_LOW();
     iris_spi_delay(1000);
     iris_spi_send_and_get(tx_buffer, &rx_data, data_length);
-//    iris_spi_send(&tx_dummy, 1);
-//    iris_spi_get(&rx_data, 1);
+    iris_spi_delay(1000);
+    iris_spi_send(&tx_dummy, 1);
+    iris_spi_get(&rx_data, 1);
     iris_spi_delay(1000);
     NSS_HIGH();
 
-//    if (rx_data == ACK_FLAG) {
-//        return IRIS_ACK;
-//    } else if (rx_data == NACK_FLAG) {
-//        return IRIS_NACK;
-//    } else {
-//        return IRIS_LL_ERROR;
-//    }
-   return IRIS_ACK;
+    if (rx_data == ACK_FLAG) {
+        return IRIS_ACK;
+    } else if (rx_data == NACK_FLAG) {
+        return IRIS_NACK;
+    } else {
+        return IRIS_LL_ERROR;
+    }
 }
 
 /**
