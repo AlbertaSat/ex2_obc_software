@@ -111,7 +111,7 @@ typedef struct __attribute__((packed)) {
     xyz16 ecef_pos;
 } adcs_state;
 
-typedef struct {
+typedef struct __attribute__((packed)) {
     xyz magnetic_field;
     xyz coarse_sun;
     xyz sun;

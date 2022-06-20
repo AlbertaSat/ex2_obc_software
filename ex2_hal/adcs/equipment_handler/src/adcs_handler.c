@@ -1919,7 +1919,7 @@ ADCS_returnState ADCS_get_actuator(adcs_actuator *commands) {
     uint8_t telemetry[12];
     ADCS_returnState state;
     state = adcs_telemetry(ACTUATOR_ID, telemetry, 12);
-    get_xyz(&commands->magnetorquer, &telemetry[0], 100); // [s]
+    get_xyz(&commands->magnetorquer, &telemetry[0], 10); // [s]
     get_xyz(&commands->wheel_speed, &telemetry[6], 1);    // [rpm]
     return state;
 }
