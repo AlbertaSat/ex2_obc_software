@@ -12,18 +12,25 @@
  * GNU General Public License for more details.
  */
 
-#ifndef TIME_MANAGEMENT_H
-#define TIME_MANAGEMENT_H
+#ifndef IRIS_SERVICE_H
+#define IRIS_SERVICE_H
 
 #include <stdint.h>
-
+#include <csp_types.h>
 #include "services.h"
-#define MIN_YEAR 1577836800 // 2020-01-01
-#define MAX_YEAR 1893456000 // 2030-01-01
-#define TIMESTAMP_ISOK(x) (x > MIN_YEAR && x < MAX_YEAR) ? 1 : 0
 
-typedef enum { GET_TIME = 10, SET_TIME = 11 } Time_Management_Subtype; // shared with EPS!
+SAT_returnState start_iris_service(void);
 
-SAT_returnState start_time_management_service(void);
+SAT_returnState iris_service_app(csp_packet_t *pkt);
 
-#endif /* TIME_MANAGEMENT_H */
+typedef enum {
+    IRIS_POWER_ON = 0,
+    IRIS_POWER_OFF = 1,
+    IRIS_TAKE_IMAGE = 2,
+    IRIS_DELIVER_IMAGE = 3,
+    IRIS_COUNT_IMAGES = 4,
+    IRIS_PROGRAM_FLASH = 5,
+    IRIS_GET_HK = 6,
+} IRIS_Subtype;
+
+#endif /* IRIS_SERVICE_H */

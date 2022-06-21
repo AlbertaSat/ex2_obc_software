@@ -123,6 +123,7 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
          *
          */
     case IRIS_TAKE_IMAGE:
+    {
         /*
          * HAL Function execution path
          * 1. Turn on iris sensors
@@ -138,7 +139,9 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
         // Return success/failure report
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));
         set_packet_length(packet, sizeof(uint8_t) + 1);
+    }
     case IRIS_DELIVER_IMAGE:
+    {
         /*
          * HAL function execution path
          * 1. Get image length
@@ -155,9 +158,21 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
         // Return success/failure report
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));
         set_packet_length(packet, sizeof(uint8_t) + 1);
+    }
+    case IRIS_COUNT_IMAGES:
+    {
+        uint16_t image_count;
+
+        status = iris_get_image_count(&image_count);
+
+        // Return success/failure report
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));
+        set_packet_length(packet, sizeof(uint8_t) + 1);
+    }
     case IRIS_PROGRAM_FLASH:
         // TODO
     case IRIS_GET_HK:
+    {
         // Get Iris housekeeping data
         IRIS_Housekeeping HK = {0};
         status = iris_get_housekeeping(&HK);
@@ -166,9 +181,9 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
         HK.nir_temp = csp_hton16(HK.nir_temp);
         HK.flash_temp = csp_hton16(HK.flash_temp);
         HK.gate_temp = csp_hton16(HK.gate_temp);
-        HK.imagenum = csp_hton8(HK.imagenum);
-        HK.software_version = csp_hton8(HK.software_version);
-        HK.errornum = csp_hton8(HK.errornum);
+        HK.imagenum = HK.imagenum;
+        HK.software_version = HK.software_version;
+        HK.errornum = HK.errornum;
         HK.MAX_5V_voltage = csp_hton16(HK.MAX_5V_voltage);
         HK.MAX_5V_power = csp_hton16(HK.MAX_5V_power);
         HK.MAX_3V_voltage = csp_hton16(HK.MAX_3V_voltage);
@@ -181,6 +196,7 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
         memcpy(&packet->data[OUT_DATA_BYTE], &HK, sizeof(HK));
         set_packet_length(packet, sizeof(int8_t) + sizeof(HK) + 1);
         break;
+    }
     default:
         ex2_log("No such subservice\n");
         return SATR_PKT_ILLEGAL_SUBSERVICE;
