@@ -370,6 +370,20 @@ Result mock_everyone(All_systems_housekeeping *all_hk_data) {
     all_hk_data->DFGM_hk.reserved3 = tempFloat;
     all_hk_data->DFGM_hk.reserved4 = tempFloat;
 
+    all_hk_data->IRIS_hk.vis_temp = tempu16;
+    all_hk_data->IRIS_hk.nir_temp = tempu16;
+    all_hk_data->IRIS_hk.flash_temp = tempu16;
+    all_hk_data->IRIS_hk.gate_temp = tempu16;
+    all_hk_data->IRIS_hk.imagenum = tempu8;
+    all_hk_data->IRIS_hk.software_version = tempu8;
+    all_hk_data->IRIS_hk.errornum = tempu8;
+    all_hk_data->IRIS_hk.MAX_5V_voltage = tempu16;
+    all_hk_data->IRIS_hk.MAX_5V_power = tempu16;
+    all_hk_data->IRIS_hk.MAX_3V_voltage = tempu16;
+    all_hk_data->IRIS_hk.MAX_3V_power = tempu16;
+    all_hk_data->IRIS_hk.MIN_5V_voltage = tempu16;
+    all_hk_data->IRIS_hk.MIN_3V_voltage = tempu16;
+
     temp++;
     tempTime += 30;
     return SUCCESS;

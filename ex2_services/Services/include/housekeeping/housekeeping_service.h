@@ -34,6 +34,7 @@
 #include "uhf.h"
 #include "dfgm.h"
 #include "ns_payload.h"
+#include "iris.h"
 
 /* Housekeeping service address & port*/
 
@@ -79,6 +80,7 @@ typedef struct __attribute__((packed)) {
     charon_housekeeping charon_hk;          // Charon housekeeping
     DFGM_Housekeeping DFGM_hk; // DFGM housekeeping struct
     ns_telemetry NS_hk;                     // Northern SPIRIT housekeeping
+    IRIS_Housekeeping IRIS_hk; // IRIS housekeeping struct
 } All_systems_housekeeping;
 
 SAT_returnState start_housekeeping_service(void);
