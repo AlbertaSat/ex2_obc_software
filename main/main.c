@@ -165,10 +165,6 @@ void ex2_init(void *pvParameters) {
     DFGM_init();
 #endif
 
-#ifndef IRIS_IS_STUBBED
-    // PLACEHOLDER: iris hardware init
-#endif
-
     /* Software Initialization */
 
     /* Start service server, and response server */
