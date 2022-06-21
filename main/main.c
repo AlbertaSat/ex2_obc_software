@@ -165,8 +165,10 @@ void ex2_init(void *pvParameters) {
     DFGM_init();
 #endif
 
-#ifndef IRIS_IS_STUBBED
+#ifdef IS_EXALTA2
+#ifndef PAYLOAD_IS_STUBBED
     // PLACEHOLDER: iris hardware init
+#endif
 #endif
 
     /* Software Initialization */
