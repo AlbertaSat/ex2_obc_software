@@ -86,6 +86,7 @@ typedef struct __attribute__((__packed__)) {
 } sensor_reg;
 
 // Command functions prototypes
+void iris_init();
 Iris_HAL_return iris_take_pic();
 Iris_HAL_return iris_get_image_length(uint32_t *image_length);
 Iris_HAL_return iris_transfer_image(uint32_t image_length);
