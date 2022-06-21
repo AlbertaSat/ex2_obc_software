@@ -203,8 +203,7 @@ IrisLowLevelReturn iris_send_data(uint16_t *tx_buffer, uint16_t data_length) {
     iris_spi_delay(1000);
     iris_spi_send_and_get(tx_buffer, &rx_data, data_length);
     iris_spi_delay(1000);
-    iris_spi_send(&tx_dummy, 1);
-    iris_spi_get(&rx_data, 1);
+    iris_spi_send_and_get(&tx_dummy, &rx_data, 1);
     iris_spi_delay(1000);
     NSS_HIGH();
 
