@@ -78,7 +78,7 @@ typedef struct __attribute__((__packed__)) {
     uint16_t MAX_3V_power;
     uint16_t MIN_5V_voltage;
     uint16_t MIN_3V_voltage;
-} iris_housekeeping_data;
+} IRIS_Housekeeping;
 
 typedef struct __attribute__((__packed__)) {
     uint16_t sensor_reg_addr;
@@ -91,7 +91,7 @@ Iris_HAL_return iris_get_image_length(uint32_t *image_length);
 Iris_HAL_return iris_transfer_image(uint32_t image_length);
 Iris_HAL_return iris_get_image_count(uint16_t *image_count);
 Iris_HAL_return iris_toggle_sensor_idle(uint8_t toggle);
-Iris_HAL_return iris_get_housekeeping(iris_housekeeping_data *hk_data);
+Iris_HAL_return iris_get_housekeeping(IRIS_Housekeeping *hk_data);
 Iris_HAL_return iris_update_sensor_i2c_reg();
 Iris_HAL_return iris_update_current_limit(uint16_t current_limit);
 
