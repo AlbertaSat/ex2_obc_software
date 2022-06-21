@@ -392,6 +392,25 @@ static BaseType_t prvCPCommand(char *pcWriteBuffer, size_t xWriteBufferLen, cons
     return pdFALSE;
 }
 
+static BaseType_t prvFORMATCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString) {
+    // We can guarantee there will be one parameter because FreeRTOS+CLI won't call this function unless it has
+    // exactly one parameter
+    BaseType_t parameterLen;
+    const char *parameter = FreeRTOS_CLIGetParameter(
+        /* The command string itself. */
+        pcCommandString,
+        /* Return the first parameter. */
+        1,
+        /* Store the parameter string length. */
+        &parameterLen);
+    int32_t error = red_umount(parameter); // Ignore the error since it might not be mounted but we want to format anyway
+    error = red_format(parameter);
+    if (error < 0) {
+        createErrorOutput(pcWriteBuffer, xWriteBufferLen);
+    }
+    return pdFALSE;
+}
+
 static const CLI_Command_Definition_t xPWDCommand = {"pwd", "pwd:\n\tGet current working directory\n",
                                                      prvPWDCommand, 0};
 static const CLI_Command_Definition_t xLSCommand = {"ls", "ls:\n\tGet list of tiles in cwd\n", prvLSCommand, 0};
@@ -412,6 +431,7 @@ static const CLI_Command_Definition_t xTRANSACTCommand = {
     "transact:\n\tTell Reliance-edge to transact the filesystem.\n\tMust include volume prefix to transact\n",
     prvTRANSACTCommand, 1};
 static const CLI_Command_Definition_t xCPCommand = {"cp", "cp:\n\tCopy first parameter to second parameter\n", prvCPCommand, 2};
+static const CLI_Command_Definition_t xFORMATCommand = {"format", "format:\n\tFormat the specified volume. It may take a long time to format and the response may time out, check again later\n", prvFORMATCommand, 1};
 
 void register_fs_utils() {
     FreeRTOS_CLIRegisterCommand(&xPWDCommand);
@@ -425,5 +445,5 @@ void register_fs_utils() {
     FreeRTOS_CLIRegisterCommand(&xREADCommand);
     FreeRTOS_CLIRegisterCommand(&xTRANSACTCommand);
     FreeRTOS_CLIRegisterCommand(&xCPCommand);
-
+    FreeRTOS_CLIRegisterCommand(&xFORMATCommand);
 }
