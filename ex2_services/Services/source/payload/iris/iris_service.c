@@ -87,8 +87,8 @@ SAT_returnState start_iris_service(void) {
     TaskHandle_t svc_tsk;
     taskFunctions svc_funcs = {0};
     svc_funcs.getCounterFunction = get_svc_wdt_counter;
-    if (xTaskCreate((TaskFunction_t)iris_service, "iris_service", IRIS_SIZE, NULL, NORMAL_SERVICE_PRIO,
-                    &svc_tsk) != pdPASS) {
+    if (xTaskCreate((TaskFunction_t)iris_service, "iris_service", IRIS_SIZE, NULL,
+                    NORMAL_SERVICE_PRIO, &svc_tsk) != pdPASS) {
         ex2_log("FAILED TO CREATE TASK iris_service\n");
         return SATR_ERROR;
     }
