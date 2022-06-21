@@ -18,7 +18,7 @@
 #include "rtcmk.h"
 #include "services.h"
 #include "task_manager/task_manager.h"
-#include "iris/iris_service.h"
+#include "payload/iris/iris_service.h"
 #include "util/service_utilities.h"
 #include <csp/csp.h>
 #include <csp/csp_endian.h>

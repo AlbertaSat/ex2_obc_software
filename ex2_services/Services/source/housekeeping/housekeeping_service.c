@@ -370,6 +370,7 @@ Result mock_everyone(All_systems_housekeeping *all_hk_data) {
     all_hk_data->DFGM_hk.reserved3 = tempFloat;
     all_hk_data->DFGM_hk.reserved4 = tempFloat;
 
+    // IRIS
     all_hk_data->IRIS_hk.vis_temp = tempu16;
     all_hk_data->IRIS_hk.nir_temp = tempu16;
     all_hk_data->IRIS_hk.flash_temp = tempu16;
