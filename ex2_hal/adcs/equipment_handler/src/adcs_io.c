@@ -157,6 +157,73 @@ ADCS_returnState send_uart_telecommand(uint8_t *command, uint32_t length) {
 
 /**
  * @brief
+ *      Send telecommand via UART protocol
+ * @param command
+ *      Telecommand frame
+ * @param length
+ *      Length of the data (in bytes)
+ *
+ */
+ADCS_returnState send_uart_telecommand_packet_upload(uint8_t *command, uint32_t length) {
+    if (xSemaphoreTake(adcs_uart_mutex, UART_PACKET_TIMEOUT_MS) != pdTRUE) {
+        return ADCS_UART_BUSY;
+    } //  TODO: create response if it times out.
+
+    // Stuff the command
+    uint8_t stuffed_length = length;
+    uint8_t *stuffed_command = (uint8_t *)pvPortMalloc((length + 10) * sizeof(uint8_t));
+    if (stuffed_command == NULL) {
+        xSemaphoreGive(adcs_uart_mutex);
+        return ADCS_MALLOC_FAILED;
+    }
+    adcs_byte_stuff(command, stuffed_command, length, &stuffed_length);
+
+    // Form the command frame
+    uint8_t *frame = (uint8_t *)pvPortMalloc((stuffed_length + ADCS_TC_HEADER_SZ) * sizeof(uint8_t));
+    if (frame == NULL) {
+        vPortFree(stuffed_command);
+        xSemaphoreGive(adcs_uart_mutex);
+        return ADCS_MALLOC_FAILED;
+    }
+    *frame = ADCS_ESC_CHAR;
+    *(frame + 1) = ADCS_SOM;
+    memcpy((frame + 2), stuffed_command, stuffed_length);
+    *(frame + stuffed_length + 2) = ADCS_ESC_CHAR;
+    *(frame + stuffed_length + 3) = ADCS_EOM;
+    vPortFree(stuffed_command);
+
+    // Send the command frame
+    sciSend(ADCS_SCI, stuffed_length + ADCS_TC_HEADER_SZ, frame);
+
+    if (xSemaphoreTake(tx_semphr, UART_TIMEOUT_MS) != pdTRUE) {
+        xSemaphoreGive(adcs_uart_mutex);
+        vPortFree(frame);
+        return ADCS_UART_FAILED;
+    } // TODO: create response if it times out.
+
+    // Receive the reply
+    int received = 0;
+    uint8_t reply[ADCS_TC_ANS_LEN];
+
+    while (received < ADCS_TC_ANS_LEN) {
+        if (xQueueReceive(adcsQueue, reply + received, UART_TIMEOUT_MS) == pdFAIL) {
+            xSemaphoreGive(adcs_uart_mutex);
+            vPortFree(frame);
+            return ADCS_UART_FAILED;
+        } else {
+            received++;
+        }
+    }
+
+    ADCS_returnState TC_err_flag = (ADCS_returnState)reply[3];
+    xSemaphoreGive(adcs_uart_mutex);
+    xQueueReset(adcsQueue);
+    vPortFree(frame);
+    return TC_err_flag;
+}
+
+/**
+ * @brief
  *      Send telecommand via UART protocol. Expect no reply.
  * @param TM_ID
  *      Telemetry ID byte
