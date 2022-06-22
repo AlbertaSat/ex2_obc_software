@@ -162,7 +162,7 @@ IrisLowLevelReturn iris_send_command(uint16_t command) {
     NSS_LOW();
     iris_spi_delay(10000);
     iris_spi_send(&command, 1);
-    iris_spi_delay(10000);
+    vTaskDelay(20);
     iris_spi_send(&tx_dummy, 1);
     iris_spi_get(&rx_data, 1);
     iris_spi_delay(10000);
