@@ -13,7 +13,7 @@
  */
 /**
  * @file adcs_handler.c
- * @author Andrew Rooney, Vasu Gupta, Arash Yazdani, Thomas Ganley, Nick Sorensen, Pundeep Hundal
+ * @author Andrew Rooney, Vasu Gupta, Arash Yazdani, Thomas Ganley, Nick Sorensen, Pundeep Hundal, Grace Yi
  * @date 2020-08-09
  */
 #include <stdlib.h>
@@ -578,18 +578,20 @@ ADCS_returnState ADCS_initiate_file_upload(uint8_t file_dest, uint8_t block_size
  * @param packet_number
  * 		Packet Number
  * @param file_bytes
- * 		max of 20 bytes allowed per transfer
+ * 		starting address of the packet
+ * @param packet_size
+ * 		number of bytes to be uploaded, max of 20 bytes allowed per transfer
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_file_upload_packet(uint16_t packet_number, char *file_bytes) {
+ADCS_returnState ADCS_file_upload_packet(uint16_t packet_number, uint8_t *file_bytes, int packet_size) {
     uint8_t command[23];
+    memset(command, 0, 23);
     command[0] = FILE_UPLOAD_PACKET_ID;
-    memcpy(&command[1], &packet_number, 2);
-    // command[1] = packet_number & 0xFF;
-    // command[2] = packet_number >> 8;
-    memcpy(&command[3], file_bytes, 20);
-    return adcs_telecommand(command, sizeof(command));
+    command[1] = packet_number & 0xFF;
+    command[2] = packet_number >> 8;
+    memcpy(&command[3], file_bytes, packet_size);
+    return send_uart_telecommand_packet_upload(command, sizeof(command));
 }
 
 /**

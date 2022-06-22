@@ -13,7 +13,7 @@
  */
 /**
  * @file adcs_handler.h
- * @author Andrew Rooney, Vasu Gupta, Arash Yazdani, Thomas Ganley, Nick Sorensen, Pundeep Hundal
+ * @author Andrew Rooney, Vasu Gupta, Arash Yazdani, Thomas Ganley, Nick Sorensen, Pundeep Hundal, Grace
  * @date 2020-08-09
  */
 
@@ -518,7 +518,7 @@ ADCS_returnState ADCS_load_file_download_block(uint8_t file_type, uint8_t counte
                                                uint16_t block_length);
 ADCS_returnState ADCS_advance_file_list_read_pointer(void);
 ADCS_returnState ADCS_initiate_file_upload(uint8_t file_dest, uint8_t block_size);
-ADCS_returnState ADCS_file_upload_packet(uint16_t packet_number, char *file_bytes);
+ADCS_returnState ADCS_file_upload_packet(uint16_t packet_number, uint8_t *file_bytes, int packet_size);
 ADCS_returnState ADCS_finalize_upload_block(uint8_t file_dest, uint32_t offset, uint16_t block_length);
 ADCS_returnState ADCS_reset_upload_block(void);
 ADCS_returnState ADCS_reset_file_list_read_pointer(void);
