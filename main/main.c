@@ -214,7 +214,7 @@ void iris_spi_test(void * pvParameters) {
     for(;;) {
 //        spi_write_read(1, &tx_data, rx_data);
 //        vTaskDelay(pdMS_TO_TICKS( 1000UL ));
-//        iris_take_pic();
+        iris_take_pic();
 //          iris_get_image_length(&image_length);
 //          iris_transfer_image(image_length);
 //        iris_get_image_count(&image_count);
