@@ -481,6 +481,13 @@ typedef struct {
     uint16_t crc16_checksum;
 } adcs_file_info;
 
+typedef struct __attribute__((packed)) {
+    uint8_t type;
+    uint8_t counter;
+    uint32_t size;
+    char file_name[REDCONF_NAME_MAX];
+} adcs_file_download_id;
+
 // General functions
 int16_t uint82int16(uint8_t b1, uint8_t b2);
 int32_t uint82int32(uint8_t *address);
@@ -494,9 +501,10 @@ ADCS_returnState adcs_telecommand(uint8_t *command, uint32_t length);
 ADCS_returnState adcs_telemetry(uint8_t TM_ID, uint8_t *reply, uint32_t length);
 
 // File management TC/TM sequences
-void ADCS_init_file_download_mutex(void);
+ADCS_returnState ADCS_init_file_download_mutex(void);
 ADCS_returnState ADCS_get_file_list(void);
-ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f);
+ADCS_returnState ADCS_download_file(uint8_t type, uint8_t counter, uint32_t size, char *save_as);
+void ADCS_download_file_task(void *pvParameters);
 
 // Common Telecommands
 ADCS_returnState ADCS_reset(void);
@@ -514,7 +522,6 @@ ADCS_returnState ADCS_finalize_upload_block(uint8_t file_dest, uint32_t offset, 
 ADCS_returnState ADCS_reset_upload_block(void);
 ADCS_returnState ADCS_reset_file_list_read_pointer(void);
 ADCS_returnState ADCS_initiate_download_burst(uint8_t msg_length, bool ignore_hole_map);
-ADCS_returnState ADCS_receive_download_burst(uint8_t *hole_map, int32_t file_des, uint16_t length_bytes);
 
 // Common Telemetry
 ADCS_returnState ADCS_get_node_identification(uint8_t *node_type, uint8_t *interface_ver, uint8_t *major_firm_ver,

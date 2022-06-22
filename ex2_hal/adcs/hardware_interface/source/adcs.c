@@ -19,6 +19,30 @@
 
 #include "adcs.h"
 
+ADCS_returnState HAL_ADCS_download_file_list_to_OBC(void) {
+#ifdef ADCS_IS_STUBBED
+    return IS_STUBBED_A;
+#else
+    return ADCS_get_file_list();
+#endif
+}
+
+ADCS_returnState HAL_ADCS_download_file_to_OBC(adcs_file_download_id *id) {
+#ifdef ADCS_IS_STUBBED
+    return IS_STUBBED_A;
+#else
+    // Spawn high-priority file download task
+    TaskHandle_t xHandle;
+    if (xTaskCreate(ADCS_download_file_task, "ADCS_download_file_task", ADCS_QUEUE_GET_TASK_SIZE, (void *)id,
+                    ADCS_QUEUE_GET_TASK_PRIO, &xHandle) == pdPASS) {
+        return ADCS_OK;
+    } else {
+        vPortFree(id);
+        return ADCS_TASK_FAIL;
+    }
+#endif
+}
+
 ADCS_returnState HAL_ADCS_reset() {
 #ifdef ADCS_IS_STUBBED
     return IS_STUBBED_A;
