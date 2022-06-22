@@ -41,6 +41,8 @@
 #define UART_TIMEOUT_MS pdMS_TO_TICKS(1000)
 #define FILE_DOWNLOAD_SEMPHR_TIMEOUT_MS pdMS_TO_TICKS(2000)
 #define ADCS_FILE_DOWNLOAD_QUEUE_TIMEOUT pdMS_TO_TICKS(500)
+#define UART_TIMEOUT_MS 500
+#define UART_PACKET_TIMEOUT_MS 50
 
 #define ADCS_TC_HEADER_SZ 4 // Does not include TC ID
 #define ADCS_TC_ANS_LEN 6
@@ -56,6 +58,7 @@ ADCS_returnState init_adcs_io();
 
 // sends telecommand over uart/i2c, and return acknowledgment
 ADCS_returnState send_uart_telecommand(uint8_t *command, uint32_t length);
+ADCS_returnState send_uart_telecommand_no_reply(uint8_t *command, uint32_t length);
 ADCS_returnState send_i2c_telecommand(uint8_t *command, uint32_t length);
 ADCS_returnState send_uart_telecommand_no_reply(uint8_t *command, uint32_t length);
 
