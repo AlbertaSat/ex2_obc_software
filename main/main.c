@@ -357,7 +357,7 @@ static inline SAT_returnState init_csp_interface() {
     sdr_uhf_conf_t uhf_conf = {    .mtu = SDR_UHF_MAX_MTU,
                                    .uhf_baudrate = SDR_UHF_9600_BAUD,
                                    .uart_baudrate = 115200,
-                                   .rx_callback = sdr_uhf_receive };
+                                   .rx_callback = csp_if_sdr_rx };
     error = csp_uhf_open_and_add_interface(&uhf_conf, gs_if_name, NULL);
     if (error != CSP_ERR_NONE) {
         return SATR_ERROR;
