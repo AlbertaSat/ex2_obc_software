@@ -29,8 +29,10 @@
  * @brief
  *   Initialize low-level spi driver settings
  **/
-void iris_init() {
+Iris_HAL_return iris_init() {
     iris_spi_init();
+
+    return IRIS_HAL_OK;
 }
 
 /**
