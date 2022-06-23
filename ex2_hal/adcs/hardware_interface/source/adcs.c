@@ -228,7 +228,6 @@ int HAL_ADCS_firmware_upload(uint8_t file_dest, char *filename) {
             for (int j = 1; j <= 8; j++) {
                 HAL_ADCS_get_hole_map(hole_map_check + (j - 1) * HOLE_MAP_SIZE, j);
             }
-            //-----------------------------testing code above -------------------------//
             // file upload packet
             uint8_t *firmware_buff = pvPortMalloc(FIRMWARE_BLOCK_SIZE);
             memset(firmware_buff, 0, FIRMWARE_BLOCK_SIZE);
@@ -274,9 +273,6 @@ int HAL_ADCS_firmware_upload(uint8_t file_dest, char *filename) {
                 return MALLOC_FAILED;
             }
             int hole_map_complete = 0;
-            //-----------------------------testing code below -------------------------//
-            uint8_t packet_array[20];
-            //-----------------------------testing code above -------------------------//
             while (hole_map_complete == 0) {
                 memset(hole_map, 0, hole_map_num * HOLE_MAP_SIZE);
                 hole_map_complete = 1;
