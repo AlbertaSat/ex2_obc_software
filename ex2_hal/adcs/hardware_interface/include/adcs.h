@@ -30,6 +30,7 @@
 #define RED_ERR -4
 #define UPLOAD_FAILED -5
 #define CRC16_MISMATCH -6
+
 #define FIRMWARE_BLOCK_SIZE 20000   // each block is 20kB
 #define PACKET_SIZE 20              // each packet is 20 bytes
 #define HOLE_MAP_SIZE 16            // each hole map is 16 bytes
