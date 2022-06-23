@@ -36,7 +36,7 @@
  *
  * TODO: Will need to change during stress testing
  */
-#define IRIS_WAIT_FOR_STATE_TRANSITION vTaskDelay(100)
+#define IRIS_WAIT_FOR_STATE_TRANSITION vTaskDelay(pdMS_TO_TICKS(100))
 
 typedef enum {
     // TODO: Add more meaningful return types

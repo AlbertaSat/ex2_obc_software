@@ -30,7 +30,7 @@ typedef enum {
 } IrisLowLevelReturn;
 
 #define DUMMY_BYTE 0xFF
-#define IRIS_WAIT_FOR_ACK vTaskDelay(20)
+#define IRIS_WAIT_FOR_ACK vTaskDelay(pdMS_TO_TICKS(20))
 
 void iris_spi_init();
 void iris_spi_send(uint16_t *tx_data, uint16_t data_length);
