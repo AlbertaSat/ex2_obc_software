@@ -27,6 +27,9 @@
 #define MAX_IMAGE_COUNT 1 // In bytes
 #define HOUSEKEEPING_SIZE 23 // In bytes
 
+// Iris timeout constants
+#define IRIS_WAIT_FOR_STATE_TRANSITION vTaskDelay(100)
+
 typedef enum {
     // TODO: Add more meaningful return types
     IRIS_HAL_OK = 0,

@@ -154,7 +154,7 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
                 } else {
                     controller_state = FINISH;
                 }
-                vTaskDelay(100);
+                IRIS_WAIT_FOR_STATE_TRANSITION;
                 break;
             }
             case GET_DATA: // Get image data in chunks/blocks
@@ -168,7 +168,7 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
 //                packet[1] = (num_transfer >> (8*0)) & 0xff;
 //                iris_send_data(packet, 2);
 
-                vTaskDelay(100);
+                IRIS_WAIT_FOR_STATE_TRANSITION;
                 for (uint32_t count_transfer = 0; count_transfer < num_transfer; count_transfer++) {
                     ret = iris_get_data(image_data_buffer, IMAGE_TRANSFER_SIZE);
                     // TODO: Do something with the received data (e.g transfer it to the SD card)
@@ -311,7 +311,7 @@ Iris_HAL_return iris_get_housekeeping(IRIS_Housekeeping *hk_data) {
                 } else {
                     controller_state = FINISH;
                 }
-                vTaskDelay(100);
+                IRIS_WAIT_FOR_STATE_TRANSITION;
                 break;
             }
             case GET_DATA:
@@ -343,7 +343,7 @@ Iris_HAL_return iris_get_housekeeping(IRIS_Housekeeping *hk_data) {
 
                 controller_state = FINISH;
 
-                vTaskDelay(100);
+                IRIS_WAIT_FOR_STATE_TRANSITION;
                 break;
             }
             case FINISH:

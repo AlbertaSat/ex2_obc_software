@@ -166,7 +166,7 @@ IrisLowLevelReturn iris_send_command(uint16_t command) {
      * can switch from running idle/background tasks to receiving
      * obc command and returning ACK
      */
-    vTaskDelay(20);
+    IRIS_WAIT_FOR_ACK;
     iris_spi_send(&tx_dummy, 1);
     iris_spi_get(&rx_data, 1);
     iris_spi_delay(10000);
