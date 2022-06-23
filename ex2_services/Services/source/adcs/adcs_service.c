@@ -13,7 +13,7 @@
  */
 /**
  * @file adcs_service.c
- * @author Quoc Trung Tran
+ * @author Quoc Trung Tran, Grace Yi
  * @date Jul 08, 2021
  */
 
@@ -113,7 +113,7 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
         packet_number = csp_ntoh16(packet_number);
 
         char file_bytes;
-        status = HAL_ADCS_file_upload_packet(packet_number, &file_bytes);
+        status = HAL_ADCS_file_upload_packet(packet_number, &file_bytes, PACKET_SIZE);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         memcpy(&packet->data[OUT_DATA_BYTE], &file_bytes, sizeof(file_bytes));
         set_packet_length(packet, sizeof(file_bytes) + sizeof(int8_t) + 1);
@@ -1511,6 +1511,16 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
         status = HAL_ADCS_download_file_to_OBC(id);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         set_packet_length(packet, sizeof(int8_t) + 1);
+        break; 
+    }
+    
+    case ADCS_UPLOAD_FIRMWARE: {
+        static char *ADCS_Firmware = "VOL0:/ACP7.8.bin";
+        uint8_t file_dest = packet->data[IN_DATA_BYTE];
+        status = HAL_ADCS_firmware_upload(file_dest, ADCS_Firmware);
+
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        set_packet_length(packet, sizeof(file_dest) + sizeof(int8_t) + 1);
         break;
     }
 
