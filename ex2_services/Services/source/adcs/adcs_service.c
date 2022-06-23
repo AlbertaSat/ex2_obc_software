@@ -1092,32 +1092,36 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
     }
 
     case ADCS_SET_LOG_CONFIG: {
-        uint8_t flags_arr[10];
-        memcpy(&flags_arr, &packet->data[IN_DATA_BYTE], 10);
         uint16_t period;
-        cnv8_16(&packet->data[IN_DATA_BYTE + 1], &period);
-        period = csp_ntoh16(period);
+        memcpy(&period, &packet->data[IN_DATA_BYTE], 2);
         uint8_t dest = packet->data[IN_DATA_BYTE + 2];
         uint8_t log = packet->data[IN_DATA_BYTE + 3];
+        char file_name[30];
+        memcpy(file_name, &packet->data[IN_DATA_BYTE + 4], 30);
 
-        status = HAL_ADCS_set_log_config(flags_arr, period, dest, log);
-
-        if (sizeof(flags_arr) + 1 > csp_buffer_data_size()) {
-            return_state = SATR_ERROR;
+        strncat(file_name, ".hex", 4);
+        int32_t iErr = red_chdir("VOL0:/adcs");
+        int32_t file1 = red_open(file_name, RED_O_RDONLY);
+        if(file1 == -1){
+            uint16_t error = red_errno;
+            sys_log(ERROR, "ADCS_SET_LOG_CONFIG file error %d\r\n", red_errno);
+            status = ADCS_FILE_DNE;
+        }else{
+            uint8_t flags_arr[80];
+            red_read(file1, flags_arr, 80);
+            status = HAL_ADCS_set_log_config(flags_arr, period, dest, log);
         }
-
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-        memcpy(&packet->data[OUT_DATA_BYTE], &flags_arr, sizeof(flags_arr));
-        set_packet_length(packet, sizeof(flags_arr) + sizeof(int8_t) + 1);
+        set_packet_length(packet, sizeof(int8_t) + 1);
 
         break;
     }
 
     case ADCS_GET_LOG_CONFIG: {
-        uint8_t flags_arr[10];
+        uint8_t flags_arr[80];
         uint16_t period;
         uint8_t dest;
-        uint8_t log = 0;
+        uint8_t log = packet->data[IN_DATA_BYTE];
         status = HAL_ADCS_get_log_config(flags_arr, &period, &dest, log);
         if (sizeof(flags_arr) + sizeof(period) + sizeof(dest) + sizeof(log) + 1 > csp_buffer_data_size()) {
             return_state = SATR_ERROR;
@@ -1125,9 +1129,9 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
 
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         memcpy(&packet->data[OUT_DATA_BYTE], &flags_arr, sizeof(flags_arr));
-        memcpy(&packet->data[OUT_DATA_BYTE + 1], &period, sizeof(period));
-        memcpy(&packet->data[OUT_DATA_BYTE + 3], &dest, sizeof(dest));
-        memcpy(&packet->data[OUT_DATA_BYTE + 4], &log, sizeof(log));
+        memcpy(&packet->data[OUT_DATA_BYTE + 80], &period, sizeof(period));
+        memcpy(&packet->data[OUT_DATA_BYTE + 82], &dest, sizeof(dest));
+        memcpy(&packet->data[OUT_DATA_BYTE + 83], &log, sizeof(log));
 
         set_packet_length(packet,
                           sizeof(flags_arr) + sizeof(period) + sizeof(dest) + sizeof(log) + sizeof(int8_t) + 1);

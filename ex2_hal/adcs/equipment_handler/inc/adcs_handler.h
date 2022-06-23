@@ -230,7 +230,7 @@ typedef struct {
     xyz16 rate_sensor_temp;
 } adcs_pwr_temp;
 
-typedef struct {
+typedef struct __attribute__((packed)) {
     double inclination;
     double ECC;   // eccentricity [deg]
     double RAAN;  // right-ascension of the ascending node
