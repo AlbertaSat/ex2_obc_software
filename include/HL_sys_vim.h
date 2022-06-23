@@ -102,7 +102,9 @@ extern void mibspi1LowLevelInterrupt(void);
 extern void can2HighLevelInterrupt(void);
 extern void mibspi3HighInterruptLevel(void);
 extern void mibspi3LowLevelInterrupt(void);
+extern void mibspi4HighLevelInterrupt(void);
 extern void mibspi5HighLevelInterrupt(void);
+extern void mibspi4LowLevelInterrupt(void);
 extern void mibspi5LowLevelInterrupt(void);
 extern void sci3HighLevelInterrupt(void);
 extern void i2cInterrupt(void);
@@ -325,12 +327,12 @@ typedef struct vim_config_reg
                                     |(uint32)((uint32)0U << 14U)\
                                     |(uint32)((uint32)0U << 15U)\
                                     |(uint32)((uint32)0U << 16U)\
-                                    |(uint32)((uint32)0U << 17U)\
+                                    |(uint32)((uint32)1U << 17U)\
                                     |(uint32)((uint32)0U << 18U)\
                                     |(uint32)((uint32)0U << 19U)\
                                     |(uint32)((uint32)0U << 20U)\
                                     |(uint32)((uint32)1U << 21U)\
-                                    |(uint32)((uint32)0U << 22U)\
+                                    |(uint32)((uint32)1U << 22U)\
                                     |(uint32)((uint32)0U << 23U)\
                                     |(uint32)((uint32)1U << 24U)\
                                     |(uint32)((uint32)0U << 25U)\
