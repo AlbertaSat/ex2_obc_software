@@ -65,7 +65,7 @@ void iris_spi_init() {
     /* NOTE: Using SPIREG3 for testing purpose, may be change once
      * final pinout is decided
      */
-    dataconfig.DFSEL = SPI_FMT_1;
+    dataconfig.DFSEL = SPI_FMT_0;
     dataconfig.CSNR = SPI_CS_1;
 
     gioSetDirection(hetPORT1, 0xFFFFFFFF);
