@@ -285,7 +285,7 @@ int HAL_ADCS_firmware_upload(uint8_t file_dest, char *filename) {
             // check CRC16 checksum for bit errors
             uint16_t ADCS_CRC16, OBC_CRC16;
             ADCS_CRC16 = OBC_CRC16 = 0;
-            OBC_CRC16 = CRC_Calc(firmware_buff, (uint32_t)FIRMWARE_BLOCK_SIZE);
+            OBC_CRC16 = CRC_Calc(filename);
             int CRC16_state = ADCS_get_upload_crc16_checksum(&ADCS_CRC16);
             if (CRC16_state != ADCS_OK) {
                 sys_log(ERROR, "ADCS_get_upload_crc16_checksum state returned %d", CRC16_state);
@@ -415,7 +415,7 @@ int HAL_ADCS_firmware_upload(uint8_t file_dest, char *filename) {
         // check CRC16 checksum for bit errors
         uint16_t ADCS_CRC16, OBC_CRC16;
         ADCS_CRC16 = OBC_CRC16 = 0;
-        OBC_CRC16 = CRC_Calc(firmware_buff, (uint32_t)remaining_block_size);
+        OBC_CRC16 = CRC_Calc(filename);
         int CRC16_state = ADCS_get_upload_crc16_checksum(&ADCS_CRC16);
         if (CRC16_state != ADCS_OK) {
             sys_log(ERROR, "ADCS_get_upload_crc16_checksum state returned %d", CRC16_state);
@@ -480,18 +480,61 @@ int HAL_ADCS_firmware_upload(uint8_t file_dest, char *filename) {
 #endif
 }
 
-uint16_t CRC_Calc(uint8_t *start, uint32_t len) {
+uint16_t CRC_Calc(char* filename) {
+    // initialize variables
+    uint32_t fout = red_open(filename, RED_O_RDONLY);
+    REDSTAT firmware_stat;
+    uint32_t f_stat = red_fstat(fout, &firmware_stat);
+    int buff_len = 5000; // 5kB of the file will be used to calculate each additive CRC16 checksum
+    int read_len = 5100; // 5.1kB will be read from file to provide 100 bytes of extra room for bitwise shifts
+    int remaining_length = buff_len + firmware_stat.st_size % buff_len;
+    int num_blocks = firmware_stat.st_size/buff_len;
+    uint8_t file_buff = pvPortMalloc(read_len);
+    memset(file_buff, 0, read_len);
     uint16_t crc = 0;
-    uint8_t *data;
-    uint8_t *end = start + len;
 
-    for (data = start; data < end; data++) {
+    // initialize start/end
+    uint32_t f_read;
+    uint8_t *data, end;
+    data = file_buff;
+    end = file_buff + buff_len;
+
+    for (i = 0; i < num_blocks - 1; i++) {
+
+        // initialize/shift to the next additive CRC16 calculation
+        memset(file_buff, 0, read_len);
+        red_lseek(fout, i * buff_len, RED_SEEK_SET);
+        f_read = red_read(fout, file_buff, read_len);
+        data = file_buff;
+        end = file_buff + buff_len;
+
+        for (data; data < end; data++) {
+            crc = (crc >> 8) | (crc << 8);
+            crc ^= *data;
+            crc ^= (crc & 0xff) >> 4;
+            crc ^= crc << 12;
+            crc ^= (crc & 0xff) << 5;
+        }
+    }
+
+    // calculate the CRC16 of the last block and remaining bytes together
+    // shift to the next additive CRC16 calculation
+    free(file_buff);
+    uint8_t file_buff = pvPortMalloc(remaining_length);
+    memset(file_buff, 0, remaining_length);
+    red_lseek(fout, (num_blocks - 1) * buff_len, RED_SEEK_SET);
+    f_read = red_read(fout, file_buff, remaining_length);
+    data = file_buff;
+    end = file_buff + remaining_length;
+
+    for (data; data < end; data++) {
         crc = (crc >> 8) | (crc << 8);
         crc ^= *data;
         crc ^= (crc & 0xff) >> 4;
         crc ^= crc << 12;
         crc ^= (crc & 0xff) << 5;
     }
+
     return crc;
 }
 
