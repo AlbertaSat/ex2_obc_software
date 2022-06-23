@@ -75,7 +75,7 @@ SAT_returnState vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
             fout = red_open(fileName1, RED_O_RDWR); // open or create file to write binary
             if (fout < 0) {
                 sys_log(ERROR, "vSchedulerHandler failed on error %d from red_open() for file: '%s'", (int)red_errno, fileName1);
-                free(cmds);
+                vPortFree(cmds);
                 xSemaphoreGive(scheduleSemaphore);
                 vTaskDelete(0);
             }
@@ -85,7 +85,7 @@ SAT_returnState vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
             if (f_read < 0) {
                 sys_log(ERROR, "vSchedulerHandler failed on error %d from red_read() for file: '%s'", (int)red_errno, fileName1);
                 red_close(fout);
-                free(cmds);
+                vPortFree(cmds);
                 xSemaphoreGive(scheduleSemaphore);
                 vTaskDelete(0);
             }
@@ -116,7 +116,7 @@ SAT_returnState vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
         time_t current_time;
         if (RTCMK_GetUnix(&current_time) < 0) {
             sys_log(ERROR, "unable to get current time");
-            free(cmds);
+            vPortFree(cmds);
             csp_buffer_free(packet);
             vTaskDelete(0);
         }
@@ -143,8 +143,8 @@ SAT_returnState vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
             sys_log(INFO, "vTaskDelayUntil was aborted");
             // set Abort delay flag to 0
             delay_aborted = 0;
-            free(cmds);
-            free(args);
+            vPortFree(cmds);
+            vPortFree(args);
             // if delete_task flag is 1, free all pvPortMalloc and gracefully self-destruct
             if (delete_task == 1) {
                 delete_task = 0;
@@ -254,7 +254,7 @@ SAT_returnState vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
         else {
             sys_log(NOTICE, "cmd not executed due to invalid time, skipping to the next cmd");
         }
-        free(args);
+        vPortFree(args);
 
         /*---------------------------------prepare the scheduler for the next command--------------------------------*/
         // open file from SD card
@@ -263,7 +263,7 @@ SAT_returnState vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
             if (fout < 0) {
                 sys_log(ERROR, "vSchedulerHandler failed on error %d from red_open() for file: '%s'", (int)red_errno, fileName1);
                 xSemaphoreGive(scheduleSemaphore);
-                free(cmds);
+                vPortFree(cmds);
                 vTaskDelete(0);
             }
 
@@ -275,7 +275,7 @@ SAT_returnState vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
                     sys_log(ERROR, "vSchedulerHandler sorting failed for file: '%s'", fileName1);
                     red_close(fout);
                     xSemaphoreGive(scheduleSemaphore);
-                    free(cmds);
+                    vPortFree(cmds);
                     vTaskDelete(0);
                 }
                 // reset the file offset to the start of file
@@ -286,7 +286,7 @@ SAT_returnState vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
                     sys_log(ERROR, "failed to write to file: '%s' in vSchedulerHandler for file: '%s'", (int)red_errno, fileName1);
                     red_close(fout);
                     xSemaphoreGive(scheduleSemaphore);
-                    free(cmds);
+                    vPortFree(cmds);
                     vTaskDelete(0);
                 }
                 // close file
@@ -310,7 +310,7 @@ SAT_returnState vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
                         sys_log(ERROR, "vSchedulerHandler failed on error %d from red_write() for file: '%s'", (int)red_errno, fileName1);
                         red_close(fout);
                         xSemaphoreGive(scheduleSemaphore);
-                        free(cmds);
+                        vPortFree(cmds);
                         vTaskDelete(0);
                     }
                     // truncate file to new size
@@ -327,7 +327,7 @@ SAT_returnState vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
                         sys_log(ERROR, "vSchedulerHandler failed on error %d from red_fstat() for file: '%s'", (int)red_errno, fileName1);
                         red_close(fout);
                         xSemaphoreGive(scheduleSemaphore);
-                        free(cmds);
+                        vPortFree(cmds);
                         vTaskDelete(0);
                     }
                     // close file
@@ -335,7 +335,7 @@ SAT_returnState vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
                     if (f_close < 0) {
                         sys_log(ERROR, "vSchedulerHandler failed on error %d from red_close() for file: '%s'", (int)red_errno, fileName1);
                         xSemaphoreGive(scheduleSemaphore);
-                        free(cmds);
+                        vPortFree(cmds);
                         vTaskDelete(0);
                     }
                 }
@@ -354,7 +354,7 @@ SAT_returnState vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
                     if (f_delete < 0) {
                         sys_log(ERROR, "vSchedulerHandler failed on error %d from red_unlink() for file: '%s'", (int)red_errno, fileName1);
                         xSemaphoreGive(scheduleSemaphore);
-                        free(cmds);
+                        vPortFree(cmds);
                         vTaskDelete(0);
                     }
                 }
@@ -362,7 +362,7 @@ SAT_returnState vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
             xSemaphoreGive(scheduleSemaphore);
         }
         // free up the stack
-        free(cmds);
+        vPortFree(cmds);
     }
     // self destruct when there are no more commands left
     vTaskDelete(0);
