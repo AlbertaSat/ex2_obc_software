@@ -163,11 +163,6 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
                 memset(image_data_buffer, 0, IMAGE_TRANSFER_SIZE);
                 num_transfer = (uint16_t) ((image_length + (IMAGE_TRANSFER_SIZE - 1)) / IMAGE_TRANSFER_SIZE); // TODO: Ceiling division not working 100%
 
-//                uint16_t packet[2];
-//                packet[0] = (num_transfer >> (8*1)) & 0xff;
-//                packet[1] = (num_transfer >> (8*0)) & 0xff;
-//                iris_send_data(packet, 2);
-
                 IRIS_WAIT_FOR_STATE_TRANSITION;
                 for (uint32_t count_transfer = 0; count_transfer < num_transfer; count_transfer++) {
                     ret = iris_get_data(image_data_buffer, IMAGE_TRANSFER_SIZE);

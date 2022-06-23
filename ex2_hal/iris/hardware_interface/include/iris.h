@@ -28,6 +28,14 @@
 #define HOUSEKEEPING_SIZE 23 // In bytes
 
 // Iris timeout constants
+/* We need to specify a delay between spi state transitions on OBC
+ * to allow Iris to update its state machine and/or initialize
+ * its spi for data transmission and reception. 100 ms is a big value,
+ * and iris will not need that long to get ready. However for testing
+ * purposes this is sufficient.
+ *
+ * TODO: Will need to change during stress testing
+ */
 #define IRIS_WAIT_FOR_STATE_TRANSITION vTaskDelay(100)
 
 typedef enum {
