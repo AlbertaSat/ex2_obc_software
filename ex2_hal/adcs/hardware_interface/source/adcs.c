@@ -544,6 +544,7 @@ uint16_t CRC_Calc(char* filename) {
         crc ^= crc << 12;
         crc ^= (crc & 0xff) << 5;
     }
+
     return crc;
 }
 
