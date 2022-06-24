@@ -12,9 +12,9 @@
  * GNU General Public License for more details.
  */
 /**
- * @file ft_2u_payload_service.h
- * @author Daniel Sacro
- * @date
+ * @file ns_service.h
+ * @author Daniel Sacro, Thomas Ganley
+ * @date 2022-06-24
  */
 
 #ifndef FT_2U_PAYLOAD_SERVICE_H
@@ -27,6 +27,8 @@
 #include <csp/csp_endian.h>
 #include <main/system.h>
 #include <ns_file_transfer.h>
+#include <stdio.h>
+#include <string.h>
 
 typedef enum {
     FT_2U_PAYLOAD_DOWNLINK = 0,
@@ -34,7 +36,8 @@ typedef enum {
     FT_2U_PAYLOAD_STOP_FT,
     FT_2U_PAYLOAD_SEND_BYTES, // Prompts OBC to send N file bytes
     FT_2U_PAYLOAD_PROCESS_BYTES, // Prompts OBC to process N file bytes
-} FT_2U_payload_subtype;
+    NS_UPLOAD_ARTWORK
+} ns_payload_service_subtype;
 
 void ns_payload_service(void *param);
 SAT_returnState ns_payload_service_app(csp_packet_t *pkt);

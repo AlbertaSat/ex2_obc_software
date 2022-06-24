@@ -12,23 +12,12 @@
  * GNU General Public License for more details.
  */
 /**
- * @file ft_2u_payload_service.c
- * @author Daniel Sacro
- * @date
+ * @file ns_service.c
+ * @author Daniel Sacro, Thomas Ganley
+ * @date 2022-06-24
  */
-#include <FreeRTOS.h>
-#include <csp/csp.h>
-#include <csp/csp_endian.h>
-#include <main/system.h>
-#include <northern_spirit/ns_service.h>
-#include <ns_file_transfer.h>
-
-#include "services.h"
+#include "northern_spirit/ns_service.h"
 #include "task_manager/task_manager.h"
-#include "util/service_utilities.h"
-
-#include <stdio.h>
-#include <string.h>
 
 static uint32_t svc_wdt_counter = 0;
 static uint32_t get_svc_wdt_counter() { return svc_wdt_counter; }
@@ -115,7 +104,7 @@ SAT_returnState start_ns_payload_service(void) {
  *      Success or failure
  */
 SAT_returnState ns_payload_service_app(csp_packet_t *packet) {
-    uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
+    ns_payload_service_subtype ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
     int8_t status;
     SAT_returnState return_state = SATR_OK; // OK until an error is encountered
     char * filename;
@@ -188,6 +177,14 @@ SAT_returnState ns_payload_service_app(csp_packet_t *packet) {
         // Return success report (saying ready to receive or abort FT)
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         set_packet_length(packet, sizeof(int8_t) + 1);
+        break;
+    }
+
+    case NS_UPLOAD_ARTWORK: {
+        char filename[30];
+        memcpy(filename, &packet->data[IN_DATA_BYTE], 30);
+        status = HAL_NS_upload_artwork(filename);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         break;
     }
 
