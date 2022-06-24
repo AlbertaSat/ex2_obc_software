@@ -64,7 +64,7 @@ SAT_returnState start_service_server(void) {
         start_logger_service() != SATR_OK ||
         start_dfgm_service() != SATR_OK ||
         start_adcs_service() != SATR_OK ||
-        start_FT_2U_payload_service() != SATR_OK ||
+        start_ns_payload_service() != SATR_OK ||
         start_FTP_service() != SATR_OK); {
         return SATR_ERROR;
     }

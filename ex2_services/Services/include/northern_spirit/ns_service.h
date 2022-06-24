@@ -36,8 +36,9 @@ typedef enum {
     FT_2U_PAYLOAD_PROCESS_BYTES, // Prompts OBC to process N file bytes
 } FT_2U_payload_subtype;
 
-SAT_returnState FT_2U_payload_service_app(csp_packet_t *pkt);
+void ns_payload_service(void *param);
+SAT_returnState ns_payload_service_app(csp_packet_t *pkt);
 
-SAT_returnState start_FT_2U_payload_service(void);
+SAT_returnState start_ns_payload_service(void);
 
 #endif /* FT_2U_PAYLOAD_SERVICE_H */

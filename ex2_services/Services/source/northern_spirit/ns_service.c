@@ -30,8 +30,6 @@
 #include <stdio.h>
 #include <string.h>
 
-SAT_returnState FT_2U_payload_service_app(csp_packet_t *packet);
-
 static uint32_t svc_wdt_counter = 0;
 static uint32_t get_svc_wdt_counter() { return svc_wdt_counter; }
 
@@ -44,11 +42,11 @@ static uint32_t get_svc_wdt_counter() { return svc_wdt_counter; }
  * @param void* param
  * @return None
  */
-void FT_2U_payload_service(void *param) {
+void ns_payload_service(void *param) {
     // socket initialization
     csp_socket_t *sock;
     sock = csp_socket(CSP_SO_RDPREQ);
-    csp_bind(sock, TC_2U_PAYLOAD_FT_SERVICE);
+    csp_bind(sock, TC_NORTHERN_SPIRIT_SERVICE);
     csp_listen(sock, SERVICE_BACKLOG_LEN);
 
     svc_wdt_counter++;
@@ -66,7 +64,7 @@ void FT_2U_payload_service(void *param) {
 
         // read and process packets
         while ((packet = csp_read(conn, 50)) != NULL) {
-            if (FT_2U_payload_service_app(packet) != SATR_OK) {
+            if (ns_payload_service_app(packet) != SATR_OK) {
                 // something went wrong in the subservice
                 csp_buffer_free(packet);
             } else {
@@ -82,26 +80,26 @@ void FT_2U_payload_service(void *param) {
 
 /**
  * @brief
- *      Starts the 2U Payload File Transferring (FT) server task
+ *      Starts the northern spirit payload server task
  * @details
  *      Starts the FreeRTOS task responsible for accepting incoming
- *      2U Payload FT service requests
+ *      northern spirit service requests
  * @param None
  * @return SAT_returnState
  *      Success report
  */
-SAT_returnState start_FT_2U_payload_service(void) {
+SAT_returnState start_ns_payload_service(void) {
     TaskHandle_t svc_tsk;
     taskFunctions svc_funcs = {0};
     svc_funcs.getCounterFunction = get_svc_wdt_counter;
 
-    if (xTaskCreate((TaskFunction_t)FT_2U_payload_service, "FT_2U_payload_service", 1024, NULL,
+    if (xTaskCreate((TaskFunction_t)ns_payload_service, "ns_payload_service", 1024, NULL,
                     NORMAL_SERVICE_PRIO, &svc_tsk) != pdPASS) {
-        ex2_log("FAILED TO CREATE TASK start_2U_payload_FT_service\n");
+        sys_log(ERROR, "FAILED TO CREATE TASK ns_payload_service\n");
         return SATR_ERROR;
     }
     ex2_register(svc_tsk, svc_funcs);
-    ex2_log("2U Payload FT service started\n");
+    sys_log(INFO,"ns payload service started\n");
     return SATR_OK;
 }
 
@@ -116,7 +114,7 @@ SAT_returnState start_FT_2U_payload_service(void) {
  * @return SAT_returnState
  *      Success or failure
  */
-SAT_returnState FT_2U_payload_service_app(csp_packet_t *packet) {
+SAT_returnState ns_payload_service_app(csp_packet_t *packet) {
     uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
     int8_t status;
     SAT_returnState return_state = SATR_OK; // OK until an error is encountered
