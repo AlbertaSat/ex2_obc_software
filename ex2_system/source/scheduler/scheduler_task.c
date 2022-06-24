@@ -107,8 +107,10 @@ SAT_returnState vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
         if (args == NULL) {
             sys_log(NOTICE, "pvPortMalloc for args failed in vSchedulerHandler, out of memory");
         }
-        memcpy(args, &(cmds->data[IN_DATA_BYTE]), cmds->length - 1);
-        args[cmds->length] = '\0';
+        else {
+            memcpy(args, &(cmds->data[IN_DATA_BYTE]), cmds->length - 1);
+            args[cmds->length] = '\0';
+        }
         // char args_buffer[MAX_CMD_LENGTH];
         // int buff_size = MAX_CMD_LENGTH;
         // int args_return = snprintf(args_buffer, buff_size, "cmd argument is %d");
@@ -144,7 +146,9 @@ SAT_returnState vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
             // set Abort delay flag to 0
             delay_aborted = 0;
             vPortFree(cmds);
-            vPortFree(args);
+            if (args != NULL) {
+                vPortFree(args);
+            }
             // if delete_task flag is 1, free all pvPortMalloc and gracefully self-destruct
             if (delete_task == 1) {
                 delete_task = 0;
@@ -207,8 +211,10 @@ SAT_returnState vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
             if (args == NULL) {
                 sys_log(NOTICE, "pvPortMalloc for args failed in vSchedulerHandler, out of memory");
             }
-            memcpy(args, &(cmds->data[IN_DATA_BYTE]), cmds->length - 1);
-            args[cmds->length] = '\0';
+            else {
+                memcpy(args, &(cmds->data[IN_DATA_BYTE]), cmds->length - 1);
+                args[cmds->length] = '\0';
+            }
             // get current unix time
             RTCMK_GetUnix(&current_time);
             // calculate delay until the next command
@@ -249,12 +255,14 @@ SAT_returnState vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
             /*------------------------------------keep a log of executed commands------------------------------------*/
             // store only the useful information into history in ex2_log, discard things like CSP id and padding
             // the max length of each log entry is defined with STRING_MAX_LEN in logger.h
-            sys_log(INFO, "cmd executed: unix_time %d, milliseconds %d, frequency %d , dst %d, dport %d, subservice %d, data '%s'", cmds->unix_time, cmds->milliseconds, cmds->frequency, cmds->dst, cmds->dport, args);
+            if (args != NULL) {
+                sys_log(INFO, "cmd executed: unix_time %d, milliseconds %d, frequency %d , dst %d, dport %d, subservice %d, data '%s'", cmds->unix_time, cmds->milliseconds, cmds->frequency, cmds->dst, cmds->dport, args);
+                vPortFree(args);
+            }
         } 
         else {
             sys_log(NOTICE, "cmd not executed due to invalid time, skipping to the next cmd");
         }
-        vPortFree(args);
 
         /*---------------------------------prepare the scheduler for the next command--------------------------------*/
         // open file from SD card
