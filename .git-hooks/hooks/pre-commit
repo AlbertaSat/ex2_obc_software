@@ -21,12 +21,18 @@ case "${1}" in
     ;;
   * )
     for file in $(git diff --cached --name-only); do
-      if [[ $(dirname "$file") != "source" && $(dirname "$file") != "include" ]]; then
+      if [[ $(dirname "$file") != "source" && 
+        $(dirname "$file") != "include" && 
+        $(dirname "$file") != "FreeRTOS-Plus-CLI" &&
+        $(dirname "$file") != reliance_edge/* &&
+        $(dirname "$file") != "F021_API" ]]; then
+
         if [[ $file == *.c || $file == *.h || $file == *.cpp || $file == *.hpp ]]; then
           echo "Formatting: $file"
           clang-format -i ${STYLEARG} ${file}
           git add ${file}
         fi
+        
       fi
     done
     ;;
