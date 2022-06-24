@@ -56,7 +56,7 @@ NS_return NS_capture_image(void){
 
     // Receive final ack
     uint8_t final_ack[NS_STANDARD_ANS_LEN];
-    return_val = NS_expectResponse(NS_STANDARD_ANS_LEN, final_ack);
+    return_val = NS_expectResponse(final_ack, NS_STANDARD_ANS_LEN);
     if(return_val != NS_OK){
         xSemaphoreGive(ns_command_mutex);
         return return_val;
@@ -129,7 +129,7 @@ NS_return NS_get_telemetry(uint8_t *telemetry){
 
     // Receive telemetry data
     char response_data[NS_ENCODED_TELEMETRY_DATA_LEN + NS_STANDARD_ANS_LEN];
-    return_val = NS_expectResponse(NS_ENCODED_TELEMETRY_DATA_LEN + NS_STANDARD_ANS_LEN, (uint8_t *)response_data);
+    return_val = NS_expectResponse((uint8_t *)response_data, NS_ENCODED_TELEMETRY_DATA_LEN + NS_STANDARD_ANS_LEN);
 
     if(return_val != NS_OK){
         xSemaphoreGive(ns_command_mutex);

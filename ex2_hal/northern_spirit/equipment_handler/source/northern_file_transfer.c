@@ -25,7 +25,6 @@
 #include <redfs.h>
 #include <redfse.h>
 #include <redposix.h>
-#include <redtests.h>
 #include <redvolume.h>
 
 static int32_t fileToSend;
