@@ -1344,6 +1344,22 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
         break;
     }
 
+    case ADCS_DOWNLOAD_FILE_LIST_TO_OBC: {
+        status = HAL_ADCS_download_file_list_to_OBC();
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        set_packet_length(packet, sizeof(int8_t) + 1);
+        break;
+    }
+
+    case ADCS_DOWNLOAD_FILE_TO_OBC: {
+        adcs_file_download_id *id = (adcs_file_download_id *)pvPortMalloc(sizeof(adcs_file_download_id));
+        memcpy(id, &packet->data[IN_DATA_BYTE], sizeof(adcs_file_download_id));
+        status = HAL_ADCS_download_file_to_OBC(id);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        set_packet_length(packet, sizeof(int8_t) + 1);
+        break;
+    }
+
     default:
         break;
     }
@@ -1362,7 +1378,7 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
  */
 void adcs_service(void *param) {
     // create socket
-    csp_socket_t *sock = csp_socket(CSP_SO_NONE);
+    csp_socket_t *sock = csp_socket(CSP_SO_HMACREQ);
 
     // bind the adcs service to socket
     csp_bind(sock, TC_ADCS_SERVICE);

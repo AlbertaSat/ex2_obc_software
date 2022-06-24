@@ -22,6 +22,10 @@
 
 #include "adcs_handler.h"
 
+#define ADCS_DOWNLOAD_QUEUE_SIZE
+#define ADCS_QUEUE_GET_TASK_SIZE (configMINIMAL_STACK_SIZE + 256)
+#define ADCS_QUEUE_GET_TASK_PRIO (configMAX_PRIORITIES - 1)
+
 typedef struct __attribute__((packed)) {
     // xyz Estimated_Angular_Rate;
     float Estimated_Angular_Rate_X;
@@ -226,6 +230,10 @@ typedef struct __attribute__((packed)) {
     uint16_t period;
     uint8_t dest;
 } ADCS_log_config;
+
+// File Download Function
+ADCS_returnState HAL_ADCS_download_file_list_to_OBC(void);
+ADCS_returnState HAL_ADCS_download_file_to_OBC(adcs_file_download_id *id);
 
 // Common Telecommands
 ADCS_returnState HAL_ADCS_reset();

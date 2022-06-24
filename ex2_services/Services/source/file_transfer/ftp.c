@@ -29,7 +29,7 @@
 #include "util/service_utilities.h"
 #include <string.h>
 
-#define FTP_STACK_SIZE 312
+#define FTP_STACK_SIZE 500
 
 typedef enum {
     GET_REQUEST = 0,
@@ -129,7 +129,7 @@ SAT_returnState FTP_app(csp_packet_t *packet, csp_conn_t *conn);
 void FTP_service(void *param) {
     // socket initialization
     csp_socket_t *sock;
-    sock = csp_socket(CSP_SO_NONE);
+    sock = csp_socket(CSP_SO_HMACREQ);
     csp_bind(sock, TC_FTP_COMMAND_SERVICE);
     csp_listen(sock, SERVICE_BACKLOG_LEN);
     svc_wdt_counter++;

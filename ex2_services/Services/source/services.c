@@ -33,6 +33,7 @@
 #include "dfgm/dfgm_service.h"
 #include "scheduler/scheduler.h"
 #include "file_transfer/ftp.h"
+#include "adcs/adcs_service.h"
 
 #include "printf.h"
 
@@ -60,7 +61,8 @@ SAT_returnState start_service_server(void) {
         start_housekeeping_service() != SATR_OK ||
         start_general_service() != SATR_OK ||
         start_logger_service() != SATR_OK ||
-        start_dfgm_service() != SATR_OK  ||
+        start_dfgm_service() != SATR_OK ||
+        start_adcs_service() != SATR_OK ||
         start_FTP_service() != SATR_OK); {
         return SATR_ERROR;
     }
@@ -80,7 +82,7 @@ void csp_server(void *parameters) {
     csp_socket_t *sock;
 
     /* Create socket and listen for incoming connections */
-    sock = csp_socket(CSP_SO_NONE);
+    sock = csp_socket(CSP_SO_HMACREQ);
     //  csp_bind(sock, CSP_CMP);
     csp_bind(sock, CSP_PING);
     //  csp_bind(sock, CSP_PS);

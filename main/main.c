@@ -67,6 +67,9 @@
 #include "test_sdr.h"
 #include <csp/interfaces/csp_if_sdr.h>
 #include "printf.h"
+#include "csp/crypto/csp_hmac.h"
+#include "crypto.h"
+#include "csp_debug_wrapper.h"
 
 //#define CSP_USE_SDR
 #define CSP_USE_KISS
@@ -104,7 +107,7 @@ void ex2_init(void *pvParameters) {
     /* LEOP */
 
 #ifdef EXECUTE_LEOP
-    if (leop_init() != true) {
+    if (execute_leop() != true) {
         // TODO: Do what if leop fails?
     }
 #endif
@@ -160,6 +163,12 @@ void ex2_init(void *pvParameters) {
 
 #ifndef DFGM_IS_STUBBED
     DFGM_init();
+#endif
+
+#ifdef IS_EXALTA2
+#ifndef PAYLOAD_IS_STUBBED
+    // PLACEHOLDER: iris hardware init
+#endif
 #endif
 
     /* Software Initialization */
@@ -261,6 +270,7 @@ static void init_filesystem() {
  * Initialize CSP network
  */
 static void init_csp() {
+    csp_debug_hook_set(csp_wrap_debug);
     /* Init CSP with address and default settings */
     csp_conf_t csp_conf;
     csp_conf.address = 1;
@@ -287,6 +297,10 @@ static void init_csp() {
     if (init_csp_interface() != SATR_OK) {
         exit(SATR_ERROR);
     }
+    char *test_key;
+    int key_len;
+    get_crypto_key(HMAC_KEY, &test_key, &key_len);
+    csp_hmac_set_key(test_key, key_len);
     return;
 }
 

@@ -56,7 +56,7 @@ static uint32_t get_svc_wdt_counter() { return svc_wdt_counter; }
  */
 void communication_service(void *param) {
     csp_socket_t *sock;
-    sock = csp_socket(CSP_SO_NONE);
+    sock = csp_socket(CSP_SO_HMACREQ);
     csp_bind(sock, TC_COMMUNICATION_SERVICE);
     csp_listen(sock, SERVICE_BACKLOG_LEN);
 

@@ -1,6 +1,5 @@
 name: tag-on-pr-close
 on:
-  pull_request:
   push:
     branches:
       - master
@@ -10,5 +9,5 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: tag the default repository
-        run: ./.github/scripts/tag.sh "$GITHUB_ACTOR.$GITHUB_SHA"
+        run: ./.github/scripts/tag.sh "$GITHUB_ACTOR" "$GITHUB_SHA"
         shell: bash

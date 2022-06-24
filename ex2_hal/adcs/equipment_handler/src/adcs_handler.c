@@ -35,8 +35,7 @@
 
 static SemaphoreHandle_t adcs_file_download_mutex;
 
-adcs_file_info *adcs_file_list[255] = {NULL};
-uint8_t adcs_file_list_length = 0;
+static ADCS_returnState ADCS_receive_download_burst(uint8_t *hole_map, int32_t file_des, uint16_t length_bytes);
 
 /*************************** General functions ***************************/
 /**
@@ -176,145 +175,253 @@ void get_xyz16(xyz16 *measurement, uint8_t *address) {
  * 		formatted value = rawval * coef;
  */
 void get_3x3(float *matrix, uint8_t *address, float coef) {
-    for (int i = 0; i < 3; i++) {
-        matrix[4 * i] = coef * uint82int16(*(address + 2 * i), *(address + 2 * i + 1));
-    }
-    for (int i = 0; i < 3; i++) {
-        matrix[1 + i] = coef * uint82int16(*(address + 2 * (i + 3)), *(address + 2 * (i + 1) + 1));
-        matrix[5 + i] = coef * uint82int16(*(address + 2 * (i + 6)), *(address + 2 * (i + 5) + 1));
-    }
+
+    *matrix = coef * uint82int16(*(address), *(address + 1));
+    *(matrix + 1) = coef * uint82int16(*(address + 2), *(address + 3));
+    *(matrix + 2) = coef * uint82int16(*(address + 4), *(address + 5));
+    *(matrix + 3) = coef * uint82int16(*(address + 6), *(address + 7));
+    *(matrix + 4) = coef * uint82int16(*(address + 8), *(address + 9));
+    *(matrix + 5) = coef * uint82int16(*(address + 10), *(address + 11));
+    *(matrix + 6) = coef * uint82int16(*(address + 12), *(address + 13));
+    *(matrix + 7) = coef * uint82int16(*(address + 14), *(address + 15));
+    *(matrix + 8) = coef * uint82int16(*(address + 16), *(address + 17));
 }
 
 /*************************** File Management TC/TM Sequences ***************************/
-void ADCS_init_file_download_mutex() { adcs_file_download_mutex = xSemaphoreCreateMutex(); }
 
+/**
+ * @brief
+ *      Initialize file download mutex
+ * @return
+ *      Result of mutex creation
+ */
+ADCS_returnState ADCS_init_file_download_mutex() {
+    adcs_file_download_mutex = xSemaphoreCreateMutex();
+
+    if (adcs_file_download_mutex == NULL) {
+        return ADCS_DOWNLOAD_MUTEX_FAIL;
+    }
+    return ADCS_OK;
+}
+
+/**
+ * @brief
+ *      Save details about all files on the ADCS into a file.
+ * @detail
+ *      Product is human readable.
+ * @param return
+ *      Success of file creation
+ */
 ADCS_returnState ADCS_get_file_list() {
-    // TODO: Unfinished and untested function
     ADCS_returnState ret;
 
-    // Clear the file list
-    uint8_t index = adcs_file_list_length;
-    while (index--) {
-        vPortFree(adcs_file_list[index]);
-    }
-
-    // Fill the file list
+    // Reset read pointer on the ADCS
     ret = ADCS_reset_file_list_read_pointer();
     if (ret != ADCS_OK) {
         sys_log(WARN, "Bad return at file list read pointer\n");
         return ret;
     }
+
+    // Change file system directory to adcs
+    int32_t iErr = red_chdir("VOL0:/adcs");
+    if (iErr == -1) {
+        // Directory does not exist. Create it
+        iErr = red_mkdir("VOL0:/adcs");
+
+        if (iErr == -1) {
+            sys_log(ERROR, "Unexpected error from red_mkdir()\r\n");
+            return ADCS_FILESYSTEM_FAIL;
+        }
+
+        iErr = red_chdir("VOL0:/adcs");
+        if (iErr == -1) {
+            sys_log(ERROR, "Unexpected error from red_chdir()\r\n");
+            return ADCS_FILESYSTEM_FAIL;
+        }
+    }
+
+    const char file_name[] = "adcs_file_list.txt";
+
+    // Delete file if it exists already
+    red_unlink(file_name);
+
+    int32_t file1 = red_open(file_name, RED_O_RDWR | RED_O_CREAT);
+    if (file1 == -1) {
+        sys_log(WARN, "Unexpected error from red_open()\r\n");
+        return ADCS_FILE_FAIL;
+    }
+
     adcs_file_info info;
     while (true) {
 
-        while (info.updating == true) {
+        do {
             // Request file info until busy updating flag is not set
             ret = ADCS_get_file_info(&info);
             if (ret != ADCS_OK) {
                 sys_log(NOTICE, "Bad return at get file info");
+                red_close(file1);
                 return ret;
             }
-            vTaskDelay(ONE_SECOND);
-        }
+        } while (info.updating == true);
 
         if ((info.counter == 0) && (info.size == 0) && (info.time == 0) && (info.crc16_checksum == 0)) {
             // No more files on the ADCS
             break;
         }
 
-        adcs_file_list[index] = (adcs_file_info *)pvPortMalloc(sizeof(adcs_file_info));
-        if (adcs_file_list[index] == NULL) {
-            adcs_file_list_length = index - 1;
-            return ADCS_MALLOC_FAILED;
-        }
-
-        adcs_file_list[index]->type = info.type;
-        adcs_file_list[index]->counter = info.counter;
-        adcs_file_list[index]->updating = info.updating;
-        adcs_file_list[index]->size = info.size;
-        adcs_file_list[index]->time = info.time;
-        adcs_file_list[index]->crc16_checksum = info.crc16_checksum;
-
         ret = ADCS_advance_file_list_read_pointer();
         if (ret != ADCS_OK) {
             sys_log(ERROR, "Bad return at advance file list read pointer\n");
+            red_close(file1);
             return ret;
         }
 
-        index++;
-        info.updating = true;
+        // Write to the file
+        char file_info_str[80];
+        snprintf(file_info_str, 80, "Type: %d\n", info.type);
+        snprintf(file_info_str, 80, "%sCnt: %d\n", file_info_str, info.counter);
+        snprintf(file_info_str, 80, "%sUpd: %d\n", file_info_str, (uint8_t)info.updating);
+        snprintf(file_info_str, 80, "%sSize: %d\n", file_info_str, info.size);
+        snprintf(file_info_str, 80, "%sTime: %d\n", file_info_str, info.time);
+        snprintf(file_info_str, 80, "%sCRC: %d\n\n", file_info_str, info.crc16_checksum);
+        red_write(file1, file_info_str, strlen(file_info_str));
     }
 
-    adcs_file_list_length = index;
+    red_close(file1);
     return ret;
 }
 
-ADCS_returnState ADCS_download_file(uint8_t type_f, uint8_t counter_f) {
-    // TODO: Unfinished and untested function
-    uint32_t offset = 0;
-    uint16_t block_length = 1024; // this is the max length of the block to be sent - this is the number of packets
-                                  // sent in a single block (each packet is 20 Bytes)
-    ADCS_load_file_download_block(type_f, counter_f, offset, block_length);
+/**
+ * @brief
+ *      Function meant to be called as a task to download a file from the ADCS.
+ * @param return
+ *      Success of file download
+ */
+void ADCS_download_file_task(void *pvParameters) {
+    adcs_file_download_id *id = (adcs_file_download_id *)pvParameters;
 
-    bool ready = 0;
-    bool param_err;
+    ADCS_returnState status = ADCS_download_file(id->type, id->counter, id->size, id->file_name);
 
-    uint16_t crc16_checksum;
+    sys_log(INFO, "ADCS file download type %d counter %d name %s returned: %d\r\n", id->type, id->counter,
+            id->file_name, status);
+    vPortFree(id);
+    vTaskDelete(0);
+}
 
-    while (ready == false) {
-        ADCS_get_file_download_block_stat(&ready, &param_err, &crc16_checksum, &block_length);
+/**
+ * @brief
+ *      Download a file from the ADCS and save it as a file on Athena.
+ * @param return
+ *      Success of file creation.
+ */
+ADCS_returnState ADCS_download_file(uint8_t type, uint8_t counter, uint32_t size, char *save_as) {
+
+    if (xSemaphoreTake(adcs_file_download_mutex, UART_TIMEOUT_MS) != pdTRUE) {
+        return ADCS_DOWNLOAD_MUTEX_FAIL;
     }
 
-    // Does the file need to be created every time?
+    ADCS_returnState ret;
 
-    // Initiate saving to a file
+    // Check valid type and determine file extension
+    switch (type) {
+    case TelemetryLogFile:
+        strncat(save_as, ".tlm", REDCONF_NAME_MAX);
+        break;
+    case JPGImgFile:
+        strncat(save_as, ".jpg", REDCONF_NAME_MAX);
+        break;
+    case BMPImgFile:
+        strncat(save_as, ".bmp", REDCONF_NAME_MAX);
+        break;
+    case IndexFile:
+        strncat(save_as, ".idx", REDCONF_NAME_MAX);
+        break;
+    default:
+        xSemaphoreGive(adcs_file_download_mutex);
+        return ADCS_INVALID_PARAMETERS;
+    }
+
+    // Change directory to adcs
     int32_t iErr;
-    char buf[1024] = "";
-
-    // Get the current working directory
-    red_getcwd(buf, 1024);
-
-    // make the home directory
-    iErr = red_mkdir("home");
-    if (iErr == -1)
-    {
-        sys_log(ERROR, "Unexpected error from red_mkdir()\r\n");
-        //exit(red_errno);
-    }
-
-    // change directory to home
-    iErr = red_chdir("home");
+    iErr = red_chdir("VOL0:/adcs");
     if (iErr == -1) {
-        sys_log(ERROR, "Unexpected error from red_chdir()\r\n");
-        // exit(red_errno);
+        if ((red_errno == RED_ENOENT) || (red_errno == RED_ENOTDIR)) {
+            // Directory does not exist. Create it
+            iErr = red_mkdir("VOL0:/adcs");
+
+            if (iErr == -1) {
+                sys_log(ERROR, "Unexpected error %d from red_mkdir()\r\n", red_errno);
+                xSemaphoreGive(adcs_file_download_mutex);
+                return ADCS_FILESYSTEM_FAIL;
+            }
+
+            iErr = red_chdir("VOL0:/adcs");
+            if (iErr == -1) {
+                sys_log(ERROR, "Unexpected error %d from red_chdir()\r\n", red_errno);
+                xSemaphoreGive(adcs_file_download_mutex);
+                return ADCS_FILESYSTEM_FAIL;
+            }
+        } else {
+            sys_log(ERROR, "Unexpected error %d from red_chdir\r\n", red_errno);
+            xSemaphoreGive(adcs_file_download_mutex);
+            return ADCS_FILESYSTEM_FAIL;
+        }
     }
 
-    // get the current working directory
-    red_getcwd(buf, 1024);
+    // Delete file if it exists already
+    red_unlink(save_as);
 
-    int32_t file1;
-
-    // open a text file
-    file1 = red_open("adcs_file.txt", RED_O_RDWR | RED_O_CREAT);
+    // Open a binary file
+    int32_t file1 = red_open(save_as, RED_O_WRONLY | RED_O_CREAT);
     if (file1 == -1) {
         sys_log(WARN, "Unexpected error from red_open()\r\n");
-        exit(red_errno);
+        xSemaphoreGive(adcs_file_download_mutex);
+        return ADCS_FILE_FAIL;
     }
 
-    // Set Ignore Hole Map to true
-    bool ignore_hole_map = true;
+    // Loop over all blocks
+    uint16_t block_length = 20480;
+    for (uint32_t offset = 0; offset < size; offset += block_length) {
 
-    uint8_t msg_length = 20; // I think this is the length of the packet in Bytes - not sure
-    uint8_t hole_map[ADCS_HOLE_MAP_SIZE] = {0};
-    uint16_t length_bytes = 20480;
+        // Load one block
+        ret = ADCS_load_file_download_block(type, counter, offset, block_length);
+        if (ret != ADCS_OK) {
+            xSemaphoreGive(adcs_file_download_mutex);
+            return ret;
+        }
 
-    ADCS_initiate_download_burst(msg_length, ignore_hole_map);
-    ADCS_receive_download_burst(hole_map, file1, length_bytes);
-    
-    char buffer[msg_length];
-    red_read(file1, buffer, msg_length);
+        // Wait until block is finished loading
+        bool ready = 0;
+        bool param_err;
+        uint16_t crc16_checksum;
+        while (ready == false) {
+            ret = ADCS_get_file_download_block_stat(&ready, &param_err, &crc16_checksum, &block_length);
+            if (ret != ADCS_OK) {
+                xSemaphoreGive(adcs_file_download_mutex);
+                return ret;
+            }
+        }
 
+        // Initiate the download burst
+        uint8_t hole_map[ADCS_HOLE_MAP_SIZE] = {0};
+        bool ignore_hole_map = true; // Set Ignore Hole Map to true
+        adcs_io_enter_file_download_state();
+        ret = ADCS_initiate_download_burst(ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN, ignore_hole_map);
+        if (ret != ADCS_OK) {
+            red_close(file1);
+            xSemaphoreGive(adcs_file_download_mutex);
+            adcs_io_exit_file_download_state();
+            return ret;
+        }
+
+        // Receive the download burst and write to file
+        ADCS_receive_download_burst(hole_map, file1, block_length);
+        adcs_io_exit_file_download_state();
+    }
+
+    // Close file and release download mutex
     red_close(file1);
+    xSemaphoreGive(adcs_file_download_mutex);
     return ADCS_OK;
 }
 
@@ -543,46 +650,80 @@ ADCS_returnState ADCS_initiate_download_burst(uint8_t msg_length, bool ignore_ho
     command[0] = INITIATE_DOWNLOAD_BURST_ID;
     command[1] = msg_length;
     command[2] = ignore_hole_map;
-    return adcs_telecommand(command, 3);
+    return send_uart_telecommand_no_reply(command, 3);
 }
 
-ADCS_returnState ADCS_receive_download_burst(uint8_t *hole_map, int32_t file_des, uint16_t length_bytes) {
+/**
+ * @brief
+ *      Receives download burst from ADCS and writes packet data to file.
+ * @param hole map
+ *      Tracks missed packets
+ * @param file_des
+ *      File being written to
+ * @param length_bytes
+ *      Length of file being downloaded
+ */
+static ADCS_returnState ADCS_receive_download_burst(uint8_t *hole_map, int32_t file_des, uint16_t length_bytes) {
 
-    if (xSemaphoreTake(adcs_file_download_mutex, UART_TIMEOUT_MS) != pdTRUE) {
-        return ADCS_UART_FAILED;
-    }
+    ADCS_returnState err;
 
-#if defined(USE_UART)
-    for (int i = 0; i < length_bytes / 20; i++) {
-        uint8_t pckt[20] = {0};
-        uint16_t pckt_counter;
-        ADCS_returnState err = receive_file_download_uart_packet(pckt, &pckt_counter);
+    uint16_t num_packets = length_bytes / ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN;
+    if ((length_bytes % 20) != 0)
+        num_packets++;
+    uint8_t pckt[ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN];
+    uint16_t pckt_counter = 0;
+
+    uint8_t dummy_data[20] = {0x33};
+
+    for (int i = 0; i < num_packets; i++) {
+
+        err = receive_file_download_uart_packet(pckt, &pckt_counter);
 
         if (err == ADCS_UART_FAILED) {
-            // End of file
+            // End of file earlier than expected or other error
             break;
-        } else if (pckt_counter != i) {
-            // Missed a packet (or more) somewhere - fill with zeroes
-            for (int j = 0; j < (pckt_counter - i); j++) {
-                write_packet_to_file(file_des, "00000000000000000000", ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN);
-            }
-        } else {
-            // Packet received. Write to file
-            write_packet_to_file(file_des, pckt, ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN);
 
-            // Fill hole map with a 1 indicating packet received
-            // Note hole map is stored little-endian
-            uint8_t hole_map_byte_index = pckt_counter / 8;
-            uint8_t hole_map_bit_index = pckt_counter % 8;
-            *(hole_map + hole_map_byte_index) |= (0x1 << hole_map_bit_index);
+        } else if (pckt_counter != i) {
+
+            // Missed a packet (or more) somewhere. Stuff.
+            int j = 0;
+            for (; j < (pckt_counter - i); j++) {
+
+                if (!(length_bytes < 20)) {
+
+                    // More than 20 bytes remaining. Stuff file with full length of dummy data.
+                    write_packet_to_file(file_des, dummy_data, ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN);
+                    length_bytes -= ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN;
+
+                } else {
+
+                    // Less than 20 bytes remaining. Stuff file with only remaining length of dummy data.
+                    write_packet_to_file(file_des, dummy_data, length_bytes);
+                    length_bytes = 0;
+                    break;
+                }
+            }
+
+            i += j;
+
+        } else {
+
+            // Packet received. Write to file
+            if (!(length_bytes < 20)) {
+
+                // More than 20 bytes remaining. Write full packet payload to file.
+                write_packet_to_file(file_des, pckt, ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN);
+                length_bytes -= ADCS_UART_FILE_DOWNLOAD_PKT_DATA_LEN;
+
+            } else {
+
+                // Less than 20 bytes remaining. Write only remaining data from packet to file.
+                write_packet_to_file(file_des, pckt, length_bytes);
+                length_bytes = 0;
+            }
         }
     }
-#elif defined(USE_I2C)
-    // TODO: write receive function for I2C
-#endif
-    xSemaphoreGive(adcs_file_download_mutex);
-
-    return ADCS_OK;
+    return err;
 }
 
 /*************************** Common TMs ***************************/
@@ -2232,7 +2373,7 @@ ADCS_returnState ADCS_set_log_config(uint8_t *flags_arr, uint16_t period, uint8_
     command[0] = SET_SD_LOG1_CONFIG_ID + (log - 1);
     for (int j = 0; j < 10; j++) {
         for (int i = 0; i < 8; i++) {
-            command[j + 1] = command[j + 1] | (*(flags_arr + (8 * j) + i) << (7-i));
+            command[j + 1] = command[j + 1] | (*(flags_arr + (8 * j) + i) << (7 - i));
         }
     }
     command[11] = (uint8_t)(period & 255);
@@ -2280,7 +2421,7 @@ ADCS_returnState ADCS_get_log_config(uint8_t *flags_arr, uint16_t *period, uint8
 
     for (int j = 0; j < 10; j++) {
         for (int i = 0; i < 8; i++) {
-            *(flags_arr + (8 * j) + i) = (telemetry[j] >> (7-i)) & 1;
+            *(flags_arr + (8 * j) + i) = (telemetry[j] >> (7 - i)) & 1;
         }
     }
     *period = telemetry[11] << 8 | telemetry[10];
@@ -2357,10 +2498,10 @@ ADCS_returnState ADCS_set_sgp4_orbit_params(adcs_sgp4 params) {
     memcpy(&temp[5], &params.MM, 8);
     memcpy(&temp[6], &params.MA, 8);
     memcpy(&temp[7], &params.epoch, 8);
-    int i,k;
-    for(i = 0; i < 8; i++){
-        for(k = 0; k < 8; k++){
-            command[1 + 8*i + k] = ((uint8_t)(temp[i] >> (8*k)) & 0b11111111);
+    int i, k;
+    for (i = 0; i < 8; i++) {
+        for (k = 0; k < 8; k++) {
+            command[1 + 8 * i + k] = ((uint8_t)(temp[i] >> (8 * k)) & 0b11111111);
         }
     }
     return adcs_telecommand(command, 65);
@@ -2380,9 +2521,9 @@ ADCS_returnState ADCS_get_sgp4_orbit_params(adcs_sgp4 *params) {
     state = adcs_telemetry(GET_SGP4_ORBIT_PARAMS_ID, telemetry, 64);
 
     unsigned long long temp[8] = {0};
-    for(int i = 0; i < 8; i++){
-        for(int k = 0; k < 8; k++){
-            temp[i] = temp[i] | ((unsigned long long)telemetry[8*i+k] << (8*k));
+    for (int i = 0; i < 8; i++) {
+        for (int k = 0; k < 8; k++) {
+            temp[i] = temp[i] | ((unsigned long long)telemetry[8 * i + k] << (8 * k));
         }
     }
 
@@ -2982,15 +3123,14 @@ ADCS_returnState ADCS_set_MoI_mat(moment_inertia_config cell) {
     memcpy(&temp[4], &cell.nondiag.y, 4);
     memcpy(&temp[5], &cell.nondiag.z, 4);
 
-    int i,k;
-    for(i = 0; i < 6; i++){
-        for(k = 0; k < 4; k++){
-            command[1 + 4*i + k] = ((uint8_t)(temp[i] >> (8*k)) & 0b11111111);
+    int i, k;
+    for (i = 0; i < 6; i++) {
+        for (k = 0; k < 4; k++) {
+            command[1 + 4 * i + k] = ((uint8_t)(temp[i] >> (8 * k)) & 0b11111111);
         }
     }
     return adcs_telecommand(command, 25);
 }
-
 
 /**
  * @brief
@@ -3100,74 +3240,193 @@ ADCS_returnState ADCS_get_full_config(adcs_config *config) {
     float coef;
     ADCS_returnState state;
     state = adcs_telemetry(GET_FULL_CONFIG_ID, telemetry, 504);
+
     memcpy(&config->MTQ, &telemetry[0], 3);
     memcpy(&config->RW[0], &telemetry[3], 4);
     memcpy(&config->rate_gyro, &telemetry[7], 3);
     get_xyz(&config->rate_gyro.sensor_offset, &telemetry[10], 0.001);
     config->rate_gyro.rate_sensor_mult = telemetry[16];
+
     memcpy(&config->css, &telemetry[17], 10);
     coef = 0.01;
     for (int i = 0; i < 10; i++) {
         config->css.rel_scale[i] = telemetry[27 + i] * coef;
     }
+
     config->css.threshold = telemetry[37];
+
     get_xyz(&config->cubesense.cam1_sense.mounting_angle, &telemetry[38], 0.01);
     config->cubesense.cam1_sense.detect_th = telemetry[44];
     config->cubesense.cam1_sense.auto_adjust = telemetry[45] & 1;
-    memcpy(&config->cubesense.cam1_sense.exposure_t, &telemetry[46], 2);
+
+    config->cubesense.cam1_sense.exposure_t = ((telemetry[47] << 8) | telemetry[46]);
+
     config->cubesense.cam1_sense.boresight_x = ((telemetry[49] << 8) | telemetry[48]) * coef;
     config->cubesense.cam1_sense.boresight_y = ((telemetry[51] << 8) | telemetry[50]) * coef;
     get_xyz(&config->cubesense.cam2_sense.mounting_angle, &telemetry[52], 0.01);
     config->cubesense.cam2_sense.detect_th = telemetry[58];
     config->cubesense.cam2_sense.auto_adjust = telemetry[59] & 1;
-    memcpy(&config->cubesense.cam2_sense.exposure_t, &telemetry[60], 2);
+    config->cubesense.cam2_sense.exposure_t = ((telemetry[61] << 8) | telemetry[60]);
     config->cubesense.cam2_sense.boresight_x = ((telemetry[63] << 8) | telemetry[62]) * coef;
     config->cubesense.cam2_sense.boresight_y = ((telemetry[65] << 8) | telemetry[64]) * coef;
-    memcpy(&config->cubesense.nadir_max_deviate, &telemetry[66], 84);
+
+    memcpy(&config->cubesense.nadir_max_deviate, &telemetry[66], 16);
+
+    config->cubesense.cam1_area.area1.x.min = (telemetry[71] << 8) | telemetry[70];
+    config->cubesense.cam1_area.area1.x.max = (telemetry[73] << 8) | telemetry[72];
+    config->cubesense.cam1_area.area1.y.min = (telemetry[75] << 8) | telemetry[74];
+    config->cubesense.cam1_area.area1.y.max = (telemetry[77] << 8) | telemetry[76];
+
+    config->cubesense.cam1_area.area2.x.min = (telemetry[79] << 8) | telemetry[78];
+    config->cubesense.cam1_area.area2.x.max = (telemetry[81] << 8) | telemetry[80];
+    config->cubesense.cam1_area.area2.y.min = (telemetry[83] << 8) | telemetry[82];
+    config->cubesense.cam1_area.area2.y.max = (telemetry[85] << 8) | telemetry[84];
+
+    config->cubesense.cam1_area.area3.x.min = (telemetry[87] << 8) | telemetry[86];
+    config->cubesense.cam1_area.area3.x.max = (telemetry[89] << 8) | telemetry[88];
+    config->cubesense.cam1_area.area3.y.min = (telemetry[91] << 8) | telemetry[90];
+    config->cubesense.cam1_area.area3.y.max = (telemetry[93] << 8) | telemetry[92];
+
+    config->cubesense.cam1_area.area4.x.min = (telemetry[95] << 8) | telemetry[94];
+    config->cubesense.cam1_area.area4.x.max = (telemetry[97] << 8) | telemetry[96];
+    config->cubesense.cam1_area.area4.y.min = (telemetry[99] << 8) | telemetry[98];
+    config->cubesense.cam1_area.area4.y.max = (telemetry[101] << 8) | telemetry[100];
+
+    config->cubesense.cam1_area.area5.x.min = (telemetry[103] << 8) | telemetry[102];
+    config->cubesense.cam1_area.area5.x.max = (telemetry[105] << 8) | telemetry[104];
+    config->cubesense.cam1_area.area5.y.min = (telemetry[107] << 8) | telemetry[106];
+    config->cubesense.cam1_area.area5.y.max = (telemetry[109] << 8) | telemetry[108];
+
+    config->cubesense.cam2_area.area1.x.min = (telemetry[111] << 8) | telemetry[110];
+    config->cubesense.cam2_area.area1.x.max = (telemetry[113] << 8) | telemetry[112];
+    config->cubesense.cam2_area.area1.y.min = (telemetry[115] << 8) | telemetry[114];
+    config->cubesense.cam2_area.area1.y.max = (telemetry[117] << 8) | telemetry[116];
+
+    config->cubesense.cam2_area.area2.x.min = (telemetry[119] << 8) | telemetry[118];
+    config->cubesense.cam2_area.area2.x.max = (telemetry[121] << 8) | telemetry[120];
+    config->cubesense.cam2_area.area2.y.min = (telemetry[123] << 8) | telemetry[122];
+    config->cubesense.cam2_area.area2.y.max = (telemetry[125] << 8) | telemetry[124];
+
+    config->cubesense.cam2_area.area3.x.min = (telemetry[127] << 8) | telemetry[126];
+    config->cubesense.cam2_area.area3.x.max = (telemetry[129] << 8) | telemetry[128];
+    config->cubesense.cam2_area.area3.y.min = (telemetry[131] << 8) | telemetry[130];
+    config->cubesense.cam2_area.area3.y.max = (telemetry[133] << 8) | telemetry[132];
+
+    config->cubesense.cam2_area.area4.x.min = (telemetry[135] << 8) | telemetry[134];
+    config->cubesense.cam2_area.area4.x.max = (telemetry[137] << 8) | telemetry[136];
+    config->cubesense.cam2_area.area4.y.min = (telemetry[139] << 8) | telemetry[138];
+    config->cubesense.cam2_area.area4.y.max = (telemetry[141] << 8) | telemetry[140];
+
+    config->cubesense.cam2_area.area5.x.min = (telemetry[143] << 8) | telemetry[142];
+    config->cubesense.cam2_area.area5.x.max = (telemetry[145] << 8) | telemetry[144];
+    config->cubesense.cam2_area.area5.y.min = (telemetry[147] << 8) | telemetry[146];
+    config->cubesense.cam2_area.area5.y.max = (telemetry[149] << 8) | telemetry[148];
+
     get_xyz(&config->MTM1.mounting_angle, &telemetry[150], 0.01);
     get_xyz(&config->MTM1.channel_offset, &telemetry[156], 0.001);
     get_3x3(config->MTM1.sensitivity_mat, &telemetry[162], 0.001);
     get_xyz(&config->MTM2.mounting_angle, &telemetry[180], 0.01);
     get_xyz(&config->MTM2.channel_offset, &telemetry[186], 0.001);
     get_3x3(config->MTM2.sensitivity_mat, &telemetry[192], 0.001);
-    get_xyz(&config->star_tracker.mounting_angle, &telemetry[210], 0.01);
-    memcpy(&config->star_tracker.exposure_t, &telemetry[216], 45);
-    config->star_tracker.module_en = telemetry[261] & 0x1;
-    config->star_tracker.loc_predict_en = telemetry[261] & 0x2; // second bit
-    config->star_tracker.search_wid = telemetry[262] / 5;
-    memcpy(&config->detumble, &telemetry[263], 8);
+
+    get_xyz(&config->star_tracker.mounting_angle, &telemetry[210], 0.01); // Don't have this
+    memcpy(&config->star_tracker.exposure_t, &telemetry[216], 45);        // Don't have this
+    config->star_tracker.module_en = telemetry[261] & 0x1;                // Don't have this
+    config->star_tracker.loc_predict_en = telemetry[261] & 0x2;           // Don't have this
+    config->star_tracker.search_wid = telemetry[262] / 5;                 // Don't have this
+
+    unsigned long temp_detumble[2] = {0};
+    for (int i = 0; i < 2; i++) {
+        for (int k = 0; k < 4; k++) {
+            temp_detumble[i] = temp_detumble[i] | ((unsigned long)telemetry[263 + 4 * i + k] << (8 * k));
+        }
+    }
+    memcpy(&config->detumble.spin_gain, &temp_detumble[0], 4);
+    memcpy(&config->detumble.damping_gain, &temp_detumble[1], 4);
+
     coef = 0.001;
     config->detumble.spin_rate = uint82int16(telemetry[271], telemetry[272]) * coef;
-    memcpy(&config->detumble.fast_bDot, &telemetry[273], 4);
-    memcpy(&config->ywheel, &telemetry[277], 20);
-    memcpy(&config->rwheel, &telemetry[297], 12);
+
+    unsigned long temp_fastbDot;
+    for (int k = 0; k < 4; k++) {
+        temp_fastbDot |= ((unsigned long)telemetry[273 + k] << (8 * k));
+    }
+    memcpy(&config->detumble.fast_bDot, &temp_fastbDot, 4);
+
+    unsigned long temp_ywheel[5] = {0};
+    for (int i = 0; i < 5; i++) {
+        for (int k = 0; k < 4; k++) {
+            temp_ywheel[i] = temp_ywheel[i] | ((unsigned long)telemetry[277 + 4 * i + k] << (8 * k));
+        }
+    }
+    memcpy(&config->ywheel.control_gain, &temp_ywheel[0], 4);
+    memcpy(&config->ywheel.damping_gain, &temp_ywheel[1], 4);
+    memcpy(&config->ywheel.proportional_gain, &temp_ywheel[2], 4);
+    memcpy(&config->ywheel.derivative_gain, &temp_ywheel[3], 4);
+    memcpy(&config->ywheel.reference, &temp_ywheel[4], 4);
+
+    unsigned long temp_rwheel[3] = {0};
+    for (int i = 0; i < 3; i++) {
+        for (int k = 0; k < 4; k++) {
+            temp_rwheel[i] = temp_rwheel[i] | ((unsigned long)telemetry[297 + 4 * i + k] << (8 * k));
+        }
+    }
+    memcpy(&config->rwheel.proportional_gain, &temp_rwheel[0], 4);
+    memcpy(&config->rwheel.derivative_gain, &temp_rwheel[1], 4);
+    memcpy(&config->rwheel.bias_moment, &temp_rwheel[2], 4);
+
     config->rwheel.sun_point_facet = telemetry[309] & 0x7F; // 7 bits
     config->rwheel.auto_transit = telemetry[309] & 0x80;    // 8th bit
 
-
-    unsigned long temp[6] = {0};
-    for(int i = 0; i < 6; i++){
-        for(int k = 0; k < 4; k++){
-            temp[i] = temp[i] | ((unsigned long)telemetry[323 + 4*i + k] << (8*k));
+    unsigned long temp_tracking[3] = {0};
+    for (int i = 0; i < 3; i++) {
+        for (int k = 0; k < 4; k++) {
+            temp_tracking[i] = temp_tracking[i] | ((unsigned long)telemetry[310 + 4 * i + k] << (8 * k));
         }
     }
+    memcpy(&config->tracking.proportional_gain, &temp_tracking[0], 4);
+    memcpy(&config->tracking.derivative_gain, &temp_tracking[1], 4);
+    memcpy(&config->tracking.integral_gain, &temp_tracking[2], 4);
 
-    memcpy(&config->MoI.diag.x, &temp[0], 4);
-    memcpy(&config->MoI.diag.y, &temp[1], 4);
-    memcpy(&config->MoI.diag.z, &temp[2], 4);
-    memcpy(&config->MoI.nondiag.x, &temp[3], 4);
-    memcpy(&config->MoI.nondiag.y, &temp[4], 4);
-    memcpy(&config->MoI.nondiag.z, &temp[5], 4);
+    config->tracking.target_facet = telemetry[322];
 
+    unsigned long temp_MoI[6] = {0};
+    for (int i = 0; i < 6; i++) {
+        for (int k = 0; k < 4; k++) {
+            temp_MoI[i] = temp_MoI[i] | ((unsigned long)telemetry[323 + 4 * i + k] << (8 * k));
+        }
+    }
+    memcpy(&config->MoI.diag.x, &temp_MoI[0], 4);
+    memcpy(&config->MoI.diag.y, &temp_MoI[1], 4);
+    memcpy(&config->MoI.diag.z, &temp_MoI[2], 4);
+    memcpy(&config->MoI.nondiag.x, &temp_MoI[3], 4);
+    memcpy(&config->MoI.nondiag.y, &temp_MoI[4], 4);
+    memcpy(&config->MoI.nondiag.z, &temp_MoI[5], 4);
+
+    unsigned long temp_estimation[7] = {0};
+    for (int i = 0; i < 7; i++) {
+        for (int k = 0; k < 4; k++) {
+            temp_estimation[i] = temp_estimation[i] | ((unsigned long)telemetry[347 + 4 * i + k] << (8 * k));
+        }
+    }
+    memcpy(&config->estimation.MTM_rate_nosie, &temp_estimation[0], 4);
+    memcpy(&config->estimation.EKF_noise, &temp_estimation[1], 4);
+    memcpy(&config->estimation.CSS_noise, &temp_estimation[2], 4);
+    memcpy(&config->estimation.suns_sensor_noise, &temp_estimation[3], 4);
+    memcpy(&config->estimation.nadir_sensor_noise, &temp_estimation[4], 4);
+    memcpy(&config->estimation.MTM_noise, &temp_estimation[5], 4);
+    memcpy(&config->estimation.star_track_noise, &temp_estimation[6], 4);
 
     for (int i = 0; i < 6; i++) {
         config->estimation.select_arr[i] = (telemetry[375] >> i) & 1;
     }
     config->estimation.MTM_mode = (telemetry[375] >> 6) & 0x3;
     config->estimation.MTM_select = telemetry[376] & 0x3;
-    config->estimation.select_arr[7] = (telemetry[376] >> 2) & 1;
+    config->estimation.select_arr[6] = (telemetry[376] >> 2) & 1;
+    config->estimation.select_arr[7] = 0; // Unused
     config->estimation.cam_sample_period = telemetry[377];
     coef = 0.001;
+
     config->aspg4.inclination = ((telemetry[379] << 8) | telemetry[378]) * coef;
     config->aspg4.RAAN = ((telemetry[381] << 8) | telemetry[380]) * coef;
     config->aspg4.ECC = ((telemetry[383] << 8) | telemetry[382]) * coef;

@@ -75,7 +75,7 @@ SAT_returnState start_general_service(void) {
  */
 void general_service(void *param) {
     csp_socket_t *sock;
-    sock = csp_socket(CSP_SO_NONE); // require RDP connection
+    sock = csp_socket(CSP_SO_HMACREQ); // require RDP connection
     csp_bind(sock, TC_GENERAL_SERVICE);
     csp_listen(sock, SERVICE_BACKLOG_LEN);
     svc_wdt_counter++;
