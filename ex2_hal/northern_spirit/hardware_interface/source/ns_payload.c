@@ -27,3 +27,11 @@ NS_return HAL_NS_get_HK(ns_telemetry *tlm){
     return NS_IS_STUBBED;
 #endif
 }
+
+NS_return HAL_NS_upload_artwork(char *filename){
+#ifndef PAYLOAD_IS_STUBBED
+    return NS_upload_artwork(filename);
+#else
+    return NS_IS_STUBBED;
+#endif
+}

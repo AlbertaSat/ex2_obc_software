@@ -21,6 +21,8 @@
 #include "northern_spirit_handler.h"
 #include "northern_spirit_io.h"
 #include "base_64.h"
+#include "xmodem.h"
+#include <redposix.h>
 
 static SemaphoreHandle_t ns_command_mutex;
 
@@ -35,6 +37,49 @@ NS_return NS_handler_init(){
         return NS_FAIL;
     }
     return NS_OK;
+}
+
+NS_return NS_upload_artwork(char *filename){
+    if(xSemaphoreTake(ns_command_mutex, NS_COMMAND_MUTEX_TIMEOUT) != pdTRUE){
+        return NS_HANDLER_BUSY;
+    }
+    uint8_t command[NS_STANDARD_CMD_LEN] = {'a', 'a', 'a'};
+    uint8_t answer[NS_STANDARD_ANS_LEN + NS_STANDARD_ANS_LEN];
+
+    strcat(filename, ".bmp");
+
+    // Open specified file
+    int32_t file1 = red_open(filename, RED_O_RDONLY);
+    if(file1 == -1){
+        sys_log(ERROR, "Error %d opening file %s in NS_capture_image\r\n", red_errno, filename);
+        return NS_FAIL;
+    }
+
+    REDSTAT stat;
+    red_fstat(file1, &stat);
+
+    // Initiate image transaction and receive first two acks
+    NS_return return_val = NS_sendAndReceive(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN + NS_STANDARD_ANS_LEN);
+    if(return_val != NS_OK){
+        xSemaphoreGive(ns_command_mutex);
+        red_close(file1);
+        return return_val;
+    }
+
+    // Start xmodem transfer
+    int status = xmodemTransmit(file1, stat.st_size);
+    if(status == -1){
+        sys_log(ERROR, "Error %d during xmodem transfer of %s in NS_upload_artwork\r\n", red_errno, filename);
+        return_val = NS_FAIL;
+    }else if(status < -1){
+        sys_log(ERROR, "Unknown error during xmodem transfer of %s in NS_upload_artwork\r\n", red_errno, filename);
+        return_val = NS_FAIL;
+    }
+
+    uint8_t last_command[1] = ETB;
+    return_val = NS_sendAndReceive(last_command, 1, answer, NS_STANDARD_ANS_LEN);
+    red_close(file1);
+    return return_val;
 }
 
 NS_return NS_capture_image(void){

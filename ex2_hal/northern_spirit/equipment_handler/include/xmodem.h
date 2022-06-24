@@ -17,6 +17,7 @@
 #define EOT  0x04
 #define ACK  0x06
 #define NAK  0x15
+#define ETB  0x17
 #define CAN  0x18
 #define CTRLZ 0x1A
 
@@ -62,6 +63,6 @@ static const unsigned short crc16tab[256]= {
 
 unsigned short crc16_ccitt(const void *buf, int len);
 int xmodemReceive(unsigned char *dest, int destsz);
-int xmodemTransmit(unsigned char *src, int srcsz);
+int xmodemTransmit(int32_t filedes, uint64_t filesz);
 
 #endif /* EX2_HAL_NORTHERN_SPIRIT_EQUIPMENT_HANDLER_INCLUDE_XMODEM_H_ */

@@ -39,8 +39,11 @@
 
 int _inbyte(unsigned short timeout){
     uint8_t b;
-    NS_expectResponse(&b, 1);
-    return b;
+    if(NS_expectResponse(&b, 1) == NS_OK){
+        return b;
+    }else{
+        return -1;
+    }
 }
 void _outbyte(int c){
     uint8_t b = c;
@@ -79,7 +82,7 @@ static int check(int crc, const unsigned char *buf, int sz)
 
 static void flushinput(void)
 {
-    while (_inbyte(((DLY_1S)*3)>>1) >= 0);
+    NS_resetQueue();
 }
 
 int xmodemReceive(unsigned char *dest, int destsz)
@@ -165,9 +168,14 @@ int xmodemReceive(unsigned char *dest, int destsz)
     }
 }
 
-int xmodemTransmit(unsigned char *src, int srcsz)
+int xmodemTransmit(int32_t filedes, uint64_t filesz)
 {
+#ifdef TRANSMIT_XMODEM_1K
     unsigned char xbuff[1030]; /* 1024 for XModem 1k + 3 head chars + 2 crc + nul */
+#else
+    unsigned char xbuff[134]; /* 128 for XModem + 3 head chars + 2 crc + nul */
+#endif
+
     int bufsz, crc = -1;
     unsigned char packetno = 1;
     int i, c, len = 0;
@@ -210,11 +218,16 @@ int xmodemTransmit(unsigned char *src, int srcsz)
 #endif
             xbuff[1] = packetno;
             xbuff[2] = ~packetno;
-            c = srcsz - len;
+            c = filesz - len;
+
             if (c > bufsz) c = bufsz;
             if (c > 0) {
+                // Transmit next xmodem packet
                 memset (&xbuff[3], 0, bufsz);
-                memcpy (&xbuff[3], &src[len], c);
+                int32_t iErr = red_read(filedes, xbuff, c);
+                if(iErr == -1){
+                    return iErr;
+                }
                 if (c < bufsz) xbuff[3+c] = CTRLZ;
                 if (crc) {
                     unsigned short ccrc = crc16_ccitt(&xbuff[3], bufsz);
@@ -258,6 +271,7 @@ int xmodemTransmit(unsigned char *src, int srcsz)
                 return -4; /* xmit error */
             }
             else {
+                // Reached end of transmission
                 for (retry = 0; retry < 10; ++retry) {
                     _outbyte(EOT);
                     if ((c = _inbyte((DLY_1S)<<1)) == ACK) break;

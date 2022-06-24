@@ -23,6 +23,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <FreeRTOS.h>
 #include "logger.h"
 
 // Lengths of commands being sent
@@ -63,6 +64,7 @@ typedef enum{
     SDcardStatus = 's',
 }NS_flag_subcodes;
 
+NS_return NS_handler_init(void);
 NS_return NS_capture_image(void);
 NS_return NS_get_heartbeat(uint8_t* heartbeat);
 NS_return NS_get_software_version(uint8_t* version);

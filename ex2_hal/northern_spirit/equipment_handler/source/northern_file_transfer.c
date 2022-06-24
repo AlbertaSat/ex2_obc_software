@@ -18,6 +18,7 @@
  */
 
 #include <northern_file_transfer.h>
+#include "northern_spirit_handler.h"
 #include <string.h>
 
 #include "stdio.h"

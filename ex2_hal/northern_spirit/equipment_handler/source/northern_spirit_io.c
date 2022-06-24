@@ -146,3 +146,7 @@ NS_return NS_expectResponse(uint8_t *response, uint8_t length){
     xSemaphoreGive(uart_mutex);
     return NS_OK;
 }
+
+void NS_resetQueue(){
+    xQueueReset(nsQueue);
+}
