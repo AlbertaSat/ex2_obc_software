@@ -20,14 +20,6 @@
 
 #include "ns_payload.h"
 
-NS_return HAL_NS_get_HK(ns_telemetry *tlm){
-#ifndef PAYLOAD_IS_STUBBED
-    return NS_get_telemetry(tlm->array);
-#else
-    return NS_IS_STUBBED;
-#endif
-}
-
 NS_return HAL_NS_upload_artwork(char *filename){
 #ifndef PAYLOAD_IS_STUBBED
     return NS_upload_artwork(filename);
@@ -35,3 +27,53 @@ NS_return HAL_NS_upload_artwork(char *filename){
     return NS_IS_STUBBED;
 #endif
 }
+
+NS_return HAL_NS_capture_image(){
+#ifndef PAYLOAD_IS_STUBBED
+    return NS_capture_image();
+#else
+    return NS_IS_STUBBED;
+#endif
+}
+
+NS_return HAL_NS_confirm_downlink(){
+#ifndef PAYLOAD_IS_STUBBED
+    return NS_confirm_downlink();
+#else
+    return NS_IS_STUBBED;
+#endif
+}
+
+NS_return HAL_NS_get_heartbeat(uint8_t *heartbeat){
+#ifndef PAYLOAD_IS_STUBBED
+    return NS_get_heartbeat(heartbeat);
+#else
+    return NS_IS_STUBBED;
+#endif
+}
+
+NS_return HAL_NS_get_flag(char flag, bool *stat){
+#ifndef PAYLOAD_IS_STUBBED
+    return NS_get_flag(flag, stat);
+#else
+    return NS_IS_STUBBED;
+#endif
+}
+
+NS_return HAL_NS_get_telemetry(ns_telemetry *tlm){
+#ifndef PAYLOAD_IS_STUBBED
+    return NS_get_telemetry(tlm->array);
+#else
+    return NS_IS_STUBBED;
+#endif
+}
+
+NS_return HAL_NS_get_software_version(uint8_t *version){
+#ifndef PAYLOAD_IS_STUBBED
+    return NS_get_software_version(version);
+#else
+    return NS_IS_STUBBED;
+#endif
+}
+
+

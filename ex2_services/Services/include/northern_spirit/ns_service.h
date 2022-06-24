@@ -26,7 +26,8 @@
 #include <csp/csp.h>
 #include <csp/csp_endian.h>
 #include <main/system.h>
-#include <ns_file_transfer.h>
+#include "ns_file_transfer.h"
+#include "ns_payload.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -36,7 +37,13 @@ typedef enum {
     FT_2U_PAYLOAD_STOP_FT,
     FT_2U_PAYLOAD_SEND_BYTES, // Prompts OBC to send N file bytes
     FT_2U_PAYLOAD_PROCESS_BYTES, // Prompts OBC to process N file bytes
-    NS_UPLOAD_ARTWORK
+    NS_UPLOAD_ARTWORK,
+    NS_CAPTURE_IMAGE,
+    NS_CONFIRM_DOWNLINK,
+    NS_GET_HEARTBEAT,
+    NS_GET_FLAG,
+    NS_GET_TELEMETRY,
+    NS_GET_SW_VERSION
 } ns_payload_service_subtype;
 
 void ns_payload_service(void *param);

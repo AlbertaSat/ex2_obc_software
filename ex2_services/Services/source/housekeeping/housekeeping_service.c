@@ -440,7 +440,7 @@ Result collect_hk_from_devices(All_systems_housekeeping *all_hk_data) {
 #ifdef IS_EXALTA2
     // Iris housekeeping
 #else
-    NS_return NS_return_code = HAL_NS_get_HK(&all_hk_data->NS_hk);
+    NS_return NS_return_code = HAL_NS_get_telemetry(&all_hk_data->NS_hk);
 #endif /* IS_EXALTA2 */
 #endif /* PAYLOAD_IS_STUBBED */
     /*consider if struct should hold error codes returned from these functions*/

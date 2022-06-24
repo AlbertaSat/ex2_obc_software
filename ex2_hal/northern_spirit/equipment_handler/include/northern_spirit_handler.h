@@ -55,7 +55,7 @@ typedef enum{
     NS_IS_STUBBED = 0
 }NS_return;
 
-typedef struct{
+typedef struct __attribute__((packed)){
     uint8_t array[NS_DECODED_TELEMETRY_DATA_LEN];
 }ns_telemetry;
 

@@ -76,7 +76,7 @@ NS_return NS_upload_artwork(char *filename){
         return_val = NS_FAIL;
     }
 
-    uint8_t last_command[1] = ETB;
+    uint8_t last_command[1] = {ETB};
     return_val = NS_sendAndReceive(last_command, 1, answer, NS_STANDARD_ANS_LEN);
     red_close(file1);
     return return_val;
