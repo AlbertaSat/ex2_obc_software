@@ -126,10 +126,10 @@ SAT_returnState FT_2U_payload_service_app(csp_packet_t *packet) {
     switch (ser_subtype) {
     case FT_2U_PAYLOAD_DOWNLINK: {
         // Get filename
-        filename = packet->data[IN_DATA_BYTE]
+        filename = packet->data[IN_DATA_BYTE];
 
         // Prepare to send file data
-        status = HAL_2U_PAYLOAD_getFile(filename);
+        status = HAL_FT_2U_PAYLOAD_getFile(filename);
 
         // Return file transfer mode and filename to GS
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -140,10 +140,10 @@ SAT_returnState FT_2U_payload_service_app(csp_packet_t *packet) {
 
     case FT_2U_PAYLOAD_UPLINK: {
         // Get filename
-        filename = packet->data[IN_DATA_BYTE]
+        filename = packet->data[IN_DATA_BYTE];
 
         // Prepare to receive and process file data
-        status = HAL_2U_PAYLOAD_putFile(filename);
+        status = HAL_FT_2U_PAYLOAD_putFile(filename);
 
         // Return file transfer mode and filename to GS
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -154,7 +154,7 @@ SAT_returnState FT_2U_payload_service_app(csp_packet_t *packet) {
 
     case FT_2U_PAYLOAD_STOP_FT: {
         // Tell OBC to stop processing or sending file data
-        status = HAL_2U_PAYLOAD_stopFileTransfer();
+        status = HAL_FT_2U_PAYLOAD_stopFileTransfer();
 
         // Return success report
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -165,7 +165,7 @@ SAT_returnState FT_2U_payload_service_app(csp_packet_t *packet) {
     case FT_2U_PAYLOAD_SEND_BYTES: {
         // Tell OBC to send file data to GS
         FT_2U_PAYLOAD_filePacket outgoingPacket;
-        status = HAL_2U_PAYLOAD_sendDataBytes(&outgoingPacket);
+        status = HAL_FT_2U_PAYLOAD_sendDataBytes(&outgoingPacket);
 
         // Return success report and N bytes of file data
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -186,7 +186,7 @@ SAT_returnState FT_2U_payload_service_app(csp_packet_t *packet) {
         memcpy(&incomingPacket, &packet->data[IN_DATA_BYTE], sizeof(incomingPacket));
 
         // Process file data
-        status = HAL_2U_PAYLOAD_receiveDataBytes(&incomingPacket);
+        status = HAL_FT_2U_PAYLOAD_receiveDataBytes(&incomingPacket);
 
         // Return success report (saying ready to receive or abort FT)
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
