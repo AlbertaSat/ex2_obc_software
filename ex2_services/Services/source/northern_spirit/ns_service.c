@@ -16,14 +16,13 @@
  * @author Daniel Sacro
  * @date
  */
-#include "ft_2u_payload/ft_2u_payload_service.h"
-
 #include <FreeRTOS.h>
 #include <csp/csp.h>
 #include <csp/csp_endian.h>
 #include <main/system.h>
+#include <northern_spirit/ns_service.h>
+#include <ns_file_transfer.h>
 
-#include "ft_2u_payload.h"
 #include "services.h"
 #include "task_manager/task_manager.h"
 #include "util/service_utilities.h"

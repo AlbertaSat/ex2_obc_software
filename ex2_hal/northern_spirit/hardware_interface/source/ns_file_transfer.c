@@ -17,7 +17,7 @@
  * @date 2022-04-12
  */
 
-#include "ft_2u_payload.h"
+#include <ns_file_transfer.h>
 #include "services.h"
 #include <string.h>
 

@@ -20,13 +20,13 @@
 #ifndef FT_2U_PAYLOAD_SERVICE_H
 #define FT_2U_PAYLOAD_SERVICE_H
 
-#include "ft_2u_payload.h"
 #include "service_utilities.h"
 #include "services.h"
 #include <FreeRTOS.h>
 #include <csp/csp.h>
 #include <csp/csp_endian.h>
 #include <main/system.h>
+#include <ns_file_transfer.h>
 
 typedef enum {
     FT_2U_PAYLOAD_DOWNLINK = 0,

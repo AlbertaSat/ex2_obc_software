@@ -20,7 +20,7 @@
 #ifndef FT_2U_PAYLOAD_H
 #define FT_2U_PAYLOAD_H
 
-#include "ft_2u_payload_handler.h"
+#include <northern_file_transfer.h>
 
 typedef struct __attribute__((__packed__)) {
     uint16_t bytesToRead;

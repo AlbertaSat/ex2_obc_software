@@ -34,7 +34,7 @@
 #include "scheduler/scheduler.h"
 #include "file_transfer/ftp.h"
 #include "adcs/adcs_service.h"
-#include "ft_2u_payload/ft_2u_payload_service.h"
+#include "northern_spirit/ns_service.h"
 
 #include "printf.h"
 
