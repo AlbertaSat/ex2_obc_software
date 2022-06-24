@@ -499,7 +499,7 @@ uint16_t CRC_Calc(char* filename) {
     data = file_buff;
     end = file_buff + buff_len;
 
-    for (i = 0; i < num_blocks - 1; i++) {
+    for (int i = 0; i < num_blocks - 1; i++) {
 
         // initialize/shift to the next additive CRC16 calculation
         memset(file_buff, 0, read_len);
@@ -520,7 +520,7 @@ uint16_t CRC_Calc(char* filename) {
     // calculate the CRC16 of the last block and remaining bytes together
     // shift to the next additive CRC16 calculation
     free(file_buff);
-    uint8_t file_buff = pvPortMalloc(remaining_length);
+    file_buff = pvPortMalloc(remaining_length);
     memset(file_buff, 0, remaining_length);
     red_lseek(fout, (num_blocks - 1) * buff_len, RED_SEEK_SET);
     f_read = red_read(fout, file_buff, remaining_length);
