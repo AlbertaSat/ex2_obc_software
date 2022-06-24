@@ -55,6 +55,7 @@ NS_return init_ns_io() {
     xSemaphoreGive(uart_mutex);
     nsBuffer = 0;
     sciReceive(PAYLOAD_SCI, 1, &nsBuffer);
+    return NS_OK;
 }
 
 void ns_sciNotification(sciBASE_t *sci, int flags) {
@@ -113,7 +114,22 @@ NS_return NS_sendAndReceive(uint8_t* command, uint32_t command_length, uint8_t* 
     return NS_OK;
 }
 
-NS_return NS_expectResponse(uint8_t length, uint8_t *response){
+NS_return NS_sendOnly(uint8_t* command, uint32_t command_length) {
+    if(xSemaphoreTake(uart_mutex, NS_SEMAPHORE_TIMEOUT_MS) != pdTRUE){
+        return NS_UART_BUSY;
+    }
+
+    sciSend(PAYLOAD_SCI, command_length, command);
+
+    if(xSemaphoreTake(ns_tx_semphr, NS_SEMAPHORE_TIMEOUT_MS) != pdTRUE){
+        xSemaphoreGive(uart_mutex);
+        return NS_UART_FAIL;
+    }
+    xSemaphoreGive(uart_mutex);
+    return NS_OK;
+}
+
+NS_return NS_expectResponse(uint8_t *response, uint8_t length){
     if(xSemaphoreTake(uart_mutex, NS_SEMAPHORE_TIMEOUT_MS) != pdTRUE){
         return NS_UART_BUSY;
     }
