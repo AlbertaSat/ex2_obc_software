@@ -110,78 +110,9 @@ SAT_returnState ns_payload_service_app(csp_packet_t *packet) {
     char * filename;
 
     switch (ser_subtype) {
-    case FT_2U_PAYLOAD_DOWNLINK: {
-        // Get filename
-        filename = packet->data[IN_DATA_BYTE];
-
-        // Prepare to send file data
-        status = HAL_FT_2U_PAYLOAD_getFile(filename);
-
-        // Return file transfer mode and filename to GS
-        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-        memcpy(&packet->data[OUT_DATA_BYTE], filename, sizeof(filename));
-        set_packet_length(packet, sizeof(int8_t) + sizeof(filename) + 1);
-        break;
-    }
-
-    case FT_2U_PAYLOAD_UPLINK: {
-        // Get filename
-        filename = packet->data[IN_DATA_BYTE];
-
-        // Prepare to receive and process file data
-        status = HAL_FT_2U_PAYLOAD_putFile(filename);
-
-        // Return file transfer mode and filename to GS
-        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-        memcpy(&packet->data[OUT_DATA_BYTE], filename, sizeof(filename));
-        set_packet_length(packet, sizeof(int8_t) + sizeof(filename) + 1);
-        break;
-    }
-
-    case FT_2U_PAYLOAD_STOP_FT: {
-        // Tell OBC to stop processing or sending file data
-        status = HAL_FT_2U_PAYLOAD_stopFileTransfer();
-
-        // Return success report
-        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-        set_packet_length(packet, sizeof(int8_t) + 1);
-        break;
-    }
-
-    case FT_2U_PAYLOAD_SEND_BYTES: {
-        // Tell OBC to send file data to GS
-        FT_2U_PAYLOAD_filePacket outgoingPacket;
-        status = HAL_FT_2U_PAYLOAD_sendDataBytes(&outgoingPacket);
-
-        // Return success report and N bytes of file data
-        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-        memcpy(&packet->data[OUT_DATA_BYTE], &outgoingPacket, sizeof(outgoingPacket));
-        set_packet_length(packet, sizeof(int8_t) + sizeof(outgoingPacket) + 1);
-        break;
-    }
-
-    case FT_2U_PAYLOAD_PROCESS_BYTES: {
-        // Receive N bytes of file data from the GS
-        FT_2U_PAYLOAD_filePacket incomingPacket = {0};
-
-        // TODO - Requires testing, but either method below could work for reading bytes from CSP
-
-//        cnv8_16(&packet->data[IN_DATA_BYTE], &incomingPacket.bytesToRead);
-//        memcpy(&incomingPacket.byte, &packet->data[IN_DATA_BYTE + 2], incomingPacket.bytesToRead);
-
-        memcpy(&incomingPacket, &packet->data[IN_DATA_BYTE], sizeof(incomingPacket));
-
-        // Process file data
-        status = HAL_FT_2U_PAYLOAD_receiveDataBytes(&incomingPacket);
-
-        // Return success report (saying ready to receive or abort FT)
-        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-        set_packet_length(packet, sizeof(int8_t) + 1);
-        break;
-    }
 
     case NS_UPLOAD_ARTWORK: {
-        char filename[15]; // File name is supposed to be 7 bytes long
+        char filename[10]; // File name is supposed to be 7 bytes long
         memcpy(filename, &packet->data[IN_DATA_BYTE], 30);
         status = HAL_NS_upload_artwork(filename);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -191,6 +122,12 @@ SAT_returnState ns_payload_service_app(csp_packet_t *packet) {
 
     case NS_CAPTURE_IMAGE: {
         status = HAL_NS_capture_image();
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        set_packet_length(packet, sizeof(int8_t) + 1);
+        break;
+    }
+    case NS_CONFIRM_DOWNLINK: {
+        status = HAL_NS_confirm_downlink();
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         set_packet_length(packet, sizeof(int8_t) + 1);
         break;
