@@ -64,15 +64,22 @@
 #include "leop.h"
 #include "adcs.h"
 #include "deployablescontrol.h"
-#include "test_sdr.h"
 #include <csp/interfaces/csp_if_sdr.h>
 #include "printf.h"
 #include "csp/crypto/csp_hmac.h"
 #include "crypto.h"
 #include "csp_debug_wrapper.h"
 
-//#define CSP_USE_SDR
-#define CSP_USE_KISS
+#define SDR_TEST 1
+
+#ifdef SDR_TEST
+#include "test_sdr.h"
+
+static sdr_uhf_conf_t test_sdr_conf;
+#endif
+
+#define CSP_USE_SDR
+//#define CSP_USE_KISS
 
 #ifdef FLATSAT_TEST
 //#include "sband_binary_tests.h"
@@ -178,7 +185,7 @@ void ex2_init(void *pvParameters) {
     init_software();
 
  #ifdef SDR_TEST
-    start_test_sdr();
+    start_test_sdr(&test_sdr_conf);
  #endif
 
 #ifdef FLATSAT_TEST
@@ -358,11 +365,15 @@ static inline SAT_returnState init_csp_interface() {
                                    .uhf_baudrate = SDR_UHF_9600_BAUD,
                                    .uart_baudrate = 115200,
                                    .rx_callback = csp_if_sdr_rx };
+
     error = csp_uhf_open_and_add_interface(&uhf_conf, gs_if_name, NULL);
     if (error != CSP_ERR_NONE) {
         return SATR_ERROR;
     }
 
+#ifdef SDR_TEST
+    memcpy(&test_sdr_conf, &uhf_conf, sizeof(sdr_uhf_conf_t));
+#endif
 #endif /* defined(CSP_USE_SDR) */
 
     char rtable[128] = {0};
