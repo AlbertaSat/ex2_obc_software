@@ -108,6 +108,7 @@
 									<listOptionValue builtIn="false" value="IS_EXALTA2"/>
 									<listOptionValue builtIn="false" value="DFGM_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="CSP_FREERTOS"/>
+									<listOptionValue builtIn="false" value="OS_FREERTOS"/>
 									<listOptionValue builtIn="false" value="SBAND_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="CHARON_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="SYSTEM_APP_ID=_OBC_APP_ID_"/>

@@ -22,7 +22,7 @@ void test_csp_send(void *arg) {
         if (!conn) {
             ex2_log("CSP connection failed %d", xTaskGetTickCount());
             vTaskDelay(1000);
-            //return;
+            // return;
         }
     }
 
@@ -36,7 +36,7 @@ void test_csp_send(void *arg) {
         }
 
         packet->length = len;
-        for (i=0; i<len; i++) {
+        for (i = 0; i < len; i++) {
             packet->data[i] = i;
         }
 
@@ -55,25 +55,26 @@ void test_csp_send(void *arg) {
 }
 
 void test_sdr_send(void *arg) {
+    sdr_uhf_conf_t *sdr_conf = arg;
     ex2_log("starting SDR->UART send");
     vTaskDelay(1000);
 
     int i, count = 0;
     while (1) {
         size_t len = ((count & 0x7) + 1) * BASE_LEN;
-        uint8_t *packet = (uint8_t *) csp_malloc(len);
+        uint8_t *packet = (uint8_t *)csp_malloc(len);
         if (!packet) {
             ex2_log("no more packets");
             break;
         }
 
-        for (i=0; i<len; i++) {
+        for (i = 0; i < len; i++) {
             packet[i] = i;
         }
         ex2_log("sdr->uhf send %d, len %d\n", count++, len);
 
         int rc;
-        if ((rc = sdr_uhf_tx(sdr_uhf_conf, packet, len))) {
+        if ((rc = sdr_uhf_tx(sdr_conf, packet, len))) {
             ex2_log("sdr_uhf_tx returns %d", rc);
         }
         csp_free(packet);
@@ -93,7 +94,7 @@ static void test_csp_receive(void *arg) {
     /* Wait for connections and then process packets on the connection */
     csp_conn_t *conn;
     int tries = 10;
-    while((conn = csp_accept(sock, 10000)) == NULL) {
+    while ((conn = csp_accept(sock, 10000)) == NULL) {
         ++tries;
         if (tries > 10)
             break;
@@ -102,8 +103,7 @@ static void test_csp_receive(void *arg) {
     if (!conn) {
         conn = csp_connect(CSP_PRIO_NORM, 23, 23, 1000, CSP_O_NONE);
         ex2_log("no connection! forcing conn %p", conn);
-    }
-    else
+    } else
         ex2_log("legitimate connection! conn %p", conn);
 
     int count = 0;
@@ -116,7 +116,7 @@ static void test_csp_receive(void *arg) {
 
         ex2_log("uhf->csp receive %d, len %d", ++count, packet->length);
         int i, mismatches = 0;
-        for (i=0; i<packet->length; i++) {
+        for (i = 0; i < packet->length; i++) {
             if (packet->data[i] != i) {
                 ex2_log("packet[%d] got %d", i, packet->data[i]);
                 mismatches++;
@@ -124,7 +124,7 @@ static void test_csp_receive(void *arg) {
         }
         ex2_log("uhf->csp %d mismatches", mismatches);
 
-        //csp_buffer_free(packet);
+        // csp_buffer_free(packet);
     }
 
     csp_close(conn);
@@ -135,7 +135,7 @@ static int count;
 void sdr_uhf_receive(void *conf, uint8_t *data, size_t len) {
     ex2_log("uhf->sdr receive %d, len %d", ++count, len);
     int i, mismatches = 0;
-    for (i=0; i<len; i++) {
+    for (i = 0; i < len; i++) {
         if (data[i] != i) {
             ex2_log("packet[%d] got %d", i, data[i]);
             mismatches++;
@@ -144,11 +144,11 @@ void sdr_uhf_receive(void *conf, uint8_t *data, size_t len) {
     ex2_log("uhf->csp %d mismatches", mismatches);
 }
 
-void start_test_sdr(void) {
+void start_test_sdr(sdr_uhf_conf_t *sdr_conf) {
 #ifdef USE_CSP
     xTaskCreate(test_csp_receive, "uhf->csp", TEST_STACK_SIZE, NULL, 0, NULL);
     xTaskCreate(test_csp_send, "csp->uhf", TEST_STACK_SIZE, NULL, 0, NULL);
 #else
-    xTaskCreate(test_sdr_send, "sdr->uhf", TEST_STACK_SIZE, NULL, 0, NULL);
+    xTaskCreate(test_sdr_send, "sdr->uhf", TEST_STACK_SIZE, sdr_conf, 0, NULL);
 #endif
 }
