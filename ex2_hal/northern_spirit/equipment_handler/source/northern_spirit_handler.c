@@ -52,6 +52,7 @@ NS_return NS_upload_artwork(char *filename){
     int32_t file1 = red_open(filename, RED_O_RDONLY);
     if(file1 == -1){
         sys_log(ERROR, "Error %d opening file %s in NS_capture_image\r\n", red_errno, filename);
+        xSemaphoreGive(ns_command_mutex);
         return NS_FAIL;
     }
 
@@ -79,6 +80,7 @@ NS_return NS_upload_artwork(char *filename){
     uint8_t last_command[1] = {ETB};
     return_val = NS_sendAndReceive(last_command, 1, answer, NS_STANDARD_ANS_LEN);
     red_close(file1);
+    xSemaphoreGive(ns_command_mutex);
     return return_val;
 }
 
@@ -111,14 +113,26 @@ NS_return NS_capture_image(void){
     return return_val;
 }
 
-NS_return NS_confirm_downlink(void){
+NS_return NS_confirm_downlink(uint8_t *conf){
     if(xSemaphoreTake(ns_command_mutex, NS_COMMAND_MUTEX_TIMEOUT) != pdTRUE){
         return NS_HANDLER_BUSY;
     }
     uint8_t command[NS_STANDARD_CMD_LEN] = {'g', 'g', 'g'};
-    uint8_t answer[NS_STANDARD_ANS_LEN + NS_STANDARD_ANS_LEN];
+    uint8_t answer[NS_STANDARD_ANS_LEN];
 
-    NS_return return_val = NS_sendAndReceive(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN + NS_STANDARD_ANS_LEN);
+    NS_return return_val = NS_sendAndReceive(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN);
+    if(return_val != NS_OK){
+        xSemaphoreGive(ns_command_mutex);
+        return return_val;
+    }
+
+    // Wait for confirmation of image deletion
+    vTaskDelay(NS_CONFIRM_DOWNLINK_DELAY);
+
+    uint8_t confirmation[NS_STANDARD_ANS_LEN];
+    return_val = NS_expectResponse(confirmation, NS_STANDARD_ANS_LEN);
+
+    *conf = (confirmation[0] == 'g') ? 0 : 1;
 
     xSemaphoreGive(ns_command_mutex);
     return return_val;
@@ -144,11 +158,21 @@ NS_return NS_get_flag(char flag, bool *stat){
     }
 
     uint8_t command[NS_SUBCODED_CMD_LEN] = {'k', 'k', 'k', flag, flag, flag};
-    uint8_t answer[NS_STANDARD_ANS_LEN + NS_FLAG_DATA_LEN + NS_STANDARD_ANS_LEN];
+    uint8_t answer[NS_STANDARD_ANS_LEN];
 
-    NS_return return_val = NS_sendAndReceive(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN + NS_FLAG_DATA_LEN + NS_STANDARD_ANS_LEN);
+    NS_return return_val = NS_sendAndReceive(command, NS_STANDARD_CMD_LEN + NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN);
+    if(return_val != NS_OK){
+        xSemaphoreGive(ns_command_mutex);
+        return return_val;
+    }
 
-    *stat = answer[NS_STANDARD_ANS_LEN];
+    // Wait until flag is returned
+    vTaskDelay(NS_GETFLAG_DELAY);
+
+    uint8_t flag_ans[NS_FLAG_DATA_LEN + NS_STANDARD_ANS_LEN];
+    return_val = NS_expectResponse(flag_ans, NS_FLAG_DATA_LEN + NS_STANDARD_ANS_LEN);
+
+    *stat = (flag_ans[0] != '0') ? 1 : 0;
 
     xSemaphoreGive(ns_command_mutex);
     return return_val;
@@ -184,6 +208,7 @@ NS_return NS_get_telemetry(uint8_t *telemetry){
     size_t decoded_len;
     unsigned char *decoded_data = base64_decode(response_data, NS_ENCODED_TELEMETRY_DATA_LEN, &decoded_len);
     if((decoded_data == NULL) || (decoded_len != NS_DECODED_TELEMETRY_DATA_LEN)){
+        xSemaphoreGive(ns_command_mutex);
         return NS_FAIL;
     }
 

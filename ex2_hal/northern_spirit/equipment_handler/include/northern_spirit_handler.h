@@ -40,7 +40,9 @@
 
 #define NS_IMAGE_COLLECTION_DELAY pdMS_TO_TICKS(10000)
 #define NS_TELEMETRY_COLLECTION_DELAY pdMS_TO_TICKS(15000)
-#define NS_COMMAND_MUTEX_TIMEOUT pdMS_TO_TICKS(2000)
+#define NS_GETFLAG_DELAY pdMS_TO_TICKS(2000)
+#define NS_CONFIRM_DOWNLINK_DELAY pdMS_TO_TICKS(1000)
+#define NS_COMMAND_MUTEX_TIMEOUT pdMS_TO_TICKS(1000)
 
 typedef enum{
     NS_OK,
@@ -66,8 +68,10 @@ typedef enum{
 
 NS_return NS_handler_init(void);
 NS_return NS_capture_image(void);
+NS_return NS_confirm_downlink(uint8_t *conf);
 NS_return NS_get_heartbeat(uint8_t* heartbeat);
-NS_return NS_get_software_version(uint8_t* version);
+NS_return NS_get_flag(char flag, bool *stat);
 NS_return NS_get_telemetry(uint8_t* telemetry);
+NS_return NS_get_software_version(uint8_t* version);
 
 #endif // NORTHERN_SPIRIT_HANDLER_H

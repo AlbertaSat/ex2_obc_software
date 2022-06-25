@@ -34,7 +34,7 @@ static uint32_t get_svc_wdt_counter() { return svc_wdt_counter; }
 void ns_payload_service(void *param) {
     // socket initialization
     csp_socket_t *sock;
-    sock = csp_socket(CSP_SO_RDPREQ);
+    sock = csp_socket(CSP_SO_HMACREQ);
     csp_bind(sock, TC_NORTHERN_SPIRIT_SERVICE);
     csp_listen(sock, SERVICE_BACKLOG_LEN);
 
@@ -104,10 +104,9 @@ SAT_returnState start_ns_payload_service(void) {
  *      Success or failure
  */
 SAT_returnState ns_payload_service_app(csp_packet_t *packet) {
-    ns_payload_service_subtype ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
+    ns_payload_service_subtype ser_subtype = (ns_payload_service_subtype)packet->data[SUBSERVICE_BYTE];
     int8_t status;
     SAT_returnState return_state = SATR_OK; // OK until an error is encountered
-    char * filename;
 
     switch (ser_subtype) {
 
@@ -127,9 +126,11 @@ SAT_returnState ns_payload_service_app(csp_packet_t *packet) {
         break;
     }
     case NS_CONFIRM_DOWNLINK: {
-        status = HAL_NS_confirm_downlink();
+        uint8_t conf;
+        status = HAL_NS_confirm_downlink(&conf);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-        set_packet_length(packet, sizeof(int8_t) + 1);
+        memcpy(&packet->data[OUT_DATA_BYTE], &conf, sizeof(conf));
+        set_packet_length(packet, sizeof(int8_t) + sizeof(conf)+ 1);
         break;
     }
 

@@ -36,9 +36,9 @@ NS_return HAL_NS_capture_image(){
 #endif
 }
 
-NS_return HAL_NS_confirm_downlink(){
+NS_return HAL_NS_confirm_downlink(uint8_t *conf){
 #ifndef PAYLOAD_IS_STUBBED
-    return NS_confirm_downlink();
+    return NS_confirm_downlink(conf);
 #else
     return NS_IS_STUBBED;
 #endif
