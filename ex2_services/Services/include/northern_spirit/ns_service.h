@@ -36,6 +36,7 @@ typedef enum {
     NS_CONFIRM_DOWNLINK,
     NS_GET_HEARTBEAT,
     NS_GET_FLAG,
+    NS_GET_FILENAME,
     NS_GET_TELEMETRY,
     NS_GET_SW_VERSION
 } ns_payload_service_subtype;

@@ -60,9 +60,17 @@ NS_return HAL_NS_get_flag(char flag, bool *stat){
 #endif
 }
 
+NS_return HAL_NS_get_filename(char subcode, char *filename){
+#ifndef PAYLOAD_IS_STUBBED
+    return NS_get_filename(subcode, filename);
+#else
+    return NS_IS_STUBBED;
+#endif
+}
+
 NS_return HAL_NS_get_telemetry(ns_telemetry *tlm){
 #ifndef PAYLOAD_IS_STUBBED
-    return NS_get_telemetry(tlm->array);
+    return NS_get_telemetry(tlm);
 #else
     return NS_IS_STUBBED;
 #endif

@@ -26,6 +26,8 @@
 
 static SemaphoreHandle_t ns_command_mutex;
 
+static void convert_bytes_to_int16(int16_t *dest, uint8_t little_byte, uint8_t big_byte);
+
 // Functions fulfilling functionality common to AuroraSat and YukonSat
 
 NS_return NS_handler_init(){
@@ -178,7 +180,32 @@ NS_return NS_get_flag(char flag, bool *stat){
     return return_val;
 }
 
-NS_return NS_get_telemetry(uint8_t *telemetry){
+NS_return NS_get_filename(char subcode, char *filename){
+    if(xSemaphoreTake(ns_command_mutex, NS_COMMAND_MUTEX_TIMEOUT) != pdTRUE){
+        return NS_HANDLER_BUSY;
+    }
+
+    uint8_t command[NS_SUBCODED_CMD_LEN] = {'l', 'l', 'l', subcode, subcode, subcode};
+    uint8_t answer[NS_STANDARD_ANS_LEN];
+
+    NS_return return_val = NS_sendAndReceive(command, NS_STANDARD_CMD_LEN + NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN);
+    if(return_val != NS_OK){
+        xSemaphoreGive(ns_command_mutex);
+        return return_val;
+    }
+
+    // Wait until flag is returned
+    vTaskDelay(NS_GETFILENAME_DELAY);
+
+    uint8_t filename_ans[NS_FILENAME_DATA_LEN];
+    return_val = NS_expectResponse(filename_ans, NS_FILENAME_DATA_LEN);
+
+    memcpy(filename, filename_ans, 11);
+    xSemaphoreGive(ns_command_mutex);
+    return return_val;
+}
+
+NS_return NS_get_telemetry(ns_telemetry *telemetry){
     if(xSemaphoreTake(ns_command_mutex, NS_COMMAND_MUTEX_TIMEOUT) != pdTRUE){
         return NS_HANDLER_BUSY;
     }
@@ -197,8 +224,8 @@ NS_return NS_get_telemetry(uint8_t *telemetry){
     vTaskDelay(NS_TELEMETRY_COLLECTION_DELAY);
 
     // Receive telemetry data
-    char response_data[NS_ENCODED_TELEMETRY_DATA_LEN + NS_STANDARD_ANS_LEN];
-    return_val = NS_expectResponse((uint8_t *)response_data, NS_ENCODED_TELEMETRY_DATA_LEN + NS_STANDARD_ANS_LEN);
+    char response_data[NS_ENCODED_TELEMETRY_DATA_LEN];
+    return_val = NS_expectResponse((uint8_t *)response_data, NS_ENCODED_TELEMETRY_DATA_LEN);
 
     if(return_val != NS_OK){
         xSemaphoreGive(ns_command_mutex);
@@ -212,9 +239,18 @@ NS_return NS_get_telemetry(uint8_t *telemetry){
         return NS_FAIL;
     }
 
-    memcpy(telemetry, decoded_data, decoded_len);
-
     xSemaphoreGive(ns_command_mutex);
+
+    convert_bytes_to_int16(&telemetry->temp0, decoded_data[0], decoded_data[1]);
+    convert_bytes_to_int16(&telemetry->temp1, decoded_data[2], decoded_data[3]);
+    convert_bytes_to_int16(&telemetry->temp2, decoded_data[4], decoded_data[5]);
+    convert_bytes_to_int16(&telemetry->temp3, decoded_data[6], decoded_data[7]);
+    convert_bytes_to_int16(&telemetry->eNIM0, decoded_data[16], decoded_data[17]);
+    convert_bytes_to_int16(&telemetry->eNIM1, decoded_data[18], decoded_data[19]);
+    convert_bytes_to_int16(&telemetry->eNIM2, decoded_data[20], decoded_data[21]);
+    convert_bytes_to_int16(&telemetry->ram_avail, decoded_data[32], decoded_data[33]);
+    convert_bytes_to_int16(&telemetry->lowest_img_num, decoded_data[34], decoded_data[35]);
+    convert_bytes_to_int16(&telemetry->first_blank_img_num, decoded_data[36], decoded_data[37]);
     return return_val;
 }
 
@@ -230,6 +266,11 @@ NS_return NS_get_software_version(uint8_t *version){
     memcpy(version, (answer + NS_STANDARD_ANS_LEN), NS_SWVERSION_DATA_LEN);
     xSemaphoreGive(ns_command_mutex);
     return return_val;
+}
+
+static void convert_bytes_to_int16(int16_t *dest, uint8_t little_byte, uint8_t big_byte){
+    uint16_t temp = (big_byte << 8) | little_byte;
+    memcpy(dest, &temp, sizeof(int16_t));
 }
 
 #ifdef IS_YUKONSAT

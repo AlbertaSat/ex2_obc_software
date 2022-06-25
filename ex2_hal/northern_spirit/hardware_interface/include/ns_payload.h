@@ -28,6 +28,7 @@ NS_return HAL_NS_capture_image(void);
 NS_return HAL_NS_confirm_downlink(uint8_t *conf);
 NS_return HAL_NS_get_heartbeat(uint8_t *heartbeat);
 NS_return HAL_NS_get_flag(char flag, bool *stat);
+NS_return HAL_NS_get_filename(char subcode, char *filename);
 NS_return HAL_NS_get_telemetry(ns_telemetry *tlm);
 NS_return HAL_NS_get_software_version(uint8_t *version);
 
