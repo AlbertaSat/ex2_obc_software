@@ -77,10 +77,10 @@ NS_return NS_upload_artwork(char *filename){
     }else if(status < -1){
         sys_log(ERROR, "Unknown error during xmodem transfer of %s in NS_upload_artwork\r\n", red_errno, filename);
         return_val = NS_FAIL;
+    }else{
+        uint8_t last_command[1] = {ETB};
+        return_val = NS_sendAndReceive(last_command, 1, answer, NS_STANDARD_ANS_LEN);
     }
-
-    uint8_t last_command[1] = {ETB};
-    return_val = NS_sendAndReceive(last_command, 1, answer, NS_STANDARD_ANS_LEN);
     red_close(file1);
     xSemaphoreGive(ns_command_mutex);
     return return_val;

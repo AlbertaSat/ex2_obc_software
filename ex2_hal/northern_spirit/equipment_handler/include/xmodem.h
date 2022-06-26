@@ -11,6 +11,7 @@
 
 #include <stdint.h>
 #include <string.h>
+#include "redposix.h"
 
 #define SOH  0x01
 #define STX  0x02
