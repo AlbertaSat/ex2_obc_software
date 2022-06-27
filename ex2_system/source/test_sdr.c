@@ -1,5 +1,6 @@
 #include <FreeRTOS.h>
 #include <os_task.h>
+#include <os_portable.h>
 #include <string.h>
 #include <csp/csp.h>
 #include <csp/arch/csp_malloc.h>
@@ -22,7 +23,6 @@ void test_csp_send(void *arg) {
         if (!conn) {
             ex2_log("CSP connection failed %d", xTaskGetTickCount());
             vTaskDelay(1000);
-            // return;
         }
     }
 
@@ -55,14 +55,14 @@ void test_csp_send(void *arg) {
 }
 
 void test_sdr_send(void *arg) {
-    sdr_uhf_conf_t *sdr_conf = arg;
+    sdr_test_t *sdr_test = arg;
     ex2_log("starting SDR->UART send");
     vTaskDelay(1000);
 
     int i, count = 0;
     while (1) {
         size_t len = ((count & 0x7) + 1) * BASE_LEN;
-        uint8_t *packet = (uint8_t *)csp_malloc(len);
+        uint8_t *packet = (uint8_t *)pvPortMalloc(len);
         if (!packet) {
             ex2_log("no more packets");
             break;
@@ -73,11 +73,11 @@ void test_sdr_send(void *arg) {
         }
         ex2_log("sdr->uhf send %d, len %d\n", count++, len);
 
-        int rc;
-        if ((rc = sdr_uhf_tx(sdr_conf, packet, len))) {
+        int rc = sdr_uhf_tx(sdr_test->ifdata, packet, len);
+        if (rc) {
             ex2_log("sdr_uhf_tx returns %d", rc);
         }
-        csp_free(packet);
+        vPortFree(packet);
         vTaskDelay(5000);
     }
 }
@@ -123,8 +123,6 @@ static void test_csp_receive(void *arg) {
             }
         }
         ex2_log("uhf->csp %d mismatches", mismatches);
-
-        // csp_buffer_free(packet);
     }
 
     csp_close(conn);
@@ -144,11 +142,11 @@ void sdr_uhf_receive(void *conf, uint8_t *data, size_t len) {
     ex2_log("uhf->csp %d mismatches", mismatches);
 }
 
-void start_test_sdr(sdr_uhf_conf_t *sdr_conf) {
+void start_test_sdr(sdr_test_t *sdr_test) {
 #ifdef USE_CSP
     xTaskCreate(test_csp_receive, "uhf->csp", TEST_STACK_SIZE, NULL, 0, NULL);
     xTaskCreate(test_csp_send, "csp->uhf", TEST_STACK_SIZE, NULL, 0, NULL);
 #else
-    xTaskCreate(test_sdr_send, "sdr->uhf", TEST_STACK_SIZE, sdr_conf, 0, NULL);
+    xTaskCreate(test_sdr_send, "sdr->uhf", TEST_STACK_SIZE, sdr_test, 0, NULL);
 #endif
 }

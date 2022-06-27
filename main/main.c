@@ -77,7 +77,8 @@
 #ifdef SDR_TEST
 #include "test_sdr.h"
 
-static sdr_uhf_conf_t test_sdr_conf;
+static sdr_uhf_conf_t sdr_conf;
+static sdr_test_t sdr_test;
 #endif
 
 #define CSP_USE_SDR
@@ -191,7 +192,7 @@ void ex2_init(void *pvParameters) {
     init_software();
 
 #ifdef SDR_TEST
-    start_test_sdr(&test_sdr_conf);
+    start_test_sdr(&sdr_test);
 #endif
 
 #ifdef FLATSAT_TEST
@@ -375,7 +376,8 @@ static inline SAT_returnState init_csp_interface() {
     }
 
 #ifdef SDR_TEST
-    memcpy(&test_sdr_conf, &uhf_conf, sizeof(sdr_uhf_conf_t));
+    memcpy(&sdr_conf, &uhf_conf, sizeof(sdr_uhf_conf_t));
+    sdr_test.conf = &sdr_conf;
 #endif
 #endif /* defined(CSP_USE_SDR) */
 
