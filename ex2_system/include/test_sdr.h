@@ -10,7 +10,12 @@
 
 #include "sdr_driver.h"
 
-void start_test_sdr(sdr_uhf_conf_t *sdr_conf);
+typedef struct {
+    sdr_uhf_conf_t *conf;
+    sdr_interface_data_t *ifdata;
+} sdr_test_t;
+
+void start_test_sdr(sdr_test_t*);
 
 void sdr_uhf_receive(void *conf, uint8_t *data, size_t len);
 
