@@ -54,17 +54,85 @@ SAT_returnState start_service_server(void) {
         pdPASS) {
         return SATR_ERROR;
     }
-    start_cli_service();
-    if (start_communication_service() != SATR_OK ||
-        start_time_management_service() != SATR_OK ||
-        start_scheduler_service() != SATR_OK ||
-        start_housekeeping_service() != SATR_OK ||
-        start_general_service() != SATR_OK ||
-        start_logger_service() != SATR_OK ||
-        start_dfgm_service() != SATR_OK ||
-        start_adcs_service() != SATR_OK ||
-        start_FTP_service() != SATR_OK); {
-        return SATR_ERROR;
+    int start_service_retry = 0;
+    if (start_cli_service() != SATR_OK && start_service_retry <= 3) {
+        sys_log(WARN, "start_cli_service failed, try again");
+        vTaskDelay(500);
+        if (start_cli_service() != SATR_OK && start_service_retry == 3) {
+            sys_log(ERROR, "start_cli_service failed");
+        }
+    }
+    start_service_retry = 0;
+    if (start_communication_service() != SATR_OK && start_service_retry <= 3) {
+        sys_log(WARN, "start_communication_service failed, try again");
+        vTaskDelay(500);
+        if (start_communication_service() != SATR_OK && start_service_retry == 3) {
+            sys_log(ERROR, "start_communication_service failed");
+        }
+    }
+    start_service_retry = 0;
+    if (start_time_management_service() != SATR_OK && start_service_retry <= 3) {
+        sys_log(WARN, "start_time_management_service failed, try again");
+        vTaskDelay(500);
+        if (start_time_management_service() != SATR_OK && start_service_retry == 3) {
+            sys_log(ERROR, "start_time_management_service failed");
+        }
+    }
+    start_service_retry = 0;
+    if (start_scheduler_service() != SATR_OK && start_service_retry <= 3) {
+        sys_log(WARN, "start_scheduler_service failed, try again");
+        vTaskDelay(500);
+        if (start_scheduler_service() != SATR_OK && start_service_retry == 3) {
+            sys_log(ERROR, "start_scheduler_service failed");
+        }
+    }
+    start_service_retry = 0;
+    if (start_housekeeping_service() != SATR_OK && start_service_retry <= 3) {
+        sys_log(WARN, "start_housekeeping_service failed, try again");
+        vTaskDelay(500);
+        if (start_housekeeping_service() != SATR_OK && start_service_retry == 3) {
+            sys_log(ERROR, "start_housekeeping_service failed");
+        }
+    }
+    start_service_retry = 0;
+    if (start_general_service() != SATR_OK && start_service_retry <= 3) {
+        sys_log(WARN, "start_general_service failed, try again");
+        vTaskDelay(500);
+        if (start_general_service() != SATR_OK && start_service_retry == 3) {
+            sys_log(ERROR, "start_general_service failed");
+        }
+    }
+    start_service_retry = 0;
+    if (start_logger_service() != SATR_OK && start_service_retry <= 3) {
+        sys_log(WARN, "start_logger_service failed, try again");
+        vTaskDelay(500);
+        if (start_logger_service() != SATR_OK && start_service_retry == 3) {
+            sys_log(ERROR, "start_logger_service failed");
+        }
+    }
+    start_service_retry = 0;
+    if (start_dfgm_service() != SATR_OK && start_service_retry <= 3) {
+        sys_log(WARN, "start_dfgm_service failed, try again");
+        vTaskDelay(500);
+        if (start_dfgm_service() != SATR_OK && start_service_retry == 3) {
+            sys_log(ERROR, "start_dfgm_service failed");
+        }
+    }
+    start_service_retry = 0;
+    if (start_adcs_service() != SATR_OK && start_service_retry <= 3) {
+        sys_log(WARN, "start_adcs_service failed, try again");
+        vTaskDelay(500);
+        if (start_adcs_service() != SATR_OK && start_service_retry == 3) {
+            sys_log(ERROR, "start_adcs_service failed");
+        }
+    }
+    start_service_retry = 0;
+    if (start_FTP_service() != SATR_OK && start_service_retry <= 3) {
+        sys_log(WARN, "start_FTP_service failed, try again");
+        vTaskDelay(500);
+        if (start_FTP_service() != SATR_OK && start_service_retry == 3) {
+            sys_log(ERROR, "start_FTP_service failed");
+        }
     }
     return SATR_OK;
 }
