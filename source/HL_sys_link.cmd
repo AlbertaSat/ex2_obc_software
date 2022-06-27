@@ -109,7 +109,7 @@ SECTIONS
 --retain="*(.intvecs)"
 
 #define GOLDEN_IMAGE
-/#define APPLICATION_IMAGE
+//#define APPLICATION_IMAGE
 //#define BOOTLOADER_PRESENT
 
 /*----------------------------------------------------------------------------*/
