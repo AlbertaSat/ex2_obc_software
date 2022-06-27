@@ -142,11 +142,11 @@ int Athena_getHK(athena_housekeeping *athena_hk) {
         exit(red_errno);
     }
 
-#elif //IS_ATHENA_V2
+#else //IS_ATHENA_V2
     athena_hk->vol1_usage_percent = 0;//stub if no card
 #endif //IS_ATHENA_V2
 
-#elif //HAS_SD_CARD
+#else //HAS_SD_CARD
     athena_hk->vol0_usage_percent = 0;//stub if no card
 #endif //HAS_SD_CARD
 
