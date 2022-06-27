@@ -151,6 +151,8 @@ SECTIONS
     /* Rest of code to user mode flash region */
     .text        align(32) : {} > FLASH
     .const       align(32) : {} > FLASH
+    .ARM.extab    : {} > FLASH
+    .ARM.exidx    : {} > FLASH
     /* FreeRTOS Kernel data in protected region of RAM */
     .kernelBSS    : {} > KRAM
     .kernelHEAP   : {} > RAM
