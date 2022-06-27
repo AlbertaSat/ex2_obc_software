@@ -10,13 +10,6 @@
 
 #include "sdr_driver.h"
 
-typedef struct {
-    sdr_uhf_conf_t *conf;
-    sdr_interface_data_t *ifdata;
-} sdr_test_t;
-
-void start_test_sdr(sdr_test_t*);
-
-void sdr_uhf_receive(void *conf, uint8_t *data, size_t len);
+void start_test_sdr(sdr_interface_data_t*);
 
 #endif /* EX2_SYSTEM_TEST_SDR_H_ */

@@ -75,8 +75,7 @@
 #ifdef SDR_TEST
 #include "test_sdr.h"
 
-static sdr_uhf_conf_t sdr_conf;
-static sdr_test_t sdr_test;
+static sdr_interface_data_t *test_ifdata;
 #endif
 
 #define CSP_USE_SDR
@@ -186,7 +185,7 @@ void ex2_init(void *pvParameters) {
     init_software();
 
  #ifdef SDR_TEST
-    start_test_sdr(&sdr_test);
+    start_test_sdr(test_ifdata);
  #endif
 
 #ifdef FLATSAT_TEST
@@ -364,18 +363,24 @@ static inline SAT_returnState init_csp_interface() {
 
     sdr_uhf_conf_t uhf_conf = {    .mtu = SDR_UHF_MAX_MTU,
                                    .uhf_baudrate = SDR_UHF_9600_BAUD,
-                                   .uart_baudrate = 115200,
-                                   .rx_callback = csp_if_sdr_rx };
+                                   .uart_baudrate = 115200 };
 
-    error = csp_uhf_open_and_add_interface(&uhf_conf, gs_if_name, NULL);
-    if (error != CSP_ERR_NONE) {
-        return SATR_ERROR;
-    }
-
-#ifdef SDR_TEST
-    memcpy(&sdr_conf, &uhf_conf, sizeof(sdr_uhf_conf_t));
-    sdr_test.conf = &sdr_conf;
+    if (SDR_NO_CSP) {
+        sdr_interface_data_t *ifdata = sdr_uhf_interface_init(&uhf_conf, gs_if_name);
+        if (!ifdata) {
+            return SATR_ERROR;
+        }
+#ifdef SDR_TEST    
+        test_ifdata = ifdata;
 #endif
+    }
+    else {
+        error = csp_uhf_open_and_add_interface(&uhf_conf, gs_if_name, NULL);
+        if (error != CSP_ERR_NONE) {
+            return SATR_ERROR;
+        }
+    }
+    
 #endif /* defined(CSP_USE_SDR) */
 
     char rtable[128] = {0};

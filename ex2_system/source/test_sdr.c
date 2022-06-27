@@ -9,7 +9,6 @@
 #define TEST_STACK_SIZE 512
 
 #define BASE_LEN 20
-#define USE_CSP 1
 
 void test_csp_send(void *arg) {
     ex2_log("starting CSP->UART send");
@@ -54,7 +53,8 @@ void test_csp_send(void *arg) {
 }
 
 void test_sdr_send(void *arg) {
-    sdr_test_t *sdr_test = arg;
+    sdr_interface_data_t *ifdata = arg;
+
     ex2_log("starting SDR->UART send");
     vTaskDelay(1000);
 
@@ -72,7 +72,7 @@ void test_sdr_send(void *arg) {
         }
         ex2_log("sdr->uhf send %d, len %d\n", count++, len);
 
-        int rc = sdr_uhf_tx(sdr_test->ifdata, packet, len);
+        int rc = sdr_uhf_tx(ifdata, packet, len);
         if (rc) {
             ex2_log("sdr_uhf_tx returns %d", rc);
         }
@@ -132,7 +132,7 @@ static void test_csp_receive(void *arg) {
 
 static int count;
 
-void sdr_uhf_receive(void *conf, uint8_t *data, size_t len) {
+static void sdr_uhf_receive(void *conf, uint8_t *data, size_t len) {
     ex2_log("uhf->sdr receive %d, len %d", ++count, len);
     int i, mismatches = 0;
     for (i=0; i<len; i++) {
@@ -144,11 +144,15 @@ void sdr_uhf_receive(void *conf, uint8_t *data, size_t len) {
     ex2_log("uhf->csp %d mismatches", mismatches);
 }
 
-void start_test_sdr(sdr_test_t *sdr_test) {
-#ifdef USE_CSP
-    xTaskCreate(test_csp_receive, "uhf->csp", TEST_STACK_SIZE, NULL, 0, NULL);
-    xTaskCreate(test_csp_send, "csp->uhf", TEST_STACK_SIZE, NULL, 0, NULL);
-#else
-    xTaskCreate(test_sdr_send, "sdr->uhf", TEST_STACK_SIZE, sdr_test, 0, NULL);
-#endif
+void start_test_sdr(sdr_interface_data_t *ifdata) {
+    if (SDR_NO_CSP) {
+        ifdata->sdr_conf->rx_callback = sdr_uhf_receive;
+        ifdata->sdr_conf->rx_callback_data = NULL;
+
+        xTaskCreate(test_sdr_send, "sdr->uhf", TEST_STACK_SIZE, ifdata, 0, NULL);
+    }
+    else {
+        xTaskCreate(test_csp_receive, "uhf->csp", TEST_STACK_SIZE, NULL, 0, NULL);
+        xTaskCreate(test_csp_send, "csp->uhf", TEST_STACK_SIZE, NULL, 0, NULL);
+    }
 }
