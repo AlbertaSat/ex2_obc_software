@@ -31,6 +31,7 @@
 #define OUT_DATA_BYTE 2
 
 /* SERVICES */
+#define NUMBER_OF_SERVICES 10
 #define MAX_APP_ID 32    // number of CSP nodes (5-bits)
 #define MAX_SERVICES 64  // number of CSP ports (6-bits)
 #define MAX_SUBTYPES 256 // an 8-bit integer
@@ -58,7 +59,7 @@
 #define TC_LOGGER_SERVICE 13
 // CLI service
 #define TC_CLI_SERVICE 14
-// SCHEDULER SERVICE 
+// SCHEDULER SERVICE
 #define TC_SCHEDULER_SERVICE 15
 // DFGM SERVICE
 #define TC_DFGM_SERVICE 19

@@ -54,84 +54,34 @@ SAT_returnState start_service_server(void) {
         pdPASS) {
         return SATR_ERROR;
     }
-    int start_service_retry = 0;
-    if (start_cli_service() != SATR_OK && start_service_retry <= 3) {
-        sys_log(WARN, "start_cli_service failed, try again");
-        vTaskDelay(500);
-        if (start_cli_service() != SATR_OK && start_service_retry == 3) {
-            sys_log(ERROR, "start_cli_service failed");
+    void (*start_service_function[NUMBER_OF_SERVICES])(void);
+    start_service_function[0] = start_cli_service();
+    start_service_function[1] = start_communication_service();
+    start_service_function[2] = start_time_management_service();
+    start_service_function[3] = start_scheduler_service();
+    start_service_function[4] = start_housekeeping_service();
+    start_service_function[5] = start_general_service();
+    start_service_function[6] = start_logger_service();
+    start_service_function[7] = start_dfgm_service();
+    start_service_function[8] = start_adcs_service();
+    start_service_function[9] = start_FTP_service();
+
+    int *start_service_flag[NUMBER_OF_SERVICES];
+    memset(start_service_flag, 0, NUMBER_OF_SERVICES);
+    int start_service_retry;
+
+    for (int i = 0; i < NUMBER_OF_SERVICES; i++) {
+        start_service_retry = 0 if (start_service_function[i] != SATR_OK && start_service_retry <= 3) {
+            sys_log(WARN, "start_service_flag[%d] failed, try again", i);
+            vTaskDelay(500);
+            if (start_service_function[i] != SATR_OK && start_service_retry == 3) {
+                sys_log(ERROR, "start_service_flag[%d] failed", i);
+            }
+            start_service_retry++;
         }
-    }
-    start_service_retry = 0;
-    if (start_communication_service() != SATR_OK && start_service_retry <= 3) {
-        sys_log(WARN, "start_communication_service failed, try again");
-        vTaskDelay(500);
-        if (start_communication_service() != SATR_OK && start_service_retry == 3) {
-            sys_log(ERROR, "start_communication_service failed");
-        }
-    }
-    start_service_retry = 0;
-    if (start_time_management_service() != SATR_OK && start_service_retry <= 3) {
-        sys_log(WARN, "start_time_management_service failed, try again");
-        vTaskDelay(500);
-        if (start_time_management_service() != SATR_OK && start_service_retry == 3) {
-            sys_log(ERROR, "start_time_management_service failed");
-        }
-    }
-    start_service_retry = 0;
-    if (start_scheduler_service() != SATR_OK && start_service_retry <= 3) {
-        sys_log(WARN, "start_scheduler_service failed, try again");
-        vTaskDelay(500);
-        if (start_scheduler_service() != SATR_OK && start_service_retry == 3) {
-            sys_log(ERROR, "start_scheduler_service failed");
-        }
-    }
-    start_service_retry = 0;
-    if (start_housekeeping_service() != SATR_OK && start_service_retry <= 3) {
-        sys_log(WARN, "start_housekeeping_service failed, try again");
-        vTaskDelay(500);
-        if (start_housekeeping_service() != SATR_OK && start_service_retry == 3) {
-            sys_log(ERROR, "start_housekeeping_service failed");
-        }
-    }
-    start_service_retry = 0;
-    if (start_general_service() != SATR_OK && start_service_retry <= 3) {
-        sys_log(WARN, "start_general_service failed, try again");
-        vTaskDelay(500);
-        if (start_general_service() != SATR_OK && start_service_retry == 3) {
-            sys_log(ERROR, "start_general_service failed");
-        }
-    }
-    start_service_retry = 0;
-    if (start_logger_service() != SATR_OK && start_service_retry <= 3) {
-        sys_log(WARN, "start_logger_service failed, try again");
-        vTaskDelay(500);
-        if (start_logger_service() != SATR_OK && start_service_retry == 3) {
-            sys_log(ERROR, "start_logger_service failed");
-        }
-    }
-    start_service_retry = 0;
-    if (start_dfgm_service() != SATR_OK && start_service_retry <= 3) {
-        sys_log(WARN, "start_dfgm_service failed, try again");
-        vTaskDelay(500);
-        if (start_dfgm_service() != SATR_OK && start_service_retry == 3) {
-            sys_log(ERROR, "start_dfgm_service failed");
-        }
-    }
-    start_service_retry = 0;
-    if (start_adcs_service() != SATR_OK && start_service_retry <= 3) {
-        sys_log(WARN, "start_adcs_service failed, try again");
-        vTaskDelay(500);
-        if (start_adcs_service() != SATR_OK && start_service_retry == 3) {
-            sys_log(ERROR, "start_adcs_service failed");
-        }
-    }
-    start_service_retry = 0;
-    if (start_FTP_service() != SATR_OK && start_service_retry <= 3) {
-        sys_log(WARN, "start_FTP_service failed, try again");
-        vTaskDelay(500);
-        if (start_FTP_service() != SATR_OK && start_service_retry == 3) {
-            sys_log(ERROR, "start_FTP_service failed");
+        else {
+            start_service_flag[i] = 1;
+            sys_log(INFO, "start_service_flag[%d] succeeded", i);
         }
     }
     return SATR_OK;
