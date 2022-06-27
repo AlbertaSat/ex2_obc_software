@@ -62,3 +62,19 @@ uint16_t Athena_get_OBC_uptime();
 uint8_t Athena_get_solar_supply_curr();
 
 #endif /* HOUSEKEEPING_ATHENA_H */
+
+
+/* TODO
+ * brainstorm other things based off of test plan
+ * check get all hk function and modify to fit new ath_hk struct
+ * same as above but for beacon, maybe...
+ * move this functionality to a hw_interface and not in the equipment handler
+ * populate hw_interface with other athena functions if necessary
+ *
+ * future notes:
+ * update software version format (from Ron)
+ * remove obc_mode? (ask team)
+ * implement cmds_received and packets_unrecovered (waiting for slacK)
+ * implmement solar panel current (from Liam)
+ *
+ */
