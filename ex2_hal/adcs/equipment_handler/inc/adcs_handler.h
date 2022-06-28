@@ -285,19 +285,19 @@ typedef struct {
     port_pin CW3;
 } adcs_sysConfig;
 
-typedef struct {
+typedef struct __attribute__((packed)) {
     xyzu8 gyro;
     xyz sensor_offset;
     uint8_t rate_sensor_mult;
 } rate_gyro_config;
 
-typedef struct {
+typedef struct __attribute__((packed)) {
     uint8_t config[10];
     float rel_scale[10];
     uint8_t threshold;
 } css_config;
 
-typedef struct {
+typedef struct __attribute__((packed)){
     xyz mounting_angle; // alpha, beta, gamma
     uint16_t exposure_t;
     uint16_t analog_gain;
@@ -351,7 +351,7 @@ typedef struct {
     float boresight_y;
 } camsensor_config;
 
-typedef struct __attribute__((packed)){
+typedef struct __attribute__((packed)) {
     camsensor_config cam1_sense;
     camsensor_config cam2_sense;
     uint8_t nadir_max_deviate;
@@ -362,20 +362,20 @@ typedef struct __attribute__((packed)){
     cam_area cam2_area;
 } cubesense_config;
 
-typedef struct {
+typedef struct __attribute__((packed)) {
     xyz mounting_angle;
     xyz channel_offset;       // 1, 2, 3
     float sensitivity_mat[9]; // Not the same order as manual!
 } mtm_config;
 
-typedef struct {
+typedef struct __attribute__((packed)) {
     float spin_gain;
     float damping_gain;
     float spin_rate;
     float fast_bDot;
 } detumble_config;
 
-typedef struct {
+typedef struct __attribute__((packed)) {
     float control_gain;
     float damping_gain;
     float proportional_gain;
@@ -383,7 +383,7 @@ typedef struct {
     float reference; // [Nms]
 } ywheel_ctrl_config;
 
-typedef struct {
+typedef struct __attribute__((packed)) {
     float proportional_gain;
     float derivative_gain;
     float bias_moment;
@@ -391,20 +391,20 @@ typedef struct {
     bool auto_transit;
 } rwheel_ctrl_config;
 
-typedef struct {
+typedef struct __attribute__((packed)) {
     float proportional_gain;
     float derivative_gain;
     float integral_gain;
     uint8_t target_facet; // Refer to table 180
 } track_ctrl_config;
 
-typedef struct {
+typedef struct __attribute__((packed)) {
     xyz diag;
     xyz nondiag; // Ixy Ixz Iyz
 } moment_inertia_config;
 
-typedef struct {
-    float MTM_rate_nosie;
+typedef struct __attribute__((packed)) {
+    float MTM_rate_noise;
     float EKF_noise;
     float CSS_noise;
     float suns_sensor_noise;
@@ -417,7 +417,7 @@ typedef struct {
     uint8_t cam_sample_period;
 } estimation_config;
 
-typedef struct {
+typedef struct __attribute__((packed)) {
     uint8_t controller[48];
     uint8_t estimator[48];
 } usercoded_setting;
@@ -433,7 +433,7 @@ typedef struct {
     float yp;
 } filter_coef;
 
-typedef struct {
+typedef struct __attribute__((packed)) {
     float inclination;
     float RAAN;
     float ECC;
@@ -453,7 +453,7 @@ typedef struct {
     uint16_t min_samples;
 } aspg4_setting;
 
-typedef struct {
+typedef struct __attribute__((packed)) {
     xyzu8 MTQ;
     uint8_t RW[4];
     rate_gyro_config rate_gyro;

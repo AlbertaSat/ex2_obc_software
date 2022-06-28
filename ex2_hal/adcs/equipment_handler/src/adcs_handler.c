@@ -3322,12 +3322,15 @@ ADCS_returnState ADCS_get_full_config(adcs_config *config) {
     config->cubesense.cam2_area.area5.y.min = (telemetry[147] << 8) | telemetry[146];
     config->cubesense.cam2_area.area5.y.max = (telemetry[149] << 8) | telemetry[148];
 
+    float temp_mtm[9];
     get_xyz(&config->MTM1.mounting_angle, &telemetry[150], 0.01);
     get_xyz(&config->MTM1.channel_offset, &telemetry[156], 0.001);
-    get_3x3(config->MTM1.sensitivity_mat, &telemetry[162], 0.001);
+    get_3x3(temp_mtm, &telemetry[162], 0.001);
+    memcpy(config->MTM1.sensitivity_mat, temp_mtm, sizeof(config->MTM1.sensitivity_mat));
     get_xyz(&config->MTM2.mounting_angle, &telemetry[180], 0.01);
     get_xyz(&config->MTM2.channel_offset, &telemetry[186], 0.001);
-    get_3x3(config->MTM2.sensitivity_mat, &telemetry[192], 0.001);
+    get_3x3(temp_mtm, &telemetry[192], 0.001);
+    memcpy(config->MTM2.sensitivity_mat, temp_mtm, sizeof(config->MTM2.sensitivity_mat));
 
     get_xyz(&config->star_tracker.mounting_angle, &telemetry[210], 0.01); // Don't have this
     memcpy(&config->star_tracker.exposure_t, &telemetry[216], 45);        // Don't have this
@@ -3409,7 +3412,7 @@ ADCS_returnState ADCS_get_full_config(adcs_config *config) {
             temp_estimation[i] = temp_estimation[i] | ((unsigned long)telemetry[347 + 4 * i + k] << (8 * k));
         }
     }
-    memcpy(&config->estimation.MTM_rate_nosie, &temp_estimation[0], 4);
+    memcpy(&config->estimation.MTM_rate_noise, &temp_estimation[0], 4);
     memcpy(&config->estimation.EKF_noise, &temp_estimation[1], 4);
     memcpy(&config->estimation.CSS_noise, &temp_estimation[2], 4);
     memcpy(&config->estimation.suns_sensor_noise, &temp_estimation[3], 4);
