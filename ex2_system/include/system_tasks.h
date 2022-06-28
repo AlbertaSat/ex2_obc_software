@@ -25,6 +25,8 @@
 #include "uTransceiver.h"
 #include "housekeeping_service.h"
 
+#define NUMBER_OF_SYSTEM_TASKS 9
+
 SAT_returnState start_system_tasks(void);
 
 #endif /* EX2_SYSTEM_INCLUDE_SYSTEM_TASKS_H_ */
