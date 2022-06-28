@@ -54,7 +54,7 @@ SAT_returnState start_service_server(void) {
         pdPASS) {
         return SATR_ERROR;
     }
-    void (*start_service_function[NUMBER_OF_SERVICES])(void);
+    SAT_returnState (*start_service_function[NUMBER_OF_SERVICES])(void);
     start_service_function[0] = start_cli_service();
     start_service_function[1] = start_communication_service();
     start_service_function[2] = start_time_management_service();
@@ -71,15 +71,15 @@ SAT_returnState start_service_server(void) {
     int start_service_retry;
 
     for (int i = 0; i < NUMBER_OF_SERVICES; i++) {
-        start_service_retry = 0 if (start_service_function[i] != SATR_OK && start_service_retry <= 3) {
+        start_service_retry = 0;
+        if (start_service_function[i] != SATR_OK && start_service_retry <= 3) {
             sys_log(WARN, "start_service_flag[%d] failed, try again", i);
             vTaskDelay(500);
             if (start_service_function[i] != SATR_OK && start_service_retry == 3) {
                 sys_log(ERROR, "start_service_flag[%d] failed", i);
             }
             start_service_retry++;
-        }
-        else {
+        } else {
             start_service_flag[i] = 1;
             sys_log(INFO, "start_service_flag[%d] succeeded", i);
         }
