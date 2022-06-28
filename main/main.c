@@ -157,7 +157,9 @@ void ex2_init(void *pvParameters) {
 #endif
 
 #ifndef CHARON_IS_STUBBED
+#ifdef IS_EXALTA2
     gps_skytraq_driver_init();
+#endif
     ads7128Init();
     setuppcal9538a();
 #endif
