@@ -213,16 +213,20 @@ int ex2_main(void) {
 void init_software() {
     /* start system tasks and service listeners */
     int init_retry = 0;
-    if (start_system_tasks() != SATR_OK && init_retry < 3) {
-        sys_log(ERROR, "start_system_tasks initialization error");
-        init_retry++;
-        vTaskDelay(500);
+    for (init_retry < 3) {
+        if (start_system_tasks() != SATR_OK) {
+            sys_log(ERROR, "start_system_tasks initialization error");
+            init_retry++;
+            vTaskDelay(500);
+        }
     }
     init_retry = 0;
-    if (start_service_server() != SATR_OK && init_retry < 3) {
-        sys_log(ERROR, "start_service_server initialization error");
-        init_retry++;
-        vTaskDelay(500);
+    for (init_retry < 3) {
+        if (start_service_server() != SATR_OK) {
+            sys_log(ERROR, "start_service_server initialization error");
+            init_retry++;
+            vTaskDelay(500);
+        }
     }
 }
 
