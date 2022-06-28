@@ -55,23 +55,17 @@ SAT_returnState start_service_server(void) {
         return SATR_ERROR;
     }
     typedef SAT_returnState (*services)();
-    services start_service_function[NUMBER_OF_SERVICES] = {&start_cli_service,
-                                                           &start_communication_service,
-                                                           &start_time_management_service,
-                                                           &start_scheduler_service,
-                                                           &start_housekeeping_service,
-                                                           &start_general_service,
-                                                           &start_logger_service,
-                                                           &start_logger_service,
-                                                           &start_dfgm_service,
-                                                           &start_adcs_service,
-                                                           &start_FTP_service};
+    services start_service_function[NUMBER_OF_SERVICES] = {
+        &start_cli_service,       &start_communication_service, &start_time_management_service,
+        &start_scheduler_service, &start_housekeeping_service,  &start_general_service,
+        &start_logger_service,    &start_logger_service,        &start_dfgm_service,
+        &start_adcs_service,      &start_FTP_service,           NULL};
 
     uint8_t start_service_flag[NUMBER_OF_SERVICES];
     memset(start_service_flag, 0, NUMBER_OF_SERVICES * sizeof(uint8_t));
     int start_service_retry;
 
-    for (int i = 0; i < NUMBER_OF_SERVICES; i++) {
+    for (int i = 0; start_service_function[i]; i++) {
         start_service_retry = 0;
         SAT_returnState state;
         while (start_service_retry <= 3) {
