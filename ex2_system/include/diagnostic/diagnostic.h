@@ -30,10 +30,13 @@ TickType_t get_uhf_watchdog_delay(void);
 TickType_t get_sband_watchdog_delay(void);
 TickType_t get_charon_watchdog_delay(void);
 TickType_t get_adcs_watchdog_delay(void);
+TickType_t get_ns_watchdog_delay(void);
 
 SAT_returnState set_uhf_watchdog_delay(const unsigned int ms_delay);
 SAT_returnState set_sband_watchdog_delay(const unsigned int ms_delay);
 SAT_returnState set_charon_watchdog_delay(const unsigned int ms_delay);
 SAT_returnState set_adcs_watchdog_delay(const unsigned int ms_delay);
+SAT_returnState set_ns_watchdog_delay(const unsigned int ms_delay);
+
 
 #endif /* EX2_SYSTEM_INCLUDE_DIAGNOSTIC_DIAGNOSTIC_H_ */
