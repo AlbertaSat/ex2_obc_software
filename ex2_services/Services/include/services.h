@@ -31,7 +31,7 @@
 #define OUT_DATA_BYTE 2
 
 /* SERVICES */
-#define NUMBER_OF_SERVICES 10
+#define NUMBER_OF_SERVICES 11
 #define MAX_APP_ID 32    // number of CSP nodes (5-bits)
 #define MAX_SERVICES 64  // number of CSP ports (6-bits)
 #define MAX_SUBTYPES 256 // an 8-bit integer
