@@ -131,9 +131,9 @@ void ex2_init(void *pvParameters) {
     ADCS_set_power_control(control);
 
     ADCS_set_attitude_estimate_mode(6); // GyroEKF
-    ADCS_set_unix_t(1652976000, 0); // May 19, 2022
-#endif // FLATSAT_TEST
-#endif // ADCS_IS_STUBBED
+    ADCS_set_unix_t(1652976000, 0);     // May 19, 2022
+#endif                                  // FLATSAT_TEST
+#endif                                  // ADCS_IS_STUBBED
 
 #ifndef ATHENA_IS_STUBBED
     // PLACEHOLDER: athena hardware init
@@ -190,10 +190,7 @@ void ex2_init(void *pvParameters) {
 }
 
 #ifdef FLATSAT_TEST
-void flatsat_test(void *pvParameters) {
-
-    vTaskDelete(NULL);
-}
+void flatsat_test(void *pvParameters) { vTaskDelete(NULL); }
 #endif
 
 int ex2_main(void) {
@@ -215,8 +212,17 @@ int ex2_main(void) {
  */
 void init_software() {
     /* start system tasks and service listeners */
-    if (start_system_tasks() != SATR_OK || start_service_server() != SATR_OK) {
-        ex2_log("Initialization error\n");
+    int init_retry = 0;
+    if (start_system_tasks() != SATR_OK && init_retry < 3) {
+        sys_log(ERROR, "start_system_tasks initialization error");
+        init_retry++;
+        vTaskDelay(500);
+    }
+    init_retry = 0;
+    if (start_service_server() != SATR_OK && init_retry < 3) {
+        sys_log(ERROR, "start_service_server initialization error");
+        init_retry++;
+        vTaskDelay(500);
     }
 }
 
@@ -347,16 +353,14 @@ static inline SAT_returnState init_csp_interface() {
 #if defined(CSP_USE_SDR)
 
 #ifdef SDR_TEST
-    char * gs_if_name = "LOOPBACK";
+    char *gs_if_name = "LOOPBACK";
     int gs_if_addr = 23;
 #else
-    char * gs_if_name = "UHF";
+    char *gs_if_name = "UHF";
     int gs_if_addr = 16;
 #endif /* SDR_TEST */
 
-    csp_sdr_conf_t uhf_conf = {    .mtu = SDR_UHF_MAX_MTU,
-                                   .baudrate = SDR_UHF_9600_BAUD,
-                                   .uart_baudrate = 115200 };
+    csp_sdr_conf_t uhf_conf = {.mtu = SDR_UHF_MAX_MTU, .baudrate = SDR_UHF_9600_BAUD, .uart_baudrate = 115200};
     error = csp_sdr_open_and_add_interface(&uhf_conf, gs_if_name, NULL);
     if (error != CSP_ERR_NONE) {
         return SATR_ERROR;
