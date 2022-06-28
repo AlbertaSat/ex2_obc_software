@@ -52,7 +52,12 @@ SAT_returnState start_system_tasks(void) {
         start_task_retry = 0;
         SAT_returnState state;
         while (start_task_retry <= 3) {
-            state = start_task[i]();
+            // start_logger_daemon needs an argument "_", keep start_logger_daemon as the last init function
+            if (i < NUMBER_OF_SYSTEM_TASKS - 1) {
+                state = start_task[i]();
+            } else {
+                state = start_task[i](_);
+            }
             if (state != SATR_OK && start_task_retry < 3) {
                 sys_log(WARN, "start_task_flag[%d] failed, try again", i);
                 vTaskDelay(500);
