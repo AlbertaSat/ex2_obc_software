@@ -46,7 +46,7 @@
 #define NS_CONFIRM_DOWNLINK_DELAY pdMS_TO_TICKS(1000)
 #define NS_COMMAND_MUTEX_TIMEOUT pdMS_TO_TICKS(1000)
 
-typedef enum{
+typedef enum {
     NS_OK,
     NS_FAIL,
     NS_BAD_CMD,
@@ -57,9 +57,9 @@ typedef enum{
     NS_MALLOC_FAIL,
 
     NS_IS_STUBBED = 0
-}NS_return;
+} NS_return;
 
-typedef struct __attribute__((packed)){
+typedef struct __attribute__((packed)) {
     int16_t temp0;
     int16_t temp1;
     int16_t temp2;
@@ -70,21 +70,21 @@ typedef struct __attribute__((packed)){
     int16_t ram_avail;
     int16_t lowest_img_num;
     int16_t first_blank_img_num;
-}ns_telemetry;
+} ns_telemetry;
 
-typedef enum{
+typedef enum {
     CameraStatus = 'c',
     SDcardStatus = 's',
-}NS_flag_subcodes;
+} NS_flag_subcodes;
 
 NS_return NS_handler_init(void);
 NS_return NS_upload_artwork(char *filename);
 NS_return NS_capture_image(void);
 NS_return NS_confirm_downlink(uint8_t *conf);
-NS_return NS_get_heartbeat(uint8_t* heartbeat);
+NS_return NS_get_heartbeat(uint8_t *heartbeat);
 NS_return NS_get_flag(char flag, bool *stat);
 NS_return NS_get_filename(char subcode, char *filename);
 NS_return NS_get_telemetry(ns_telemetry *telemetry);
-NS_return NS_get_software_version(uint8_t* version);
+NS_return NS_get_software_version(uint8_t *version);
 
 #endif // NORTHERN_SPIRIT_HANDLER_H

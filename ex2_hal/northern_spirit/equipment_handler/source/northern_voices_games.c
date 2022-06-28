@@ -24,40 +24,35 @@ static void northern_voices_task(void *pvParameters);
 
 bool northern_voices_active = false;
 
-NS_return NS_start_northern_voices(char *filename){
-    if(northern_voices_active == true){
+NS_return NS_start_northern_voices(char *filename) {
+    if (northern_voices_active == true) {
         sys_log(NOTICE, "Tried to start northern voices when it was already active");
         return NS_FAIL;
     }
 
-    if(xTaskCreate(northern_voices_task, "NVM", NORTHERN_VOICES_STACK_SIZE, (void *)filename, NORTHERN_VOICES_PRIORITY, NULL) != pdPASS){
+    if (xTaskCreate(northern_voices_task, "NVM", NORTHERN_VOICES_STACK_SIZE, (void *)filename,
+                    NORTHERN_VOICES_PRIORITY, NULL) != pdPASS) {
         return NS_FAIL;
-    }else{
+    } else {
         northern_voices_active = true;
     }
     return NS_OK;
 }
 
-void NS_stop_northern_voices(void){
-    northern_voices_active = false;
-}
+void NS_stop_northern_voices(void) { northern_voices_active = false; }
 
-bool NS_northern_voices_status(void){
-    return northern_voices_active;
-}
+bool NS_northern_voices_status(void) { return northern_voices_active; }
 
-static void northern_voices_task(void *pvParameters){
+static void northern_voices_task(void *pvParameters) {
     char *filename = (char *)pvParameters;
     int32_t iErr;
     iErr = red_open(filename, RED_O_RDONLY);
-    if(iErr == -1){
+    if (iErr == -1) {
         sys_log(ERROR, "Failed to open file for northern voices");
         northern_voices_active = false;
         vTaskDelete(NULL);
     }
-    while(northern_voices_active){
-
+    while (northern_voices_active) {
     }
     vTaskDelete(NULL);
 }
-

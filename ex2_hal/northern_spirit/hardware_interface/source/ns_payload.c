@@ -20,7 +20,7 @@
 
 #include "ns_payload.h"
 
-NS_return HAL_NS_upload_artwork(char *filename){
+NS_return HAL_NS_upload_artwork(char *filename) {
 #ifndef PAYLOAD_IS_STUBBED
     return NS_upload_artwork(filename);
 #else
@@ -28,7 +28,7 @@ NS_return HAL_NS_upload_artwork(char *filename){
 #endif
 }
 
-NS_return HAL_NS_capture_image(){
+NS_return HAL_NS_capture_image() {
 #ifndef PAYLOAD_IS_STUBBED
     return NS_capture_image();
 #else
@@ -36,7 +36,7 @@ NS_return HAL_NS_capture_image(){
 #endif
 }
 
-NS_return HAL_NS_confirm_downlink(uint8_t *conf){
+NS_return HAL_NS_confirm_downlink(uint8_t *conf) {
 #ifndef PAYLOAD_IS_STUBBED
     return NS_confirm_downlink(conf);
 #else
@@ -44,7 +44,7 @@ NS_return HAL_NS_confirm_downlink(uint8_t *conf){
 #endif
 }
 
-NS_return HAL_NS_get_heartbeat(uint8_t *heartbeat){
+NS_return HAL_NS_get_heartbeat(uint8_t *heartbeat) {
 #ifndef PAYLOAD_IS_STUBBED
     return NS_get_heartbeat(heartbeat);
 #else
@@ -52,7 +52,7 @@ NS_return HAL_NS_get_heartbeat(uint8_t *heartbeat){
 #endif
 }
 
-NS_return HAL_NS_get_flag(char flag, bool *stat){
+NS_return HAL_NS_get_flag(char flag, bool *stat) {
 #ifndef PAYLOAD_IS_STUBBED
     return NS_get_flag(flag, stat);
 #else
@@ -60,7 +60,7 @@ NS_return HAL_NS_get_flag(char flag, bool *stat){
 #endif
 }
 
-NS_return HAL_NS_get_filename(char subcode, char *filename){
+NS_return HAL_NS_get_filename(char subcode, char *filename) {
 #ifndef PAYLOAD_IS_STUBBED
     return NS_get_filename(subcode, filename);
 #else
@@ -68,7 +68,7 @@ NS_return HAL_NS_get_filename(char subcode, char *filename){
 #endif
 }
 
-NS_return HAL_NS_get_telemetry(ns_telemetry *tlm){
+NS_return HAL_NS_get_telemetry(ns_telemetry *tlm) {
 #ifndef PAYLOAD_IS_STUBBED
     return NS_get_telemetry(tlm);
 #else
@@ -76,12 +76,10 @@ NS_return HAL_NS_get_telemetry(ns_telemetry *tlm){
 #endif
 }
 
-NS_return HAL_NS_get_software_version(uint8_t *version){
+NS_return HAL_NS_get_software_version(uint8_t *version) {
 #ifndef PAYLOAD_IS_STUBBED
     return NS_get_software_version(version);
 #else
     return NS_IS_STUBBED;
 #endif
 }
-
-

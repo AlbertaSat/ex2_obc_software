@@ -30,5 +30,4 @@ NS_return NS_start_northern_voices(char *filename);
 void NS_stop_northern_voices(void);
 bool NS_northern_voices_status(void);
 
-
 #endif /* EX2_HAL_NORTHERN_SPIRIT_EQUIPMENT_HANDLER_INCLUDE_NORTHERN_VOICES_GAMES_H_ */

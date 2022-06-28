@@ -82,13 +82,13 @@ SAT_returnState start_ns_payload_service(void) {
     taskFunctions svc_funcs = {0};
     svc_funcs.getCounterFunction = get_svc_wdt_counter;
 
-    if (xTaskCreate((TaskFunction_t)ns_payload_service, "ns_payload_service", 1024, NULL,
-                    NORMAL_SERVICE_PRIO, &svc_tsk) != pdPASS) {
+    if (xTaskCreate((TaskFunction_t)ns_payload_service, "ns_payload_service", 1024, NULL, NORMAL_SERVICE_PRIO,
+                    &svc_tsk) != pdPASS) {
         sys_log(ERROR, "FAILED TO CREATE TASK ns_payload_service\n");
         return SATR_ERROR;
     }
     ex2_register(svc_tsk, svc_funcs);
-    sys_log(INFO,"ns payload service started\n");
+    sys_log(INFO, "ns payload service started\n");
     return SATR_OK;
 }
 
@@ -130,7 +130,7 @@ SAT_returnState ns_payload_service_app(csp_packet_t *packet) {
         status = HAL_NS_confirm_downlink(&conf);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         memcpy(&packet->data[OUT_DATA_BYTE], &conf, sizeof(conf));
-        set_packet_length(packet, sizeof(int8_t) + sizeof(conf)+ 1);
+        set_packet_length(packet, sizeof(int8_t) + sizeof(conf) + 1);
         break;
     }
 

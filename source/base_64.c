@@ -11,10 +11,11 @@ static void base64_cleanup();
 
 char *base64_encode(const unsigned char *data, size_t input_length, size_t *output_length) {
 
-    *output_length = (input_length + 2) * 8 / 6;    /* 3-byte blocks to 4-byte */
+    *output_length = (input_length + 2) * 8 / 6; /* 3-byte blocks to 4-byte */
 
     char *encoded_data = (char *)pvPortMalloc(*output_length);
-    if (encoded_data == NULL) return NULL;
+    if (encoded_data == NULL)
+        return NULL;
 
     for (int i = 0, j = 0; i < input_length;) {
 
@@ -35,7 +36,6 @@ char *base64_encode(const unsigned char *data, size_t input_length, size_t *outp
 
     return encoded_data;
 }
-
 
 unsigned char *base64_decode(const char *data, size_t input_length, size_t *output_length) {
 
@@ -69,25 +69,27 @@ unsigned char *base64_decode(const char *data, size_t input_length, size_t *outp
 
         uint32_t triple = (sextet_a << 3 * 6) + (sextet_b << 2 * 6) + (sextet_c << 1 * 6) + (sextet_d << 0 * 6);
 
-        if (j < *output_length) {decoded_data[j++] = (triple >> 2 * 8) & 0xFF;}
-        if (j < *output_length) {decoded_data[j++] = (triple >> 1 * 8) & 0xFF;}
-        if (j < *output_length) {decoded_data[j++] = (triple >> 0 * 8) & 0xFF;}
+        if (j < *output_length) {
+            decoded_data[j++] = (triple >> 2 * 8) & 0xFF;
+        }
+        if (j < *output_length) {
+            decoded_data[j++] = (triple >> 1 * 8) & 0xFF;
+        }
+        if (j < *output_length) {
+            decoded_data[j++] = (triple >> 0 * 8) & 0xFF;
+        }
     }
 
     return decoded_data;
 }
-
 
 static void build_decoding_table() {
 
     decoding_table = pvPortMalloc(256);
 
     for (int i = 0; i < 64; i++) {
-        decoding_table[(unsigned char) encoding_table[i]] = i;
+        decoding_table[(unsigned char)encoding_table[i]] = i;
     }
 }
 
-
-static void base64_cleanup() {
-    vPortFree(decoding_table);
-}
+static void base64_cleanup() { vPortFree(decoding_table); }

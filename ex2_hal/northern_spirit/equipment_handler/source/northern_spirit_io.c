@@ -41,15 +41,15 @@ static SemaphoreHandle_t uart_mutex;
 
 NS_return init_ns_io() {
     ns_tx_semphr = xSemaphoreCreateBinary();
-    if(ns_tx_semphr == NULL){
+    if (ns_tx_semphr == NULL) {
         return NS_FAIL;
     }
     nsQueue = xQueueCreate(NS_QUEUE_LENGTH, ITEM_SIZE);
-    if(nsQueue == NULL){
+    if (nsQueue == NULL) {
         return NS_FAIL;
     }
     uart_mutex = xSemaphoreCreateMutex();
-    if(uart_mutex == NULL){
+    if (uart_mutex == NULL) {
         return NS_FAIL;
     }
     xSemaphoreGive(uart_mutex);
@@ -76,33 +76,33 @@ void ns_sciNotification(sciBASE_t *sci, int flags) {
     }
 }
 
-NS_return NS_sendAndReceive(uint8_t* command, uint32_t command_length, uint8_t* answer, uint8_t answer_length) {
-    if(xSemaphoreTake(uart_mutex, NS_SEMAPHORE_TIMEOUT_MS) != pdTRUE){
+NS_return NS_sendAndReceive(uint8_t *command, uint32_t command_length, uint8_t *answer, uint8_t answer_length) {
+    if (xSemaphoreTake(uart_mutex, NS_SEMAPHORE_TIMEOUT_MS) != pdTRUE) {
         return NS_UART_BUSY;
     }
 
     sciSend(PAYLOAD_SCI, command_length, command);
 
-    if(xSemaphoreTake(ns_tx_semphr, NS_SEMAPHORE_TIMEOUT_MS) != pdTRUE){
+    if (xSemaphoreTake(ns_tx_semphr, NS_SEMAPHORE_TIMEOUT_MS) != pdTRUE) {
         xSemaphoreGive(uart_mutex);
         return NS_UART_FAIL;
     }
 
     uint8_t received = 0;
-    uint8_t* reply = (uint8_t *)pvPortMalloc(answer_length * sizeof(uint8_t));
+    uint8_t *reply = (uint8_t *)pvPortMalloc(answer_length * sizeof(uint8_t));
 
-    if (reply == NULL){
+    if (reply == NULL) {
         xQueueReset(nsQueue);
         xSemaphoreGive(uart_mutex);
         return NS_MALLOC_FAIL;
     }
 
     while (received < answer_length) {
-        if(xQueueReceive(nsQueue, (reply+received), NS_UART_TIMEOUT_MS) != pdPASS){
+        if (xQueueReceive(nsQueue, (reply + received), NS_UART_TIMEOUT_MS) != pdPASS) {
             vPortFree(reply);
             xSemaphoreGive(uart_mutex);
             return NS_UART_FAIL;
-        }else{
+        } else {
             received++;
         }
     }
@@ -114,14 +114,14 @@ NS_return NS_sendAndReceive(uint8_t* command, uint32_t command_length, uint8_t* 
     return NS_OK;
 }
 
-NS_return NS_sendOnly(uint8_t* command, uint32_t command_length) {
-    if(xSemaphoreTake(uart_mutex, NS_SEMAPHORE_TIMEOUT_MS) != pdTRUE){
+NS_return NS_sendOnly(uint8_t *command, uint32_t command_length) {
+    if (xSemaphoreTake(uart_mutex, NS_SEMAPHORE_TIMEOUT_MS) != pdTRUE) {
         return NS_UART_BUSY;
     }
 
     sciSend(PAYLOAD_SCI, command_length, command);
 
-    if(xSemaphoreTake(ns_tx_semphr, NS_SEMAPHORE_TIMEOUT_MS) != pdTRUE){
+    if (xSemaphoreTake(ns_tx_semphr, NS_SEMAPHORE_TIMEOUT_MS) != pdTRUE) {
         xSemaphoreGive(uart_mutex);
         return NS_UART_FAIL;
     }
@@ -129,16 +129,16 @@ NS_return NS_sendOnly(uint8_t* command, uint32_t command_length) {
     return NS_OK;
 }
 
-NS_return NS_expectResponse(uint8_t *response, uint8_t length){
-    if(xSemaphoreTake(uart_mutex, NS_SEMAPHORE_TIMEOUT_MS) != pdTRUE){
+NS_return NS_expectResponse(uint8_t *response, uint8_t length) {
+    if (xSemaphoreTake(uart_mutex, NS_SEMAPHORE_TIMEOUT_MS) != pdTRUE) {
         return NS_UART_BUSY;
     }
     uint8_t received = 0;
-    while(received < length){
-        if(xQueueReceive(nsQueue, (response+received), NS_UART_LONG_TIMEOUT_MS) != pdPASS){
+    while (received < length) {
+        if (xQueueReceive(nsQueue, (response + received), NS_UART_LONG_TIMEOUT_MS) != pdPASS) {
             xSemaphoreGive(uart_mutex);
             return NS_UART_FAIL;
-        }else{
+        } else {
             received++;
         }
     }
@@ -147,6 +147,4 @@ NS_return NS_expectResponse(uint8_t *response, uint8_t length){
     return NS_OK;
 }
 
-void NS_resetQueue(){
-    xQueueReset(nsQueue);
-}
+void NS_resetQueue() { xQueueReset(nsQueue); }
