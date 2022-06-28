@@ -39,37 +39,49 @@ SAT_returnState start_system_tasks(void) {
 
     TaskHandle_t _ = 0;
     typedef SAT_returnState (*system_tasks)();
-    system_tasks start_task[NUMBER_OF_SYSTEM_TASKS] = {
+    system_tasks start_task[] = {
         &start_task_manager,      &start_beacon_daemon,       &start_coordinate_management_daemon,
         &start_diagnostic_daemon, &start_housekeeping_daemon, &start_system_stats_daemon,
-        &start_NMEA_daemon,       &start_RTC_daemon,          &start_logger_daemon};
+        &start_NMEA_daemon,       &start_RTC_daemon,          NULL};
 
     uint8_t start_task_flag[NUMBER_OF_SYSTEM_TASKS];
     memset(start_task_flag, 0, NUMBER_OF_SYSTEM_TASKS * sizeof(uint8_t));
     int start_task_retry;
+    SAT_returnState state;
 
-    for (int i = 0; i < NUMBER_OF_SYSTEM_TASKS; i++) {
+    for (int i = 0; start_task[i]; i++) {
         start_task_retry = 0;
-        SAT_returnState state;
         while (start_task_retry <= 3) {
-            // start_logger_daemon needs an argument "_", keep start_logger_daemon as the last init function
-            if (i < NUMBER_OF_SYSTEM_TASKS - 1) {
-                state = start_task[i]();
-            } else {
-                state = start_task[i](_);
-            }
+            state = start_task[i]();
             if (state != SATR_OK && start_task_retry < 3) {
-                sys_log(WARN, "start_task_flag[%d] failed, try again", i);
+                sys_log(WARN, "start_task[%d] failed, try again", i);
                 vTaskDelay(500);
             } else if (state != SATR_OK && start_task_retry == 3) {
-                sys_log(ERROR, "start_task_flag[%d] failed", i);
+                sys_log(ERROR, "start_task[%d] failed", i);
                 break;
             } else {
                 start_task_flag[i] = 1;
-                sys_log(INFO, "start_task_flag[%d] succeeded", i);
+                sys_log(INFO, "start_task[%d] succeeded", i);
                 break;
             }
             start_task_retry++;
+        }
+    }
+
+    start_task_retry = 0;
+    uint8_t start_logger_daemon_flag = 0;
+    while (start_task_retry <= 3) {
+        state = start_logger_daemon(_);
+        if (state != SATR_OK && start_task_retry < 3) {
+            sys_log(WARN, "start_logger_daemon failed, try again");
+            vTaskDelay(500);
+        } else if (state != SATR_OK && start_task_retry == 3) {
+            sys_log(ERROR, "start_logger_daemon failed");
+            break;
+        } else {
+            start_logger_daemon_flag = 1;
+            sys_log(INFO, "start_logger_daemon succeeded");
+            break;
         }
     }
 
