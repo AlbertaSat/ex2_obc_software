@@ -103,14 +103,13 @@ SECTIONS
 /* Misc                                                                       */
 
 /* USER CODE BEGIN (6) */
-//#define WORKING_IMAGE
-//#define BOOTLOADER_PRESENT
 /*----------------------------------------------------------------------------*/
 /* Linker Settings                                                            */
 
 --retain="*(.intvecs)"
 
 #define GOLDEN_IMAGE
+//#define APPLICATION_IMAGE
 //#define BOOTLOADER_PRESENT
 
 /*----------------------------------------------------------------------------*/
@@ -122,7 +121,7 @@ MEMORY
     KERNEL  (RX) : origin=0x00018040 length=0x00008000
     FLASH   (RX) : origin=end(KERNEL) length=0x00200000 - 0x8040
 
-    #elif defined(WORKING_IMAGE) && defined(BOOTLOADER_PRESENT)
+    #elif defined(APPLICATION_IMAGE) && defined(BOOTLOADER_PRESENT)
     VECTORS (X)  : origin=0x00200000 length=0x00000040
     KERNEL  (RX) : origin=0x00200040 length=0x00008000
     FLASH   (RX) : origin=end(KERNEL) length=0x00200000 - 0x8040
