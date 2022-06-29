@@ -865,7 +865,7 @@ ADCS_returnState HAL_ADCS_set_mtm_config(mtm_config params, uint8_t mtm) {
 #endif
 }
 
-ADCS_returnState HAL_ADCS_set_detumble_config(detumble_config config) {
+ADCS_returnState HAL_ADCS_set_detumble_config(detumble_config *config) {
 #ifdef ADCS_IS_STUBBED
     return IS_STUBBED_A;
 #else

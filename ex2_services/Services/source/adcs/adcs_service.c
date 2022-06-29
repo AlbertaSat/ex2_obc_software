@@ -839,8 +839,8 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
     }
 
     case ADCS_GET_CUBEACP_STATE: {
-        uint8_t flags_arr;
-        status = HAL_ADCS_get_cubeACP_state(&flags_arr);
+        uint8_t flags_arr[6];
+        status = HAL_ADCS_get_cubeACP_state(flags_arr);
         if (sizeof(flags_arr) + 1 > csp_buffer_data_size()) {
             return_state = SATR_ERROR;
         }
@@ -866,7 +866,9 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
         status = HAL_ADCS_get_execution_times(&execution_times);
         if (sizeof(execution_times) + 1 > csp_buffer_data_size()) {
             return_state = SATR_ERROR;
-        }
+        }3
+
+
         execution_times.adcs_update = csp_hton32((uint32_t)execution_times.adcs_update);
         execution_times.sensor_comms = csp_hton32((uint32_t)execution_times.sensor_comms);
         execution_times.sgp4_propag = csp_hton32((uint32_t)execution_times.sgp4_propag);
@@ -1382,7 +1384,7 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
     case ADCS_SET_DETUMBLE_CONFIG: {
         detumble_config config;
         memcpy(&config, &packet->data[IN_DATA_BYTE], sizeof(detumble_config));
-        status = HAL_ADCS_set_detumble_config(config);
+        status = HAL_ADCS_set_detumble_config(&config);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         set_packet_length(packet, sizeof(int8_t) + 1);
         break;
@@ -1392,6 +1394,14 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
         ywheel_ctrl_config config;
         memcpy(&config, &packet->data[IN_DATA_BYTE], sizeof(ywheel_ctrl_config));
         status = HAL_ADCS_set_ywheel_config(config);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        set_packet_length(packet, sizeof(int8_t) + 1);
+        break;
+    }
+    case ADCS_SET_RWHEEL_CONFIG: {
+        rwheel_ctrl_config config;
+        memcpy(&config, &packet->data[IN_DATA_BYTE], sizeof(ywheel_ctrl_config));
+        status = HAL_ADCS_set_rwheel_config(config);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         set_packet_length(packet, sizeof(int8_t) + 1);
         break;

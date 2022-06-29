@@ -2325,7 +2325,15 @@ ADCS_returnState ADCS_get_attitude_angle(xyz *att_angle) {
 ADCS_returnState ADCS_set_track_controller(xyz target) {
     uint8_t command[13];
     command[0] = SET_TRACK_CTRLER_TARGET_REF_ID;
-    memcpy(&command[1], &target, 6);
+    uint32_t temp_32[3];
+    memcpy(temp_32, &target, 12);
+    for(int i = 0; i < 3; i++){
+        temp_32[i] = (temp_32[i] & 0x000000FF) << 24
+                | (temp_32[i] & 0x0000FF00) << 8
+                | (temp_32[i] & 0x00FF0000) >> 8
+                | (temp_32[i] & 0xFF000000) >> 24;
+    }
+    memcpy(&command[1], temp_32, 12);
     return adcs_telecommand(command, 13);
 }
 
@@ -2341,9 +2349,15 @@ ADCS_returnState ADCS_get_track_controller(xyz *target) {
     uint8_t telemetry[12];
     ADCS_returnState state;
     state = adcs_telemetry(GET_TRACK_CTRLER_TARGET_REF_ID, telemetry, 12);
-    memcpy(&target->x, &telemetry[0], 4);
-    memcpy(&target->y, &telemetry[4], 4);
-    memcpy(&target->z, &telemetry[8], 4);
+    uint32_t temp_32[3];
+    memcpy(temp_32, &telemetry[0], 12);
+    for(int i = 0; i < 3; i++){
+        temp_32[i] = (temp_32[i] & 0x000000FF) << 24
+                | (temp_32[i] & 0x0000FF00) << 8
+                | (temp_32[i] & 0x00FF0000) >> 8
+                | (temp_32[i] & 0xFF000000) >> 24;
+    }
+    memcpy(target, temp_32, 12);
     return state;
 }
 
@@ -3060,15 +3074,22 @@ ADCS_returnState ADCS_set_mtm_config(mtm_config params, uint8_t mtm) {
  * @return
  * 		Success of function defined in adcs_types.h
  */
-ADCS_returnState ADCS_set_detumble_config(detumble_config config) {
+ADCS_returnState ADCS_set_detumble_config(detumble_config *config) {
     uint8_t command[15];
     command[0] = SET_DETUMBLE_PARAM_ID;
-    memcpy(&command[1], &config, 8);
-    int16_t raw_spin_rate;
-    float coef = 0.001;
-    raw_spin_rate = config.spin_rate / coef;
-    memcpy(&command[9], &raw_spin_rate, 2);
-    memcpy(&command[11], &config.fast_bDot, 4);
+    uint32_t temp_32[4];
+    memcpy(temp_32, config, 16);
+    for(int i = 0; i < 4; i++){
+        temp_32[i] = (temp_32[i] & 0x000000FF) << 24
+                | (temp_32[i] & 0x0000FF00) << 8
+                | (temp_32[i] & 0x00FF0000) >> 8
+                | (temp_32[i] & 0xFF000000) >> 24;
+    }
+    memcpy(&command[1], temp_32, 8);
+    int16_t raw_spin_rate = config->spin_rate * 1000;
+    command[9] = raw_spin_rate & 0xFF;
+    command[10] = raw_spin_rate >> 8;
+    memcpy(&command[11], &temp_32[3], 4);
     return adcs_telecommand(command, 15);
 }
 
@@ -3082,7 +3103,15 @@ ADCS_returnState ADCS_set_detumble_config(detumble_config config) {
 ADCS_returnState ADCS_set_ywheel_config(ywheel_ctrl_config params) {
     uint8_t command[21];
     command[0] = SET_YWHEEL_CTRL_PARAM_ID;
-    memcpy(&command[1], &params, 20);
+    uint32_t temp_32[5];
+    memcpy(temp_32, &params, 20);
+    for(int i = 0; i < 5; i++){
+        temp_32[i] = (temp_32[i] & 0x000000FF) << 24
+                | (temp_32[i] & 0x0000FF00) << 8
+                | (temp_32[i] & 0x00FF0000) >> 8
+                | (temp_32[i] & 0xFF000000) >> 24;
+    }
+    memcpy(&command[1], temp_32, 20);
     return adcs_telecommand(command, 21);
 }
 
@@ -3096,8 +3125,16 @@ ADCS_returnState ADCS_set_ywheel_config(ywheel_ctrl_config params) {
 ADCS_returnState ADCS_set_rwheel_config(rwheel_ctrl_config params) {
     uint8_t command[14];
     command[0] = SET_RWHEEL_CTRL_PARAM_ID;
-    memcpy(&command[1], &params, 12);
-    command[13] = (params.auto_transit << 7) | params.sun_point_facet;
+    uint32_t temp_32[3];
+    memcpy(temp_32, &params, 12);
+    for(int i = 0; i < 3; i++){
+        temp_32[i] = (temp_32[i] & 0x000000FF) << 24
+                | (temp_32[i] & 0x0000FF00) << 8
+                | (temp_32[i] & 0x00FF0000) >> 8
+                | (temp_32[i] & 0xFF000000) >> 24;
+    }
+    memcpy(&command[1], temp_32, 12);
+    command[13] = (params.auto_transit << 7) | (params.sun_point_facet & 0x7F);
     return adcs_telecommand(command, 14);
 }
 
@@ -3111,7 +3148,16 @@ ADCS_returnState ADCS_set_rwheel_config(rwheel_ctrl_config params) {
 ADCS_returnState ADCS_set_tracking_config(track_ctrl_config params) {
     uint8_t command[14];
     command[0] = SET_TRACK_CTRL_ID;
-    memcpy(&command[1], &params, 13);
+    uint32_t temp_32[3];
+    memcpy(temp_32, &params, 12);
+    for(int i = 0; i < 3; i++){
+        temp_32[i] = (temp_32[i] & 0x000000FF) << 24
+                | (temp_32[i] & 0x0000FF00) << 8
+                | (temp_32[i] & 0x00FF0000) >> 8
+                | (temp_32[i] & 0xFF000000) >> 24;
+    }
+    memcpy(&command[1], temp_32, 12);
+    command[13] = params.target_facet;
     return adcs_telecommand(command, 14);
 }
 
@@ -3371,7 +3417,7 @@ ADCS_returnState ADCS_get_full_config(adcs_config *config) {
     coef = 0.001;
     config->detumble.spin_rate = uint82int16(telemetry[271], telemetry[272]) * coef;
 
-    unsigned long temp_fastbDot;
+    unsigned long temp_fastbDot = 0;
     for (int k = 0; k < 4; k++) {
         temp_fastbDot |= ((unsigned long)telemetry[273 + k] << (8 * k));
     }
