@@ -132,7 +132,7 @@ static void test_csp_receive(void *arg) {
 
 static int count;
 
-static void sdr_uhf_receive(void *conf, uint8_t *data, size_t len) {
+static void sdr_uhf_receive(void *conf, uint8_t *data, size_t len, void *unused) {
     ex2_log("uhf->sdr receive %d, len %d", ++count, len);
     int i, mismatches = 0;
     for (i=0; i<len; i++) {
