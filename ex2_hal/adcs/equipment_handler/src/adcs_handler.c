@@ -3018,25 +3018,38 @@ ADCS_returnState ADCS_set_mtm_config(mtm_config params, uint8_t mtm) {
         return ADCS_INVALID_PARAMETERS;
     }
     xyz16 raw_val_angle, raw_val_offset;
-    float coef = 0.01;
-    raw_val_angle.x = params.mounting_angle.x / coef;
-    raw_val_angle.y = params.mounting_angle.y / coef;
-    raw_val_angle.z = params.mounting_angle.z / coef;
-    memcpy(&command[1], &raw_val_angle, 6);
-    coef = 0.001;
-    raw_val_offset.x = params.channel_offset.x / coef;
-    raw_val_offset.y = params.channel_offset.y / coef;
-    raw_val_offset.z = params.channel_offset.z / coef;
-    memcpy(&command[7], &raw_val_offset, 6);
+    float coef = 100;
+    raw_val_angle.x = params.mounting_angle.x * coef;
+    raw_val_angle.y = params.mounting_angle.y * coef;
+    raw_val_angle.z = params.mounting_angle.z * coef;
+    command[1] = raw_val_angle.x & 0xFF;
+    command[2] = raw_val_angle.x >> 8;
+    command[3] = raw_val_angle.y & 0xFF;
+    command[4] = raw_val_angle.y >> 8;
+    command[5] = raw_val_angle.z & 0xFF;
+    command[6] = raw_val_angle.z >> 8;
+
+    coef = 1000;
+    raw_val_offset.x = params.channel_offset.x * coef;
+    raw_val_offset.y = params.channel_offset.y * coef;
+    raw_val_offset.z = params.channel_offset.z * coef;
+    command[7] = raw_val_offset.x & 0xFF;
+    command[8] = raw_val_offset.x >> 8;
+    command[9] = raw_val_offset.y & 0xFF;
+    command[10] = raw_val_offset.y >> 8;
+    command[11] = raw_val_offset.z & 0xFF;
+    command[12] = raw_val_offset.z >> 8;
+
     int16_t cell[9];
     for (int i = 0; i < 3; i++) {
-        cell[i] = params.sensitivity_mat[4 * i] / coef; // diagonal
+        cell[i] = params.sensitivity_mat[4 * i] * coef; // diagonal
+        cell[3 + i] = params.sensitivity_mat[1 + i] * coef;
+        cell[6 + i] = params.sensitivity_mat[5 + i] * coef;
     }
-    for (int i = 0; i < 3; i++) {
-        cell[3 + i] = params.sensitivity_mat[1 + i] / coef;
-        cell[6 + i] = params.sensitivity_mat[5 + i] / coef;
+    for(int i = 0; i < 9; i++){
+        command[13 + 2*i] = cell[i] & 0xFF;
+        command[13 + 2*i + 1] = cell[i] >> 8;
     }
-    memcpy(&command[13], &cell[0], 18);
     return adcs_telecommand(command, 31);
 }
 
@@ -3143,8 +3156,16 @@ ADCS_returnState ADCS_set_MoI_mat(moment_inertia_config cell) {
  */
 ADCS_returnState ADCS_set_estimation_config(estimation_config config) {
     uint8_t command[32];
+    uint32_t temp_32[7];
+    memcpy(temp_32, &config, 28);
+    for(int i = 0; i < 7; i++){
+        temp_32[i] = (temp_32[i] & 0x000000FF) << 24
+                | (temp_32[i] & 0x0000FF00) << 8
+                | (temp_32[i] & 0x00FF0000) >> 8
+                | (temp_32[i] & 0xFF000000) >> 24;
+    }
     command[0] = SET_ESTIMATE_PARAM;
-    memcpy(&command[1], &config, 28);
+    memcpy(&command[1], &temp_32, 28);
     command[29] = 0;
     for (int i = 0; i < 6; i++) {
         command[29] |= (config.select_arr[i] << i);
