@@ -61,8 +61,10 @@
 #define UHF_SCI CSP_SCI  // UART2
 #if defined(IS_EXALTA2)
 #define GPS_SCI sciREG1 // UART3
+#define PAYLOAD_SCI NULL
 #elif defined(IS_AURORASAT) || defined(IS_YUKONSAT)
 #define PAYLOAD_SCI sciREG1 // UART3
+#define GPS_SCI NULL
 #endif
 #else
 // These values are expected to be adjusted based on what the developer is working on
