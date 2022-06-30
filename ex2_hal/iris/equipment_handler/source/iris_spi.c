@@ -43,7 +43,7 @@ spiDAT1_t dataconfig;
  *   TODO: Specify pin #8 in system.h (separate commit)
  **/
 void NSS_LOW() {
-    gioSetBit(hetPORT1, 8, 0);
+    gioSetBit(hetPORT1, 1, 0);
 }
 
 /**
@@ -51,7 +51,7 @@ void NSS_LOW() {
  *   Pull slave select high via GPIO pin
  **/
 void NSS_HIGH() {
-    gioSetBit(hetPORT1, 8, 1);
+    gioSetBit(hetPORT1, 1, 1);
 }
 
 /**
