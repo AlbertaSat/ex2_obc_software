@@ -635,8 +635,6 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
         if (sizeof(bootloader_state) + 1 > csp_buffer_data_size()) {
             return_state = SATR_ERROR;
         }
-        bootloader_state.uptime = csp_hton32((uint32_t)bootloader_state.uptime);
-        bootloader_state.flags_arr = csp_hton32((uint32_t)bootloader_state.flags_arr);
 
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         memcpy(&packet->data[OUT_DATA_BYTE], &bootloader_state, sizeof(bootloader_state));
@@ -704,7 +702,7 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
         break;
     }
 
-    case ADCS_SET_ATTITUDE_CTR_MODE: {
+    case ADCS_SET_ATTITUDE_CONTROL_MODE: {
         uint8_t ctrl_mode = packet->data[IN_DATA_BYTE];
         uint16_t timeout;
         cnv8_16(&packet->data[IN_DATA_BYTE + 1], &timeout);
@@ -866,9 +864,7 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
         status = HAL_ADCS_get_execution_times(&execution_times);
         if (sizeof(execution_times) + 1 > csp_buffer_data_size()) {
             return_state = SATR_ERROR;
-        }3
-
-
+        }
         execution_times.adcs_update = csp_hton32((uint32_t)execution_times.adcs_update);
         execution_times.sensor_comms = csp_hton32((uint32_t)execution_times.sensor_comms);
         execution_times.sgp4_propag = csp_hton32((uint32_t)execution_times.sgp4_propag);

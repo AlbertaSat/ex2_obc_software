@@ -181,7 +181,7 @@ typedef struct __attribute__((packed)) {
 
 typedef struct __attribute__((packed)) {
     uint16_t uptime;
-    uint8_t flags_arr;
+    uint8_t flags_arr[12];
 } ADCS_bootloader_state;
 
 typedef struct __attribute__((packed)) {

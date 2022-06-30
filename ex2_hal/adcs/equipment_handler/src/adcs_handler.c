@@ -436,7 +436,7 @@ ADCS_returnState ADCS_reset(void) {
     uint8_t command[2];
     command[0] = RESET_ID;
     command[1] = ADCS_MAGIC_NUMBER; // Magic number 0x5A
-    return adcs_telecommand(command, 2);
+    return send_uart_telecommand_no_reply(command, 2);
 }
 
 /**
@@ -1049,6 +1049,7 @@ ADCS_returnState ADCS_set_sram_scrub_size(uint16_t size) {
  * persistence.
  * @param when
  * 		Specifies when the time is to be saved:
+ * 		0(000) : no save config
  * 		1(001) : now
  * 		2(010) : on update
  * 		4(100) : periodically
@@ -1060,6 +1061,8 @@ ADCS_returnState ADCS_set_sram_scrub_size(uint16_t size) {
  */
 ADCS_returnState ADCS_set_UnixTime_save_config(uint8_t when, uint8_t period) {
     uint8_t command[3];
+
+    if((when != 0) && (when != 1) && (when != 2) && (when != 4)) return ADCS_INVALID_PARAMETERS;
     command[0] = SET_UNIX_TIME_SAVE_ID;
     command[1] = when;
     command[2] = period; // [s]
@@ -1139,6 +1142,7 @@ ADCS_returnState ADCS_get_sram_scrub_size(uint16_t *size) {
  * persistence.
  * @param when
  * 		Specifies when the time is to be saved:
+ * 		0(000) : no save config
  * 		1(001) : now
  * 		2(010) : on update
  * 		4(100) : periodically
@@ -1236,7 +1240,7 @@ ADCS_returnState ADCS_set_boot_index(uint8_t index) {
  */
 ADCS_returnState ADCS_run_selected_program(void) {
     uint8_t command = RUN_SELECTED_PROGRAM_ID;
-    return adcs_telecommand(&command, 1);
+    return send_uart_telecommand_no_reply(&command, 1);
 }
 
 /**
@@ -1306,10 +1310,12 @@ ADCS_returnState ADCS_get_bootloader_state(uint16_t *uptime, uint8_t *flags_arr)
     state = adcs_telemetry(GET_BOOTLOADER_STATE_ID, telemetry, 6);
     *uptime = (telemetry[1] << 8) + telemetry[0];
 
-    for (int k = 0; k < 2; k++) {
-        for (int i = 0; i < 8; i++) {
-            *(flags_arr + k * 8 + i) = (telemetry[2 + k] >> i) & 1;
-        }
+
+    for (int i = 0; i < 8; i++) {
+        *(flags_arr + i) = (telemetry[2] >> i) & 1;
+    }
+    for(int i = 0; i < 4; i++){
+        *(flags_arr + 8 + i) = (telemetry[3] >> i) & 1;
     }
     return state;
 }
@@ -1369,10 +1375,14 @@ ADCS_returnState ADCS_copy_internal_flash_progress(bool *busy, bool *err) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_deploy_magnetometer_boom(uint8_t actuation_timeout) {
+#ifndef ADCS_MAG_FLIGHT_CONFIG // Safeguard against unintended mag deployment
+    return ADCS_INVALID_PARAMETERS;
+#else
     uint8_t command[2];
     command[0] = DEPLOY_MAGNETOMETER_BOOM_ID;
     command[1] = actuation_timeout;
     return adcs_telecommand(command, 2);
+#endif
 }
 
 /**

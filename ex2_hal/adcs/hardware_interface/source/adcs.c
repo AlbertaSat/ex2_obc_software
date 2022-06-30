@@ -418,7 +418,7 @@ ADCS_returnState HAL_ADCS_get_bootloader_state(ADCS_bootloader_state *bootloader
 #ifdef ADCS_IS_STUBBED
     return IS_STUBBED_A;
 #else
-    return ADCS_get_bootloader_state(&bootloader_state->uptime, &bootloader_state->flags_arr);
+    return ADCS_get_bootloader_state(&bootloader_state->uptime, &bootloader_state->flags_arr[0]);
 #endif
 }
 
