@@ -58,6 +58,7 @@ Iris_HAL_return iris_take_pic() {
                 } else {
                     controller_state = ERROR_STATE;
                 }
+                vTaskDelay(100);
                 break;
             }
             case FINISH:
@@ -98,6 +99,7 @@ Iris_HAL_return iris_get_image_length(uint32_t *image_length) {
                 } else {
                     controller_state = FINISH;
                 }
+                vTaskDelay(100);
                 break;
             }
             case GET_DATA:
@@ -154,6 +156,13 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
 
     controller_state = SEND_COMMAND;
 
+    FILE *fptr;
+    fptr = fopen("/home/jenish/Desktop/new_repo/ex2_obc_software/ex2_hal/iris/hardware_interface/source/image_v13.jpg","wb");
+
+    if(fptr == NULL){
+      return;
+    }
+
     while (controller_state != FINISH && controller_state != ERROR_STATE) {
         switch (controller_state) {
             case SEND_COMMAND: // Send start image transfer command
@@ -176,12 +185,14 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
 
                 IRIS_WAIT_FOR_STATE_TRANSITION;
                 for (uint32_t count_transfer = 0; count_transfer < num_transfer; count_transfer++) {
+
+
                     ret = iris_get_data(image_data_buffer, IMAGE_TRANSFER_SIZE);
                     // TODO: Do something with the received data (e.g transfer it to the SD card)
                     // Or just get the data and send it forward to the next stage. Prefer not to have too
                     // much data processing in driver code
 
-                    for (int i = 0; i < 512; i++) {
+                    for (int i = 0; i < IMAGE_TRANSFER_SIZE; i++) {
                         image_data_buffer_8Bit[i] = (image_data_buffer[i] >> (8*0)) & 0xff;
                     }
 

@@ -65,7 +65,7 @@ void iris_spi_init() {
     /* NOTE: Using SPIREG3 for testing purpose, may be change once
      * final pinout is decided
      */
-    dataconfig.DFSEL = SPI_FMT_1;
+    dataconfig.DFSEL = SPI_FMT_0;
     dataconfig.CSNR = SPI_CS_1;
 
     gioSetDirection(hetPORT1, 0xFFFFFFFF);
@@ -138,8 +138,8 @@ void iris_spi_get(uint16_t *rx_data, uint16_t data_length) {
  *   Number of ticks for non FreeRTOS delay
  *
  **/
-void iris_spi_delay(uint16_t ticks) {
-    uint16_t i;
+void iris_spi_delay(uint32_t ticks) {
+    uint32_t i;
     for (i = 0; i < ticks; i++);
 }
 
@@ -168,6 +168,7 @@ IrisLowLevelReturn iris_send_command(uint16_t command) {
      */
     IRIS_WAIT_FOR_ACK;
     iris_spi_send(&tx_dummy, 1);
+    iris_spi_delay(100);
     iris_spi_get(&rx_data, 1);
     iris_spi_delay(10000);
     NSS_HIGH();
@@ -234,9 +235,9 @@ IrisLowLevelReturn iris_get_data(uint16_t *rx_buffer, uint16_t data_length) {
     uint16_t tx_dummy = 0xFF;
 
     NSS_LOW();
-    iris_spi_delay(10000);
-    iris_spi_send_and_get(&tx_dummy, rx_buffer, data_length);
     iris_spi_delay(1000);
+    iris_spi_send_and_get(&tx_dummy, rx_buffer, data_length);
+    iris_spi_delay(10000);
     NSS_HIGH();
     iris_spi_delay(1000);
 
