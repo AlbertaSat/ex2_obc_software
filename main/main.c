@@ -180,7 +180,7 @@ void iris_spi_test(void *pvParameters) {
     // iris_take_pic();
 
     IRIS_Housekeeping hk_data;
-    uint16_t image_count;
+//    uint16_t image_count;
     uint32_t image_length;
 
     iris_toggle_sensor_idle(1);

@@ -36,7 +36,7 @@ void iris_spi_init();
 void iris_spi_send(uint16_t *tx_data, uint16_t data_length);
 void iris_spi_get(uint16_t *rx_data, uint16_t data_length);
 void iris_spi_send_and_get(uint16_t *tx_data, uint16_t *rx_data, uint16_t data_length);
-void iris_spi_delay(uint16_t timeout);
+void iris_spi_delay(uint32_t timeout);
 
 IrisLowLevelReturn iris_send_command(uint16_t command);
 IrisLowLevelReturn iris_send_data(uint16_t *tx_buffer, uint16_t data_length);
