@@ -34,6 +34,7 @@
 #include "system.h"
 #include "HL_gio.h"
 #include "HL_reg_het.h"
+#include "HL_reg_gio.h"
 
 spiDAT1_t dataconfig;
 
@@ -56,6 +57,26 @@ void NSS_HIGH() {
 
 /**
  * @brief
+ *   Pull slave select high via GPIO pin
+ **/
+void IRIS_nRST_HIGH() {
+    gioSetBit(gioPORTB, 0, 1);
+}
+
+void IRIS_nRST_LOW() {
+    gioSetBit(gioPORTB, 0, 0);
+}
+
+/**
+ * @brief
+ *   Pull slave select high via GPIO pin
+ **/
+void IRIS_BOOT_LOW() {
+    gioSetBit(hetPORT1, 20, 0);
+}
+
+/**
+ * @brief
  *   Initialize SPI data configurations (e.g. SPI data format)
  **/
 void iris_spi_init() {
@@ -69,6 +90,13 @@ void iris_spi_init() {
     dataconfig.CSNR = SPI_CS_1;
 
     gioSetDirection(hetPORT1, 0xFFFFFFFF);
+
+    IRIS_BOOT_LOW();
+
+    IRIS_nRST_LOW();
+    vTaskDelay(1);
+    IRIS_nRST_HIGH();
+
 }
 
 /**
