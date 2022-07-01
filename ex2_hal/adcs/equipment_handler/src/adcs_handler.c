@@ -3064,9 +3064,11 @@ ADCS_returnState ADCS_set_mtm_config(mtm_config params, uint8_t mtm) {
     command[11] = raw_val_offset.z & 0xFF;
     command[12] = (raw_val_offset.z & 0xFF00) >> 8;
 
+    int16_t temp16;
     for(int i = 0; i < 9; i++){ // Swap endianness of 2-byte ints
-        command[13 + 2*i] = params.sensitivity_mat[i] & 0xFF;
-        command[13 + 2*i + 1] = params.sensitivity_mat[i] & 0xFF00) >> 8;
+        temp16 = (int16_t)params.sensitivity_mat[i] * coef;
+        command[13 + 2*i] = temp16 & 0xFF;
+        command[13 + 2*i + 1] = (temp16 & 0xFF00) >> 8;
     }
     return adcs_telecommand(command, 31);
 }
