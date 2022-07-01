@@ -36,6 +36,8 @@
 
 #include "xmodem.h"
 #include "northern_spirit_io.h"
+#include <string.h>
+#include <redposix.h>
 
 int _inbyte(unsigned short timeout) {
     uint8_t b;

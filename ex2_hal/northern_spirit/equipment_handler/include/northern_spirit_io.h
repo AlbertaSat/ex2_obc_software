@@ -22,14 +22,6 @@
 
 #include "northern_spirit_handler.h"
 #include "FreeRTOS.h"
-#include "HL_sci.h"
-#include "i2c_io.h"
-#include "os_queue.h"
-#include "os_semphr.h"
-#include "os_task.h"
-#include "system.h"
-#include <stdbool.h>
-#include <string.h>
 
 #define NS_SEMAPHORE_TIMEOUT_MS pdMS_TO_TICKS(500)
 #define NS_UART_TIMEOUT_MS pdMS_TO_TICKS(1000)

@@ -22,7 +22,6 @@
 #define EX2_HAL_NORTHERN_SPIRIT_EQUIPMENT_HANDLER_INCLUDE_NORTHERN_VOICES_GAMES_H_
 
 #include "northern_spirit_handler.h"
-#include <redposix.h>
 #define NORTHERN_VOICES_STACK_SIZE 500
 #define NORTHERN_VOICES_PRIORITY 3
 

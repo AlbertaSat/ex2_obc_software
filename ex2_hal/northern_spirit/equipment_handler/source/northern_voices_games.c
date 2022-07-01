@@ -19,6 +19,7 @@
  */
 
 #include "northern_voices_games.h"
+#include <redposix.h>
 
 static void northern_voices_task(void *pvParameters);
 

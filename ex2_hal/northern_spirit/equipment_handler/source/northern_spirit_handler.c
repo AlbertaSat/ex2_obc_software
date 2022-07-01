@@ -23,6 +23,7 @@
 #include "base_64.h"
 #include "xmodem.h"
 #include <redposix.h>
+#include <os_semphr.h>
 
 static SemaphoreHandle_t ns_command_mutex;
 

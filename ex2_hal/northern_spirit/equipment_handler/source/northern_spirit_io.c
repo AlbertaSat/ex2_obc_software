@@ -29,7 +29,13 @@
  *      NS_return
  */
 
+#include "system.h"
 #include "northern_spirit_io.h"
+#include "os_queue.h"
+#include "os_semphr.h"
+#include <stdbool.h>
+#include <string.h>
+#include "HL_sci.h"
 
 #define NS_QUEUE_LENGTH 100
 #define ITEM_SIZE 1

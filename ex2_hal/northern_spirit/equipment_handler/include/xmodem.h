@@ -9,8 +9,6 @@
 #define EX2_HAL_NORTHERN_SPIRIT_EQUIPMENT_HANDLER_INCLUDE_XMODEM_H_
 
 #include <stdint.h>
-#include <string.h>
-#include "redposix.h"
 
 #define SOH 0x01
 #define STX 0x02
