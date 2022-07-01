@@ -1,4 +1,6 @@
 #!/bin/sh
+echo "create version.sh"
+./version.sh
 echo "Initializing submodules"
 git submodule init 
 echo "Updating submodules"
