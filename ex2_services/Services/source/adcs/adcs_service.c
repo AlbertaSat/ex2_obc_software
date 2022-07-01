@@ -1266,10 +1266,13 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
 
         strncat(file_name, ".txt", 4);
         int32_t iErr = red_chdir("VOL0:/adcs");
+        if(iErr == -1){
+            sys_log(ERROR, "Error %d trying to change into adcs directory\r\n", red_errno);
+            status = ADCS_FILESYSTEM_FAIL;
+        }
         int32_t file1 = red_open(file_name, RED_O_RDONLY);
         if(file1 == -1){
-            uint16_t error = red_errno;
-            sys_log(ERROR, "ADCS_SET_CUBESENSE_CONFIG file error %d\r\n", red_errno);
+            sys_log(ERROR, "Error %d trying to open file %s\r\n", red_errno, file_name);
             status = ADCS_FILE_DNE;
         }else{
             char buf[512];
