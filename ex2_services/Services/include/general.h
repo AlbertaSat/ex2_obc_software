@@ -39,6 +39,9 @@ typedef enum {
     SET_ADCS_WATCHDOG_TIMEOUT = 10,
 
     UHF_IS_IN_PIPE_NOTIFICATION = 11,
+
+    GET_NS_PAYLOAD_WATCHDOG_TIMEOUT = 12,
+    SET_NS_PAYLOAD_WATCHDOG_TIMEOUT = 13,
 } General_Subtype;
 
 typedef enum { bootloader = 'B', golden = 'G', application = 'A' } reboot_mode;

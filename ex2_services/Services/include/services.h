@@ -65,6 +65,8 @@
 // FTP SERVICE
 #define TC_FTP_COMMAND_SERVICE 20
 #define TC_FTP_DATA_SERVICE 21
+// NORTHERN SPIRIT SERVICE
+#define TC_NORTHERN_SPIRIT_SERVICE 22
 
 #define DELAY_WAIT_TIMEOUT 8000
 
@@ -92,3 +94,4 @@ SAT_returnState start_service_server(void);
 void hex_dump(char *stuff, int size);
 
 #endif /* SERVICES_H */
+

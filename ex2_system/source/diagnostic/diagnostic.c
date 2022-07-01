@@ -32,11 +32,13 @@
 #include "system.h"
 #include "adcs.h"
 #include "logger/logger.h"
+#include "ns_payload.h"
 
 static void uhf_watchdog_daemon(void *pvParameters);
 static void sband_watchdog_daemon(void *pvParameters);
 static void charon_watchdog_daemon(void *pvParameters);
 static void adcs_watchdog_daemon(void *pvParameters);
+static void ns_watchdog_daemon(void *pvParameters);
 SAT_returnState start_diagnostic_daemon(void);
 
 const unsigned int mutex_timeout = pdMS_TO_TICKS(100);
@@ -47,12 +49,15 @@ static TickType_t uhf_prv_watchdog_delay = ONE_MINUTE;
 static TickType_t sband_prv_watchdog_delay = ONE_MINUTE;
 static TickType_t charon_prv_watchdog_delay = ONE_MINUTE;
 static TickType_t adcs_prv_watchdog_delay = ONE_MINUTE;
+static TickType_t ns_prv_watchdog_delay = ONE_MINUTE;
 
 static SemaphoreHandle_t uhf_watchdog_mtx = NULL;
 static SemaphoreHandle_t sband_watchdog_mtx = NULL;
 static SemaphoreHandle_t charon_watchdog_mtx = NULL;
 static SemaphoreHandle_t adcs_watchdog_mtx = NULL;
+static SemaphoreHandle_t ns_watchdog_mtx = NULL;
 
+#ifndef UHF_IS_STUBBED
 /**
  * @brief Check that the UHF is responsive. If not, toggle power.
  *
@@ -116,7 +121,9 @@ static void uhf_watchdog_daemon(void *pvParameters) {
         vTaskDelay(delay);
     }
 }
+#endif
 
+#ifndef SBAND_IS_STUBBED
 /**
  * @brief Check that the SBAND is responsive. If not, toggle power.
  *
@@ -166,7 +173,9 @@ static void sband_watchdog_daemon(void *pvParameters) {
         vTaskDelay(delay);
     }
 }
+#endif
 
+#if !defined(CHARON_IS_STUBBED) && defined(IS_EXALTA2)
 /**
  * @brief Check that Charon is responsive. If not, toggle power.
  *
@@ -228,7 +237,9 @@ static void charon_watchdog_daemon(void *pvParameters) {
         vTaskDelay(delay);
     }
 }
+#endif
 
+#ifndef ADCS_IS_STUBBED
 /**
  * @brief Check that the ADCS is responsive. If not, toggle power.
  *
@@ -294,6 +305,76 @@ static void adcs_watchdog_daemon(void *pvParameters) {
         vTaskDelay(delay);
     }
 }
+#endif
+
+#ifndef PAYLOAD_IS_STUBBED
+#ifdef IS_EXALTA2
+    // Iris watchdog
+#endif
+/**
+ * @brief Check that the northern spirit payload is responsive. If not, toggle power.
+ *
+ * @param pvParameters Task parameters (not used)
+ */
+
+static void ns_watchdog_daemon(void *pvParameters) {
+    for (;;) {
+        TickType_t delay = get_ns_watchdog_delay();
+
+        if ((eps_get_pwr_chnl(PYLD_5V0_PWR_CHNL) == 0) && (eps_get_pwr_chnl(PYLD_3V3_PWR_CHNL) == 0)) {
+            ex2_log("NS not on - power not toggled");
+            vTaskDelay(delay);
+            continue;
+        }
+
+        NS_return err;
+        uint8_t heartbeat;
+        for (int i = 0; i < watchdog_retries; i++) {
+            err = HAL_NS_get_heartbeat(&heartbeat);
+            if (err == NS_OK) break;
+            vTaskDelay(10*ONE_SECOND);
+        }
+
+        if (err != NS_OK) {
+            ex2_log("NS payload was not responsive - attempting to toggle power.");
+
+            // Turn the NS payload off
+            eps_set_pwr_chnl(PYLD_3V3_PWR_CHNL, OFF);
+            eps_set_pwr_chnl(PYLD_5V0_PWR_CHNL, OFF);
+
+            // Allow the system to fully power off
+            vTaskDelay(reset_wait_period);
+
+            // Check that the NS payload has been turned off.
+            if ((eps_get_pwr_chnl(PYLD_3V3_PWR_CHNL) != OFF) || (eps_get_pwr_chnl(PYLD_5V0_PWR_CHNL) != OFF)) {
+                ex2_log("NS payload failed to power off.");
+                vTaskDelay(delay);
+                continue;
+            }
+
+            // Turn the NS payload back on.
+            eps_set_pwr_chnl(PYLD_3V3_PWR_CHNL, ON);
+            eps_set_pwr_chnl(PYLD_5V0_PWR_CHNL, ON);
+
+            // Allow the system to fully power on
+            vTaskDelay(reset_wait_period);
+
+            // Check that the NS payload has been turned on
+            if ((eps_get_pwr_chnl(PYLD_3V3_PWR_CHNL) != ON) && (eps_get_pwr_chnl(PYLD_5V0_PWR_CHNL) != ON)) {
+                ex2_log("NS payload failed to power on.");
+            } else {
+                ex2_log("NS payload powered back on.");
+            }
+        }
+
+        if (xSemaphoreTake(ns_watchdog_mtx, mutex_timeout) == pdPASS) {
+            delay = ns_prv_watchdog_delay;
+            xSemaphoreGive(ns_watchdog_mtx);
+        }
+        vTaskDelay(delay);
+    }
+}
+#endif
 
 TickType_t get_uhf_watchdog_delay(void) {
 #ifdef UHF_IS_STUBBED
@@ -344,6 +425,20 @@ TickType_t get_adcs_watchdog_delay(void) {
     if (xSemaphoreTake(adcs_watchdog_mtx, mutex_timeout) == pdPASS) {
         TickType_t delay = adcs_prv_watchdog_delay;
         xSemaphoreGive(adcs_watchdog_mtx);
+        return delay;
+    } else {
+        return 0;
+    }
+#endif
+}
+
+TickType_t get_ns_watchdog_delay(void) {
+#ifdef PAYLOAD_IS_STUBBED
+    return STUBBED_WATCHDOG_DELAY;
+#else
+    if (xSemaphoreTake(ns_watchdog_mtx, mutex_timeout) == pdPASS) {
+        TickType_t delay = ns_prv_watchdog_delay;
+        xSemaphoreGive(ns_watchdog_mtx);
         return delay;
     } else {
         return 0;
@@ -415,6 +510,22 @@ SAT_returnState set_adcs_watchdog_delay(const unsigned int ms_delay) {
 #endif
 }
 
+SAT_returnState set_ns_watchdog_delay(const unsigned int ms_delay) {
+#ifdef PAYLOAD_IS_STUBBED
+    return SATR_OK;
+#else
+    if(ms_delay < WATCHDOG_MINIMUM_DELAY_MS){
+        return SATR_ERROR;
+    }
+    if (xSemaphoreTake(ns_watchdog_mtx, mutex_timeout) == pdPASS) {
+        ns_prv_watchdog_delay = pdMS_TO_TICKS(ms_delay);
+        xSemaphoreGive(ns_watchdog_mtx);
+        return SATR_OK;
+    }
+    return SATR_ERROR;
+#endif
+}
+
 
 /**
  * Start the diagnostics daemon
@@ -451,7 +562,7 @@ SAT_returnState start_diagnostic_daemon(void) {
     }
 #endif
 
-#ifndef CHARON_IS_STUBBED
+#if !defined(CHARON_IS_STUBBED) && defined(IS_EXALTA2)
     if (xTaskCreate(charon_watchdog_daemon, "charon_watchdog_daemon", 1000, NULL, DIAGNOSTIC_TASK_PRIO, NULL) !=
         pdPASS) {
         ex2_log("FAILED TO CREATE TASK charon_watchdog_daemon.\n");
@@ -479,5 +590,21 @@ SAT_returnState start_diagnostic_daemon(void) {
     }
 #endif
 
+#ifndef PAYLOAD_IS_STUBBED
+#ifdef IS_EXALTA2
+#else
+    if (xTaskCreate(ns_watchdog_daemon, "ns_watchdog_daemon", 1000, NULL, DIAGNOSTIC_TASK_PRIO, NULL) !=
+        pdPASS) {
+        ex2_log("FAILED TO CREATE TASK ns_watchdog_daemon.\n");
+        return SATR_ERROR;
+    }
+    ex2_log("NS watchdog task started.\n");
+    ns_watchdog_mtx = xSemaphoreCreateMutex();
+    if (ns_watchdog_mtx == NULL) {
+        ex2_log("FAILED TO CREATE MUTEX ns_watchdog_mtx.\n");
+        return SATR_ERROR;
+    }
+#endif
+#endif
     return SATR_OK;
 }

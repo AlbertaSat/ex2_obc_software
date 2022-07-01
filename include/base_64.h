@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021  University of Alberta
+ * Copyright (C) 2015  University of Alberta
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -11,23 +11,21 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-/**
- * @file    housekeeping_charon.c
- * @author  Thomas Ganley
- * @date    2021-12-29
+
+/*
+ * b64_encode_decode.h
+ *
+ *  Created on: Nov. 29, 2021
+ *      Author: Grace Yi
  */
 
-#include <skytraq_gps.h>
-#include "housekeeping_charon.h"
+#ifndef B64_ENCODE_DECODE_H_
+#define B64_ENCODE_DECODE_H_
 
-GPS_RETURNSTATE Charon_getHK(charon_housekeeping *hk) {
-    // Read temperature sensors
-    if (readAllTemps(&hk->temparray[0])) {
-        return UNKNOWN_ERROR;
-    }
+#include <stdint.h>
+#include <stdlib.h>
 
-    // Read GPS firmware CRC
-#ifdef IS_EXALTA2
-    return gps_skytraq_get_software_crc(&hk->crc);
-#endif
-}
+char *base64_encode(const unsigned char *data, size_t input_length, size_t *output_length);
+unsigned char *base64_decode(const char *data, size_t input_length, size_t *output_length);
+
+#endif /* B64_ENCODE_DECODE_H_ */

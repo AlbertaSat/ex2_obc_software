@@ -63,6 +63,7 @@
 #include "dfgm.h"
 #include "leop.h"
 #include "adcs.h"
+#include "ns_payload.h"
 #include "deployablescontrol.h"
 #include "test_sdr.h"
 #include <csp/interfaces/csp_if_sdr.h>
@@ -156,7 +157,9 @@ void ex2_init(void *pvParameters) {
 #endif
 
 #ifndef CHARON_IS_STUBBED
+#ifdef IS_EXALTA2
     gps_skytraq_driver_init();
+#endif
     ads7128Init();
     setuppcal9538a();
 #endif
@@ -165,9 +168,11 @@ void ex2_init(void *pvParameters) {
     DFGM_init();
 #endif
 
-#ifdef IS_EXALTA2
 #ifndef PAYLOAD_IS_STUBBED
-    // PLACEHOLDER: iris hardware init
+#ifdef IS_EXALTA2;
+    // Iris init
+#else
+    NS_handler_init();
 #endif
 #endif
 

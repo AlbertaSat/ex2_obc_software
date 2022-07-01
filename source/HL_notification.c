@@ -72,6 +72,9 @@
 #pragma WEAK(gps_sciNotification)
 void gps_sciNotification(sciBASE_t *sci, unsigned flags);
 
+#pragma WEAK(ns_sciNotification)
+void ns_sciNotification(sciBASE_t *sci, unsigned flags);
+
 #pragma WEAK(csp_sciNotification)
 void csp_sciNotification(sciBASE_t *sci, unsigned flags);
 
@@ -220,7 +223,11 @@ void sciNotification(sciBASE_t *sci, uint32 flags)
 /* USER CODE BEGIN (32) */
     uint32_t int_reg = (uint32_t)sci;
     switch(int_reg) {
+#ifdef IS_EXALTA2
     case (uint32_t)GPS_SCI: gps_sciNotification(sci, flags); break;
+#else
+    case (uint32_t)PAYLOAD_SCI: ns_sciNotification(sci, flags); break;
+#endif
     case (uint32_t)CSP_SCI: csp_sciNotification(sci, flags); break;
     case (uint32_t)ADCS_SCI: adcs_sciNotification(sci, flags); break;
     case (uint32_t)DFGM_SCI: dfgm_sciNotification(sci, flags); break;

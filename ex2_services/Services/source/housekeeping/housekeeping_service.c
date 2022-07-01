@@ -27,6 +27,7 @@
 #include "util/service_utilities.h"
 #include "logger/logger.h"
 #include "csp/csp_endian.h"
+#include "ns_payload.h"
 
 uint16_t MAX_FILES = 20160; // value is 20160 (7 days) based on 30 second period
 char fileName[] = "VOL0:/tempHKdata.TMP";
@@ -435,6 +436,13 @@ Result collect_hk_from_devices(All_systems_housekeeping *all_hk_data) {
     DFGM_return DFGM_return_code = HAL_DFGM_get_HK(&all_hk_data->DFGM_hk); /* DFGM Housekeeping */
 #endif                                                                     /* DFGM_IS_STUBBED */
 
+#ifndef PAYLOAD_IS_STUBBED
+#ifdef IS_EXALTA2
+    // Iris housekeeping
+#else
+    NS_return NS_return_code = HAL_NS_get_telemetry(&all_hk_data->NS_hk);
+#endif /* IS_EXALTA2 */
+#endif /* PAYLOAD_IS_STUBBED */
     /*consider if struct should hold error codes returned from these functions*/
     return SUCCESS;
 }
@@ -522,9 +530,8 @@ uint16_t get_size_of_housekeeping(All_systems_housekeeping *all_hk_data) {
     uint16_t needed_size =
         sizeof(all_hk_data->hk_timeorder) + sizeof(all_hk_data->Athena_hk) + sizeof(all_hk_data->EPS_hk) +
         sizeof(all_hk_data->UHF_hk) + sizeof(all_hk_data->S_band_hk) + sizeof(all_hk_data->adcs_hk) +
-        sizeof(all_hk_data->hyperion_hk) + sizeof(all_hk_data->charon_hk) + sizeof(all_hk_data->DFGM_hk)
-        // sizeof(all_hk_data->payload_hk)
-        ;
+        sizeof(all_hk_data->hyperion_hk) + sizeof(all_hk_data->charon_hk) + sizeof(all_hk_data->DFGM_hk) +
+        sizeof(all_hk_data->NS_hk);
     return needed_size;
 }
 
@@ -564,7 +571,7 @@ Result write_hk_to_file(uint16_t filenumber, All_systems_housekeeping *all_hk_da
     red_write(fout, &all_hk_data->hyperion_hk, sizeof(all_hk_data->hyperion_hk));
     red_write(fout, &all_hk_data->charon_hk, sizeof(all_hk_data->charon_hk));
     red_write(fout, &all_hk_data->DFGM_hk, sizeof(all_hk_data->DFGM_hk));
-    // red_write(fout, &all_hk_data->payload_hk, sizeof(all_hk_data->payload_hk));
+    red_write(fout, &all_hk_data->NS_hk, sizeof(all_hk_data->NS_hk));
 
     if (red_errno != 0) {
         sys_log(ERROR, "Failed to write to file: '%s'\n", fileName);
@@ -614,7 +621,7 @@ Result read_hk_from_file(uint16_t filenumber, All_systems_housekeeping *all_hk_d
     red_read(fin, &all_hk_data->hyperion_hk, sizeof(all_hk_data->hyperion_hk));
     red_read(fin, &all_hk_data->charon_hk, sizeof(all_hk_data->charon_hk));
     red_read(fin, &all_hk_data->DFGM_hk, sizeof(all_hk_data->DFGM_hk));
-    // red_read(fin, &all_hk_data->payload_hk, sizeof(all_hk_data->payload_hk));
+    red_read(fin, &all_hk_data->NS_hk, sizeof(all_hk_data->NS_hk));
 
     if (red_errno != 0) {
         sys_log(ERROR, "Failed to read: '%c'\n", fileName);
@@ -886,6 +893,8 @@ Result fetch_historic_hk_and_transmit(csp_conn_t *conn, uint16_t limit, uint16_t
         used_size += sizeof(all_hk_data.charon_hk);
         memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.DFGM_hk, sizeof(all_hk_data.DFGM_hk));
         used_size += sizeof(all_hk_data.DFGM_hk);
+        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.NS_hk, sizeof(all_hk_data.NS_hk));
+        used_size += sizeof(all_hk_data.NS_hk);
 
         set_packet_length(packet, used_size + 2);
 
