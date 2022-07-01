@@ -1269,103 +1269,103 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
         if(iErr == -1){
             sys_log(ERROR, "Error %d trying to change into adcs directory\r\n", red_errno);
             status = ADCS_FILESYSTEM_FAIL;
-        }
-        int32_t file1 = red_open(file_name, RED_O_RDONLY);
-        if(file1 == -1){
-            sys_log(ERROR, "Error %d trying to open file %s\r\n", red_errno, file_name);
-            status = ADCS_FILE_DNE;
         }else{
-            char buf[512];
-            int32_t iErr = red_read(file1, buf, 512);
-            char *token;
-            token = strtok(buf, "\n");
+            int32_t file1 = red_open(file_name, RED_O_RDONLY);
+            if(file1 == -1){
+                sys_log(ERROR, "Error %d trying to open file %s\r\n", red_errno, file_name);
+                status = ADCS_FILE_DNE;
+            }else{
+                char buf[512];
+                int32_t iErr = red_read(file1, buf, 512);
+                char *token;
+                token = strtok(buf, "\n");
 
-            for(uint8_t camsensor_counter = 0; camsensor_counter < 2; camsensor_counter++){
-                camsensor_config conf;
-                conf.mounting_angle.x = atof(token);
-                token = strtok(NULL, "\n");
-                conf.mounting_angle.y = atof(token);
-                token = strtok(NULL, "\n");
-                conf.mounting_angle.z = atof(token);
-                token = strtok(NULL, "\n");
-                conf.detect_th = atoi(token);
-                token = strtok(NULL, "\n");
-                conf.auto_adjust = atoi(token);
-                token = strtok(NULL, "\n");
-                conf.exposure_t = atoi(token);
-                token = strtok(NULL, "\n");
-                conf.boresight_x = atof(token);
-                token = strtok(NULL, "\n");
-                conf.boresight_y = atof(token);
-                token = strtok(NULL, "\n");
-                if(camsensor_counter == 0){
-                    cs_config.cam1_sense = conf;
-                }else{
-                    cs_config.cam2_sense = conf;
+                for(uint8_t camsensor_counter = 0; camsensor_counter < 2; camsensor_counter++){
+                    camsensor_config conf;
+                    conf.mounting_angle.x = atof(token);
+                    token = strtok(NULL, "\n");
+                    conf.mounting_angle.y = atof(token);
+                    token = strtok(NULL, "\n");
+                    conf.mounting_angle.z = atof(token);
+                    token = strtok(NULL, "\n");
+                    conf.detect_th = atoi(token);
+                    token = strtok(NULL, "\n");
+                    conf.auto_adjust = atoi(token);
+                    token = strtok(NULL, "\n");
+                    conf.exposure_t = atoi(token);
+                    token = strtok(NULL, "\n");
+                    conf.boresight_x = atof(token);
+                    token = strtok(NULL, "\n");
+                    conf.boresight_y = atof(token);
+                    token = strtok(NULL, "\n");
+                    if(camsensor_counter == 0){
+                        cs_config.cam1_sense = conf;
+                    }else{
+                        cs_config.cam2_sense = conf;
+                    }
                 }
-            }
 
-            cs_config.nadir_max_deviate = atoi(token);
-            token = strtok(NULL, "\n");
-            cs_config.nadir_max_bad_edge = atoi(token);
-            token = strtok(NULL, "\n");
-            cs_config.nadir_max_radius = atoi(token);
-            token = strtok(NULL, "\n");
-            cs_config.nadir_min_radius = atoi(token);
-            token = strtok(NULL, "\n");
+                cs_config.nadir_max_deviate = atoi(token);
+                token = strtok(NULL, "\n");
+                cs_config.nadir_max_bad_edge = atoi(token);
+                token = strtok(NULL, "\n");
+                cs_config.nadir_max_radius = atoi(token);
+                token = strtok(NULL, "\n");
+                cs_config.nadir_min_radius = atoi(token);
+                token = strtok(NULL, "\n");
 
-            for(uint8_t area_counter = 0; area_counter < 2; area_counter++){
-                cam_area temp;
-                temp.area1.x.min = atoi(token);
-                token = strtok(NULL, "\n");
-                temp.area1.x.max = atoi(token);
-                token = strtok(NULL, "\n");
-                temp.area1.y.min = atoi(token);
-                token = strtok(NULL, "\n");
-                temp.area1.y.max = atoi(token);
-                token = strtok(NULL, "\n");
-                temp.area2.x.min = atoi(token);
-                token = strtok(NULL, "\n");
-                temp.area2.x.max = atoi(token);
-                token = strtok(NULL, "\n");
-                temp.area2.y.min = atoi(token);
-                token = strtok(NULL, "\n");
-                temp.area2.y.max = atoi(token);
-                token = strtok(NULL, "\n");
-                temp.area3.x.min = atoi(token);
-                token = strtok(NULL, "\n");
-                temp.area3.x.max = atoi(token);
-                token = strtok(NULL, "\n");
-                temp.area3.y.min = atoi(token);
-                token = strtok(NULL, "\n");
-                temp.area3.y.max = atoi(token);
-                token = strtok(NULL, "\n");
-                temp.area4.x.min = atoi(token);
-                token = strtok(NULL, "\n");
-                temp.area4.x.max = atoi(token);
-                token = strtok(NULL, "\n");
-                temp.area4.y.min = atoi(token);
-                token = strtok(NULL, "\n");
-                temp.area4.y.max = atoi(token);
-                token = strtok(NULL, "\n");
-                temp.area5.x.min = atoi(token);
-                token = strtok(NULL, "\n");
-                temp.area5.x.max = atoi(token);
-                token = strtok(NULL, "\n");
-                temp.area5.y.min = atoi(token);
-                token = strtok(NULL, "\n");
-                temp.area5.y.max = atoi(token);
-                token = strtok(NULL, "\n");
-                if(area_counter == 0){
-                    cs_config.cam1_area = temp;
-                }else{
-                    cs_config.cam2_area = temp;
+                for(uint8_t area_counter = 0; area_counter < 2; area_counter++){
+                    cam_area temp;
+                    temp.area1.x.min = atoi(token);
+                    token = strtok(NULL, "\n");
+                    temp.area1.x.max = atoi(token);
+                    token = strtok(NULL, "\n");
+                    temp.area1.y.min = atoi(token);
+                    token = strtok(NULL, "\n");
+                    temp.area1.y.max = atoi(token);
+                    token = strtok(NULL, "\n");
+                    temp.area2.x.min = atoi(token);
+                    token = strtok(NULL, "\n");
+                    temp.area2.x.max = atoi(token);
+                    token = strtok(NULL, "\n");
+                    temp.area2.y.min = atoi(token);
+                    token = strtok(NULL, "\n");
+                    temp.area2.y.max = atoi(token);
+                    token = strtok(NULL, "\n");
+                    temp.area3.x.min = atoi(token);
+                    token = strtok(NULL, "\n");
+                    temp.area3.x.max = atoi(token);
+                    token = strtok(NULL, "\n");
+                    temp.area3.y.min = atoi(token);
+                    token = strtok(NULL, "\n");
+                    temp.area3.y.max = atoi(token);
+                    token = strtok(NULL, "\n");
+                    temp.area4.x.min = atoi(token);
+                    token = strtok(NULL, "\n");
+                    temp.area4.x.max = atoi(token);
+                    token = strtok(NULL, "\n");
+                    temp.area4.y.min = atoi(token);
+                    token = strtok(NULL, "\n");
+                    temp.area4.y.max = atoi(token);
+                    token = strtok(NULL, "\n");
+                    temp.area5.x.min = atoi(token);
+                    token = strtok(NULL, "\n");
+                    temp.area5.x.max = atoi(token);
+                    token = strtok(NULL, "\n");
+                    temp.area5.y.min = atoi(token);
+                    token = strtok(NULL, "\n");
+                    temp.area5.y.max = atoi(token);
+                    token = strtok(NULL, "\n");
+                    if(area_counter == 0){
+                        cs_config.cam1_area = temp;
+                    }else{
+                        cs_config.cam2_area = temp;
+                    }
                 }
-            }
 
-            status = ADCS_set_cubesense_config(cs_config);
+                status = ADCS_set_cubesense_config(cs_config);
+            }
         }
-
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         set_packet_length(packet, sizeof(int8_t) + 1);
         break;
