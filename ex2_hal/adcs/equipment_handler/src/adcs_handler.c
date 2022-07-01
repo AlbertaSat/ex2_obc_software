@@ -1312,10 +1312,10 @@ ADCS_returnState ADCS_get_bootloader_state(uint16_t *uptime, uint8_t *flags_arr)
 
 
     for (int i = 0; i < 8; i++) {
-        *(flags_arr + i) = (telemetry[2] >> i) & 1;
+        *(flags_arr + i) = (telemetry[2] >> i) & 1; // Second telemetry byte contains 8 flags
     }
     for(int i = 0; i < 4; i++){
-        *(flags_arr + 8 + i) = (telemetry[3] >> i) & 1;
+        *(flags_arr + 8 + i) = (telemetry[3] >> i) & 1; // Third telemetry byte contains 4 flags
     }
     return state;
 }
@@ -3028,7 +3028,7 @@ ADCS_returnState ADCS_set_cubesense_config(cubesense_config params) {
  * @param mtm
  * 		Select primary (1) or secondary(2) Magnetometer
  * @attention
- * 		The order of input matrix is s11, s12, s13, s21, ...
+ * 		The order of input matrix is s11, s22, s33, s12, s13, s21, s23, s31, s32 per the manual
  * @return
  * 		Success of function defined in adcs_types.h
  */
@@ -3047,32 +3047,26 @@ ADCS_returnState ADCS_set_mtm_config(mtm_config params, uint8_t mtm) {
     raw_val_angle.y = params.mounting_angle.y * coef;
     raw_val_angle.z = params.mounting_angle.z * coef;
     command[1] = raw_val_angle.x & 0xFF;
-    command[2] = raw_val_angle.x >> 8;
+    command[2] = (raw_val_angle.x & 0xFF00) >> 8;
     command[3] = raw_val_angle.y & 0xFF;
-    command[4] = raw_val_angle.y >> 8;
+    command[4] = (raw_val_angle.y & 0xFF00) >> 8;
     command[5] = raw_val_angle.z & 0xFF;
-    command[6] = raw_val_angle.z >> 8;
+    command[6] = (raw_val_angle.z & 0xFF00) >> 8;
 
     coef = 1000;
     raw_val_offset.x = params.channel_offset.x * coef;
     raw_val_offset.y = params.channel_offset.y * coef;
     raw_val_offset.z = params.channel_offset.z * coef;
     command[7] = raw_val_offset.x & 0xFF;
-    command[8] = raw_val_offset.x >> 8;
+    command[8] = (raw_val_offset.x & 0xFF00) >> 8;
     command[9] = raw_val_offset.y & 0xFF;
-    command[10] = raw_val_offset.y >> 8;
+    command[10] = (raw_val_offset.y & 0xFF00) >> 8;
     command[11] = raw_val_offset.z & 0xFF;
-    command[12] = raw_val_offset.z >> 8;
+    command[12] = (raw_val_offset.z & 0xFF00) >> 8;
 
-    int16_t cell[9];
-    for (int i = 0; i < 3; i++) {
-        cell[i] = params.sensitivity_mat[4 * i] * coef; // diagonal
-        cell[3 + i] = params.sensitivity_mat[1 + i] * coef;
-        cell[6 + i] = params.sensitivity_mat[5 + i] * coef;
-    }
-    for(int i = 0; i < 9; i++){
-        command[13 + 2*i] = cell[i] & 0xFF;
-        command[13 + 2*i + 1] = cell[i] >> 8;
+    for(int i = 0; i < 9; i++){ // Swap endianness of 2-byte ints
+        command[13 + 2*i] = params.sensitivity_mat[i] & 0xFF;
+        command[13 + 2*i + 1] = params.sensitivity_mat[i] & 0xFF00) >> 8;
     }
     return adcs_telecommand(command, 31);
 }
@@ -3089,7 +3083,7 @@ ADCS_returnState ADCS_set_detumble_config(detumble_config *config) {
     command[0] = SET_DETUMBLE_PARAM_ID;
     uint32_t temp_32[4];
     memcpy(temp_32, config, 16);
-    for(int i = 0; i < 4; i++){
+    for(int i = 0; i < 4; i++){ // Swap endianness
         temp_32[i] = (temp_32[i] & 0x000000FF) << 24
                 | (temp_32[i] & 0x0000FF00) << 8
                 | (temp_32[i] & 0x00FF0000) >> 8
@@ -3402,7 +3396,7 @@ ADCS_returnState ADCS_get_full_config(adcs_config *config) {
     float temp_mtm[9];
     get_xyz(&config->MTM1.mounting_angle, &telemetry[150], 0.01);
     get_xyz(&config->MTM1.channel_offset, &telemetry[156], 0.001);
-    get_3x3(temp_mtm, &telemetry[162], 0.001);
+    get_3x3(temp_mtm, &telemetry[162], 0.001); // Order s11,s22,s33,s12,s13,s21,s23,s31,s32 per manual
     memcpy(config->MTM1.sensitivity_mat, temp_mtm, sizeof(config->MTM1.sensitivity_mat));
     get_xyz(&config->MTM2.mounting_angle, &telemetry[180], 0.01);
     get_xyz(&config->MTM2.channel_offset, &telemetry[186], 0.001);
