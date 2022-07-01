@@ -69,7 +69,7 @@
 #include "crypto.h"
 #include "csp_debug_wrapper.h"
 
-#define SDR_TEST
+// #define SDR_TEST
 
 #ifdef SDR_TEST
 #include "test_sdr.h"
