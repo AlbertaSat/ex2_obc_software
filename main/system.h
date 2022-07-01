@@ -117,6 +117,9 @@
 #define UHF_I2C i2cREG1
 #endif
 
+/* Define SDR_NO_CSP==0 to use CSP for SDR */
+#define SDR_NO_CSP 0
+
 // watchdog timer expires in 447ms
 #define WDT_DELAY 200            // 200 miliseconds gives a a good window
 #define WDT_CHECK_INTERVAL 10000 // only actually checks the tasks this often

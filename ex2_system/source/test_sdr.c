@@ -1,21 +1,22 @@
 #include <FreeRTOS.h>
 #include <os_task.h>
+#include <os_portable.h>
 #include <string.h>
-#include <csp/arch/csp_malloc.h>
-#include "util/service_utilities.h"
+#include <csp/csp.h>
+#include <logger/logger.h>
 #include "test_sdr.h"
 
 #define TEST_STACK_SIZE 512
 
 #define BASE_LEN 20
 
-static void test_csp_send(void *arg) {
+void test_csp_send(void *arg) {
     ex2_log("starting CSP->UART send");
     vTaskDelay(1000);
 
     csp_conn_t *conn = 0;
     while (!conn) {
-        conn = csp_connect(CSP_PRIO_NORM, 23, 23, 1000, CSP_O_NONE);
+        conn = csp_connect(CSP_PRIO_NORM, 1, 23, 1000, CSP_O_NONE);
         if (!conn) {
             ex2_log("CSP connection failed %d", xTaskGetTickCount());
             vTaskDelay(1000);
@@ -28,25 +29,56 @@ static void test_csp_send(void *arg) {
         size_t len = ((count & 0x7) + 1) * BASE_LEN;
         csp_packet_t *packet = csp_buffer_get(len);
         if (!packet) {
-            ex2_log("no more CSP packets");
+            ex2_log("no more packets");
             break;
         }
+
         packet->length = len;
         for (i=0; i<len; i++) {
             packet->data[i] = i;
         }
-        ex2_log("csp->uhf send %d, len %d\n", count++, packet->length);
+
+        ex2_log("csp->uhf send %d, len %d\n", count++, len);
 
         if (!csp_send(conn, packet, 1000)) {
             ex2_log("send failed");
             break;
         }
-
         csp_buffer_free(packet);
+
         vTaskDelay(5000);
     }
 
     csp_close(conn);
+}
+
+void test_sdr_send(void *arg) {
+    sdr_interface_data_t *ifdata = arg;
+
+    ex2_log("starting SDR->UART send");
+    vTaskDelay(1000);
+
+    int i, count = 0;
+    while (1) {
+        size_t len = ((count & 0x7) + 1) * BASE_LEN;
+        uint8_t *packet = (uint8_t *) pvPortMalloc(len);
+        if (!packet) {
+            ex2_log("no more packets");
+            break;
+        }
+
+        for (i=0; i<len; i++) {
+            packet[i] = i;
+        }
+        ex2_log("sdr->uhf send %d, len %d\n", count++, len);
+
+        int rc = sdr_uhf_tx(ifdata, packet, len);
+        if (rc) {
+            ex2_log("sdr_uhf_tx returns %d", rc);
+        }
+        vPortFree(packet);
+        vTaskDelay(5000);
+    }
 }
 
 static void test_csp_receive(void *arg) {
@@ -92,13 +124,35 @@ static void test_csp_receive(void *arg) {
         }
         ex2_log("uhf->csp %d mismatches", mismatches);
 
-        csp_buffer_free(packet);
+        //csp_buffer_free(packet);
     }
 
     csp_close(conn);
 }
 
-void start_test_sdr(void) {
-    xTaskCreate(test_csp_receive, "uhf->csp", TEST_STACK_SIZE, NULL, 0, NULL);
-    xTaskCreate(test_csp_send, "csp->uhf", TEST_STACK_SIZE, NULL, 0, NULL);
+static int count;
+
+static void sdr_uhf_receive(void *conf, uint8_t *data, size_t len, void *unused) {
+    ex2_log("uhf->sdr receive %d, len %d", ++count, len);
+    int i, mismatches = 0;
+    for (i=0; i<len; i++) {
+        if (data[i] != i) {
+            ex2_log("packet[%d] got %d", i, data[i]);
+            mismatches++;
+        }
+    }
+    ex2_log("uhf->csp %d mismatches", mismatches);
+}
+
+void start_test_sdr(sdr_interface_data_t *ifdata) {
+    if (SDR_NO_CSP) {
+        ifdata->sdr_conf->rx_callback = sdr_uhf_receive;
+        ifdata->sdr_conf->rx_callback_data = NULL;
+
+        xTaskCreate(test_sdr_send, "sdr->uhf", TEST_STACK_SIZE, ifdata, 0, NULL);
+    }
+    else {
+        xTaskCreate(test_csp_receive, "uhf->csp", TEST_STACK_SIZE, NULL, 0, NULL);
+        xTaskCreate(test_csp_send, "csp->uhf", TEST_STACK_SIZE, NULL, 0, NULL);
+    }
 }
