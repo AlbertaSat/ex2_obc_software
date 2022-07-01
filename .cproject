@@ -39,7 +39,6 @@
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/main}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/iris/equipment_handler/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/iris/hardware_interface/include}"/>
-									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/driver}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/leop}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/file_transfer}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/mac_layer}"/>
@@ -106,7 +105,6 @@
 									<listOptionValue builtIn="false" value="IS_EXALTA2"/>
 									<listOptionValue builtIn="false" value="DFGM_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="CSP_FREERTOS"/>
-									<listOptionValue builtIn="false" value="OS_FREERTOS"/>
 									<listOptionValue builtIn="false" value="SBAND_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="CHARON_IS_STUBBED"/>
 									<listOptionValue builtIn="false" value="SYSTEM_APP_ID=_OBC_APP_ID_"/>

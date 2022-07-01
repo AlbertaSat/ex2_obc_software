@@ -20,8 +20,8 @@
 #include <FreeRTOS.h>
 #include <csp/csp.h>
 #include <csp/drivers/usart.h>
+#include <csp/drivers/sdr.h>
 #include <csp/interfaces/csp_if_can.h>
-#include <csp/interfaces/csp_if_sdr.h>
 #include <performance_monitor/system_stats.h>
 #include <redconf.h>
 #include <redfs.h>
@@ -64,21 +64,15 @@
 #include "leop.h"
 #include "adcs.h"
 #include "deployablescontrol.h"
+#include "test_sdr.h"
+#include <csp/interfaces/csp_if_sdr.h>
 #include "printf.h"
 #include "csp/crypto/csp_hmac.h"
 #include "crypto.h"
 #include "csp_debug_wrapper.h"
 
-#define SDR_TEST
-
-#ifdef SDR_TEST
-#include "test_sdr.h"
-
-static sdr_interface_data_t *test_ifdata;
-#endif
-
-#define CSP_USE_SDR
-//#define CSP_USE_KISS
+//#define CSP_USE_SDR
+#define CSP_USE_KISS
 
 #ifdef FLATSAT_TEST
 //#include "sband_binary_tests.h"
@@ -183,9 +177,9 @@ void ex2_init(void *pvParameters) {
 
     init_software();
 
- #ifdef SDR_TEST
-    start_test_sdr(test_ifdata);
- #endif
+#ifdef SDR_TEST
+    start_test_sdr();
+#endif
 
 #ifdef FLATSAT_TEST
     /* Test Task */
@@ -353,39 +347,21 @@ static inline SAT_returnState init_csp_interface() {
 #if defined(CSP_USE_SDR)
 
 #ifdef SDR_TEST
-    char * gs_if_name = SDR_IF_LOOPBACK_NAME;
+    char * gs_if_name = "LOOPBACK";
     int gs_if_addr = 23;
 #else
-    char * gs_if_name = SDR_IF_UHF_NAME;
+    char * gs_if_name = "UHF";
     int gs_if_addr = 16;
 #endif /* SDR_TEST */
 
-    sdr_conf_t sdr_conf;
-    sdr_conf.uhf_conf.uhf_baudrate = SDR_UHF_9600_BAUD;
-    sdr_conf.uhf_conf.uart_baudrate = 115200;
-
-    if (SDR_NO_CSP) {
-        sdr_interface_data_t *ifdata = sdr_interface_init(&sdr_conf, gs_if_name);
-        if (!ifdata) {
-            return SATR_ERROR;
-        }
-#ifdef SDR_TEST
-        test_ifdata = ifdata;
-#endif
-    }
-    else {
-        error = csp_sdr_open_and_add_interface(&sdr_conf, gs_if_name, NULL);
-        if (error != CSP_ERR_NONE) {
-            return SATR_ERROR;
-        }
-    }
-    
-#ifndef SBAND_IS_STUBBED
-    error = csp_sdr_open_and_add_interface(&sdr_conf, SDR_IF_SBAND_NAME, NULL);
+    csp_sdr_conf_t uhf_conf = {    .mtu = SDR_UHF_MAX_MTU,
+                                   .baudrate = SDR_UHF_9600_BAUD,
+                                   .uart_baudrate = 115200 };
+    error = csp_sdr_open_and_add_interface(&uhf_conf, gs_if_name, NULL);
     if (error != CSP_ERR_NONE) {
         return SATR_ERROR;
     }
-#endif // SBAND_IS_STUBBED
+
 #endif /* defined(CSP_USE_SDR) */
 
     char rtable[128] = {0};
@@ -413,7 +389,7 @@ void vAssertCalled(unsigned long ulLine, const char *const pcFileName) {
         ;
 }
 
-void prvSaveTraceFile(void) {
+static void prvSaveTraceFile(void) {
     // TODO: implement this with relianceEdge
 }
 
