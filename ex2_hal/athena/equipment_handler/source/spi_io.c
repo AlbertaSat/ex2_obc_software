@@ -1,5 +1,6 @@
 #include "spi_io.h"
 #include "FreeRTOS.h"
+#include "os_task.h"
 #include "HL_gio.h"
 #include "HL_het.h"
 #include "HL_mibspi.h"
@@ -14,12 +15,21 @@
 void SPI_Init(void) {}
 
 BYTE SPI_RW(BYTE d) {
-    while ((SD_SPI->FLG & 0x0200) == 0)
-        ;                          // Wait until TXINTFLG is set for previous transmission
+    TickType_t start = xTaskGetTickCount();
+
+    while ((SD_SPI->FLG & 0x0200) == 0) { // Wait until TXINTFLG is set for previous transmission
+        if (xTaskGetTickCount() - start > pdMS_TO_TICKS(1)) { //  Wait 1 ms
+            return 0xFF;
+        }
+    }
     SD_SPI->DAT1 = d | 0x100D0000; // transmit register address
 
-    while ((SD_SPI->FLG & 0x0100) == 0)
-        ;                                // Wait until RXINTFLG is set when new value is received
+    start = xTaskGetTickCount();
+    while ((SD_SPI->FLG & 0x0100) == 0) { // Wait until RXINTFLG is set when new value is received
+        if (xTaskGetTickCount() - start > pdMS_TO_TICKS(1)) { //  Wait 1 ms
+            return 0xFF;
+        }
+    }
     return ((unsigned char)SD_SPI->BUF); // Return received value
 }
 
@@ -65,18 +75,8 @@ inline void SPI_Freq_High(void) {}
 
 inline void SPI_Freq_Low(void) {}
 
-void SPI_Timer_On(WORD ms) {
-    //    SIM_SCGC5 |= SIM_SCGC5_LPTMR_MASK;  // Make sure clock is enabled
-    //    LPTMR0_CSR = 0;                     // Reset LPTMR settings
-    //    LPTMR0_CMR = ms;                    // Set compare value (in ms)
-    //    // Use 1kHz LPO with no prescaler
-    //    LPTMR0_PSR = LPTMR_PSR_PCS(1) | LPTMR_PSR_PBYP_MASK;
-    //    // Start the timer and wait for it to reach the compare value
-    //    LPTMR0_CSR = LPTMR_CSR_TEN_MASK;
-}
+void SPI_Timer_On(WORD ms, SPI_timer_handle_t *timer) { timer->timeout_tick = ms + xTaskGetTickCount(); }
 
-inline BOOL SPI_Timer_Status(void) { return TRUE; }
+inline BOOL SPI_Timer_Status(SPI_timer_handle_t *timer) { return timer->timeout_tick > xTaskGetTickCount(); }
 
-inline void SPI_Timer_Off(void) {
-    //    LPTMR0_CSR = 0;                     // Turn off timer
-}
+inline void SPI_Timer_Off(SPI_timer_handle_t *timer) { timer->timeout_tick = 0; }

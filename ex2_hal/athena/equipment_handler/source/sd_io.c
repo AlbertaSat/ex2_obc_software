@@ -118,11 +118,12 @@ BYTE __SD_Send_Cmd(uint8_t bVolNum, BYTE cmd, DWORD arg) {
 
     // Receive command response
     // Wait for a valid response in timeout of 5 milliseconds
-    SPI_Timer_On(5);
+    SPI_timer_handle_t timer;
+    SPI_Timer_On(5, &timer);
     do {
         res = SPI_RW(0xFF);
-    } while ((res & 0x80) && (SPI_Timer_Status() == TRUE));
-    SPI_Timer_Off();
+    } while ((res & 0x80) && (SPI_Timer_Status(&timer) == TRUE));
+    SPI_Timer_Off(&timer);
     // Return with the response value
     return (res);
 }
@@ -145,11 +146,13 @@ SDRESULTS __SD_Write_Block(uint8_t bVolNum, const void *dat, BYTE token) {
             return (SD_REJECT);
     }
     // Waits until finish of data programming with a timeout
-    SPI_Timer_On(SD_IO_WRITE_TIMEOUT_WAIT);
+    SPI_timer_handle_t timer;
+
+    SPI_Timer_On(SD_IO_WRITE_TIMEOUT_WAIT, &timer);
     do {
         line = SPI_RW(0xFF);
-    } while ((line == 0) && (SPI_Timer_Status() == TRUE));
-    SPI_Timer_Off();
+    } while ((line == 0) && (SPI_Timer_Status(&timer) == TRUE));
+    SPI_Timer_Off(&timer);
     if (line == 0)
         return (SD_BUSY);
     else
@@ -233,10 +236,12 @@ SDRESULTS SD_Init(uint8_t bVolNum) {
         //        SPI_Timer_Off();
 
         dev->mount = FALSE;
-        SPI_Timer_On(500);
-        while ((__SD_Send_Cmd(bVolNum, CMD0, 0) != 1) && (SPI_Timer_Status() == TRUE))
+        SPI_timer_handle_t timer;
+
+        SPI_Timer_On(500, &timer);
+        while ((__SD_Send_Cmd(bVolNum, CMD0, 0) != 1) && (SPI_Timer_Status(&timer) == TRUE))
             ;
-        SPI_Timer_Off();
+        SPI_Timer_Off(&timer);
         // Idle state
         if (__SD_Send_Cmd(bVolNum, CMD0, 0) == 1) {
             // SD version 2?
@@ -247,12 +252,13 @@ SDRESULTS SD_Init(uint8_t bVolNum) {
                 // VDD range of 2.7-3.6V is OK?
                 if ((ocr[2] == 0x01) && (ocr[3] == 0xAA)) {
                     // Wait for leaving idle state (ACMD41 with HCS bit)...
-                    SPI_Timer_On(1000);
-                    while ((SPI_Timer_Status() == TRUE) && (__SD_Send_Cmd(bVolNum, ACMD41, 1UL << 30)))
+                    SPI_Timer_On(1000, &timer);
+                    while ((SPI_Timer_Status(&timer) == TRUE) && (__SD_Send_Cmd(bVolNum, ACMD41, 1UL << 30)))
                         ;
-                    SPI_Timer_Off();
+                    SPI_Timer_Off(&timer);
+                    SPI_Timer_On(1000, &timer);
                     // CCS in the OCR?
-                    if ((SPI_Timer_Status() == TRUE) && (__SD_Send_Cmd(bVolNum, CMD58, 0) == 0)) {
+                    if ((SPI_Timer_Status(&timer) == TRUE) && (__SD_Send_Cmd(bVolNum, CMD58, 0) == 0)) {
                         for (n = 0; n < 4; n++)
                             ocr[n] = SPI_RW(0xFF);
                         // SD version 2?
@@ -271,11 +277,12 @@ SDRESULTS SD_Init(uint8_t bVolNum) {
                     cmd = CMD1;
                 }
                 // Wait for leaving idle state
-                SPI_Timer_On(250);
-                while ((SPI_Timer_Status() == TRUE) && (__SD_Send_Cmd(bVolNum, cmd, 0)))
+                SPI_Timer_On(250, &timer);
+                while ((SPI_Timer_Status(&timer) == TRUE) && (__SD_Send_Cmd(bVolNum, cmd, 0)))
                     ;
-                SPI_Timer_Off();
-                if (SPI_Timer_Status() == FALSE)
+                SPI_Timer_Off(&timer);
+                SPI_Timer_On(250, &timer);
+                if (SPI_Timer_Status(&timer) == FALSE)
                     ct = 0;
                 if (__SD_Send_Cmd(bVolNum, CMD59, 0))
                     ct = 0; // Deactivate CRC check (default)
@@ -301,16 +308,17 @@ SDRESULTS SD_Read(uint8_t bVolNum, void *dat, DWORD sector, WORD ofs, WORD cnt) 
     SDRESULTS res;
     BYTE tkn;
     WORD remaining;
+    SPI_timer_handle_t timer;
     res = SD_ERROR;
     if ((sector > dev->last_sector) || (cnt == 0))
         return (SD_PARERR);
     // Convert sector number to byte address (sector * SD_BLK_SIZE)
     if (__SD_Send_Cmd(bVolNum, CMD17, sector * SD_BLK_SIZE) == 0) {
-        SPI_Timer_On(100); // Wait for data packet (timeout of 100ms)
+        SPI_Timer_On(100, &timer); // Wait for data packet (timeout of 100ms)
         do {
             tkn = SPI_RW(0xFF);
-        } while ((tkn == 0xFF) && (SPI_Timer_Status() == TRUE));
-        SPI_Timer_Off();
+        } while ((tkn == 0xFF) && (SPI_Timer_Status(&timer) == TRUE));
+        SPI_Timer_Off(&timer);
         // Token of single block?
         if (tkn == 0xFE) {
             // Size block (512 bytes) + CRC (2 bytes) - offset - bytes to count
