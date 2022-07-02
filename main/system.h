@@ -25,16 +25,14 @@
 #include <stdint.h>
 #include "FreeRTOS.h"
 
-#ifdef IS_FLATSAT
-#ifndef IS_ATHENA
-#error If IS_FLATSAT is defined then IS_ATHENA must be defined
+#if IS_FLATSAT == 1
+#if IS_ATHENA == 0
+#error If IS_FLATSAT is set then IS_ATHENA must be set
 #endif
-#ifndef HAS_SD_CARD
+#if HAS_SD_CARD == 0
 #warning FlatSat testing requires the SD card on Athena to be present
 #endif
 #endif
-
-#define SYSTEM_APP_ID _OBC_APP_ID_
 
 #define DIAGNOSICS_TASK_PRIORITY (tskIDLE_PRIORITY)
 #define NORMAL_SERVICE_PRIO (tskIDLE_PRIORITY + 1)
@@ -48,14 +46,7 @@
 #define MOCK_RTC_TASK_PRIO (configMAX_PRIORITIES - 1)
 #define TASK_MANAGER_PRIO (tskIDLE_PRIORITY + 3)
 
-#if (defined(IS_EXALTA2) && defined(IS_AURORASAT)) || (defined(IS_EXALTA2) && defined(IS_YUKONSAT)) ||            \
-    (defined(IS_AURORASAT) && defined(IS_YUKONSAT))
-#error "Too many satellites defined!"
-#elif !defined(IS_EXALTA2) && !defined(IS_YUKONSAT) && !defined(IS_AURORASAT)
-#error "Need to define a satellite!"
-#endif
-
-#if defined(IS_ATHENA)
+#if IS_ATHENA == 1
 #define CSP_SCI sciREG2  // UART2
 #define ADCS_SCI sciREG3 // UART4
 #define DFGM_SCI sciREG4 // UART1
@@ -63,7 +54,7 @@
 #if defined(IS_EXALTA2)
 #define GPS_SCI sciREG1 // UART3
 #define PAYLOAD_SCI NULL
-#elif defined(IS_AURORASAT) || defined(IS_YUKONSAT)
+#elif IS_AURORASAT == 1 || IS_YUKONSAT == 1
 #define GPS_SCI NULL
 #define PAYLOAD_SCI sciREG1 // UART3
 #define GPS_SCI NULL
@@ -79,13 +70,13 @@
 #define UHF_SCI CSP_SCI
 #endif
 
-#ifdef IS_ATHENA
+#if IS_ATHENA == 1
 #define PRINTF_SCI NULL
 #else
 #define PRINTF_SCI sciREG1
 #endif
 
-#if defined(IS_ATHENA)
+#if IS_ATHENA == 1
 #define IRIS_CONFIG_SPI spiREG4 // SPI1
 #define IRIS_SPI spiREG5        // SPI3
 #define SBAND_SPI spiREG3       // SPI2
@@ -97,7 +88,7 @@
 #define SD_SPI spiREG1          //?
 #endif
 
-#if defined(IS_ATHENA)
+#if IS_ATHENA == 1
 #define IMU_I2C i2cREG2
 #define SOLAR_I2C i2cREG1
 #define TEMPSENSE_I2C i2cREG2
@@ -118,9 +109,6 @@
 #define ADCS_I2C i2cREG1
 #define UHF_I2C i2cREG1
 #endif
-
-/* Define SDR_NO_CSP==0 to use CSP for SDR */
-#define SDR_NO_CSP 0
 
 // watchdog timer expires in 447ms
 #define WDT_DELAY 200            // 200 miliseconds gives a a good window
@@ -149,7 +137,7 @@ typedef enum {
 #define RTC_INT_PIN 2
 
 #define ADCS_5V0_PWR_CHNL 1
-#ifdef IS_SN0072_EPS
+#if IS_SN0072_EPS == 1
 #warning                                                                                                          \
     "IS_SN0072_EPS swaps assignment for channels 2 and 5 because of incorrect output config of the engineering model Nanoavionics EPS, SN 0072"
 #define ADCS_3V3_PWR_CHNL 2
@@ -159,7 +147,7 @@ typedef enum {
 
 #define PYLD_5V0_PWR_CHNL 3
 // Channel 4 was assigned to be 3V3 for 1W UHF in case 2W UHFs didn't work out.
-#ifdef IS_SN0072_EPS
+#if IS_SN0072_EPS == 1
 #define DFGM_5V0_PWR_CHNL 5
 #else
 #define ADCS_3V3_PWR_CHNL 5
@@ -171,8 +159,5 @@ typedef enum {
 #define DEPLOYABLES_5V0_PWR_CHNL 9
 #define PYLD_3V3_PWR_CHNL 10
 // SBAND_PWR_CHNL does not exist as it is on the 5V_AO (always on) channel
-
-int ex2_main(void);
-void SciSendBuf(char *buf, uint32_t bufSize);
 
 #endif /* SYSTEM_H */

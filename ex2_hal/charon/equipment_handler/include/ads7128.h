@@ -20,7 +20,7 @@
 #include <stdbool.h>
 
 #define ADS7128_ADDR (0x11)
-#ifdef IS_ATHENA
+#if IS_ATHENA == 1
 #define ADS7128_PORT i2cREG1
 #else
 #define ADS7128_PORT i2cREG1 // port used on dev board

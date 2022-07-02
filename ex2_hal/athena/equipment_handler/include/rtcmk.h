@@ -10,16 +10,13 @@
 
 #include <stdint.h>
 #include "ex2_time.h"
+#include "system.h"
 /*******************************************************************************
  *******************************   DEFINES   ***********************************
  ******************************************************************************/
 
 #define RTCMK_ADDR (0x32)
-#ifdef IS_ATHENA
-#define RTCMK_PORT i2cREG2
-#else
-#define RTCMK_PORT i2cREG1 // port used on dev board
-#endif
+#define RTCMK_PORT RTC_I2C
 
 #define RTCMK_SEC_SEC (0x7FUL << 0)
 #define _RTCMK_SEC_SEC_SHIFT 0

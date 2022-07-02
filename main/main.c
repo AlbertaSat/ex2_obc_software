@@ -72,16 +72,7 @@
 #include "crypto.h"
 #include "csp_debug_wrapper.h"
 
-#ifdef SDR_TEST
-#include "test_sdr.h"
-
-static sdr_interface_data_t *test_ifdata;
-#endif
-
-#define CSP_USE_SDR
-//#define CSP_USE_KISS
-
-#ifdef FLATSAT_TEST
+#if FLATSAT_TEST == 1
 //#include "sband_binary_tests.h"
 static void flatsat_test();
 #endif
@@ -113,7 +104,7 @@ void ex2_init(void *pvParameters) {
 
     /* LEOP */
 
-#ifdef EXECUTE_LEOP
+#if EXECUTE_LEOP == 1
     if (execute_leop() != true) {
         // TODO: Do what if leop fails?
     }
@@ -123,10 +114,10 @@ void ex2_init(void *pvParameters) {
 
     /* Subsystem Hardware Initialization */
 
-#ifndef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 0
     init_adcs_io();
     ADCS_set_enabled_state(1);
-#ifdef FLATSAT_TEST
+#if FLATSAT_TEST == 1
     uint8_t control[10] = {0};
     control[Set_CubeCTRLSgn_Power] = 1;
     control[Set_CubeCTRLMtr_Power] = 1;
@@ -142,45 +133,43 @@ void ex2_init(void *pvParameters) {
 #endif                                  // FLATSAT_TEST
 #endif                                  // ADCS_IS_STUBBED
 
-#ifndef ATHENA_IS_STUBBED
+#if ATHENA_IS_STUBBED == 0
     // PLACEHOLDER: athena hardware init
 #endif
 
-#ifndef EPS_IS_STUBBED
+#if EPS_IS_STUBBED == 0
     // PLACEHOLDER: eps hardware init
 #endif
 
-#ifndef UHF_IS_STUBBED
+#if UHF_IS_STUBBED == 0
     uhf_uart_init();
     uhf_i2c_init();
     uhf_pipe_timer_init();
     UHF_init_config();
 #endif
 
-#ifndef SBAND_IS_STUBBED
+#if SBAND_IS_STUBBED == 0
     STX_Enable();
     // PLACEHOLDER: sband hardware init
 #endif
 
-#ifndef CHARON_IS_STUBBED
-#ifdef IS_EXALTA2
+#if CHARON_IS_STUBBED == 0
+#if IS_EXALTA2 == 1
     gps_skytraq_driver_init();
 #endif
     ads7128Init();
     setuppcal9538a();
 #endif
 
-#ifndef DFGM_IS_STUBBED
+#if DFGM_IS_STUBBED == 0
     DFGM_init();
 #endif
 
-#ifdef IS_EXALTA2
-#ifndef PAYLOAD_IS_STUBBED
-#ifdef IS_EXALTA2;
+#if PAYLOAD_IS_STUBBED == 0
+#if IS_EXALTA2 == 1;
     // Iris init
 #else
     NS_handler_init();
-#endif
 #endif
 #endif
 
@@ -191,10 +180,10 @@ void ex2_init(void *pvParameters) {
     init_software();
 
 #ifdef SDR_TEST
-    start_test_sdr(test_ifdata);
+    start_test_sdr();
 #endif
 
-#ifdef FLATSAT_TEST
+#if FLATSAT_TEST == 1
     /* Test Task */
     xTaskCreate(flatsat_test, "flatsat_test", 500, NULL, 1, NULL);
 #endif
@@ -202,7 +191,7 @@ void ex2_init(void *pvParameters) {
     vTaskDelete(0); // delete self to free up heap
 }
 
-#ifdef FLATSAT_TEST
+#if FLATSAT_TEST == 1
 void flatsat_test(void *pvParameters) { vTaskDelete(NULL); }
 #endif
 
@@ -234,7 +223,7 @@ void init_software() {
  * Initialize reliance edge file system
  */
 static void init_filesystem() {
-#if defined(HAS_SD_CARD) // TODO: tolerate non-existent SD Card
+#if HAS_SD_CARD == 1 // TODO: tolerate non-existent SD Card
     int32_t iErr = 0;
     const char *pszVolume0 = gaRedVolConf[0].pszPathPrefix;
     iErr = red_init();
@@ -243,7 +232,7 @@ static void init_filesystem() {
         exit(red_errno);
     }
 
-#ifdef SD_CARD_REFORMAT
+#if SD_CARD_REFORMAT == 1
 
     iErr = red_format(pszVolume0);
     if (iErr == -1) {
@@ -258,7 +247,7 @@ static void init_filesystem() {
         exit(red_errno);
     }
 
-#ifdef IS_ATHENA_V2 // TODO: make this IS_ATHENA once V2 is actively used
+#if IS_ATHENA_V2 == 1 // TODO: make this IS_ATHENA once V2 is actively used
     iErr = 0;
     const char *pszVolume1 = gaRedVolConf[1].pszPathPrefix;
 
@@ -323,7 +312,7 @@ static void init_csp() {
 static inline SAT_returnState init_csp_interface() {
     int error;
 
-#ifndef EPS_IS_STUBBED
+#if EPS_IS_STUBBED == 0
     csp_iface_t *can_iface = NULL;
     error = csp_can_open_and_add_interface("CAN", &can_iface);
     if (error != CSP_ERR_NONE) {
@@ -331,11 +320,7 @@ static inline SAT_returnState init_csp_interface() {
     }
 #endif /* EPS_IS_STUBBED */
 
-#if !defined(CSP_USE_KISS) && !defined(CSP_USE_SDR) || defined(CSP_USE_KISS) && defined(CSP_USE_SDR)
-#error "CSP must use one of KISS or SDR"
-#endif /* !defined(CSP_USE_KISS) && !defined(CSP_USE_SDR) || defined(CSP_USE_KISS) && defined(CSP_USE_SDR) */
-
-#if defined(CSP_USE_KISS)
+#if CSP_USE_KISS == 1
     csp_usart_conf_t conf = {.device = "UART",
                              .baudrate = 115200, /* supported on all platforms */
                              .databits = 8,
@@ -354,9 +339,9 @@ static inline SAT_returnState init_csp_interface() {
 
 #endif /* defined(CSP_USE_KISS) */
 
-#if defined(CSP_USE_SDR)
+#if CSP_USE_SDR == 1
 
-#ifdef SDR_TEST
+#if SDR_TEST == 1
     char *gs_if_name = SDR_IF_LOOPBACK_NAME;
     int gs_if_addr = 23;
 #else
@@ -373,7 +358,7 @@ static inline SAT_returnState init_csp_interface() {
         if (!ifdata) {
             return SATR_ERROR;
         }
-#ifdef SDR_TEST
+#if SDR_TEST == 1
         test_ifdata = ifdata;
 #endif
     } else {
@@ -383,18 +368,18 @@ static inline SAT_returnState init_csp_interface() {
         }
     }
 
-#ifndef SBAND_IS_STUBBED
+#if SBAND_IS_STUBBED == 0
     error = csp_sdr_open_and_add_interface(&sdr_conf, SDR_IF_SBAND_NAME, NULL);
     if (error != CSP_ERR_NONE) {
         return SATR_ERROR;
     }
 #endif // SBAND_IS_STUBBED
-#endif /* defined(CSP_USE_SDR) */
+#endif /* CSP_USE_SDR */
 
     char rtable[128] = {0};
     snprintf(rtable, 128, "%d %s", gs_if_addr, gs_if_name);
 
-#ifndef EPS_IS_STUBBED
+#if EPS_IS_STUBBED == 0
     snprintf(rtable, 128, "%s, 4 CAN", rtable);
 #endif /* EPS_IS_STUBBED */
 

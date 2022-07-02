@@ -27,22 +27,22 @@ void InitIO(void) {
     spiInit();
     gioInit();
 
-    //emif_SDRAMInit(); not using until SDRAM tested
-    hetInit(); //don't think this is necessary
+    // emif_SDRAMInit(); not using until SDRAM tested
+    hetInit(); // don't think this is necessary
 
     // The following sets the proper direction for all GPIO
     gioSetDirection(hetPORT2, 0xFFFFFFEA);
-#ifdef IS_ATHENA
+#if IS_ATHENA == 1
     gioSetDirection(hetPORT1, 0x9CFF6BEF);
 #else
     gioSetDirection(hetPORT1, 0x9CFF7BEF);
 #endif
-    //gioSetDirection(gioPORTA, 0xFFFFFF6F);
-    //gioSetDirection(gioPORTB, 0xFFFFFFFF);
+    // gioSetDirection(gioPORTA, 0xFFFFFF6F);
+    // gioSetDirection(gioPORTB, 0xFFFFFFFF);
 
     gioSetBit(hetPORT2, 12, 1); // solar panel power - enable
     gioSetBit(hetPORT1, 20, 1); // IRIS nCONFIG - disable
-#ifdef IS_ATHENA
+#if IS_ATHENA == 1
     gioSetBit(hetPORT2, 6, 1); // SD card - disable
 #else
     gioSetBit(hetPORT1, 12, 1); // SD card - disable

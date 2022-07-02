@@ -189,7 +189,7 @@ static void do_output(const char *str) {
         red_transact("VOL0:");
     }
 
-#ifndef IS_FLATSAT
+#if IS_SATELLITE == 0
     printf("%s", output_string);
 #endif
 }
@@ -207,7 +207,7 @@ static void do_output(const char *str) {
 void sys_log(SysLog_Level level, const char *format, ...) {
     const char *main_name = "MAIN";
     const char *task_name;
-    const char abbreviations[] = { 'P', 'A', 'C', 'E', 'W', 'N', 'I', 'D' };
+    const char abbreviations[] = {'P', 'A', 'C', 'E', 'W', 'N', 'I', 'D'};
 
     if (xTaskGetSchedulerState() == taskSCHEDULER_SUSPENDED) {
         return;
@@ -219,7 +219,8 @@ void sys_log(SysLog_Level level, const char *format, ...) {
         task_name = pcTaskGetName(NULL);
     }
 
-    if (level < 0 || level > DEBUG) level = DEBUG;
+    if (level < 0 || level > DEBUG)
+        level = DEBUG;
 
     char buffer[PRINT_BUF_LEN + TASK_NAME_SIZE + LEVEL_LEN] = {0};
 
@@ -228,7 +229,8 @@ void sys_log(SysLog_Level level, const char *format, ...) {
     char *msg = buffer + TASK_NAME_SIZE + LEVEL_LEN;
     vsnprintf(msg, PRINT_BUF_LEN, format, arg);
     va_end(arg);
-    snprintf(buffer, TASK_NAME_SIZE + LEVEL_LEN + PRINT_BUF_LEN, "%c,%.*s,%s", abbreviations[(int) level], TASK_NAME_SIZE, task_name, msg);
+    snprintf(buffer, TASK_NAME_SIZE + LEVEL_LEN + PRINT_BUF_LEN, "%c,%.*s,%s", abbreviations[(int)level],
+             TASK_NAME_SIZE, task_name, msg);
 
     int string_len = strlen(buffer);
     if (buffer[string_len - 1] == '\n') {

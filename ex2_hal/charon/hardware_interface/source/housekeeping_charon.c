@@ -27,7 +27,7 @@ GPS_RETURNSTATE Charon_getHK(charon_housekeeping *hk) {
     }
 
     // Read GPS firmware CRC
-#ifdef IS_EXALTA2
+#if IS_EXALTA2 == 1
     return gps_skytraq_get_software_crc(&hk->crc);
 #endif
 }

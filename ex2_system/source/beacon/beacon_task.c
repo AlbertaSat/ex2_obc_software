@@ -80,7 +80,7 @@ static void *beacon_daemon(All_systems_housekeeping *all_hk_data) {
         // by the operator or here through HAL_UHF_getBeaconT().
         HAL_UHF_setSCW(scw);
 
-#ifndef UHF_IS_STUBBED
+#if UHF_IS_STUBBED == 0
         uhf_status = HAL_UHF_getSCW(scw);
 
         if (uhf_status == U_GOOD_CONFIG) {
@@ -88,7 +88,7 @@ static void *beacon_daemon(All_systems_housekeeping *all_hk_data) {
             uhf_status = HAL_UHF_setSCW(scw);
         }
 #endif
-#ifndef EPS_IS_STUBBED
+#if EPS_IS_STUBBED == 0
         if (uhf_status != U_GOOD_CONFIG) {
 
             if (eps_get_pwr_chnl(UHF_5V0_PWR_CHNL) == 1 && gioGetBit(UHF_GIO_PORT, UHF_GIO_PIN) == 1) {
