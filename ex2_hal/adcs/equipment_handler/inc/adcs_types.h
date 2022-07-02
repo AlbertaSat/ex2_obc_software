@@ -39,7 +39,7 @@ typedef enum ADCS_returnState {
     ADCS_UART_FAILED = 6,
     ADCS_UART_BUSY = 7,
 
-    // File download errors
+    // File errors
     ADCS_FILE_DNE = 8,
     ADCS_FILESYSTEM_FAIL = 9,
     ADCS_FILE_FAIL = 10,

@@ -256,12 +256,12 @@ static void adcs_watchdog_daemon(void *pvParameters) {
             continue;
         }
 
-        adcs_state test_state;
+        ADCS_boot_program_stat test_stat;
 
 
         ADCS_returnState err;
         for (int i = 0; i < watchdog_retries; i++) {
-            err = HAL_ADCS_get_current_state(&test_state);
+            err = HAL_ADCS_get_boot_program_stat(&test_stat); // Chosen bc the ADCS will respond in boot and app mode
             if (err == ADCS_OK) break;
             vTaskDelay(2*ONE_SECOND);
         }

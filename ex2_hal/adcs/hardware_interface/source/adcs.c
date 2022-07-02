@@ -418,7 +418,7 @@ ADCS_returnState HAL_ADCS_get_bootloader_state(ADCS_bootloader_state *bootloader
 #ifdef ADCS_IS_STUBBED
     return IS_STUBBED_A;
 #else
-    return ADCS_get_bootloader_state(&bootloader_state->uptime, &bootloader_state->flags_arr);
+    return ADCS_get_bootloader_state(&bootloader_state->uptime, &bootloader_state->flags_arr[0]);
 #endif
 }
 
@@ -865,7 +865,7 @@ ADCS_returnState HAL_ADCS_set_mtm_config(mtm_config params, uint8_t mtm) {
 #endif
 }
 
-ADCS_returnState HAL_ADCS_set_detumble_config(detumble_config config) {
+ADCS_returnState HAL_ADCS_set_detumble_config(detumble_config *config) {
 #ifdef ADCS_IS_STUBBED
     return IS_STUBBED_A;
 #else
@@ -942,7 +942,7 @@ ADCS_returnState HAL_ADCS_getHK(ADCS_HouseKeeping *adcs_hk) {
     return IS_STUBBED_A;
 #else
     ADCS_returnState temp;
-    ADCS_returnState return_state = 0;
+    ADCS_returnState return_state = ADCS_OK;
     adcs_state data;
     adcs_measures mes;
     adcs_pwr_temp pwr;

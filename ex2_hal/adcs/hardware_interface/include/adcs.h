@@ -181,7 +181,7 @@ typedef struct __attribute__((packed)) {
 
 typedef struct __attribute__((packed)) {
     uint16_t uptime;
-    uint8_t flags_arr;
+    uint8_t flags_arr[12];
 } ADCS_bootloader_state;
 
 typedef struct __attribute__((packed)) {
@@ -354,7 +354,7 @@ ADCS_returnState HAL_ADCS_set_css_config(css_config config);
 ADCS_returnState HAL_ADCS_set_star_track_config(cubestar_config config);
 ADCS_returnState HAL_ADCS_set_cubesense_config(cubesense_config params);
 ADCS_returnState HAL_ADCS_set_mtm_config(mtm_config params, uint8_t mtm);
-ADCS_returnState HAL_ADCS_set_detumble_config(detumble_config config);
+ADCS_returnState HAL_ADCS_set_detumble_config(detumble_config *config);
 ADCS_returnState HAL_ADCS_set_ywheel_config(ywheel_ctrl_config params);
 ADCS_returnState HAL_ADCS_set_rwheel_config(rwheel_ctrl_config params);
 ADCS_returnState HAL_ADCS_set_tracking_config(track_ctrl_config params);
