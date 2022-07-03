@@ -92,11 +92,6 @@ void iris_spi_init() {
     gioSetDirection(hetPORT1, 0xFFFFFFFF);
 
     IRIS_BOOT_LOW();
-
-    IRIS_nRST_LOW();
-    vTaskDelay(1);
-    IRIS_nRST_HIGH();
-
 }
 
 /**
