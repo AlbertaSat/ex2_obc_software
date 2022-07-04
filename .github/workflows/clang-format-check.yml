@@ -1,23 +1,16 @@
-name: clang-format Check
-on: [push, pull_request]
+name: test-clang-format
+
+on: [push]
+
 jobs:
-  formatting-check:
-    name: Formatting Check
+  build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        path:
-          - 'ex2_hal'
-          - 'ex2_sdr'
-          - 'ex2_services'
-          - 'ex2_system'
-          - 'libscp'
-          - 'main'
-          - 'test'
+
     steps:
     - uses: actions/checkout@v2
-    - name: Run clang-format style check
-      uses: jidicula/clang-format-action@v4.5.0
+    - uses: DoozyX/clang-format-lint-action@v0.13
       with:
-        clang-format-version: '10'
-        check-path: ${{ matrix.path }}
+        source: '.'
+        exclude: './source ./include ./FreeRTOS-Plus-CLI ./reliance_edge ./F021_API'
+        extensions: 'c,h,cpp,hpp'
+        clangFormatVersion: 10
