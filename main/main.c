@@ -20,7 +20,6 @@
 #include <FreeRTOS.h>
 #include <csp/csp.h>
 #include <csp/drivers/usart.h>
-#include <csp/drivers/sdr.h>
 #include <csp/interfaces/csp_if_can.h>
 #include <csp/interfaces/csp_if_sdr.h>
 #include <performance_monitor/system_stats.h>
@@ -72,8 +71,6 @@
 #include "csp/crypto/csp_hmac.h"
 #include "crypto.h"
 #include "csp_debug_wrapper.h"
-
-#define SDR_TEST
 
 #ifdef SDR_TEST
 #include "test_sdr.h"
@@ -183,6 +180,7 @@ void ex2_init(void *pvParameters) {
     // Iris init
 #else
     NS_handler_init();
+#endif
 #endif
 #endif
 
