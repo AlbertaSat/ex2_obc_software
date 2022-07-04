@@ -153,7 +153,14 @@ void ex2_init(void *pvParameters) {
 
 #ifndef SBAND_IS_STUBBED
     STX_Enable();
-    // PLACEHOLDER: sband hardware init
+    vTaskDelay(ONE_SECOND/10);
+    STX_setControl(S_PA_DISABLE, S_CONF_MODE);
+    STX_setEncoder(S_BIT_ORDER_MSB, S_SCRAMBLER_ENABLE, S_FILTER_ENABLE,S_MOD_QPSK, S_RATE_FULL);
+    STX_setFrequency(2228);
+    ret = STX_setPaPower(30u);
+    STX_setControl(S_PA_ENABLE, S_SYNC_MODE);
+    vTaskDelay(ONE_SECOND/10);
+    STX_Disable();
 #endif
 
 #ifndef CHARON_IS_STUBBED
