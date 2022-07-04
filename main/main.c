@@ -20,8 +20,8 @@
 #include <FreeRTOS.h>
 #include <csp/csp.h>
 #include <csp/drivers/usart.h>
-#include <csp/drivers/sdr.h>
 #include <csp/interfaces/csp_if_can.h>
+#include <csp/interfaces/csp_if_sdr.h>
 #include <performance_monitor/system_stats.h>
 #include <redconf.h>
 #include <redfs.h>
@@ -72,8 +72,14 @@
 #include "crypto.h"
 #include "csp_debug_wrapper.h"
 
-//#define CSP_USE_SDR
-#define CSP_USE_KISS
+#ifdef SDR_TEST
+#include "test_sdr.h"
+
+static sdr_interface_data_t *test_ifdata;
+#endif
+
+#define CSP_USE_SDR
+//#define CSP_USE_KISS
 
 #ifdef FLATSAT_TEST
 //#include "sband_binary_tests.h"
@@ -132,9 +138,9 @@ void ex2_init(void *pvParameters) {
     ADCS_set_power_control(control);
 
     ADCS_set_attitude_estimate_mode(6); // GyroEKF
-    ADCS_set_unix_t(1652976000, 0); // May 19, 2022
-#endif // FLATSAT_TEST
-#endif // ADCS_IS_STUBBED
+    ADCS_set_unix_t(1652976000, 0);     // May 19, 2022
+#endif                                  // FLATSAT_TEST
+#endif                                  // ADCS_IS_STUBBED
 
 #ifndef ATHENA_IS_STUBBED
     // PLACEHOLDER: athena hardware init
@@ -168,11 +174,13 @@ void ex2_init(void *pvParameters) {
     DFGM_init();
 #endif
 
+#ifdef IS_EXALTA2
 #ifndef PAYLOAD_IS_STUBBED
 #ifdef IS_EXALTA2;
     // Iris init
 #else
     NS_handler_init();
+#endif
 #endif
 #endif
 
@@ -183,7 +191,7 @@ void ex2_init(void *pvParameters) {
     init_software();
 
 #ifdef SDR_TEST
-    start_test_sdr();
+    start_test_sdr(test_ifdata);
 #endif
 
 #ifdef FLATSAT_TEST
@@ -195,10 +203,7 @@ void ex2_init(void *pvParameters) {
 }
 
 #ifdef FLATSAT_TEST
-void flatsat_test(void *pvParameters) {
-
-    vTaskDelete(NULL);
-}
+void flatsat_test(void *pvParameters) { vTaskDelete(NULL); }
 #endif
 
 int ex2_main(void) {
@@ -352,21 +357,38 @@ static inline SAT_returnState init_csp_interface() {
 #if defined(CSP_USE_SDR)
 
 #ifdef SDR_TEST
-    char * gs_if_name = "LOOPBACK";
+    char *gs_if_name = SDR_IF_LOOPBACK_NAME;
     int gs_if_addr = 23;
 #else
-    char * gs_if_name = "UHF";
+    char *gs_if_name = SDR_IF_UHF_NAME;
     int gs_if_addr = 16;
 #endif /* SDR_TEST */
 
-    csp_sdr_conf_t uhf_conf = {    .mtu = SDR_UHF_MAX_MTU,
-                                   .baudrate = SDR_UHF_9600_BAUD,
-                                   .uart_baudrate = 115200 };
-    error = csp_sdr_open_and_add_interface(&uhf_conf, gs_if_name, NULL);
+    sdr_conf_t sdr_conf;
+    sdr_conf.uhf_conf.uhf_baudrate = SDR_UHF_9600_BAUD;
+    sdr_conf.uhf_conf.uart_baudrate = 115200;
+
+    if (SDR_NO_CSP) {
+        sdr_interface_data_t *ifdata = sdr_interface_init(&sdr_conf, gs_if_name);
+        if (!ifdata) {
+            return SATR_ERROR;
+        }
+#ifdef SDR_TEST
+        test_ifdata = ifdata;
+#endif
+    } else {
+        error = csp_sdr_open_and_add_interface(&sdr_conf, gs_if_name, NULL);
+        if (error != CSP_ERR_NONE) {
+            return SATR_ERROR;
+        }
+    }
+
+#ifndef SBAND_IS_STUBBED
+    error = csp_sdr_open_and_add_interface(&sdr_conf, SDR_IF_SBAND_NAME, NULL);
     if (error != CSP_ERR_NONE) {
         return SATR_ERROR;
     }
-
+#endif // SBAND_IS_STUBBED
 #endif /* defined(CSP_USE_SDR) */
 
     char rtable[128] = {0};
