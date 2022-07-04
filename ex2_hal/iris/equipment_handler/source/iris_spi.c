@@ -90,8 +90,6 @@ void iris_spi_init() {
     dataconfig.CSNR = SPI_CS_1;
 
     gioSetDirection(hetPORT1, 0xFFFFFFFF);
-
-    IRIS_BOOT_LOW();
 }
 
 /**
