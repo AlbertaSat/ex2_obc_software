@@ -20,6 +20,7 @@
 #include "iris.h"
 #include "iris_spi.h"
 #include "logger.h"
+#include "redposix.h"
 
 /*
  * Optimization points
@@ -156,8 +157,8 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
 
     controller_state = SEND_COMMAND;
 
-    FILE *fptr;
-    fptr = fopen("/home/jenish/Desktop/new_repo/ex2_obc_software/ex2_hal/iris/hardware_interface/source/image_v13.jpg","wb");
+    uint32_t fptr;
+    fptr = red_open("iris_image.jpg", RED_O_CREAT | RED_O_RDWR);
 
     if(fptr == NULL){
       return;
@@ -198,7 +199,12 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
 
                     //memset(image_data_buffer, 0, IMAGE_TRANSFER_SIZE);
                     fwrite(image_data_buffer_8Bit , 1 , 512 , fptr);
+                    //red_write(fptr, image_data_buffer_8Bit , IMAGE_TRANSFER_SIZE);
+
+                    //vTaskDelay(200);
+
                 }
+                red_close(fptr);
                 controller_state = FINISH;
                 break;
             }
