@@ -21,6 +21,7 @@
 #include "iris_gio.h"
 #include "iris_spi.h"
 #include "logger.h"
+#include "redposix.h"
 
 /*
  * Optimization points
