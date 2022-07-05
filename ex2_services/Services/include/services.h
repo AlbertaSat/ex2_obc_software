@@ -58,7 +58,7 @@
 #define TC_LOGGER_SERVICE 13
 // CLI service
 #define TC_CLI_SERVICE 14
-// SCHEDULER SERVICE 
+// SCHEDULER SERVICE
 #define TC_SCHEDULER_SERVICE 15
 // DFGM SERVICE
 #define TC_DFGM_SERVICE 19
@@ -67,6 +67,8 @@
 #define TC_FTP_DATA_SERVICE 21
 // NORTHERN SPIRIT SERVICE
 #define TC_NORTHERN_SPIRIT_SERVICE 22
+// IRIS SERVICE
+#define TC_IRIS_SERVICE 23
 
 #define DELAY_WAIT_TIMEOUT 8000
 
@@ -94,4 +96,3 @@ SAT_returnState start_service_server(void);
 void hex_dump(char *stuff, int size);
 
 #endif /* SERVICES_H */
-
