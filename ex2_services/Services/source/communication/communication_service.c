@@ -24,7 +24,7 @@
 #include <csp/csp_endian.h>
 #include <main/system.h>
 
-#include "sband.h"
+#include "hal_sband.h"
 #include "services.h"
 #include "task_manager/task_manager.h"
 #include "uhf.h"

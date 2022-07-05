@@ -26,7 +26,20 @@
 #include "HL_het.h"
 #include "HL_gio.h"
 #include "system.h"
-#include "sband.h"
+
+typedef enum {
+    S_SUCCESS = 0,
+
+    // Returned if a read or write command fails
+    S_BAD_READ = 1,
+    S_BAD_WRITE = 2,
+
+    // Returned if an invalid parameter is passed to a write command at the EH
+    S_BAD_PARAM = 3,
+
+    // Returned at HAL if S-band is stubbed
+    IS_STUBBED_S = 0,
+} STX_return;
 
 #define SBAND_I2C_ADD 0x26
 
@@ -159,6 +172,17 @@
 #define S_POWER_BITMASK 0x0FFF   // Output power and PA Temp are 12-bit values
 #define S_VOLTAGE_BITMASK 0x1FFF // Voltage is a 13-bit value
 
+typedef struct __attribute__((packed)) sband_housekeeping {
+    float Output_Power;
+    float PA_Temp;
+    float Top_Temp;
+    float Bottom_Temp;
+    float Bat_Current;
+    float Bat_Voltage;
+    float PA_Current;
+    float PA_Voltage;
+} Sband_Housekeeping;
+
 STX_return read_reg(uint8_t, uint8_t *);
 STX_return write_reg(uint8_t, uint8_t);
 
@@ -199,6 +223,6 @@ STX_return STX_getTR(uint8_t *transmit);
 
 STX_return STX_getBuffer(uint8_t quantity, uint16_t *ptr);
 
-STX_return STX_getHK(Sband_Housekeeping *hk);
+STX_return STX_getHK(struct sband_housekeeping *hk);
 
 #endif /* STRANSMITTER_H */

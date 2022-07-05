@@ -48,15 +48,15 @@ STX_return sband_binary_test(){
     if(ret != S_SUCCESS) return ret;
     printf("S-band frequency: %f\n", freq);
 
-    ret = STX_getBuffer(0, &count);
+    ret = STX_getBuffer(S_BUFFER_COUNT, &count);
     if(ret != S_SUCCESS) return ret;
     printf("Buffer count: %d\n", count);
 
-    ret = STX_getBuffer(1, &underrun);
+    ret = STX_getBuffer(S_BUFFER_UNDERRUN, &underrun);
     if(ret != S_SUCCESS) return ret;
     printf("Buffer underrun: %d\n", underrun);
 
-    ret = STX_getBuffer(2, &overrun);
+    ret = STX_getBuffer(S_BUFFER_OVERRUN, &overrun);
     if(ret != S_SUCCESS) return ret;
     printf("Buffer overrun: %d\n\n", overrun);
 

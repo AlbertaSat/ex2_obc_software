@@ -1,5 +1,8 @@
+#ifndef SBAND_H
+#define SBAND_H
+
 /*
- * Copyright (C) 2021  University of Alberta
+ * Copyright (C) 2022 University of Alberta
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -12,101 +15,28 @@
  * GNU General Public License for more details.
  */
 
-#ifndef SBAND_H
-#define SBAND_H
+/**
+ * @file sband.h
+ * @author Ron Unrau
+ * @date 2022-07-01
+ */
+#include <spi.h>
 
-#include <inttypes.h>
-#include "HL_reg_het.h"
+/* Send an S-Band Sync word every sync interval bytes */
+#define SBAND_SYNC_INTERVAL 8*1024
 
-typedef enum {
-    S_SUCCESS = 0,
+#define SBAND_FIFO_DEPTH 20*1024
 
-    // Returned if a read or write command fails
-    S_BAD_READ = 1,
-    S_BAD_WRITE = 2,
+int sband_init(void);
 
-    // Returned if an invalid parameter is passed to a write command at the EH
-    S_BAD_PARAM = 3,
+bool sband_enter_conf_mode(void);
+bool sband_enter_sync_mode(void);
+bool sband_enter_data_mode(void);
 
-    // Returned at HAL if S-band is stubbed
-    IS_STUBBED_S = 0,
-} STX_return;
+void sband_sync(void);
 
-typedef enum {
-    COUNT = 0,
-    UNDERRUN,
-    OVERRUN,
-} Buffer_Quantity;
+int sband_transmit_ready(void);
 
-typedef struct __attribute__((packed)) {
-    uint8_t status;
-    uint8_t mode;
-} Sband_PowerAmplifier;
-
-typedef struct __attribute__((packed)) {
-    uint8_t scrambler;
-    uint8_t filter;
-    uint8_t modulation;
-    uint8_t rate;
-    uint8_t bit_order;
-} Sband_Encoder;
-
-typedef struct __attribute__((packed)) {
-    float freq;
-    uint8_t PA_Power;
-    Sband_PowerAmplifier PA;
-    Sband_Encoder enc;
-} Sband_config;
-
-typedef struct __attribute__((packed)) {
-    uint8_t PWRGD;
-    uint8_t TXL;
-} Sband_Status;
-
-typedef struct __attribute__((packed)) {
-    uint8_t transmit;
-} Sband_TR;
-
-typedef struct __attribute__((packed)) {
-    uint16_t firmware;
-} Sband_FirmwareV;
-
-typedef struct __attribute__((packed)) {
-    float Output_Power;
-    float PA_Temp;
-    float Top_Temp;
-    float Bottom_Temp;
-    float Bat_Current;
-    float Bat_Voltage;
-    float PA_Current;
-    float PA_Voltage;
-} Sband_Housekeeping;
-
-typedef struct __attribute__((packed)) {
-    uint16_t pointer[3];
-} Sband_Buffer;
-
-typedef struct __attribute__((packed)) {
-    Sband_Status status;
-    Sband_TR transmit;
-    Sband_FirmwareV firmware;
-    Sband_Buffer buffer;
-    Sband_Housekeeping HK;
-} Sband_Full_Status;
-
-STX_return HAL_S_getFreq(float *S_freq);
-STX_return HAL_S_getPAPower(uint8_t *S_PA_power);
-STX_return HAL_S_getControl(Sband_PowerAmplifier *S_PA);
-STX_return HAL_S_getEncoder(Sband_Encoder *S_Enc);
-STX_return HAL_S_getStatus(Sband_Status *S_status);
-STX_return HAL_S_getTR(Sband_TR *S_transmit);
-STX_return HAL_S_getHK(Sband_Housekeeping *S_hk);
-STX_return HAL_S_hk_convert_endianness(Sband_Housekeeping *S_hk);
-STX_return HAL_S_getBuffer(int quantity, Sband_Buffer *S_buffer);
-STX_return HAL_S_softResetFPGA(void);
-STX_return HAL_S_setFreq(float S_freq_new);
-STX_return HAL_S_setPAPower(uint8_t S_PA_Power_new);
-STX_return HAL_S_setControl(Sband_PowerAmplifier S_PA_new);
-STX_return HAL_S_setEncoder(Sband_Encoder S_enc_new);
+bool sband_buffer_count(uint16_t *cnt);
 
 #endif /* SBAND_H */

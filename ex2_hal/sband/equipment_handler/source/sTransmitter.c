@@ -512,13 +512,13 @@ STX_return STX_getBuffer(uint8_t quantity, uint16_t *ptr) {
     uint8_t address = 0;
 
     switch (quantity) {
-    case 0: // Buffer Count
+    case S_BUFFER_COUNT: // Buffer Count
         address = S_BUFCNT_REG_1;
         break;
-    case 1: // Buffer Underrun
+    case S_BUFFER_UNDERRUN: // Buffer Underrun
         address = S_BUFUND_REG_1;
         break;
-    case 2: // Buffer Overrun
+    case S_BUFFER_OVERRUN: // Buffer Overrun
         address = S_BUFOVR_REG_1;
         break;
     default:
