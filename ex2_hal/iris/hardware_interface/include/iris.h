@@ -27,10 +27,23 @@
 #define MAX_IMAGE_COUNT 1 // In bytes
 #define HOUSEKEEPING_SIZE 23 // In bytes
 
+// Iris timeout constants
+/* We need to specify a delay between spi state transitions on OBC
+ * to allow Iris to update its state machine and/or initialize
+ * its spi for data transmission and reception. 100 ms is a big value,
+ * and iris will not need that long to get ready. However for testing
+ * purposes this is sufficient.
+ *
+ * TODO: Will need to change during stress testing
+ */
+#define IRIS_WAIT_FOR_STATE_TRANSITION vTaskDelay(pdMS_TO_TICKS(100))
+
 typedef enum {
+    // TODO: Add more meaningful return types
     IRIS_HAL_OK = 0,
-    IRIS_HAL_ERROR = 1,
-} IrisHALReturn;
+    IRIS_HAL_FAILURE = 1,
+    IRIS_HAL_ERROR = 2,
+} Iris_HAL_return;
 
 // Legal Iris commands
 typedef enum {
@@ -48,7 +61,7 @@ typedef enum {
 typedef enum {
     IRIS_SENSOR_OFF = 0,
     IRIS_SENSOR_ON = 1,
-} IRIS_SENSOR_TOOGGLE;
+} IRIS_SENSOR_TOGGLE;
 
 enum {
     SEND_COMMAND,
@@ -60,7 +73,7 @@ enum {
 
 // pre-defined SPI communication constants
 #define ACK_FLAG 0xAA
-#define NACK_FLAG 0x55
+#define NACK_FLAG 0x0F
 
 typedef struct __attribute__((__packed__)) {
     uint16_t vis_temp;
@@ -76,7 +89,7 @@ typedef struct __attribute__((__packed__)) {
     uint16_t MAX_3V_power;
     uint16_t MIN_5V_voltage;
     uint16_t MIN_3V_voltage;
-} iris_housekeeping_data;
+} IRIS_Housekeeping;
 
 typedef struct __attribute__((__packed__)) {
     uint16_t sensor_reg_addr;
@@ -84,13 +97,14 @@ typedef struct __attribute__((__packed__)) {
 } sensor_reg;
 
 // Command functions prototypes
-IrisHALReturn iris_take_pic();
-IrisHALReturn iris_get_image_length(uint32_t *image_length);
-IrisHALReturn iris_transfer_image();
-IrisHALReturn iris_get_image_count(uint16_t *image_count);
-IrisHALReturn iris_toggle_sensor_idle(uint8_t toggle);
-IrisHALReturn iris_get_housekeeping(iris_housekeeping_data hk_data);
-IrisHALReturn iris_update_sensor_i2c_reg();
-IrisHALReturn iris_update_current_limit(uint16_t current_limit);
+Iris_HAL_return iris_init();
+Iris_HAL_return iris_take_pic();
+Iris_HAL_return iris_get_image_length(uint32_t *image_length);
+Iris_HAL_return iris_transfer_image(uint32_t image_length);
+Iris_HAL_return iris_get_image_count(uint16_t *image_count);
+Iris_HAL_return iris_toggle_sensor_idle(uint8_t toggle);
+Iris_HAL_return iris_get_housekeeping(IRIS_Housekeeping *hk_data);
+Iris_HAL_return iris_update_sensor_i2c_reg();
+Iris_HAL_return iris_update_current_limit(uint16_t current_limit);
 
 #endif /* INCLUDE_IRIS_H_ */
