@@ -30,7 +30,7 @@
 #if REDCONF_OUTPUT == 1
 
 #include <redosdeviations.h>
-
+#include "logger/logger.h"
 
 /** @brief Write a string to a user-visible output location.
 
@@ -48,21 +48,7 @@ void RedOsOutputString(
     }
     else
     {
-        uint32_t ulIdx = 0U;
-
-        while(pszString[ulIdx] != '\0')
-        {
-            OUTPUT_CHARACTER(pszString[ulIdx]);
-
-            /*  Serial output often requires a \r to print newlines correctly.
-            */
-            if(pszString[ulIdx] == '\n')
-            {
-                OUTPUT_CHARACTER('\r');
-            }
-
-            ulIdx++;
-        }
+        sys_log(ERROR, pszString);
     }
 }
 
