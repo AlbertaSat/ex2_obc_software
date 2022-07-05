@@ -189,12 +189,13 @@ void iris_spi_test(void *pvParameters) {
         iris_take_pic();
         vTaskDelay(2000);
 
+        iris_take_pic();
+        vTaskDelay(2000);
         iris_get_image_length(&image_length);
         iris_transfer_image(image_length);
 
+        //iris_toggle_sensor_idle(0);
         iris_get_housekeeping(&hk_data);
-
-        // iris_update_sensor_i2c_reg();
     }
     // vTaskDelay(pdMS_TO_TICKS( 1000UL ));
 }
