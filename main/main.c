@@ -222,9 +222,9 @@ void iris_spi_test(void * pvParameters) {
 //        iris_toggle_sensor_idle(1);
         iris_get_housekeeping(&hk_data);
 
-        //iris_update_sensor_i2c_reg();
+        // iris_update_sensor_i2c_reg();
     }
-    //vTaskDelay(pdMS_TO_TICKS( 1000UL ));
+    // vTaskDelay(pdMS_TO_TICKS( 1000UL ));
 }
 
 int ex2_main(void) {
@@ -232,9 +232,8 @@ int ex2_main(void) {
     InitIO();
     for (int i = 0; i < 1000000; i++)
         ;
-    //xTaskCreate(ex2_init, "init", INIT_STACK_SIZE, NULL, INIT_PRIO, NULL);
-    xTaskCreate(iris_spi_test, "IRIS SPI", 256, NULL, (tskIDLE_PRIORITY + 1),
-                &iris_spi_handle);
+    // xTaskCreate(ex2_init, "init", INIT_STACK_SIZE, NULL, INIT_PRIO, NULL);
+    xTaskCreate(iris_spi_test, "IRIS SPI", 256, NULL, (tskIDLE_PRIORITY + 1), &iris_spi_handle);
     /* Start FreeRTOS! */
     vTaskStartScheduler();
 
