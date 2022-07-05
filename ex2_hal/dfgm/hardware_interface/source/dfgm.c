@@ -42,7 +42,7 @@ DFGM_return HAL_DFGM_run(int32_t givenRuntime) {
     DFGM_return status;
 #ifndef DFGM_IS_STUBBED
     // DFGM connected to OBC
-    int runtime = (int) givenRuntime;
+    int runtime = (int)givenRuntime;
     status = DFGM_startDataCollection(runtime);
 #else
     // DFGM not connected

@@ -48,7 +48,8 @@
 #define MOCK_RTC_TASK_PRIO (configMAX_PRIORITIES - 1)
 #define TASK_MANAGER_PRIO (tskIDLE_PRIORITY + 3)
 
-#if (defined(IS_EXALTA2) && defined(IS_AURORASAT)) || (defined(IS_EXALTA2) && defined(IS_YUKONSAT)) || (defined(IS_AURORASAT) && defined(IS_YUKONSAT))
+#if (defined(IS_EXALTA2) && defined(IS_AURORASAT)) || (defined(IS_EXALTA2) && defined(IS_YUKONSAT)) ||            \
+    (defined(IS_AURORASAT) && defined(IS_YUKONSAT))
 #error "Too many satellites defined!"
 #elif !defined(IS_EXALTA2) && !defined(IS_YUKONSAT) && !defined(IS_AURORASAT)
 #error "Need to define a satellite!"
@@ -143,7 +144,8 @@ typedef enum {
 
 #define ADCS_5V0_PWR_CHNL 1
 #ifdef IS_SN0072_EPS
-#warning "IS_SN0072_EPS swaps assignment for channels 2 and 5 because of incorrect output config of the engineering model Nanoavionics EPS, SN 0072"
+#warning                                                                                                          \
+    "IS_SN0072_EPS swaps assignment for channels 2 and 5 because of incorrect output config of the engineering model Nanoavionics EPS, SN 0072"
 #define ADCS_3V3_PWR_CHNL 2
 #else
 #define DFGM_5V0_PWR_CHNL 2

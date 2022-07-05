@@ -23,7 +23,7 @@
 
 typedef struct __attribute__((packed)) {
     uint16_t crc;
-    int8_t   temparray[8];           // Charon temperature array
+    int8_t temparray[8]; // Charon temperature array
 } charon_housekeeping;
 
 GPS_RETURNSTATE Charon_getHK(charon_housekeeping *hk);

@@ -26,7 +26,7 @@
 
 int activate(Deployable_t knife, uint16_t *burnwire_current) {
     switch (knife) {
-    case Port:{
+    case Port: {
         // Activate burnwire
         gioSetBit(hetPORT1, 8, 1);
 
@@ -44,7 +44,7 @@ int activate(Deployable_t knife, uint16_t *burnwire_current) {
         *burnwire_current = eps.curOutput[DEPLOYABLES_CURRENT_INDEX];
         break;
     }
-    case UHF_P:{
+    case UHF_P: {
         gioSetBit(hetPORT2, 5, 1);
         vTaskDelay(DEPLOYABLE_BURNWIRE_DELAY_MS);
         eps_refresh_instantaneous_telemetry();
@@ -54,7 +54,7 @@ int activate(Deployable_t knife, uint16_t *burnwire_current) {
         *burnwire_current = eps.curOutput[DEPLOYABLES_CURRENT_INDEX];
         break;
     }
-    case UHF_Z:{
+    case UHF_Z: {
         gioSetBit(hetPORT1, 26, 1);
         vTaskDelay(DEPLOYABLE_BURNWIRE_DELAY_MS);
         eps_refresh_instantaneous_telemetry();
@@ -64,7 +64,7 @@ int activate(Deployable_t knife, uint16_t *burnwire_current) {
         *burnwire_current = eps.curOutput[DEPLOYABLES_CURRENT_INDEX];
         break;
     }
-    case Payload:{
+    case Payload: {
         gioSetBit(hetPORT1, 14, 1);
         vTaskDelay(DEPLOYABLE_BURNWIRE_DELAY_MS);
         eps_refresh_instantaneous_telemetry();
@@ -74,7 +74,7 @@ int activate(Deployable_t knife, uint16_t *burnwire_current) {
         *burnwire_current = eps.curOutput[DEPLOYABLES_CURRENT_INDEX];
         break;
     }
-    case UHF_S:{
+    case UHF_S: {
         gioSetBit(gioPORTA, 0, 1);
         vTaskDelay(DEPLOYABLE_BURNWIRE_DELAY_MS);
         eps_refresh_instantaneous_telemetry();
@@ -84,7 +84,7 @@ int activate(Deployable_t knife, uint16_t *burnwire_current) {
         *burnwire_current = eps.curOutput[DEPLOYABLES_CURRENT_INDEX];
         break;
     }
-    case UHF_N:{
+    case UHF_N: {
         gioSetBit(hetPORT1, 22, 1);
         vTaskDelay(DEPLOYABLE_BURNWIRE_DELAY_MS);
         eps_refresh_instantaneous_telemetry();
@@ -94,7 +94,7 @@ int activate(Deployable_t knife, uint16_t *burnwire_current) {
         *burnwire_current = eps.curOutput[DEPLOYABLES_CURRENT_INDEX];
         break;
     }
-    case Starboard:{
+    case Starboard: {
         gioSetBit(hetPORT2, 1, 1);
         vTaskDelay(DEPLOYABLE_BURNWIRE_DELAY_MS);
         eps_refresh_instantaneous_telemetry();
@@ -104,7 +104,7 @@ int activate(Deployable_t knife, uint16_t *burnwire_current) {
         *burnwire_current = eps.curOutput[DEPLOYABLES_CURRENT_INDEX];
         break;
     }
-    case DFGM:{
+    case DFGM: {
         gioSetBit(hetPORT1, 16, 1);
         vTaskDelay(DEPLOYABLE_BURNWIRE_DELAY_MS);
         eps_refresh_instantaneous_telemetry();
@@ -114,7 +114,7 @@ int activate(Deployable_t knife, uint16_t *burnwire_current) {
         *burnwire_current = eps.curOutput[DEPLOYABLES_CURRENT_INDEX];
         break;
     }
-    default:{
+    default: {
         return -1;
     }
     }

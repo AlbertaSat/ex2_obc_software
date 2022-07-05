@@ -82,11 +82,11 @@ struct __attribute__((packed)) eps_instantaneous_telemetry {
     uint16_t outputOnDelta[18];  // seconds
     uint16_t outputOffDelta[18]; // seconds
     uint8_t outputFaultCnt[18];
-    int8_t temp[14];       // 1-4 MPPT converter temp, 5-8 output converter temp, 9 on-board battery temp, 10-12
-                           // external battery pack temp, 13-14 -output expander temp
-    uint8_t battMode;      // 0 critical, 1 safe, 2 normal, 3 full
-    uint8_t mpptMode;      // 0 HW, 1 manual, 2 auto, 3 auto with timeout
-    uint8_t batHeaterMode; // 0 manual, 1 auto
+    int8_t temp[14];          // 1-4 MPPT converter temp, 5-8 output converter temp, 9 on-board battery temp, 10-12
+                              // external battery pack temp, 13-14 -output expander temp
+    uint8_t battMode;         // 0 critical, 1 safe, 2 normal, 3 full
+    uint8_t mpptMode;         // 0 HW, 1 manual, 2 auto, 3 auto with timeout
+    uint8_t batHeaterMode;    // 0 manual, 1 auto
     uint8_t batHeaterState;   // 0 off, 1 on
     uint16_t PingWdt_toggles; // Total number of power channel toggles caused by failed ping watchdog
     uint8_t PingWdt_turnOffs; // Total number of power channel offs caused by failed ping watchdog
@@ -95,13 +95,13 @@ struct __attribute__((packed)) eps_instantaneous_telemetry {
 struct __attribute__((packed)) eps_startup_telemetry {
     uint8_t cmd;
     int8_t status;
-    double timestamp; // with ms precision
-    uint32_t last_reset_reason_reg; //Last reset reason register value, see below
-    uint32_t bootCnt;          // total system boot count
+    double timestamp;               // with ms precision
+    uint32_t last_reset_reason_reg; // Last reset reason register value, see below
+    uint32_t bootCnt;               // total system boot count
     uint8_t FallbackConfigUsed;
     uint8_t rtcInit;
     uint8_t rtcClkSourceLSE;
-//    uint8_t flashAppInit;
+    //    uint8_t flashAppInit;
     int8_t Fram4kPartitionInit;
     int8_t Fram520kPartitionInit;
     int8_t intFlashPartitionInit;

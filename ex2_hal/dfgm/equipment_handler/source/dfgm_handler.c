@@ -64,37 +64,26 @@ static int collecting_HK = 0;
 static int firstPacketFlag = 1;
 
 // Makes HK conversions & calculations easier via looping through each array
-const float HK_scales[] = {HK_SCALE_0, HK_SCALE_1, HK_SCALE_2, HK_SCALE_3,
-                          HK_SCALE_4, HK_SCALE_5, HK_SCALE_6, HK_SCALE_7,
-                          HK_SCALE_8, HK_SCALE_9, HK_SCALE_10, HK_SCALE_11};
+const float HK_scales[] = {HK_SCALE_0, HK_SCALE_1, HK_SCALE_2, HK_SCALE_3, HK_SCALE_4,  HK_SCALE_5,
+                           HK_SCALE_6, HK_SCALE_7, HK_SCALE_8, HK_SCALE_9, HK_SCALE_10, HK_SCALE_11};
 
-const float HK_offsets[] = {HK_OFFSET_0, HK_OFFSET_1, HK_OFFSET_2, HK_OFFSET_3,
-                           HK_OFFSET_4, HK_OFFSET_5, HK_OFFSET_6, HK_OFFSET_7,
-                           HK_OFFSET_8, HK_OFFSET_9, HK_OFFSET_10, HK_OFFSET_11};
+const float HK_offsets[] = {HK_OFFSET_0, HK_OFFSET_1, HK_OFFSET_2, HK_OFFSET_3, HK_OFFSET_4,  HK_OFFSET_5,
+                            HK_OFFSET_6, HK_OFFSET_7, HK_OFFSET_8, HK_OFFSET_9, HK_OFFSET_10, HK_OFFSET_11};
 
 // Coefficients for 1 Hz filter
 double filter[81] = {
-    0.014293879,   0.014285543,    0.014260564,    0.014219019,
-    0.014161035,   0.014086794,    0.013996516,    0.013890488,
-    0.013769029,   0.013632505,    0.013481341,    0.013315983,
-    0.013136936,   0.012944728,    0.012739926,    0.012523144,
-    0.012295013,   0.012056194,    0.011807376,    0.011549255,
-    0.011282578,   0.011008069,    0.010726496,    0.010438624,
-    0.010145215,   0.0098470494,   0.0095449078,   0.0092395498,
-    0.0089317473,  0.0086222581,   0.0083118245,   0.0080011814,
-    0.0076910376,  0.0073820935,   0.0070750111,   0.0067704498,
-    0.0064690227,  0.0061713282,   0.0058779319,   0.0055893637,
-    0.0053061257,  0.0050286865,   0.0047574770,   0.0044928941,
-    0.0042353003,  0.0039850195,   0.0037423387,   0.0035075136,
-    0.0032807556,  0.0030622446,   0.0028521275,   0.0026505100,
-    0.0024574685,  0.0022730422,   0.0020972437,   0.0019300507,
-    0.0017714123,  0.0016212496,   0.0014794567,   0.0013459044,
-    0.0012204390,  0.0011028848,   0.00099304689,  0.00089071244,
-    0.00079565205, 0.00070762285,  0.00062636817,  0.00055162174,
-    0.00048310744, 0.00042054299,  0.00036364044,  0.00031210752,
-    0.00026565061, 0.00022397480,  0.00018678687,  0.00015379552,
-    0.00012471308, 9.9256833e-005, 7.7149990e-005, 5.8123173e-005,
-    4.1914571e-005
+    0.014293879,    0.014285543,    0.014260564,    0.014219019,   0.014161035,   0.014086794,   0.013996516,
+    0.013890488,    0.013769029,    0.013632505,    0.013481341,   0.013315983,   0.013136936,   0.012944728,
+    0.012739926,    0.012523144,    0.012295013,    0.012056194,   0.011807376,   0.011549255,   0.011282578,
+    0.011008069,    0.010726496,    0.010438624,    0.010145215,   0.0098470494,  0.0095449078,  0.0092395498,
+    0.0089317473,   0.0086222581,   0.0083118245,   0.0080011814,  0.0076910376,  0.0073820935,  0.0070750111,
+    0.0067704498,   0.0064690227,   0.0061713282,   0.0058779319,  0.0055893637,  0.0053061257,  0.0050286865,
+    0.0047574770,   0.0044928941,   0.0042353003,   0.0039850195,  0.0037423387,  0.0035075136,  0.0032807556,
+    0.0030622446,   0.0028521275,   0.0026505100,   0.0024574685,  0.0022730422,  0.0020972437,  0.0019300507,
+    0.0017714123,   0.0016212496,   0.0014794567,   0.0013459044,  0.0012204390,  0.0011028848,  0.00099304689,
+    0.00089071244,  0.00079565205,  0.00070762285,  0.00062636817, 0.00055162174, 0.00048310744, 0.00042054299,
+    0.00036364044,  0.00031210752,  0.00026565061,  0.00022397480, 0.00018678687, 0.00015379552, 0.00012471308,
+    9.9256833e-005, 7.7149990e-005, 5.8123173e-005, 4.1914571e-005
 
 };
 
@@ -231,31 +220,31 @@ static void savePacket(dfgm_data_t *data, char *fileName) {
  * @return None
  */
 static void applyFilter(void) {
-  double xFiltered, yFiltered, zFiltered;
-  int i, negsamp, possamp;
+    double xFiltered, yFiltered, zFiltered;
+    int i, negsamp, possamp;
 
-  // "DC" component centered on the 0 time sample
-  xFiltered = secondPointer[1]->x[0] * filter[0];
-  yFiltered = secondPointer[1]->y[0] * filter[0];
-  zFiltered = secondPointer[1]->z[0] * filter[0];
+    // "DC" component centered on the 0 time sample
+    xFiltered = secondPointer[1]->x[0] * filter[0];
+    yFiltered = secondPointer[1]->y[0] * filter[0];
+    zFiltered = secondPointer[1]->z[0] * filter[0];
 
-  // Sample indices
-  negsamp = 99;
-  possamp = 1;
+    // Sample indices
+    negsamp = 99;
+    possamp = 1;
 
-  // Apply filter to data
-  for (i = 1; i < 81; i++) {
-    xFiltered += (secondPointer[0]->x[negsamp] + secondPointer[1]->x[possamp]) * filter[i];
-    yFiltered += (secondPointer[0]->y[negsamp] + secondPointer[1]->y[possamp]) * filter[i];
-    zFiltered += (secondPointer[0]->z[negsamp] + secondPointer[1]->z[possamp]) * filter[i];
-    negsamp -= 1;
-    possamp += 1;
-  }
+    // Apply filter to data
+    for (i = 1; i < 81; i++) {
+        xFiltered += (secondPointer[0]->x[negsamp] + secondPointer[1]->x[possamp]) * filter[i];
+        yFiltered += (secondPointer[0]->y[negsamp] + secondPointer[1]->y[possamp]) * filter[i];
+        zFiltered += (secondPointer[0]->z[negsamp] + secondPointer[1]->z[possamp]) * filter[i];
+        negsamp -= 1;
+        possamp += 1;
+    }
 
-  // Copy filtered data
-  secondPointer[1]->xFiltered = xFiltered;
-  secondPointer[1]->yFiltered = yFiltered;
-  secondPointer[1]->zFiltered = zFiltered;
+    // Copy filtered data
+    secondPointer[1]->xFiltered = xFiltered;
+    secondPointer[1]->yFiltered = yFiltered;
+    secondPointer[1]->zFiltered = zFiltered;
 }
 
 /**
@@ -268,9 +257,7 @@ static void applyFilter(void) {
  * @param None
  * @return None
  */
-static void shiftSecondPointer(void) {
-    secondPointer[0] = secondPointer[1];
-}
+static void shiftSecondPointer(void) { secondPointer[0] = secondPointer[1]; }
 
 /**
  * @brief
@@ -284,7 +271,7 @@ static void shiftSecondPointer(void) {
  *      The name of the file you want to save data to
  * @return None
  */
-static void saveSecond(struct dfgm_second *second, char * fileName) {
+static void saveSecond(struct dfgm_second *second, char *fileName) {
     int32_t iErr;
 
     // Open or create file
@@ -299,9 +286,9 @@ static void saveSecond(struct dfgm_second *second, char * fileName) {
     memset(&dataSample, 0, sizeof(dfgm_data_sample_t));
     dataSample.time = second->time;
 
-    dataSample.x = (float) second->xFiltered;
-    dataSample.y = (float) second->yFiltered;
-    dataSample.z = (float) second->zFiltered;
+    dataSample.x = (float)second->xFiltered;
+    dataSample.y = (float)second->yFiltered;
+    dataSample.z = (float)second->zFiltered;
 
     // Save sample
     iErr = red_write(dataFile, &dataSample, sizeof(dfgm_data_sample_t));
@@ -352,23 +339,23 @@ void dfgm_rx_task(void *pvParameters) {
     bool dfgm_directory_initialized = false;
     for (;;) {
 
-        if(!dfgm_directory_initialized){
+        if (!dfgm_directory_initialized) {
             // Enter DFGM directory
             iErr = red_chdir("VOL0:/dfgm");
             if (iErr == -1) {
-                if((red_errno == RED_ENOENT) || (red_errno == RED_ENOTDIR)){
+                if ((red_errno == RED_ENOENT) || (red_errno == RED_ENOTDIR)) {
                     // Directory does not exist. Create it
                     iErr = red_mkdir("VOL0:/dfgm");
-                    if(iErr == -1){
+                    if (iErr == -1) {
                         sys_log(ERROR, "Problem %d creating the DFGM directory", red_errno);
-                        vTaskDelay(10*ONE_SECOND);
+                        vTaskDelay(10 * ONE_SECOND);
                         continue;
                     }
                 }
                 iErr = red_chdir("VOL0:/dfgm");
-                if(iErr == -1){
+                if (iErr == -1) {
                     sys_log(ERROR, "Problem %d changing into the DFGM directory", red_errno);
-                    vTaskDelay(10*ONE_SECOND);
+                    vTaskDelay(10 * ONE_SECOND);
                     continue;
                 }
             }
@@ -381,14 +368,13 @@ void dfgm_rx_task(void *pvParameters) {
         memset(&data, 0, sizeof(dfgm_data_t));
         while (received < sizeof(dfgm_packet_t)) {
             uint8_t *pkt = (uint8_t *)&(data.packet);
-            if(xQueueReceive(DFGM_queue, &(pkt[received]), pdMS_TO_TICKS(100)) != pdTRUE){
+            if (xQueueReceive(DFGM_queue, &(pkt[received]), pdMS_TO_TICKS(100)) != pdTRUE) {
                 // No packet yet, or we started mid-way through a packet. Restart.
                 received = 0;
-            }else{
+            } else {
                 received++;
             }
         }
-
 
         // If a runtime is specified, process data
         if (secondsPassed < DFGM_runtime) {
@@ -396,14 +382,17 @@ void dfgm_rx_task(void *pvParameters) {
             // Get time
             RTCMK_GetUnix(&(data.time));
 
-            if(firstPacketFlag){
-                snprintf(DFGM_raw_file_name, DFGM_FILE_NAME_MAX_SIZE, "%u_%s", (unsigned int)data.time, "rawDFGM.hex");
-                snprintf(DFGM_100Hz_file_name, DFGM_FILE_NAME_MAX_SIZE, "%u_%s", (unsigned int)data.time, "100HzDFGM.hex");
-                snprintf(DFGM_1Hz_file_name, DFGM_FILE_NAME_MAX_SIZE, "%u_%s", (unsigned int)data.time, "1HzDFGM.hex");
+            if (firstPacketFlag) {
+                snprintf(DFGM_raw_file_name, DFGM_FILE_NAME_MAX_SIZE, "%u_%s", (unsigned int)data.time,
+                         "rawDFGM.hex");
+                snprintf(DFGM_100Hz_file_name, DFGM_FILE_NAME_MAX_SIZE, "%u_%s", (unsigned int)data.time,
+                         "100HzDFGM.hex");
+                snprintf(DFGM_1Hz_file_name, DFGM_FILE_NAME_MAX_SIZE, "%u_%s", (unsigned int)data.time,
+                         "1HzDFGM.hex");
             }
 
             // Don't save or convert raw mag field data if receiving packet for HK
-            if(!collecting_HK) {
+            if (!collecting_HK) {
                 // Save raw (unconverted) 100Hz data from DFGM
                 savePacket(&data, DFGM_raw_file_name);
                 DFGM_convertRawMagData(&(data.packet));
@@ -473,8 +462,7 @@ void DFGM_init() {
     TaskHandle_t dfgm_rx_handle;
     DFGM_queue = xQueueCreate(DFGM_QUEUE_DEPTH, sizeof(uint8_t));
     TX_semaphore = xSemaphoreCreateBinary();
-    xTaskCreate(dfgm_rx_task, "DFGM RX", DFGM_RX_TASK_SIZE, NULL, DFGM_RX_PRIO,
-                &dfgm_rx_handle);
+    xTaskCreate(dfgm_rx_task, "DFGM RX", DFGM_RX_TASK_SIZE, NULL, DFGM_RX_PRIO, &dfgm_rx_handle);
     return;
 }
 
@@ -502,7 +490,8 @@ void dfgm_sciNotification(sciBASE_t *sci, unsigned flags) {
         xSemaphoreGiveFromISR(TX_semaphore, &xHigherPriorityTaskWoken);
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         break;
-    default: break;
+    default:
+        break;
     }
 }
 

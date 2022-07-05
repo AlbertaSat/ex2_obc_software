@@ -27,12 +27,7 @@
 
 #include "services.h"
 
-typedef enum {
-    DFGM_RUN = 0,
-    DFGM_START,
-    DFGM_STOP,
-    DFGM_GET_HK
-} DFGM_Subtype;
+typedef enum { DFGM_RUN = 0, DFGM_START, DFGM_STOP, DFGM_GET_HK } DFGM_Subtype;
 
 SAT_returnState dfgm_service_app(csp_packet_t *pkt);
 

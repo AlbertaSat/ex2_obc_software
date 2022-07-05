@@ -27,13 +27,13 @@
 #define STRING_MAX_LEN 201
 
 typedef enum {
-    PANIC,     // Emergency - system is going down
-    ALERT,     // Should be corrected immediately
-    CRITICAL,  // Primary system failure
-    ERROR,     // Non-urgent failures
-    WARN,      // Not a failure, but error could follow
-    NOTICE,    // Unusual but not error condition
-    INFO,      // Normal operational message
+    PANIC,    // Emergency - system is going down
+    ALERT,    // Should be corrected immediately
+    CRITICAL, // Primary system failure
+    ERROR,    // Non-urgent failures
+    WARN,     // Not a failure, but error could follow
+    NOTICE,   // Unusual but not error condition
+    INFO,     // Normal operational message
     DEBUG,
 } SysLog_Level;
 

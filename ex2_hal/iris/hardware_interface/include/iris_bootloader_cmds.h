@@ -18,7 +18,6 @@
  *      Author: jenish
  */
 
-
 #ifndef INCLUDE_IRIS_BOOTLOADER_CMDS_H_
 #define INCLUDE_IRIS_BOOTLOADER_CMDS_H_
 #endif /* INCLUDE_IRIS_BOOTLOADER_CMDS_H_ */
@@ -55,7 +54,7 @@ void POWER_ON();
 
 void iris_pre_sequence();
 void iris_post_sequence();
-int iris_write_page(uint32_t flash_addr, uint8_t * buffer);
+int iris_write_page(uint32_t flash_addr, uint8_t *buffer);
 int iris_erase_page(uint16_t page_num);
 int iris_check_bootloader_version();
 int iris_go_to(uint32_t start_addr);

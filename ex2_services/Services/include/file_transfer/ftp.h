@@ -19,7 +19,13 @@
 
 #include "services.h"
 
-typedef enum {FTP_GET_FILE_SIZE, FTP_REQUEST_BURST_DOWNLOAD, FTP_DATA_PACKET, FTP_START_UPLOAD, FTP_UPLOAD_PACKET } FTP_Subtype;
+typedef enum {
+    FTP_GET_FILE_SIZE,
+    FTP_REQUEST_BURST_DOWNLOAD,
+    FTP_DATA_PACKET,
+    FTP_START_UPLOAD,
+    FTP_UPLOAD_PACKET
+} FTP_Subtype;
 
 SAT_returnState start_FTP_service(void);
 

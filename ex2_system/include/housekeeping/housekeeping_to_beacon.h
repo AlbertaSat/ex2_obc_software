@@ -16,7 +16,7 @@
  * @author Grace Yi
  * @date 2021-10-27
  */
-#include "beacon_task.h" //contains beacon packets (ie. a summary of housekeeping data)
+#include "beacon_task.h"          //contains beacon packets (ie. a summary of housekeeping data)
 #include "housekeeping_service.h" //contains all housekeeping data
 #include "rtcmk.h"                //to get time from RTC
 #include "services.h"

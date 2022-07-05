@@ -25,7 +25,7 @@
 static void system_stats_daemon(void *param);
 SAT_returnState start_system_stats_daemon(void);
 
-//static char buf[1024];
+// static char buf[1024];
 
 /**
  * Periodically collect and display system statistics. For

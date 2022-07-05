@@ -74,7 +74,7 @@ static void uhf_watchdog_daemon(void *pvParameters) {
             } else if (err == U_IN_PIPE) {
                 break;
             }
-            vTaskDelay(2*ONE_SECOND);
+            vTaskDelay(2 * ONE_SECOND);
         }
 
         if (err == U_IN_PIPE) {
@@ -135,8 +135,9 @@ static void sband_watchdog_daemon(void *pvParameters) {
         STX_return err;
         for (int i = 0; i < watchdog_retries; i++) {
             STX_getFirmwareV(&SBAND_version);
-            if (SBAND_version != 0) break;
-            vTaskDelay(2*ONE_SECOND);
+            if (SBAND_version != 0)
+                break;
+            vTaskDelay(2 * ONE_SECOND);
         }
         if (SBAND_version == 0) {
             // TODO: Currently no way for power toggling to return fail
@@ -187,8 +188,9 @@ static void charon_watchdog_daemon(void *pvParameters) {
         GPS_RETURNSTATE err;
         for (int i = 0; i < watchdog_retries; i++) {
             err = gps_skytraq_get_software_version(&version);
-            if (err == GPS_SUCCESS) break;
-            vTaskDelay(2*ONE_SECOND);
+            if (err == GPS_SUCCESS)
+                break;
+            vTaskDelay(2 * ONE_SECOND);
         }
 
         if ((err != GPS_SUCCESS) || (version == NULL)) {
@@ -247,12 +249,12 @@ static void adcs_watchdog_daemon(void *pvParameters) {
 
         adcs_state test_state;
 
-
         ADCS_returnState err;
         for (int i = 0; i < watchdog_retries; i++) {
             err = HAL_ADCS_get_current_state(&test_state);
-            if (err == ADCS_OK) break;
-            vTaskDelay(2*ONE_SECOND);
+            if (err == ADCS_OK)
+                break;
+            vTaskDelay(2 * ONE_SECOND);
         }
 
         if ((err != ADCS_OK) && (err != ADCS_UART_BUSY)) {
@@ -355,7 +357,7 @@ SAT_returnState set_uhf_watchdog_delay(const unsigned int ms_delay) {
 #ifdef UHF_IS_STUBBED
     return SATR_OK;
 #else
-    if(ms_delay < WATCHDOG_MINIMUM_DELAY_MS){
+    if (ms_delay < WATCHDOG_MINIMUM_DELAY_MS) {
         return SATR_ERROR;
     }
     if (xSemaphoreTake(uhf_watchdog_mtx, mutex_timeout) == pdPASS) {
@@ -371,7 +373,7 @@ SAT_returnState set_sband_watchdog_delay(const unsigned int ms_delay) {
 #ifdef SBAND_IS_STUBBED
     return SATR_OK;
 #else
-    if(ms_delay < WATCHDOG_MINIMUM_DELAY_MS){
+    if (ms_delay < WATCHDOG_MINIMUM_DELAY_MS) {
         return SATR_ERROR;
     }
     if (xSemaphoreTake(sband_watchdog_mtx, mutex_timeout) == pdPASS) {
@@ -387,7 +389,7 @@ SAT_returnState set_charon_watchdog_delay(const unsigned int ms_delay) {
 #ifdef CHARON_IS_STUBBED
     return SATR_OK;
 #else
-    if(ms_delay < WATCHDOG_MINIMUM_DELAY_MS){
+    if (ms_delay < WATCHDOG_MINIMUM_DELAY_MS) {
         return SATR_ERROR;
     }
     if (xSemaphoreTake(charon_watchdog_mtx, mutex_timeout) == pdPASS) {
@@ -403,7 +405,7 @@ SAT_returnState set_adcs_watchdog_delay(const unsigned int ms_delay) {
 #ifdef ADCS_IS_STUBBED
     return SATR_OK;
 #else
-    if(ms_delay < WATCHDOG_MINIMUM_DELAY_MS){
+    if (ms_delay < WATCHDOG_MINIMUM_DELAY_MS) {
         return SATR_ERROR;
     }
     if (xSemaphoreTake(adcs_watchdog_mtx, mutex_timeout) == pdPASS) {
@@ -414,7 +416,6 @@ SAT_returnState set_adcs_watchdog_delay(const unsigned int ms_delay) {
     return SATR_ERROR;
 #endif
 }
-
 
 /**
  * Start the diagnostics daemon

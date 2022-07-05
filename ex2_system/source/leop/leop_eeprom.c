@@ -8,7 +8,7 @@
 #include "leop_eeprom.h"
 #include "F021.h"
 
-typedef struct __attribute__((packed)){
+typedef struct __attribute__((packed)) {
     uint32_t exists_flag;
     bool status;
 } leop_status_t;
@@ -24,8 +24,7 @@ bool eeprom_get_leop_status() {
             eeprom_write(&state, LEOP_INFO_BLOCKNUMBER, sizeof(state));
             return state.status;
         }
-    }
-    else {
+    } else {
         return false;
     }
 }

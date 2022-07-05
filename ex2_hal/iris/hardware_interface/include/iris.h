@@ -12,20 +12,20 @@
  * GNU General Public License for more details.
  */
 
- /**
-  * @file    spi.h
-  * @author  Jenish Patel
-  * @date    2022-05-03
-  */
+/**
+ * @file    spi.h
+ * @author  Jenish Patel
+ * @date    2022-05-03
+ */
 
 #ifndef INCLUDE_IRIS_H_
 #define INCLUDE_IRIS_H_
 
 // Iris data transfer constants
 #define IMAGE_TRANSFER_SIZE 512 // 512 data bytes
-#define MAX_IMAGE_LENGTH 3 // In bytes
-#define MAX_IMAGE_COUNT 1 // In bytes
-#define HOUSEKEEPING_SIZE 23 // In bytes
+#define MAX_IMAGE_LENGTH 3      // In bytes
+#define MAX_IMAGE_COUNT 1       // In bytes
+#define HOUSEKEEPING_SIZE 23    // In bytes
 
 typedef enum {
     IRIS_HAL_OK = 0,

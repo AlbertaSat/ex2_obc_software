@@ -19,7 +19,7 @@ static void test_csp_send(void *arg) {
         if (!conn) {
             ex2_log("CSP connection failed %d", xTaskGetTickCount());
             vTaskDelay(1000);
-            //return;
+            // return;
         }
     }
 
@@ -32,7 +32,7 @@ static void test_csp_send(void *arg) {
             break;
         }
         packet->length = len;
-        for (i=0; i<len; i++) {
+        for (i = 0; i < len; i++) {
             packet->data[i] = i;
         }
         ex2_log("csp->uhf send %d, len %d\n", count++, packet->length);
@@ -61,7 +61,7 @@ static void test_csp_receive(void *arg) {
     /* Wait for connections and then process packets on the connection */
     csp_conn_t *conn;
     int tries = 10;
-    while((conn = csp_accept(sock, 10000)) == NULL) {
+    while ((conn = csp_accept(sock, 10000)) == NULL) {
         ++tries;
         if (tries > 10)
             break;
@@ -70,8 +70,7 @@ static void test_csp_receive(void *arg) {
     if (!conn) {
         conn = csp_connect(CSP_PRIO_NORM, 23, 23, 1000, CSP_O_NONE);
         ex2_log("no connection! forcing conn %p", conn);
-    }
-    else
+    } else
         ex2_log("legitimate connection! conn %p", conn);
 
     int count = 0;
@@ -84,7 +83,7 @@ static void test_csp_receive(void *arg) {
 
         ex2_log("uhf->csp receive %d, len %d", ++count, packet->length);
         int i, mismatches = 0;
-        for (i=0; i<packet->length; i++) {
+        for (i = 0; i < packet->length; i++) {
             if (packet->data[i] != i) {
                 ex2_log("packet[%d] got %d", i, packet->data[i]);
                 mismatches++;
