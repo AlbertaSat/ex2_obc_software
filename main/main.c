@@ -87,7 +87,7 @@ static void flatsat_test();
  */
 
 #define INIT_PRIO configMAX_PRIORITIES - 1
-#define INIT_STACK_SIZE 3000
+#define INIT_STACK_SIZE 2000
 
 static void init_filesystem();
 static void init_csp();
@@ -99,6 +99,7 @@ void vAssertCalled(unsigned long ulLine, const char *const pcFileName);
 void ex2_init(void *pvParameters) {
 
     init_filesystem();
+    init_csp();
 
     /* LEOP */
 
@@ -110,7 +111,24 @@ void ex2_init(void *pvParameters) {
 
     /* Subsystem Hardware Initialization */
 
+#if ADCS_IS_STUBBED == 0
+    init_adcs_io();
+    ADCS_set_enabled_state(1);
+#if FLATSAT_TEST == 1
+    uint8_t control[10] = {0};
+    control[Set_CubeCTRLSgn_Power] = 1;
+    control[Set_CubeCTRLMtr_Power] = 1;
+    control[Set_CubeSense1_Power] = 1;
+    control[Set_CubeSense2_Power] = 1;
+    control[Set_CubeWheel1_Power] = 1;
+    control[Set_CubeWheel2_Power] = 1;
+    control[Set_CubeWheel3_Power] = 1;
+    ADCS_set_power_control(control);
 
+    ADCS_set_attitude_estimate_mode(6); // GyroEKF
+    ADCS_set_unix_t(1652976000, 0);     // May 19, 2022
+#endif                                  // FLATSAT_TEST
+#endif                                  // ADCS_IS_STUBBED
 
 #if ATHENA_IS_STUBBED == 0
     // PLACEHOLDER: athena hardware init
@@ -153,16 +171,14 @@ void ex2_init(void *pvParameters) {
     /* Software Initialization */
 
     /* Start service server, and response server */
-    init_csp();
+
     init_software();
 
-#if SDR_TEST == 1
-    start_test_sdr(test_uhf_ifdata, test_sband_ifdata);
 #endif
 
 #if FLATSAT_TEST == 1
     /* Test Task */
-    xTaskCreate(flatsat_test, "flatsat_test", 1000, NULL, 4, NULL);
+    xTaskCreate(flatsat_test, "flatsat_test", 500, NULL, 1, NULL);
 #endif
 
     vTaskDelete(0); // delete self to free up heap
@@ -188,6 +204,7 @@ void iris_spi_test(void * pvParameters) {
 //        iris_take_pic();
         iris_get_image_length(&image_length);
         iris_transfer_image(image_length);
+
 //        iris_get_image_count(&image_count);
 //        iris_toggle_sensor_idle(0);
 //        iris_toggle_sensor_idle(1);
@@ -203,9 +220,9 @@ int ex2_main(void) {
     InitIO();
     for (int i = 0; i < 1000000; i++)
         ;
-    //xTaskCreate(ex2_init, "init", INIT_STACK_SIZE, NULL, INIT_PRIO, NULL);
-    xTaskCreate(iris_spi_test, "IRIS SPI", 256, NULL, (tskIDLE_PRIORITY + 1),
-                &iris_spi_handle);
+    // xTaskCreate(ex2_init, "init", INIT_STACK_SIZE, NULL, INIT_PRIO, NULL);
+    xTaskCreate(iris_spi_test, "IRIS SPI", 256, NULL, (tskIDLE_PRIORITY + 1), &iris_spi_handle);
+
     /* Start FreeRTOS! */
     vTaskStartScheduler();
 
@@ -282,6 +299,7 @@ static void init_filesystem() {
  * Initialize CSP network
  */
 static void init_csp() {
+    csp_debug_hook_set(csp_wrap_debug);
     /* Init CSP with address and default settings */
     csp_conf_t csp_conf;
     csp_conf.address = 1;
@@ -308,6 +326,10 @@ static void init_csp() {
     if (init_csp_interface() != SATR_OK) {
         exit(SATR_ERROR);
     }
+    char *test_key;
+    int key_len;
+    get_crypto_key(HMAC_KEY, &test_key, &key_len);
+    csp_hmac_set_key(test_key, key_len);
     return;
 }
 
@@ -336,13 +358,11 @@ static inline SAT_returnState init_csp_interface() {
                              .paritysetting = 0,
                              .checkparity = 0};
 
-#ifndef EPS_IS_STUBBED
-    csp_iface_t *can_iface = NULL;
-    error = csp_can_open_and_add_interface("CAN", &can_iface);
+    csp_iface_t *uart_iface = NULL;
+    error = csp_usart_open_and_add_kiss_interface(&conf, CSP_IF_KISS_DEFAULT_NAME, &uart_iface);
     if (error != CSP_ERR_NONE) {
         return SATR_ERROR;
     }
-#endif
 
     char *gs_if_name = CSP_IF_KISS_DEFAULT_NAME;
     int gs_if_addr = 16;

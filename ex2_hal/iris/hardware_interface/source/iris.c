@@ -220,7 +220,8 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
             sys_log(INFO, "Iris returns ACK on transfer image command");
             return IRIS_HAL_OK;
         }
-        case ERROR_STATE: {
+        case ERROR_STATE:
+        {
             sys_log(INFO, "Iris returns NACK on transfer image command");
             return IRIS_HAL_ERROR;
         }
