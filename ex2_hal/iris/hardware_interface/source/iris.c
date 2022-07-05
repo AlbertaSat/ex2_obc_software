@@ -200,13 +200,14 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
                 fwrite(image_data_buffer_8Bit, 1, IMAGE_TRANSFER_SIZE, fptr);
 #endif
             }
+#if IS_ATHENA == 1
+                red_close(fptr) l
+#endif
             controller_state = FINISH;
             break;
         }
-#if IS_ATHENA == 1
-            red_close(fptr) l
-#endif
-                case FINISH : {
+
+            case FINISH : {
                 sys_log(INFO, "Iris returns ACK on transfer image command");
                 return IRIS_HAL_OK;
             }
