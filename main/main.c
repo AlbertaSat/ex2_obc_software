@@ -229,14 +229,14 @@ static void init_filesystem() {
     iErr = red_init();
 
     if (iErr == -1) {
-        exit(red_errno);
+        return;
     }
 
 #if SD_CARD_REFORMAT == 1
 
     iErr = red_format(pszVolume0);
     if (iErr == -1) {
-        exit(red_errno);
+        return;
     }
 
 #endif
@@ -244,7 +244,7 @@ static void init_filesystem() {
     iErr = red_mount(pszVolume0);
 
     if (iErr == -1) {
-        exit(red_errno);
+        return;
     }
 
 #if IS_ATHENA_V2 == 1 // TODO: make this IS_ATHENA once V2 is actively used
@@ -253,13 +253,13 @@ static void init_filesystem() {
 
     iErr = red_format(pszVolume1);
     if (iErr == -1) {
-        exit(red_errno);
+        return;
     }
 
     iErr = red_mount(pszVolume1);
 
     if (iErr == -1) {
-        exit(red_errno);
+        return;
     }
 #endif // IS_ATHENA_V2
 #endif // defined(HAS_SD_CARD)
