@@ -18,6 +18,7 @@
 #include <stdio.h>
 
 #include "iris.h"
+#include "iris_gio.h"
 #include "iris_spi.h"
 #include "logger.h"
 
@@ -40,12 +41,15 @@ enum {
  **/
 Iris_HAL_return iris_init() {
     iris_spi_init();
+    iris_gio_init();
 
+#if IS_ATHENA == 1
     IRIS_BOOT_LOW();
 
     IRIS_nRST_LOW();
     vTaskDelay(1);
     IRIS_nRST_HIGH();
+#endif
 
     // TODO: Add quick iris loopback test
     return IRIS_HAL_OK;
@@ -153,11 +157,17 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
     uint16_t num_transfer;
     IrisLowLevelReturn ret;
 
+#if IS_ATHENA == 1
+    uint32_t *fptr;
+    fptr = red_open("iris_image.jpg", RED_O_CREAT | RED_O_WRONLY);
+#else
     FILE *fptr;
-    fptr = fopen("/home/jenish/Desktop/new_repo/ex2_obc_software/ex2_hal/iris/hardware_interface/source/sample.jpg","wb");
+    fptr = fopen(
+        "/home/jenish/Desktop/new_repo/ex2_obc_software/ex2_hal/iris/hardware_interface/source/sample.jpg", "wb");
+#endif
 
-    if(fptr == NULL){
-      return;
+    if (fptr == NULL) {
+        return;
     }
 
     controller_state = SEND_COMMAND;
@@ -172,32 +182,38 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
             } else {
                 controller_state = ERROR_STATE;
             }
-            case GET_DATA: // Get image data in chunks/blocks
-            {
-                static uint16_t image_data_buffer[IMAGE_TRANSFER_SIZE];
-                static uint8_t image_data_buffer_8Bit[IMAGE_TRANSFER_SIZE];
-                memset(image_data_buffer, 0, IMAGE_TRANSFER_SIZE);
-                num_transfer = (uint16_t) ((image_length + (IMAGE_TRANSFER_SIZE - 1)) / IMAGE_TRANSFER_SIZE); // TODO: Ceiling division not working 100%
+            IRIS_WAIT_FOR_STATE_TRANSITION;
+            break;
+        }
+        case GET_DATA: // Get image data in chunks/blocks
+        {
+            static uint16_t image_data_buffer[IMAGE_TRANSFER_SIZE];
+            static uint8_t image_data_buffer_8Bit[IMAGE_TRANSFER_SIZE];
+            memset(image_data_buffer, 0, IMAGE_TRANSFER_SIZE);
+            num_transfer = (uint16_t)((image_length + (IMAGE_TRANSFER_SIZE - 1)) /
+                                      IMAGE_TRANSFER_SIZE); // TODO: Ceiling division not working 100%
 
-                IRIS_WAIT_FOR_STATE_TRANSITION;
-                for (uint32_t count_transfer = 0; count_transfer < num_transfer; count_transfer++) {
-                    ret = iris_get_data(image_data_buffer, IMAGE_TRANSFER_SIZE);
-                    // TODO: Do something with the received data (e.g transfer it to the SD card)
-                    // Or just get the data and send it forward to the next stage. Prefer not to have too
-                    // much data processing in driver code
+            IRIS_WAIT_FOR_STATE_TRANSITION;
+            for (uint32_t count_transfer = 0; count_transfer < num_transfer; count_transfer++) {
+                ret = iris_get_data(image_data_buffer, IMAGE_TRANSFER_SIZE);
 
-                    for (int i = 0; i < 512; i++) {
-                        image_data_buffer_8Bit[i] = (image_data_buffer[i] >> (8*0)) & 0xff;
-                    }
-
-                    //memset(image_data_buffer, 0, IMAGE_TRANSFER_SIZE);
-                    fwrite(image_data_buffer_8Bit , 1 , 512 , fptr);
+                for (int i = 0; i < 512; i++) {
+                    image_data_buffer_8Bit[i] = (image_data_buffer[i] >> (8 * 0)) & 0xff;
                 }
-                controller_state = FINISH;
-                break;
+
+#if IS_ATHENA == 1
+                red_write(fptr, image_data_buffer_8Bit, IMAGE_TRANSFER_SIZE);
+#else
+                fwrite(image_data_buffer_8Bit, 1, IMAGE_TRANSFER_SIZE, fptr);
+#endif
             }
-            case FINISH:
-            {
+            controller_state = FINISH;
+            break;
+        }
+#if IS_ATHENA == 1
+            red_close(fptr) l
+#endif
+                case FINISH : {
                 sys_log(INFO, "Iris returns ACK on transfer image command");
                 return IRIS_HAL_OK;
             }
