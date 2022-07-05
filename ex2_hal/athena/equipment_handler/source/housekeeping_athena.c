@@ -34,7 +34,7 @@ const uint8_t software_version = 3;
  * 		0 for success. other for failure
  */
 int HAL_get_temp_all(long *temparray) {
-#ifdef ATHENA_IS_STUBBED
+#if ATHENA_IS_STUBBED == 1
     return 0;
 #else
     return gettemp_all(temparray);

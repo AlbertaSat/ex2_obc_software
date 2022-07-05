@@ -40,9 +40,9 @@
  */
 DFGM_return HAL_DFGM_run(int32_t givenRuntime) {
     DFGM_return status;
-#ifndef DFGM_IS_STUBBED
+#if DFGM_IS_STUBBED == 0
     // DFGM connected to OBC
-    int runtime = (int) givenRuntime;
+    int runtime = (int)givenRuntime;
     status = DFGM_startDataCollection(runtime);
 #else
     // DFGM not connected
@@ -62,7 +62,7 @@ DFGM_return HAL_DFGM_run(int32_t givenRuntime) {
  */
 DFGM_return HAL_DFGM_stop() {
     DFGM_return status;
-#ifndef DFGM_IS_STUBBED
+#if DFGM_IS_STUBBED == 0
     status = DFGM_stopDataCollection();
 #else
     status = IS_STUBBED_DFGM;
@@ -82,7 +82,7 @@ DFGM_return HAL_DFGM_stop() {
  */
 DFGM_return HAL_DFGM_get_HK(DFGM_Housekeeping *DFGM_hk) {
     DFGM_return status;
-#ifndef DFGM_IS_STUBBED
+#if DFGM_IS_STUBBED == 0
     dfgm_housekeeping hk;
     status = DFGM_get_HK(&hk);
     DFGM_hk->coreVoltage = hk.coreVoltage;

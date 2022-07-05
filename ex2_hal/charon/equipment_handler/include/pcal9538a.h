@@ -20,7 +20,7 @@
 #include <stdint.h>
 
 #define PCAL9538A_ADDR (0x70)
-#ifdef IS_ATHENA
+#if IS_ATHENA == 1
 #define PCAL9538A_PORT i2cREG2
 #else
 #define PCAL9538A_PORT i2cREG1 // port used on dev board

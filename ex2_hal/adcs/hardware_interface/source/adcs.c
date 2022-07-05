@@ -20,7 +20,7 @@
 #include "adcs.h"
 
 ADCS_returnState HAL_ADCS_download_file_list_to_OBC(void) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_file_list();
@@ -28,7 +28,7 @@ ADCS_returnState HAL_ADCS_download_file_list_to_OBC(void) {
 }
 
 ADCS_returnState HAL_ADCS_download_file_to_OBC(adcs_file_download_id *id) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     // Spawn high-priority file download task
@@ -44,7 +44,7 @@ ADCS_returnState HAL_ADCS_download_file_to_OBC(adcs_file_download_id *id) {
 }
 
 ADCS_returnState HAL_ADCS_reset() {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_reset();
@@ -52,7 +52,7 @@ ADCS_returnState HAL_ADCS_reset() {
 }
 
 ADCS_returnState HAL_ADCS_reset_log_pointer() {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_reset_log_pointer();
@@ -60,7 +60,7 @@ ADCS_returnState HAL_ADCS_reset_log_pointer() {
 }
 
 ADCS_returnState HAL_ADCS_advance_log_pointer() {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_advance_log_pointer();
@@ -68,7 +68,7 @@ ADCS_returnState HAL_ADCS_advance_log_pointer() {
 }
 
 ADCS_returnState HAL_ADCS_reset_boot_registers() {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_reset_boot_registers();
@@ -76,7 +76,7 @@ ADCS_returnState HAL_ADCS_reset_boot_registers() {
 }
 
 ADCS_returnState HAL_ADCS_format_sd_card() {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_format_sd_card();
@@ -84,7 +84,7 @@ ADCS_returnState HAL_ADCS_format_sd_card() {
 }
 
 ADCS_returnState HAL_ADCS_erase_file(uint8_t file_type, uint8_t file_counter, bool erase_all) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_erase_file(file_type, file_counter, erase_all);
@@ -93,7 +93,7 @@ ADCS_returnState HAL_ADCS_erase_file(uint8_t file_type, uint8_t file_counter, bo
 
 ADCS_returnState HAL_ADCS_load_file_download_block(uint8_t file_type, uint8_t counter, uint32_t offset,
                                                    uint16_t block_length) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_load_file_download_block(file_type, counter, offset, block_length);
@@ -101,7 +101,7 @@ ADCS_returnState HAL_ADCS_load_file_download_block(uint8_t file_type, uint8_t co
 }
 
 ADCS_returnState HAL_ADCS_advance_file_list_read_pointer() {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_advance_file_list_read_pointer();
@@ -109,7 +109,7 @@ ADCS_returnState HAL_ADCS_advance_file_list_read_pointer() {
 }
 
 ADCS_returnState HAL_ADCS_initiate_file_upload(uint8_t file_dest, uint8_t block_size) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_initiate_file_upload(file_dest, block_size);
@@ -117,7 +117,7 @@ ADCS_returnState HAL_ADCS_initiate_file_upload(uint8_t file_dest, uint8_t block_
 }
 
 ADCS_returnState HAL_ADCS_file_upload_packet(uint16_t packet_number, char *file_bytes) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_file_upload_packet(packet_number, file_bytes);
@@ -125,7 +125,7 @@ ADCS_returnState HAL_ADCS_file_upload_packet(uint16_t packet_number, char *file_
 }
 
 ADCS_returnState HAL_ADCS_finalize_upload_block(uint8_t file_dest, uint32_t offset, uint16_t block_length) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_finalize_upload_block(file_dest, offset, block_length);
@@ -133,7 +133,7 @@ ADCS_returnState HAL_ADCS_finalize_upload_block(uint8_t file_dest, uint32_t offs
 }
 
 ADCS_returnState HAL_ADCS_reset_upload_block() {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_reset_upload_block();
@@ -141,7 +141,7 @@ ADCS_returnState HAL_ADCS_reset_upload_block() {
 }
 
 ADCS_returnState HAL_ADCS_reset_file_list_read_pointer() {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_reset_file_list_read_pointer();
@@ -149,7 +149,7 @@ ADCS_returnState HAL_ADCS_reset_file_list_read_pointer() {
 }
 
 ADCS_returnState HAL_ADCS_initiate_download_burst(uint8_t msg_length, bool ignore_hole_map) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_initiate_download_burst(msg_length, ignore_hole_map);
@@ -157,7 +157,7 @@ ADCS_returnState HAL_ADCS_initiate_download_burst(uint8_t msg_length, bool ignor
 }
 
 ADCS_returnState HAL_ADCS_get_node_identification(ADCS_node_identification *node_id) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_node_identification(&node_id->node_type, &node_id->interface_ver, &node_id->major_firm_ver,
@@ -166,7 +166,7 @@ ADCS_returnState HAL_ADCS_get_node_identification(ADCS_node_identification *node
 }
 
 ADCS_returnState HAL_ADCS_get_boot_program_stat(ADCS_boot_program_stat *boot_program_stat) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_boot_program_stat(&boot_program_stat->mcu_reset_cause, &boot_program_stat->boot_cause,
@@ -177,7 +177,7 @@ ADCS_returnState HAL_ADCS_get_boot_program_stat(ADCS_boot_program_stat *boot_pro
 }
 
 ADCS_returnState HAL_ADCS_get_boot_index(ADCS_boot_index *boot_index) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_boot_index(&boot_index->program_idx, &boot_index->boot_stat);
@@ -185,7 +185,7 @@ ADCS_returnState HAL_ADCS_get_boot_index(ADCS_boot_index *boot_index) {
 }
 
 ADCS_returnState HAL_ADCS_get_last_logged_event(ADCS_last_logged_event *last_logged_event) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_last_logged_event(&last_logged_event->time, &last_logged_event->event_id,
@@ -194,7 +194,7 @@ ADCS_returnState HAL_ADCS_get_last_logged_event(ADCS_last_logged_event *last_log
 }
 
 ADCS_returnState HAL_ADCS_get_SD_format_progress(bool *format_busy, bool *erase_all_busy) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_SD_format_progress(format_busy, erase_all_busy);
@@ -202,7 +202,7 @@ ADCS_returnState HAL_ADCS_get_SD_format_progress(bool *format_busy, bool *erase_
 }
 
 ADCS_returnState HAL_ADCS_get_TC_ack(ADCS_TC_ack *TC_ack) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_TC_ack(&TC_ack->last_tc_id, &TC_ack->tc_processed, &TC_ack->tc_err_stat, &TC_ack->tc_err_idx);
@@ -210,7 +210,7 @@ ADCS_returnState HAL_ADCS_get_TC_ack(ADCS_TC_ack *TC_ack) {
 }
 
 ADCS_returnState HAL_ADCS_get_file_download_buffer(uint16_t *packet_count, uint8_t file[20]) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_file_download_buffer(packet_count, file);
@@ -218,7 +218,7 @@ ADCS_returnState HAL_ADCS_get_file_download_buffer(uint16_t *packet_count, uint8
 }
 
 ADCS_returnState HAL_ADCS_get_file_download_block_stat(ADCS_file_download_block_stat *file_download_block_stat) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_file_download_block_stat(
@@ -228,7 +228,7 @@ ADCS_returnState HAL_ADCS_get_file_download_block_stat(ADCS_file_download_block_
 }
 
 ADCS_returnState HAL_ADCS_get_file_info(ADCS_file_info *file_info) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_file_info(file_info);
@@ -236,7 +236,7 @@ ADCS_returnState HAL_ADCS_get_file_info(ADCS_file_info *file_info) {
 }
 
 ADCS_returnState HAL_ADCS_get_init_upload_stat(bool *busy) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_init_upload_stat(busy);
@@ -244,7 +244,7 @@ ADCS_returnState HAL_ADCS_get_init_upload_stat(bool *busy) {
 }
 
 ADCS_returnState HAL_ADCS_get_finalize_upload_stat(bool *busy, bool *err) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_finalize_upload_stat(busy, err);
@@ -252,7 +252,7 @@ ADCS_returnState HAL_ADCS_get_finalize_upload_stat(bool *busy, bool *err) {
 }
 
 ADCS_returnState HAL_ADCS_get_upload_crc16_checksum(uint16_t *checksum) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_upload_crc16_checksum(checksum);
@@ -260,7 +260,7 @@ ADCS_returnState HAL_ADCS_get_upload_crc16_checksum(uint16_t *checksum) {
 }
 
 ADCS_returnState HAL_ADCS_get_SRAM_latchup_count(ADCS_SRAM_latchup_count *SRAM_latchup_count) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_SRAM_latchup_count(&SRAM_latchup_count->sram1, &SRAM_latchup_count->sram2);
@@ -268,7 +268,7 @@ ADCS_returnState HAL_ADCS_get_SRAM_latchup_count(ADCS_SRAM_latchup_count *SRAM_l
 }
 
 ADCS_returnState HAL_ADCS_get_EDAC_err_count(ADCS_EDAC_err_count *EDAC_err_count) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_EDAC_err_count(&EDAC_err_count->single_sram, &EDAC_err_count->double_sram,
@@ -277,7 +277,7 @@ ADCS_returnState HAL_ADCS_get_EDAC_err_count(ADCS_EDAC_err_count *EDAC_err_count
 }
 
 ADCS_returnState HAL_ADCS_get_comms_stat(uint16_t *comm_status) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     ADCS_returnState return_state;
@@ -295,7 +295,7 @@ ADCS_returnState HAL_ADCS_get_comms_stat(uint16_t *comm_status) {
 }
 
 ADCS_returnState HAL_ADCS_set_cache_en_state(bool en_state) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_cache_en_state(en_state);
@@ -303,7 +303,7 @@ ADCS_returnState HAL_ADCS_set_cache_en_state(bool en_state) {
 }
 
 ADCS_returnState HAL_ADCS_set_sram_scrub_size(uint16_t size) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_sram_scrub_size(size);
@@ -311,7 +311,7 @@ ADCS_returnState HAL_ADCS_set_sram_scrub_size(uint16_t size) {
 }
 
 ADCS_returnState HAL_ADCS_set_UnixTime_save_config(uint8_t when, uint8_t period) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_UnixTime_save_config(when, period);
@@ -319,7 +319,7 @@ ADCS_returnState HAL_ADCS_set_UnixTime_save_config(uint8_t when, uint8_t period)
 }
 
 ADCS_returnState HAL_ADCS_set_hole_map(uint8_t *hole_map, uint8_t num) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_hole_map(hole_map, num);
@@ -327,7 +327,7 @@ ADCS_returnState HAL_ADCS_set_hole_map(uint8_t *hole_map, uint8_t num) {
 }
 
 ADCS_returnState HAL_ADCS_set_unix_t(uint32_t unix_t, uint16_t count_ms) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_unix_t(unix_t, count_ms);
@@ -335,7 +335,7 @@ ADCS_returnState HAL_ADCS_set_unix_t(uint32_t unix_t, uint16_t count_ms) {
 }
 
 ADCS_returnState HAL_ADCS_get_cache_en_state(bool *en_state) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_cache_en_state(en_state);
@@ -343,7 +343,7 @@ ADCS_returnState HAL_ADCS_get_cache_en_state(bool *en_state) {
 }
 
 ADCS_returnState HAL_ADCS_get_sram_scrub_size(uint16_t *size) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_sram_scrub_size(size);
@@ -351,7 +351,7 @@ ADCS_returnState HAL_ADCS_get_sram_scrub_size(uint16_t *size) {
 }
 
 ADCS_returnState HAL_ADCS_get_UnixTime_save_config(ADCS_Unixtime_save_config *Unixtime_save_config) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_UnixTime_save_config(&Unixtime_save_config->when, &Unixtime_save_config->period);
@@ -359,7 +359,7 @@ ADCS_returnState HAL_ADCS_get_UnixTime_save_config(ADCS_Unixtime_save_config *Un
 }
 
 ADCS_returnState HAL_ADCS_get_hole_map(uint8_t *hole_map, uint8_t num) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_hole_map(hole_map, num);
@@ -367,7 +367,7 @@ ADCS_returnState HAL_ADCS_get_hole_map(uint8_t *hole_map, uint8_t num) {
 }
 
 ADCS_returnState HAL_ADCS_get_unix_t(ADCS_unix_t *A_unix_t) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_unix_t(&A_unix_t->unix_t, &A_unix_t->count_ms);
@@ -375,7 +375,7 @@ ADCS_returnState HAL_ADCS_get_unix_t(ADCS_unix_t *A_unix_t) {
 }
 
 ADCS_returnState HAL_ADCS_clear_err_flags() {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_clear_err_flags();
@@ -383,7 +383,7 @@ ADCS_returnState HAL_ADCS_clear_err_flags() {
 }
 
 ADCS_returnState HAL_ADCS_set_boot_index(uint8_t index) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_boot_index(index);
@@ -391,7 +391,7 @@ ADCS_returnState HAL_ADCS_set_boot_index(uint8_t index) {
 }
 
 ADCS_returnState HAL_ADCS_run_selected_program() {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_run_selected_program();
@@ -399,7 +399,7 @@ ADCS_returnState HAL_ADCS_run_selected_program() {
 }
 
 ADCS_returnState HAL_ADCS_read_program_info(uint8_t index) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_read_program_info(index);
@@ -407,7 +407,7 @@ ADCS_returnState HAL_ADCS_read_program_info(uint8_t index) {
 }
 
 ADCS_returnState HAL_ADCS_copy_program_internal_flash(uint8_t index, uint8_t overwrite_flag) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_copy_program_internal_flash(index, overwrite_flag);
@@ -415,7 +415,7 @@ ADCS_returnState HAL_ADCS_copy_program_internal_flash(uint8_t index, uint8_t ove
 }
 
 ADCS_returnState HAL_ADCS_get_bootloader_state(ADCS_bootloader_state *bootloader_state) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_bootloader_state(&bootloader_state->uptime, &bootloader_state->flags_arr[0]);
@@ -423,7 +423,7 @@ ADCS_returnState HAL_ADCS_get_bootloader_state(ADCS_bootloader_state *bootloader
 }
 
 ADCS_returnState HAL_ADCS_get_program_info(ADCS_program_info *program_info) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_program_info(&program_info->index, &program_info->busy, &program_info->file_size,
@@ -432,7 +432,7 @@ ADCS_returnState HAL_ADCS_get_program_info(ADCS_program_info *program_info) {
 }
 
 ADCS_returnState HAL_ADCS_copy_internal_flash_progress(bool *busy, bool *err) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return HAL_ADCS_copy_internal_flash_progress(busy, err);
@@ -440,7 +440,7 @@ ADCS_returnState HAL_ADCS_copy_internal_flash_progress(bool *busy, bool *err) {
 }
 
 ADCS_returnState HAL_ADCS_deploy_magnetometer_boom(uint8_t actuation_timeout) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_deploy_magnetometer_boom(actuation_timeout);
@@ -448,7 +448,7 @@ ADCS_returnState HAL_ADCS_deploy_magnetometer_boom(uint8_t actuation_timeout) {
 }
 
 ADCS_returnState HAL_ADCS_set_enabled_state(uint8_t state) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_enabled_state(state);
@@ -456,7 +456,7 @@ ADCS_returnState HAL_ADCS_set_enabled_state(uint8_t state) {
 }
 
 ADCS_returnState HAL_ADCS_clear_latched_errs(bool adcs_flag, bool hk_flag) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_clear_latched_errs(adcs_flag, hk_flag);
@@ -464,7 +464,7 @@ ADCS_returnState HAL_ADCS_clear_latched_errs(bool adcs_flag, bool hk_flag) {
 }
 
 ADCS_returnState HAL_ADCS_set_attitude_ctrl_mode(uint8_t ctrl_mode, uint16_t timeout) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_attitude_ctrl_mode(ctrl_mode, timeout);
@@ -472,7 +472,7 @@ ADCS_returnState HAL_ADCS_set_attitude_ctrl_mode(uint8_t ctrl_mode, uint16_t tim
 }
 
 ADCS_returnState HAL_ADCS_set_attitude_estimate_mode(uint8_t mode) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_attitude_estimate_mode(mode);
@@ -480,7 +480,7 @@ ADCS_returnState HAL_ADCS_set_attitude_estimate_mode(uint8_t mode) {
 }
 
 ADCS_returnState HAL_ADCS_trigger_adcs_loop() {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_trigger_adcs_loop();
@@ -488,7 +488,7 @@ ADCS_returnState HAL_ADCS_trigger_adcs_loop() {
 }
 
 ADCS_returnState HAL_ADCS_trigger_adcs_loop_sim(sim_sensor_data sim_data) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_trigger_adcs_loop_sim(sim_data);
@@ -496,7 +496,7 @@ ADCS_returnState HAL_ADCS_trigger_adcs_loop_sim(sim_sensor_data sim_data) {
 }
 
 ADCS_returnState HAL_ADCS_set_ASGP4_rune_mode(uint8_t mode) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_ASGP4_rune_mode(mode);
@@ -504,7 +504,7 @@ ADCS_returnState HAL_ADCS_set_ASGP4_rune_mode(uint8_t mode) {
 }
 
 ADCS_returnState HAL_ADCS_trigger_ASGP4() {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_trigger_ASGP4();
@@ -512,7 +512,7 @@ ADCS_returnState HAL_ADCS_trigger_ASGP4() {
 }
 
 ADCS_returnState HAL_ADCS_set_MTM_op_mode(uint8_t mode) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_MTM_op_mode(mode);
@@ -520,7 +520,7 @@ ADCS_returnState HAL_ADCS_set_MTM_op_mode(uint8_t mode) {
 }
 
 ADCS_returnState HAL_ADCS_cnv2jpg(uint8_t source, uint8_t QF, uint8_t white_balance) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_cnv2jpg(source, QF, white_balance);
@@ -528,7 +528,7 @@ ADCS_returnState HAL_ADCS_cnv2jpg(uint8_t source, uint8_t QF, uint8_t white_bala
 }
 
 ADCS_returnState HAL_ADCS_save_img(uint8_t camera, uint8_t img_size) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_save_img(camera, img_size);
@@ -536,7 +536,7 @@ ADCS_returnState HAL_ADCS_save_img(uint8_t camera, uint8_t img_size) {
 }
 
 ADCS_returnState HAL_ADCS_set_magnetorquer_output(xyz16 duty_cycle) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_magnetorquer_output(duty_cycle);
@@ -544,7 +544,7 @@ ADCS_returnState HAL_ADCS_set_magnetorquer_output(xyz16 duty_cycle) {
 }
 
 ADCS_returnState HAL_ADCS_set_wheel_speed(xyz16 speed) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_wheel_speed(speed);
@@ -552,7 +552,7 @@ ADCS_returnState HAL_ADCS_set_wheel_speed(xyz16 speed) {
 }
 
 ADCS_returnState HAL_ADCS_save_config() {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_save_config();
@@ -560,7 +560,7 @@ ADCS_returnState HAL_ADCS_save_config() {
 }
 
 ADCS_returnState HAL_ADCS_save_orbit_params() {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_save_orbit_params();
@@ -568,7 +568,7 @@ ADCS_returnState HAL_ADCS_save_orbit_params() {
 }
 
 ADCS_returnState HAL_ADCS_get_current_state(adcs_state *data) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_current_state(data);
@@ -576,7 +576,7 @@ ADCS_returnState HAL_ADCS_get_current_state(adcs_state *data) {
 }
 
 ADCS_returnState HAL_ADCS_get_jpg_cnv_progress(ADCS_jpg_cnv_progress *jpg_cnv_progress) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_jpg_cnv_progress(&jpg_cnv_progress->percentage, &jpg_cnv_progress->result,
@@ -585,7 +585,7 @@ ADCS_returnState HAL_ADCS_get_jpg_cnv_progress(ADCS_jpg_cnv_progress *jpg_cnv_pr
 }
 
 ADCS_returnState HAL_ADCS_get_cubeACP_state(uint8_t *flags_arr) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_cubeACP_state(flags_arr);
@@ -593,7 +593,7 @@ ADCS_returnState HAL_ADCS_get_cubeACP_state(uint8_t *flags_arr) {
 }
 
 ADCS_returnState HAL_ADCS_get_execution_times(ADCS_execution_times *execution_times) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_execution_times(&execution_times->adcs_update, &execution_times->sensor_comms,
@@ -602,7 +602,7 @@ ADCS_returnState HAL_ADCS_get_execution_times(ADCS_execution_times *execution_ti
 }
 
 ADCS_returnState HAL_ADCS_get_ACP_loop_stat(ADCS_ACP_loop_stat *ACP_loop_stat) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_ACP_loop_stat(&ACP_loop_stat->time, &ACP_loop_stat->execution_point);
@@ -610,7 +610,7 @@ ADCS_returnState HAL_ADCS_get_ACP_loop_stat(ADCS_ACP_loop_stat *ACP_loop_stat) {
 }
 
 ADCS_returnState HAL_ADCS_get_sat_pos_LLH(LLH *target) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_sat_pos_LLH(target);
@@ -618,7 +618,7 @@ ADCS_returnState HAL_ADCS_get_sat_pos_LLH(LLH *target) {
 }
 
 ADCS_returnState HAL_ADCS_get_img_save_progress(ADCS_img_save_progress *img_save_progress) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_img_save_progress(&img_save_progress->percentage, &img_save_progress->status);
@@ -626,7 +626,7 @@ ADCS_returnState HAL_ADCS_get_img_save_progress(ADCS_img_save_progress *img_save
 }
 
 ADCS_returnState HAL_ADCS_get_measurements(adcs_measures *measurements) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_measurements(measurements);
@@ -634,7 +634,7 @@ ADCS_returnState HAL_ADCS_get_measurements(adcs_measures *measurements) {
 }
 
 ADCS_returnState HAL_ADCS_get_actuator(adcs_actuator *commands) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_actuator(commands);
@@ -642,7 +642,7 @@ ADCS_returnState HAL_ADCS_get_actuator(adcs_actuator *commands) {
 }
 
 ADCS_returnState HAL_ADCS_get_estimation(adcs_estimate *data) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_estimation(data);
@@ -650,7 +650,7 @@ ADCS_returnState HAL_ADCS_get_estimation(adcs_estimate *data) {
 }
 
 ADCS_returnState HAL_ADCS_get_ASGP4(bool *complete, uint8_t *err, adcs_asgp4 *asgp4) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_ASGP4(complete, err, asgp4);
@@ -658,7 +658,7 @@ ADCS_returnState HAL_ADCS_get_ASGP4(bool *complete, uint8_t *err, adcs_asgp4 *as
 }
 
 ADCS_returnState HAL_ADCS_get_raw_sensor(adcs_raw_sensor *measurements) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_raw_sensor(measurements);
@@ -666,7 +666,7 @@ ADCS_returnState HAL_ADCS_get_raw_sensor(adcs_raw_sensor *measurements) {
 }
 
 ADCS_returnState HAL_ADCS_get_raw_GPS(adcs_raw_gps *measurements) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_raw_GPS(measurements);
@@ -674,7 +674,7 @@ ADCS_returnState HAL_ADCS_get_raw_GPS(adcs_raw_gps *measurements) {
 }
 
 ADCS_returnState HAL_ADCS_get_star_tracker(adcs_star_track *measurements) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_star_tracker(measurements);
@@ -682,7 +682,7 @@ ADCS_returnState HAL_ADCS_get_star_tracker(adcs_star_track *measurements) {
 }
 
 ADCS_returnState HAL_ADCS_get_MTM2_measurements(xyz16 *Mag) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_MTM2_measurements(Mag);
@@ -690,7 +690,7 @@ ADCS_returnState HAL_ADCS_get_MTM2_measurements(xyz16 *Mag) {
 }
 
 ADCS_returnState HAL_ADCS_get_power_temp(adcs_pwr_temp *measurements) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_power_temp(measurements);
@@ -698,7 +698,7 @@ ADCS_returnState HAL_ADCS_get_power_temp(adcs_pwr_temp *measurements) {
 }
 
 ADCS_returnState HAL_ADCS_set_power_control(uint8_t *control) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_power_control(control);
@@ -706,7 +706,7 @@ ADCS_returnState HAL_ADCS_set_power_control(uint8_t *control) {
 }
 
 ADCS_returnState HAL_ADCS_get_power_control(uint8_t *control) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_power_control(control);
@@ -714,7 +714,7 @@ ADCS_returnState HAL_ADCS_get_power_control(uint8_t *control) {
 }
 
 ADCS_returnState HAL_ADCS_set_attitude_angle(xyz att_angle) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_attitude_angle(att_angle);
@@ -722,7 +722,7 @@ ADCS_returnState HAL_ADCS_set_attitude_angle(xyz att_angle) {
 }
 
 ADCS_returnState HAL_ADCS_get_attitude_angle(xyz *att_angle) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_attitude_angle(att_angle);
@@ -730,7 +730,7 @@ ADCS_returnState HAL_ADCS_get_attitude_angle(xyz *att_angle) {
 }
 
 ADCS_returnState HAL_ADCS_set_track_controller(xyz target) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_track_controller(target);
@@ -738,7 +738,7 @@ ADCS_returnState HAL_ADCS_set_track_controller(xyz target) {
 }
 
 ADCS_returnState HAL_ADCS_get_track_controller(xyz *target) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_track_controller(target);
@@ -746,7 +746,7 @@ ADCS_returnState HAL_ADCS_get_track_controller(xyz *target) {
 }
 
 ADCS_returnState HAL_ADCS_set_log_config(uint8_t *flags_arr, uint16_t period, uint8_t dest, uint8_t log) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_log_config(flags_arr, period, dest, log);
@@ -754,7 +754,7 @@ ADCS_returnState HAL_ADCS_set_log_config(uint8_t *flags_arr, uint16_t period, ui
 }
 
 ADCS_returnState HAL_ADCS_get_log_config(uint8_t *flags_arr, uint16_t *period, uint8_t *dest, uint8_t log) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_log_config(flags_arr, period, dest, log);
@@ -762,7 +762,7 @@ ADCS_returnState HAL_ADCS_get_log_config(uint8_t *flags_arr, uint16_t *period, u
 }
 
 ADCS_returnState HAL_ADCS_set_inertial_ref(xyz iner_ref) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_inertial_ref(iner_ref);
@@ -770,7 +770,7 @@ ADCS_returnState HAL_ADCS_set_inertial_ref(xyz iner_ref) {
 }
 
 ADCS_returnState HAL_ADCS_get_inertial_ref(xyz *iner_ref) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_inertial_ref(iner_ref);
@@ -778,7 +778,7 @@ ADCS_returnState HAL_ADCS_get_inertial_ref(xyz *iner_ref) {
 }
 
 ADCS_returnState HAL_ADCS_set_sgp4_orbit_params(adcs_sgp4 params) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_sgp4_orbit_params(params);
@@ -786,7 +786,7 @@ ADCS_returnState HAL_ADCS_set_sgp4_orbit_params(adcs_sgp4 params) {
 }
 
 ADCS_returnState HAL_ADCS_get_sgp4_orbit_params(adcs_sgp4 *params) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_sgp4_orbit_params(params);
@@ -794,7 +794,7 @@ ADCS_returnState HAL_ADCS_get_sgp4_orbit_params(adcs_sgp4 *params) {
 }
 
 ADCS_returnState HAL_ADCS_set_system_config(adcs_sysConfig config) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_system_config(config);
@@ -802,7 +802,7 @@ ADCS_returnState HAL_ADCS_set_system_config(adcs_sysConfig config) {
 }
 
 ADCS_returnState HAL_ADCS_get_system_config(adcs_sysConfig *config) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_system_config(config);
@@ -810,7 +810,7 @@ ADCS_returnState HAL_ADCS_get_system_config(adcs_sysConfig *config) {
 }
 
 ADCS_returnState HAL_ADCS_set_MTQ_config(xyzu8 params) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_MTQ_config(params);
@@ -818,7 +818,7 @@ ADCS_returnState HAL_ADCS_set_MTQ_config(xyzu8 params) {
 }
 
 ADCS_returnState HAL_ADCS_set_RW_config(uint8_t *RW) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_RW_config(RW);
@@ -826,7 +826,7 @@ ADCS_returnState HAL_ADCS_set_RW_config(uint8_t *RW) {
 }
 
 ADCS_returnState HAL_ADCS_set_rate_gyro(rate_gyro_config params) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_rate_gyro(params);
@@ -834,7 +834,7 @@ ADCS_returnState HAL_ADCS_set_rate_gyro(rate_gyro_config params) {
 }
 
 ADCS_returnState HAL_ADCS_set_css_config(css_config config) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_css_config(config);
@@ -842,7 +842,7 @@ ADCS_returnState HAL_ADCS_set_css_config(css_config config) {
 }
 
 ADCS_returnState HAL_ADCS_set_star_track_config(cubestar_config config) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_star_track_config(config);
@@ -850,7 +850,7 @@ ADCS_returnState HAL_ADCS_set_star_track_config(cubestar_config config) {
 }
 
 ADCS_returnState HAL_ADCS_set_cubesense_config(cubesense_config params) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_cubesense_config(params);
@@ -858,7 +858,7 @@ ADCS_returnState HAL_ADCS_set_cubesense_config(cubesense_config params) {
 }
 
 ADCS_returnState HAL_ADCS_set_mtm_config(mtm_config params, uint8_t mtm) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_mtm_config(params, mtm);
@@ -866,7 +866,7 @@ ADCS_returnState HAL_ADCS_set_mtm_config(mtm_config params, uint8_t mtm) {
 }
 
 ADCS_returnState HAL_ADCS_set_detumble_config(detumble_config *config) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_detumble_config(config);
@@ -874,7 +874,7 @@ ADCS_returnState HAL_ADCS_set_detumble_config(detumble_config *config) {
 }
 
 ADCS_returnState HAL_ADCS_set_ywheel_config(ywheel_ctrl_config params) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_ywheel_config(params);
@@ -882,7 +882,7 @@ ADCS_returnState HAL_ADCS_set_ywheel_config(ywheel_ctrl_config params) {
 }
 
 ADCS_returnState HAL_ADCS_set_rwheel_config(rwheel_ctrl_config params) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_rwheel_config(params);
@@ -890,7 +890,7 @@ ADCS_returnState HAL_ADCS_set_rwheel_config(rwheel_ctrl_config params) {
 }
 
 ADCS_returnState HAL_ADCS_set_tracking_config(track_ctrl_config params) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_tracking_config(params);
@@ -898,7 +898,7 @@ ADCS_returnState HAL_ADCS_set_tracking_config(track_ctrl_config params) {
 }
 
 ADCS_returnState HAL_ADCS_set_MoI_mat(moment_inertia_config cell) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_MoI_mat(cell);
@@ -906,7 +906,7 @@ ADCS_returnState HAL_ADCS_set_MoI_mat(moment_inertia_config cell) {
 }
 
 ADCS_returnState HAL_ADCS_set_estimation_config(estimation_config config) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_estimation_config(config);
@@ -914,7 +914,7 @@ ADCS_returnState HAL_ADCS_set_estimation_config(estimation_config config) {
 }
 
 ADCS_returnState HAL_ADCS_set_usercoded_setting(usercoded_setting setting) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_usercoded_setting(setting);
@@ -922,7 +922,7 @@ ADCS_returnState HAL_ADCS_set_usercoded_setting(usercoded_setting setting) {
 }
 
 ADCS_returnState HAL_ADCS_set_asgp4_setting(aspg4_setting setting) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_set_asgp4_setting(setting);
@@ -930,7 +930,7 @@ ADCS_returnState HAL_ADCS_set_asgp4_setting(aspg4_setting setting) {
 }
 
 ADCS_returnState HAL_ADCS_get_full_config(adcs_config *config) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     return ADCS_get_full_config(config);
@@ -938,7 +938,7 @@ ADCS_returnState HAL_ADCS_get_full_config(adcs_config *config) {
 }
 
 ADCS_returnState HAL_ADCS_getHK(ADCS_HouseKeeping *adcs_hk) {
-#ifdef ADCS_IS_STUBBED
+#if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
 #else
     ADCS_returnState temp;

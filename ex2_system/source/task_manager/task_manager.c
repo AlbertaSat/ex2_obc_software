@@ -212,7 +212,7 @@ bool check_tasks_health() {
 }
 
 void feed_dog() {
-#ifndef WATCHDOG_IS_STUBBED
+#if WATCHDOG_IS_STUBBED == 0
     RAISE_PRIVILEGE;
     portENTER_CRITICAL();
     rtiREG1->WDKEY = 0x0000E51AU;
@@ -223,7 +223,7 @@ void feed_dog() {
 }
 
 void start_dog() {
-#ifndef WATCHDOG_IS_STUBBED
+#if WATCHDOG_IS_STUBBED == 0
     RAISE_PRIVILEGE;
     rtiREG1->WDSTATUS = 0xFFU;
     rtiREG1->DWDPRLD = 0xFFFF;
@@ -245,7 +245,7 @@ void sw_watchdog(void *pvParameters) {
         } else {
 
             should_feed = false;
-#ifdef WATCHDOG_IS_STUBBED
+#if WATCHDOG_IS_STUBBED == 1
             ex2_log("Watchdog would have reset");
 #endif
         }

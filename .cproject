@@ -103,22 +103,7 @@
 									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/include"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/pdu}"/>
 								</option>
-								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEFINE.1282553538" name="Pre-define NAME (--define, -D)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEFINE" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="SBAND_COMMERCIAL_FREQUENCY"/>
-									<listOptionValue builtIn="false" value="IS_EXALTA2"/>
-									<listOptionValue builtIn="false" value="DFGM_IS_STUBBED"/>
-									<listOptionValue builtIn="false" value="CSP_FREERTOS"/>
-									<listOptionValue builtIn="false" value="OS_FREERTOS"/>
-									<listOptionValue builtIn="false" value="SBAND_IS_STUBBED"/>
-									<listOptionValue builtIn="false" value="CHARON_IS_STUBBED"/>
-									<listOptionValue builtIn="false" value="SYSTEM_APP_ID=_OBC_APP_ID_"/>
-									<listOptionValue builtIn="false" value="EPS_IS_STUBBED"/>
-									<listOptionValue builtIn="false" value="ADCS_IS_STUBBED"/>
-									<listOptionValue builtIn="false" value="PAYLOAD_IS_STUBBED"/>
-									<listOptionValue builtIn="false" value="UHF_IS_STUBBED"/>
-									<listOptionValue builtIn="false" value="WATCHDOG_IS_STUBBED"/>
-									<listOptionValue builtIn="false" value="ATHENA_IS_STUBBED"/>
-								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="true" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEFINE.1282553538" name="Pre-define NAME (--define, -D)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEFINE" valueType="definedSymbols"/>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEBUGGING_MODEL.517860824" name="Debugging model" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEBUGGING_MODEL" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEBUGGING_MODEL.SYMDEBUG__DWARF" valueType="enumerated"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DIAG_WARNING.1029290207" name="Treat diagnostic &lt;id&gt; as warning (--diag_warning, -pdsw)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DIAG_WARNING" valueType="stringList">
 									<listOptionValue builtIn="false" value="225"/>
@@ -128,6 +113,9 @@
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.C_DIALECT.1597551648" name="C Dialect" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.C_DIALECT" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.C_DIALECT.C99" valueType="enumerated"/>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.OPT_LEVEL.284321430" name="Optimization level (--opt_level, -O)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.OPT_LEVEL" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.OPT_LEVEL.off" valueType="enumerated"/>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.EXCEPTIONS.224039873" name="Enable C++ exception handling (--exceptions)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.EXCEPTIONS" value="true" valueType="boolean"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.PREINCLUDE.1646675623" name="Specify a preinclude file (--preinclude)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.PREINCLUDE" valueType="includeFiles">
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/main/config.h}"/>
+								</option>
 								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.514290555" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
 								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.90709160" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
 								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.1990194205" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
@@ -1550,6 +1538,8 @@
 	<storageModule moduleId="scannerConfiguration"/>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Devel"/>
+		<configuration configurationName="ex2_project"/>
 		<configuration configurationName="Debug">
 			<resource resourceType="PROJECT" workspacePath="/can"/>
 		</configuration>
@@ -1558,4 +1548,5 @@
 		</configuration>
 	</storageModule>
 	<storageModule moduleId="scannerConfiguration"/>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cproject>

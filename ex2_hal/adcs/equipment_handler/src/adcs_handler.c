@@ -1062,7 +1062,8 @@ ADCS_returnState ADCS_set_sram_scrub_size(uint16_t size) {
 ADCS_returnState ADCS_set_UnixTime_save_config(uint8_t when, uint8_t period) {
     uint8_t command[3];
 
-    if((when != 0) && (when != 1) && (when != 2) && (when != 4)) return ADCS_INVALID_PARAMETERS;
+    if ((when != 0) && (when != 1) && (when != 2) && (when != 4))
+        return ADCS_INVALID_PARAMETERS;
     command[0] = SET_UNIX_TIME_SAVE_ID;
     command[1] = when;
     command[2] = period; // [s]
@@ -1310,11 +1311,10 @@ ADCS_returnState ADCS_get_bootloader_state(uint16_t *uptime, uint8_t *flags_arr)
     state = adcs_telemetry(GET_BOOTLOADER_STATE_ID, telemetry, 6);
     *uptime = (telemetry[1] << 8) + telemetry[0];
 
-
     for (int i = 0; i < 8; i++) {
         *(flags_arr + i) = (telemetry[2] >> i) & 1; // Second telemetry byte contains 8 flags
     }
-    for(int i = 0; i < 4; i++){
+    for (int i = 0; i < 4; i++) {
         *(flags_arr + 8 + i) = (telemetry[3] >> i) & 1; // Third telemetry byte contains 4 flags
     }
     return state;
@@ -1375,7 +1375,7 @@ ADCS_returnState ADCS_copy_internal_flash_progress(bool *busy, bool *err) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_deploy_magnetometer_boom(uint8_t actuation_timeout) {
-#ifndef ADCS_MAG_FLIGHT_CONFIG // Safeguard against unintended mag deployment
+#if ADCS_MAG_FLIGHT_CONFIG == 0 // Safeguard against unintended mag deployment
     return ADCS_INVALID_PARAMETERS;
 #else
     uint8_t command[2];
@@ -1930,7 +1930,7 @@ ADCS_returnState ADCS_get_actuator(adcs_actuator *commands) {
     ADCS_returnState state;
     state = adcs_telemetry(ACTUATOR_ID, telemetry, 12);
     get_xyz(&commands->magnetorquer, &telemetry[0], 10); // [s]
-    get_xyz(&commands->wheel_speed, &telemetry[6], 1);    // [rpm]
+    get_xyz(&commands->wheel_speed, &telemetry[6], 1);   // [rpm]
     return state;
 }
 
@@ -2337,11 +2337,9 @@ ADCS_returnState ADCS_set_track_controller(xyz target) {
     command[0] = SET_TRACK_CTRLER_TARGET_REF_ID;
     uint32_t temp_32[3];
     memcpy(temp_32, &target, 12);
-    for(int i = 0; i < 3; i++){
-        temp_32[i] = (temp_32[i] & 0x000000FF) << 24
-                | (temp_32[i] & 0x0000FF00) << 8
-                | (temp_32[i] & 0x00FF0000) >> 8
-                | (temp_32[i] & 0xFF000000) >> 24;
+    for (int i = 0; i < 3; i++) {
+        temp_32[i] = (temp_32[i] & 0x000000FF) << 24 | (temp_32[i] & 0x0000FF00) << 8 |
+                     (temp_32[i] & 0x00FF0000) >> 8 | (temp_32[i] & 0xFF000000) >> 24;
     }
     memcpy(&command[1], temp_32, 12);
     return adcs_telecommand(command, 13);
@@ -2361,11 +2359,9 @@ ADCS_returnState ADCS_get_track_controller(xyz *target) {
     state = adcs_telemetry(GET_TRACK_CTRLER_TARGET_REF_ID, telemetry, 12);
     uint32_t temp_32[3];
     memcpy(temp_32, &telemetry[0], 12);
-    for(int i = 0; i < 3; i++){
-        temp_32[i] = (temp_32[i] & 0x000000FF) << 24
-                | (temp_32[i] & 0x0000FF00) << 8
-                | (temp_32[i] & 0x00FF0000) >> 8
-                | (temp_32[i] & 0xFF000000) >> 24;
+    for (int i = 0; i < 3; i++) {
+        temp_32[i] = (temp_32[i] & 0x000000FF) << 24 | (temp_32[i] & 0x0000FF00) << 8 |
+                     (temp_32[i] & 0x00FF0000) >> 8 | (temp_32[i] & 0xFF000000) >> 24;
     }
     memcpy(target, temp_32, 12);
     return state;
@@ -3065,10 +3061,10 @@ ADCS_returnState ADCS_set_mtm_config(mtm_config params, uint8_t mtm) {
     command[12] = (raw_val_offset.z & 0xFF00) >> 8;
 
     int16_t temp16;
-    for(int i = 0; i < 9; i++){ // Swap endianness of 2-byte ints
+    for (int i = 0; i < 9; i++) { // Swap endianness of 2-byte ints
         temp16 = (int16_t)params.sensitivity_mat[i] * coef;
-        command[13 + 2*i] = temp16 & 0xFF;
-        command[13 + 2*i + 1] = (temp16 & 0xFF00) >> 8;
+        command[13 + 2 * i] = temp16 & 0xFF;
+        command[13 + 2 * i + 1] = (temp16 & 0xFF00) >> 8;
     }
     return adcs_telecommand(command, 31);
 }
@@ -3085,11 +3081,9 @@ ADCS_returnState ADCS_set_detumble_config(detumble_config *config) {
     command[0] = SET_DETUMBLE_PARAM_ID;
     uint32_t temp_32[4];
     memcpy(temp_32, config, 16);
-    for(int i = 0; i < 4; i++){ // Swap endianness
-        temp_32[i] = (temp_32[i] & 0x000000FF) << 24
-                | (temp_32[i] & 0x0000FF00) << 8
-                | (temp_32[i] & 0x00FF0000) >> 8
-                | (temp_32[i] & 0xFF000000) >> 24;
+    for (int i = 0; i < 4; i++) { // Swap endianness
+        temp_32[i] = (temp_32[i] & 0x000000FF) << 24 | (temp_32[i] & 0x0000FF00) << 8 |
+                     (temp_32[i] & 0x00FF0000) >> 8 | (temp_32[i] & 0xFF000000) >> 24;
     }
     memcpy(&command[1], temp_32, 8);
     int16_t raw_spin_rate = config->spin_rate * 1000;
@@ -3111,11 +3105,9 @@ ADCS_returnState ADCS_set_ywheel_config(ywheel_ctrl_config params) {
     command[0] = SET_YWHEEL_CTRL_PARAM_ID;
     uint32_t temp_32[5];
     memcpy(temp_32, &params, 20);
-    for(int i = 0; i < 5; i++){
-        temp_32[i] = (temp_32[i] & 0x000000FF) << 24
-                | (temp_32[i] & 0x0000FF00) << 8
-                | (temp_32[i] & 0x00FF0000) >> 8
-                | (temp_32[i] & 0xFF000000) >> 24;
+    for (int i = 0; i < 5; i++) {
+        temp_32[i] = (temp_32[i] & 0x000000FF) << 24 | (temp_32[i] & 0x0000FF00) << 8 |
+                     (temp_32[i] & 0x00FF0000) >> 8 | (temp_32[i] & 0xFF000000) >> 24;
     }
     memcpy(&command[1], temp_32, 20);
     return adcs_telecommand(command, 21);
@@ -3133,11 +3125,9 @@ ADCS_returnState ADCS_set_rwheel_config(rwheel_ctrl_config params) {
     command[0] = SET_RWHEEL_CTRL_PARAM_ID;
     uint32_t temp_32[3];
     memcpy(temp_32, &params, 12);
-    for(int i = 0; i < 3; i++){
-        temp_32[i] = (temp_32[i] & 0x000000FF) << 24
-                | (temp_32[i] & 0x0000FF00) << 8
-                | (temp_32[i] & 0x00FF0000) >> 8
-                | (temp_32[i] & 0xFF000000) >> 24;
+    for (int i = 0; i < 3; i++) {
+        temp_32[i] = (temp_32[i] & 0x000000FF) << 24 | (temp_32[i] & 0x0000FF00) << 8 |
+                     (temp_32[i] & 0x00FF0000) >> 8 | (temp_32[i] & 0xFF000000) >> 24;
     }
     memcpy(&command[1], temp_32, 12);
     command[13] = (params.auto_transit << 7) | (params.sun_point_facet & 0x7F);
@@ -3156,11 +3146,9 @@ ADCS_returnState ADCS_set_tracking_config(track_ctrl_config params) {
     command[0] = SET_TRACK_CTRL_ID;
     uint32_t temp_32[3];
     memcpy(temp_32, &params, 12);
-    for(int i = 0; i < 3; i++){
-        temp_32[i] = (temp_32[i] & 0x000000FF) << 24
-                | (temp_32[i] & 0x0000FF00) << 8
-                | (temp_32[i] & 0x00FF0000) >> 8
-                | (temp_32[i] & 0xFF000000) >> 24;
+    for (int i = 0; i < 3; i++) {
+        temp_32[i] = (temp_32[i] & 0x000000FF) << 24 | (temp_32[i] & 0x0000FF00) << 8 |
+                     (temp_32[i] & 0x00FF0000) >> 8 | (temp_32[i] & 0xFF000000) >> 24;
     }
     memcpy(&command[1], temp_32, 12);
     command[13] = params.target_facet;
@@ -3210,11 +3198,9 @@ ADCS_returnState ADCS_set_estimation_config(estimation_config config) {
     uint8_t command[32];
     uint32_t temp_32[7];
     memcpy(temp_32, &config, 28);
-    for(int i = 0; i < 7; i++){
-        temp_32[i] = (temp_32[i] & 0x000000FF) << 24
-                | (temp_32[i] & 0x0000FF00) << 8
-                | (temp_32[i] & 0x00FF0000) >> 8
-                | (temp_32[i] & 0xFF000000) >> 24;
+    for (int i = 0; i < 7; i++) {
+        temp_32[i] = (temp_32[i] & 0x000000FF) << 24 | (temp_32[i] & 0x0000FF00) << 8 |
+                     (temp_32[i] & 0x00FF0000) >> 8 | (temp_32[i] & 0xFF000000) >> 24;
     }
     command[0] = SET_ESTIMATE_PARAM;
     memcpy(&command[1], &temp_32, 28);
