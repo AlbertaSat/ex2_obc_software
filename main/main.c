@@ -202,28 +202,28 @@ void flatsat_test(void *pvParameters) { vTaskDelete(NULL); }
 
 TaskHandle_t iris_spi_handle;
 
-void iris_spi_test(void * pvParameters) {
+void iris_spi_test(void *pvParameters) {
     iris_init();
-    //iris_take_pic();
+    // iris_take_pic();
 
     IRIS_Housekeeping hk_data;
     uint16_t image_count;
     uint32_t image_length;
 
-    for(;;) {
-//        spi_write_read(1, &tx_data, rx_data);
-//        vTaskDelay(pdMS_TO_TICKS( 1000UL ));
+    iris_toggle_sensor_idle(1);
+
+    for (;;) {
         iris_take_pic();
-          iris_get_image_length(&image_length);
-          iris_transfer_image(image_length);
-//        iris_get_image_count(&image_count);
-//        iris_toggle_sensor_idle(0);
-//        iris_toggle_sensor_idle(1);
+        vTaskDelay(2000);
+
+        iris_get_image_length(&image_length);
+        iris_transfer_image(image_length);
+
         iris_get_housekeeping(&hk_data);
 
-        //iris_update_sensor_i2c_reg();
+        // iris_update_sensor_i2c_reg();
     }
-    //vTaskDelay(pdMS_TO_TICKS( 1000UL ));
+    // vTaskDelay(pdMS_TO_TICKS( 1000UL ));
 }
 
 int ex2_main(void) {
@@ -231,9 +231,8 @@ int ex2_main(void) {
     InitIO();
     for (int i = 0; i < 1000000; i++)
         ;
-    //xTaskCreate(ex2_init, "init", INIT_STACK_SIZE, NULL, INIT_PRIO, NULL);
-    xTaskCreate(iris_spi_test, "IRIS SPI", 256, NULL, (tskIDLE_PRIORITY + 1),
-                &iris_spi_handle);
+    // xTaskCreate(ex2_init, "init", INIT_STACK_SIZE, NULL, INIT_PRIO, NULL);
+    xTaskCreate(iris_spi_test, "IRIS SPI", 256, NULL, (tskIDLE_PRIORITY + 1), &iris_spi_handle);
     /* Start FreeRTOS! */
     vTaskStartScheduler();
 

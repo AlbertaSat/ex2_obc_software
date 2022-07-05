@@ -29,51 +29,12 @@
 #include <stdlib.h>
 
 #include "iris_spi.h"
+#include "iris_gio.h"
 #include "iris.h"
 #include "HL_spi.h"
 #include "system.h"
-#include "HL_gio.h"
-#include "HL_reg_het.h"
-#include "HL_reg_gio.h"
 
 spiDAT1_t dataconfig;
-
-/**
- * @brief
- *   Pull slave select low via GPIO pin
- *   TODO: Specify pin #8 in system.h (separate commit)
- **/
-void NSS_LOW() {
-    gioSetBit(hetPORT1, 1, 0);
-}
-
-/**
- * @brief
- *   Pull slave select high via GPIO pin
- **/
-void NSS_HIGH() {
-    gioSetBit(hetPORT1, 1, 1);
-}
-
-/**
- * @brief
- *   Pull slave select high via GPIO pin
- **/
-void IRIS_nRST_HIGH() {
-    gioSetBit(gioPORTB, 0, 1);
-}
-
-void IRIS_nRST_LOW() {
-    gioSetBit(gioPORTB, 0, 0);
-}
-
-/**
- * @brief
- *   Pull slave select high via GPIO pin
- **/
-void IRIS_BOOT_LOW() {
-    gioSetBit(hetPORT1, 20, 0);
-}
 
 /**
  * @brief
@@ -83,13 +44,12 @@ void iris_spi_init() {
     // Populate SPI config
     dataconfig.CS_HOLD = FALSE;
     dataconfig.WDEL = 0;
-    /* NOTE: Using SPIREG3 for testing purpose, may be change once
-     * final pinout is decided
-     */
+#if IS_ATHENA == 1
     dataconfig.DFSEL = SPI_FMT_0;
+#else
+    dataconfig.DFSEL = SPI_FMT_0;
+#endif
     dataconfig.CSNR = SPI_CS_1;
-
-    gioSetDirection(hetPORT1, 0xFFFFFFFF);
 }
 
 /**
@@ -108,7 +68,8 @@ void iris_spi_init() {
  **/
 void iris_spi_send_and_get(uint16_t *tx_data, uint16_t *rx_data, uint16_t data_length) {
     spiSendAndGetData(IRIS_SPI, &dataconfig, data_length, tx_data, rx_data);
-    while ((SpiTxStatus(IRIS_SPI) != SPI_COMPLETED) && (SpiRxStatus(IRIS_SPI) != SPI_COMPLETED));
+    while ((SpiTxStatus(IRIS_SPI) != SPI_COMPLETED) && (SpiRxStatus(IRIS_SPI) != SPI_COMPLETED))
+        ;
 }
 
 /**
@@ -124,7 +85,8 @@ void iris_spi_send_and_get(uint16_t *tx_data, uint16_t *rx_data, uint16_t data_l
  **/
 void iris_spi_send(uint16_t *tx_data, uint16_t data_length) {
     spiSendData(IRIS_SPI, &dataconfig, data_length, tx_data);
-    while(SpiTxStatus(IRIS_SPI) != SPI_COMPLETED);
+    while (SpiTxStatus(IRIS_SPI) != SPI_COMPLETED)
+        ;
 }
 
 /**
@@ -140,7 +102,8 @@ void iris_spi_send(uint16_t *tx_data, uint16_t data_length) {
  **/
 void iris_spi_get(uint16_t *rx_data, uint16_t data_length) {
     spiGetData(IRIS_SPI, &dataconfig, data_length, rx_data);
-    while(SpiRxStatus(IRIS_SPI) != SPI_COMPLETED);
+    while (SpiRxStatus(IRIS_SPI) != SPI_COMPLETED)
+        ;
 }
 
 /*
@@ -161,7 +124,8 @@ void iris_spi_get(uint16_t *rx_data, uint16_t data_length) {
  **/
 void iris_spi_delay(uint16_t ticks) {
     uint16_t i;
-    for (i = 0; i < ticks; i++);
+    for (i = 0; i < ticks; i++)
+        ;
 }
 
 /**
@@ -180,7 +144,7 @@ IrisLowLevelReturn iris_send_command(uint16_t command) {
     uint16_t rx_data;
     uint16_t tx_dummy = DUMMY_BYTE;
 
-    NSS_LOW();
+    IRIS_NSS_LOW();
     iris_spi_delay(10000);
     iris_spi_send(&command, 1);
     /* This delay is modifiable and will depend on how fast Iris
@@ -191,7 +155,7 @@ IrisLowLevelReturn iris_send_command(uint16_t command) {
     iris_spi_send(&tx_dummy, 1);
     iris_spi_get(&rx_data, 1);
     iris_spi_delay(10000);
-    NSS_HIGH();
+    IRIS_NSS_HIGH();
 
     if (rx_data == ACK_FLAG) {
         return IRIS_ACK;
@@ -220,13 +184,13 @@ IrisLowLevelReturn iris_send_data(uint16_t *tx_buffer, uint16_t data_length) {
     uint16_t tx_dummy = DUMMY_BYTE;
     uint16_t rx_data;
 
-    NSS_LOW();
+    IRIS_NSS_LOW();
     iris_spi_delay(1000);
     iris_spi_send_and_get(tx_buffer, &rx_data, data_length);
     iris_spi_delay(1000);
     iris_spi_send_and_get(&tx_dummy, &rx_data, 1);
     iris_spi_delay(1000);
-    NSS_HIGH();
+    IRIS_NSS_HIGH();
 
     if (rx_data == ACK_FLAG) {
         return IRIS_ACK;
@@ -254,11 +218,11 @@ IrisLowLevelReturn iris_send_data(uint16_t *tx_buffer, uint16_t data_length) {
 IrisLowLevelReturn iris_get_data(uint16_t *rx_buffer, uint16_t data_length) {
     uint16_t tx_dummy = 0xFF;
 
-    NSS_LOW();
+    IRIS_NSS_LOW();
     iris_spi_delay(10000);
     iris_spi_send_and_get(&tx_dummy, rx_buffer, data_length);
     iris_spi_delay(1000);
-    NSS_HIGH();
+    IRIS_NSS_HIGH();
     iris_spi_delay(1000);
 
     return IRIS_ACK;
