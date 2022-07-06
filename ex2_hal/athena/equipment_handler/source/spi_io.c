@@ -19,7 +19,11 @@ BYTE SPI_RW(BYTE d) {
 
     while ((SD_SPI->FLG & 0x0200) == 0) { // Wait until TXINTFLG is set for previous transmission
         if (xTaskGetTickCount() - start > pdMS_TO_TICKS(1)) { //  Wait 1 ms
-            return 0xFF;
+            if ((SD_SPI->FLG & 0x0200) == 0) {
+                return 0xFF;
+            } else {
+                break;
+            }
         }
     }
     SD_SPI->DAT1 = d | 0x100D0000; // transmit register address
@@ -27,7 +31,11 @@ BYTE SPI_RW(BYTE d) {
     start = xTaskGetTickCount();
     while ((SD_SPI->FLG & 0x0100) == 0) { // Wait until RXINTFLG is set when new value is received
         if (xTaskGetTickCount() - start > pdMS_TO_TICKS(1)) { //  Wait 1 ms
-            return 0xFF;
+            if ((SD_SPI->FLG & 0x0100) == 0) {                // try one more time
+                return 0xFF;
+            } else {
+                break;
+            }
         }
     }
     return ((unsigned char)SD_SPI->BUF); // Return received value
