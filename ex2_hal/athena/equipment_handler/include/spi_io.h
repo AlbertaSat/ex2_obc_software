@@ -9,10 +9,15 @@
 #define _SPI_IO_H_
 
 #include "integer.h" /* Type redefinition for portability */
+#include "FreeRTOS.h"
 
 /******************************************************************************
  Public methods
  *****************************************************************************/
+
+typedef struct {
+    TickType_t timeout_tick;
+} SPI_timer_handle_t;
 
 /**
     \brief Initialize SPI hardware
@@ -57,18 +62,18 @@ void SPI_Freq_Low(void);
     \brief Start a non-blocking timer.
     \param ms Milliseconds.
  */
-void SPI_Timer_On(WORD ms);
+void SPI_Timer_On(WORD ms, SPI_timer_handle_t *timer);
 
 /**
     \brief Check the status of non-blocking timer.
     \return Status, TRUE if timeout is not reach yet.
  */
-BOOL SPI_Timer_Status(void);
+BOOL SPI_Timer_Status(SPI_timer_handle_t *timer);
 
 /**
     \brief Stop of non-blocking timer. Mandatory.
  */
-void SPI_Timer_Off(void);
+void SPI_Timer_Off(SPI_timer_handle_t *timer);
 
 #endif
 
