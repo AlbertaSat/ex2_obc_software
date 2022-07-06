@@ -72,6 +72,15 @@
 #include "crypto.h"
 #include "csp_debug_wrapper.h"
 
+#define SDR_TEST 0
+
+#if SDR_TEST == 1
+#include "test_sdr.h"
+
+static sdr_interface_data_t *test_uhf_ifdata;
+static sdr_interface_data_t *test_sband_ifdata;
+#endif // SDR_TEST
+
 #if FLATSAT_TEST == 1
 //#include "sband_binary_tests.h"
 static void flatsat_test();
@@ -165,8 +174,8 @@ void ex2_init(void *pvParameters) {
 #endif
 
 #if PAYLOAD_IS_STUBBED == 0
-#if IS_EXALTA2 == 1
-    // Iris init
+#if IS_EXALTA2 == 1;
+    iris_init();
 #else
     NS_handler_init();
 #endif
@@ -178,6 +187,8 @@ void ex2_init(void *pvParameters) {
 
     init_software();
 
+#if SDR_TEST == 1
+    start_test_sdr(test_uhf_ifdata, test_sband_ifdata);
 #endif
 
 #if FLATSAT_TEST == 1
@@ -192,42 +203,12 @@ void ex2_init(void *pvParameters) {
 void flatsat_test(void *pvParameters) { vTaskDelete(NULL); }
 #endif
 
-TaskHandle_t iris_spi_handle;
-
-void iris_spi_test(void *pvParameters) {
-    iris_init();
-    // iris_take_pic();
-
-    IRIS_Housekeeping hk_data;
-    uint32_t image_length;
-
-    for (;;) {
-        iris_take_pic();
-        vTaskDelay(2000);
-
-        iris_toggle_sensor_idle(1);
-
-        iris_take_pic();
-        vTaskDelay(2000);
-
-        iris_get_image_length(&image_length);
-        iris_transfer_image(image_length);
-
-        iris_toggle_sensor_idle(0);
-        vTaskDelay(6000);
-
-        iris_get_housekeeping(&hk_data);
-    }
-    // vTaskDelay(pdMS_TO_TICKS( 1000UL ));
-}
-
 int ex2_main(void) {
     _enable_IRQ_interrupt_(); // enable inturrupts
     InitIO();
     for (int i = 0; i < 1000000; i++)
         ;
-    // xTaskCreate(ex2_init, "init", INIT_STACK_SIZE, NULL, INIT_PRIO, NULL);
-    xTaskCreate(iris_spi_test, "IRIS SPI", 256, NULL, (tskIDLE_PRIORITY + 1), &iris_spi_handle);
+    xTaskCreate(ex2_init, "init", INIT_STACK_SIZE, NULL, INIT_PRIO, NULL);
 
     /* Start FreeRTOS! */
     vTaskStartScheduler();
