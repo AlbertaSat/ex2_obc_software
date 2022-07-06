@@ -26,71 +26,64 @@
 #define SBAND_SYNC_BYTES 8
 static uint16_t syncword[SBAND_SYNC_BYTES/sizeof(uint16_t)] = {0xdadb, 0x0dba, 0xbeee, 0xd00d};
 
-#if SBAND_IS_STUBBED == 1
-static int mode;
-#endif
-
 int sband_init() {
-    int ret;
+    STX_return ret;
 
     STX_Enable();
     vTaskDelay(2*ONE_SECOND);
  
-    if ((ret = STX_setControl(S_PA_DISABLE, S_CONF_MODE)) != S_SUCCESS) return ret;
+    Sband_PowerAmplifier pa = { .status = PA_STATUS_DISABLE, .mode = PA_MODE_CONF };
+    if ((ret = HAL_S_setControl(pa)) != S_SUCCESS) {
+        sys_log(WARN, "S-Band can't set CONF mode, rc %d", ret);
+        return -1;
+    }
     ret = STX_setEncoder(S_BIT_ORDER_MSB, S_SCRAMBLER_DISABLE,
                          S_FILTER_ENABLE, S_MOD_QPSK, S_RATE_FULL);
-    if (ret != S_SUCCESS) return ret;
-    if ((ret = STX_setFrequency(2228)) != S_SUCCESS) return ret;
-    if ((ret = STX_setFrequency(2228.0f)) != S_SUCCESS) return ret;
-    if ((ret = STX_setPaPower(30u)) != S_SUCCESS) return ret;
-
-    return (int) S_SUCCESS;
+    if (ret != S_SUCCESS) {
+        sys_log(NOTICE, "S-Band can't set encoder, rc %d", ret);
+        return -2;
+    }
+    if ((ret = HAL_S_setFreq(2228.0f)) != S_SUCCESS) {
+        sys_log(NOTICE, "S-Band can't set frequency, rc %d", ret);
+        return -3;
+    }
+    if ((ret = HAL_S_setPAPower(30)) != S_SUCCESS) {
+        sys_log(NOTICE, "S-Band can't set power, rc %d", ret);
+        return -4;
+    }
+    return 0;
 }
 
 bool sband_enter_conf_mode() {
-    // Call this when you're done transmitting
-#if SBAND_IS_STUBBED == 1
-    STX_return ret = S_SUCCESS;
-    mode = S_CONF_MODE;
-#else
     Sband_PowerAmplifier pa = { .status = PA_STATUS_DISABLE, .mode = PA_MODE_CONF };
     STX_return ret = HAL_S_setControl(pa);
-#endif
     if (ret != S_SUCCESS) {
-        ex2_log("%s failed: %d", __FUNCTION__, ret);
+        sys_log(NOTICE, "%s failed: %d", __FUNCTION__, ret);
+        return false;
     }
-    return (ret == S_SUCCESS);
+    return true;
 }
 
 bool sband_enter_sync_mode() {
     // Call this to get ready to transmit
-#if SBAND_IS_STUBBED == 1
-    STX_return ret = S_SUCCESS;
-    mode = S_SYNC_MODE;
-#else
     Sband_PowerAmplifier pa = { .status = PA_STATUS_ENABLE, .mode = PA_MODE_SYNC };
     STX_return ret = HAL_S_setControl(pa);
-#endif
     if (ret != S_SUCCESS) {
-        ex2_log("%s failed: %d", __FUNCTION__, ret);
+        sys_log(WARN, "%s failed: %d", __FUNCTION__, ret);
+        return false;
     }
-
-    return (ret == S_SUCCESS);
+    return true;
 }
 
 bool sband_enter_data_mode() {
     // Call this to start transmitting once the FIFO is full
-#if SBAND_IS_STUBBED == 1
-    STX_return ret = S_SUCCESS;
-    mode = S_DATA_MODE;
-#else
     Sband_PowerAmplifier pa = { .status = PA_STATUS_ENABLE, .mode = PA_MODE_DATA };
     STX_return ret = HAL_S_setControl(pa);
-#endif
     if (ret != S_SUCCESS) {
-        ex2_log("%s failed: %d", __FUNCTION__, ret);
+        sys_log(WARN, "%s failed: %d", __FUNCTION__, ret);
+        return false;
     }
-    return (ret == S_SUCCESS);
+    return true;
 }
 
 void sband_sync() {
@@ -101,7 +94,7 @@ void sband_sync() {
 #if SBAND_IS_STUBBED == 1
     ex2_log("S-band SYNC");
 #else
-    SPISbandTx(syncword, SBAND_SYNC_BYTES/sizeof(uint16_t));
+    SPISbandTx(syncword, SBAND_SYNC_BYTES);
 #endif
 }
 
@@ -117,17 +110,15 @@ int sband_transmit_ready() {
 }
 
 bool sband_buffer_count(uint16_t *cnt) {
-#if SBAND_IS_STUBBED == 1
-    STX_return ret = S_SUCCESS;
-    *cnt = 100;
-#else
-    STX_return ret = STX_getBuffer(S_BUFFER_COUNT, cnt);
-#endif
+    Sband_Buffer sbuf;
+    STX_return ret = HAL_S_getBuffer(S_BUFFER_COUNT, &sbuf);
     if (ret != S_SUCCESS) {
-        ex2_log("%s failed: %d", __FUNCTION__, ret);
         *cnt = 0;
+        return false;
     }
-    return (ret == S_SUCCESS);
+
+    *cnt = sbuf.pointer[S_BUFFER_COUNT];
+    return true;
 }
 
     
