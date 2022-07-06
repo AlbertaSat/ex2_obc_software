@@ -31,10 +31,7 @@
 
 #define FTP_STACK_SIZE 500
 
-typedef enum {
-    GET_REQUEST = 0,
-    POST_REQUEST = 1
-} FTP_REQUESTTYPE;
+typedef enum { GET_REQUEST = 0, POST_REQUEST = 1 } FTP_REQUESTTYPE;
 
 static uint32_t svc_wdt_counter = 0;
 static uint32_t get_svc_wdt_counter() { return svc_wdt_counter; }
@@ -51,16 +48,20 @@ typedef struct {
 
 static FTP_t current_upload = {0};
 
+csp_conn_t *ftp_make_new_connection(uint8_t dest_addr) {
+    return csp_connect(1, dest_addr, TC_FTP_DATA_SERVICE, portMAX_DELAY, CSP_SO_HMACREQ);
+}
+
 SAT_returnState send_download_burst(csp_conn_t *conn, FTP_t *ftp) {
-/*
- * #TODO: Maybe this should be a struct..
- * Download packets contain:
- * uint8_t subservice byte. Always FTP_DATA_PACKET
- * int8_t status_byte. Set to -1 if end of file
- * uint32_t request id
- * uint32_t data size
- * uint32_t blocknumber of this transfer
- */
+    /*
+     * #TODO: Maybe this should be a struct..
+     * Download packets contain:
+     * uint8_t subservice byte. Always FTP_DATA_PACKET
+     * int8_t status_byte. Set to -1 if end of file
+     * uint32_t request id
+     * uint32_t data size
+     * uint32_t blocknumber of this transfer
+     */
 
     FTP_t *current = ftp;
     int fd = red_open(current->fname, RED_O_RDONLY);
@@ -75,14 +76,14 @@ SAT_returnState send_download_burst(csp_conn_t *conn, FTP_t *ftp) {
     }
     int8_t status = 0;
     uint16_t blocknumber = 0;
-    while(current->count--) {
+    while (current->count--) {
         csp_packet_t *packet = csp_buffer_get(current->blocksize);
         if (packet == NULL) {
             sys_log(WARN, "Could not allocate CSP buffer");
             red_close(fd);
             return SATR_ERROR;
         }
-        packet->data[SUBSERVICE_BYTE] = (uint8_t) FTP_DATA_PACKET;
+        packet->data[SUBSERVICE_BYTE] = (uint8_t)FTP_DATA_PACKET;
         memcpy(&packet->data[OUT_DATA_BYTE], &current->req_id, sizeof(current->req_id));
 
         int32_t bytes_read = red_read(fd, &(packet->data[OUT_DATA_BYTE]) + 10, current->blocksize);
@@ -92,13 +93,13 @@ SAT_returnState send_download_burst(csp_conn_t *conn, FTP_t *ftp) {
             sys_log(INFO, "FTP is done reading file %s", current->fname);
             status = -1;
         }
-        if ( bytes_read < 0) {
+        if (bytes_read < 0) {
             sys_log(WARN, "Could not read file %s. Errno: %d", current->fname, red_errno);
             status = -1;
         }
         set_packet_length(packet, bytes_read + 2 * sizeof(int8_t) + 2 * sizeof(uint32_t) + sizeof(uint16_t));
         memcpy(&packet->data[STATUS_BYTE], &status,
-                   sizeof(status)); // 0 for not done, -1 for done
+               sizeof(status)); // 0 for not done, -1 for done
         if (!csp_send(conn, packet, CSP_MAX_TIMEOUT)) {
             csp_buffer_free(packet);
             red_close(fd);
@@ -176,8 +177,8 @@ SAT_returnState start_FTP_service(void) {
     taskFunctions svc_funcs = {0};
     svc_funcs.getCounterFunction = get_svc_wdt_counter;
 
-    if (xTaskCreate((TaskFunction_t)FTP_service, "FTP_service", FTP_STACK_SIZE, NULL,
-                    NORMAL_SERVICE_PRIO, &svc_tsk) != pdPASS) {
+    if (xTaskCreate((TaskFunction_t)FTP_service, "FTP_service", FTP_STACK_SIZE, NULL, NORMAL_SERVICE_PRIO,
+                    &svc_tsk) != pdPASS) {
         sys_log(CRITICAL, "FAILED TO CREATE TASK FTP_service");
         return SATR_ERROR;
     }
@@ -191,7 +192,7 @@ SAT_returnState start_FTP_service(void) {
  * @brief
  *      Takes a CSP packet and switches based on the subservice command
  * @details
- *      Transfers files between the OBC and GS 
+ *      Transfers files between the OBC and GS
  * @param *packet
  *      The CSP packet
  * @return SAT_returnState
@@ -234,6 +235,7 @@ SAT_returnState FTP_app(csp_packet_t *packet, csp_conn_t *conn) {
          * uint32_t blocksize in bytes
          * uint32_t skip Represented in blocks
          * uint32_t count in blocks
+         * uint32_t dest_addr // destinations are only 8 bit in csp, but alignment is nice
          * char *filename
          * Response:
          * int8 status
@@ -244,11 +246,25 @@ SAT_returnState FTP_app(csp_packet_t *packet, csp_conn_t *conn) {
         uint32_t blocksize;
         uint32_t skip;
         uint32_t count;
-        cnv8_32(&packet->data[IN_DATA_BYTE ], &req_id);
-        cnv8_32(&packet->data[IN_DATA_BYTE +4], &blocksize);
-        cnv8_32(&packet->data[IN_DATA_BYTE +8], &skip);
-        cnv8_32(&packet->data[IN_DATA_BYTE +12], &count);
-        char *fname = (char *)&packet->data[IN_DATA_BYTE +16];
+        uint32_t dest_addr;
+        cnv8_32(&packet->data[IN_DATA_BYTE], &req_id);
+        cnv8_32(&packet->data[IN_DATA_BYTE + 4], &blocksize);
+        cnv8_32(&packet->data[IN_DATA_BYTE + 8], &skip);
+        cnv8_32(&packet->data[IN_DATA_BYTE + 12], &count);
+        cnv8_32(&packet->data[IN_DATA_BYTE + 16], &dest_addr);
+        char *fname = (char *)&packet->data[IN_DATA_BYTE + 20];
+
+        csp_conn_t *destconn = NULL;
+        if (dest_addr != packet->id.src) {
+            destconn = ftp_make_new_connection(dest_addr);
+            if (destconn == NULL) {
+                sys_log(ERROR, "Could not create alternate FTP connection");
+                status = -1;
+                break;
+            }
+        } else {
+            destconn = conn;
+        }
 
         uint32_t open_flags = RED_O_RDONLY;
         int fd = red_open(fname, open_flags);
@@ -274,7 +290,7 @@ SAT_returnState FTP_app(csp_packet_t *packet, csp_conn_t *conn) {
 
         red_close(fd);
 
-        send_download_burst(conn, &ftp);
+        send_download_burst(destconn, &ftp);
 
         memcpy(&packet->data[OUT_DATA_BYTE], &stat.st_mtime, sizeof(stat.st_mtime));
         memcpy(&packet->data[OUT_DATA_BYTE + 4], &stat.st_ctime, sizeof(stat.st_ctime));
@@ -292,10 +308,10 @@ SAT_returnState FTP_app(csp_packet_t *packet, csp_conn_t *conn) {
         uint32_t req_id;
         uint64_t file_size;
         uint32_t blocksize;
-        cnv8_32(&packet->data[IN_DATA_BYTE ], &req_id);
-        memcpy(&file_size, &packet->data[IN_DATA_BYTE +4], sizeof(uint64_t));
+        cnv8_32(&packet->data[IN_DATA_BYTE], &req_id);
+        memcpy(&file_size, &packet->data[IN_DATA_BYTE + 4], sizeof(uint64_t));
         file_size = csp_ntoh64(file_size);
-        cnv8_32(&packet->data[IN_DATA_BYTE +12], &blocksize);
+        cnv8_32(&packet->data[IN_DATA_BYTE + 12], &blocksize);
         char *fname = (char *)&packet->data[IN_DATA_BYTE + 16];
         int fd = red_open(fname, RED_O_CREAT | RED_O_RDWR);
         if (fd < 0) {
@@ -338,9 +354,9 @@ SAT_returnState FTP_app(csp_packet_t *packet, csp_conn_t *conn) {
         uint32_t req_id;
         uint32_t count;
         uint32_t size;
-        cnv8_32(&packet->data[IN_DATA_BYTE ], &req_id);
-        cnv8_32(&packet->data[IN_DATA_BYTE +4], &count);
-        cnv8_32(&packet->data[IN_DATA_BYTE +8], &size);
+        cnv8_32(&packet->data[IN_DATA_BYTE], &req_id);
+        cnv8_32(&packet->data[IN_DATA_BYTE + 4], &count);
+        cnv8_32(&packet->data[IN_DATA_BYTE + 8], &size);
         if (req_id != current_upload.req_id) {
             sys_log(WARN, "Request IDs don't match");
             status = -1;
@@ -377,12 +393,12 @@ SAT_returnState FTP_app(csp_packet_t *packet, csp_conn_t *conn) {
         red_close(fd);
         break;
     }
-        default:
-            ex2_log("No such subservice!\n");
-            return_state = SATR_PKT_ILLEGAL_SUBSERVICE;
+    default:
+        ex2_log("No such subservice!\n");
+        return_state = SATR_PKT_ILLEGAL_SUBSERVICE;
     }
     memcpy(&packet->data[STATUS_BYTE], &status,
-               sizeof(int8_t)); // 0 for success
+           sizeof(int8_t));                                    // 0 for success
     set_packet_length(packet, reply_len + sizeof(int8_t) + 1); // +1 for subservice
 
     return return_state;
