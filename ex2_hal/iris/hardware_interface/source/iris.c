@@ -156,7 +156,8 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
 #else
     FILE *fptr;
     fptr = fopen(
-        "/home/jenish/Desktop/new_repo/ex2_obc_software/ex2_hal/iris/hardware_interface/source/sample.jpg", "wb");
+        "/home/jenish/Desktop/new_repo/ex2_obc_software/ex2_hal/iris/hardware_interface/source/iris_image_gs.jpg",
+        "wb");
 #endif
 
     if (fptr == NULL) {
