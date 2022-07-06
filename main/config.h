@@ -13,7 +13,7 @@
 #define IS_ATHENA 0
 #define IS_ATHENA_V2 0
 
-#define IS_SATELLITE 0
+#define IS_SATELLITE 1
 #if IS_SATELLITE == 1
 #define IS_FLATSAT 0
 #define IS_EXALTA2 1
@@ -41,7 +41,7 @@
 #define CHARON_IS_STUBBED 1
 #define DFGM_IS_STUBBED 1
 #define WATCHDOG_IS_STUBBED 1
-#define PAYLOAD_IS_STUBBED 1
+#define PAYLOAD_IS_STUBBED 0
 
 #define HYPERION_PANEL_3U 0
 #define HYPERION_PANEL_2U 0
