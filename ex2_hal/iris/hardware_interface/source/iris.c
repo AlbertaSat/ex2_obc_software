@@ -209,7 +209,7 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
 #endif
             }
 #if IS_ATHENA == 1
-                red_close(fptr);
+            red_close(fptr);
 #endif
             controller_state = FINISH;
             break;
