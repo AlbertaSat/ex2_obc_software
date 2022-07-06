@@ -109,6 +109,6 @@ SAT_returnState start_scheduler_service(void);
 int calc_cmd_frequency(scheduled_commands_t* cmds, int number_of_cmds, scheduled_commands_unix_t *sorted_cmds);
 SAT_returnState sort_cmds(scheduled_commands_unix_t *sorted_cmds, int number_of_cmds);
 static scheduled_commands_t *prv_get_cmds_scheduler();
-SAT_returnState vSchedulerHandler (void *pvParameters);
+void vSchedulerHandler (void *pvParameters);
 
 #endif /* EX2_SYSTEM_INCLUDE_SCHEDULER_H_ */
