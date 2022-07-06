@@ -71,8 +71,6 @@
 #include "crypto.h"
 #include "csp_debug_wrapper.h"
 
-#if FLATSAT_TEST == 1
-
 #define SDR_TEST 0
 
 #if SDR_TEST == 1
@@ -80,11 +78,9 @@
 
 static sdr_interface_data_t *test_uhf_ifdata;
 static sdr_interface_data_t *test_sband_ifdata;
-#endif
+#endif // SDR_TEST
 
-#define CSP_USE_SDR
-//#define CSP_USE_KISS
-
+#if FLATSAT_TEST == 1
 //#include "sband_binary_tests.h"
 static void flatsat_test();
 #endif
@@ -190,7 +186,7 @@ void ex2_init(void *pvParameters) {
 
     init_software();
 
- #ifdef SDR_TEST
+ #if SDR_TEST == 1
     start_test_sdr(test_uhf_ifdata, test_sband_ifdata);
  #endif
 
@@ -378,20 +374,18 @@ static inline SAT_returnState init_csp_interface() {
     }
 
 #if SBAND_IS_STUBBED == 0
-#if SDR_TEST == 1
-    test_sband_ifdata = sdr_interface_init(&sdr_conf, SDR_IF_SBAND_NAME);
-    if (!test_sband_ifdata) return SATR_ERROR;
-#endif
-#endif // !SBAND_IS_STUBBED
-
-#if SBAND_IS_STUBBED == 0
 #if 0
     error = csp_sdr_open_and_add_interface(&sdr_conf, SDR_IF_SBAND_NAME, NULL);
     if (error != CSP_ERR_NONE) {
         return SATR_ERROR;
     }
 #endif
-#endif // SBAND_IS_STUBBED
+#endif /* !SBAND_IS_STUBBED */
+
+#if SDR_TEST == 1
+    test_sband_ifdata = sdr_interface_init(&sdr_conf, SDR_IF_SBAND_NAME);
+    if (!test_sband_ifdata) return SATR_ERROR;
+#endif
 #endif /* CSP_USE_SDR */
 
     char rtable[128] = {0};
