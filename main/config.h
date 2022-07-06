@@ -56,8 +56,8 @@
 #define ADCS_MAG_FLIGHT_CONFIG 1
 
 #define CSP_FREERTOS 1
-#define CSP_USE_SDR 0
-#define CSP_USE_KISS 1
+#define CSP_USE_SDR 1
+#define CSP_USE_KISS 0
 
 /* Define SDR_NO_CSP==0 to use CSP for SDR */
 #define SDR_NO_CSP 0
