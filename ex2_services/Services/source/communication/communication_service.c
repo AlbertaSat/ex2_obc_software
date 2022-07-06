@@ -24,10 +24,10 @@
 #include <csp/csp_endian.h>
 #include <main/system.h>
 
-#include "sband.h"
 #include "services.h"
 #include "task_manager/task_manager.h"
 #include "uhf.h"
+#include "sband.h"
 #include "util/service_utilities.h"
 
 #define CHAR_LEN 1 // If using Numpy unicode string, change to 4
@@ -347,8 +347,8 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
 
     case S_SET_CONTROL: {
         Sband_PowerAmplifier PA;
-        PA.status = (uint8_t)packet->data[IN_DATA_BYTE];
-        PA.mode = (uint8_t)packet->data[IN_DATA_BYTE + 1];
+        PA.status = (Sband_PowerAmplifier_Status_t)packet->data[IN_DATA_BYTE];
+        PA.mode = (Sband_Transmitter_Mode_t)packet->data[IN_DATA_BYTE + 1];
         status = HAL_S_setControl(PA);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         set_packet_length(packet, sizeof(int8_t) + 1);
@@ -374,8 +374,8 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         cnv8_F(&packet->data[IN_DATA_BYTE], &S_config.freq);
         S_config.freq = csp_ntohflt(S_config.freq);
         S_config.PA_Power = (uint8_t)packet->data[IN_DATA_BYTE + 4]; // plus 4 because float takes 4B
-        S_config.PA.status = (uint8_t)packet->data[IN_DATA_BYTE + 5];
-        S_config.PA.mode = (uint8_t)packet->data[IN_DATA_BYTE + 6];
+        S_config.PA.status = (Sband_PowerAmplifier_Status_t)packet->data[IN_DATA_BYTE + 5];
+        S_config.PA.mode = (Sband_Transmitter_Mode_t)packet->data[IN_DATA_BYTE + 6];
         S_config.enc.scrambler = (uint8_t)packet->data[IN_DATA_BYTE + 7];
         S_config.enc.filter = (uint8_t)packet->data[IN_DATA_BYTE + 8];
         S_config.enc.modulation = (uint8_t)packet->data[IN_DATA_BYTE + 9];

@@ -48,15 +48,15 @@ STX_return sband_binary_test(){
     if(ret != S_SUCCESS) return ret;
     printf("S-band frequency: %f\n", freq);
 
-    ret = STX_getBuffer(0, &count);
+    ret = STX_getBuffer(S_BUFFER_COUNT, &count);
     if(ret != S_SUCCESS) return ret;
     printf("Buffer count: %d\n", count);
 
-    ret = STX_getBuffer(1, &underrun);
+    ret = STX_getBuffer(S_BUFFER_UNDERRUN, &underrun);
     if(ret != S_SUCCESS) return ret;
     printf("Buffer underrun: %d\n", underrun);
 
-    ret = STX_getBuffer(2, &overrun);
+    ret = STX_getBuffer(S_BUFFER_OVERRUN, &overrun);
     if(ret != S_SUCCESS) return ret;
     printf("Buffer overrun: %d\n\n", overrun);
 
@@ -72,7 +72,7 @@ STX_return sband_binary_test(){
     ret = STX_setControl(S_PA_ENABLE, S_SYNC_MODE);
     if(ret != S_SUCCESS) return ret;
 
-    for(int k = 0; k++; k<25){
+    for(int k = 0; k<25; k++){
         message_16[k] = (message[2*k] << 8) || message[2*k+1];
         filler_16[k] = (filler[2*k] << 8) || filler[2*k+1];
     }
@@ -166,7 +166,7 @@ STX_return sband_inf_tx(){
    ret = STX_setControl(S_PA_ENABLE, S_SYNC_MODE);
    if(ret != S_SUCCESS) return ret;
 
-   for(int k = 0; k++; k<25){
+   for(int k = 0; k<25; k++){
        message_16[k] = (message[2*k] << 8) || message[2*k+1];
        filler_16[k] = (filler[2*k] << 8) || filler[2*k+1];
    }

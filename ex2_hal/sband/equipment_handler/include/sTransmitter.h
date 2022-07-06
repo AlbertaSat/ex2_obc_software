@@ -25,8 +25,8 @@
 
 #include "HL_het.h"
 #include "HL_gio.h"
+#include "hal_sband.h"
 #include "system.h"
-#include "sband.h"
 
 #define SBAND_I2C_ADD 0x26
 
@@ -125,11 +125,6 @@
 #define S_FREQ_NOLOCK 0
 #define S_FREQ_LOCK 1
 
-// Buffer parameter types
-#define S_BUFFER_COUNT 0
-#define S_BUFFER_UNDERRUN 1
-#define S_BUFFER_OVERRUN 2
-
 // Conversion factors
 #define S_FREQ_OFFSET_SCALING 2
 #define S_FWVER_MAJORNUM_SCALING 100
@@ -199,6 +194,6 @@ STX_return STX_getTR(uint8_t *transmit);
 
 STX_return STX_getBuffer(uint8_t quantity, uint16_t *ptr);
 
-STX_return STX_getHK(Sband_Housekeeping *hk);
+STX_return STX_getHK(struct sband_housekeeping *hk);
 
 #endif /* STRANSMITTER_H */

@@ -10,6 +10,6 @@
 
 #include "sdr_driver.h"
 
-void start_test_sdr(sdr_interface_data_t *);
+void start_test_sdr(sdr_interface_data_t *uhf, sdr_interface_data_t *sband);
 
 #endif /* EX2_SYSTEM_TEST_SDR_H_ */

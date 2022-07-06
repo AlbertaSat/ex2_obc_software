@@ -506,19 +506,19 @@ STX_return STX_getTR(uint8_t *transmit) {
  * @return STX_return
  *      Success of the function defined in sTransmitter.h
  */
-STX_return STX_getBuffer(uint8_t quantity, uint16_t *ptr) {
+STX_return STX_getBuffer(Sband_Buffer_t quantity, uint16_t *ptr) {
     uint8_t rawValue1 = 0;
     uint8_t rawValue2 = 0;
     uint8_t address = 0;
 
     switch (quantity) {
-    case 0: // Buffer Count
+    case S_BUFFER_COUNT: // Buffer Count
         address = S_BUFCNT_REG_1;
         break;
-    case 1: // Buffer Underrun
+    case S_BUFFER_UNDERRUN: // Buffer Underrun
         address = S_BUFUND_REG_1;
         break;
-    case 2: // Buffer Overrun
+    case S_BUFFER_OVERRUN: // Buffer Overrun
         address = S_BUFOVR_REG_1;
         break;
     default:
@@ -529,10 +529,10 @@ STX_return STX_getBuffer(uint8_t quantity, uint16_t *ptr) {
         return S_BAD_READ;
     } else if (read_reg(address + 1, &rawValue2) != S_SUCCESS) {
         return S_BAD_READ;
-    } else {
-        *ptr = append_bytes(rawValue1, rawValue2);
-        return S_SUCCESS;
     }
+
+    *ptr = append_bytes(rawValue1, rawValue2);
+    return S_SUCCESS;
 }
 
 /**

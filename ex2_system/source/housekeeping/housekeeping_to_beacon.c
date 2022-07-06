@@ -110,7 +110,7 @@ void update_beacon(All_systems_housekeeping *all_hk_data, beacon_packet_1_t *bea
         if (athena_MCU_temp_long[i] < -128) {
             athena_MCU_temp_long[i] = -128;
         }
-        if ((athena_MCU_temp_long[i] >> 63) == 1) { // negative
+        if ((athena_MCU_temp_long[i] > 63) == 1) { // negative
             athena_MCU_temp[i] = ((athena_MCU_temp_long[i] & 127) | 128);
         } else { // positive
             athena_MCU_temp[i] = (athena_MCU_temp_long[i] & 127);

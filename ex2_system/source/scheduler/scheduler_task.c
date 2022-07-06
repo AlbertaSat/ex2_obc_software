@@ -30,9 +30,8 @@ extern int delay_aborted;
  * @param pvParameters
  *    scheduleSemaphore, which is the mutex used for protecting the file system from being accessed by multiple threads
  */
-SAT_returnState vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
+void vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
     TickType_t xLastWakeTime;
-    uint8_t hist_file_position = 0;
     int32_t fout, f_stat, f_read, f_write, f_close;
     REDSTAT scheduler_stat;
 
