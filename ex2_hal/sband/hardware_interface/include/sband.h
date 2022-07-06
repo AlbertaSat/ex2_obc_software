@@ -20,6 +20,7 @@
  * @author Ron Unrau
  * @date 2022-07-01
  */
+#include <hal_sband.h>
 #include <spi.h>
 
 /* Send an S-Band Sync word every sync interval bytes */

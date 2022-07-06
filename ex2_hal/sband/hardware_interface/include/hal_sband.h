@@ -17,24 +17,39 @@
 
 #include <inttypes.h>
 #include "HL_reg_het.h"
-#include <sTransmitter.h>
 
 typedef enum {
-    COUNT = S_BUFFER_COUNT,
-    UNDERRUN = S_BUFFER_UNDERRUN,
-    OVERRUN = S_BUFFER_OVERRUN,
-} Buffer_Quantity;
+    S_SUCCESS = 0,
+
+    // Returned if a read or write command fails
+    S_BAD_READ = 1,
+    S_BAD_WRITE = 2,
+
+    // Returned if an invalid parameter is passed to a write command at the EH
+    S_BAD_PARAM = 3,
+
+    // Returned at HAL if S-band is stubbed
+    IS_STUBBED_S = 0,
+} STX_return;
+
+// Buffer parameter types
+typedef enum {
+    S_BUFFER_COUNT = 0,
+    S_BUFFER_UNDERRUN,
+    S_BUFFER_OVERRUN,
+    S_BUFFER_LAST
+} Sband_Buffer_t;
 
 typedef enum {
     PA_STATUS_DISABLE = 0,
-    PA_STATUS_ENABLE = 1
+    PA_STATUS_ENABLE
 } Sband_PowerAmplifier_Status_t;
 
 typedef enum {
     PA_MODE_CONF = 0,
-    PA_MODE_SYNC = 1,
-    PA_MODE_DATA = 2,
-    PA_MODE_TEST = 3
+    PA_MODE_SYNC,
+    PA_MODE_DATA,
+    PA_MODE_TEST
 } Sband_Transmitter_Mode_t;
 
 typedef struct __attribute__((packed)) {
@@ -71,8 +86,19 @@ typedef struct __attribute__((packed)) {
 } Sband_FirmwareV;
 
 typedef struct __attribute__((packed)) {
-    uint16_t pointer[3];
+    uint16_t pointer[S_BUFFER_LAST];
 } Sband_Buffer;
+
+typedef struct __attribute__((packed)) sband_housekeeping {
+    float Output_Power;
+    float PA_Temp;
+    float Top_Temp;
+    float Bottom_Temp;
+    float Bat_Current;
+    float Bat_Voltage;
+    float PA_Current;
+    float PA_Voltage;
+} Sband_Housekeeping;
 
 typedef struct __attribute__((packed)) {
     Sband_Status status;
@@ -89,6 +115,7 @@ STX_return HAL_S_getEncoder(Sband_Encoder *S_Enc);
 STX_return HAL_S_getStatus(Sband_Status *S_status);
 STX_return HAL_S_getTR(Sband_TR *S_transmit);
 STX_return HAL_S_getHK(Sband_Housekeeping *S_hk);
+STX_return HAL_S_getFirmwareV(Sband_FirmwareV *S_firmwareV);
 STX_return HAL_S_hk_convert_endianness(Sband_Housekeeping *S_hk);
 STX_return HAL_S_getBuffer(int quantity, Sband_Buffer *S_buffer);
 STX_return HAL_S_softResetFPGA(void);
