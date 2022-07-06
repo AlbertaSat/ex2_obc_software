@@ -57,7 +57,7 @@
 #include <os_semphr.h>
 #include "uhf.h"
 #include "eps.h"
-#include "hal_sband.h"
+#include "sband.h"
 #include "system.h"
 #include "dfgm.h"
 #include "leop.h"

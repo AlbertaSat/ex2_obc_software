@@ -30,7 +30,7 @@
 #include "housekeeping_athena.h"
 #include "housekeeping_charon.h"
 #include "hyperion.h"
-#include "hal_sband.h"
+#include "sband.h"
 #include "uhf.h"
 #include "dfgm.h"
 #include "ns_payload.h"
