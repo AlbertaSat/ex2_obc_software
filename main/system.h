@@ -77,11 +77,11 @@
 #endif
 
 #if IS_ATHENA == 1
-#define IRIS_CONFIG_SPI spiREG4 // SPI1
-#define IRIS_SPI spiREG3        // SPI3
-#define SBAND_SPI spiREG3       // SPI2
-#define SD_SPI spiREG1          //?
-#else // These values are expected to be adjusted based on what the developer is working on
+// #define IRIS_CONFIG_SPI spiREG4 // SPI1 (Not in use)
+#define IRIS_SPI spiREG4  // SPI1
+#define SBAND_SPI spiREG3 // SPI2
+#define SD_SPI spiREG1    //?
+#else                     // These values are expected to be adjusted based on what the developer is working on
 #define IRIS_CONFIG_SPI spiREG4 // SPI1
 #define IRIS_SPI spiREG3        // SPI3
 #define SBAND_SPI spiREG3       // SPI2
