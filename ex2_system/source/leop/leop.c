@@ -79,13 +79,18 @@ bool deploy_all_deployables() {
 
     for (getStatus_retries = 0; getStatus_retries <= MAX_RETRIES; getStatus_retries++) {
         // Deploy solar panels
+#if HYPERION_PANEL_2U == 1
+        bool deployed_state = 0; // flight hardware switched soldered on backwards :)
+#else
+        bool deployed_state = 1;
+#endif
         for (sw = Port; sw <= Starboard; sw++) {
-            if ((switchstatus(sw) != 1) && (getStatus_retries != MAX_RETRIES)) {
+            if ((switchstatus(sw) != deployed_state) && (getStatus_retries != MAX_RETRIES)) {
                 ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);
                 ex2_log("Activated %c\n", sw);
                 activate(sw);
                 vTaskDelay(TWENTY_SEC_DELAY);
-            } else if ((switchstatus(sw) != 1) && (getStatus_retries == MAX_RETRIES)) {
+            } else if ((switchstatus(sw) != deployed_state) && (getStatus_retries == MAX_RETRIES)) {
                 ex2_log("Check #%d: %c not deployed, exiting the LEOP sequence.\n", &getStatus_retries, sw);
                 return false;
             }
