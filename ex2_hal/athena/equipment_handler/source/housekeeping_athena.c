@@ -16,13 +16,21 @@
  * @author  Dustin Wagner
  * @date    2021-05-13
  */
-
+#include "FreeRTOS.h"
+#include "task.h"
+#include <stdint.h>
+#include "system.h"
+#include "version.h"
 #include "housekeeping_athena.h"
 #include <stdlib.h>
 #include <string.h>
 #include <csp/csp_endian.h>
 #include "os_portmacro.h"
-const uint8_t software_version = 3;
+#include "version.h"
+#include "bl_eeprom.h"
+#include "redstat.h"
+#include "redposix.h"
+#include "redconf.h"
 
 /**
  * @brief
@@ -98,20 +106,50 @@ int Athena_getHK(athena_housekeeping *athena_hk) {
     also add endianness conversion in Athena_hk_convert_endianness*/
     temporary = HAL_get_temp_all(athena_hk->temparray);
 
+    // Get last 8 digits of the software version
+    memcpy(athena_hk->OBC_software_ver, ex2_hk_version, 8 * sizeof(char));
+
     // Get OBC uptime: Seconds = value*10. Max = 655360 seconds (7.6 days)
     athena_hk->OBC_uptime = Athena_get_OBC_uptime();
 
+    // Get boot info
+    boot_info info;
+    if (eeprom_get_boot_info(&info)) {
+        return_code = -1;
+    }
+    athena_hk->boot_cnt = info.count;
+    athena_hk->last_reset_reason = info.reason.swr_reason;
+    athena_hk->boot_src = info.reason.rstsrc;
+
     // Get solar panel supply current
     athena_hk->solar_panel_supply_curr = Athena_get_solar_supply_curr();
-
-    // placeholder for software version
-    athena_hk->OBC_software_ver = software_version;
 
     if (temporary != 0)
         return_code = temporary;
 
     // Get solar panel supply current
     athena_hk->solar_panel_supply_curr = Athena_get_solar_supply_curr();
+
+    // Get SD card usage percentages
+    int32_t iErr;
+    REDSTATFS volstat;
+    iErr = red_statvfs("VOL0:", &volstat);
+    if (iErr == -1) {
+        athena_hk->vol0_usage_percent = 255;
+    } else {
+        athena_hk->vol0_usage_percent =
+            (uint8_t)((float)(volstat.f_bfree) * 100.0 /
+                      ((float)(volstat.f_blocks))); // assuming block size == sector size = 512B
+    }
+
+    iErr = red_statvfs("VOL1:", &volstat);
+    if (iErr == -1) {
+        athena_hk->vol1_usage_percent = 255;
+    } else {
+        athena_hk->vol1_usage_percent =
+            (uint8_t)((float)(volstat.f_bfree) * 100.0 /
+                      ((float)(volstat.f_blocks))); // assuming block size == sector size = 512B
+    }
 
     if (temporary != 0)
         return_code = temporary;
