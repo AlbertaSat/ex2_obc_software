@@ -39,10 +39,10 @@ typedef enum {
     Starboard = 7,
 } Deployable_t;
 
-int activate(Deployable_t knife, uint16_t *burnwire_current);
+int activate(Deployable_t knife);
 
 bool switchstatus(Deployable_t sw);
 
-bool deploy(Deployable_t deployable, uint16_t *burnwire_current);
+bool deploy(Deployable_t deployable);
 
 #endif /* DEPLOYABLES_H_ */
