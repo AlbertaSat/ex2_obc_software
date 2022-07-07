@@ -10,6 +10,7 @@ cat <<EOT > main/version.h
 #define VERSION_H
 
 static const char *ex2_version = "$branch: $tag";
+static const char *ex2_hk_version = "${tag: -8}";
 
 #endif //VERSION_H
 EOT
