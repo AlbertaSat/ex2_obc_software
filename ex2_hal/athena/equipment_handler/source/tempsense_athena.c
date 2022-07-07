@@ -19,6 +19,7 @@
 
 #include "tempsense_athena.h"
 #include "tmp421.h"
+#include "tmp117.h"
 #include "housekeeping_athena.h"
 #include "system.h"
 
@@ -31,14 +32,22 @@ uint8_t tmp_addr[NUM_TEMP_SENSOR] = {TEMP_ADDRESS_1, TEMP_ADDRESS_2};
 void inittemp_all(void) {
     int i;
     for (i = 0; i < NUM_TEMP_SENSOR; i++) {
-        tmp421_init_client(tmp_addr[i]);
+#ifdef IS_ATHENA_V2
+        tmp117_init(tmp_addr[i]);
+#else
+        tmp421_init_client(tmp_addr[i]);;
+#endif
     }
 }
 
 int gettemp_all(long *temparray) {
     int i;
     for (i = 0; i < NUM_TEMP_SENSOR; i++) {
-        tmp421_read(tmp_addr[i], CHANNEL_LOCAL, &temparray[i]); // assuming we want to read remote channel
+#ifdef IS_ATHENA_V2
+        tmp117_read(tmp_addr[i], &temparray[i]); // assuming we want to read remote channel
+#else
+        tmp421_read(tmp_addr[i], CHANNEL_LOCAL, &temparray[i]);
+#endif
         vTaskDelay(ATHENA_TEMPSENSE_DELAY);
     }
     return 0;

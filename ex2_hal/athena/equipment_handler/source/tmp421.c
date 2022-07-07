@@ -108,39 +108,6 @@ static const uint8_t TMP421_TEMP_LSB[2] = {0x10, 0x11};
 //	uint16_t temp[4];
 //};
 
-// CODE TO MAYBE BE ADDED TO I2C DRIVERS BELOW
-int i2cSlaveWriteReg(uint8_t sadd, uint8_t reg, uint8_t data) {
-    // TODO: make this use error code return instead
-    uint8_t buf[2];
-    buf[0] = reg;
-    buf[1] = data;
-    return i2c_Send(i2cREG2, sadd, 2, &buf);
-}
-
-uint8_t i2cSlaveRead1ByteReg(uint8_t sadd, uint8_t reg) {
-    // TODO: make this use error code return instead
-    uint8_t value = 0;
-
-    i2c_Send(i2cREG2, sadd, 1, &reg);
-
-    i2c_Receive(i2cREG2, sadd, 1, &value);
-
-    return value;
-}
-
-uint16_t i2cSlaveRead2ByteReg(uint8_t sadd, uint8_t reg) {
-    // TODO: make this use error code return instead
-    uint8_t data[2] = {0};
-    uint16_t value = 0;
-
-    i2c_Send(i2cREG2, sadd, 1, &reg);
-
-    i2c_Receive(i2cREG2, sadd, 2, &data);
-
-    value = (((uint16_t)(data[0])) << 8) | data[1];
-
-    return value;
-}
 
 long calc_temp_pos(uint16_t reg) {
     /* Mask out status bits */
