@@ -22,7 +22,6 @@
 #include <string.h>
 #include <csp/csp_endian.h>
 #include "os_portmacro.h"
-const uint8_t software_version = 3;
 
 /**
  * @brief
@@ -116,9 +115,6 @@ int Athena_getHK(athena_housekeeping *athena_hk) {
     // Get solar panel supply current
     athena_hk->solar_panel_supply_curr = Athena_get_solar_supply_curr();
 
-    // placeholder for software version
-    athena_hk->OBC_software_ver = software_version;
-
     if (temporary != 0)
         return_code = temporary;
 
@@ -131,18 +127,18 @@ int Athena_getHK(athena_housekeeping *athena_hk) {
     REDSTATFS volstat;
     iErr = red_statvfs(gaRedVolConf[0].pszPathPrefix, &volstat);
     athena_hk->vol0_usage_percent =
-        (float)(volstat.f_bfree) * 100.0 /
-        ((float)(gaRedVolConf[0].ullSectorCount)) // assuming block size == sector size = 512B
-        if (iErr == -1) {
+        (uint8_t)((float)(volstat.f_bfree) * 100.0 /
+                  ((float)(gaRedVolConf[0].ullSectorCount))); // assuming block size == sector size = 512B
+    if (iErr == -1) {
         exit(red_errno);
     }
 
 #ifdef IS_ATHENA_V2
     iErr = red_statvfs(gaRedVolConf[1].pszPathPrefix, &volstat);
     athena_hk->vol1_usage_percent =
-        (float)(volstat.f_bfree) * 100.0 /
-        ((float)(gaRedVolConf[1].ullSectorCount)) // assuming block size == sector size = 512B
-        if (iErr == -1) {
+        (uint8_t)((float)(volstat.f_bfree) * 100.0 /
+                  ((float)(gaRedVolConf[1].ullSectorCount))); // assuming block size == sector size = 512B
+    if (iErr == -1) {
         exit(red_errno);
     }
 
