@@ -12,12 +12,6 @@
  * GNU General Public License for more details.
  */
 
-/**
- * @file    spi.h
- * @author  Jenish Patel
- * @date    2022-05-03
- */
-
 #ifndef INCLUDE_IRIS_H_
 #define INCLUDE_IRIS_H_
 
