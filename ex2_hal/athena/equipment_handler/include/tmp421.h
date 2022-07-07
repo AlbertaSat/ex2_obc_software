@@ -13,6 +13,12 @@
 
 #include <stdint.h>
 
+// CODE TO MAYBE BE ADDED TO I2C DRIVERS BELOW
+int i2cSlaveWriteReg(uint8_t sadd, uint8_t reg, uint8_t data);
+
+uint8_t i2cSlaveRead1ByteReg(uint8_t sadd, uint8_t reg);
+uint16_t i2cSlaveRead2ByteReg(uint8_t sadd, uint8_t reg);
+
 long calc_temp_pos(uint16_t reg);
 
 long calc_temp_neg(uint16_t reg);
