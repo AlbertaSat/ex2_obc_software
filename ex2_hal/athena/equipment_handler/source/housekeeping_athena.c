@@ -98,8 +98,20 @@ int Athena_getHK(athena_housekeeping *athena_hk) {
     also add endianness conversion in Athena_hk_convert_endianness*/
     temporary = HAL_get_temp_all(athena_hk->temparray);
 
+    // Get last 8 digits of the software version
+    memcpy(athena_hk->OBC_software_ver, ex2_hk_version, 8 * sizeof(char));
+
     // Get OBC uptime: Seconds = value*10. Max = 655360 seconds (7.6 days)
     athena_hk->OBC_uptime = Athena_get_OBC_uptime();
+
+    // Get boot info
+    boot_info info;
+    if (eeprom_get_boot_info(&info)) {
+        return_code = -1;
+    }
+    athena_hk->boot_cnt = info.count;
+    athena_hk->last_reset_reason = info.reason.swr_reason;
+    athena_hk->boot_src = info.reason.rstsrc;
 
     // Get solar panel supply current
     athena_hk->solar_panel_supply_curr = Athena_get_solar_supply_curr();
@@ -112,6 +124,35 @@ int Athena_getHK(athena_housekeeping *athena_hk) {
 
     // Get solar panel supply current
     athena_hk->solar_panel_supply_curr = Athena_get_solar_supply_curr();
+
+    // Get SD card usage percentages
+#if defined(HAS_SD_CARD)
+    int32_t iErr;
+    REDSTATFS volstat;
+    iErr = red_statvfs(gaRedVolConf[0].pszPathPrefix, &volstat);
+    athena_hk->vol0_usage_percent =
+        (float)(volstat.f_bfree) * 100.0 /
+        ((float)(gaRedVolConf[0].ullSectorCount)) // assuming block size == sector size = 512B
+        if (iErr == -1) {
+        exit(red_errno);
+    }
+
+#ifdef IS_ATHENA_V2
+    iErr = red_statvfs(gaRedVolConf[1].pszPathPrefix, &volstat);
+    athena_hk->vol1_usage_percent =
+        (float)(volstat.f_bfree) * 100.0 /
+        ((float)(gaRedVolConf[1].ullSectorCount)) // assuming block size == sector size = 512B
+        if (iErr == -1) {
+        exit(red_errno);
+    }
+
+#else  // IS_ATHENA_V2
+    athena_hk->vol1_usage_percent = 0; // stub if no card
+#endif // IS_ATHENA_V2
+
+#else  // HAS_SD_CARD
+    athena_hk->vol0_usage_percent = 0; // stub if no card
+#endif // HAS_SD_CARD
 
     if (temporary != 0)
         return_code = temporary;

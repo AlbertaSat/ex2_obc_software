@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "system.h"
+#include "version.h"
 
 /*Add includes for other athena files to get hk data from*/
 #include "tempsense_athena.h"
@@ -43,7 +44,7 @@ ATTENTION:
 
 typedef struct __attribute__((packed)) {
     long temparray[ATHENA_TEMP_ARRAY_SIZE]; // Athena temperature array
-    uint8_t OBC_software_ver;
+    char OBC_software_ver[8];
     long converter_temp;
     uint16_t OBC_uptime;             // Seconds=value*10 , Max=655360 sec (7.6 days)
     uint8_t vol0_usage_percent;      // Expected usage is 0-80%
