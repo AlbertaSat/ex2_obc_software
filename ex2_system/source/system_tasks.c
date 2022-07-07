@@ -37,12 +37,16 @@
  */
 SAT_returnState start_system_tasks(void) {
 
-    TaskHandle_t _ = 0;
-    typedef SAT_returnState (*system_tasks)();
-    system_tasks start_task[] = {
-        &start_task_manager,      &start_beacon_daemon,       &start_coordinate_management_daemon,
-        &start_diagnostic_daemon, &start_housekeeping_daemon, &start_system_stats_daemon,
-        &start_NMEA_daemon,       &start_RTC_daemon,          NULL};
+    system_tasks start_task[] = {&start_task_manager,
+                                 &start_beacon_daemon,
+                                 &start_coordinate_management_daemon,
+                                 &start_diagnostic_daemon,
+                                 &start_housekeeping_daemon,
+                                 &start_system_stats_daemon,
+                                 &start_NMEA_daemon,
+                                 &start_RTC_daemon,
+                                 &start_logger_daemon,
+                                 NULL};
 
     int number_of_system_tasks = (sizeof(start_task) - 1) / sizeof(system_tasks);
     uint8_t *start_task_flag = pvPortMalloc(number_of_system_tasks * sizeof(uint8_t));
@@ -66,24 +70,6 @@ SAT_returnState start_system_tasks(void) {
                 break;
             }
             start_task_retry++;
-        }
-    }
-
-    // initialize start_logger_daemon separately since it takes an argument, easier maintenance
-    start_task_retry = 0;
-    uint8_t start_logger_daemon_flag = 0;
-    while (start_task_retry <= 3) {
-        state = start_logger_daemon(_);
-        if (state != SATR_OK && start_task_retry < 3) {
-            sys_log(WARN, "start_logger_daemon failed, try again");
-            vTaskDelay(500);
-        } else if (state != SATR_OK && start_task_retry == 3) {
-            sys_log(ERROR, "start_logger_daemon failed");
-            break;
-        } else {
-            start_logger_daemon_flag = 1;
-            sys_log(INFO, "start_logger_daemon succeeded");
-            break;
         }
     }
 

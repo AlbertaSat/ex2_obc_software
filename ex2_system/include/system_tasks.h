@@ -26,5 +26,6 @@
 #include "housekeeping_service.h"
 
 SAT_returnState start_system_tasks(void);
+typedef SAT_returnState (*system_tasks)();
 
 #endif /* EX2_SYSTEM_INCLUDE_SYSTEM_TASKS_H_ */

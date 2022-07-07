@@ -350,18 +350,14 @@ void test_logger_daemon(void *pvParameters) {
  * @brief
  * Start the logger daemon
  *
- * @param handle
- *    Pointer as a return for the task handle
- *
  * @returns status
  *   error report of task creation
  */
-SAT_returnState start_logger_daemon(TaskHandle_t *handle) {
-    if (xTaskCreate((TaskFunction_t)logger_daemon, "logger", 2000, NULL, LOGGER_TASK_PRIO, handle) != pdPASS) {
+SAT_returnState start_logger_daemon() {
+    if (xTaskCreate((TaskFunction_t)logger_daemon, "logger", 2000, NULL, LOGGER_TASK_PRIO, NULL) != pdPASS) {
         ex2_log("FAILED TO CREATE TASK logger\n");
         return SATR_ERROR;
     }
-    my_handle = *handle;
     ex2_log("Logger Service Started");
     return SATR_OK;
 }
