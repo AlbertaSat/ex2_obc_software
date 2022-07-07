@@ -43,14 +43,18 @@ ATTENTION:
 
 typedef struct __attribute__((packed)) {
     long temparray[ATHENA_TEMP_ARRAY_SIZE]; // Athena temperature array
-    uint16_t boot_cnt;                      // Total # of OBC boots
-    uint8_t last_reset_reason;              //
-    uint8_t OBC_mode;                       //
-    uint16_t OBC_uptime;                    // Seconds=value*10 , Max=655360 sec (7.6 days)
-    uint8_t solar_panel_supply_curr;        //
-    uint8_t OBC_software_ver;               //
-    uint16_t cmds_received;                 // Total # since last boot
-    uint16_t pckts_uncovered_by_FEC;        // Total # since last boot
+    uint8_t OBC_software_ver;
+    long converter_temp;
+    uint16_t OBC_uptime;             // Seconds=value*10 , Max=655360 sec (7.6 days)
+    uint8_t vol0_usage_percent;      // Expected usage is 0-80%
+    uint8_t vol1_usage_percent;      // Expected usage is 0-80%
+    uint16_t boot_cnt;               // Total # of OBC boots
+    uint16_t boot_src;               //
+    uint8_t last_reset_reason;       //
+    uint8_t OBC_mode;                //
+    uint8_t solar_panel_supply_curr; //
+    uint16_t cmds_received;          // Total # since last boot
+    uint16_t pckts_uncovered_by_FEC; // Total # since last boot
 } athena_housekeeping;
 
 int Athena_getHK(athena_housekeeping *athena_hk);
@@ -59,3 +63,18 @@ uint16_t Athena_get_OBC_uptime();
 uint8_t Athena_get_solar_supply_curr();
 
 #endif /* HOUSEKEEPING_ATHENA_H */
+
+/* TODO
+ * brainstorm other things based off of test plan
+ * check get all hk function and modify to fit new ath_hk struct
+ * same as above but for beacon, maybe...
+ * move this functionality to a hw_interface and not in the equipment handler
+ * populate hw_interface with other athena functions if necessary
+ *
+ * future notes:
+ * update software version format (from Ron)
+ * remove obc_mode? (ask team)
+ * implement cmds_received and packets_unrecovered (waiting for slacK)
+ * implmement solar panel current (from Liam)
+ *
+ */
