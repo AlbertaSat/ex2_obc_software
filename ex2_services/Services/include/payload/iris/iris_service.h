@@ -26,11 +26,13 @@ SAT_returnState iris_service_app(csp_packet_t *pkt);
 typedef enum {
     IRIS_POWER_ON = 0,
     IRIS_POWER_OFF = 1,
-    IRIS_TAKE_IMAGE = 2,
-    IRIS_DELIVER_IMAGE = 3,
-    IRIS_COUNT_IMAGES = 4,
-    IRIS_PROGRAM_FLASH = 5,
-    IRIS_GET_HK = 6,
+    IRIS_TURN_ON_IMAGE_SENSORS = 2,
+    IRIS_TURN_OFF_IMAGE_SENSORS = 3,
+    IRIS_TAKE_IMAGE = 4,
+    IRIS_DELIVER_IMAGE = 5,
+    IRIS_COUNT_IMAGES = 6,
+    IRIS_PROGRAM_FLASH = 7,
+    IRIS_GET_HK = 8,
 } IRIS_Subtype;
 
 #endif /* IRIS_SERVICE_H */

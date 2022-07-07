@@ -125,18 +125,20 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
         /* TODO:
          *
          */
+    case IRIS_TURN_ON_IMAGE_SENSORS:
+        status = iris_toggle_sensor(1);
+
+        // Return success/failure report
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));
+        set_packet_length(packet, sizeof(uint8_t) + 1);
+    case IRIS_TURN_OFF_IMAGE_SENSORS:
+        status = iris_toggle_sensor(0);
+
+        // Return success/failure report
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));
+        set_packet_length(packet, sizeof(uint8_t) + 1);
     case IRIS_TAKE_IMAGE: {
-        /*
-         * HAL Function execution path
-         * 1. Turn on iris sensors
-         * 2. Send take a pic command
-         * 3. Turn off iris sensors
-         */
-        status = iris_toggle_sensor_idle(IRIS_SENSOR_ON);
-        if (status == IRIS_HAL_OK) {
-            status = iris_take_pic();
-        }
-        status = iris_toggle_sensor_idle(IRIS_SENSOR_OFF);
+        status = iris_take_pic();
 
         // Return success/failure report
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));

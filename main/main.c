@@ -173,7 +173,7 @@ void ex2_init(void *pvParameters) {
 #endif
 
 #if PAYLOAD_IS_STUBBED == 0
-#if IS_EXALTA2 == 1;
+#if IS_EXALTA2 == 1
     // Iris init
 #else
     NS_handler_init();

@@ -12,20 +12,20 @@
  * GNU General Public License for more details.
  */
 
- /**
-  * @file    spi.h
-  * @author  Jenish Patel
-  * @date    2022-05-03
-  */
+/**
+ * @file    spi.h
+ * @author  Jenish Patel
+ * @date    2022-05-03
+ */
 
 #ifndef INCLUDE_IRIS_H_
 #define INCLUDE_IRIS_H_
 
 // Iris data transfer constants
 #define IMAGE_TRANSFER_SIZE 512 // 512 data bytes
-#define MAX_IMAGE_LENGTH 3 // In bytes
-#define MAX_IMAGE_COUNT 1 // In bytes
-#define HOUSEKEEPING_SIZE 23 // In bytes
+#define MAX_IMAGE_LENGTH 3      // In bytes
+#define MAX_IMAGE_COUNT 1       // In bytes
+#define HOUSEKEEPING_SIZE 23    // In bytes
 
 // Iris timeout constants
 /* We need to specify a delay between spi state transitions on OBC
@@ -102,7 +102,7 @@ Iris_HAL_return iris_take_pic();
 Iris_HAL_return iris_get_image_length(uint32_t *image_length);
 Iris_HAL_return iris_transfer_image(uint32_t image_length);
 Iris_HAL_return iris_get_image_count(uint16_t *image_count);
-Iris_HAL_return iris_toggle_sensor_idle(uint8_t toggle);
+Iris_HAL_return iris_toggle_sensor(uint8_t toggle);
 Iris_HAL_return iris_get_housekeeping(IRIS_Housekeeping *hk_data);
 Iris_HAL_return iris_update_sensor_i2c_reg();
 Iris_HAL_return iris_update_current_limit(uint16_t current_limit);
