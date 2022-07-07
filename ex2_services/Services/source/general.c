@@ -154,7 +154,7 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
         Deployable_t dep;
         memcpy(&dep, &packet->data[IN_DATA_BYTE], sizeof(uint8_t));
         uint16_t burnwire_current = 0;
-        status = deploy(dep, &burnwire_current);
+        status = deploy(dep);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         memcpy(&packet->data[OUT_DATA_BYTE], &burnwire_current, sizeof(uint16_t));
         set_packet_length(packet, sizeof(int8_t) + sizeof(uint16_t) + 1); // +1 for subservice

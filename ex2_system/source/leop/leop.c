@@ -46,7 +46,7 @@ bool deploy_all_deployables() {
         if ((switchstatus(sw) != 1) && (getStatus_retries != MAX_RETRIES)) {
             ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);
             ex2_log("Activated %c\n", sw);
-            activate(sw, &burnwire_currents[sw]);
+            activate(sw);
             vTaskDelay(TWENTY_SEC_DELAY);
         } else if ((switchstatus(sw) != 1) && (getStatus_retries == MAX_RETRIES)) {
             ex2_log("Check #%d: %c not deployed, exiting the LEOP sequence.\n", &getStatus_retries, sw);
@@ -62,7 +62,7 @@ bool deploy_all_deployables() {
             if ((switchstatus(sw) != 1) && (getStatus_retries != MAX_RETRIES)) {
                 ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);
                 ex2_log("Activated %c\n", sw);
-                activate(sw, &burnwire_currents[sw]);
+                activate(sw);
                 vTaskDelay(TWENTY_SEC_DELAY);
             } else if ((switchstatus(sw) != 1) && (getStatus_retries == MAX_RETRIES)) {
                 ex2_log("Check #%d: %c not deployed, exiting the LEOP sequence.\n", &getStatus_retries, sw);
@@ -83,7 +83,7 @@ bool deploy_all_deployables() {
             if ((switchstatus(sw) != 1) && (getStatus_retries != MAX_RETRIES)) {
                 ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);
                 ex2_log("Activated %c\n", sw);
-                activate(sw, &burnwire_currents[sw]);
+                activate(sw);
                 vTaskDelay(TWENTY_SEC_DELAY);
             } else if ((switchstatus(sw) != 1) && (getStatus_retries == MAX_RETRIES)) {
                 ex2_log("Check #%d: %c not deployed, exiting the LEOP sequence.\n", &getStatus_retries, sw);
