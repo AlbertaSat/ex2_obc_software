@@ -47,7 +47,7 @@ Iris_HAL_return iris_take_pic() {
 
     controller_state = SEND_COMMAND;
 
-    while (controller_state != FINISH && controller_state != ERROR_STATE) {
+    while (1) {
         switch (controller_state) {
         case SEND_COMMAND: {
             ret = iris_send_command(IRIS_TAKE_PIC);
@@ -68,7 +68,6 @@ Iris_HAL_return iris_take_pic() {
         }
         }
     }
-    return IRIS_HAL_ERROR;
 }
 
 /**
@@ -84,14 +83,14 @@ Iris_HAL_return iris_get_image_length(uint32_t *image_length) {
 
     controller_state = SEND_COMMAND;
 
-    while (controller_state != FINISH && controller_state != ERROR_STATE) {
+    while (1) {
         switch (controller_state) {
         case SEND_COMMAND: {
             ret = iris_send_command(IRIS_GET_IMAGE_LENGTH);
             if (ret == IRIS_ACK) {
                 controller_state = GET_DATA;
             } else {
-                controller_state = FINISH;
+                controller_state = ERROR_STATE;
             }
             break;
         }
@@ -121,7 +120,6 @@ Iris_HAL_return iris_get_image_length(uint32_t *image_length) {
         }
         }
     }
-    return IRIS_HAL_ERROR;
 }
 
 /**
@@ -141,7 +139,7 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
 
     controller_state = SEND_COMMAND;
 
-    while (controller_state != FINISH && controller_state != ERROR_STATE) {
+    while (1) {
         switch (controller_state) {
         case SEND_COMMAND: // Send start image transfer command
         {
@@ -149,7 +147,7 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
             if (ret == IRIS_ACK) {
                 controller_state = GET_DATA;
             } else {
-                controller_state = FINISH;
+                controller_state = ERROR_STATE;
             }
             IRIS_WAIT_FOR_STATE_TRANSITION;
             break;
@@ -183,7 +181,6 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
         }
         }
     }
-    return IRIS_HAL_ERROR;
 }
 
 /**
@@ -199,14 +196,14 @@ Iris_HAL_return iris_get_image_count(uint16_t *image_count) {
 
     controller_state = SEND_COMMAND;
 
-    while (controller_state != FINISH && controller_state != ERROR_STATE) {
+    while (1) {
         switch (controller_state) {
         case SEND_COMMAND: {
             ret = iris_send_command(IRIS_GET_IMAGE_COUNT);
             if (ret == IRIS_ACK) {
                 controller_state = GET_DATA;
             } else {
-                controller_state = FINISH;
+                controller_state = ERROR_STATE;
             }
             break;
         }
@@ -243,7 +240,7 @@ Iris_HAL_return iris_toggle_sensor(IRIS_SENSOR_TOGGLE toggle) {
 
     controller_state = SEND_COMMAND;
 
-    while (controller_state != FINISH && controller_state != ERROR_STATE) {
+    while (1) {
         switch (controller_state) {
         case SEND_COMMAND: {
             if (toggle == IRIS_SENSOR_ON) {
@@ -268,7 +265,6 @@ Iris_HAL_return iris_toggle_sensor(IRIS_SENSOR_TOGGLE toggle) {
         }
         }
     }
-    return IRIS_HAL_ERROR;
 }
 
 /**
@@ -284,14 +280,14 @@ Iris_HAL_return iris_get_housekeeping(IRIS_Housekeeping *hk_data) {
 
     controller_state = SEND_COMMAND;
 
-    while (controller_state != FINISH && controller_state != ERROR_STATE) {
+    while (1) {
         switch (controller_state) {
         case SEND_COMMAND: {
             ret = iris_send_command(IRIS_SEND_HOUSEKEEPING);
             if (ret == IRIS_ACK) {
                 controller_state = GET_DATA;
             } else {
-                controller_state = FINISH;
+                controller_state = ERROR_STATE;
             }
             IRIS_WAIT_FOR_STATE_TRANSITION;
             break;
@@ -337,7 +333,6 @@ Iris_HAL_return iris_get_housekeeping(IRIS_Housekeeping *hk_data) {
         }
         }
     }
-    return IRIS_HAL_ERROR;
 }
 
 /**
@@ -353,7 +348,7 @@ Iris_HAL_return iris_update_sensor_i2c_reg() {
 
     controller_state = SEND_COMMAND;
 
-    while (controller_state != FINISH && controller_state != ERROR_STATE) {
+    while (1) {
         switch (controller_state) {
         case SEND_COMMAND: {
             ret = iris_send_command(IRIS_UPDATE_SENSOR_I2C_REG);
@@ -405,7 +400,7 @@ Iris_HAL_return iris_update_current_limit(uint16_t current_limit) {
 
     controller_state = SEND_COMMAND;
 
-    while (controller_state != FINISH && controller_state != ERROR_STATE) {
+    while (1) {
         switch (controller_state) {
         case SEND_COMMAND: {
             iris_send_command(IRIS_UPDATE_CURRENT_LIMIT);
