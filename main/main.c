@@ -111,11 +111,8 @@ void ex2_init(void *pvParameters) {
     init_csp();
 
     /* LEOP */
-
-#if EXECUTE_LEOP == 1
-    if (execute_leop() != true) {
-        // TODO: Do what if leop fails?
-    }
+#ifdef EXECUTE_LEOP == 1
+    execute_leop();
 #endif
 
     /* Initialization routine */
@@ -348,6 +345,7 @@ static inline SAT_returnState init_csp_interface() {
 
 #if CSP_USE_SDR == 1
 
+<<<<<<< HEAD
 #if SDR_TEST == 1
     char *gs_if_name = SDR_IF_LOOPBACK_NAME;
     int gs_if_addr = 23;
@@ -376,6 +374,18 @@ static inline SAT_returnState init_csp_interface() {
 #if SBAND_IS_STUBBED == 0
 #if 0
     error = csp_sdr_open_and_add_interface(&sdr_conf, SDR_IF_SBAND_NAME, NULL);
+=======
+#ifdef SDR_TEST
+    char *gs_if_name = "LOOPBACK";
+    int gs_if_addr = 23;
+#else
+    char *gs_if_name = "UHF";
+    int gs_if_addr = 16;
+#endif /* SDR_TEST */
+
+    csp_sdr_conf_t uhf_conf = {.mtu = SDR_UHF_MAX_MTU, .baudrate = SDR_UHF_9600_BAUD, .uart_baudrate = 115200};
+    error = csp_sdr_open_and_add_interface(&uhf_conf, gs_if_name, NULL);
+>>>>>>> update leop in main.c
     if (error != CSP_ERR_NONE) {
         return SATR_ERROR;
     }
