@@ -14,6 +14,6 @@
 #include "eeprom.h"
 
 bool eeprom_get_leop_status();
-bool eeprom_set_leop_status();
+bool eeprom_set_leop_status(bool status);
 
 #endif /* LEOP_EEPROM_H_ */
