@@ -186,9 +186,9 @@ void ex2_init(void *pvParameters) {
 
     init_software();
 
- #if SDR_TEST == 1
+#if SDR_TEST == 1
     start_test_sdr(test_uhf_ifdata, test_sband_ifdata);
- #endif
+#endif
 
 #if FLATSAT_TEST == 1
     /* Test Task */
@@ -362,7 +362,8 @@ static inline SAT_returnState init_csp_interface() {
 
     if (SDR_NO_CSP) {
         sdr_interface_data_t *ifdata = sdr_interface_init(&sdr_conf, gs_if_name);
-        if (!ifdata) return SATR_ERROR;
+        if (!ifdata)
+            return SATR_ERROR;
 #if SDR_TEST == 1
         test_uhf_ifdata = ifdata;
 #endif
@@ -384,7 +385,8 @@ static inline SAT_returnState init_csp_interface() {
 
 #if SDR_TEST == 1
     test_sband_ifdata = sdr_interface_init(&sdr_conf, SDR_IF_SBAND_NAME);
-    if (!test_sband_ifdata) return SATR_ERROR;
+    if (!test_sband_ifdata)
+        return SATR_ERROR;
 #endif
 #endif /* CSP_USE_SDR */
 
