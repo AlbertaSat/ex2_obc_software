@@ -303,7 +303,6 @@ Iris_HAL_return iris_get_housekeeping(IRIS_Housekeeping *hk_data) {
             }
 
             // Transfer data from buffer to struct
-            // TODO: Verify Endianness and correct order of storage
             hk_data->vis_temp = housekeeping_buffer[1] << 8 | housekeeping_buffer[0];
             hk_data->nir_temp = housekeeping_buffer[3] << 8 | housekeeping_buffer[2];
             hk_data->flash_temp = housekeeping_buffer[5] << 8 | housekeeping_buffer[4];
