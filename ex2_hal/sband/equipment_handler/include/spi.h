@@ -17,6 +17,6 @@ void spi_writeData(void);
 
 void SPIMasterTx(spiBASE_t *regset, uint16_t *data, uint32_t length, uint8_t format);
 
-void SPISbandTx(uint16_t *data, uint32_t length);
+void SPISbandTx(uint8_t *data, uint32_t length);
 
 #endif /* spi_H */
