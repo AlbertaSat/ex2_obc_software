@@ -162,8 +162,10 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
     uint32_t *fptr;
     fptr = red_open("iris_image.jpg", RED_O_CREAT | RED_O_WRONLY);
 #else
-    FILE *fptr;
-    fptr = fopen("iris_image_gs.jpg", "wb");
+    uint32_t fptr;
+    fptr = red_open("iris_image_2.jpg", RED_O_CREAT | RED_O_WRONLY);
+//    FILE *fptr;
+//    fptr = fopen("new_image.jpg", "wb");
 #endif
 
     if (fptr == NULL) {
@@ -193,20 +195,23 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
             num_transfer = (uint16_t)((image_length + (IMAGE_TRANSFER_SIZE - 1)) /
                                       IMAGE_TRANSFER_SIZE); // TODO: Ceiling division not working 100%
 
-            IRIS_WAIT_FOR_STATE_TRANSITION;
+            vTaskDelay(150);
             for (uint32_t count_transfer = 0; count_transfer < num_transfer; count_transfer++) {
                 ret = iris_get_data(image_data_buffer, IMAGE_TRANSFER_SIZE);
 
-                for (int i = 0; i < 512; i++) {
+                for (int i = 0; i < IMAGE_TRANSFER_SIZE; i++) {
                     image_data_buffer_8Bit[i] = (image_data_buffer[i] >> (8 * 0)) & 0xff;
                 }
 
 #if IS_ATHENA == 1
                 red_write(fptr, image_data_buffer_8Bit, IMAGE_TRANSFER_SIZE);
 #else
-                fwrite(image_data_buffer_8Bit, 1, IMAGE_TRANSFER_SIZE, fptr);
+                red_write(fptr, image_data_buffer_8Bit, IMAGE_TRANSFER_SIZE);
+                // fwrite(image_data_buffer_8Bit, 1, IMAGE_TRANSFER_SIZE, fptr);
 #endif
+                vTaskDelay(150);
             }
+            red_close(fptr);
 #if IS_ATHENA == 1
             red_close(fptr);
 #endif
