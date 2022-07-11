@@ -47,31 +47,27 @@ Iris_HAL_return iris_take_pic() {
 
     controller_state = SEND_COMMAND;
 
-    while (controller_state != FINISH && controller_state != ERROR_STATE) {
+    while (1) {
         switch (controller_state) {
-            case SEND_COMMAND:
-            {
-                ret = iris_send_command(IRIS_TAKE_PIC);
-                if (ret == IRIS_ACK) {
-                    controller_state = FINISH;
-                } else {
-                    controller_state = ERROR_STATE;
-                }
-                break;
+        case SEND_COMMAND: {
+            ret = iris_send_command(IRIS_TAKE_PIC);
+            if (ret == IRIS_ACK) {
+                controller_state = FINISH;
+            } else {
+                controller_state = ERROR_STATE;
             }
-            case FINISH:
-            {
-                sys_log(INFO, "Iris returns ACK on take a picture command");
-                return IRIS_HAL_OK;
-            }
-            case ERROR_STATE:
-            {
-                sys_log(INFO, "Iris returns NACK on take a picture command");
-                return IRIS_HAL_ERROR;
-            }
+            break;
+        }
+        case FINISH: {
+            sys_log(INFO, "Iris returns ACK on take a picture command");
+            return IRIS_HAL_OK;
+        }
+        case ERROR_STATE: {
+            sys_log(INFO, "Iris returns NACK on take a picture command");
+            return IRIS_HAL_ERROR;
+        }
         }
     }
-    return IRIS_HAL_ERROR;
 }
 
 /**
@@ -87,46 +83,43 @@ Iris_HAL_return iris_get_image_length(uint32_t *image_length) {
 
     controller_state = SEND_COMMAND;
 
-    while (controller_state != FINISH && controller_state != ERROR_STATE) {
+    while (1) {
         switch (controller_state) {
-            case SEND_COMMAND:
-            {
-                ret = iris_send_command(IRIS_GET_IMAGE_LENGTH);
-                if (ret == IRIS_ACK) {
-                    controller_state = GET_DATA;
-                } else {
-                    controller_state = FINISH;
-                }
-                break;
+        case SEND_COMMAND: {
+            ret = iris_send_command(IRIS_GET_IMAGE_LENGTH);
+            if (ret == IRIS_ACK) {
+                controller_state = GET_DATA;
+            } else {
+                controller_state = ERROR_STATE;
             }
-            case GET_DATA:
-            {
-                static uint16_t image_length_buffer[MAX_IMAGE_LENGTH];
-                ret = iris_get_data(image_length_buffer, MAX_IMAGE_LENGTH);
-                if (ret == IRIS_HAL_OK) {
-                    controller_state = FINISH;
-                } else {
-                    controller_state = ERROR_STATE;
-                }
-                /* It is expected that the first byte in the buffer will be the LSB */
-                *(image_length) = (uint32_t)((uint8_t)image_length_buffer[0]<<16 | (uint8_t)image_length_buffer[1]<<8 | (uint8_t)image_length_buffer[2]); // Concatenate image_length_buffer
-
+            break;
+        }
+        case GET_DATA: {
+            static uint16_t image_length_buffer[MAX_IMAGE_LENGTH];
+            ret = iris_get_data(image_length_buffer, MAX_IMAGE_LENGTH);
+            if (ret == IRIS_HAL_OK) {
                 controller_state = FINISH;
-                break;
+            } else {
+                controller_state = ERROR_STATE;
             }
-            case FINISH:
-            {
-                sys_log(INFO, "Iris returns ACK on get image length command");
-                return IRIS_HAL_OK;
-            }
-            case ERROR_STATE:
-            {
-                sys_log(INFO, "Iris returns NACK on get image length command");
-                return IRIS_HAL_ERROR;
-            }
+            /* It is expected that the first byte in the buffer will be the LSB */
+            *(image_length) =
+                (uint32_t)((uint8_t)image_length_buffer[0] << 16 | (uint8_t)image_length_buffer[1] << 8 |
+                           (uint8_t)image_length_buffer[2]); // Concatenate image_length_buffer
+
+            controller_state = FINISH;
+            break;
+        }
+        case FINISH: {
+            sys_log(INFO, "Iris returns ACK on get image length command");
+            return IRIS_HAL_OK;
+        }
+        case ERROR_STATE: {
+            sys_log(INFO, "Iris returns NACK on get image length command");
+            return IRIS_HAL_ERROR;
+        }
         }
     }
-    return IRIS_HAL_ERROR;
 }
 
 /**
@@ -146,51 +139,48 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
 
     controller_state = SEND_COMMAND;
 
-    while (controller_state != FINISH && controller_state != ERROR_STATE) {
+    while (1) {
         switch (controller_state) {
-            case SEND_COMMAND: // Send start image transfer command
-            {
-                ret = iris_send_command(IRIS_TRANSFER_IMAGE);
-                if (ret == IRIS_ACK) {
-                    controller_state = GET_DATA;
-                } else {
-                    controller_state = FINISH;
-                }
-                IRIS_WAIT_FOR_STATE_TRANSITION;
-                break;
+        case SEND_COMMAND: // Send start image transfer command
+        {
+            ret = iris_send_command(IRIS_TRANSFER_IMAGE);
+            if (ret == IRIS_ACK) {
+                controller_state = GET_DATA;
+            } else {
+                controller_state = ERROR_STATE;
             }
-            case GET_DATA: // Get image data in chunks/blocks
-            {
-                static uint16_t image_data_buffer[IMAGE_TRANSFER_SIZE];
-                memset(image_data_buffer, 0, IMAGE_TRANSFER_SIZE);
-                num_transfer = (uint16_t) ((image_length + (IMAGE_TRANSFER_SIZE - 1)) / IMAGE_TRANSFER_SIZE); // TODO: Ceiling division not working 100%
+            IRIS_WAIT_FOR_STATE_TRANSITION;
+            break;
+        }
+        case GET_DATA: // Get image data in chunks/blocks
+        {
+            static uint16_t image_data_buffer[IMAGE_TRANSFER_SIZE];
+            memset(image_data_buffer, 0, IMAGE_TRANSFER_SIZE);
+            num_transfer = (uint16_t)((image_length + (IMAGE_TRANSFER_SIZE - 1)) /
+                                      IMAGE_TRANSFER_SIZE); // TODO: Ceiling division not working 100%
 
-                IRIS_WAIT_FOR_STATE_TRANSITION;
-                for (uint32_t count_transfer = 0; count_transfer < num_transfer; count_transfer++) {
-                    ret = iris_get_data(image_data_buffer, IMAGE_TRANSFER_SIZE);
-                    // TODO: Do something with the received data (e.g transfer it to the SD card)
-                    // Or just get the data and send it forward to the next stage. Prefer not to have too
-                    // much data processing in driver code
+            IRIS_WAIT_FOR_STATE_TRANSITION;
+            for (uint32_t count_transfer = 0; count_transfer < num_transfer; count_transfer++) {
+                ret = iris_get_data(image_data_buffer, IMAGE_TRANSFER_SIZE);
+                // TODO: Do something with the received data (e.g transfer it to the SD card)
+                // Or just get the data and send it forward to the next stage. Prefer not to have too
+                // much data processing in driver code
 
-                    //memset(image_data_buffer, 0, IMAGE_TRANSFER_SIZE);
-
-                }
-                controller_state = FINISH;
-                break;
+                // memset(image_data_buffer, 0, IMAGE_TRANSFER_SIZE);
             }
-            case FINISH:
-            {
-                sys_log(INFO, "Iris returns ACK on transfer image command");
-                return IRIS_HAL_OK;
-            }
-            case ERROR_STATE:
-            {
-                sys_log(INFO, "Iris returns NACK on transfer image command");
-                return IRIS_HAL_ERROR;
-            }
+            controller_state = FINISH;
+            break;
+        }
+        case FINISH: {
+            sys_log(INFO, "Iris returns ACK on transfer image command");
+            return IRIS_HAL_OK;
+        }
+        case ERROR_STATE: {
+            sys_log(INFO, "Iris returns NACK on transfer image command");
+            return IRIS_HAL_ERROR;
+        }
         }
     }
-    return IRIS_HAL_ERROR;
 }
 
 /**
@@ -206,34 +196,30 @@ Iris_HAL_return iris_get_image_count(uint16_t *image_count) {
 
     controller_state = SEND_COMMAND;
 
-    while(controller_state != FINISH && controller_state != ERROR_STATE) {
+    while (1) {
         switch (controller_state) {
-            case SEND_COMMAND:
-            {
-                ret = iris_send_command(IRIS_GET_IMAGE_COUNT);
-                if (ret == IRIS_ACK) {
-                    controller_state = GET_DATA;
-                } else {
-                    controller_state = FINISH;
-                }
-                break;
+        case SEND_COMMAND: {
+            ret = iris_send_command(IRIS_GET_IMAGE_COUNT);
+            if (ret == IRIS_ACK) {
+                controller_state = GET_DATA;
+            } else {
+                controller_state = ERROR_STATE;
             }
-            case GET_DATA:
-            {
-                ret = iris_get_data(image_count, MAX_IMAGE_COUNT);
-                controller_state = FINISH;
-                break;
-            }
-            case FINISH:
-            {
-                sys_log(INFO, "Iris returns ACK on transfer image command");
-                return IRIS_HAL_OK;
-            }
-            case ERROR_STATE:
-            {
-                sys_log(INFO, "Iris returns NACK on transfer image command");
-                return IRIS_HAL_ERROR;
-            }
+            break;
+        }
+        case GET_DATA: {
+            ret = iris_get_data(image_count, MAX_IMAGE_COUNT);
+            controller_state = FINISH;
+            break;
+        }
+        case FINISH: {
+            sys_log(INFO, "Iris returns ACK on transfer image command");
+            return IRIS_HAL_OK;
+        }
+        case ERROR_STATE: {
+            sys_log(INFO, "Iris returns NACK on transfer image command");
+            return IRIS_HAL_ERROR;
+        }
         }
     }
     return IRIS_HAL_ERROR;
@@ -249,40 +235,36 @@ Iris_HAL_return iris_get_image_count(uint16_t *image_count) {
  * @return
  *   Returns IRIS_HAL_OK if equipment handler returns IRIS_ACK, else IRIS_HAL_ERROR
  **/
-Iris_HAL_return iris_toggle_sensor_idle(IRIS_SENSOR_TOGGLE toggle) {
+Iris_HAL_return iris_toggle_sensor(IRIS_SENSOR_TOGGLE toggle) {
     IrisLowLevelReturn ret;
 
     controller_state = SEND_COMMAND;
 
-    while (controller_state != FINISH && controller_state != ERROR_STATE) {
+    while (1) {
         switch (controller_state) {
-            case SEND_COMMAND:
-            {
-                if (toggle == IRIS_SENSOR_ON) {
-                    ret = iris_send_command(IRIS_ON_SENSOR_IDLE);
-                } else if (toggle == IRIS_SENSOR_OFF) {
-                    ret = iris_send_command(IRIS_OFF_SENSOR_IDLE);
-                }
-                if (ret == IRIS_ACK) {
-                    controller_state = FINISH;
-                } else {
-                    controller_state = ERROR_STATE;
-                }
-                break;
+        case SEND_COMMAND: {
+            if (toggle == IRIS_SENSOR_ON) {
+                ret = iris_send_command(IRIS_ON_SENSOR_IDLE);
+            } else if (toggle == IRIS_SENSOR_OFF) {
+                ret = iris_send_command(IRIS_OFF_SENSOR_IDLE);
             }
-            case FINISH:
-            {
-                sys_log(INFO, "Iris returns ACK on toggling sensor command");
-                return IRIS_HAL_OK;
+            if (ret == IRIS_ACK) {
+                controller_state = FINISH;
+            } else {
+                controller_state = ERROR_STATE;
             }
-            case ERROR_STATE:
-            {
-                sys_log(INFO, "Iris returns NACK on toggling sensor command");
-                return IRIS_HAL_ERROR;
-            }
+            break;
+        }
+        case FINISH: {
+            sys_log(INFO, "Iris returns ACK on toggling sensor command");
+            return IRIS_HAL_OK;
+        }
+        case ERROR_STATE: {
+            sys_log(INFO, "Iris returns NACK on toggling sensor command");
+            return IRIS_HAL_ERROR;
+        }
         }
     }
-    return IRIS_HAL_ERROR;
 }
 
 /**
@@ -298,64 +280,58 @@ Iris_HAL_return iris_get_housekeeping(IRIS_Housekeeping *hk_data) {
 
     controller_state = SEND_COMMAND;
 
-    while (controller_state != FINISH && controller_state != ERROR_STATE) {
+    while (1) {
         switch (controller_state) {
-            case SEND_COMMAND:
-            {
-                ret = iris_send_command(IRIS_SEND_HOUSEKEEPING);
-                if (ret == IRIS_ACK) {
-                    controller_state = GET_DATA;
-                } else {
-                    controller_state = FINISH;
-                }
-                IRIS_WAIT_FOR_STATE_TRANSITION;
-                break;
+        case SEND_COMMAND: {
+            ret = iris_send_command(IRIS_SEND_HOUSEKEEPING);
+            if (ret == IRIS_ACK) {
+                controller_state = GET_DATA;
+            } else {
+                controller_state = ERROR_STATE;
             }
-            case GET_DATA:
-            {
+            IRIS_WAIT_FOR_STATE_TRANSITION;
+            break;
+        }
+        case GET_DATA: {
 
-                static uint16_t housekeeping_buffer[HOUSEKEEPING_SIZE];
-                ret = iris_get_data(housekeeping_buffer, HOUSEKEEPING_SIZE);
-                if (ret == IRIS_HAL_OK) {
-                    controller_state = FINISH;
-                } else {
-                    controller_state = ERROR_STATE;
-                }
-
-                // Transfer data from buffer to struct
-                // TODO: Verify Endianness and correct order of storage
-                hk_data->vis_temp = housekeeping_buffer[1] << 8 | housekeeping_buffer[0];
-                hk_data->nir_temp = housekeeping_buffer[3] << 8 | housekeeping_buffer[2];
-                hk_data->flash_temp = housekeeping_buffer[5] << 8 | housekeeping_buffer[4];
-                hk_data->gate_temp = housekeeping_buffer[7] << 8 | housekeeping_buffer[6];
-                hk_data->imagenum = housekeeping_buffer[8];
-                hk_data->software_version = housekeeping_buffer[9];
-                hk_data->errornum = housekeeping_buffer[10];
-                hk_data->MAX_5V_voltage = housekeeping_buffer[12] << 8 | housekeeping_buffer[11];
-                hk_data->MAX_5V_power = housekeeping_buffer[14] << 8 | housekeeping_buffer[13];
-                hk_data->MAX_3V_voltage = housekeeping_buffer[16] << 8 | housekeeping_buffer[15];
-                hk_data->MAX_3V_power = housekeeping_buffer[18] << 8 | housekeeping_buffer[17];
-                hk_data->MIN_5V_voltage = housekeeping_buffer[20] << 8 | housekeeping_buffer[19];
-                hk_data->MIN_3V_voltage = housekeeping_buffer[22] << 8 | housekeeping_buffer[21];
-
+            static uint16_t housekeeping_buffer[HOUSEKEEPING_SIZE];
+            ret = iris_get_data(housekeeping_buffer, HOUSEKEEPING_SIZE);
+            if (ret == IRIS_HAL_OK) {
                 controller_state = FINISH;
+            } else {
+                controller_state = ERROR_STATE;
+            }
 
-                IRIS_WAIT_FOR_STATE_TRANSITION;
-                break;
-            }
-            case FINISH:
-            {
-                sys_log(INFO, "Iris returns ACK on housekeeping command");
-                return IRIS_HAL_OK;
-            }
-            case ERROR_STATE:
-            {
-                sys_log(INFO, "Iris returns NACK on housekeeping command");
-                return IRIS_HAL_ERROR;
-            }
+            // Transfer data from buffer to struct
+            hk_data->vis_temp = housekeeping_buffer[1] << 8 | housekeeping_buffer[0];
+            hk_data->nir_temp = housekeeping_buffer[3] << 8 | housekeeping_buffer[2];
+            hk_data->flash_temp = housekeeping_buffer[5] << 8 | housekeeping_buffer[4];
+            hk_data->gate_temp = housekeeping_buffer[7] << 8 | housekeeping_buffer[6];
+            hk_data->imagenum = housekeeping_buffer[8];
+            hk_data->software_version = housekeeping_buffer[9];
+            hk_data->errornum = housekeeping_buffer[10];
+            hk_data->MAX_5V_voltage = housekeeping_buffer[12] << 8 | housekeeping_buffer[11];
+            hk_data->MAX_5V_power = housekeeping_buffer[14] << 8 | housekeeping_buffer[13];
+            hk_data->MAX_3V_voltage = housekeeping_buffer[16] << 8 | housekeeping_buffer[15];
+            hk_data->MAX_3V_power = housekeeping_buffer[18] << 8 | housekeeping_buffer[17];
+            hk_data->MIN_5V_voltage = housekeeping_buffer[20] << 8 | housekeeping_buffer[19];
+            hk_data->MIN_3V_voltage = housekeeping_buffer[22] << 8 | housekeeping_buffer[21];
+
+            controller_state = FINISH;
+
+            IRIS_WAIT_FOR_STATE_TRANSITION;
+            break;
+        }
+        case FINISH: {
+            sys_log(INFO, "Iris returns ACK on housekeeping command");
+            return IRIS_HAL_OK;
+        }
+        case ERROR_STATE: {
+            sys_log(INFO, "Iris returns NACK on housekeeping command");
+            return IRIS_HAL_ERROR;
+        }
         }
     }
-    return IRIS_HAL_ERROR;
 }
 
 /**
@@ -371,42 +347,38 @@ Iris_HAL_return iris_update_sensor_i2c_reg() {
 
     controller_state = SEND_COMMAND;
 
-    while (controller_state != FINISH && controller_state != ERROR_STATE) {
+    while (1) {
         switch (controller_state) {
-            case SEND_COMMAND:
-            {
-                ret = iris_send_command(IRIS_UPDATE_SENSOR_I2C_REG);
-                if (ret == IRIS_ACK) {
-                    controller_state = SEND_DATA;
-                } else {
-                    controller_state = FINISH;
-                }
-                break;
+        case SEND_COMMAND: {
+            ret = iris_send_command(IRIS_UPDATE_SENSOR_I2C_REG);
+            if (ret == IRIS_ACK) {
+                controller_state = SEND_DATA;
+            } else {
+                controller_state = FINISH;
             }
-            case SEND_DATA:
-            {
-                // TODO: Convert sensor_reg into buffer/array/vector. Need to think a bit more on this
-                //uint16_t sensor_reg_buffer[] = {0xFFFF, 0xFF};
-                uint16_t tx_buffer[4] = {0x02, 0x06, 0x10, 0x14};
-                ret = iris_send_data(tx_buffer, 4); // TODO: Need to take care of explicit declaration
+            break;
+        }
+        case SEND_DATA: {
+            // TODO: Convert sensor_reg into buffer/array/vector. Need to think a bit more on this
+            // uint16_t sensor_reg_buffer[] = {0xFFFF, 0xFF};
+            uint16_t tx_buffer[4] = {0x02, 0x06, 0x10, 0x14};
+            ret = iris_send_data(tx_buffer, 4); // TODO: Need to take care of explicit declaration
 
-                if (ret != IRIS_ACK) {
-                    sys_log(INFO, "Updating Iris sensor registers failed");
-                    return IRIS_HAL_ERROR;
-                }
-                break;
-            }
-            case FINISH:
-            {
-                sys_log(INFO, "Iris returns ACK on update sensor register command");
-                return IRIS_HAL_OK;
-            }
-            case ERROR_STATE:
-            {
-                sys_log(INFO, "Iris returns NACK on update sensor register command");
+            if (ret != IRIS_ACK) {
+                sys_log(INFO, "Updating Iris sensor registers failed");
                 return IRIS_HAL_ERROR;
-                //TODO: ERROR_STATE handler
             }
+            break;
+        }
+        case FINISH: {
+            sys_log(INFO, "Iris returns ACK on update sensor register command");
+            return IRIS_HAL_OK;
+        }
+        case ERROR_STATE: {
+            sys_log(INFO, "Iris returns NACK on update sensor register command");
+            return IRIS_HAL_ERROR;
+            // TODO: ERROR_STATE handler
+        }
         }
     }
     return IRIS_HAL_ERROR;
@@ -427,40 +399,34 @@ Iris_HAL_return iris_update_current_limit(uint16_t current_limit) {
 
     controller_state = SEND_COMMAND;
 
-    while(controller_state != FINISH && controller_state != ERROR_STATE) {
+    while (1) {
         switch (controller_state) {
-            case SEND_COMMAND:
-            {
-                iris_send_command(IRIS_UPDATE_CURRENT_LIMIT);
-                if (ret == IRIS_ACK) {
-                    controller_state = SEND_DATA;
-                } else {
-                    controller_state = FINISH;
-                }
-                break;
-            }
-            case SEND_DATA:
-            {
-                // TODO: Convert sensor_reg into buffer/array/vector. Need to think a bit more on this
-                uint16_t current_limit_buffer[] = {current_limit};
-                iris_send_data(current_limit_buffer, 1); // TODO: Need to take care of explicit declaration
-
+        case SEND_COMMAND: {
+            iris_send_command(IRIS_UPDATE_CURRENT_LIMIT);
+            if (ret == IRIS_ACK) {
+                controller_state = SEND_DATA;
+            } else {
                 controller_state = FINISH;
-                break;
             }
-            case FINISH:
-            {
-                sys_log(INFO, "Iris successful on update current limit command");
-                return IRIS_HAL_OK;
-            }
-            case ERROR_STATE:
-            {
-                sys_log(WARN, "Iris failure on update current limit command");
-                return IRIS_HAL_ERROR;
-            }
+            break;
+        }
+        case SEND_DATA: {
+            // TODO: Convert sensor_reg into buffer/array/vector. Need to think a bit more on this
+            uint16_t current_limit_buffer[] = {current_limit};
+            iris_send_data(current_limit_buffer, 1); // TODO: Need to take care of explicit declaration
+
+            controller_state = FINISH;
+            break;
+        }
+        case FINISH: {
+            sys_log(INFO, "Iris successful on update current limit command");
+            return IRIS_HAL_OK;
+        }
+        case ERROR_STATE: {
+            sys_log(WARN, "Iris failure on update current limit command");
+            return IRIS_HAL_ERROR;
+        }
         }
     }
     return IRIS_HAL_ERROR;
 }
-
-
