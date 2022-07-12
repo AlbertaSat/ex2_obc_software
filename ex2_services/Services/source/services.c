@@ -79,17 +79,18 @@ SAT_returnState start_service_server(void) {
     for (int i = 0; start_service_function[i]; i++) {
         start_service_retry = 0;
         SAT_returnState state;
+        char *service_name = service_server_names[i];
         while (start_service_retry <= 3) {
             state = start_service_function[i]();
             if (state != SATR_OK && start_service_retry < 3) {
-                sys_log(WARN, "start_service_flag[%d] failed, try again", i);
+                sys_log(WARN, "start %s failed, try again", service_name);
                 vTaskDelay(500);
             } else if (state != SATR_OK && start_service_retry == 3) {
-                sys_log(ERROR, "start_service_flag[%d] failed", i);
+                sys_log(ERROR, "start %s failed", service_name);
                 break;
             } else {
                 start_service_flag[i] = 1;
-                sys_log(INFO, "start_service_flag[%d] succeeded", i);
+                sys_log(INFO, "start %s succeeded", service_name);
                 break;
             }
             start_service_retry++;
