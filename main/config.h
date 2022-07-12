@@ -27,9 +27,9 @@
 #define GOLDEN_IMAGE 1
 #define WORKING_IMAGE 0
 
-#define HAS_SD_CARD 0
+#define HAS_SD_CARD 1
 #if HAS_SD_CARD == 1
-#define SD_CARD_REFORMAT 0
+#define SD_CARD_REFORMAT 1
 #endif
 
 #define ATHENA_IS_STUBBED 1
@@ -57,8 +57,8 @@
 #define FLIGHT_CONFIGURATION 0
 
 #define CSP_FREERTOS 1
-#define CSP_USE_SDR 1
-#define CSP_USE_KISS 0
+#define CSP_USE_SDR 0
+#define CSP_USE_KISS 1
 
 /* Define SDR_NO_CSP==0 to use CSP for SDR */
 #define SDR_NO_CSP 0
