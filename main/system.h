@@ -51,7 +51,7 @@
 #define ADCS_SCI sciREG3 // UART4
 #define DFGM_SCI sciREG4 // UART1
 #define UHF_SCI CSP_SCI  // UART2
-#if defined(IS_EXALTA2)
+#if IS_EXALTA2 == 1
 #define GPS_SCI sciREG1 // UART3
 #define PAYLOAD_SCI NULL
 #elif IS_AURORASAT == 1 || IS_YUKONSAT == 1
