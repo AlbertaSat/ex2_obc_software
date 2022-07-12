@@ -98,16 +98,25 @@
 #define ADCS_I2C i2cREG1
 #define UHF_I2C i2cREG1
 #define IRIS_I2C i2cREG1
+
+#if ATHENA_V2 == 1
+#define SOLAR_I2C i2cREG2
+#else
+#define SOLAR_I2C i2cREG1
+#endif
+
 #else // These values are expected to be adjusted based on what the developer is working on
 #define IMU_I2C i2cREG2
 #define SOLAR_I2C i2cREG2
 #define TEMPSENSE_I2C i2cREG2
 #define RTC_I2C i2cREG2
-#define IRIS_I2C i2cREG1
+#define SOLAR_I2C i2cREG2
 
+#define IRIS_I2C i2cREG1
 #define SBAND_I2C i2cREG1
 #define ADCS_I2C i2cREG1
 #define UHF_I2C i2cREG1
+
 #endif
 
 // watchdog timer expires in 447ms
