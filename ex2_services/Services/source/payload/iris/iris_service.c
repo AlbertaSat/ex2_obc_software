@@ -87,8 +87,8 @@ SAT_returnState start_iris_service(void) {
     TaskHandle_t svc_tsk;
     taskFunctions svc_funcs = {0};
     svc_funcs.getCounterFunction = get_svc_wdt_counter;
-    if (xTaskCreate((TaskFunction_t)iris_service, "iris_service", IRIS_SIZE, NULL,
-                    NORMAL_SERVICE_PRIO, &svc_tsk) != pdPASS) {
+    if (xTaskCreate((TaskFunction_t)iris_service, "iris_service", IRIS_SIZE, NULL, NORMAL_SERVICE_PRIO,
+                    &svc_tsk) != pdPASS) {
         ex2_log("FAILED TO CREATE TASK iris_service\n");
         return SATR_ERROR;
     }
@@ -175,8 +175,13 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
         set_packet_length(packet, sizeof(uint8_t) + 1);
         break;
     }
-    case IRIS_PROGRAM_FLASH:
-        // TODO
+    case IRIS_PROGRAM_FLASH: {
+        status = iris_program();
+
+        // Return success/failure report
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));
+        set_packet_length(packet, sizeof(uint8_t) + 1);
+    }
     case IRIS_GET_HK: {
         // Get Iris housekeeping data
         IRIS_Housekeeping HK = {0};
