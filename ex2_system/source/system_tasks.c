@@ -61,7 +61,7 @@ SAT_returnState start_system_tasks(void) {
             state = start_task[i]();
             if (state != SATR_OK && start_task_attempt < 3) {
                 sys_log(WARN, "start %s failed, try again", task_name);
-                vTaskDelay(500);
+                vTaskDelay(10);
             } else if (state != SATR_OK && start_task_attempt == 3) {
                 sys_log(ERROR, "start %s failed", task_name);
                 break;

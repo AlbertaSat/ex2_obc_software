@@ -84,7 +84,7 @@ SAT_returnState start_service_server(void) {
             state = start_service_function[i]();
             if (state != SATR_OK && start_service_retry < 3) {
                 sys_log(WARN, "start %s failed, try again", service_name);
-                vTaskDelay(500);
+                vTaskDelay(10);
             } else if (state != SATR_OK && start_service_retry == 3) {
                 sys_log(ERROR, "start %s failed", service_name);
                 break;
