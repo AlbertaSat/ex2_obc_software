@@ -20,7 +20,7 @@
 #ifndef COMMON_DEFINES_H
 #define COMMON_DEFINES_H
 
-#define ADC_i2c_PORT i2cREG1
+#define ADC_i2c_PORT SOLAR_I2C
 
 #define HIGH 1
 #define LOW 0

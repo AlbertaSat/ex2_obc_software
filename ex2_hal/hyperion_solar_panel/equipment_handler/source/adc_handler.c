@@ -22,6 +22,7 @@
 #include "adc_handler.h"
 #include "i2c_io.h"
 #include <stdint.h>
+#include "system.h"
 
 /**
  * @brief
