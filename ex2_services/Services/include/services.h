@@ -91,8 +91,14 @@ union _cnv {
     uint8_t cnv8[8];
 };
 
+static char *service_names[] = {"cli_service\0",       "communication_service\0", "time_management_service\0",
+                                "scheduler_service\0", "housekeeping_service\0",  "general_service\0",
+                                "logger_service\0",    "dfgm_service\0",          "adcs_service\0",
+                                "FTP_service\0",       "ns_payload_service\0"};
+
 SAT_returnState start_service_server(void);
 
 void hex_dump(char *stuff, int size);
+typedef SAT_returnState (*services)();
 
 #endif /* SERVICES_H */

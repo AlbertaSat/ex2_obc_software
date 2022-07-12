@@ -37,19 +37,42 @@
  */
 SAT_returnState start_system_tasks(void) {
 
-  TaskHandle_t _ = 0;
-  if (start_task_manager() != SATR_OK ||
-      //start_beacon_daemon() != SATR_OK ||
-      //start_coordinate_management_daemon() != SATR_OK ||
-      start_diagnostic_daemon() != SATR_OK ||
-      start_housekeeping_daemon() != SATR_OK ||
-      //start_system_stats_daemon() != SATR_OK ||
-      start_NMEA_daemon() != SATR_OK ||
-      start_RTC_daemon() != SATR_OK ||
-      start_logger_daemon(_) != SATR_OK) {
-    ex2_log("Error starting system tasks\r\n");
-    return SATR_ERROR;
-  }
-  ex2_log("All system tasks started\r\n");
-  return SATR_OK;
+    system_tasks start_task[] = {&start_task_manager,
+                                 &start_beacon_daemon,
+                                 &start_coordinate_management_daemon,
+                                 &start_diagnostic_daemon,
+                                 &start_housekeeping_daemon,
+                                 &start_system_stats_daemon,
+                                 &start_NMEA_daemon,
+                                 &start_RTC_daemon,
+                                 &start_logger_daemon,
+                                 NULL};
+
+    int number_of_system_tasks = (sizeof(start_task) - 1) / sizeof(system_tasks);
+    uint8_t *start_task_flag = pvPortMalloc(number_of_system_tasks * sizeof(uint8_t));
+    memset(start_task_flag, 0, number_of_system_tasks * sizeof(uint8_t));
+    int start_task_attempt;
+    SAT_returnState state;
+
+    for (int i = 0; start_task[i]; i++) {
+        start_task_attempt = 0;
+        char *task_name = system_task_names[i];
+        while (start_task_attempt <= 3) {
+            state = start_task[i]();
+            if (state != SATR_OK && start_task_attempt < 3) {
+                sys_log(WARN, "start %s failed, try again", task_name);
+                vTaskDelay(10);
+            } else if (state != SATR_OK && start_task_attempt == 3) {
+                sys_log(ERROR, "start %s failed", task_name);
+                break;
+            } else {
+                start_task_flag[i] = 1;
+                sys_log(INFO, "start %s succeeded", task_name);
+                break;
+            }
+            start_task_attempt++;
+        }
+    }
+    vPortFree(start_task_flag);
+    return SATR_OK;
 }

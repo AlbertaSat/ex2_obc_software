@@ -25,14 +25,15 @@
  *      The pointer to where housekeeping data is kept
  */
 
-
 /* Updates Beacon Packet with the latest housekeeping data */
-//void update_beacon(All_systems_housekeeping *all_hk_data, beacon_packet_1_t *beacon_packet_one, beacon_packet_2_t *beacon_packet_two) {
-void update_beacon(All_systems_housekeeping *all_hk_data, beacon_packet_1_t *beacon_packet_one, beacon_packet_2_t *beacon_packet_two) {
+// void update_beacon(All_systems_housekeeping *all_hk_data, beacon_packet_1_t *beacon_packet_one,
+// beacon_packet_2_t *beacon_packet_two) {
+void update_beacon(All_systems_housekeeping *all_hk_data, beacon_packet_1_t *beacon_packet_one,
+                   beacon_packet_2_t *beacon_packet_two) {
     int i;
     // Populate the beacon packet by fetching relevant data from housekeeping_services.c
 
-    //TODO: remove this after testing
+    // TODO: remove this after testing
     // get the unix time from RTC, and convert it to a struct using RTCMK_GetUnix
     // RTCMK_GetUnix(&(beacon_packet.time));
 
@@ -91,7 +92,7 @@ void update_beacon(All_systems_housekeeping *all_hk_data, beacon_packet_1_t *bea
     beacon_packet_one->obc_wdt_expr = all_hk_data->EPS_hk.outputConverterState;
 
     /*-------Temperatures-------*/
-    //TODO: more temp data was added to beacon from hk, review temp fields before finalizing beacon struct
+    // TODO: more temp data was added to beacon from hk, review temp fields before finalizing beacon struct
     // Onboard battery pack temp location defined in ICD
     beacon_packet_one->temps[0] = all_hk_data->EPS_hk.temp[8];
 
@@ -131,6 +132,7 @@ void update_beacon(All_systems_housekeeping *all_hk_data, beacon_packet_1_t *bea
     beacon_packet_one->temps[7] = all_hk_data->hyperion_hk.Star_Temp1;
 
     /*-------ADCS-------*/
+#ifndef ADCS_IS_STUBBED
     // Of the x, y, and z angular rates, use the maximum angular rate
     // TODO: convert angular rate from float to uint_8
     uint8_t max_rate =
@@ -141,6 +143,7 @@ void update_beacon(All_systems_housekeeping *all_hk_data, beacon_packet_1_t *bea
     adcs_state adcs_current_hk;
     ADCS_get_current_state(&adcs_current_hk);
     beacon_packet_one->adcs_control_mode = adcs_current_hk.att_ctrl_mode;
+#endif /*ADCS_IS_STUBBED*/
 
     /*-------UHF-------*/
     // Convert uint32_t to uint16_t, seconds = UHF_uptime*10. Max = 655350 seconds (7.6 days)
@@ -179,5 +182,4 @@ void update_beacon(All_systems_housekeeping *all_hk_data, beacon_packet_1_t *bea
     beacon_packet_two->log5_code = all_hk_data->EPS_hk.outputConverterState;
     beacon_packet_two->log6_timestamp = all_hk_data->EPS_hk.outputConverterState;
     beacon_packet_two->log6_code = all_hk_data->EPS_hk.outputConverterState;
-    
 }

@@ -56,14 +56,47 @@ SAT_returnState start_service_server(void) {
         pdPASS) {
         return SATR_ERROR;
     }
-    start_cli_service();
-    if (start_communication_service() != SATR_OK || start_time_management_service() != SATR_OK ||
-        start_scheduler_service() != SATR_OK || start_housekeeping_service() != SATR_OK ||
-        start_general_service() != SATR_OK || start_logger_service() != SATR_OK ||
-        start_dfgm_service() != SATR_OK || start_adcs_service() != SATR_OK ||
-        start_ns_payload_service() != SATR_OK || start_FTP_service() != SATR_OK || start_iris_service() != SATR_OK)
-        ;
-    { return SATR_ERROR; }
+    services start_service_function[] = {&start_cli_service,
+                                         &start_communication_service,
+                                         &start_time_management_service,
+                                         &start_scheduler_service,
+                                         &start_housekeeping_service,
+                                         &start_general_service,
+                                         &start_logger_service,
+                                         &start_logger_service,
+                                         &start_dfgm_service,
+                                         &start_adcs_service,
+                                         &start_FTP_service,
+                                         &start_ns_payload_service,
+                                         NULL};
+
+    int number_of_cmds = ((sizeof(start_service_function) - 1) / sizeof(services));
+
+    uint8_t *start_service_flag = pvPortMalloc(number_of_cmds * sizeof(uint8_t));
+    memset(start_service_flag, 0, number_of_cmds * sizeof(uint8_t));
+    int start_service_retry;
+
+    for (int i = 0; start_service_function[i]; i++) {
+        start_service_retry = 0;
+        SAT_returnState state;
+        char *service_name = service_names[i];
+        while (start_service_retry <= 3) {
+            state = start_service_function[i]();
+            if (state != SATR_OK && start_service_retry < 3) {
+                sys_log(WARN, "start %s failed, try again", service_name);
+                vTaskDelay(10);
+            } else if (state != SATR_OK && start_service_retry == 3) {
+                sys_log(ERROR, "start %s failed", service_name);
+                break;
+            } else {
+                start_service_flag[i] = 1;
+                sys_log(INFO, "start %s succeeded", service_name);
+                break;
+            }
+            start_service_retry++;
+        }
+    }
+    vPortFree(start_service_flag);
     return SATR_OK;
 }
 

@@ -27,13 +27,13 @@
 #define STRING_MAX_LEN 201
 
 typedef enum {
-    PANIC,     // Emergency - system is going down
-    ALERT,     // Should be corrected immediately
-    CRITICAL,  // Primary system failure
-    ERROR,     // Non-urgent failures
-    WARN,      // Not a failure, but error could follow
-    NOTICE,    // Unusual but not error condition
-    INFO,      // Normal operational message
+    PANIC,    // Emergency - system is going down
+    ALERT,    // Should be corrected immediately
+    CRITICAL, // Primary system failure
+    ERROR,    // Non-urgent failures
+    WARN,     // Not a failure, but error could follow
+    NOTICE,   // Unusual but not error condition
+    INFO,     // Normal operational message
     DEBUG,
 } SysLog_Level;
 
@@ -53,7 +53,7 @@ char *get_logger_file();
 
 char *get_logger_old_file();
 
-SAT_returnState start_logger_daemon(TaskHandle_t *handle);
+SAT_returnState start_logger_daemon();
 
 void kill_logger_daemon();
 
