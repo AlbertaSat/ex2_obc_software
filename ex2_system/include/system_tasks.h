@@ -25,10 +25,10 @@
 #include "uTransceiver.h"
 #include "housekeeping_service.h"
 
-char *system_task_names[] = {"beacon_daemon\0",       "coordinate_management_daemon\0",
-                             "diagnostic_daemon",     "housekeeping_daemon\0",
-                             "system_stats_daemon\0", "NMEA_daemon\0",
-                             "RTC_daemon\0",          "logger_daemon\0"};
+static char *system_task_names[] = {"beacon_daemon\0",       "coordinate_management_daemon\0",
+                                    "diagnostic_daemon",     "housekeeping_daemon\0",
+                                    "system_stats_daemon\0", "NMEA_daemon\0",
+                                    "RTC_daemon\0",          "logger_daemon\0"};
 
 SAT_returnState start_system_tasks(void);
 typedef SAT_returnState (*system_tasks)();
