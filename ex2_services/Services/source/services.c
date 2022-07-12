@@ -96,7 +96,6 @@ SAT_returnState start_service_server(void) {
             start_service_retry++;
         }
     }
-
     vPortFree(start_service_flag);
     return SATR_OK;
 }
