@@ -73,6 +73,6 @@ SAT_returnState start_system_tasks(void) {
             start_task_attempt++;
         }
     }
-
+    vPortFree(start_task_flag);
     return SATR_OK;
 }
