@@ -79,7 +79,7 @@ SAT_returnState start_service_server(void) {
     for (int i = 0; start_service_function[i]; i++) {
         start_service_retry = 0;
         SAT_returnState state;
-        char *service_name = service_server_names[i];
+        char *service_name = service_names[i];
         while (start_service_retry <= 3) {
             state = start_service_function[i]();
             if (state != SATR_OK && start_service_retry < 3) {
