@@ -10,6 +10,10 @@
 
 #include "FreeRTOS.h"
 
+#define IRIS_BOOT_PIN 20
+#define IRIS_nRST_PIN 0
+#define IRIS_NSS_PIN 1
+
 #if IS_ATHENA == 1
 #define IRIS_BOOT_PIN 20
 #define IRIS_nRST_PIN 0
