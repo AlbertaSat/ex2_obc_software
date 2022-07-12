@@ -45,9 +45,9 @@ void iris_spi_init() {
     dataconfig.CS_HOLD = FALSE;
     dataconfig.WDEL = 0;
 #if IS_ATHENA == 1
-    dataconfig.DFSEL = SPI_FMT_0;
+    dataconfig.DFSEL = SPI_FMT_0; // spiREG4->FMT_0
 #else
-    dataconfig.DFSEL = SPI_FMT_0;
+    dataconfig.DFSEL = SPI_FMT_1; // spiREG3->FMT_1
 #endif
     dataconfig.CSNR = SPI_CS_1;
 }
