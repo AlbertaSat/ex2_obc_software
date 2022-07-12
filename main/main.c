@@ -258,10 +258,14 @@ static void init_filesystem() {
     iErr = 0;
     const char *pszVolume1 = gaRedVolConf[1].pszPathPrefix;
 
+#if SD_CARD_REFORMAT == 1
+
     iErr = red_format(pszVolume1);
     if (iErr == -1) {
         return;
     }
+
+#endif
 
     iErr = red_mount(pszVolume1);
 
