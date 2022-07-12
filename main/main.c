@@ -71,13 +71,15 @@
 #include "crypto.h"
 #include "csp_debug_wrapper.h"
 
-#define SDR_TEST 0
+#define SDR_TEST 1
 
 #if SDR_TEST == 1
 #include "test_sdr.h"
 
 static sdr_interface_data_t *test_uhf_ifdata;
 static sdr_interface_data_t *test_sband_ifdata;
+static csp_iface_t *test_sband_iface;
+
 #endif // SDR_TEST
 
 #if FLATSAT_TEST == 1
@@ -184,7 +186,8 @@ void ex2_init(void *pvParameters) {
     init_software();
 
 #if SDR_TEST == 1
-    start_test_sdr(test_uhf_ifdata, test_sband_ifdata);
+    //start_test_sdr(test_uhf_ifdata, test_sband_ifdata);
+    start_test_sband(test_sband_iface);
 #endif
 
 #if FLATSAT_TEST == 1

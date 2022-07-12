@@ -51,6 +51,55 @@ void test_csp_send(void *arg) {
     csp_close(conn);
 }
 
+#define SBAND_PACKET_LEN 1024
+
+void test_csp_sband_send(void *arg) {
+    csp_iface_t *csp_iface = (csp_iface_t *) arg;
+    ex2_log("starting CSP->SBAND send");
+    vTaskDelay(1000);
+
+    csp_conn_t *conn = 0;
+    while (!conn) {
+        conn = csp_connect(CSP_PRIO_NORM, 17, 17, 1000, CSP_O_NONE);
+        if (!conn) {
+            ex2_log("CSP connection failed %d", xTaskGetTickCount());
+            vTaskDelay(1000);
+        }
+    }
+
+    int filecount = 0;
+    while (1) {
+        // Turn on the radio
+        sdr_sband_tx_start(csp_iface->interface_data);
+
+        int i, count;
+        size_t len = SBAND_PACKET_LEN;
+        for (count=0; count<1024; count++) {
+            csp_packet_t *packet = csp_buffer_get(len);
+            if (!packet) {
+                ex2_log("no more packets");
+                break;
+            }
+
+            packet->length = len;
+            for (i = 0; i < len; i++) {
+                packet->data[i] = i;
+            }
+
+            ex2_log("csp->sband send %d, len %d\n", count, len);
+
+            if (!csp_send(conn, packet, 1000)) {
+                ex2_log("send failed");
+                csp_buffer_free(packet);
+            }
+        }
+
+        ex2_log("end of file transfer %d", ++filecount);
+        sdr_sband_tx_stop(csp_iface->interface_data);
+        vTaskDelay(5000);
+    }
+}
+
 void test_uhf_send(void *arg) {
     sdr_interface_data_t *ifdata = arg;
 
@@ -195,4 +244,8 @@ void start_test_sdr(sdr_interface_data_t *uhf_ifdata, sdr_interface_data_t *sban
     }
 
     xTaskCreate(test_sband_send, "sdr->sband", TEST_STACK_SIZE, sband_ifdata, 0, NULL);
+}
+
+void start_test_sband(csp_iface_t *sband_iface) {
+    xTaskCreate(test_csp_sband_send, "csp->sband", TEST_STACK_SIZE, sband_iface, 0, NULL);
 }
