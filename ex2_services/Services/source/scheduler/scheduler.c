@@ -1052,6 +1052,7 @@ int calc_cmd_frequency(scheduled_commands_t *cmds, int number_of_cmds, scheduled
     /*--------------------------------calculate the frequency of repeated cmds--------------------------------*/
     static tmElements_t time_buff;
     // TODO: check that all callocs have been freed
+    if (j_rep > 0) {
     scheduled_commands_unix_t *repeated_cmds_buff = (scheduled_commands_unix_t *)pvPortMalloc(j_rep * sizeof(scheduled_commands_unix_t));
     memset(repeated_cmds_buff, 0, j_rep * sizeof(scheduled_commands_unix_t));
     if (j_rep > 0 && repeated_cmds_buff == NULL) {
@@ -1135,15 +1136,17 @@ int calc_cmd_frequency(scheduled_commands_t *cmds, int number_of_cmds, scheduled
             continue;
         }
     }
+    
 
     /*--------------------------------Combine non-repetitive and repetitive commands into a single struct--------------------------------*/
     memcpy(sorted_cmds, repeated_cmds_buff, sizeof(scheduled_commands_unix_t) * j_rep);
+    vPortFree(repeated_cmds_buff);
+    }
     memcpy((sorted_cmds + j_rep), non_reoccurring_cmds, sizeof(scheduled_commands_unix_t) * j_non_rep);
 
     // free pvPortMalloc
     vPortFree(non_reoccurring_cmds);
     vPortFree(reoccurring_cmds);
-    vPortFree(repeated_cmds_buff);
 
     return SATR_OK;
 }
