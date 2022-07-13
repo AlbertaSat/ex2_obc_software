@@ -31,8 +31,8 @@
 #include "deployablescontrol.h"
 #include "leop_eeprom.h"
 
-#define MAX_RETRIES 3
-bool execute_leop();
-bool deploy_all_deployables();
+#define MAX_RETRIES 5
+void execute_leop();
+void deploy_all_deployables();
 
 #endif /* LEOP_H_ */

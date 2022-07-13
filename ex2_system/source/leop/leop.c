@@ -24,103 +24,95 @@
 #define FOUR_MIN_DELAY pdMS_TO_TICKS(240 * 1000)
 #define TWENTY_SEC_DELAY pdMS_TO_TICKS(20 * 1000)
 
-// LEOP Sequence
-
-/**
- * @brief
- *      Deploy all deployable systems
- * @return bool
- *      Returns TRUE if all deployables have been deployed
- *      Returns FALSE otherwise
- */
-
-bool deploy_all_deployables() {
-    Deployable_t sw;
-
-    int getStatus_retries;
-    uint16_t burnwire_currents[8] = {0};
-
-    for (getStatus_retries = 0; getStatus_retries <= MAX_RETRIES; getStatus_retries++) {
-        sw = DFGM;
-        // Deploy DFGM
-        if ((switchstatus(sw) != 1) && (getStatus_retries != MAX_RETRIES)) {
-            ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);
-            ex2_log("Activated %c\n", sw);
-            activate(sw);
-            vTaskDelay(TWENTY_SEC_DELAY);
-        } else if ((switchstatus(sw) != 1) && (getStatus_retries == MAX_RETRIES)) {
-            ex2_log("Check #%d: %c not deployed, exiting the LEOP sequence.\n", &getStatus_retries, sw);
-            return false;
-        }
+char *deployable_to_str(Deployable_t sw) {
+    switch (sw) {
+    case DFGM:
+        return "DFGM";
+    case UHF_P:
+        return "UHF_P";
+    case UHF_Z:
+        return "UHF_Z";
+    case UHF_S:
+        return "UHF_S";
+    case UHF_N:
+        return "UHF_N";
+    case Port:
+        return "PORT";
+    case Payload:
+        return "PAYLOAD";
+    case Starboard:
+        return "STARBOARD";
+    default:
+        return "Unknown";
     }
-    ex2_log("DFGM deployed, burnwire current = %d\n", burnwire_currents[0]);
-    vTaskDelay(TWO_MIN_DELAY);
-
-    for (getStatus_retries = 0; getStatus_retries <= MAX_RETRIES; getStatus_retries++) {
-        // Deploy UHF
-        for (sw = UHF_P; sw <= UHF_N; sw++) {
-            if ((switchstatus(sw) != 1) && (getStatus_retries != MAX_RETRIES)) {
-                ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);
-                ex2_log("Activated %c\n", sw);
-                activate(sw);
-                vTaskDelay(TWENTY_SEC_DELAY);
-            } else if ((switchstatus(sw) != 1) && (getStatus_retries == MAX_RETRIES)) {
-                ex2_log("Check #%d: %c not deployed, exiting the LEOP sequence.\n", &getStatus_retries, sw);
-                return false;
-            }
-        }
-    }
-    ex2_log("UHF Port deployed, burnwire current = %d\n", burnwire_currents[1]);
-    ex2_log("UHF Zenith deployed, burnwire current = %d\n", burnwire_currents[2]);
-    ex2_log("UHF Starboard deployed, burnwire current = %d\n", burnwire_currents[3]);
-    ex2_log("UHF Nadir deployed, burnwire current = %d\n", burnwire_currents[4]);
-
-    vTaskDelay(FOUR_MIN_DELAY);
-
-    for (getStatus_retries = 0; getStatus_retries <= MAX_RETRIES; getStatus_retries++) {
-        // Deploy solar panels
-        for (sw = Port; sw <= Starboard; sw++) {
-            if ((switchstatus(sw) != 1) && (getStatus_retries != MAX_RETRIES)) {
-                ex2_log("Check #%d: %c not deployed\n", &getStatus_retries, sw);
-                ex2_log("Activated %c\n", sw);
-                activate(sw);
-                vTaskDelay(TWENTY_SEC_DELAY);
-            } else if ((switchstatus(sw) != 1) && (getStatus_retries == MAX_RETRIES)) {
-                ex2_log("Check #%d: %c not deployed, exiting the LEOP sequence.\n", &getStatus_retries, sw);
-                return false;
-            }
-        }
-        ex2_log("Port Deployable Panel deployed, burnwire current = %d\n", burnwire_currents[5]);
-        ex2_log("Deployable Payload deployed, burnwire current = %d\n", burnwire_currents[6]);
-        ex2_log("Starboard Deployable deployed, burnwire current = %d\n", burnwire_currents[7]);
-    }
-    return true;
 }
 
 /**
  * @brief
- *      Set an eeprom flag so LEOP only gets executed once
+ *      Deploye specific deployable
+ * @param sw
+ *      Specific Deployable_t to attempt to deploy
+ * @param attempts
+ *      Number of times to retry deploying the Deployable_t
+ * @param deployed_state
+ *      Expected switch status after deployment
+ */
+void deploy(Deployable_t sw, int attempts, int deployed_state) {
+    for (int deployment_attempt = 0; deployment_attempt < attempts; deployment_attempt++) {
+        sys_log(INFO, "Starting burn %d for %s\n", deployment_attempt, deployable_to_str(sw));
+        activate(sw);
+    }
+    if ((switchstatus(sw) != deployed_state)) {
+        sys_log(WARN, "%s does not report deployed\n", deployable_to_str(sw));
+    } else {
+        sys_log(INFO, "%s reports deployed", deployable_to_str(sw));
+    }
+}
+
+/**
+ * @brief
+ *      Deploy all deployable systems
+ * @return void
+ *      No need for a return, LEOP success is determined by hope
+ */
+void deploy_all_deployables() {
+    int dfgm_switch_deployed_state = 1;
+    deploy(DFGM, MAX_RETRIES, dfgm_switch_deployed_state);
+    vTaskDelay(TWO_MIN_DELAY);
+
+    int uhf_switch_deployed_state = 1;
+    for (Deployable_t sw = UHF_P; sw <= UHF_N; sw++) {
+        deploy(sw, MAX_RETRIES, uhf_switch_deployed_state);
+    }
+
+    vTaskDelay(FOUR_MIN_DELAY);
+#if HYPERION_PANEL_2U == 1
+    int hyperion_switch_deployed_state = 0; // flight hardware switched soldered on backwards :)
+#else
+    int hyperion_switch_deployed_state = 1;
+#endif
+    for (Deployable_t sw = Port; sw <= Starboard; sw++) {
+        deploy(sw, MAX_RETRIES, hyperion_switch_deployed_state);
+    }
+}
+
+/**
+ * @brief
+ *      Execute LEOP if it has not been executed before
  * @details
  *      Checks if LEOP sequence has been successfully executed
  *      If not, execute LEOP sequence
  *      Otherwise, skip LEOP sequence
  * @return void
  */
-bool execute_leop() {
-    // TODO: When eeprom is working, use commended code
+void execute_leop() {
     bool eeprom_flag = false;
     eeprom_flag = eeprom_get_leop_status();
     if (eeprom_flag != true) {
-        // If leop sequence was never executed, check that all hard switches have been deployed
-        if (deploy_all_deployables() == true) {
-            // If all hard switch have been deployed, set eeprom flag to TRUE
-            eeprom_set_leop_status();
-            return true;
-        }
-        return false;
-    }
-    //    else if (eeprom_get_leop_status() == true) {
-    else if (eeprom_flag == true) {
-        return true;
+        sys_log(INFO, "Attempting to execute LEOP sequence");
+        // If leop sequence was never executed, execute it and hope for the best
+        deploy_all_deployables();
+        // Set EEPROM flag to true. LEOP has been attempted, it is up to the operators now to verify it.
+        eeprom_set_leop_status();
     }
 }
