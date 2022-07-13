@@ -5,27 +5,7 @@
  *      Author: Grace
  */
 
-#include <cgreen/cgreen.h>
-#include <cgreen/mocks.h>
-
-#include "FreeRTOS.h"
-#include "leop.h"
-#include "os_queue.h"
-#include "os_task.h"
-#include <redposix.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <system.h>
-
-#include "HL_gio.h"
-#include "HL_het.h"
-//#include "deployablescontrol.h"
 #include "test_leop.h"
-//#include "leop_eeprom.h"
-
-#include "../source/leop.c"
 
 Describe(leop);
 BeforeEach(leop){};
