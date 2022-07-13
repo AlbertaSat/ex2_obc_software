@@ -68,13 +68,13 @@ void IRIS_BOOT_LOW() { gioSetBit(hetPORT1, IRIS_BOOT_PIN, 0); }
  * @brief
  *   Pull ~RESET high via GPIO pin
  **/
-void IRIS_nRST_HIGH() { gioSetBit(gioPORTB, IRIS_nRST_PIN, 1); }
+void IRIS_nRST_HIGH() { gioSetBit(hetPORT1, IRIS_nRST_PIN, 1); }
 
 /**
  * @brief
  *   Pull ~RESET low via GPIO pin
  **/
-void IRIS_nRST_LOW() { gioSetBit(gioPORTB, IRIS_nRST_PIN, 0); }
+void IRIS_nRST_LOW() { gioSetBit(hetPORT1, IRIS_nRST_PIN, 0); }
 
 /**
  * @brief
