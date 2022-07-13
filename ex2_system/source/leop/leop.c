@@ -39,16 +39,6 @@ void deploy_all_deployables() {
     for (Deployable_t sw = UHF_P; sw <= UHF_N; sw++) {
         deploy(sw, MAX_ATTEMPTS, uhf_switch_deployed_state);
     }
-
-    vTaskDelay(FOUR_MIN_DELAY);
-#if HYPERION_PANEL_2U == 1
-    int hyperion_switch_deployed_state = 0; // flight hardware switched soldered on backwards :)
-#else
-    int hyperion_switch_deployed_state = 1;
-#endif
-    for (Deployable_t sw = Port; sw <= Starboard; sw++) {
-        deploy(sw, MAX_ATTEMPTS, hyperion_switch_deployed_state);
-    }
 }
 
 /**
