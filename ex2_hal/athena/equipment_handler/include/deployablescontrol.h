@@ -22,7 +22,7 @@
 
 #include "HL_gio.h"
 
-#define DEPLOYABLE_BURNWIRE_DELAY_MS 6500 // Delay 6.5 seconds according to systems requirements
+#define DEPLOYABLE_BURNWIRE_DELAY_MS 30000 // Delay 30 seconds according to systems requirements
 #define DEPLOYABLES_CURRENT_INDEX DEPLOYABLES_5V0_PWR_CHNL - 1
 
 typedef enum {
@@ -42,7 +42,5 @@ typedef enum {
 int activate(Deployable_t knife);
 
 bool switchstatus(Deployable_t sw);
-
-bool deploy(Deployable_t deployable);
 
 #endif /* DEPLOYABLES_H_ */

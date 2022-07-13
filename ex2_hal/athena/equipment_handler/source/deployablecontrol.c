@@ -109,9 +109,3 @@ bool switchstatus(Deployable_t sw) {
         return 1; // check this
     }
 }
-
-// This should return 1, assuming switches are not connected to ground when undepressed
-bool deploy(Deployable_t deployable) {
-    activate(deployable);
-    return switchstatus(deployable);
-}
