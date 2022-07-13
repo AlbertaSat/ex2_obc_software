@@ -22,7 +22,29 @@
 #include "HL_gio.h"
 #include "HL_het.h"
 #include "deployablescontrol.h"
-#include "eps.h"
+
+char *deployable_to_str(Deployable_t sw) {
+    switch (sw) {
+    case DFGM:
+        return "DFGM";
+    case UHF_P:
+        return "UHF_P";
+    case UHF_Z:
+        return "UHF_Z";
+    case UHF_S:
+        return "UHF_S";
+    case UHF_N:
+        return "UHF_N";
+    case Port:
+        return "PORT";
+    case Payload:
+        return "PAYLOAD";
+    case Starboard:
+        return "STARBOARD";
+    default:
+        return "Unknown";
+    }
+}
 
 int activate(Deployable_t knife) {
     switch (knife) {
@@ -108,4 +130,30 @@ bool switchstatus(Deployable_t sw) {
     default:
         return 1; // check this
     }
+}
+
+/**
+ * @brief
+ *      Deploy specific deployable
+ * @param sw
+ *      Specific Deployable_t to attempt to deploy
+ * @param attempts
+ *      Number of times to retry deploying the Deployable_t
+ * @param deployed_state
+ *      Expected switch status after deployment
+ * @return
+ *      value of the switch after deployment
+ */
+int deploy(Deployable_t sw, int attempts, int deployed_state) {
+    for (int deployment_attempt = 0; deployment_attempt < attempts; deployment_attempt++) {
+        sys_log(INFO, "LEOP: Starting burn %d for %s\n", deployment_attempt, deployable_to_str(sw));
+        activate(sw);
+    }
+    int switch_status = switchstatus(sw);
+    if ((switch_status != deployed_state)) {
+        sys_log(WARN, "LEOP: %s does not report deployed\n", deployable_to_str(sw));
+    } else {
+        sys_log(INFO, "LEOP: %s reports deployed", deployable_to_str(sw));
+    }
+    return switch_status;
 }
