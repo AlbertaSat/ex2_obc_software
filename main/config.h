@@ -49,7 +49,7 @@
 
 #define IS_SN0072_EPS 0
 
-#define UHF_USE_I2C_CMDS 1
+#define UHF_USE_I2C_CMDS 0
 
 #define SBAND_COMMERCIAL_FREQUENCY 1
 
