@@ -15,5 +15,5 @@
 
 bool eeprom_get_leop_status();
 bool eeprom_set_leop_status();
-
+void eeprom_reset_leop_status();
 #endif /* LEOP_EEPROM_H_ */
