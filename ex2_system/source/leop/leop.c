@@ -24,51 +24,6 @@
 #define FOUR_MIN_DELAY pdMS_TO_TICKS(240 * 1000)
 #define TWENTY_SEC_DELAY pdMS_TO_TICKS(20 * 1000)
 
-char *deployable_to_str(Deployable_t sw) {
-    switch (sw) {
-    case DFGM:
-        return "DFGM";
-    case UHF_P:
-        return "UHF_P";
-    case UHF_Z:
-        return "UHF_Z";
-    case UHF_S:
-        return "UHF_S";
-    case UHF_N:
-        return "UHF_N";
-    case Port:
-        return "PORT";
-    case Payload:
-        return "PAYLOAD";
-    case Starboard:
-        return "STARBOARD";
-    default:
-        return "Unknown";
-    }
-}
-
-/**
- * @brief
- *      Deploye specific deployable
- * @param sw
- *      Specific Deployable_t to attempt to deploy
- * @param attempts
- *      Number of times to retry deploying the Deployable_t
- * @param deployed_state
- *      Expected switch status after deployment
- */
-void deploy(Deployable_t sw, int attempts, int deployed_state) {
-    for (int deployment_attempt = 0; deployment_attempt < attempts; deployment_attempt++) {
-        sys_log(INFO, "LEOP: Starting burn %d for %s\n", deployment_attempt, deployable_to_str(sw));
-        activate(sw);
-    }
-    if ((switchstatus(sw) != deployed_state)) {
-        sys_log(WARN, "LEOP: %s does not report deployed\n", deployable_to_str(sw));
-    } else {
-        sys_log(INFO, "LEOP: %s reports deployed", deployable_to_str(sw));
-    }
-}
-
 /**
  * @brief
  *      Deploy all deployable systems
