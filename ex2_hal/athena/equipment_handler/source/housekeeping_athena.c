@@ -128,7 +128,7 @@ int Athena_getHK(athena_housekeeping *athena_hk) {
     iErr = red_statvfs(gaRedVolConf[0].pszPathPrefix, &volstat);
     athena_hk->vol0_usage_percent =
         (uint8_t)((float)(volstat.f_bfree) * 100.0 /
-                  ((float)(gaRedVolConf[0].ullSectorCount))); // assuming block size == sector size = 512B
+                  ((float)(volstat.f_blocks))); // assuming block size == sector size = 512B
     if (iErr == -1) {
         exit(red_errno);
     }
@@ -137,7 +137,7 @@ int Athena_getHK(athena_housekeeping *athena_hk) {
     iErr = red_statvfs(gaRedVolConf[1].pszPathPrefix, &volstat);
     athena_hk->vol1_usage_percent =
         (uint8_t)((float)(volstat.f_bfree) * 100.0 /
-                  ((float)(gaRedVolConf[1].ullSectorCount))); // assuming block size == sector size = 512B
+                  ((float)(volstat.f_blocks))); // assuming block size == sector size = 512B
     if (iErr == -1) {
         exit(red_errno);
     }
