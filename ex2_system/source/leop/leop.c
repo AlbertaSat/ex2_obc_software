@@ -32,12 +32,12 @@
  */
 void deploy_all_deployables() {
     int dfgm_switch_deployed_state = 1;
-    deploy(DFGM, MAX_RETRIES, dfgm_switch_deployed_state);
+    deploy(DFGM, MAX_ATTEMPTS, dfgm_switch_deployed_state);
     vTaskDelay(TWO_MIN_DELAY);
 
     int uhf_switch_deployed_state = 1;
     for (Deployable_t sw = UHF_P; sw <= UHF_N; sw++) {
-        deploy(sw, MAX_RETRIES, uhf_switch_deployed_state);
+        deploy(sw, MAX_ATTEMPTS, uhf_switch_deployed_state);
     }
 
     vTaskDelay(FOUR_MIN_DELAY);
@@ -47,7 +47,7 @@ void deploy_all_deployables() {
     int hyperion_switch_deployed_state = 1;
 #endif
     for (Deployable_t sw = Port; sw <= Starboard; sw++) {
-        deploy(sw, MAX_RETRIES, hyperion_switch_deployed_state);
+        deploy(sw, MAX_ATTEMPTS, hyperion_switch_deployed_state);
     }
 }
 
