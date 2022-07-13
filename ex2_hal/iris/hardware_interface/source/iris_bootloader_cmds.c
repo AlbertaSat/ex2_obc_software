@@ -24,6 +24,7 @@
 #include "HL_gio.h"
 #include "HL_reg_het.h"
 #include "iris_i2c.h"
+#include "iris_gio.h"
 #include "FreeRTOS.h"
 #include "redposix.h"
 #include <string.h>
@@ -51,39 +52,15 @@ void iris_i2c_init() {
 
 /**
  * @brief
- *  Pull boot line low
- **/
-void BOOT_LOW() { gioSetBit(hetPORT1, 14, 0); }
-
-/**
- * @brief
- *  Pull boot line high
- **/
-void BOOT_HIGH() { gioSetBit(hetPORT1, 14, 1); }
-
-/**
- * @brief
- *  Pull power line low
- **/
-void POWER_OFF() { gioSetBit(hetPORT1, 8, 0); }
-
-/**
- * @brief
- *  Pull power line high
- **/
-void POWER_ON() { gioSetBit(hetPORT1, 8, 1); }
-
-/**
- * @brief
  *  GIO sequence to put Iris in boot mode
  **/
 void iris_pre_sequence() {
     /* Start initialization sequence before I2C transaction */
-    POWER_OFF();
+    IRIS_nRST_LOW();
     vTaskDelay(100);
-    BOOT_HIGH();
+    IRIS_BOOT_HIGH();
     vTaskDelay(100);
-    POWER_ON();
+    IRIS_nRST_HIGH();
     vTaskDelay(100);
 }
 
@@ -93,11 +70,11 @@ void iris_pre_sequence() {
  **/
 void iris_post_sequence() {
     /* End I2C transaction by doing end sequence*/
-    BOOT_LOW();
+    IRIS_BOOT_LOW();
     vTaskDelay(100);
-    POWER_OFF();
+    IRIS_nRST_LOW();
     vTaskDelay(100);
-    POWER_ON();
+    IRIS_nRST_HIGH();
 }
 
 /**
