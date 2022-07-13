@@ -59,13 +59,13 @@ char *deployable_to_str(Deployable_t sw) {
  */
 void deploy(Deployable_t sw, int attempts, int deployed_state) {
     for (int deployment_attempt = 0; deployment_attempt < attempts; deployment_attempt++) {
-        sys_log(INFO, "Starting burn %d for %s\n", deployment_attempt, deployable_to_str(sw));
+        sys_log(INFO, "LEOP: Starting burn %d for %s\n", deployment_attempt, deployable_to_str(sw));
         activate(sw);
     }
     if ((switchstatus(sw) != deployed_state)) {
-        sys_log(WARN, "%s does not report deployed\n", deployable_to_str(sw));
+        sys_log(WARN, "LEOP: %s does not report deployed\n", deployable_to_str(sw));
     } else {
-        sys_log(INFO, "%s reports deployed", deployable_to_str(sw));
+        sys_log(INFO, "LEOP: %s reports deployed", deployable_to_str(sw));
     }
 }
 
@@ -109,7 +109,7 @@ void execute_leop() {
     bool eeprom_flag = false;
     eeprom_flag = eeprom_get_leop_status();
     if (eeprom_flag != true) {
-        sys_log(INFO, "Attempting to execute LEOP sequence");
+        sys_log(INFO, "LEOP: Attempting to execute LEOP sequence");
         // If leop sequence was never executed, execute it and hope for the best
         deploy_all_deployables();
         // Set EEPROM flag to true. LEOP has been attempted, it is up to the operators now to verify it.
