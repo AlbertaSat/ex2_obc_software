@@ -23,6 +23,8 @@
 #include "HL_het.h"
 #include "deployablescontrol.h"
 
+#define TWENTY_SECOND_DELAY pdMS_TO_TICKS(20 * 1000)
+
 char *deployable_to_str(Deployable_t sw) {
     switch (sw) {
     case DFGM:
@@ -148,6 +150,9 @@ int deploy(Deployable_t sw, int attempts, int deployed_state) {
     for (int deployment_attempt = 0; deployment_attempt < attempts; deployment_attempt++) {
         sys_log(INFO, "LEOP: Starting burn %d for %s\n", deployment_attempt, deployable_to_str(sw));
         activate(sw);
+        if (deployment_attempt >= attempts - 1) {
+            vTaskDelay(TWENTY_SECOND_DELAY);
+        }
     }
     int switch_status = switchstatus(sw);
     if ((switch_status != deployed_state)) {
