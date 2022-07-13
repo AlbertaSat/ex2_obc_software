@@ -146,7 +146,7 @@ bool switchstatus(Deployable_t sw) {
  * @return
  *      value of the switch after deployment
  */
-int deploy(Deployable_t sw, int attempts, int deployed_state) {
+int deploy(Deployable_t sw, int attempts, int expected_deployed_state) {
     for (int deployment_attempt = 0; deployment_attempt < attempts; deployment_attempt++) {
         sys_log(INFO, "LEOP: Starting burn %d for %s\n", deployment_attempt, deployable_to_str(sw));
         activate(sw);
@@ -155,7 +155,7 @@ int deploy(Deployable_t sw, int attempts, int deployed_state) {
         }
     }
     int switch_status = switchstatus(sw);
-    if ((switch_status != deployed_state)) {
+    if ((switch_status != expected_deployed_state)) {
         sys_log(WARN, "LEOP: %s does not report deployed\n", deployable_to_str(sw));
     } else {
         sys_log(INFO, "LEOP: %s reports deployed", deployable_to_str(sw));
