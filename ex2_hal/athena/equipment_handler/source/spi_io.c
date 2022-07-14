@@ -50,8 +50,8 @@ void SPI_Release(void) {
 inline void SPI_CS_Low(uint8_t bVolNum) {
     if (bVolNum == 0) {
 #if IS_ATHENA == 1
-        gioSetBit(gioPORTA, 3, 0); // CS LOW
-        gioSetBit(hetPORT2, 6, 1); // CS HIGH
+        gioSetBit(gioPORTA, 3, 1); // CS LOW
+        gioSetBit(hetPORT2, 6, 0); // CS HIGH
 #else
         gioSetBit(hetPORT1, 12, 0); // CS LOW
         gioSetBit(hetPORT1, 14, 1); // CS HIGH
@@ -60,8 +60,8 @@ inline void SPI_CS_Low(uint8_t bVolNum) {
     } else if (bVolNum == 1) {
 
 #if IS_ATHENA == 1
-        gioSetBit(hetPORT2, 6, 0); // CS LOW
-        gioSetBit(gioPORTA, 3, 1); // CS HIGH
+        gioSetBit(hetPORT2, 6, 1); // CS LOW
+        gioSetBit(gioPORTA, 3, 0); // CS HIGH
 #else
         gioSetBit(hetPORT1, 12, 1); // CS LOW
         gioSetBit(hetPORT1, 14, 0); // CS HIGH
