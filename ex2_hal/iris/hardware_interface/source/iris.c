@@ -60,13 +60,10 @@ Iris_HAL_return iris_init() {
     iris_spi_init();
     iris_gio_init();
 
-#if IS_ATHENA == 1
     IRIS_BOOT_LOW();
-
     IRIS_nRST_LOW();
     vTaskDelay(1);
     IRIS_nRST_HIGH();
-#endif
 
     // TODO: Add quick iris loopback test
     return IRIS_HAL_OK;
