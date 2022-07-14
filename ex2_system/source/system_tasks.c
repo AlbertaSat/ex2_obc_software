@@ -23,7 +23,6 @@
 #include "coordinate_management/coordinate_management.h"
 #include "diagnostic/diagnostic.h"
 #include "housekeeping/housekeeping_task.h"
-#include "performance_monitor/system_stats.h"
 #include "logger/logger.h"
 #include "nmea_daemon.h"
 #include "time_management/rtc_daemon.h"
@@ -37,16 +36,15 @@
  */
 SAT_returnState start_system_tasks(void) {
 
-    system_tasks start_task[] = {&start_task_manager,
-                                 &start_beacon_daemon,
-                                 &start_coordinate_management_daemon,
-                                 &start_diagnostic_daemon,
-                                 &start_housekeeping_daemon,
-                                 &start_system_stats_daemon,
-                                 &start_NMEA_daemon,
-                                 &start_RTC_daemon,
-                                 &start_logger_daemon,
-                                 NULL};
+    const const static char *system_task_names[] = {"beacon_daemon\0",   "coordinate_management_daemon\0",
+                                                    "diagnostic_daemon", "housekeeping_daemon\0",
+                                                    "NMEA_daemon\0",     "RTC_daemon\0",
+                                                    "logger_daemon\0"};
+
+    const system_tasks start_task[] = {
+        &start_task_manager,      &start_beacon_daemon,       &start_coordinate_management_daemon,
+        &start_diagnostic_daemon, &start_housekeeping_daemon, &start_NMEA_daemon,
+        &start_RTC_daemon,        &start_logger_daemon,       NULL};
 
     int number_of_system_tasks = (sizeof(start_task) - 1) / sizeof(system_tasks);
     uint8_t *start_task_flag = pvPortMalloc(number_of_system_tasks * sizeof(uint8_t));
