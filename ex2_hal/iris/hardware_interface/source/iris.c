@@ -225,7 +225,7 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
                 red_write(fptr, image_data_buffer_8Bit, IMAGE_TRANSFER_SIZE);
                 // fwrite(image_data_buffer_8Bit, 1, IMAGE_TRANSFER_SIZE, fptr);
 #endif
-                vTaskDelay(150);
+                vTaskDelay(10);
             }
             red_close(fptr);
 #if IS_ATHENA == 1
@@ -511,8 +511,8 @@ Iris_HAL_return iris_update_current_limit(uint16_t current_limit) {
 
 /*          Iris common functions           */
 float iris_convert_hk_temperature(uint16_t temperature) {
-    float upper = (temperature >> 8) - 64;
-    float lower = ((temperature & 0xFF) >> 4) * 0.0625;
+    float upper = (float)(temperature >> 8);
+    float lower = (float)((temperature & 0xFF) >> 4) * 0.0625;
 
-    return (upper + lower);
+    return (float)(upper + lower);
 }
