@@ -63,10 +63,6 @@ typedef enum {
     IRIS_SENSOR_ON = 1,
 } IRIS_SENSOR_TOGGLE;
 
-// pre-defined SPI communication constants
-#define ACK_FLAG 0xAA
-#define NACK_FLAG 0x0F
-
 typedef struct __attribute__((__packed__)) {
     float vis_temp;
     float nir_temp;
