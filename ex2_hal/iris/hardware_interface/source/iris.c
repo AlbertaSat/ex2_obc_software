@@ -36,6 +36,22 @@ enum {
     ERROR_STATE, // TODO: Potentially used for error handling
 } controller_state;
 
+struct __attribute__((__packed__)) {
+    uint16_t vis_temp;
+    uint16_t nir_temp;
+    uint16_t flash_temp;
+    uint16_t gate_temp;
+    uint8_t imagenum;
+    uint8_t software_version;
+    uint8_t errornum;
+    uint16_t MAX_5V_voltage;
+    uint16_t MAX_5V_power;
+    uint16_t MAX_3V_voltage;
+    uint16_t MAX_3V_power;
+    uint16_t MIN_5V_voltage;
+    uint16_t MIN_3V_voltage;
+} iris_hk_buffer;
+
 /**
  * @brief
  *   Initialize low-level spi driver settings
@@ -218,12 +234,11 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
             controller_state = FINISH;
             break;
         }
-        case FINISH : {
+        case FINISH: {
             sys_log(INFO, "Iris returns ACK on transfer image command");
             return IRIS_HAL_OK;
         }
-        case ERROR_STATE:
-        {
+        case ERROR_STATE: {
             sys_log(INFO, "Iris returns NACK on transfer image command");
             return IRIS_HAL_ERROR;
         }
@@ -350,20 +365,35 @@ Iris_HAL_return iris_get_housekeeping(IRIS_Housekeeping *hk_data) {
                 controller_state = ERROR_STATE;
             }
 
-            // Transfer data from buffer to struct
-            hk_data->vis_temp = housekeeping_buffer[1] << 8 | housekeeping_buffer[0];
-            hk_data->nir_temp = housekeeping_buffer[3] << 8 | housekeeping_buffer[2];
-            hk_data->flash_temp = housekeeping_buffer[5] << 8 | housekeeping_buffer[4];
-            hk_data->gate_temp = housekeeping_buffer[7] << 8 | housekeeping_buffer[6];
-            hk_data->imagenum = housekeeping_buffer[8];
-            hk_data->software_version = housekeeping_buffer[9];
-            hk_data->errornum = housekeeping_buffer[10];
-            hk_data->MAX_5V_voltage = housekeeping_buffer[12] << 8 | housekeeping_buffer[11];
-            hk_data->MAX_5V_power = housekeeping_buffer[14] << 8 | housekeeping_buffer[13];
-            hk_data->MAX_3V_voltage = housekeeping_buffer[16] << 8 | housekeeping_buffer[15];
-            hk_data->MAX_3V_power = housekeeping_buffer[18] << 8 | housekeeping_buffer[17];
-            hk_data->MIN_5V_voltage = housekeeping_buffer[20] << 8 | housekeeping_buffer[19];
-            hk_data->MIN_3V_voltage = housekeeping_buffer[22] << 8 | housekeeping_buffer[21];
+            // Pre-processed housekeeping data
+            iris_hk_buffer.vis_temp = housekeeping_buffer[1] << 8 | housekeeping_buffer[0];
+            iris_hk_buffer.nir_temp = housekeeping_buffer[3] << 8 | housekeeping_buffer[2];
+            iris_hk_buffer.flash_temp = housekeeping_buffer[5] << 8 | housekeeping_buffer[4];
+            iris_hk_buffer.gate_temp = housekeeping_buffer[7] << 8 | housekeeping_buffer[6];
+            iris_hk_buffer.imagenum = housekeeping_buffer[8];
+            iris_hk_buffer.software_version = housekeeping_buffer[9];
+            iris_hk_buffer.errornum = housekeeping_buffer[10];
+            iris_hk_buffer.MAX_5V_voltage = housekeeping_buffer[12] << 8 | housekeeping_buffer[11];
+            iris_hk_buffer.MAX_5V_power = housekeeping_buffer[14] << 8 | housekeeping_buffer[13];
+            iris_hk_buffer.MAX_3V_voltage = housekeeping_buffer[16] << 8 | housekeeping_buffer[15];
+            iris_hk_buffer.MAX_3V_power = housekeeping_buffer[18] << 8 | housekeeping_buffer[17];
+            iris_hk_buffer.MIN_5V_voltage = housekeeping_buffer[20] << 8 | housekeeping_buffer[19];
+            iris_hk_buffer.MIN_3V_voltage = housekeeping_buffer[22] << 8 | housekeeping_buffer[21];
+
+            // Post-processed housekeeping data
+            hk_data->vis_temp = iris_convert_hk_temperature(iris_hk_buffer.vis_temp);
+            hk_data->nir_temp = iris_convert_hk_temperature(iris_hk_buffer.nir_temp);
+            hk_data->flash_temp = iris_convert_hk_temperature(iris_hk_buffer.flash_temp);
+            hk_data->gate_temp = iris_convert_hk_temperature(iris_hk_buffer.gate_temp);
+            hk_data->imagenum = iris_hk_buffer.imagenum;
+            hk_data->software_version = iris_hk_buffer.software_version;
+            hk_data->errornum = iris_hk_buffer.errornum;
+            hk_data->MAX_5V_voltage = iris_hk_buffer.MAX_5V_voltage;
+            hk_data->MAX_5V_power = iris_hk_buffer.MAX_5V_power;
+            hk_data->MAX_3V_voltage = iris_hk_buffer.MAX_3V_voltage;
+            hk_data->MAX_3V_power = iris_hk_buffer.MAX_3V_power;
+            hk_data->MIN_5V_voltage = iris_hk_buffer.MIN_5V_voltage;
+            hk_data->MIN_3V_voltage = iris_hk_buffer.MIN_3V_voltage;
 
             controller_state = FINISH;
 
@@ -477,4 +507,12 @@ Iris_HAL_return iris_update_current_limit(uint16_t current_limit) {
         }
     }
     return IRIS_HAL_ERROR;
+}
+
+/*          Iris common functions           */
+float iris_convert_hk_temperature(uint16_t temperature) {
+    float upper = (temperature >> 8) - 64;
+    float lower = ((temperature & 0xFF) >> 4) * 0.0625;
+
+    return (upper + lower);
 }
