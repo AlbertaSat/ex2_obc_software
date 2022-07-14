@@ -76,10 +76,10 @@ enum {
 #define NACK_FLAG 0x0F
 
 typedef struct __attribute__((__packed__)) {
-    uint16_t vis_temp;
-    uint16_t nir_temp;
-    uint16_t flash_temp;
-    uint16_t gate_temp;
+    float vis_temp;
+    float nir_temp;
+    float flash_temp;
+    float gate_temp;
     uint8_t imagenum;
     uint8_t software_version;
     uint8_t errornum;
@@ -106,5 +106,7 @@ Iris_HAL_return iris_toggle_sensor(uint8_t toggle);
 Iris_HAL_return iris_get_housekeeping(IRIS_Housekeeping *hk_data);
 Iris_HAL_return iris_update_sensor_i2c_reg();
 Iris_HAL_return iris_update_current_limit(uint16_t current_limit);
+
+float iris_convert_hk_temperature(uint16_t temperature);
 
 #endif /* INCLUDE_IRIS_H_ */
