@@ -100,4 +100,6 @@ Iris_HAL_return iris_wdt_ack();
 
 float iris_convert_hk_temperature(uint16_t temperature);
 
+float iris_convert_hk_temperature(uint16_t temperature);
+
 #endif /* INCLUDE_IRIS_H_ */
