@@ -22,7 +22,6 @@
 #include <csp/drivers/usart.h>
 #include <csp/interfaces/csp_if_can.h>
 #include <csp/interfaces/csp_if_sdr.h>
-#include <performance_monitor/system_stats.h>
 #include <redconf.h>
 #include <redfs.h>
 #include <redfse.h>
