@@ -174,7 +174,7 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
     fptr = red_open("iris_image.jpg", RED_O_CREAT | RED_O_WRONLY);
 
     if (fptr == NULL) {
-        return;
+        return IRIS_HAL_ERROR;
     }
 
     controller_state = SEND_COMMAND;
