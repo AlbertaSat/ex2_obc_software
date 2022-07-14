@@ -29,6 +29,9 @@ typedef enum {
     IRIS_LL_ERROR = 2,
 } IrisLowLevelReturn;
 
+// pre-defined SPI communication constants
+#define ACK_FLAG 0xAA
+#define NACK_FLAG 0x0F
 #define DUMMY_BYTE 0xFF
 #define IRIS_WAIT_FOR_ACK vTaskDelay(pdMS_TO_TICKS(20))
 

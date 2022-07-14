@@ -28,6 +28,14 @@
  * - Full error coverage is desired
  */
 
+enum {
+    SEND_COMMAND,
+    SEND_DATA,
+    GET_DATA,
+    FINISH,
+    ERROR_STATE, // TODO: Potentially used for error handling
+} controller_state;
+
 struct __attribute__((__packed__)) {
     uint16_t vis_temp;
     uint16_t nir_temp;
