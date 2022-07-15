@@ -126,7 +126,7 @@ bool switchstatus(Deployable_t sw) {
 int deploy(Deployable_t sw, int attempts) {
     for (int deployment_attempt = 0; deployment_attempt < attempts; deployment_attempt++) {
         activate(sw);
-        if (deployment_attempt >= attempts - 1) {
+        if (deployment_attempt <= attempts - 1) {
             vTaskDelay(TWENTY_SECOND_DELAY);
         }
     }
