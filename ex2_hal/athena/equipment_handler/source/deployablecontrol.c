@@ -25,29 +25,6 @@
 
 #define TWENTY_SECOND_DELAY pdMS_TO_TICKS(20 * 1000)
 
-char *deployable_to_str(Deployable_t sw) {
-    switch (sw) {
-    case DFGM:
-        return "DFGM";
-    case UHF_P:
-        return "UHF_P";
-    case UHF_Z:
-        return "UHF_Z";
-    case UHF_S:
-        return "UHF_S";
-    case UHF_N:
-        return "UHF_N";
-    case Port:
-        return "PORT";
-    case Payload:
-        return "PAYLOAD";
-    case Starboard:
-        return "STARBOARD";
-    default:
-        return "Unknown";
-    }
-}
-
 int activate(Deployable_t knife) {
     switch (knife) {
     case Port: {
@@ -146,19 +123,13 @@ bool switchstatus(Deployable_t sw) {
  * @return
  *      value of the switch after deployment
  */
-int deploy(Deployable_t sw, int attempts, int expected_deployed_state) {
+int deploy(Deployable_t sw, int attempts) {
     for (int deployment_attempt = 0; deployment_attempt < attempts; deployment_attempt++) {
-        sys_log(INFO, "LEOP: Starting burn %d for %s\n", deployment_attempt, deployable_to_str(sw));
         activate(sw);
         if (deployment_attempt >= attempts - 1) {
             vTaskDelay(TWENTY_SECOND_DELAY);
         }
     }
     int switch_status = switchstatus(sw);
-    if ((switch_status != expected_deployed_state)) {
-        sys_log(WARN, "LEOP: %s does not report deployed\n", deployable_to_str(sw));
-    } else {
-        sys_log(INFO, "LEOP: %s reports deployed", deployable_to_str(sw));
-    }
     return switch_status;
 }

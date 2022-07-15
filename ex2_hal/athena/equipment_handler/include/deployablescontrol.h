@@ -43,6 +43,6 @@ int activate(Deployable_t knife);
 
 bool switchstatus(Deployable_t sw);
 
-int deploy(Deployable_t sw, int attempts, int expected_deployed_state);
+int deploy(Deployable_t sw, int attempts);
 
 #endif /* DEPLOYABLES_H_ */
