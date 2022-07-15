@@ -153,7 +153,7 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
     case DEPLOY_DEPLOYABLES: {
         Deployable_t dep;
         memcpy(&dep, &packet->data[IN_DATA_BYTE], sizeof(uint8_t));
-        status = (int8_t)deploy(dep, 1, 1);
+        status = (int8_t)deploy(dep, 1);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         set_packet_length(packet, sizeof(int8_t) + sizeof(uint16_t) + 1); // +1 for subservice
 

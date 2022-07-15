@@ -24,6 +24,29 @@
 #define FOUR_MIN_DELAY pdMS_TO_TICKS(240 * 1000)
 #define TWENTY_SEC_DELAY pdMS_TO_TICKS(20 * 1000)
 
+char *deployable_to_str(Deployable_t sw) {
+    switch (sw) {
+    case DFGM:
+        return "DFGM";
+    case UHF_P:
+        return "UHF_P";
+    case UHF_Z:
+        return "UHF_Z";
+    case UHF_S:
+        return "UHF_S";
+    case UHF_N:
+        return "UHF_N";
+    case Port:
+        return "PORT";
+    case Payload:
+        return "PAYLOAD";
+    case Starboard:
+        return "STARBOARD";
+    default:
+        return "Unknown";
+    }
+}
+
 /**
  * @brief
  *      Deploy all deployable systems
@@ -31,13 +54,25 @@
  *      No need for a return, LEOP success is determined by hope
  */
 void deploy_all_deployables() {
+
     int dfgm_switch_deployed_state = 1;
-    deploy(DFGM, MAX_ATTEMPTS, dfgm_switch_deployed_state);
+    Deployable_t dfgm = DFGM;
+    int switch_status = deploy(dfgm, MAX_ATTEMPTS);
+    if ((switch_status != dfgm_switch_deployed_state)) {
+        sys_log(WARN, "LEOP: %s does not report deployed\n", deployable_to_str(dfgm));
+    } else {
+        sys_log(INFO, "LEOP: %s reports deployed", deployable_to_str(dfgm));
+    }
     vTaskDelay(TWO_MIN_DELAY);
 
     int uhf_switch_deployed_state = 1;
     for (Deployable_t sw = UHF_P; sw <= UHF_N; sw++) {
-        deploy(sw, MAX_ATTEMPTS, uhf_switch_deployed_state);
+        switch_status = deploy(sw, MAX_ATTEMPTS);
+        if ((switch_status != uhf_switch_deployed_state)) {
+            sys_log(WARN, "LEOP: %s does not report deployed\n", deployable_to_str(sw));
+        } else {
+            sys_log(INFO, "LEOP: %s reports deployed", deployable_to_str(sw));
+        }
     }
 }
 
