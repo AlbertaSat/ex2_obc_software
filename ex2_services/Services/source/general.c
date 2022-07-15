@@ -162,7 +162,7 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
 
     case GET_SWITCH_STATUS: {
         uint8_t sw[8] = {0};
-        for (int i = 0; i < 8; i++) {
+        for (Deployable_t i = DFGM; i <= Starboard; i++) {
             sw[i] = (uint8_t)switchstatus(i);
         }
         packet->data[STATUS_BYTE] = 0;
