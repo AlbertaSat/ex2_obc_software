@@ -19,10 +19,25 @@
 
 #include "leop.h"
 #include "logger/logger.h"
+#include "printf.h"
+#include <redposix.h>
 
 #define TWO_MIN_DELAY pdMS_TO_TICKS(120 * 1000)
 #define FOUR_MIN_DELAY pdMS_TO_TICKS(240 * 1000)
 #define TWENTY_SEC_DELAY pdMS_TO_TICKS(20 * 1000)
+#define LEOP_LOG_BUF_SIZE 128
+
+int leop_log_fd = -1;
+
+void leop_log(const char *format, ...) {
+    if (leop_log_fd != -1) {
+        char outbuf[LEOP_LOG_BUF_SIZE] = {0};
+        va_list arg;
+        va_start(arg, format);
+        vsnprintf(outbuf, LEOP_LOG_BUF_SIZE, format, arg);
+        red_write(leop_log_fd, outbuf, strlen(outbuf));
+    }
+}
 
 char *deployable_to_str(Deployable_t sw) {
     switch (sw) {
@@ -47,6 +62,14 @@ char *deployable_to_str(Deployable_t sw) {
     }
 }
 
+void log_switch(Deployable_t sw, int switch_status, int expected_deployed_state) {
+    if ((switch_status != expected_deployed_state)) {
+        leop_log("%s does not report deployed\n", deployable_to_str(sw));
+    } else {
+        leop_log("%s reports deployed\n", deployable_to_str(sw));
+    }
+}
+
 /**
  * @brief
  *      Deploy all deployable systems
@@ -54,25 +77,17 @@ char *deployable_to_str(Deployable_t sw) {
  *      No need for a return, LEOP success is determined by hope
  */
 void deploy_all_deployables() {
-
     int dfgm_switch_deployed_state = 1;
     Deployable_t dfgm = DFGM;
     int switch_status = deploy(dfgm, MAX_ATTEMPTS);
-    if ((switch_status != dfgm_switch_deployed_state)) {
-        sys_log(WARN, "LEOP: %s does not report deployed\n", deployable_to_str(dfgm));
-    } else {
-        sys_log(INFO, "LEOP: %s reports deployed", deployable_to_str(dfgm));
-    }
+    log_switch(dfgm, switch_status, dfgm_switch_deployed_state);
+
     vTaskDelay(TWO_MIN_DELAY);
 
     int uhf_switch_deployed_state = 1;
     for (Deployable_t sw = UHF_P; sw <= UHF_N; sw++) {
         switch_status = deploy(sw, MAX_ATTEMPTS);
-        if ((switch_status != uhf_switch_deployed_state)) {
-            sys_log(WARN, "LEOP: %s does not report deployed\n", deployable_to_str(sw));
-        } else {
-            sys_log(INFO, "LEOP: %s reports deployed", deployable_to_str(sw));
-        }
+        log_switch(sw, switch_status, uhf_switch_deployed_state);
     }
 }
 
@@ -86,13 +101,24 @@ void deploy_all_deployables() {
  * @return void
  */
 void execute_leop() {
+    leop_log_fd = red_open(
+        "VOL0:/leop.log",
+        RED_O_WRONLY |
+            RED_O_CREAT); // We don't care about failures. If this fails to open, so be it, leop can't fail
+    if (leop_log_fd == -1) {
+        leop_log_fd =
+            red_open("VOL1:/leop.log", RED_O_WRONLY | RED_O_CREAT); // May as well try both volumes anyway
+    }
     bool eeprom_flag = false;
     eeprom_flag = eeprom_get_leop_status();
     if (eeprom_flag != true) {
-        sys_log(INFO, "LEOP: Attempting to execute LEOP sequence");
+        leop_log("LEOP sequence begun\n");
         // If leop sequence was never executed, execute it and hope for the best
         deploy_all_deployables();
         // Set EEPROM flag to true. LEOP has been attempted, it is up to the operators now to verify it.
         eeprom_set_leop_status();
+    }
+    if (leop_log_fd != -1) {
+        red_close(leop_log_fd);
     }
 }
