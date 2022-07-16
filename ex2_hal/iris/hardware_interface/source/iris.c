@@ -506,6 +506,34 @@ Iris_HAL_return iris_update_current_limit(uint16_t current_limit) {
     return IRIS_HAL_ERROR;
 }
 
+Iris_HAL_return iris_wdt_ack() {
+    IrisLowLevelReturn ret;
+
+    controller_state = SEND_COMMAND;
+
+    while (1) {
+        switch (controller_state) {
+        case SEND_COMMAND: {
+            ret = iris_send_command(IRIS_WDT_ACK);
+            if (ret == IRIS_ACK) {
+                controller_state = FINISH;
+            } else {
+                controller_state = ERROR_STATE;
+            }
+            break;
+        }
+        case FINISH: {
+            sys_log(INFO, "Iris returns ACK on watchdog ack command");
+            return IRIS_HAL_OK;
+        }
+        case ERROR_STATE: {
+            sys_log(INFO, "Iris returns NACK on watchdog ack command");
+            return IRIS_HAL_ERROR;
+        }
+        }
+    }
+}
+
 /*          Iris common functions           */
 float iris_convert_hk_temperature(uint16_t temperature) {
     float upper = (float)(temperature >> 8);
