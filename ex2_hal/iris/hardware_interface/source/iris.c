@@ -171,15 +171,8 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
     uint16_t num_transfer;
     IrisLowLevelReturn ret;
 
-#if IS_ATHENA == 1
-    uint32_t *fptr;
-    fptr = red_open("iris_image.jpg", RED_O_CREAT | RED_O_WRONLY);
-#else
     uint32_t fptr;
-    fptr = red_open("iris_image_2.jpg", RED_O_CREAT | RED_O_WRONLY);
-//    FILE *fptr;
-//    fptr = fopen("new_image.jpg", "wb");
-#endif
+    fptr = red_open("iris_image.jpg", RED_O_CREAT | RED_O_WRONLY);
 
     if (fptr == NULL) {
         return;
@@ -216,18 +209,10 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
                     image_data_buffer_8Bit[i] = (image_data_buffer[i] >> (8 * 0)) & 0xff;
                 }
 
-#if IS_ATHENA == 1
                 red_write(fptr, image_data_buffer_8Bit, IMAGE_TRANSFER_SIZE);
-#else
-                red_write(fptr, image_data_buffer_8Bit, IMAGE_TRANSFER_SIZE);
-                // fwrite(image_data_buffer_8Bit, 1, IMAGE_TRANSFER_SIZE, fptr);
-#endif
                 vTaskDelay(10);
             }
             red_close(fptr);
-#if IS_ATHENA == 1
-            red_close(fptr);
-#endif
             controller_state = FINISH;
             break;
         }
