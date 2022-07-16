@@ -42,6 +42,9 @@ typedef enum {
 
     GET_NS_PAYLOAD_WATCHDOG_TIMEOUT = 12,
     SET_NS_PAYLOAD_WATCHDOG_TIMEOUT = 13,
+    ENABLE_BEACON_TASK = 14,
+    DISABLE_BEACON_TASK = 15,
+    BEACON_TASK_GET_STATE = 16
 } General_Subtype;
 
 typedef enum { bootloader = 'B', golden = 'G', application = 'A' } reboot_mode;

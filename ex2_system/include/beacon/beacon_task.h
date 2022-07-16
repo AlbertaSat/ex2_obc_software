@@ -97,13 +97,13 @@ typedef struct __attribute__((packed)) {
  *      The pointer to where housekeeping data is kept
  */
 
-beacon_packet_1_t beacon_packet_one;
-beacon_packet_2_t beacon_packet_two;
-
 /* Updates Beacon Packet with the latest housekeeping data */
 void update_beacon(All_systems_housekeeping *all_hk_data, beacon_packet_1_t *beacon_packet_one,
                    beacon_packet_2_t *beacon_packet_two);
 
 SAT_returnState start_beacon_daemon(void);
+UHF_return enable_beacon_task(void);
+UHF_return disable_beacon_task(void);
+bool beacon_task_get_state(void);
 
 #endif /* EX2_SYSTEM_INCLUDE_BEACON_TASK_H_ */
