@@ -57,11 +57,11 @@ void iris_i2c_init() {
 void iris_pre_sequence() {
     /* Start initialization sequence before I2C transaction */
     IRIS_nRST_LOW();
-    vTaskDelay(100);
+    IRIS_PROGAMMING_DELAY;
     IRIS_BOOT_HIGH();
-    vTaskDelay(100);
+    IRIS_PROGAMMING_DELAY;
     IRIS_nRST_HIGH();
-    vTaskDelay(100);
+    IRIS_PROGAMMING_DELAY;
 }
 
 /**
@@ -71,9 +71,9 @@ void iris_pre_sequence() {
 void iris_post_sequence() {
     /* End I2C transaction by doing end sequence*/
     IRIS_BOOT_LOW();
-    vTaskDelay(100);
+    IRIS_PROGAMMING_DELAY;
     IRIS_nRST_LOW();
-    vTaskDelay(100);
+    IRIS_PROGAMMING_DELAY;
     IRIS_nRST_HIGH();
 }
 
