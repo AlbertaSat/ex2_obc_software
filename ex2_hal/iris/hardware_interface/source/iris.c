@@ -62,7 +62,7 @@ Iris_HAL_return iris_init() {
 
     IRIS_BOOT_LOW();
     IRIS_nRST_LOW();
-    vTaskDelay(1);
+    IRIS_POWER_CYCLE_DELAY
     IRIS_nRST_HIGH();
 
     // TODO: Add quick iris loopback test
@@ -201,7 +201,7 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
             num_transfer = (uint16_t)((image_length + (IMAGE_TRANSFER_SIZE - 1)) /
                                       IMAGE_TRANSFER_SIZE); // TODO: Ceiling division not working 100%
 
-            vTaskDelay(150);
+            IRIS_WAIT_FOR_STATE_TRANSITION;
             for (uint32_t count_transfer = 0; count_transfer < num_transfer; count_transfer++) {
                 ret = iris_get_data(image_data_buffer, IMAGE_TRANSFER_SIZE);
 
@@ -210,7 +210,7 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
                 }
 
                 red_write(fptr, image_data_buffer_8Bit, IMAGE_TRANSFER_SIZE);
-                vTaskDelay(10);
+                IRSI_IMAGE_DATA_BLOCK_TRANSFER_DELAY
             }
             red_close(fptr);
             controller_state = FINISH;
