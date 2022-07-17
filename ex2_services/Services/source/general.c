@@ -254,16 +254,6 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
         break;
     }
 
-    case UHF_IS_IN_PIPE_NOTIFICATION: {
-        uint8_t timeout_new;
-        memcpy(&timeout_new, &packet->data[IN_DATA_BYTE], sizeof(uint8_t));
-        status = uhf_pipe_timer_activate(timeout_new);
-        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-        set_packet_length(packet, sizeof(int8_t) + 1); // +1 for subservice
-
-        break;
-    }
-
     case GET_NS_PAYLOAD_WATCHDOG_TIMEOUT: {
         status = 0;
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));

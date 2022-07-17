@@ -151,7 +151,6 @@ void ex2_init(void *pvParameters) {
 #if UHF_IS_STUBBED == 0
     uhf_uart_init();
     uhf_i2c_init();
-    uhf_pipe_timer_init();
     UHF_init_config();
 #endif
 

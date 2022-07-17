@@ -422,11 +422,8 @@ Result collect_hk_from_devices(All_systems_housekeeping *all_hk_data) {
 #endif                                                             /* EPS_IS_STUBBED */
 
 #if UHF_IS_STUBBED == 0
-    UHF_return UHF_return_code;
-    if (!uhf_is_busy()) {
-        UHF_return_code = UHF_getHK(&all_hk_data->UHF_hk); /* UHF Housekeeping */
-        vTaskDelay(ONE_SECOND);
-    }
+    UHF_return UHF_return_code = UHF_getHK(&all_hk_data->UHF_hk); /* UHF Housekeeping */
+
 #endif /* UHF_IS_STUBBED */
 
 #if SBAND_IS_STUBBED == 0
