@@ -26,6 +26,8 @@
 #include "iris_i2c.h"
 #include <stdlib.h>
 
+#define IRIS_PROGAMMING_DELAY vTaskDelay(pdMS_TO_TICKS(100))
+
 #define PAGE_SIZE 128
 
 /* Opcodes for write, erase, etc. N_* is the NOR of OPC_* */
