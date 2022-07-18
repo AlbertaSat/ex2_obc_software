@@ -111,7 +111,7 @@ SAT_returnState start_iris_service(void) {
  */
 SAT_returnState iris_service_app(csp_packet_t *packet) {
     uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
-    uint8_t status;
+    int8_t status;
 
     switch (ser_subtype) {
     case IRIS_POWER_ON:
@@ -119,7 +119,7 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
 
         // Return success/failure report
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));
-        set_packet_length(packet, sizeof(uint8_t) + 1);
+        set_packet_length(packet, sizeof(int8_t) + 1);
         break;
     case IRIS_POWER_OFF:
         /* TODO:
@@ -130,19 +130,19 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
 
         // Return success/failure report
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));
-        set_packet_length(packet, sizeof(uint8_t) + 1);
+        set_packet_length(packet, sizeof(int8_t) + 1);
     case IRIS_TURN_OFF_IMAGE_SENSORS:
         status = iris_toggle_sensor(0);
 
         // Return success/failure report
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));
-        set_packet_length(packet, sizeof(uint8_t) + 1);
+        set_packet_length(packet, sizeof(int8_t) + 1);
     case IRIS_TAKE_IMAGE: {
         status = iris_take_pic();
 
         // Return success/failure report
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));
-        set_packet_length(packet, sizeof(uint8_t) + 1);
+        set_packet_length(packet, sizeof(int8_t) + 1);
         break;
     }
     case IRIS_DELIVER_IMAGE: {
@@ -162,7 +162,7 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
 
         // Return success/failure report
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));
-        set_packet_length(packet, sizeof(uint8_t) + 1);
+        set_packet_length(packet, sizeof(int8_t) + 1);
         break;
     }
     case IRIS_COUNT_IMAGES: {
@@ -172,7 +172,7 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
 
         // Return success/failure report
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));
-        set_packet_length(packet, sizeof(uint8_t) + 1);
+        set_packet_length(packet, sizeof(int8_t) + 1);
         break;
     }
     case IRIS_PROGRAM_FLASH: {
@@ -180,7 +180,7 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
 
         // Return success/failure report
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));
-        set_packet_length(packet, sizeof(uint8_t) + 1);
+        set_packet_length(packet, sizeof(int8_t) + 1);
     }
     case IRIS_GET_HK: {
         // Get Iris housekeeping data
