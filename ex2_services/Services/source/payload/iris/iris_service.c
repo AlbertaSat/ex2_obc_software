@@ -141,12 +141,14 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
         // Return success/failure report
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));
         set_packet_length(packet, sizeof(int8_t) + 1);
+        break;
     case IRIS_TURN_OFF_IMAGE_SENSORS:
         status = iris_toggle_sensor(0);
 
         // Return success/failure report
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));
         set_packet_length(packet, sizeof(int8_t) + 1);
+        break;
     case IRIS_TAKE_IMAGE: {
         status = iris_take_pic();
 
@@ -191,6 +193,7 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
         // Return success/failure report
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));
         set_packet_length(packet, sizeof(int8_t) + 1);
+        break;
     }
     case IRIS_GET_HK: {
         // Get Iris housekeeping data
