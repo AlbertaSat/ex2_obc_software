@@ -1,0 +1,36 @@
+name: ccs-build
+
+on: [push, pull_request]
+
+jobs:
+  sync:
+    name: 'CCS Build'
+    runs-on: ubuntu-latest
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+    
+    steps:
+      # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        token: |
+          ${{ secrets.GITHUB_TOKEN }} 
+          submodules: true
+
+    - name: Create version.sh
+      run: |
+        ./version.sh
+    
+    - name: Git Sumbodule Update
+      run: |
+        git submodule init
+        git submodule update
+        git submodule foreach 'git checkout master || :'
+        git submodule foreach git pull
+    
+    - name: Build ccs project
+      uses: JenishPatel99/ccsv10-build-action@v3.15
