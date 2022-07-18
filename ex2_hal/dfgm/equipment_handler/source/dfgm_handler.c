@@ -55,12 +55,13 @@
 static uint8_t DFGM_byteBuffer;
 static xQueueHandle DFGM_queue;
 static SemaphoreHandle_t TX_semaphore;
+static SemaphoreHandle_t collecting_HK_semaphore;
 static dfgm_housekeeping HK_buffer = {0};
 
 // Flags and counters used by the DFGM Rx Task
 static int secondsPassed = 0;
 static int DFGM_runtime = 0;
-static int collecting_HK = 0;
+static int collecting_HK_flag = 0;
 static int firstPacketFlag = 1;
 
 // Makes HK conversions & calculations easier via looping through each array
@@ -328,7 +329,7 @@ void dfgm_rx_task(void *pvParameters) {
     // Set initial conditions for Rx Task
     secondsPassed = 0;
     DFGM_runtime = 0;
-    collecting_HK = 0;
+    collecting_HK_flag = 0;
     firstPacketFlag = 1;
 
     char DFGM_raw_file_name[DFGM_FILE_NAME_MAX_SIZE] = {0};
@@ -393,7 +394,7 @@ void dfgm_rx_task(void *pvParameters) {
             }
 
             // Don't save or convert raw mag field data if receiving packet for HK
-            if (!collecting_HK) {
+            if (!collecting_HK_flag) {
                 // Save raw (unconverted) 100Hz data from DFGM
                 savePacket(&data, DFGM_raw_file_name);
                 DFGM_convertRawMagData(&(data.packet));
@@ -403,7 +404,7 @@ void dfgm_rx_task(void *pvParameters) {
             update_HK(&data);
 
             // Don't save if receiving packet for HK
-            if (!collecting_HK) {
+            if (!collecting_HK_flag) {
                 // Save 100Hz data to DFGM
                 savePacket(&data, DFGM_100Hz_file_name);
             }
@@ -411,7 +412,7 @@ void dfgm_rx_task(void *pvParameters) {
             secondsPassed += 1;
 
             // Only try to filter/downsample data when there will be 2 or more packets
-            if (!collecting_HK && DFGM_runtime > 1) {
+            if (!collecting_HK_flag && DFGM_runtime > 1) {
                 // Convert packet into second struct
                 secondPointer[1]->time = data.time;
                 for (int sample = 0; sample < 100; sample++) {
@@ -436,11 +437,16 @@ void dfgm_rx_task(void *pvParameters) {
                 }
             }
 
+            // If receiving packet for HK, give back the collecting HK semaphore
+            if (collecting_HK_flag) {
+                xSemaphoreGive(collecting_HK_semaphore);
+            }
+
             // Just before the task stops processing data, reset all flags and counters
             if (secondsPassed >= DFGM_runtime) {
                 secondsPassed = 0;
                 DFGM_runtime = 0;
-                collecting_HK = 0;
+                collecting_HK_flag = 0;
                 firstPacketFlag = 1;
                 // Erase strings
                 DFGM_raw_file_name[0] = '\0';
@@ -464,6 +470,9 @@ void DFGM_init() {
     DFGM_queue = xQueueCreate(DFGM_QUEUE_DEPTH, sizeof(uint8_t));
     TX_semaphore = xSemaphoreCreateBinary();
     xTaskCreate(dfgm_rx_task, "DFGM RX", DFGM_RX_TASK_SIZE, NULL, DFGM_RX_PRIO, &dfgm_rx_handle);
+    collecting_HK_semaphore = xSemaphoreCreateBinary();
+    // Semaphore must be given before it's taken
+    xSemaphoreGive(collecting_HK_semaphore);
     return;
 }
 
@@ -535,7 +544,7 @@ DFGM_return DFGM_startDataCollection(int givenRuntime) {
 DFGM_return DFGM_stopDataCollection() {
     secondsPassed = 0;
     DFGM_runtime = 0;
-    collecting_HK = 0;
+    collecting_HK_flag = 0;
     firstPacketFlag = 1;
 
     // Will always work whether or not the data collection task is running
@@ -560,29 +569,60 @@ DFGM_return DFGM_get_HK(dfgm_housekeeping *hk) {
     RTCMK_GetUnix(&currentTime);
     time_t timeDiff = currentTime - HK_buffer.time;
 
-    // Update HK buffer if it has old data
+    // Only update HK buffer if it has old data
     if (timeDiff > DFGM_TIME_THRESHOLD) {
-        collecting_HK = 1;
-        status = DFGM_startDataCollection(1);
-        while (collecting_HK) {
-            // Wait until Rx Task is done updating the buffer
+        // Check if collecting HK semaphore exists
+        if (collecting_HK_semaphore == NULL) {
+            // If collecting HK semaphore exists, use it to timeout the DFGM rx Task
+            // in the case that it takes too long to collect HK data (should take 1-2 seconds)
+            if (xSemaphoreTake(collecting_HK_semaphore, DFGM_HK_COLLECTION_MAX_RUNTIME) == pdTRUE) {
+                // Update HK buffer
+                collecting_HK_flag = 1;
+                status = DFGM_startDataCollection(1);
+
+                // Check if HK data collection finished
+                if (xSemaphoreTake(collecting_HK_semaphore, DFGM_HK_COLLECTION_MAX_RUNTIME) == pdTRUE) {
+                    // If the collecting HK semaphore was taken, then the DFGM rx task
+                    // has finished collecting HK data
+
+                    // Give back the semaphore that was taken during this check
+                    xSemaphoreGive(collecting_HK_semaphore);
+                } else {
+                    // If the collecting HK semaphore cannot be taken, then the DFGM rx
+                    // task has been running for too long and must be timed out
+
+                    // Stop DFGM data collection, forcibly give back the collecting HK
+                    // semaphore, and return an error
+                    DFGM_stopDataCollection();
+                    xSemaphoreGive(collecting_HK_semaphore);
+                    status = DFGM_HK_FAIL;
+                }
+            } else {
+                // If the collecting HK semaphore can't initially be taken, HK collection fails
+                status = DFGM_HK_FAIL;
+            }
+        } else {
+            // If the collecting HK semaphore doesn't exist, HK collection fails
+            status = DFGM_HK_FAIL;
         }
     }
 
-    // Copy buffer contents into the dfgm_houskeeping struct
-    hk->time = HK_buffer.time;
-    hk->coreVoltage = HK_buffer.coreVoltage;
-    hk->sensorTemp = HK_buffer.sensorTemp;
-    hk->refTemp = HK_buffer.refTemp;
-    hk->boardTemp = HK_buffer.boardTemp;
-    hk->posRailVoltage = HK_buffer.posRailVoltage;
-    hk->inputVoltage = HK_buffer.inputVoltage;
-    hk->refVoltage = HK_buffer.refVoltage;
-    hk->inputCurrent = HK_buffer.inputCurrent;
-    hk->reserved1 = HK_buffer.reserved1;
-    hk->reserved2 = HK_buffer.reserved2;
-    hk->reserved3 = HK_buffer.reserved3;
-    hk->reserved4 = HK_buffer.reserved4;
+    // Only copy buffer contents into the dfgm_housekeeping struct if HK collection succeeds
+    if (status != DFGM_HK_FAIL) {
+        hk->time = HK_buffer.time;
+        hk->coreVoltage = HK_buffer.coreVoltage;
+        hk->sensorTemp = HK_buffer.sensorTemp;
+        hk->refTemp = HK_buffer.refTemp;
+        hk->boardTemp = HK_buffer.boardTemp;
+        hk->posRailVoltage = HK_buffer.posRailVoltage;
+        hk->inputVoltage = HK_buffer.inputVoltage;
+        hk->refVoltage = HK_buffer.refVoltage;
+        hk->inputCurrent = HK_buffer.inputCurrent;
+        hk->reserved1 = HK_buffer.reserved1;
+        hk->reserved2 = HK_buffer.reserved2;
+        hk->reserved3 = HK_buffer.reserved3;
+        hk->reserved4 = HK_buffer.reserved4;
+    }
 
     return status;
 }
