@@ -58,6 +58,7 @@ struct __attribute__((__packed__)) {
  **/
 Iris_HAL_return iris_init() {
     iris_spi_init();
+
     iris_gio_init();
 
     IRIS_BOOT_LOW();
