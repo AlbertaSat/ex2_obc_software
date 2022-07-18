@@ -6,7 +6,7 @@
 	url = git@github.com:AlbertaSat/ex2_eps_software.git
 [submodule "ex2_hal/ex2_uhf_software"]
 	path = ex2_hal/ex2_uhf_software
-	url = git@github.com:AlbertaSat/ex2_uhf_software.git
+	url = https://github.com/AlbertaSat/ex2_uhf_software.git
 [submodule "ex2_hal/ex2_adcs_software"]
 	path = ex2_hal/ex2_adcs_software
 	url = git@github.com:AlbertaSat/ex2_adcs_software.git
