@@ -24,6 +24,7 @@
 
 #include "FreeRTOS.h"
 #include "iris_i2c.h"
+#include "iris.h"
 #include <stdlib.h>
 
 #define IRIS_PROGAMMING_DELAY vTaskDelay(pdMS_TO_TICKS(100))
@@ -63,3 +64,7 @@ int iris_erase_page(uint16_t page_num);
 int iris_check_bootloader_version();
 int iris_go_to(uint32_t start_addr);
 int iris_mass_erase_flash();
+
+uint16_t get_file_size(int32_t fptr);
+uint16_t get_num_pages(uint16 fsize);
+Iris_HAL_return iris_program();
