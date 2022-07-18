@@ -18,7 +18,8 @@ jobs:
       uses: actions/checkout@v2
       with:
         token: |
-          submodules: true
+          ${{ secrets.CCS_BUILD_TEST_KEY }} 
+        submodules: true
 
     - name: Create version.sh
       run: |
