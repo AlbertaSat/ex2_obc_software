@@ -29,6 +29,7 @@ typedef enum {
     DFGM_SUCCESS = 0,
     DFGM_BAD_PARAM = 1,
     DFGM_BUSY = 2,
+    DFGM_HK_FAIL = 3,
 
     IS_STUBBED_DFGM = 0
 } DFGM_return;
@@ -76,6 +77,7 @@ typedef enum {
 #define DFGM_QUEUE_DEPTH 1248
 #define DFGM_FILE_NAME_MAX_SIZE 25
 #define DFGM_RX_TASK_SIZE 500
+#define DFGM_HK_COLLECTION_MAX_RUNTIME 3000 // in ticks, assuming 1000 ticks/sec
 
 typedef struct __attribute__((packed)) {
     uint32_t x; // [xdac, xadc]
