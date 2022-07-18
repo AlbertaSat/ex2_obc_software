@@ -32,4 +32,4 @@ jobs:
         git submodule foreach git pull
     
     - name: Build ccs project
-      uses: JenishPatel99/ccsv10-build-action@v3.15
+      uses: JenishPatel99/ccsv10-build-action@v3.17
