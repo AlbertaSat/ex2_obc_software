@@ -303,7 +303,6 @@ int iris_mass_erase_flash() {
 }
 
 uint16_t get_file_size(int32_t fptr) {
-    uint16_t fsize = 0; // Max .bin file size should be 64KB
     REDSTAT file_stat;
 
     red_fstat(fptr, &file_stat);

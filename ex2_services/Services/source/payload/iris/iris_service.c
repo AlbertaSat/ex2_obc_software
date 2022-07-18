@@ -26,6 +26,7 @@
 #include <stdio.h>
 
 #include "iris.h"
+#include "iris_bootloader_cmds.h"
 
 #define IRIS_SIZE 1000
 
@@ -111,7 +112,7 @@ SAT_returnState start_iris_service(void) {
  */
 SAT_returnState iris_service_app(csp_packet_t *packet) {
     uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
-    int8_t status;
+    int8_t status = 0;
 
     switch (ser_subtype) {
     case IRIS_POWER_ON:
@@ -163,7 +164,7 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
         uint32_t image_length;
 
         status = iris_get_image_length(&image_length);
-        vTaskDelay(1000);
+        IRIS_SERVICE_IMAGE_TRANSFER_DELAY; // 100 ms delay
 
         if (status == IRIS_HAL_OK && image_length != NULL) {
             status = iris_transfer_image(image_length);
