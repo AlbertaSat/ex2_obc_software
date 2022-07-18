@@ -1,10 +1,10 @@
 name: ccs-build
 
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
   sync:
-    name: 'CCS Build'
+    name: 'CCS Build on ex2_obc_software'
     runs-on: ubuntu-latest
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
@@ -17,7 +17,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
       with:
-        ssh-key: ${{ secrets.SUBMODULE_CONTENT_PULL_KEY }}
+        ssh-key: ${{ secrets.SUBMODULE_CONTENT_PULL_KEY }} # Needed to checkout private submodules
         submodules: 'recursive'
 
     - name: Create version.sh
@@ -32,4 +32,4 @@ jobs:
         git submodule foreach git pull
     
     - name: Build ccs project
-      uses: JenishPatel99/ccsv10-build-action@v3.17
+      uses: JenishPatel99/ccsv10-build-action@v0.1
