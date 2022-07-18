@@ -115,16 +115,25 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
 
     switch (ser_subtype) {
     case IRIS_POWER_ON:
-        status = iris_init();
+#if IS_ATHENA == 1
+        status = eps_set_pwr_chnl(PYLD_3V3_PWR_CHNL, ON);
+        status += eps_set_pwr_chnl(PYLD_5V0_PWR_CHNL, ON);
+#endif
+        status += iris_init();
 
         // Return success/failure report
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));
         set_packet_length(packet, sizeof(int8_t) + 1);
         break;
     case IRIS_POWER_OFF:
-        /* TODO:
-         *
-         */
+#if IS_ATHENA == 1
+        status = eps_set_pwr_chnl(PYLD_3V3_PWR_CHNL, OFF);
+        status += eps_set_pwr_chnl(PYLD_5V0_PWR_CHNL, OFF);
+#endif
+        // Return success/failure report
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));
+        set_packet_length(packet, sizeof(int8_t) + 1);
+        break;
     case IRIS_TURN_ON_IMAGE_SENSORS:
         status = iris_toggle_sensor(1);
 
