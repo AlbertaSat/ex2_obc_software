@@ -16,6 +16,10 @@ jobs:
       # Checkout the repository to the GitHub Actions runner
     - name: Checkout
       uses: actions/checkout@v2
+      with:
+        submodules: true
+        token: ${{ secrets.SECRET_TOKEN }}
+        
 
     - name: Create version.sh
       run: |
