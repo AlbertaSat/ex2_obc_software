@@ -17,9 +17,9 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
       with:
+        token: |
+          ${{ secrets.SECRET_TOKEN }}
         submodules: true
-        token: ${{ secrets.SECRET_TOKEN }}
-        
 
     - name: Create version.sh
       run: |
