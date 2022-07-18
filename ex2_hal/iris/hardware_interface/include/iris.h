@@ -43,8 +43,7 @@
 typedef enum {
     // TODO: Add more meaningful return types
     IRIS_HAL_OK = 0,
-    IRIS_HAL_FAILURE = 1,
-    IRIS_HAL_ERROR = 2,
+    IRIS_HAL_ERROR = 1,
 } Iris_HAL_return;
 
 // Legal Iris commands
