@@ -13,10 +13,15 @@ jobs:
         shell: bash
     
     steps:
+
+    - name: Fix up git URLs
+      run: echo -e '[url "https://github.com/"]\n  insteadOf = "git@github.com:"' >> ~/.gitconfig
+      
       # Checkout the repository to the GitHub Actions runner
     - name: Checkout
       uses: actions/checkout@v2
       with:
+        token: ${{ secrets.SECRET_TOKEN }}
         submodules: true
 
     - name: Create version.sh
