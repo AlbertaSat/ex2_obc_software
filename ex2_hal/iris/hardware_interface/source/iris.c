@@ -30,9 +30,9 @@
  *   Initialize low-level spi driver settings
  **/
 Iris_HAL_return iris_init() {
-    iris_spi_init()
+    iris_spi_init();
 
-        return IRIS_HAL_OK;
+    return IRIS_HAL_OK;
 }
 
 /**
