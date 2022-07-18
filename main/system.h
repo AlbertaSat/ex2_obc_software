@@ -154,7 +154,14 @@ typedef enum {
 #define DFGM_5V0_PWR_CHNL 2
 #endif
 
+#if IS_SN0072_EPS == 1 && IS_EXALTA == 1
+#warning                                                                                                          \
+    "IS_SN0072_EPS swaps assignment for channels 3 and 1 because of incorrect output config of the engineering model Nanoavionics EPS, SN 0072"
+#define PYLD_5V0_PWR_CHNL 1
+#else
 #define PYLD_5V0_PWR_CHNL 3
+#endif
+
 // Channel 4 was assigned to be 3V3 for 1W UHF in case 2W UHFs didn't work out.
 #if IS_SN0072_EPS == 1
 #define DFGM_5V0_PWR_CHNL 5
