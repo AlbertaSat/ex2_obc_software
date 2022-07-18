@@ -21,9 +21,8 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
       with:
-        token: |
-          ${{ secrets.SECRET_TOKEN }}
-        submodules: true
+        ssh-key: ${{ secrets.SUBMODULE_CONTENT_PULL_KEY }}
+        submodules: 'recursive'
 
     - name: Create version.sh
       run: |
