@@ -1,5 +1,5 @@
 FROM ubuntu:20.04
-LABEL maintainer="JenishPatel99"
+LABEL maintainer="AlbertaSat"
 ENV DEBIAN_FRONTEND=noninteractive
 ARG COMPONENTS=PF_HERCULES
 
