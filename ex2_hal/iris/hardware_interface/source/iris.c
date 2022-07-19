@@ -178,12 +178,12 @@ Iris_HAL_return iris_get_image_length(uint32_t *image_length) {
  * @return
  *   Returns IRIS_HAL_OK if equipment handler returns IRIS_ACK, else IRIS_HAL_ERROR
  **/
-Iris_HAL_return iris_transfer_image(uint32_t image_length) {
+Iris_HAL_return iris_transfer_image(uint32_t image_length, const char *file_name) {
     uint16_t num_transfer;
     IrisLowLevelReturn ret;
 
     uint32_t fptr;
-    fptr = red_open("iris_image.jpg", RED_O_CREAT | RED_O_WRONLY);
+    fptr = red_open(file_name, RED_O_CREAT | RED_O_WRONLY);
 
     if (fptr == -1) {
         return IRIS_HAL_ERROR;

@@ -93,7 +93,7 @@ typedef struct __attribute__((__packed__)) {
 Iris_HAL_return iris_init();
 Iris_HAL_return iris_take_pic();
 Iris_HAL_return iris_get_image_length(uint32_t *image_length);
-Iris_HAL_return iris_transfer_image(uint32_t image_length);
+Iris_HAL_return iris_transfer_image(uint32_t image_length, const char *file_name);
 Iris_HAL_return iris_get_image_count(uint16_t *image_count);
 Iris_HAL_return iris_toggle_sensor(uint8_t toggle);
 Iris_HAL_return iris_get_housekeeping(IRIS_Housekeeping *hk_data);
