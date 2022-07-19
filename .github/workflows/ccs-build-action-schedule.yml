@@ -1,0 +1,38 @@
+name: ccs-build
+
+# 4 AM MST (11 AM UTC) on every day
+on:
+  schedule:
+    - cron: '30 11,23 * * *'
+
+jobs:
+  sync:
+    name: 'Daily build'
+    runs-on: ubuntu-latest
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+    
+    steps:
+      # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        ssh-key: ${{ secrets.SUBMODULE_CONTENT_PULL_KEY }} # Needed to checkout private submodules
+        submodules: 'recursive'
+
+    - name: Create version.sh
+      run: |
+        ./version.sh
+    
+    - name: Update submodules to master/main branch
+      run: |
+        git submodule init
+        git submodule update
+        git submodule foreach 'git checkout master || :'
+        git submodule foreach git pull
+    
+    - name: Build ccs project
+      uses: AlbertaSat/CCS_v10_4_build_action@v0.1
