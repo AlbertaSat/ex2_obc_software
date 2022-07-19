@@ -146,16 +146,18 @@ typedef enum {
 
 #define ADCS_5V0_PWR_CHNL 1
 #if IS_SN0072_EPS == 1
-#warning                                                                                                          \
-    "IS_SN0072_EPS swaps assignment for channels 2 and 5 because of incorrect output config of the engineering model Nanoavionics EPS, SN 0072"
+#warning
+"IS_SN0072_EPS swaps assignment for channels 2 and 5 because of incorrect output config of the engineering model "
+"Nanoavionics EPS, SN 0072"
 #define ADCS_3V3_PWR_CHNL 2
 #else
 #define DFGM_5V0_PWR_CHNL 2
 #endif
 
 #if IS_SN0072_EPS == 1 && IS_EXALTA == 1
-#warning                                                                                                          \
-    "IS_SN0072_EPS swaps assignment for channels 3 and 1 because of incorrect output config of the engineering model Nanoavionics EPS, SN 0072"
+#warning
+    "IS_SN0072_EPS swaps assignment for channels 3 and 1 because of incorrect output config of the engineering "
+    "model Nanoavionics EPS, SN 0072"
 #define PYLD_5V0_PWR_CHNL 1
 #else
 #define PYLD_5V0_PWR_CHNL 3
