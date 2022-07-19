@@ -116,7 +116,7 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
 
     switch (ser_subtype) {
     case IRIS_POWER_ON:
-#if IS_ATHENA == 1
+#if IS_ATHENA == 1 && IS_FLATSAT == 0
         status = eps_set_pwr_chnl(PYLD_3V3_PWR_CHNL, ON);
         status += eps_set_pwr_chnl(PYLD_5V0_PWR_CHNL, ON);
 #endif
@@ -127,7 +127,7 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
         set_packet_length(packet, sizeof(int8_t) + 1);
         break;
     case IRIS_POWER_OFF:
-#if IS_ATHENA == 1
+#if IS_ATHENA == 1 && IS_FLATSAT == 0
         status = eps_set_pwr_chnl(PYLD_3V3_PWR_CHNL, OFF);
         status += eps_set_pwr_chnl(PYLD_5V0_PWR_CHNL, OFF);
 #endif

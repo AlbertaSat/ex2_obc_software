@@ -23,7 +23,7 @@ SAT_returnState start_iris_service(void);
 
 SAT_returnState iris_service_app(csp_packet_t *pkt);
 
-#define IRIS_SERVICE_IMAGE_TRANSFER_DELAY vTaskDelay(pdMS_TO_TICKS(100))
+#define IRIS_SERVICE_IMAGE_TRANSFER_DELAY vTaskDelay(pdMS_TO_TICKS(1000))
 
 typedef enum {
     IRIS_POWER_ON = 0,
