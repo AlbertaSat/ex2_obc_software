@@ -32,3 +32,5 @@ RUN /download_ccs/ccs_setup_10.4.0.00006.run --prefix /ti/ --mode unattended --e
 # RUN /ti/ccs/install_scripts/install_drivers.sh
 
 ENV PATH="/ti/ccs/eclipse:${PATH}"
+
+# Credit: Dockerfile was adopted from following user -> The-MEO (https://github.com/The-MEO/ticcs). Changes were made to use CCS_10_4_0
