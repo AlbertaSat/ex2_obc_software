@@ -153,10 +153,8 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
     case DEPLOY_DEPLOYABLES: {
         Deployable_t dep;
         memcpy(&dep, &packet->data[IN_DATA_BYTE], sizeof(uint8_t));
-        uint16_t burnwire_current = 0;
-        status = deploy(dep);
+        status = (int8_t)deploy(dep, 1);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-        memcpy(&packet->data[OUT_DATA_BYTE], &burnwire_current, sizeof(uint16_t));
         set_packet_length(packet, sizeof(int8_t) + sizeof(uint16_t) + 1); // +1 for subservice
 
         break;
@@ -164,7 +162,7 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
 
     case GET_SWITCH_STATUS: {
         uint8_t sw[8] = {0};
-        for (int i = 0; i < 8; i++) {
+        for (Deployable_t i = DFGM; i <= Starboard; i++) {
             sw[i] = (uint8_t)switchstatus(i);
         }
         packet->data[STATUS_BYTE] = 0;

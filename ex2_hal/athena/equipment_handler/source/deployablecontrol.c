@@ -22,7 +22,8 @@
 #include "HL_gio.h"
 #include "HL_het.h"
 #include "deployablescontrol.h"
-#include "eps.h"
+
+#define TWENTY_SECOND_DELAY pdMS_TO_TICKS(20 * 1000)
 
 int activate(Deployable_t knife) {
     switch (knife) {
@@ -110,8 +111,25 @@ bool switchstatus(Deployable_t sw) {
     }
 }
 
-// This should return 1, assuming switches are not connected to ground when undepressed
-bool deploy(Deployable_t deployable) {
-    activate(deployable);
-    return switchstatus(deployable);
+/**
+ * @brief
+ *      Deploy specific deployable
+ * @param sw
+ *      Specific Deployable_t to attempt to deploy
+ * @param attempts
+ *      Number of times to retry deploying the Deployable_t
+ * @param deployed_state
+ *      Expected switch status after deployment
+ * @return
+ *      value of the switch after deployment
+ */
+int deploy(Deployable_t sw, int attempts) {
+    for (int deployment_attempt = 0; deployment_attempt < attempts; deployment_attempt++) {
+        activate(sw);
+        if (deployment_attempt <= attempts - 1) {
+            vTaskDelay(TWENTY_SECOND_DELAY);
+        }
+    }
+    int switch_status = switchstatus(sw);
+    return switch_status;
 }
