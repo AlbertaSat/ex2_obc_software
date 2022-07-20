@@ -274,14 +274,14 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
     }
 
     case ENABLE_BEACON_TASK: {
-        status = enable_beacon_task();
+        status = (int8_t)enable_beacon_task();
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         set_packet_length(packet, sizeof(int8_t) + 1); // +1 for subservice
         break;
     }
 
     case DISABLE_BEACON_TASK: {
-        status = disable_beacon_task();
+        status = (int8_t)disable_beacon_task();
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         set_packet_length(packet, sizeof(int8_t) + 1); // +1 for subservice
         break;
