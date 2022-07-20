@@ -3,7 +3,7 @@ name: ccs-build
 # 4 AM MST (11 AM UTC) on every day
 on:
   schedule:
-    - cron: '30 11,23 * * *'
+    - cron: '0 11 * * *'
 
 jobs:
   sync:
