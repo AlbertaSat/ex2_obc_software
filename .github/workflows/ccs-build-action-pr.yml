@@ -36,6 +36,11 @@ jobs:
       with:
         config: Debug
 
+    - name: Build ccs project (ExAlta2 config)
+      uses: AlbertaSat/CCS_v10_4_build_action@v0.2
+      with:
+        config: Exalta2
+
     - name: Build ccs project (Flatsat config)
       uses: AlbertaSat/CCS_v10_4_build_action@v0.2
       with:
@@ -50,8 +55,3 @@ jobs:
       uses: AlbertaSat/CCS_v10_4_build_action@v0.2
       with:
         config: Yukonsat
-
-    - name: Build ccs project (YukonSat config)
-      uses: AlbertaSat/CCS_v10_4_build_action@v0.2
-      with:
-        config: Exalta2
