@@ -27,6 +27,7 @@
 
 #include "iris.h"
 #include "iris_bootloader_cmds.h"
+#include "eps.h"
 
 #define IRIS_SIZE 1000
 
