@@ -1531,6 +1531,1238 @@
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 		</cconfiguration>
+		<cconfiguration id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.1547994189">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.1547994189" moduleId="org.eclipse.cdt.core.settings" name="Flatsat">
+				<externalSettings/>
+				<extensions>
+					<extension id="com.ti.ccstudio.binaryparser.CoffParser" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="com.ti.ccstudio.errorparser.CoffErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="com.ti.ccstudio.errorparser.AsmErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="com.ti.ccstudio.errorparser.LinkErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactExtension="out" artifactName="${ProjName}" buildProperties="" cleanCommand="${CG_CLEAN_CMD}" description="Configurations used for FlatSat" id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.1547994189" name="Flatsat" parent="com.ti.ccstudio.buildDefinitions.TMS470.Debug" postannouncebuildStep="" postbuildStep="&quot;${CCS_INSTALL_ROOT}/utils/tiobj2bin/tiobj2bin&quot; &quot;${BuildArtifactFileName}&quot; &quot;${BuildArtifactFileBaseName}.bin&quot; &quot;${CG_TOOL_ROOT}/bin/ofd470&quot; &quot;${CG_TOOL_ROOT}/bin/hex470&quot; &quot;${CCS_INSTALL_ROOT}/utils/tiobj2bin/mkhex4bin&quot;" prebuildStep="">
+					<folderInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.1547994189." name="/" resourcePath="">
+						<toolChain id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain.1323186538" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain" targetTool="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.48921586">
+							<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1568720113" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS" valueType="stringList">
+								<listOptionValue builtIn="false" value="DEVICE_CONFIGURATION_ID=Cortex R.TMS570LC43xx"/>
+								<listOptionValue builtIn="false" value="DEVICE_ENDIANNESS=be32"/>
+								<listOptionValue builtIn="false" value="OUTPUT_FORMAT=ELF"/>
+								<listOptionValue builtIn="false" value="RUNTIME_SUPPORT_LIBRARY=libc.a"/>
+								<listOptionValue builtIn="false" value="CCS_MBS_VERSION=6.1.3"/>
+								<listOptionValue builtIn="false" value="PRODUCTS="/>
+								<listOptionValue builtIn="false" value="PRODUCT_MACRO_IMPORTS={}"/>
+								<listOptionValue builtIn="false" value="OUTPUT_TYPE=executable"/>
+							</option>
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.2101995475" name="Compiler version" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION" value="20.2.0.LTS" valueType="string"/>
+							<targetPlatform id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug.318207478" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug"/>
+							<builder buildPath="${BuildDirectory}" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.builderDebug.474658503" keepEnvironmentInBuildfile="false" name="GNU Make" parallelBuildOn="true" parallelizationNumber="optimal" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.builderDebug"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.1588882865" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug">
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.CODE_STATE.617546457" name="Designate code state, 16-bit (thumb) or 32-bit (--code_state)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.CODE_STATE" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.CODE_STATE.32" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.SILICON_VERSION.1902618860" name="Target processor version (--silicon_version, -mv)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.SILICON_VERSION" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.SILICON_VERSION.7R5" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.FLOAT_SUPPORT.1615548635" name="Specify floating point support (--float_support)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.FLOAT_SUPPORT" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.FLOAT_SUPPORT.VFPv3D16" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.ABI.1302593689" name="Application binary interface. (--abi)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.ABI" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.ABI.eabi" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.ENUM_TYPE.1829865242" name="Designate enum type (--enum_type)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.ENUM_TYPE" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.ENUM_TYPE.packed" valueType="enumerated"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.INCLUDE_PATH.873460738" name="Add dir to #include search path (--include_path, -I)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.INCLUDE_PATH" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/main}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/payload/iris}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/iris/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/iris/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/northern_spirit/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/northern_spirit/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/driver}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/leop}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/file_transfer}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/mac_layer}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/utilities}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/third_party/viterbi}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/phy_layer/pdu}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/phy_layer}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/wrapper}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/configuration}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/error_control}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/error_control/qcldpc}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/HAL}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/mac_layer/pdu}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/dfgm/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/dfgm/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/adcs/equipment_handler/inc}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/adcs/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/hyperion_solar_panel/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/src}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include/csp}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include/ex2_os}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/F021_API}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/hyperion_solar_panel/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/scheduler}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_uhf_software/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/charon/daemons}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/communication}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/charon/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/charon/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/beacon}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/scheduler}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/logger}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/housekeeping}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/task_manager}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/coordinate_management}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/diagnostic}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_uhf_software/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/include"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/sband/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/core/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/eps/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/os/freertos/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/sband/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/athena/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include/ex2_os}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/housekeeping}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include}"/>
+									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/include"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/pdu}"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="true" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEFINE.134737326" name="Pre-define NAME (--define, -D)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEFINE" valueType="definedSymbols"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEBUGGING_MODEL.403354810" name="Debugging model" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEBUGGING_MODEL" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEBUGGING_MODEL.SYMDEBUG__DWARF" valueType="enumerated"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DIAG_WARNING.520532626" name="Treat diagnostic &lt;id&gt; as warning (--diag_warning, -pdsw)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DIAG_WARNING" valueType="stringList">
+									<listOptionValue builtIn="false" value="225"/>
+								</option>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DIAG_WRAP.1614940267" name="Wrap diagnostic messages (--diag_wrap)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DIAG_WRAP" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DIAG_WRAP.off" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DISPLAY_ERROR_NUMBER.35395845" name="Emit diagnostic identifier numbers (--display_error_number, -pden)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DISPLAY_ERROR_NUMBER" value="true" valueType="boolean"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.C_DIALECT.2006935557" name="C Dialect" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.C_DIALECT" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.C_DIALECT.C99" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.OPT_LEVEL.1293224202" name="Optimization level (--opt_level, -O)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.OPT_LEVEL" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.OPT_LEVEL.off" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.EXCEPTIONS.850311428" name="Enable C++ exception handling (--exceptions)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.EXCEPTIONS" value="true" valueType="boolean"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.PREINCLUDE.854083722" name="Specify a preinclude file (--preinclude)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.PREINCLUDE" valueType="includeFiles">
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/main/config_flatsat.h}"/>
+								</option>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.383247123" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.916694624" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.965368347" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS.271028401" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1114639192" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug">
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.ARM_BIG_ENDIAN_MODES.956422791" name="ARM big endian modes [See 'General' page to edit]" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.ARM_BIG_ENDIAN_MODES" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.ARM_BIG_ENDIAN_MODES.BE32" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.HEAP_SIZE.1114817588" name="Heap size for C/C++ dynamic memory allocation (--heap_size, -heap)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.HEAP_SIZE" value="0x800" valueType="string"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.STACK_SIZE.1595651402" name="Set C system stack size (--stack_size, -stack)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.STACK_SIZE" value="0x800" valueType="string"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.MAP_FILE.1197344332" name="Link information (map) listed into &lt;file&gt; (--map_file, -m)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.MAP_FILE" value="${ProjName}.map" valueType="string"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.OUTPUT_FILE.999066265" name="Specify output file name (--output_file, -o)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.OUTPUT_FILE" value="${ProjName}.out" valueType="string"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.LIBRARY.699605547" name="Include library file or command file as input (--library, -l)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.LIBRARY" valueType="libs">
+									<listOptionValue builtIn="false" value="libc.a"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.SEARCH_PATH.1693582218" name="Add &lt;dir&gt; to library search path (--search_path, -i)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.SEARCH_PATH" valueType="libPaths">
+									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/lib"/>
+									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/include"/>
+								</option>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.DIAG_WRAP.560905270" name="Wrap diagnostic messages (--diag_wrap)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.DIAG_WRAP" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.DIAG_WRAP.off" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.DISPLAY_ERROR_NUMBER.1192946041" name="Emit diagnostic identifier numbers (--display_error_number)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.DISPLAY_ERROR_NUMBER" value="true" valueType="boolean"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.XML_LINK_INFO.443519330" name="Detailed link information data-base into &lt;file&gt; (--xml_link_info, -xml_link_info)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.XML_LINK_INFO" value="${ProjName}_linkInfo.xml" valueType="string"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exeLinker.inputType__CMD_SRCS.2034621163" name="Linker Command Files" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exeLinker.inputType__CMD_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exeLinker.inputType__CMD2_SRCS.1751282780" name="Linker Command Files" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exeLinker.inputType__CMD2_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exeLinker.inputType__GEN_CMDS.264736089" name="Generated Linker Command Files" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exeLinker.inputType__GEN_CMDS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.267022436" name="ARM Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex"/>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.1547994189.ex2_services" name="ex2_services" resourcePath="ex2_services">
+						<toolChain id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain.1098521344" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain" unusedChildren="">
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.1044127654.2059523881" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823"/>
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.105544848.1083811618" name="Compiler version" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512"/>
+							<targetPlatform id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug.1087917277" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.983616755" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.1588882865">
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.183472142" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.840297539" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.274484295" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS.393325248" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.273133427" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1114639192"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.1782883241" name="ARM Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.267022436"/>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.1547994189.ex2_services/Services" name="Services" resourcePath="ex2_services/Services">
+						<toolChain id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain.10718629" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain" unusedChildren="">
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.1044127654.295075930.1688135633" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.1044127654"/>
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.105544848.680834020.231799919" name="Compiler version" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.105544848"/>
+							<targetPlatform id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug.310398991" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.961058818" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.983616755">
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.462769310" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.1230878415" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.1839981362" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS.763516870" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1107333892" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.273133427"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.1355361530" name="ARM Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.1782883241"/>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.1547994189.test" name="/" resourcePath="test">
+						<toolChain id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain.641848836" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain" unusedChildren="">
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.773001880.1874310349" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823"/>
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.705473409.679276878" name="Compiler version" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512"/>
+							<targetPlatform id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug.1169423189" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.307251275" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.1588882865">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.INCLUDE_PATH.803560182" name="Add dir to #include search path (--include_path, -I)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.INCLUDE_PATH" valueType="includePath">
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/main}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/mac_layer}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/utilities}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/third_party/viterbi}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/phy_layer/pdu}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/phy_layer}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/wrapper}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/configuration}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/error_control}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/error_control/qcldpc}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/HAL}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/mac_layer/pdu}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/source}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/housekeeping}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/src}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include/ex2_os}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/F021_API}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/hyperion_solar_panel/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_uhf_software/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/communication}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/charon/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/charon/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/beacon}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/coordinate_management}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/diagnostic}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_uhf_software/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/include"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/sband/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/core/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/eps/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/os/freertos/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/sband/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/athena/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include/ex2_os}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include}"/>
+									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/include"/>
+								</option>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.467291994" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.1521447253" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.496956861" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS.243206396" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.2096811733" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1114639192"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.928204399" name="ARM Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.267022436"/>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.1547994189.main" name="ex2_obc_software" resourcePath="main">
+						<toolChain id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain.1106100434" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain" unusedChildren="">
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.759256792.1480656441" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823"/>
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.1333501899.1285748960" name="Compiler version" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512"/>
+							<targetPlatform id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug.153260853" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.1195088054" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.1588882865">
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.270849461" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.487103321" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.490747652" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS.568370702" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.760351918" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1114639192"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.865167162" name="ARM Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.267022436"/>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.1547994189.ex2_system/include/logger" name="/" resourcePath="ex2_system/include/logger">
+						<toolChain id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain.1934823823" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain" unusedChildren="">
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.1114164437.1619477875" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823"/>
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.1776770003.696860021" name="Compiler version" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512"/>
+							<targetPlatform id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug.1969614708" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.261188771" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.1588882865">
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.1470386351" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.887897665" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.703425599" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS.2107524094" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.120404596" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1114639192"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.1522951541" name="ARM Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.267022436"/>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.1547994189.ex2_system/source" name="/" resourcePath="ex2_system/source">
+						<toolChain id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain.1621274582" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain" unusedChildren="">
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.1394996214.1820491434" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823"/>
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.612075082.347139431" name="Compiler version" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512"/>
+							<targetPlatform id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug.1887200727" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.794438390" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.1588882865">
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.734657378" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.569251618" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.1818764700" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS.971128084" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1901063046" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1114639192"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.1102843265" name="ARM Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.267022436"/>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.1547994189.ex2_system/source/diagnostic" name="/" resourcePath="ex2_system/source/diagnostic">
+						<toolChain id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain.133307301" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain" unusedChildren="">
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.1394996214.365213954.541143968" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.1394996214"/>
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.612075082.1353090731.1302313931" name="Compiler version" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.612075082"/>
+							<targetPlatform id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug.1160986528" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.1883116515" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.794438390">
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.643096958" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.1006217120" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.980739409" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS.1113289722" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1662336257" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1901063046"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.482105653" name="ARM Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.1102843265"/>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="ex2_hal/sband/equipment_handler/test"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="ex2_hal/sband/equipment_handler/include"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="ex2_hal/sband/equipment_handler/source"/>
+						<entry excluding="ex2_sdr/gnuradio|ex2_sdr/gnuradio/utils|libcsp/src/arch/macosx|ex2_sdr/third_party/viterbi/tests|ex2_hal/adcs/equipment_handler/src/uart_i2c.c|libcsp/src/rtable/csp_rtable_cidr.c|ex2_sdr/lib/error_control/scrambler.cpp|libcsp/src/bindings|ex2_services/Services/include/athena|ex2_hal/charon/test|ex2_sdr/unit_tests|ex2_hal/adcs/equipment_handler/test|ex2_sdr/src|libcsp/src/drivers/usart/usart_windows.c|ex2_services/Services/source/athena|libcsp/src/drivers/usart/usart_linux.c|libcsp/src/drivers/can/can_socketcan.c|libcsp/src/arch/posix|ex2_sdr/lib/error_control/crc.cpp|ex2_sdr/lib/utilities/version.cpp|ex2_sdr/include/error_control|libcsp/examples|libcsp/src/arch/windows|ex2_hal/charon/ceedling-deprecated|test|ex2_sdr/lib/mac_layer/circular_buffer.c|ex2_hal/sband/equipment_handler|ex2_sdr/lib/error_control/qcldpc" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+		<cconfiguration id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.645525424">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.645525424" moduleId="org.eclipse.cdt.core.settings" name="Aurorasat">
+				<externalSettings/>
+				<extensions>
+					<extension id="com.ti.ccstudio.binaryparser.CoffParser" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="com.ti.ccstudio.errorparser.CoffErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="com.ti.ccstudio.errorparser.AsmErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="com.ti.ccstudio.errorparser.LinkErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactExtension="out" artifactName="${ProjName}" buildProperties="" cleanCommand="${CG_CLEAN_CMD}" description="Configurations used for 2U AuroraSat" id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.645525424" name="Aurorasat" parent="com.ti.ccstudio.buildDefinitions.TMS470.Debug" postannouncebuildStep="" postbuildStep="&quot;${CCS_INSTALL_ROOT}/utils/tiobj2bin/tiobj2bin&quot; &quot;${BuildArtifactFileName}&quot; &quot;${BuildArtifactFileBaseName}.bin&quot; &quot;${CG_TOOL_ROOT}/bin/ofd470&quot; &quot;${CG_TOOL_ROOT}/bin/hex470&quot; &quot;${CCS_INSTALL_ROOT}/utils/tiobj2bin/mkhex4bin&quot;" prebuildStep="">
+					<folderInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.645525424." name="/" resourcePath="">
+						<toolChain id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain.1697389663" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain" targetTool="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.48921586">
+							<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.420678919" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS" valueType="stringList">
+								<listOptionValue builtIn="false" value="DEVICE_CONFIGURATION_ID=Cortex R.TMS570LC43xx"/>
+								<listOptionValue builtIn="false" value="DEVICE_ENDIANNESS=be32"/>
+								<listOptionValue builtIn="false" value="OUTPUT_FORMAT=ELF"/>
+								<listOptionValue builtIn="false" value="RUNTIME_SUPPORT_LIBRARY=libc.a"/>
+								<listOptionValue builtIn="false" value="CCS_MBS_VERSION=6.1.3"/>
+								<listOptionValue builtIn="false" value="PRODUCTS="/>
+								<listOptionValue builtIn="false" value="PRODUCT_MACRO_IMPORTS={}"/>
+								<listOptionValue builtIn="false" value="OUTPUT_TYPE=executable"/>
+							</option>
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1205195073" name="Compiler version" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION" value="20.2.0.LTS" valueType="string"/>
+							<targetPlatform id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug.1677071417" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug"/>
+							<builder buildPath="${BuildDirectory}" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.builderDebug.1245233665" keepEnvironmentInBuildfile="false" name="GNU Make" parallelBuildOn="true" parallelizationNumber="optimal" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.builderDebug"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.878730484" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug">
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.CODE_STATE.1606644739" name="Designate code state, 16-bit (thumb) or 32-bit (--code_state)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.CODE_STATE" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.CODE_STATE.32" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.SILICON_VERSION.1201154075" name="Target processor version (--silicon_version, -mv)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.SILICON_VERSION" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.SILICON_VERSION.7R5" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.FLOAT_SUPPORT.2045874600" name="Specify floating point support (--float_support)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.FLOAT_SUPPORT" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.FLOAT_SUPPORT.VFPv3D16" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.ABI.2121011192" name="Application binary interface. (--abi)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.ABI" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.ABI.eabi" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.ENUM_TYPE.1918935123" name="Designate enum type (--enum_type)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.ENUM_TYPE" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.ENUM_TYPE.packed" valueType="enumerated"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.INCLUDE_PATH.2042059691" name="Add dir to #include search path (--include_path, -I)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.INCLUDE_PATH" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/main}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/payload/iris}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/iris/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/iris/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/northern_spirit/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/northern_spirit/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/driver}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/leop}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/file_transfer}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/mac_layer}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/utilities}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/third_party/viterbi}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/phy_layer/pdu}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/phy_layer}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/wrapper}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/configuration}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/error_control}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/error_control/qcldpc}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/HAL}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/mac_layer/pdu}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/dfgm/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/dfgm/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/adcs/equipment_handler/inc}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/adcs/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/hyperion_solar_panel/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/src}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include/csp}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include/ex2_os}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/F021_API}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/hyperion_solar_panel/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/scheduler}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_uhf_software/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/charon/daemons}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/communication}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/charon/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/charon/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/beacon}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/scheduler}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/logger}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/housekeeping}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/task_manager}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/coordinate_management}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/diagnostic}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_uhf_software/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/include"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/sband/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/core/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/eps/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/os/freertos/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/sband/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/athena/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include/ex2_os}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/housekeeping}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include}"/>
+									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/include"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/pdu}"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="true" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEFINE.47293083" name="Pre-define NAME (--define, -D)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEFINE" valueType="definedSymbols"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEBUGGING_MODEL.398550192" name="Debugging model" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEBUGGING_MODEL" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEBUGGING_MODEL.SYMDEBUG__DWARF" valueType="enumerated"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DIAG_WARNING.859495793" name="Treat diagnostic &lt;id&gt; as warning (--diag_warning, -pdsw)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DIAG_WARNING" valueType="stringList">
+									<listOptionValue builtIn="false" value="225"/>
+								</option>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DIAG_WRAP.1681407140" name="Wrap diagnostic messages (--diag_wrap)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DIAG_WRAP" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DIAG_WRAP.off" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DISPLAY_ERROR_NUMBER.245094691" name="Emit diagnostic identifier numbers (--display_error_number, -pden)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DISPLAY_ERROR_NUMBER" value="true" valueType="boolean"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.C_DIALECT.2145725282" name="C Dialect" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.C_DIALECT" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.C_DIALECT.C99" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.OPT_LEVEL.647362577" name="Optimization level (--opt_level, -O)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.OPT_LEVEL" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.OPT_LEVEL.off" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.EXCEPTIONS.441834624" name="Enable C++ exception handling (--exceptions)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.EXCEPTIONS" value="true" valueType="boolean"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.PREINCLUDE.1403794125" name="Specify a preinclude file (--preinclude)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.PREINCLUDE" valueType="includeFiles">
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/main/config_aurorasat.h}"/>
+								</option>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.1093679959" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.307503115" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.1081639318" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS.1656652504" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.560235035" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug">
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.ARM_BIG_ENDIAN_MODES.706139017" name="ARM big endian modes [See 'General' page to edit]" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.ARM_BIG_ENDIAN_MODES" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.ARM_BIG_ENDIAN_MODES.BE32" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.HEAP_SIZE.584691250" name="Heap size for C/C++ dynamic memory allocation (--heap_size, -heap)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.HEAP_SIZE" value="0x800" valueType="string"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.STACK_SIZE.782006326" name="Set C system stack size (--stack_size, -stack)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.STACK_SIZE" value="0x800" valueType="string"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.MAP_FILE.127057964" name="Link information (map) listed into &lt;file&gt; (--map_file, -m)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.MAP_FILE" value="${ProjName}.map" valueType="string"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.OUTPUT_FILE.530698605" name="Specify output file name (--output_file, -o)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.OUTPUT_FILE" value="${ProjName}.out" valueType="string"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.LIBRARY.2096693866" name="Include library file or command file as input (--library, -l)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.LIBRARY" valueType="libs">
+									<listOptionValue builtIn="false" value="libc.a"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.SEARCH_PATH.2063931206" name="Add &lt;dir&gt; to library search path (--search_path, -i)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.SEARCH_PATH" valueType="libPaths">
+									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/lib"/>
+									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/include"/>
+								</option>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.DIAG_WRAP.2026724434" name="Wrap diagnostic messages (--diag_wrap)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.DIAG_WRAP" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.DIAG_WRAP.off" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.DISPLAY_ERROR_NUMBER.349583340" name="Emit diagnostic identifier numbers (--display_error_number)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.DISPLAY_ERROR_NUMBER" value="true" valueType="boolean"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.XML_LINK_INFO.1510617867" name="Detailed link information data-base into &lt;file&gt; (--xml_link_info, -xml_link_info)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.XML_LINK_INFO" value="${ProjName}_linkInfo.xml" valueType="string"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exeLinker.inputType__CMD_SRCS.2130577233" name="Linker Command Files" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exeLinker.inputType__CMD_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exeLinker.inputType__CMD2_SRCS.1567457062" name="Linker Command Files" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exeLinker.inputType__CMD2_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exeLinker.inputType__GEN_CMDS.1998083822" name="Generated Linker Command Files" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exeLinker.inputType__GEN_CMDS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.1585390267" name="ARM Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex"/>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.645525424.ex2_services" name="ex2_services" resourcePath="ex2_services">
+						<toolChain id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain.1091869227" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain" unusedChildren="">
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.1044127654.551779662" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823"/>
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.105544848.1748316470" name="Compiler version" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512"/>
+							<targetPlatform id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug.1434144235" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.1852264752" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.878730484">
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.1039493740" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.99459120" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.850039690" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS.703673855" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1055859698" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.560235035"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.1126960127" name="ARM Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.1585390267"/>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.645525424.ex2_services/Services" name="Services" resourcePath="ex2_services/Services">
+						<toolChain id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain.422019513" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain" unusedChildren="">
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.1044127654.295075930.1791525625" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.1044127654"/>
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.105544848.680834020.411083606" name="Compiler version" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.105544848"/>
+							<targetPlatform id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug.813432664" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.347938810" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.1852264752">
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.404608889" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.464325207" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.476862815" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS.994193154" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.2011231184" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1055859698"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.1520690509" name="ARM Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.1126960127"/>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.645525424.test" name="/" resourcePath="test">
+						<toolChain id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain.1637523897" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain" unusedChildren="">
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.773001880.1015806214" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823"/>
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.705473409.482588935" name="Compiler version" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512"/>
+							<targetPlatform id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug.256638672" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.1728511933" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.878730484">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.INCLUDE_PATH.126926442" name="Add dir to #include search path (--include_path, -I)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.INCLUDE_PATH" valueType="includePath">
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/main}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/mac_layer}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/utilities}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/third_party/viterbi}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/phy_layer/pdu}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/phy_layer}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/wrapper}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/configuration}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/error_control}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/error_control/qcldpc}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/HAL}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/mac_layer/pdu}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/source}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/housekeeping}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/src}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include/ex2_os}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/F021_API}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/hyperion_solar_panel/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_uhf_software/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/communication}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/charon/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/charon/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/beacon}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/coordinate_management}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/diagnostic}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_uhf_software/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/include"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/sband/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/core/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/eps/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/os/freertos/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/sband/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/athena/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include/ex2_os}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include}"/>
+									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/include"/>
+								</option>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.698607699" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.612809368" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.771203293" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS.1365767862" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1762664872" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.560235035"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.1787139497" name="ARM Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.1585390267"/>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.645525424.main" name="ex2_obc_software" resourcePath="main">
+						<toolChain id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain.978672123" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain" unusedChildren="">
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.759256792.260336316" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823"/>
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.1333501899.1109542430" name="Compiler version" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512"/>
+							<targetPlatform id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug.480670811" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.687000055" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.878730484">
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.1263718634" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.1011580972" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.1134623820" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS.83882271" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1124898843" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.560235035"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.1532545210" name="ARM Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.1585390267"/>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.645525424.ex2_system/include/logger" name="/" resourcePath="ex2_system/include/logger">
+						<toolChain id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain.254076521" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain" unusedChildren="">
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.1114164437.1684572511" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823"/>
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.1776770003.1648845703" name="Compiler version" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512"/>
+							<targetPlatform id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug.498886175" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.1654381755" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.878730484">
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.297959031" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.1623809595" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.1753891360" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS.619097341" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1378759005" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.560235035"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.225874952" name="ARM Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.1585390267"/>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.645525424.ex2_system/source" name="/" resourcePath="ex2_system/source">
+						<toolChain id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain.291621476" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain" unusedChildren="">
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.1394996214.546470891" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823"/>
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.612075082.921223245" name="Compiler version" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512"/>
+							<targetPlatform id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug.1921493945" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.850053255" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.878730484">
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.410611082" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.1222582876" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.698627011" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS.805153255" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1167641521" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.560235035"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.123551672" name="ARM Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.1585390267"/>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.645525424.ex2_system/source/diagnostic" name="/" resourcePath="ex2_system/source/diagnostic">
+						<toolChain id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain.1092077727" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain" unusedChildren="">
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.1394996214.365213954.1742393501" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.1394996214"/>
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.612075082.1353090731.2016160971" name="Compiler version" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.612075082"/>
+							<targetPlatform id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug.1006374420" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.1089948824" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.850053255">
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.1313390936" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.430025471" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.1290816713" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS.239999725" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.320727122" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1167641521"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.1001951848" name="ARM Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.123551672"/>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="ex2_hal/sband/equipment_handler/test"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="ex2_hal/sband/equipment_handler/include"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="ex2_hal/sband/equipment_handler/source"/>
+						<entry excluding="ex2_sdr/gnuradio|ex2_sdr/gnuradio/utils|libcsp/src/arch/macosx|ex2_sdr/third_party/viterbi/tests|ex2_hal/adcs/equipment_handler/src/uart_i2c.c|libcsp/src/rtable/csp_rtable_cidr.c|ex2_sdr/lib/error_control/scrambler.cpp|libcsp/src/bindings|ex2_services/Services/include/athena|ex2_hal/charon/test|ex2_sdr/unit_tests|ex2_hal/adcs/equipment_handler/test|ex2_sdr/src|libcsp/src/drivers/usart/usart_windows.c|ex2_services/Services/source/athena|libcsp/src/drivers/usart/usart_linux.c|libcsp/src/drivers/can/can_socketcan.c|libcsp/src/arch/posix|ex2_sdr/lib/error_control/crc.cpp|ex2_sdr/lib/utilities/version.cpp|ex2_sdr/include/error_control|libcsp/examples|libcsp/src/arch/windows|ex2_hal/charon/ceedling-deprecated|test|ex2_sdr/lib/mac_layer/circular_buffer.c|ex2_hal/sband/equipment_handler|ex2_sdr/lib/error_control/qcldpc" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+		<cconfiguration id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.1066547260">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.1066547260" moduleId="org.eclipse.cdt.core.settings" name="Exalta2">
+				<externalSettings/>
+				<extensions>
+					<extension id="com.ti.ccstudio.binaryparser.CoffParser" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="com.ti.ccstudio.errorparser.CoffErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="com.ti.ccstudio.errorparser.AsmErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="com.ti.ccstudio.errorparser.LinkErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactExtension="out" artifactName="${ProjName}" buildProperties="" cleanCommand="${CG_CLEAN_CMD}" description="Configurations used for 3U Ex-Alta2" id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.1066547260" name="Exalta2" parent="com.ti.ccstudio.buildDefinitions.TMS470.Debug" postannouncebuildStep="" postbuildStep="&quot;${CCS_INSTALL_ROOT}/utils/tiobj2bin/tiobj2bin&quot; &quot;${BuildArtifactFileName}&quot; &quot;${BuildArtifactFileBaseName}.bin&quot; &quot;${CG_TOOL_ROOT}/bin/ofd470&quot; &quot;${CG_TOOL_ROOT}/bin/hex470&quot; &quot;${CCS_INSTALL_ROOT}/utils/tiobj2bin/mkhex4bin&quot;" prebuildStep="">
+					<folderInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.1066547260." name="/" resourcePath="">
+						<toolChain id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain.1413530779" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain" targetTool="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.48921586">
+							<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.27607155" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS" valueType="stringList">
+								<listOptionValue builtIn="false" value="DEVICE_CONFIGURATION_ID=Cortex R.TMS570LC43xx"/>
+								<listOptionValue builtIn="false" value="DEVICE_ENDIANNESS=be32"/>
+								<listOptionValue builtIn="false" value="OUTPUT_FORMAT=ELF"/>
+								<listOptionValue builtIn="false" value="RUNTIME_SUPPORT_LIBRARY=libc.a"/>
+								<listOptionValue builtIn="false" value="CCS_MBS_VERSION=6.1.3"/>
+								<listOptionValue builtIn="false" value="PRODUCTS="/>
+								<listOptionValue builtIn="false" value="PRODUCT_MACRO_IMPORTS={}"/>
+								<listOptionValue builtIn="false" value="OUTPUT_TYPE=executable"/>
+							</option>
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1395827602" name="Compiler version" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION" value="20.2.0.LTS" valueType="string"/>
+							<targetPlatform id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug.392093332" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug"/>
+							<builder buildPath="${BuildDirectory}" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.builderDebug.1962015512" keepEnvironmentInBuildfile="false" name="GNU Make" parallelBuildOn="true" parallelizationNumber="optimal" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.builderDebug"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.707309062" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug">
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.CODE_STATE.1530225108" name="Designate code state, 16-bit (thumb) or 32-bit (--code_state)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.CODE_STATE" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.CODE_STATE.32" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.SILICON_VERSION.273893670" name="Target processor version (--silicon_version, -mv)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.SILICON_VERSION" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.SILICON_VERSION.7R5" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.FLOAT_SUPPORT.1969620946" name="Specify floating point support (--float_support)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.FLOAT_SUPPORT" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.FLOAT_SUPPORT.VFPv3D16" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.ABI.106347134" name="Application binary interface. (--abi)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.ABI" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.ABI.eabi" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.ENUM_TYPE.1957518765" name="Designate enum type (--enum_type)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.ENUM_TYPE" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.ENUM_TYPE.packed" valueType="enumerated"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.INCLUDE_PATH.400997442" name="Add dir to #include search path (--include_path, -I)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.INCLUDE_PATH" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/main}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/payload/iris}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/iris/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/iris/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/northern_spirit/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/northern_spirit/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/driver}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/leop}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/file_transfer}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/mac_layer}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/utilities}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/third_party/viterbi}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/phy_layer/pdu}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/phy_layer}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/wrapper}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/configuration}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/error_control}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/error_control/qcldpc}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/HAL}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/mac_layer/pdu}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/dfgm/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/dfgm/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/adcs/equipment_handler/inc}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/adcs/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/hyperion_solar_panel/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/src}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include/csp}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include/ex2_os}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/F021_API}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/hyperion_solar_panel/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/scheduler}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_uhf_software/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/charon/daemons}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/communication}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/charon/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/charon/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/beacon}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/scheduler}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/logger}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/housekeeping}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/task_manager}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/coordinate_management}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/diagnostic}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_uhf_software/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/include"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/sband/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/core/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/eps/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/os/freertos/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/sband/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/athena/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include/ex2_os}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/housekeeping}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include}"/>
+									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/include"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/pdu}"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="true" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEFINE.1179146308" name="Pre-define NAME (--define, -D)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEFINE" valueType="definedSymbols"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEBUGGING_MODEL.2043652713" name="Debugging model" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEBUGGING_MODEL" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEBUGGING_MODEL.SYMDEBUG__DWARF" valueType="enumerated"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DIAG_WARNING.76335072" name="Treat diagnostic &lt;id&gt; as warning (--diag_warning, -pdsw)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DIAG_WARNING" valueType="stringList">
+									<listOptionValue builtIn="false" value="225"/>
+								</option>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DIAG_WRAP.1931516274" name="Wrap diagnostic messages (--diag_wrap)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DIAG_WRAP" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DIAG_WRAP.off" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DISPLAY_ERROR_NUMBER.1002308039" name="Emit diagnostic identifier numbers (--display_error_number, -pden)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DISPLAY_ERROR_NUMBER" value="true" valueType="boolean"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.C_DIALECT.891528178" name="C Dialect" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.C_DIALECT" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.C_DIALECT.C99" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.OPT_LEVEL.77300549" name="Optimization level (--opt_level, -O)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.OPT_LEVEL" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.OPT_LEVEL.off" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.EXCEPTIONS.2120703221" name="Enable C++ exception handling (--exceptions)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.EXCEPTIONS" value="true" valueType="boolean"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.PREINCLUDE.1141111888" name="Specify a preinclude file (--preinclude)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.PREINCLUDE" valueType="includeFiles">
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/main/config_exalta2.h}"/>
+								</option>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.73600131" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.242119543" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.645499541" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS.1737154032" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1049182992" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug">
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.ARM_BIG_ENDIAN_MODES.918743796" name="ARM big endian modes [See 'General' page to edit]" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.ARM_BIG_ENDIAN_MODES" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.ARM_BIG_ENDIAN_MODES.BE32" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.HEAP_SIZE.1796623067" name="Heap size for C/C++ dynamic memory allocation (--heap_size, -heap)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.HEAP_SIZE" value="0x800" valueType="string"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.STACK_SIZE.3017749" name="Set C system stack size (--stack_size, -stack)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.STACK_SIZE" value="0x800" valueType="string"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.MAP_FILE.1599172465" name="Link information (map) listed into &lt;file&gt; (--map_file, -m)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.MAP_FILE" value="${ProjName}.map" valueType="string"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.OUTPUT_FILE.832457494" name="Specify output file name (--output_file, -o)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.OUTPUT_FILE" value="${ProjName}.out" valueType="string"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.LIBRARY.276461607" name="Include library file or command file as input (--library, -l)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.LIBRARY" valueType="libs">
+									<listOptionValue builtIn="false" value="libc.a"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.SEARCH_PATH.1133797682" name="Add &lt;dir&gt; to library search path (--search_path, -i)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.SEARCH_PATH" valueType="libPaths">
+									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/lib"/>
+									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/include"/>
+								</option>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.DIAG_WRAP.1565021797" name="Wrap diagnostic messages (--diag_wrap)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.DIAG_WRAP" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.DIAG_WRAP.off" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.DISPLAY_ERROR_NUMBER.136029632" name="Emit diagnostic identifier numbers (--display_error_number)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.DISPLAY_ERROR_NUMBER" value="true" valueType="boolean"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.XML_LINK_INFO.1030111406" name="Detailed link information data-base into &lt;file&gt; (--xml_link_info, -xml_link_info)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.XML_LINK_INFO" value="${ProjName}_linkInfo.xml" valueType="string"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exeLinker.inputType__CMD_SRCS.1895703067" name="Linker Command Files" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exeLinker.inputType__CMD_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exeLinker.inputType__CMD2_SRCS.1674255671" name="Linker Command Files" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exeLinker.inputType__CMD2_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exeLinker.inputType__GEN_CMDS.965354566" name="Generated Linker Command Files" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exeLinker.inputType__GEN_CMDS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.536995234" name="ARM Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex"/>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.1066547260.ex2_services" name="ex2_services" resourcePath="ex2_services">
+						<toolChain id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain.717292750" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain" unusedChildren="">
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.1044127654.810879370" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823"/>
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.105544848.619353072" name="Compiler version" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512"/>
+							<targetPlatform id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug.1512884369" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.1964925394" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.707309062">
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.1517912546" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.599299810" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.1373989642" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS.650242874" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1916326140" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1049182992"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.493558810" name="ARM Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.536995234"/>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.1066547260.ex2_services/Services" name="Services" resourcePath="ex2_services/Services">
+						<toolChain id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain.1279214725" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain" unusedChildren="">
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.1044127654.295075930.1447378289" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.1044127654"/>
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.105544848.680834020.1948195714" name="Compiler version" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.105544848"/>
+							<targetPlatform id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug.2005471874" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.826643076" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.1964925394">
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.1279753860" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.1525491412" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.1270214604" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS.997754613" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1713331908" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1916326140"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.1287632885" name="ARM Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.493558810"/>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.1066547260.test" name="/" resourcePath="test">
+						<toolChain id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain.1723503619" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain" unusedChildren="">
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.773001880.2004584230" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823"/>
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.705473409.233532612" name="Compiler version" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512"/>
+							<targetPlatform id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug.1407467718" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.2020985766" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.707309062">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.INCLUDE_PATH.1219033899" name="Add dir to #include search path (--include_path, -I)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.INCLUDE_PATH" valueType="includePath">
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/main}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/mac_layer}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/utilities}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/third_party/viterbi}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/phy_layer/pdu}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/phy_layer}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/wrapper}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/configuration}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/error_control}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/error_control/qcldpc}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/HAL}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/mac_layer/pdu}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/source}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/housekeeping}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/src}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include/ex2_os}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/F021_API}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/hyperion_solar_panel/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_uhf_software/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/communication}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/charon/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/charon/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/beacon}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/coordinate_management}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/diagnostic}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_uhf_software/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/include"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/sband/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/core/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/eps/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/os/freertos/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/sband/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/athena/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include/ex2_os}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include}"/>
+									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/include"/>
+								</option>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.2122213807" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.1955988214" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.738766093" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS.289406458" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.961747987" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1049182992"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.437305368" name="ARM Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.536995234"/>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.1066547260.main" name="ex2_obc_software" resourcePath="main">
+						<toolChain id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain.317534797" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain" unusedChildren="">
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.759256792.348955176" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823"/>
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.1333501899.2129004587" name="Compiler version" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512"/>
+							<targetPlatform id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug.596283840" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.654757979" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.707309062">
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.171017591" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.1998764289" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.1308248675" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS.1839936774" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.2091383408" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1049182992"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.308540706" name="ARM Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.536995234"/>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.1066547260.ex2_system/include/logger" name="/" resourcePath="ex2_system/include/logger">
+						<toolChain id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain.1542406252" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain" unusedChildren="">
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.1114164437.1830349684" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823"/>
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.1776770003.736803066" name="Compiler version" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512"/>
+							<targetPlatform id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug.378137932" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.1848022718" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.707309062">
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.421833201" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.227493045" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.475624291" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS.520278531" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1042811859" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1049182992"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.117756157" name="ARM Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.536995234"/>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.1066547260.ex2_system/source" name="/" resourcePath="ex2_system/source">
+						<toolChain id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain.1538315750" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain" unusedChildren="">
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.1394996214.1904027216" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823"/>
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.612075082.985213803" name="Compiler version" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512"/>
+							<targetPlatform id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug.815735526" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.1729742784" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.707309062">
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.32712957" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.1085967785" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.1268993770" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS.1649327908" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1113364591" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1049182992"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.758088172" name="ARM Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.536995234"/>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.1066547260.ex2_system/source/diagnostic" name="/" resourcePath="ex2_system/source/diagnostic">
+						<toolChain id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain.2052082784" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain" unusedChildren="">
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.1394996214.365213954.214796697" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.1394996214"/>
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.612075082.1353090731.52257798" name="Compiler version" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.612075082"/>
+							<targetPlatform id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug.952066238" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.516414941" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.1729742784">
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.1799892006" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.1770505531" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.1245642125" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS.1093877917" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1814801737" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1113364591"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.1333949949" name="ARM Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.758088172"/>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="ex2_hal/sband/equipment_handler/test"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="ex2_hal/sband/equipment_handler/include"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="ex2_hal/sband/equipment_handler/source"/>
+						<entry excluding="ex2_sdr/gnuradio|ex2_sdr/gnuradio/utils|libcsp/src/arch/macosx|ex2_sdr/third_party/viterbi/tests|ex2_hal/adcs/equipment_handler/src/uart_i2c.c|libcsp/src/rtable/csp_rtable_cidr.c|ex2_sdr/lib/error_control/scrambler.cpp|libcsp/src/bindings|ex2_services/Services/include/athena|ex2_hal/charon/test|ex2_sdr/unit_tests|ex2_hal/adcs/equipment_handler/test|ex2_sdr/src|libcsp/src/drivers/usart/usart_windows.c|ex2_services/Services/source/athena|libcsp/src/drivers/usart/usart_linux.c|libcsp/src/drivers/can/can_socketcan.c|libcsp/src/arch/posix|ex2_sdr/lib/error_control/crc.cpp|ex2_sdr/lib/utilities/version.cpp|ex2_sdr/include/error_control|libcsp/examples|libcsp/src/arch/windows|ex2_hal/charon/ceedling-deprecated|test|ex2_sdr/lib/mac_layer/circular_buffer.c|ex2_hal/sband/equipment_handler|ex2_sdr/lib/error_control/qcldpc" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+		<cconfiguration id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.2082362777">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.2082362777" moduleId="org.eclipse.cdt.core.settings" name="Yukonsat">
+				<externalSettings/>
+				<extensions>
+					<extension id="com.ti.ccstudio.binaryparser.CoffParser" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="com.ti.ccstudio.errorparser.CoffErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="com.ti.ccstudio.errorparser.AsmErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="com.ti.ccstudio.errorparser.LinkErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactExtension="out" artifactName="${ProjName}" buildProperties="" cleanCommand="${CG_CLEAN_CMD}" description="Configurations used for 2U YukonSat" id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.2082362777" name="Yukonsat" parent="com.ti.ccstudio.buildDefinitions.TMS470.Debug" postannouncebuildStep="" postbuildStep="&quot;${CCS_INSTALL_ROOT}/utils/tiobj2bin/tiobj2bin&quot; &quot;${BuildArtifactFileName}&quot; &quot;${BuildArtifactFileBaseName}.bin&quot; &quot;${CG_TOOL_ROOT}/bin/ofd470&quot; &quot;${CG_TOOL_ROOT}/bin/hex470&quot; &quot;${CCS_INSTALL_ROOT}/utils/tiobj2bin/mkhex4bin&quot;" prebuildStep="">
+					<folderInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.2082362777." name="/" resourcePath="">
+						<toolChain id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain.1815038040" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain" targetTool="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.48921586">
+							<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.213598672" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS" valueType="stringList">
+								<listOptionValue builtIn="false" value="DEVICE_CONFIGURATION_ID=Cortex R.TMS570LC43xx"/>
+								<listOptionValue builtIn="false" value="DEVICE_ENDIANNESS=be32"/>
+								<listOptionValue builtIn="false" value="OUTPUT_FORMAT=ELF"/>
+								<listOptionValue builtIn="false" value="RUNTIME_SUPPORT_LIBRARY=libc.a"/>
+								<listOptionValue builtIn="false" value="CCS_MBS_VERSION=6.1.3"/>
+								<listOptionValue builtIn="false" value="PRODUCTS="/>
+								<listOptionValue builtIn="false" value="PRODUCT_MACRO_IMPORTS={}"/>
+								<listOptionValue builtIn="false" value="OUTPUT_TYPE=executable"/>
+							</option>
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.272943813" name="Compiler version" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION" value="20.2.0.LTS" valueType="string"/>
+							<targetPlatform id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug.16939822" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug"/>
+							<builder buildPath="${BuildDirectory}" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.builderDebug.2037581390" keepEnvironmentInBuildfile="false" name="GNU Make" parallelBuildOn="true" parallelizationNumber="optimal" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.builderDebug"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.1376221731" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug">
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.CODE_STATE.1867801648" name="Designate code state, 16-bit (thumb) or 32-bit (--code_state)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.CODE_STATE" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.CODE_STATE.32" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.SILICON_VERSION.708515798" name="Target processor version (--silicon_version, -mv)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.SILICON_VERSION" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.SILICON_VERSION.7R5" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.FLOAT_SUPPORT.1332113056" name="Specify floating point support (--float_support)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.FLOAT_SUPPORT" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.FLOAT_SUPPORT.VFPv3D16" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.ABI.238696618" name="Application binary interface. (--abi)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.ABI" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.ABI.eabi" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.ENUM_TYPE.1993336214" name="Designate enum type (--enum_type)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.ENUM_TYPE" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.ENUM_TYPE.packed" valueType="enumerated"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.INCLUDE_PATH.1852102578" name="Add dir to #include search path (--include_path, -I)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.INCLUDE_PATH" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/main}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/payload/iris}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/iris/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/iris/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/northern_spirit/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/northern_spirit/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/driver}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/leop}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/file_transfer}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/mac_layer}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/utilities}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/third_party/viterbi}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/phy_layer/pdu}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/phy_layer}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/wrapper}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/configuration}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/error_control}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/error_control/qcldpc}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/HAL}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/mac_layer/pdu}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/dfgm/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/dfgm/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/adcs/equipment_handler/inc}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/adcs/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/hyperion_solar_panel/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/src}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include/csp}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include/ex2_os}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/F021_API}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/hyperion_solar_panel/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/scheduler}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_uhf_software/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/charon/daemons}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/communication}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/charon/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/charon/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/beacon}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/scheduler}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/logger}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/housekeeping}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/task_manager}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/coordinate_management}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/diagnostic}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_uhf_software/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/include"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/sband/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/core/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/eps/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/os/freertos/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/sband/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/athena/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include/ex2_os}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/housekeeping}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include}"/>
+									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/include"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/pdu}"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="true" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEFINE.6798973" name="Pre-define NAME (--define, -D)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEFINE" valueType="definedSymbols"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEBUGGING_MODEL.1758507480" name="Debugging model" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEBUGGING_MODEL" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DEBUGGING_MODEL.SYMDEBUG__DWARF" valueType="enumerated"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DIAG_WARNING.1513515185" name="Treat diagnostic &lt;id&gt; as warning (--diag_warning, -pdsw)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DIAG_WARNING" valueType="stringList">
+									<listOptionValue builtIn="false" value="225"/>
+								</option>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DIAG_WRAP.172895808" name="Wrap diagnostic messages (--diag_wrap)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DIAG_WRAP" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DIAG_WRAP.off" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DISPLAY_ERROR_NUMBER.1698647376" name="Emit diagnostic identifier numbers (--display_error_number, -pden)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.DISPLAY_ERROR_NUMBER" value="true" valueType="boolean"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.C_DIALECT.1780858125" name="C Dialect" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.C_DIALECT" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.C_DIALECT.C99" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.OPT_LEVEL.1505693279" name="Optimization level (--opt_level, -O)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.OPT_LEVEL" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.OPT_LEVEL.off" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.EXCEPTIONS.736686759" name="Enable C++ exception handling (--exceptions)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.EXCEPTIONS" value="true" valueType="boolean"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.PREINCLUDE.1457165757" name="Specify a preinclude file (--preinclude)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.PREINCLUDE" valueType="includeFiles">
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/main/config_yukonsat.h}"/>
+								</option>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.1414017267" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.1856034347" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.173757209" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS.1434975961" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1600450694" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug">
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.ARM_BIG_ENDIAN_MODES.866765577" name="ARM big endian modes [See 'General' page to edit]" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.ARM_BIG_ENDIAN_MODES" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.ARM_BIG_ENDIAN_MODES.BE32" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.HEAP_SIZE.1650424340" name="Heap size for C/C++ dynamic memory allocation (--heap_size, -heap)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.HEAP_SIZE" value="0x800" valueType="string"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.STACK_SIZE.1705797127" name="Set C system stack size (--stack_size, -stack)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.STACK_SIZE" value="0x800" valueType="string"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.MAP_FILE.1495450908" name="Link information (map) listed into &lt;file&gt; (--map_file, -m)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.MAP_FILE" value="${ProjName}.map" valueType="string"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.OUTPUT_FILE.1454172241" name="Specify output file name (--output_file, -o)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.OUTPUT_FILE" value="${ProjName}.out" valueType="string"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.LIBRARY.112415199" name="Include library file or command file as input (--library, -l)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.LIBRARY" valueType="libs">
+									<listOptionValue builtIn="false" value="libc.a"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.SEARCH_PATH.1637609426" name="Add &lt;dir&gt; to library search path (--search_path, -i)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.SEARCH_PATH" valueType="libPaths">
+									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/lib"/>
+									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/include"/>
+								</option>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.DIAG_WRAP.1484987793" name="Wrap diagnostic messages (--diag_wrap)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.DIAG_WRAP" value="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.DIAG_WRAP.off" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.DISPLAY_ERROR_NUMBER.1858598747" name="Emit diagnostic identifier numbers (--display_error_number)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.DISPLAY_ERROR_NUMBER" value="true" valueType="boolean"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.XML_LINK_INFO.1646038751" name="Detailed link information data-base into &lt;file&gt; (--xml_link_info, -xml_link_info)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.linkerID.XML_LINK_INFO" value="${ProjName}_linkInfo.xml" valueType="string"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exeLinker.inputType__CMD_SRCS.2115535322" name="Linker Command Files" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exeLinker.inputType__CMD_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exeLinker.inputType__CMD2_SRCS.738493323" name="Linker Command Files" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exeLinker.inputType__CMD2_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exeLinker.inputType__GEN_CMDS.875327263" name="Generated Linker Command Files" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exeLinker.inputType__GEN_CMDS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.1517205176" name="ARM Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex"/>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.2082362777.ex2_services" name="ex2_services" resourcePath="ex2_services">
+						<toolChain id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain.756398458" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain" unusedChildren="">
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.1044127654.130955706" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823"/>
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.105544848.127770629" name="Compiler version" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512"/>
+							<targetPlatform id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug.214498471" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.99973055" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.1376221731">
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.831940033" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.1061283838" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.2038119429" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS.2127316332" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1682470732" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1600450694"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.700741" name="ARM Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.1517205176"/>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.2082362777.ex2_services/Services" name="Services" resourcePath="ex2_services/Services">
+						<toolChain id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain.1249553959" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain" unusedChildren="">
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.1044127654.295075930.705762732" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.1044127654"/>
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.105544848.680834020.239181305" name="Compiler version" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.105544848"/>
+							<targetPlatform id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug.1718931632" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.1224665937" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.99973055">
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.39281458" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.250807373" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.797215679" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS.1537397492" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.755064651" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1682470732"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.1568781585" name="ARM Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.700741"/>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.2082362777.test" name="/" resourcePath="test">
+						<toolChain id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain.1433145802" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain" unusedChildren="">
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.773001880.2076854744" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823"/>
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.705473409.2121840198" name="Compiler version" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512"/>
+							<targetPlatform id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug.1067819011" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.617061141" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.1376221731">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.INCLUDE_PATH.1405171460" name="Add dir to #include search path (--include_path, -I)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compilerID.INCLUDE_PATH" valueType="includePath">
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/main}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/mac_layer}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/utilities}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/third_party/viterbi}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/phy_layer/pdu}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/phy_layer}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/wrapper}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/configuration}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/error_control}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/error_control/qcldpc}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/HAL}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_sdr/include/mac_layer/pdu}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/source}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/housekeeping}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/src}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include/ex2_os}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/F021_API}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/hyperion_solar_panel/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_uhf_software/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/communication}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include/util}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/charon/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/charon/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/beacon}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/coordinate_management}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include/diagnostic}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/ex2_uhf_software/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/include"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/sband/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/core/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/eps/hardware_interface/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/os/freertos/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_system/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/sband/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_hal/athena/equipment_handler/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/reliance_edge/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include/ex2_os}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/ex2_services/Services}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/libcsp/include}"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/include}"/>
+									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/include"/>
+								</option>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.1539567338" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.10078349" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.375828961" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS.1373221388" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.640052244" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1600450694"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.1378369906" name="ARM Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.1517205176"/>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.2082362777.main" name="ex2_obc_software" resourcePath="main">
+						<toolChain id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain.148475284" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain" unusedChildren="">
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.759256792.286172290" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823"/>
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.1333501899.2031559600" name="Compiler version" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512"/>
+							<targetPlatform id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug.1507577949" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.3180950" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.1376221731">
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.1848871039" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.1709895862" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.1736597030" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS.108918694" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.358908609" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1600450694"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.1634633931" name="ARM Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.1517205176"/>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.2082362777.ex2_system/include/logger" name="/" resourcePath="ex2_system/include/logger">
+						<toolChain id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain.914222847" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain" unusedChildren="">
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.1114164437.395026865" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823"/>
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.1776770003.134545774" name="Compiler version" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512"/>
+							<targetPlatform id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug.1841659394" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.1905010632" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.1376221731">
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.1096847312" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.44113077" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.2023477701" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS.667366841" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1698259610" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1600450694"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.1748011851" name="ARM Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.1517205176"/>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.2082362777.ex2_system/source" name="/" resourcePath="ex2_system/source">
+						<toolChain id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain.1763707016" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain" unusedChildren="">
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.1394996214.1384010032" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823"/>
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.612075082.1613115102" name="Compiler version" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512"/>
+							<targetPlatform id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug.335636131" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.339403999" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.1376221731">
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.821255650" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.1968492264" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.2074782268" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS.1177657486" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.414883962" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.1600450694"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.125500544" name="ARM Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.1517205176"/>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.2143608398.2082362777.ex2_system/source/diagnostic" name="/" resourcePath="ex2_system/source/diagnostic">
+						<toolChain id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain.567151500" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.DebugToolchain" unusedChildren="">
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.1394996214.365213954.969722333" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_TAGS.1027251823.1394996214"/>
+							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.612075082.1353090731.1909193612" name="Compiler version" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1680522512.612075082"/>
+							<targetPlatform id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug.1020314881" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.targetPlatformDebug"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.1585431299" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.compilerDebug.339403999">
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS.1189678586" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS.879189158" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS.2146248443" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS.2117870281" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.compiler.inputType__ASM2_SRCS"/>
+							</tool>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.971150979" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.exe.linkerDebug.414883962"/>
+							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.129587074" name="ARM Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_20.2.hex.125500544"/>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="ex2_hal/sband/equipment_handler/test"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="ex2_hal/sband/equipment_handler/include"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="ex2_hal/sband/equipment_handler/source"/>
+						<entry excluding="ex2_sdr/gnuradio|ex2_sdr/gnuradio/utils|libcsp/src/arch/macosx|ex2_sdr/third_party/viterbi/tests|ex2_hal/adcs/equipment_handler/src/uart_i2c.c|libcsp/src/rtable/csp_rtable_cidr.c|ex2_sdr/lib/error_control/scrambler.cpp|libcsp/src/bindings|ex2_services/Services/include/athena|ex2_hal/charon/test|ex2_sdr/unit_tests|ex2_hal/adcs/equipment_handler/test|ex2_sdr/src|libcsp/src/drivers/usart/usart_windows.c|ex2_services/Services/source/athena|libcsp/src/drivers/usart/usart_linux.c|libcsp/src/drivers/can/can_socketcan.c|libcsp/src/arch/posix|ex2_sdr/lib/error_control/crc.cpp|ex2_sdr/lib/utilities/version.cpp|ex2_sdr/include/error_control|libcsp/examples|libcsp/src/arch/windows|ex2_hal/charon/ceedling-deprecated|test|ex2_sdr/lib/mac_layer/circular_buffer.c|ex2_hal/sband/equipment_handler|ex2_sdr/lib/error_control/qcldpc" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
