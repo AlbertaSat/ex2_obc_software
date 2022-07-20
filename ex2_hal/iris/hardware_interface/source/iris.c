@@ -12,10 +12,11 @@
  * GNU General Public License for more details.
  */
 
-#include "FreeRTOS.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+
+#include "FreeRTOS.h"
 
 #include "iris.h"
 #include "iris_gio.h"
@@ -59,7 +60,13 @@ struct __attribute__((__packed__)) {
  *   Initialize low-level spi driver settings
  **/
 Iris_HAL_return iris_init() {
-    iris_spi_init();
+    uint8_t ret;
+
+    ret = iris_spi_init();
+    if (ret != IRIS_LL_OK) {
+        return IRIS_HAL_ERROR;
+    }
+
     iris_gio_init();
 
     iris_boot_low();
@@ -85,7 +92,7 @@ Iris_HAL_return iris_init() {
  *   Sends take a picture command to Iris
  *
  * @return
- *   Returns IRIS_HAL_OK if equipment handler returns IRIS_ACK, else IRIS_HAL_ERROR
+ *   Returns IRIS_HAL_OK if equipment handler returns IRIS_LL_OK, else IRIS_HAL_ERROR
  **/
 Iris_HAL_return iris_take_pic() {
     IrisLowLevelReturn ret;
@@ -96,7 +103,7 @@ Iris_HAL_return iris_take_pic() {
         switch (controller_state) {
         case SEND_COMMAND: {
             ret = iris_send_command(IRIS_TAKE_PIC);
-            if (ret == IRIS_ACK) {
+            if (ret == IRIS_LL_OK) {
                 controller_state = FINISH;
             } else {
                 controller_state = ERROR_STATE;
@@ -132,7 +139,7 @@ Iris_HAL_return iris_get_image_length(uint32_t *image_length) {
         switch (controller_state) {
         case SEND_COMMAND: {
             ret = iris_send_command(IRIS_GET_IMAGE_LENGTH);
-            if (ret == IRIS_ACK) {
+            if (ret == IRIS_LL_OK) {
                 controller_state = GET_DATA;
             } else {
                 controller_state = ERROR_STATE;
@@ -176,7 +183,7 @@ Iris_HAL_return iris_get_image_length(uint32_t *image_length) {
  *   Number of bytes expected to be received from Iris
  *
  * @return
- *   Returns IRIS_HAL_OK if equipment handler returns IRIS_ACK, else IRIS_HAL_ERROR
+ *   Returns IRIS_HAL_OK if equipment handler returns IRIS_LL_OK, else IRIS_HAL_ERROR
  **/
 Iris_HAL_return iris_transfer_image(uint32_t image_length, const char *file_name) {
     uint16_t num_transfer;
@@ -196,7 +203,7 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length, const char *file_name
         case SEND_COMMAND: // Send start image transfer command
         {
             ret = iris_send_command(IRIS_TRANSFER_IMAGE);
-            if (ret == IRIS_ACK) {
+            if (ret == IRIS_LL_OK) {
                 controller_state = GET_DATA;
             } else {
                 controller_state = ERROR_STATE;
@@ -256,7 +263,7 @@ Iris_HAL_return iris_get_image_count(uint16_t *image_count) {
         switch (controller_state) {
         case SEND_COMMAND: {
             ret = iris_send_command(IRIS_GET_IMAGE_COUNT);
-            if (ret == IRIS_ACK) {
+            if (ret == IRIS_LL_OK) {
                 controller_state = GET_DATA;
             } else {
                 controller_state = ERROR_STATE;
@@ -289,7 +296,7 @@ Iris_HAL_return iris_get_image_count(uint16_t *image_count) {
  *   Flag to either turn on or off Iris sensors
  *
  * @return
- *   Returns IRIS_HAL_OK if equipment handler returns IRIS_ACK, else IRIS_HAL_ERROR
+ *   Returns IRIS_HAL_OK if equipment handler returns IRIS_LL_OK, else IRIS_HAL_ERROR
  **/
 Iris_HAL_return iris_toggle_sensor(IRIS_SENSOR_TOGGLE toggle) {
     IrisLowLevelReturn ret;
@@ -304,7 +311,7 @@ Iris_HAL_return iris_toggle_sensor(IRIS_SENSOR_TOGGLE toggle) {
             } else if (toggle == IRIS_SENSOR_OFF) {
                 ret = iris_send_command(IRIS_OFF_SENSOR_IDLE);
             }
-            if (ret == IRIS_ACK) {
+            if (ret == IRIS_LL_OK) {
                 controller_state = FINISH;
             } else {
                 controller_state = ERROR_STATE;
@@ -340,7 +347,7 @@ Iris_HAL_return iris_get_housekeeping(IRIS_Housekeeping *hk_data) {
         switch (controller_state) {
         case SEND_COMMAND: {
             ret = iris_send_command(IRIS_SEND_HOUSEKEEPING);
-            if (ret == IRIS_ACK) {
+            if (ret == IRIS_LL_OK) {
                 controller_state = GET_DATA;
             } else {
                 controller_state = ERROR_STATE;
@@ -411,7 +418,7 @@ Iris_HAL_return iris_get_housekeeping(IRIS_Housekeeping *hk_data) {
  *   register address + data
 
  * @return
- *   Returns IRIS_HAL_OK if equipment handler returns IRIS_ACK, else IRIS_HAL_ERROR
+ *   Returns IRIS_HAL_OK if equipment handler returns IRIS_LL_OK, else IRIS_HAL_ERROR
  **/
 Iris_HAL_return iris_update_sensor_i2c_reg() {
     IrisLowLevelReturn ret;
@@ -422,7 +429,7 @@ Iris_HAL_return iris_update_sensor_i2c_reg() {
         switch (controller_state) {
         case SEND_COMMAND: {
             ret = iris_send_command(IRIS_UPDATE_SENSOR_I2C_REG);
-            if (ret == IRIS_ACK) {
+            if (ret == IRIS_LL_OK) {
                 controller_state = SEND_DATA;
             } else {
                 controller_state = FINISH;
@@ -435,7 +442,7 @@ Iris_HAL_return iris_update_sensor_i2c_reg() {
             uint16_t tx_buffer[4] = {0x02, 0x06, 0x10, 0x14};
             ret = iris_send_data(tx_buffer, 4); // TODO: Need to take care of explicit declaration
 
-            if (ret != IRIS_ACK) {
+            if (ret != IRIS_LL_OK) {
                 sys_log(INFO, "Updating Iris sensor registers failed");
                 return IRIS_HAL_ERROR;
             }
@@ -463,7 +470,7 @@ Iris_HAL_return iris_update_sensor_i2c_reg() {
  *   Current limit set point
  *
  * @return
- *   Returns IRIS_HAL_OK if equipment handler returns IRIS_ACK, else IRIS_HAL_ERROR
+ *   Returns IRIS_HAL_OK if equipment handler returns IRIS_LL_OK, else IRIS_HAL_ERROR
  **/
 Iris_HAL_return iris_update_current_limit(uint16_t current_limit) {
     IrisLowLevelReturn ret;
@@ -474,7 +481,7 @@ Iris_HAL_return iris_update_current_limit(uint16_t current_limit) {
         switch (controller_state) {
         case SEND_COMMAND: {
             iris_send_command(IRIS_UPDATE_CURRENT_LIMIT);
-            if (ret == IRIS_ACK) {
+            if (ret == IRIS_LL_OK) {
                 controller_state = SEND_DATA;
             } else {
                 controller_state = FINISH;
@@ -561,7 +568,7 @@ Iris_HAL_return iris_wdt_ack() {
         switch (controller_state) {
         case SEND_COMMAND: {
             ret = iris_send_command(IRIS_WDT_ACK);
-            if (ret == IRIS_ACK) {
+            if (ret == IRIS_LL_OK) {
                 controller_state = FINISH;
             } else {
                 controller_state = ERROR_STATE;

@@ -26,6 +26,7 @@
  */
 
 #include "FreeRTOS.h"
+#include "os_semphr.h"
 #include <stdlib.h>
 
 #include "iris_spi.h"
@@ -34,13 +35,15 @@
 #include "HL_spi.h"
 #include "system.h"
 
+static SemaphoreHandle_t iris_spi_mutex;
+
 spiDAT1_t dataconfig;
 
 /**
  * @brief
  *   Initialize SPI data configurations (e.g. SPI data format)
  **/
-void iris_spi_init() {
+IrisLowLevelReturn iris_spi_init() {
     // Populate SPI config
     dataconfig.CS_HOLD = FALSE;
     dataconfig.WDEL = 0;
@@ -50,6 +53,12 @@ void iris_spi_init() {
     dataconfig.DFSEL = SPI_FMT_2; // spiREG3->FMT_2
 #endif
     dataconfig.CSNR = SPI_CS_1;
+
+    iris_spi_mutex = xSemaphoreCreateMutex();
+    if (iris_spi_mutex == NULL) {
+        return IRIS_LL_ERROR;
+    }
+    return IRIS_LL_OK;
 }
 
 /**
@@ -116,9 +125,13 @@ void iris_spi_get(uint16_t *rx_data, uint16_t data_length) {
  *   Legal Iris command to start activity
  *
  * @return
- *   Returns IRIS_ACK if command was acknowledge, IRIS_NACK if not
+ *   Returns IRIS_LL_OK if command was acknowledge, IRIS_LL_FAIL if not
  **/
 IrisLowLevelReturn iris_send_command(uint16_t command) {
+    if (xSemaphoreTake(iris_spi_mutex, IRIS_SPI_MUTEX_TIMEOUT) != pdTRUE) {
+        return IRIS_HANDLER_BUSY;
+    }
+
     uint16_t rx_data;
     uint16_t tx_dummy = DUMMY_BYTE;
 
@@ -136,10 +149,11 @@ IrisLowLevelReturn iris_send_command(uint16_t command) {
     vTaskDelay(1);
     iris_nss_high();
 
+    xSemaphoreGive(iris_spi_mutex);
     if (rx_data == ACK_FLAG) {
-        return IRIS_ACK;
+        return IRIS_LL_OK;
     } else if (rx_data == NACK_FLAG) {
-        return IRIS_NACK;
+        return IRIS_LL_FAIL;
     } else {
         return IRIS_LL_ERROR;
     }
@@ -157,9 +171,12 @@ IrisLowLevelReturn iris_send_command(uint16_t command) {
  *   Number of bytes to transmit
  *
  * @return
- *   Returns IRIS_ACK if ACK is recieved, IRIS_NACK if not
+ *   Returns IRIS_LL_OK if ACK is recieved, IRIS_LL_FAIL if not
  **/
 IrisLowLevelReturn iris_send_data(uint16_t *tx_buffer, uint16_t data_length) {
+    if (xSemaphoreTake(iris_spi_mutex, IRIS_SPI_MUTEX_TIMEOUT) != pdTRUE) {
+        return IRIS_HANDLER_BUSY;
+    }
 
     iris_nss_low();
     vTaskDelay(1);
@@ -167,7 +184,8 @@ IrisLowLevelReturn iris_send_data(uint16_t *tx_buffer, uint16_t data_length) {
     vTaskDelay(1);
     iris_nss_high();
 
-    return IRIS_ACK;
+    xSemaphoreGive(iris_spi_mutex);
+    return IRIS_LL_OK;
 }
 
 /**
@@ -185,6 +203,10 @@ IrisLowLevelReturn iris_send_data(uint16_t *tx_buffer, uint16_t data_length) {
  *   Returns TODO: Need to figure out a better return type
  **/
 IrisLowLevelReturn iris_get_data(uint16_t *rx_buffer, uint16_t data_length) {
+    if (xSemaphoreTake(iris_spi_mutex, IRIS_SPI_MUTEX_TIMEOUT) != pdTRUE) {
+        return IRIS_HANDLER_BUSY;
+    }
+
     uint16_t tx_dummy = 0xFF;
 
     iris_nss_low();
@@ -193,5 +215,6 @@ IrisLowLevelReturn iris_get_data(uint16_t *rx_buffer, uint16_t data_length) {
     vTaskDelay(1);
     iris_nss_high();
 
-    return IRIS_ACK;
+    xSemaphoreGive(iris_spi_mutex);
+    return IRIS_LL_OK;
 }
