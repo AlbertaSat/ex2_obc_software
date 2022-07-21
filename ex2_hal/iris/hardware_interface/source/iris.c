@@ -210,7 +210,7 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length, const char *file_name
                 }
 
                 red_write(fptr, image_data_buffer_8Bit, IMAGE_TRANSFER_SIZE);
-                IRSI_IMAGE_DATA_BLOCK_TRANSFER_DELAY;
+                IRIS_IMAGE_DATA_BLOCK_TRANSFER_DELAY;
             }
             red_close(fptr);
             controller_state = FINISH;
