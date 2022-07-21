@@ -84,27 +84,6 @@
 #define S_PA_DISABLE 0
 #define S_PA_ENABLE 1
 
-// Data rates
-#define S_RATE_FULL 0
-#define S_RATE_HALF 1
-#define S_RATE_QUARTER 2
-
-// Modulation type
-#define S_MOD_QPSK 0
-#define S_MOD_OQPSK 1
-
-// Filter status
-#define S_FILTER_ENABLE 0
-#define S_FILTER_DISABLE 1
-
-// Scrambler status
-#define S_SCRAMBLER_ENABLE 0
-#define S_SCRAMBLER_DISABLE 1
-
-// Bit Order
-#define S_BIT_ORDER_MSB 0
-#define S_BIT_ORDER_LSB 1
-
 // Power Amplifier powers
 #define S_PAPWR_24DBM 24
 #define S_PAPWR_26DBM 26

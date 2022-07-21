@@ -365,38 +365,39 @@ static inline SAT_returnState init_csp_interface() {
     sdr_conf.uhf_conf.uhf_baudrate = SDR_UHF_9600_BAUD;
     sdr_conf.uhf_conf.uart_baudrate = 115200;
 
-    if (SDR_NO_CSP) {
-        sdr_interface_data_t *ifdata = sdr_interface_init(&sdr_conf, gs_if_name);
-        if (!ifdata)
-            return SATR_ERROR;
-#if SDR_TEST == 1
-        test_uhf_ifdata = ifdata;
-#endif
-    } else {
-        error = csp_sdr_open_and_add_interface(&sdr_conf, gs_if_name, NULL);
-        if (error != CSP_ERR_NONE) {
-            return SATR_ERROR;
-        }
-    }
+ #if SDR_NO_CSP == 1
+    sdr_interface_data_t *ifdata = sdr_interface_init(&sdr_conf, gs_if_name);
+    if (!ifdata) return SATR_ERROR;
 
+#if SDR_TEST == 1
+    test_uhf_ifdata = ifdata;
+#endif
+#else // use CSP
+    error = csp_sdr_open_and_add_interface(&sdr_conf, gs_if_name, NULL);
+    if (error != CSP_ERR_NONE) {
+        return SATR_ERROR;
+    }
+#endif // SDR_NO_CSP
+
+#if SDR_NO_CSP == 1
+    sdr_interface_data_t *ifdata = sdr_interface_init(&sdr_conf, SDR_IF_SBAND_NAME);
+    if (!ifdata) return SATR_ERROR;
+#if SDR_TEST == 1
+    test_sband_ifdata = ifdata;
+#endif
+#else // use CSP
 #if SBAND_IS_STUBBED == 0
-#if 0
     error = csp_sdr_open_and_add_interface(&sdr_conf, SDR_IF_SBAND_NAME, NULL);
     if (error != CSP_ERR_NONE) {
         return SATR_ERROR;
     }
-#endif
-#endif /* !SBAND_IS_STUBBED */
+#endif // has S-BAND
+#endif // SDR_NO_CSP
 
-#if SDR_TEST == 1
-    test_sband_ifdata = sdr_interface_init(&sdr_conf, SDR_IF_SBAND_NAME);
-    if (!test_sband_ifdata)
-        return SATR_ERROR;
-#endif
 #endif /* CSP_USE_SDR */
 
     char rtable[128] = {0};
-    snprintf(rtable, 128, "%d %s", gs_if_addr, gs_if_name);
+    snprintf(rtable, 128, "%d %s, 17 %s", gs_if_addr, gs_if_name, SDR_IF_SBAND_NAME);
 
 #if EPS_IS_STUBBED == 0
     snprintf(rtable, 128, "%s, 4 CAN", rtable);

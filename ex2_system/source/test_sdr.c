@@ -13,12 +13,12 @@
 #define BASE_LEN 20
 
 void test_csp_send(void *arg) {
-    ex2_log("starting CSP->UART send");
+    ex2_log("starting CSP->SDR send");
     vTaskDelay(1000);
 
     csp_conn_t *conn = 0;
     while (!conn) {
-        conn = csp_connect(CSP_PRIO_NORM, 1, 23, 1000, CSP_O_NONE);
+        conn = csp_connect(CSP_PRIO_NORM, 17, 17, 1000, CSP_SO_HMACREQ);
         if (!conn) {
             ex2_log("CSP connection failed %d", xTaskGetTickCount());
             vTaskDelay(1000);
@@ -39,13 +39,11 @@ void test_csp_send(void *arg) {
             packet->data[i] = i;
         }
 
-        ex2_log("csp->uhf send %d, len %d\n", count++, len);
+        ex2_log("csp->sdr send %d, len %d\n", count++, len);
 
-        if (!csp_send(conn, packet, 1000)) {
+        if (csp_send(conn, packet, 1000) != 0) {
             ex2_log("send failed");
-            break;
         }
-        csp_buffer_free(packet);
 
         vTaskDelay(5000);
     }
@@ -55,6 +53,11 @@ void test_csp_send(void *arg) {
 
 void test_uhf_send(void *arg) {
     sdr_interface_data_t *ifdata = arg;
+
+    if (!ifdata) {
+        ex2_log("no UHF interface: exiting");
+        vTaskDelete(0); // delete self to free up heap
+    }
 
     ex2_log("starting SDR->UART send");
     vTaskDelay(1000);
@@ -87,10 +90,15 @@ void test_sband_send(void *arg) {
     int len = 1024;
     uint8_t *packet = (uint8_t *) pvPortMalloc(len);
 
+    if (!ifdata) {
+        ex2_log("no S-BAND interface: exiting");
+        vTaskDelete(0); // delete self to free up heap
+    }
+
     ex2_log("starting S-BAND send");
     vTaskDelay(1000);
 
-    while (1) {
+    while (ifdata) {
         /* Simulate the sending of 10MB files */
         sdr_sband_tx_start(ifdata);
 
@@ -182,8 +190,8 @@ void start_test_sdr(sdr_interface_data_t *uhf_ifdata, sdr_interface_data_t *sban
         xTaskCreate(test_uhf_send, "sdr->uhf", TEST_STACK_SIZE, uhf_ifdata, 0, NULL);
     }
     else {
-        xTaskCreate(test_csp_receive, "uhf->csp", TEST_STACK_SIZE, NULL, 0, NULL);
-        xTaskCreate(test_csp_send, "csp->uhf", TEST_STACK_SIZE, NULL, 0, NULL);
+        xTaskCreate(test_csp_receive, "sdr->csp", TEST_STACK_SIZE, NULL, 0, NULL);
+        xTaskCreate(test_csp_send, "csp->sdr", TEST_STACK_SIZE, NULL, 0, NULL);
     }
 
     xTaskCreate(test_sband_send, "sdr->sband", TEST_STACK_SIZE, sband_ifdata, 0, NULL);

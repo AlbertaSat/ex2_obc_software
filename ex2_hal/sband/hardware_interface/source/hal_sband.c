@@ -28,6 +28,7 @@
 #include <os_queue.h>
 
 #include "services.h"
+#include <sTransmitter.h>
 
 // For storing the set data
 static Sband_config S_config_reg;
@@ -162,49 +163,29 @@ STX_return HAL_S_getBuffer(int quantity, Sband_Buffer *S_buffer) {
 }
 
 STX_return HAL_S_softResetFPGA(void) {
-#if SBAND_IS_STUBBED == 1
-    return IS_STUBBED_S;
-#else
     return STX_softResetFPGA();
-#endif
 }
 
 STX_return HAL_S_setFreq(float S_freq_new) {
     S_config_reg.freq = S_freq_new;
-#if SBAND_IS_STUBBED == 1
-    return IS_STUBBED_S;
-#else
     return STX_setFrequency(S_config_reg.freq);
-#endif
 }
 
 STX_return HAL_S_setPAPower(uint8_t S_PA_Power_new) {
-#if SBAND_IS_STUBBED == 1
-    return IS_STUBBED_S;
-#else
     S_config_reg.PA_Power = S_PA_Power_new;
     return STX_setPaPower(S_config_reg.PA_Power);
-#endif
 }
 
 STX_return HAL_S_setControl(Sband_PowerAmplifier S_PA_new) {
     S_config_reg.PA = S_PA_new;
-#if SBAND_IS_STUBBED == 1
-    return IS_STUBBED_S;
-#else
     return STX_setControl((uint8_t) S_config_reg.PA.status, (uint8_t) S_config_reg.PA.mode);
-#endif
 }
 
 STX_return HAL_S_setEncoder(Sband_Encoder S_enc_new) {
-#if SBAND_IS_STUBBED == 1
-    return IS_STUBBED_S;
-#else
     S_config_reg.enc = S_enc_new;
     return STX_setEncoder(S_config_reg.enc.bit_order,
                           S_config_reg.enc.scrambler,
                           S_config_reg.enc.filter,
                           S_config_reg.enc.modulation,
                           S_config_reg.enc.rate);
-#endif
 }
