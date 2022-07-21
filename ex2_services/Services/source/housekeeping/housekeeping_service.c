@@ -787,7 +787,7 @@ Result set_max_files(uint16_t new_max) {
 
 /**
  * @brief
- *      Get maximum number of files stored by the housekeeping service
+ *      Get current file used by the housekeeping service
  * @return
  *      MAX_FILES
  */
