@@ -73,7 +73,7 @@ void test_csp_sband_send(void *arg) {
         // Turn on the radio
         sdr_sband_tx_start(csp_iface->interface_data);
 
-        int i, count;
+        int count;
         size_t len = SBAND_PACKET_LEN;
         for (count=0; count<1024; count++) {
             csp_packet_t *packet = csp_buffer_get(len);
@@ -85,7 +85,7 @@ void test_csp_sband_send(void *arg) {
             packet->length = len;
             memset(packet->data, 0, len);
 #if 0
-            for (i = 0; i < len; i++) {
+            for (int i = 0; i < len; i++) {
                 packet->data[i] = i;
             }
 #endif
