@@ -18,7 +18,7 @@ void test_csp_send(void *arg) {
 
     csp_conn_t *conn = 0;
     while (!conn) {
-        conn = csp_connect(CSP_PRIO_NORM, 17, 17, 1000, CSP_SO_HMACREQ);
+        conn = csp_connect(CSP_PRIO_NORM, 23, 23, 1000, CSP_SO_HMACREQ);
         if (!conn) {
             ex2_log("CSP connection failed %d", xTaskGetTickCount());
             vTaskDelay(1000);
@@ -41,8 +41,9 @@ void test_csp_send(void *arg) {
 
         ex2_log("csp->sdr send %d, len %d\n", count++, len);
 
-        if (csp_send(conn, packet, 1000) != 0) {
+        if (csp_send(conn, packet, 1000) == 0) {
             ex2_log("send failed");
+            csp_buffer_free(packet);
         }
 
         vTaskDelay(5000);
@@ -90,7 +91,7 @@ void test_csp_sband_send(void *arg) {
 #endif
             ex2_log("csp->sband send %d, len %d\n", count, len);
 
-            if (csp_send(conn, packet, 1000)) {
+            if (!csp_send(conn, packet, 1000)) {
                 ex2_log("send failed");
                 csp_buffer_free(packet);
             }
