@@ -27,6 +27,12 @@
 #define ADCS_QUEUE_GET_TASK_PRIO (configMAX_PRIORITIES - 1)
 
 typedef struct __attribute__((packed)) {
+    // Selected params from ADCS state
+    uint8_t att_estimate_mode;
+    uint8_t att_control_mode;
+    uint8_t run_mode;
+    uint8_t flags_arr[52];
+    xyz longlatalt;
     // xyz Estimated_Angular_Rate;
     float Estimated_Angular_Rate_X;
     float Estimated_Angular_Rate_Y;
