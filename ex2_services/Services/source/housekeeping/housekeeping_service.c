@@ -787,6 +787,17 @@ Result set_max_files(uint16_t new_max) {
 
 /**
  * @brief
+ *      Get current file used by the housekeeping service
+ * @return
+ *      MAX_FILES
+ */
+
+uint16_t get_current_file(){
+    return current_file;
+}
+
+/**
+ * @brief
  *      Is given a struct of all the housekeeping data and converts the
  *      endianness of each value to be sent over the network
  * @param hk
