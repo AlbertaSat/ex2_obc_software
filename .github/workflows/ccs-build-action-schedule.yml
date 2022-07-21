@@ -34,5 +34,27 @@ jobs:
         git submodule foreach 'git checkout master || :'
         git submodule foreach git pull
     
-    - name: Build ccs project
-      uses: AlbertaSat/CCS_v10_4_build_action@v0.1
+    - name: Build ccs project (Debug config) 
+      uses: AlbertaSat/CCS_v10_4_build_action@v0.2
+      with:
+        config: Debug
+
+    - name: Build ccs project (ExAlta2 config)
+      uses: AlbertaSat/CCS_v10_4_build_action@v0.2
+      with:
+        config: Exalta2
+
+    - name: Build ccs project (Flatsat config)
+      uses: AlbertaSat/CCS_v10_4_build_action@v0.2
+      with:
+        config: Flatsat
+
+    - name: Build ccs project (AuroraSat config)
+      uses: AlbertaSat/CCS_v10_4_build_action@v0.2
+      with:
+        config: Aurorasat
+
+    - name: Build ccs project (YukonSat config)
+      uses: AlbertaSat/CCS_v10_4_build_action@v0.2
+      with:
+        config: Yukonsat

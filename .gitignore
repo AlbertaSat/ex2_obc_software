@@ -7,3 +7,7 @@ Debug/**
 /Devel/
 *.prefs
 /.settings/
+/Flatsat/
+/Aurorasat/
+/Exalta2/
+/Yukonsat/
