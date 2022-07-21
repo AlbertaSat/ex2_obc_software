@@ -51,6 +51,11 @@ static void *beacon_daemon() {
             /* Fetch most recent housekeeping */
             All_systems_housekeeping all_hk_data;
             uint16_t current_file = get_current_file();
+            if(current_file == 1){
+                // No housekeeping files saved yet
+                vTaskDelay(20 * ONE_SECOND);
+                continue;
+            }
             Result err = load_historic_hk_data(current_file - 1, &all_hk_data);
             if(err == FAILURE){
                 vTaskDelay(20 * ONE_SECOND);

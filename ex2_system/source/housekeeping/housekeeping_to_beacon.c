@@ -47,17 +47,16 @@ void update_beacon(All_systems_housekeeping *all_hk_data, beacon_packet_1_t *bea
     beacon_packet_one->eps_mode = all_hk_data->EPS_hk.battMode;
     beacon_packet_one->battery_voltage = all_hk_data->EPS_hk.vBatt;
     beacon_packet_one->battery_input_current = all_hk_data->EPS_hk.curBattIn;
-    memcpy(&(beacon_packet_one->current_channels), &(all_hk_data->EPS_hk.curOutput),
-           sizeof(beacon_packet_one->current_channels));
+    for(int i = 0; i < sizeof(beacon_packet_one->current_channels); i++){
+        beacon_packet_one->current_channels[i] = all_hk_data->EPS_hk.curOutput[i];
+        beacon_packet_one->output_faults[i] = all_hk_data->EPS_hk.outputFaultCnt[i];
+    }
     beacon_packet_one->output_status = all_hk_data->EPS_hk.outputStatus;
-    memcpy(&(beacon_packet_one->output_faults), &(all_hk_data->EPS_hk.outputFaultCnt),
-           sizeof(beacon_packet_one->output_faults));
     beacon_packet_one->EPS_boot_count = all_hk_data->EPS_hk.bootCnt;
 
     beacon_packet_one->eps_last_reset_reason = (uint8_t)determine_eps_last_reset_reason(all_hk_data->EPS_startup_hk.last_reset_reason_reg);
 
     /*-------Watchdog-------*/
-    // TODO: More work to be done on watchdogs, using temporary placeholders from hk data
     beacon_packet_one->gs_wdt_time = all_hk_data->EPS_hk.wdt_gs_time_left;
     beacon_packet_one->gs_wdt_cnt = all_hk_data->EPS_hk.wdt_gs_counter;
     beacon_packet_one->obc_wdt_toggles = all_hk_data->EPS_hk.PingWdt_toggles;
