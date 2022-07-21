@@ -32,62 +32,51 @@
 #include "housekeeping_service.h"
 
 typedef struct __attribute__((packed)) {
-    // common
+    // META
     uint32_t time;
     uint8_t packet_number;
+    // Deployables
+    uint8_t switch_stat;
     // EPS
     uint8_t eps_mode;
     uint16_t battery_voltage;
     uint16_t battery_input_current;
     uint16_t current_channels[10];
-    uint16_t output_states;
+    uint16_t output_status;
     uint8_t output_faults[10];
     uint16_t EPS_boot_count;
     uint8_t eps_last_reset_reason;
-    // Watchdogs
-    uint16_t gs_wdt;
-    uint8_t obc_wdt;
-    uint16_t gs_wdt_expr;
-    uint16_t obc_wdt_expr;
+    // EPS Watchdogs
+    uint32_t gs_wdt_time;
+    uint8_t gs_wdt_cnt;
+    uint8_t obc_wdt_toggles;
+    uint8_t obc_wdt_turnoffs;
+} beacon_packet_1_t;
+
+typedef struct __attribute__((packed)) {
+    // META
+    uint32_t time;
+    uint8_t packet_number;
     // Temperatures
-    int8_t temps[18];
+    int8_t temps[17];
     // ADCS
-    int8_t angular_rate;
+    int8_t angular_rate_X;
+    int8_t angular_rate_Y;
+    int8_t angular_rate_Z;
     int8_t adcs_control_mode;
     // UHF
     uint16_t uhf_uptime;
     // Payload
     uint8_t payload_software_version;
-} beacon_packet_1_t;
-
-typedef struct __attribute__((packed)) {
-    // common
-    uint32_t time;
-    uint8_t packet_number;
     // OBC
-    uint16_t obc_boot_count;
-    uint8_t obc_last_reset_reason;
-    uint8_t obc_mode;
-    uint16_t obc_uptime;
-    uint8_t solar_panel_current;
-    uint16_t mcu_core_current;
-    uint8_t obc_software_version;
-    uint16_t commands_received;
-    uint16_t fec_recovered_packets;
-    uint8_t logged_items_count;
-    // Logged Items
-    uint32_t log1_timestamp;
-    uint8_t log1_code;
-    uint32_t log2_timestamp;
-    uint8_t log2_code;
-    uint32_t log3_timestamp;
-    uint8_t log3_code;
-    uint32_t log4_timestamp;
-    uint8_t log4_code;
-    uint32_t log5_timestamp;
-    uint8_t log5_code;
-    uint32_t log6_timestamp;
-    uint8_t log6_code;
+    uint16_t boot_cnt;
+    uint8_t last_reset_reason;
+    uint8_t OBC_mode;
+    uint16_t OBC_uptime;
+    uint8_t solar_panel_supply_curr;
+    uint8_t OBC_software_ver;
+    uint16_t cmds_received;
+    uint16_t pckts_uncovered_by_FEC;
 } beacon_packet_2_t;
 
 /**

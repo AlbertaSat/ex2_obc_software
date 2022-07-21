@@ -792,8 +792,8 @@ Result set_max_files(uint16_t new_max) {
  *      MAX_FILES
  */
 
-uint16_t get_max_files(){
-    return MAX_FILES;
+uint16_t get_current_file(){
+    return current_file;
 }
 
 /**

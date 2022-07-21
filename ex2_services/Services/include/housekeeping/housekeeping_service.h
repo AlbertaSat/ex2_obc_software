@@ -93,6 +93,6 @@ uint16_t get_size_of_housekeeping(All_systems_housekeeping *all_hk_data);
 uint16_t get_file_id_from_timestamp(uint32_t timestamp);
 Result load_historic_hk_data(uint16_t file_num, All_systems_housekeeping *all_hk_data);
 Result set_max_files(uint16_t new_max);
-uint16_t get_max_files();
+uint16_t get_current_file();
 
 #endif /* HOUSEKEEPING_SERVICE_H */

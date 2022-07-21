@@ -50,8 +50,8 @@ static void *beacon_daemon() {
 
             /* Fetch most recent housekeeping */
             All_systems_housekeeping all_hk_data;
-            uint16_t max_files = get_max_files();
-            Result err = load_historic_hk_data(max_files, &all_hk_data);
+            uint16_t current_file = get_current_file();
+            Result err = load_historic_hk_data(current_file - 1, &all_hk_data);
             if(err == FAILURE){
                 vTaskDelay(20 * ONE_SECOND);
                 continue;
@@ -77,6 +77,7 @@ static void *beacon_daemon() {
             unsigned char *temparray = (unsigned char *)pvPortMalloc(sizeof(beacon_msg.message));
             if(temparray == NULL){
                 sys_log(ERROR, "Malloc failed in beacon task\n");
+                vTaskDelay(20 * ONE_SECOND);
                 continue;
             }
             char *beacon_content;
@@ -84,6 +85,10 @@ static void *beacon_daemon() {
             beacon_content = base64_encode(temparray, sizeof(beacon_packet_1_t), &output_len);
             if(output_len > sizeof(beacon_msg.message)){
                 sys_log(NOTICE, "Tried to set a beacon message which was too long\n");
+                vTaskDelay(20 * ONE_SECOND);
+                vPortFree(temparray);
+                vPortFree(beacon_content);
+                continue;
             }
 
             /* Set first beacon packet */
@@ -99,12 +104,17 @@ static void *beacon_daemon() {
 
             /* Wait for UHF to send first beacon */
             vTaskDelay(pdMS_TO_TICKS(beacon_t_s * 1000));
+            vPortFree(beacon_content);
 
             /* Encode the second beacon content */
             memcpy(temparray, &beacon_packet_two, sizeof(beacon_packet_2_t));
             beacon_content = base64_encode(temparray, sizeof(beacon_packet_2_t), &output_len);
             if(output_len > sizeof(beacon_msg.message)){
                 sys_log(NOTICE, "Tried to set a beacon message which was too long\n");
+                vTaskDelay(20 * ONE_SECOND);
+                vPortFree(temparray);
+                vPortFree(beacon_content);
+                continue;
             }
 
             /* Set the second beacon packet */
