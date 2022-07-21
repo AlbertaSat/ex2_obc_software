@@ -82,13 +82,15 @@ void test_csp_sband_send(void *arg) {
             }
 
             packet->length = len;
+            memset(packet->data, 0, len);
+#if 0
             for (i = 0; i < len; i++) {
                 packet->data[i] = i;
             }
-
+#endif
             ex2_log("csp->sband send %d, len %d\n", count, len);
 
-            if (!csp_send(conn, packet, 1000)) {
+            if (csp_send(conn, packet, 1000)) {
                 ex2_log("send failed");
                 csp_buffer_free(packet);
             }
