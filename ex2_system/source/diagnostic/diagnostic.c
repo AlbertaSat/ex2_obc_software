@@ -66,11 +66,20 @@ static SemaphoreHandle_t ns_watchdog_mtx = NULL;
 static void uhf_watchdog_daemon(void *pvParameters) {
     for (;;) {
         TickType_t delay = get_uhf_watchdog_delay();
-        if (eps_get_pwr_chnl(UHF_5V0_PWR_CHNL) == 0) {
-            ex2_log("UHF not on - power not toggled");
+
+#if FLIGHT_CONFIGURATION == 1
+        /* In flight configuration, the watchdog will turn the UHF on if it is off */
+        if (eps_get_pwr_chnl(UHF_5V0_PWR_CHNL) == OFF) {
+            sys_log(ERROR, "UHF not on during watchdog check, power will be toggled\n");
+        }
+#else
+        /* In non-flight configuration, the UHF watchdog avoids powering unexpected channels */
+        if (eps_get_pwr_chnl(UHF_5V0_PWR_CHNL) == OFF) {
+            sys_log(ERROR, "UHF not on during watchdog check, power not toggled\n");
             vTaskDelay(delay);
             continue;
         }
+#endif
         UHF_return err;
         for (int i = 0; i < watchdog_retries; i++) {
             err = UHF_refresh_state();
