@@ -63,14 +63,6 @@ typedef enum {
     IRIS_SENSOR_ON = 1,
 } IRIS_SENSOR_TOGGLE;
 
-enum {
-    SEND_COMMAND,
-    SEND_DATA,
-    GET_DATA,
-    FINISH,
-    ERROR_STATE, // TODO: Potentially used for error handling
-} controller_state;
-
 // pre-defined SPI communication constants
 #define ACK_FLAG 0xAA
 #define NACK_FLAG 0x0F

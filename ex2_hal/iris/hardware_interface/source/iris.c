@@ -25,6 +25,14 @@
  * - Full error coverage is desired
  */
 
+enum {
+    SEND_COMMAND,
+    SEND_DATA,
+    GET_DATA,
+    FINISH,
+    ERROR_STATE, // TODO: Potentially used for error handling
+} controller_state;
+
 /**
  * @brief
  *   Initialize low-level spi driver settings
