@@ -32,14 +32,13 @@ void update_beacon(All_systems_housekeeping *all_hk_data, beacon_packet_1_t *bea
                    beacon_packet_2_t *beacon_packet_two) {
 
     /*-------META-------*/
-    int i;
     beacon_packet_one->time = all_hk_data->hk_timeorder.UNIXtimestamp;
     beacon_packet_two->time = all_hk_data->hk_timeorder.UNIXtimestamp;
     beacon_packet_one->packet_number = 1;
     beacon_packet_two->packet_number = 2;
 
     /*-------Deployables-------*/
-    for(Deployable_t i = 0; i <= Starboard; i++){
+    for(Deployable_t i = DFGM; i <= Starboard; i++){
         bool status = switchstatus(i);
         beacon_packet_one->switch_stat |= (status << i);
     }
