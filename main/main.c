@@ -71,7 +71,7 @@
 #include "crypto.h"
 #include "csp_debug_wrapper.h"
 
-#define SDR_TEST 1
+#define SDR_TEST 0
 
 #if SDR_TEST == 1
 #include "test_sdr.h"
