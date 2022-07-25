@@ -160,8 +160,6 @@ IrisLowLevelReturn iris_send_command(uint16_t command) {
  *   Returns IRIS_ACK if ACK is recieved, IRIS_NACK if not
  **/
 IrisLowLevelReturn iris_send_data(uint16_t *tx_buffer, uint16_t data_length) {
-    uint16_t tx_dummy = DUMMY_BYTE;
-    uint16_t rx_data;
 
     iris_nss_low();
     vTaskDelay(1);
@@ -171,13 +169,7 @@ IrisLowLevelReturn iris_send_data(uint16_t *tx_buffer, uint16_t data_length) {
     vTaskDelay(1);
     iris_nss_high();
 
-    if (rx_data == ACK_FLAG) {
-        return IRIS_ACK;
-    } else if (rx_data == NACK_FLAG) {
-        return IRIS_NACK;
-    } else {
-        return IRIS_LL_ERROR;
-    }
+    return IRIS_ACK;
 }
 
 /**

@@ -64,6 +64,15 @@ Iris_HAL_return iris_init() {
     IRIS_POWER_CYCLE_DELAY;
     iris_reset_high();
 
+    vTaskDelay(100);
+
+#if IS_ATHENA == 1
+    time_t unix_time;
+    iris_set_time(RTCMK_GetUnix(&unix_time));
+#else
+    iris_set_time(1658777116);
+#endif
+
     // TODO: Add quick iris loopback test
     return IRIS_HAL_OK;
 }
@@ -488,6 +497,56 @@ Iris_HAL_return iris_update_current_limit(uint16_t current_limit) {
         }
     }
     return IRIS_HAL_ERROR;
+}
+
+/**
+ * @brief
+ *   Sends RTC time to iris
+ *
+ * @param[in] current limit
+ *   Current limit set point
+ *
+ * @return
+ *   Returns IRIS_HAL_OK if equipment handler returns IRIS_ACK, else IRIS_HAL_ERROR
+ **/
+Iris_HAL_return iris_set_time(uint32_t unix_time) {
+    IrisLowLevelReturn ret;
+    uint16_t iris_unix_time_buffer[IRIS_UNIX_TIME_SIZE];
+
+    controller_state = SEND_COMMAND;
+
+    while (1) {
+        switch (controller_state) {
+        case SEND_COMMAND: {
+            ret = iris_send_command(IRIS_SET_TIME);
+            if (ret == IRIS_ACK) {
+                controller_state = SEND_DATA;
+            } else {
+                controller_state = FINISH;
+            }
+            break;
+        }
+        case SEND_DATA: {
+            iris_unix_time_buffer[0] = (unix_time >> (8 * 3)) & 0xff;
+            iris_unix_time_buffer[1] = (unix_time >> (8 * 2)) & 0xff;
+            iris_unix_time_buffer[2] = (unix_time >> (8 * 1)) & 0xff;
+            iris_unix_time_buffer[3] = (unix_time >> (8 * 0)) & 0xff;
+
+            iris_send_data(iris_unix_time_buffer, IRIS_UNIX_TIME_SIZE);
+
+            controller_state = FINISH;
+            break;
+        }
+        case FINISH: {
+            sys_log(INFO, "Iris successful on update current limit command");
+            return IRIS_HAL_OK;
+        }
+        case ERROR_STATE: {
+            sys_log(WARN, "Iris failure on update current limit command");
+            return IRIS_HAL_ERROR;
+        }
+        }
+    }
 }
 
 Iris_HAL_return iris_wdt_ack() {
