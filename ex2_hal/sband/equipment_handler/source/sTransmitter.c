@@ -383,7 +383,7 @@ STX_return STX_getFrequency(float *freq) {
  *      Success of the function defined in sTransmitter.h
  */
 STX_return STX_setFrequency(float new_frequency) {
-#ifdef SBAND_COMMERCIAL_FREQUENCY
+#if SBAND_COMMERCIAL_FREQUENCY == 1
 
     // Check if commercial frequency is within allowed bounds
     if ((new_frequency >= S_FREQ_COMMERCIAL_MIN) && (new_frequency <= S_FREQ_COMMERCIAL_MAX)) {
