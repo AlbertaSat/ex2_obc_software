@@ -36,10 +36,10 @@
  */
 SAT_returnState start_system_tasks(void) {
 
-    const const static char *system_task_names[] = {"beacon_daemon\0",   "coordinate_management_daemon\0",
-                                                    "diagnostic_daemon", "housekeeping_daemon\0",
-                                                    "NMEA_daemon\0",     "RTC_daemon\0",
-                                                    "logger_daemon\0"};
+    const const static char *system_task_names[] = {
+        "task_manager\0",    "beacon_daemon\0",       "coordinate_management_daemon\0",
+        "diagnostic_daemon", "housekeeping_daemon\0", "NMEA_daemon\0",
+        "RTC_daemon\0",      "logger_daemon\0"};
 
     const system_tasks start_task[] = {
         &start_task_manager,      &start_beacon_daemon,       &start_coordinate_management_daemon,
