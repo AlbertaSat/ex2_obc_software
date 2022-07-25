@@ -230,3 +230,22 @@ int test_currentsense(uint8_t addr) {
     printf("Current Test Complete\r\n");
     return rtn;
 }
+
+int is_SolarPanel_overcurrent() {
+    // Panel_Alert: N2HET2_0
+    // Panel_SHDN:  N2_HET2_12
+    // Polls for Panel_Alert to go low, then pulls Panel_SHDN low to kill power to
+
+    // Check panel_alert
+    // if (panel_alert is low){
+    //      pull panel SHDN low
+    //      raise error flag
+    //      turn panels back on in ten seconds
+    //                  OR
+    //
+    //  }else{
+    //      return 0;
+    //  }
+    //
+    return 0;
+}
