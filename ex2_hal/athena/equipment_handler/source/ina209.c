@@ -15,11 +15,10 @@
 #include <FreeRTOS.h>
 #include <os_task.h>
 
-uint16_t CALI_REG =  0xDA73;
-uint16_t POWER_OLREG =  0x0100;
-uint16_t ZEROREG =  0x0000;
+uint16_t CALI_REG = 0xDA73;
+uint16_t POWER_OLREG = 0x0100; // adapt me
+uint16_t ZEROREG = 0x0000;
 uint16_t FFREG = 0xFFFF;
-
 
 int ina209_Write1ByteReg(uint8_t addr, uint8_t reg_addr, uint8_t data) {
     uint8_t buf[2];
@@ -36,7 +35,7 @@ int ina209_Write2ByteReg(uint8_t addr, uint8_t reg_addr, uint16_t data) {
     return i2c_Send(i2cREG2, addr, 3, &buf);
 }
 
-int ina209_Read1ByteReg(uint8_t addr, uint8_t reg_addr, uint8_t * val) {
+int ina209_Read1ByteReg(uint8_t addr, uint8_t reg_addr, uint8_t *val) {
     // TODO: make this use error code return instead
     uint8_t value = 0;
 
@@ -47,16 +46,16 @@ int ina209_Read1ByteReg(uint8_t addr, uint8_t reg_addr, uint8_t * val) {
     return value;
 }
 
-int ina209_Read2ByteReg(uint8_t addr, uint8_t reg_addr, uint16_t * val) {
+int ina209_Read2ByteReg(uint8_t addr, uint8_t reg_addr, uint16_t *val) {
     // TODO: make this use error code return instead
     uint8_t data[2] = {0};
     uint16_t value = 0;
 
-    if(i2c_Send(i2cREG2, addr, 1, &reg_addr) == -1){
+    if (i2c_Send(i2cREG2, addr, 1, &reg_addr) == -1) {
         return -1;
     }
 
-    if(i2c_Receive(i2cREG2, addr, 2, &data) == -1){
+    if (i2c_Receive(i2cREG2, addr, 2, &data) == -1) {
         return -1;
     }
 
@@ -88,9 +87,7 @@ void ina209_get_control_register(uint8_t addr, uint16_t *retval) {
     return;
 }
 
-void ina209_set_control_register(uint8_t addr, uint16_t *val){
-    ina209_Write2ByteReg(addr, 0x02, *val);
-}
+void ina209_set_control_register(uint8_t addr, uint16_t *val) { ina209_Write2ByteReg(addr, 0x02, *val); }
 
 void ina209_get_shunt_voltage(uint8_t addr, uint16_t *retval) {
     ina209_Read2ByteReg(addr, 0x03, retval);
@@ -153,7 +150,7 @@ void ina209_get_bus_voltage_overlimit(uint8_t addr, uint16_t *retval) {
     return;
 }
 
-void ina209_set_bus_voltage_overlimit(uint8_t addr, uint16_t  *val) {
+void ina209_set_bus_voltage_overlimit(uint8_t addr, uint16_t *val) {
     ina209_Write2ByteReg(addr, 0x12, *val);
     return;
 }
@@ -163,7 +160,7 @@ void ina209_get_bus_voltage_underlimit(uint8_t addr, uint16_t *retval) {
     return;
 }
 
-void ina209_set_bus_voltage_underlimit(uint8_t addr, uint16_t  *val) {
+void ina209_set_bus_voltage_underlimit(uint8_t addr, uint16_t *val) {
     ina209_Write2ByteReg(addr, 0x13, *val);
     return;
 }
@@ -189,10 +186,12 @@ void _flip_byte_order(uint16_t *input) {
     return;
 }
 
-void init_ina209(uint8_t addr){
+void init_ina209(uint8_t addr) {
     // clear POR flags
     uint16_t retval;
-    for (uint8_t i=0; i<5; i++){ina209_get_status_flags(addr, &retval);}
+    for (uint8_t i = 0; i < 5; i++) {
+        ina209_get_status_flags(addr, &retval);
+    }
     // ina209_set calibration register
     ina209_set_calibration(addr, &CALI_REG);
     // ina209_set power overlimit
@@ -204,9 +203,29 @@ void init_ina209(uint8_t addr){
     return;
 }
 
-void reset_ina209(uint8_t addr){
+void reset_ina209(uint8_t addr) {
     ina209_set_control_register(addr, &ZEROREG);
     vTaskDelay(2);
     ina209_set_control_register(addr, &FFREG);
 }
 
+int test_currentsense(uint8_t addr) {
+    int rtn = 0;
+    printf("Initializing INA209\r\n");
+    init_ina209(SOLAR_INA209_ADDR);
+    vTaskDelay(500);
+    uint16_t current, current_reg, shunt_voltage;
+    // current = (1/4096) * (shunt voltage * calibration register)
+    for (int i = 0; i < 30; i++) {
+        // Read current from register
+        ina209_get_current(SOLAR_INA209_ADDR, &current_reg);
+        ina209_get_shunt_voltage(SOLAR_INA209_ADDR, &shunt_voltage);
+        current = (current_reg * shunt_voltage) / 4096;
+        printf("Current Register:\t0x%.4x\r\n", current_reg);
+        printf("Shunt Voltage Register:\t0x%.4x\r\n", shunt_voltage);
+        printf("Calculated Current: 0x%.4x -> %d\r\n\n", current, current);
+        vTaskDelay(500);
+    }
+    printf("Current Test Complete\r\n");
+    return rtn;
+}
