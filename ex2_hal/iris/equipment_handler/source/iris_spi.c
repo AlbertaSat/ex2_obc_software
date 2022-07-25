@@ -47,7 +47,7 @@ void iris_spi_init() {
 #if IS_ATHENA == 1
     dataconfig.DFSEL = SPI_FMT_0; // spiREG4->FMT_0
 #else
-    dataconfig.DFSEL = SPI_FMT_1; // spiREG3->FMT_1
+    dataconfig.DFSEL = SPI_FMT_2; // spiREG3->FMT_2
 #endif
     dataconfig.CSNR = SPI_CS_1;
 }
