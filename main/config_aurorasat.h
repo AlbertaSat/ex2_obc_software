@@ -53,7 +53,8 @@
 
 #define SBAND_COMMERCIAL_FREQUENCY 0
 
-#define ADCS_MAG_FLIGHT_CONFIG 1
+/* Only defined for final flight build of software */
+#define FLIGHT_CONFIGURATION 0
 
 #define CSP_FREERTOS 1
 #define CSP_USE_SDR 1
