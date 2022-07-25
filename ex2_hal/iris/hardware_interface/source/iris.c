@@ -15,7 +15,6 @@
 #include "FreeRTOS.h"
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
 
 #include "iris.h"
 #include "iris_gio.h"
@@ -60,10 +59,10 @@ Iris_HAL_return iris_init() {
     iris_spi_init();
     iris_gio_init();
 
-    IRIS_BOOT_LOW();
-    IRIS_nRST_LOW();
+    iris_boot_low();
+    iris_reset_low();
     IRIS_POWER_CYCLE_DELAY;
-    IRIS_nRST_HIGH();
+    iris_reset_high();
 
     // TODO: Add quick iris loopback test
     return IRIS_HAL_OK;
@@ -210,7 +209,7 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
                 }
 
                 red_write(fptr, image_data_buffer_8Bit, IMAGE_TRANSFER_SIZE);
-                IRSI_IMAGE_DATA_BLOCK_TRANSFER_DELAY;
+                IRIS_IMAGE_DATA_BLOCK_TRANSFER_DELAY;
             }
             red_close(fptr);
             controller_state = FINISH;

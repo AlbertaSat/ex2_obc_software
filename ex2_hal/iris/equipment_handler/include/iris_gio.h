@@ -21,11 +21,11 @@
 #endif
 
 void iris_gio_init();
-void IRIS_NSS_HIGH();
-void IRIS_NSS_LOW();
-void IRIS_nRST_HIGH();
-void IRIS_nRST_LOW();
-void IRIS_BOOT_HIGH();
-void IRIS_BOOT_LOW();
+void iris_nss_high();
+void iris_nss_low();
+void iris_reset_high();
+void iris_reset_low();
+void iris_boot_high();
+void iris_boot_low();
 
 #endif /* EX2_HAL_IRIS_EQUIPMENT_HANDLER_INCLUDE_IRIS_GIO_H_ */

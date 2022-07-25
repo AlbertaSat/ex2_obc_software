@@ -65,6 +65,6 @@ int iris_check_bootloader_version();
 int iris_go_to(uint32_t start_addr);
 int iris_mass_erase_flash();
 
-uint16_t get_file_size(int32_t fptr);
-uint16_t get_num_pages(uint16 fsize);
+uint32_t get_file_size(int32_t fptr);
+uint32_t get_num_pages(uint32_t fsize);
 Iris_HAL_return iris_program();

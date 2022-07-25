@@ -56,11 +56,11 @@ void iris_i2c_init() {
  **/
 void iris_pre_sequence() {
     /* Start initialization sequence before I2C transaction */
-    IRIS_nRST_LOW();
+    iris_reset_low();
     IRIS_PROGAMMING_DELAY;
-    IRIS_BOOT_HIGH();
+    iris_boot_high();
     IRIS_PROGAMMING_DELAY;
-    IRIS_nRST_HIGH();
+    iris_reset_high();
     IRIS_PROGAMMING_DELAY;
 }
 
@@ -70,11 +70,11 @@ void iris_pre_sequence() {
  **/
 void iris_post_sequence() {
     /* End I2C transaction by doing end sequence*/
-    IRIS_BOOT_LOW();
+    iris_boot_low();
     IRIS_PROGAMMING_DELAY;
-    IRIS_nRST_LOW();
+    iris_reset_low();
     IRIS_PROGAMMING_DELAY;
-    IRIS_nRST_HIGH();
+    iris_reset_high();
 }
 
 /**
@@ -302,15 +302,15 @@ int iris_mass_erase_flash() {
     return ret;
 }
 
-uint16_t get_file_size(int32_t fptr) {
+uint32_t get_file_size(int32_t fptr) {
     REDSTAT file_stat;
 
     red_fstat(fptr, &file_stat);
 
-    return (uint16_t)file_stat.st_size;
+    return (uint32_t)file_stat.st_size;
 }
 
-uint16_t get_num_pages(uint16 fsize) { return (fsize + PAGE_SIZE - 1) / PAGE_SIZE; }
+uint32_t get_num_pages(uint32_t fsize) { return (fsize + PAGE_SIZE - 1) / PAGE_SIZE; }
 
 Iris_HAL_return iris_program() {
     uint32_t flash_addr = FLASH_MEM_BASE_ADDR;
@@ -323,12 +323,12 @@ Iris_HAL_return iris_program() {
         return NULL;
     }
 
-    uint16_t fsize = get_file_size(fptr);
-    uint16_t num_pages = get_num_pages(fsize);
+    uint32_t fsize = get_file_size(fptr);
+    uint32_t num_pages = get_num_pages(fsize);
 
     iris_pre_sequence();
 
-    for (int page = 0; page < num_pages; page++) {
+    for (uint32_t page = 0; page < num_pages; page++) {
         iris_erase_page(page);
         red_read(fptr, buffer, 128);
         iris_write_page(flash_addr, buffer);

@@ -30,61 +30,60 @@ void iris_gio_init() {
  * @brief
  *   Pull slave select high via GPIO pin
  **/
-void IRIS_NSS_HIGH() { gioSetBit(hetPORT1, IRIS_NSS_PIN, 1); }
+void iris_nss_high() { gioSetBit(hetPORT1, IRIS_NSS_PIN, 1); }
 
 /**
  * @brief
  *   Pull slave select low via GPIO pin
- *   TODO: Specify pin #8 in system.h (separate commit)
  **/
-void IRIS_NSS_LOW() { gioSetBit(hetPORT1, IRIS_NSS_PIN, 0); }
+void iris_nss_low() { gioSetBit(hetPORT1, IRIS_NSS_PIN, 0); }
 
 #if IS_ATHENA == 1
 /**
  * @brief
  *   Pull ~RESET high via GPIO pin
  **/
-void IRIS_nRST_HIGH() { gioSetBit(gioPORTB, IRIS_nRST_PIN, 1); }
+void iris_reset_high() { gioSetBit(gioPORTB, IRIS_nRST_PIN, 1); }
 
 /**
  * @brief
  *   Pull ~RESET low via GPIO pin
  **/
-void IRIS_nRST_LOW() { gioSetBit(gioPORTB, IRIS_nRST_PIN, 0); }
+void iris_reset_low() { gioSetBit(gioPORTB, IRIS_nRST_PIN, 0); }
 
 /**
  * @brief
  *   Pull BOOT high via GPIO pin
  **/
-void IRIS_BOOT_HIGH() { gioSetBit(hetPORT1, IRIS_BOOT_PIN, 1); }
+void iris_boot_high() { gioSetBit(hetPORT1, IRIS_BOOT_PIN, 1); }
 
 /**
  * @brief
  *   Pull BOOT low via GPIO pin
  **/
-void IRIS_BOOT_LOW() { gioSetBit(hetPORT1, IRIS_BOOT_PIN, 0); }
+void iris_boot_low() { gioSetBit(hetPORT1, IRIS_BOOT_PIN, 0); }
 #else
 /**
  * @brief
  *   Pull ~RESET high via GPIO pin
  **/
-void IRIS_nRST_HIGH() { gioSetBit(hetPORT1, IRIS_nRST_PIN, 1); }
+void iris_reset_high() { gioSetBit(hetPORT1, IRIS_nRST_PIN, 1); }
 
 /**
  * @brief
  *   Pull ~RESET low via GPIO pin
  **/
-void IRIS_nRST_LOW() { gioSetBit(hetPORT1, IRIS_nRST_PIN, 0); }
+void iris_reset_low() { gioSetBit(hetPORT1, IRIS_nRST_PIN, 0); }
 
 /**
  * @brief
  *   Pull BOOT high via GPIO pin
  **/
-void IRIS_BOOT_HIGH() { gioSetBit(hetPORT1, IRIS_BOOT_PIN, 1); }
+void iris_boot_high() { gioSetBit(hetPORT1, IRIS_BOOT_PIN, 1); }
 
 /**
  * @brief
  *   Pull BOOT low via GPIO pin
  **/
-void IRIS_BOOT_LOW() { gioSetBit(hetPORT1, IRIS_BOOT_PIN, 0); }
+void iris_boot_low() { gioSetBit(hetPORT1, IRIS_BOOT_PIN, 0); }
 #endif

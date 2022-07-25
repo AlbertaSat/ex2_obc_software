@@ -144,7 +144,7 @@ IrisLowLevelReturn iris_send_command(uint16_t command) {
     uint16_t rx_data;
     uint16_t tx_dummy = DUMMY_BYTE;
 
-    IRIS_NSS_LOW();
+    iris_nss_low();
     iris_spi_delay(10000);
     iris_spi_send(&command, 1);
     /* This delay is modifiable and will depend on how fast Iris
@@ -156,7 +156,7 @@ IrisLowLevelReturn iris_send_command(uint16_t command) {
     iris_spi_delay(100);
     iris_spi_get(&rx_data, 1);
     iris_spi_delay(10000);
-    IRIS_NSS_HIGH();
+    iris_nss_high();
 
     if (rx_data == ACK_FLAG) {
         return IRIS_ACK;
@@ -185,13 +185,13 @@ IrisLowLevelReturn iris_send_data(uint16_t *tx_buffer, uint16_t data_length) {
     uint16_t tx_dummy = DUMMY_BYTE;
     uint16_t rx_data;
 
-    IRIS_NSS_LOW();
+    iris_nss_low();
     iris_spi_delay(1000);
     iris_spi_send_and_get(tx_buffer, &rx_data, data_length);
     iris_spi_delay(1000);
     iris_spi_send_and_get(&tx_dummy, &rx_data, 1);
     iris_spi_delay(1000);
-    IRIS_NSS_HIGH();
+    iris_nss_high();
 
     if (rx_data == ACK_FLAG) {
         return IRIS_ACK;
@@ -219,11 +219,11 @@ IrisLowLevelReturn iris_send_data(uint16_t *tx_buffer, uint16_t data_length) {
 IrisLowLevelReturn iris_get_data(uint16_t *rx_buffer, uint16_t data_length) {
     uint16_t tx_dummy = 0xFF;
 
-    IRIS_NSS_LOW();
+    iris_nss_low();
     iris_spi_delay(10000);
     iris_spi_send_and_get(&tx_dummy, rx_buffer, data_length);
     iris_spi_delay(1000);
-    IRIS_NSS_HIGH();
+    iris_nss_high();
     iris_spi_delay(1000);
 
     return IRIS_ACK;
