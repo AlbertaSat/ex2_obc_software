@@ -214,6 +214,7 @@ int test_currentsense(uint8_t addr) {
     printf("Initializing INA209\r\n");
     init_ina209(SOLAR_INA209_ADDR);
     vTaskDelay(500);
+
     uint16_t current, current_reg, shunt_voltage;
     // current = (1/4096) * (shunt voltage * calibration register)
     for (int i = 0; i < 30; i++) {
