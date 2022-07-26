@@ -34,6 +34,7 @@
 #include "logger/logger.h"
 #include "ns_payload.h"
 #include "iris.h"
+#include "hal_athena.h"
 
 static void uhf_watchdog_daemon(void *pvParameters);
 static void sband_watchdog_daemon(void *pvParameters);
@@ -630,6 +631,17 @@ SAT_returnState start_diagnostic_daemon(void) {
         sys_log(ERROR, "FAILED TO CREATE MUTEX payload_watchdog_mtx.\n");
         return SATR_ERROR;
     }
+#endif
+
+#if ATHENA_IS_STUBBED == 0
+#if IS_ATHENA_V2 == 1
+    if (xTaskCreate(is_SolarPanel_overcurrent, "Solar_Panel_Current_Monitor", SOLAR_INA209_STACK_LEN, NULL,
+                    DIAGNOSTIC_TASK_PRIO, NULL) != pdPASS) {
+        sys_log(ERROR, "FAILED TO CREATE TASK: Solar Panel monitor failed to start!");
+        return SATR_ERROR;
+    }
+    sys_log(INFO, "Created Task: Solar Panel Current Monitor.");
+#endif
 #endif
     return SATR_OK;
 }
