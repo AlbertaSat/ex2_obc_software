@@ -14,10 +14,11 @@
 #include <i2c_io.h>
 #include <FreeRTOS.h>
 #include <os_task.h>
+#include "printf.h"
 
 uint16_t CALI_REG = 0xDA73;
 uint16_t POWER_OLREG = 0x0100; // adapt me
-uint16_t ZEROREG = 0x0000;
+uint16_t ZEROREG = 0x000;
 uint16_t FFREG = 0xFFFF;
 
 int ina209_Write1ByteReg(uint8_t addr, uint8_t reg_addr, uint8_t data) {
@@ -187,13 +188,15 @@ void _flip_byte_order(uint16_t *input) {
 }
 
 void init_ina209(uint8_t addr) {
-    // clear POR flags
     uint16_t retval;
+    // clear POR flags
     for (uint8_t i = 0; i < 5; i++) {
         ina209_get_status_flags(addr, &retval);
     }
     // ina209_set calibration register
-    ina209_set_calibration(addr, &CALI_REG);
+    if (addr == SOLAR_INA209_ADDR) {
+        ina209_set_calibration(addr, &CALI_REG);
+    }
     // ina209_set power overlimit
     ina209_set_power_overlimit(addr, &POWER_OLREG);
     // ina209_set bit masks
@@ -229,23 +232,4 @@ int test_currentsense(uint8_t addr) {
     }
     printf("Current Test Complete\r\n");
     return rtn;
-}
-
-int is_SolarPanel_overcurrent() {
-    // Panel_Alert: N2HET2_0
-    // Panel_SHDN:  N2_HET2_12
-    // Polls for Panel_Alert to go low, then pulls Panel_SHDN low to kill power to
-
-    // Check panel_alert
-    // if (panel_alert is low){
-    //      pull panel SHDN low
-    //      raise error flag
-    //      turn panels back on in ten seconds
-    //                  OR
-    //
-    //  }else{
-    //      return 0;
-    //  }
-    //
-    return 0;
 }
