@@ -16,7 +16,7 @@
  * Optimization points:
  * - iris_spi_delay(timeout) is put in place for timing control although
  *   it is not tested for optimal control, rather it is set so that
- *   interfacing with iris can be more flexible
+ *   interfacing with iris can be more flexible. [removed spi delay]
  * - sending commands, data and getting data can be further modified
  *   for more robust communication protocol. Current state allows us
  *   to have multi-byte communication with Iris at a moderate speed
@@ -106,28 +106,6 @@ void iris_spi_get(uint16_t *rx_data, uint16_t data_length) {
         ;
 }
 
-/*
- */
-/**
- * @brief
- *   Sudo delay created due to lack of TI's HAL Delay functionality
- *   Each for-loop iteration is approximately 11 clock cycles:
- *   Given base clock speed to be 300 MHz, each second of delay will take
- *   (300M/11 = 27272727 iterations)
- *
- *   Minimum delay vTaskDelay supports is 1 millisecond, for finer
- *   timing control it is efficient to use microsecond using for loops
- *
- * @param[in] ticks
- *   Number of ticks for non FreeRTOS delay
- *
- **/
-void iris_spi_delay(uint32_t ticks) {
-    uint32_t i;
-    for (i = 0; i < ticks; i++)
-        ;
-}
-
 /**
  * @brief
  *   Transmit a command packet of size 2:
@@ -145,7 +123,7 @@ IrisLowLevelReturn iris_send_command(uint16_t command) {
     uint16_t tx_dummy = DUMMY_BYTE;
 
     iris_nss_low();
-    iris_spi_delay(10000);
+    vTaskDelay(1);
     iris_spi_send(&command, 1);
     /* This delay is modifiable and will depend on how fast Iris
      * can switch from running idle/background tasks to receiving
@@ -153,9 +131,9 @@ IrisLowLevelReturn iris_send_command(uint16_t command) {
      */
     IRIS_WAIT_FOR_ACK;
     iris_spi_send(&tx_dummy, 1);
-    iris_spi_delay(100);
+    vTaskDelay(1);
     iris_spi_get(&rx_data, 1);
-    iris_spi_delay(10000);
+    vTaskDelay(1);
     iris_nss_high();
 
     if (rx_data == ACK_FLAG) {
@@ -186,11 +164,11 @@ IrisLowLevelReturn iris_send_data(uint16_t *tx_buffer, uint16_t data_length) {
     uint16_t rx_data;
 
     iris_nss_low();
-    iris_spi_delay(1000);
+    vTaskDelay(1);
     iris_spi_send_and_get(tx_buffer, &rx_data, data_length);
-    iris_spi_delay(1000);
+    IRIS_WAIT_FOR_ACK;
     iris_spi_send_and_get(&tx_dummy, &rx_data, 1);
-    iris_spi_delay(1000);
+    vTaskDelay(1);
     iris_nss_high();
 
     if (rx_data == ACK_FLAG) {
@@ -220,11 +198,10 @@ IrisLowLevelReturn iris_get_data(uint16_t *rx_buffer, uint16_t data_length) {
     uint16_t tx_dummy = 0xFF;
 
     iris_nss_low();
-    iris_spi_delay(10000);
+    vTaskDelay(1);
     iris_spi_send_and_get(&tx_dummy, rx_buffer, data_length);
-    iris_spi_delay(1000);
+    vTaskDelay(1);
     iris_nss_high();
-    iris_spi_delay(1000);
 
     return IRIS_ACK;
 }
