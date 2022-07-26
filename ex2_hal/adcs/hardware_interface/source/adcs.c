@@ -152,6 +152,12 @@ ADCS_returnState HAL_ADCS_reset_upload_block() {
 #endif
 }
 
+struct {
+    char border1[32];
+    ADCS_returnState state;
+    char border2[32];
+} border;
+
 int HAL_ADCS_firmware_upload(uint8_t file_dest, char *filename) {
 #if ADCS_IS_STUBBED == 1
     return IS_STUBBED_A;
@@ -209,14 +215,15 @@ int HAL_ADCS_firmware_upload(uint8_t file_dest, char *filename) {
         uint8_t *firmware_buff = pvPortMalloc(FIRMWARE_BLOCK_SIZE);
         for (int i = 0; i < num_blocks; i++) {
             // reset upload block, ie. reset the hole-map
-            state = ADCS_reset_upload_block();
-            while (state != ADCS_OK) {
+            border.state = ADCS_reset_upload_block();
+            while (border.state != ADCS_OK) {
                 vTaskDelay(500);
-                state = ADCS_reset_upload_block();
+                border.state = ADCS_reset_upload_block();
                 ADCS_reset_retires++;
-                if (ADCS_reset_retires > 3) {
-                    sys_log(ERROR, "HAL_ADCS_firmware_upload failed at ADCS_reset_upload_block, state: %d", state);
-                    return state;
+                if (ADCS_reset_retires > 10) {
+                    sys_log(ERROR, "HAL_ADCS_firmware_upload failed at ADCS_reset_upload_block, state: %d",
+                            border.state);
+                    //                    return border.state;
                 }
             }
             // file upload packet
@@ -419,20 +426,32 @@ int HAL_ADCS_firmware_upload(uint8_t file_dest, char *filename) {
     }
 
     // check CRC16 checksum for bit errors
-    uint16_t ADCS_CRC16, OBC_CRC16;
-    ADCS_CRC16 = OBC_CRC16 = 0;
+    uint16_t OBC_CRC16;
+    uint16_t ADCS_CRC16;
+    uint32_t upload_file_size = (uint32_t)firmware_stat.st_size;
+    bool get_program_busy = 1;
+    OBC_CRC16 = 0;
     adcs_file_info *info;
     OBC_CRC16 = CRC_Calc(filename);
-    ADCS_returnState CRC16_state = ADCS_get_file_info(info);
+    // ADCS_returnState CRC16_state = ADCS_get_file_info(info);
+    ADCS_returnState read_program_info = ADCS_read_program_info(file_dest);
+    ADCS_returnState get_program_info =
+        ADCS_get_program_info(&file_dest, &get_program_busy, &upload_file_size, &ADCS_CRC16);
+    /*
     ADCS_CRC16 = info->crc16_checksum;
     if (CRC16_state != ADCS_OK) {
         sys_log(ERROR, "ADCS_get_upload_crc16_checksum state returned %d", CRC16_state);
         return CRC16_state;
     }
+    */
+    while (get_program_busy = 1) {
+        vTaskDelay(2000);
+        get_program_info = ADCS_get_program_info(&file_dest, &get_program_busy, &upload_file_size, &ADCS_CRC16);
+    }
 
     if (ADCS_CRC16 != OBC_CRC16) {
         sys_log(ERROR, "CRC16 checksum mismatch");
-        return CRC16_state;
+        return CRC16_MISMATCH;
     }
 
     return ADCS_OK;
@@ -453,12 +472,12 @@ uint16_t CRC_Calc(char *filename) {
     uint16_t crc = 0;
 
     // initialize start/end
-    uint32_t f_read;
+    uint32_t f_read, f_close;
     uint8_t *data, *end;
     data = file_buff;
     end = file_buff + buff_len;
 
-    for (int i = 0; i < num_blocks - 1; i++) {
+    for (int i = 0; i < num_blocks; i++) {
 
         // initialize/shift to the next additive CRC16 calculation
         memset(file_buff, 0, read_len);
@@ -478,21 +497,26 @@ uint16_t CRC_Calc(char *filename) {
 
     // calculate the CRC16 of the last block and remaining bytes together
     // shift to the next additive CRC16 calculation
-    free(file_buff);
-    file_buff = pvPortMalloc(remaining_length);
-    memset(file_buff, 0, remaining_length);
-    red_lseek(fout, (num_blocks - 1) * buff_len, RED_SEEK_SET);
-    f_read = red_read(fout, file_buff, remaining_length);
-    // data = file_buff;
-    end = file_buff + remaining_length;
+    vPortFree(file_buff);
+    if (remaining_length > 0) {
+        file_buff = pvPortMalloc(remaining_length);
+        memset(file_buff, 0, remaining_length);
+        red_lseek(fout, num_blocks * buff_len, RED_SEEK_SET);
+        f_read = red_read(fout, file_buff, remaining_length);
+        // data = file_buff;
+        end = file_buff + remaining_length;
 
-    for (data = file_buff; data < end; data++) {
-        crc = (crc >> 8) | (crc << 8);
-        crc ^= *data;
-        crc ^= (crc & 0xff) >> 4;
-        crc ^= crc << 12;
-        crc ^= (crc & 0xff) << 5;
+        for (data = file_buff; data < end; data++) {
+            crc = (crc >> 8) | (crc << 8);
+            crc ^= *data;
+            crc ^= (crc & 0xff) >> 4;
+            crc ^= crc << 12;
+            crc ^= (crc & 0xff) << 5;
+        }
+
+        vPortFree(file_buff);
     }
+    f_close = red_close(fout);
 
     return crc;
 }
