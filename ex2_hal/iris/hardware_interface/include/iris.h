@@ -36,13 +36,14 @@
  *
  * TODO: Will need to change during stress testing
  */
+#define IRIS_POWER_CYCLE_DELAY vTaskDelay(pdMS_TO_TICKS(1))
 #define IRIS_WAIT_FOR_STATE_TRANSITION vTaskDelay(pdMS_TO_TICKS(100))
+#define IRIS_IMAGE_DATA_BLOCK_TRANSFER_DELAY vTaskDelay(pdMS_TO_TICKS(10))
 
 typedef enum {
     // TODO: Add more meaningful return types
     IRIS_HAL_OK = 0,
-    IRIS_HAL_FAILURE = 1,
-    IRIS_HAL_ERROR = 2,
+    IRIS_HAL_ERROR = 1,
 } Iris_HAL_return;
 
 // Legal Iris commands
@@ -56,6 +57,7 @@ typedef enum {
     IRIS_SEND_HOUSEKEEPING = 0x51,
     IRIS_UPDATE_SENSOR_I2C_REG = 0x60,
     IRIS_UPDATE_CURRENT_LIMIT = 0x70,
+    IRIS_WDT_ACK = 0x80,
 } IRIS_COMMANDS;
 
 typedef enum {
@@ -63,15 +65,11 @@ typedef enum {
     IRIS_SENSOR_ON = 1,
 } IRIS_SENSOR_TOGGLE;
 
-// pre-defined SPI communication constants
-#define ACK_FLAG 0xAA
-#define NACK_FLAG 0x0F
-
 typedef struct __attribute__((__packed__)) {
-    uint16_t vis_temp;
-    uint16_t nir_temp;
-    uint16_t flash_temp;
-    uint16_t gate_temp;
+    float vis_temp;
+    float nir_temp;
+    float flash_temp;
+    float gate_temp;
     uint8_t imagenum;
     uint8_t software_version;
     uint8_t errornum;
@@ -98,5 +96,8 @@ Iris_HAL_return iris_toggle_sensor(uint8_t toggle);
 Iris_HAL_return iris_get_housekeeping(IRIS_Housekeeping *hk_data);
 Iris_HAL_return iris_update_sensor_i2c_reg();
 Iris_HAL_return iris_update_current_limit(uint16_t current_limit);
+Iris_HAL_return iris_wdt_ack();
+
+float iris_convert_hk_temperature(uint16_t temperature);
 
 #endif /* INCLUDE_IRIS_H_ */

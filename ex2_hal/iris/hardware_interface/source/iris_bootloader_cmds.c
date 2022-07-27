@@ -19,11 +19,14 @@
  */
 
 #include "iris_bootloader_cmds.h"
+#include "iris.h"
 #include "i2c_io.h"
 #include "HL_gio.h"
 #include "HL_reg_het.h"
 #include "iris_i2c.h"
+#include "iris_gio.h"
 #include "FreeRTOS.h"
+#include "redposix.h"
 #include <string.h>
 
 /* Optimization points
@@ -43,40 +46,8 @@
  *   Initialize i2c driver for Iris programming
  **/
 void iris_i2c_init() {
-   /* i2c initialization */
+    /* i2c initialization */
     init_i2c_driver();
-}
-
-/**
- * @brief
- *  Pull boot line low
- **/
-void BOOT_LOW() {
-    gioSetBit(hetPORT1, 14, 0);
-}
-
-/**
- * @brief
- *  Pull boot line high
- **/
-void BOOT_HIGH() {
-    gioSetBit(hetPORT1, 14, 1);
-}
-
-/**
- * @brief
- *  Pull power line low
- **/
-void POWER_OFF() {
-    gioSetBit(hetPORT1, 8, 0);
-}
-
-/**
- * @brief
- *  Pull power line high
- **/
-void POWER_ON() {
-    gioSetBit(hetPORT1, 8, 1);
 }
 
 /**
@@ -85,12 +56,12 @@ void POWER_ON() {
  **/
 void iris_pre_sequence() {
     /* Start initialization sequence before I2C transaction */
-    POWER_OFF();
-    vTaskDelay(100);
-    BOOT_HIGH();
-    vTaskDelay(100);
-    POWER_ON();
-    vTaskDelay(100);
+    iris_reset_low();
+    IRIS_PROGAMMING_DELAY;
+    iris_boot_high();
+    IRIS_PROGAMMING_DELAY;
+    iris_reset_high();
+    IRIS_PROGAMMING_DELAY;
 }
 
 /**
@@ -99,11 +70,11 @@ void iris_pre_sequence() {
  **/
 void iris_post_sequence() {
     /* End I2C transaction by doing end sequence*/
-    BOOT_LOW();
-    vTaskDelay(100);
-    POWER_OFF();
-    vTaskDelay(100);
-    POWER_ON();
+    iris_boot_low();
+    IRIS_PROGAMMING_DELAY;
+    iris_reset_low();
+    IRIS_PROGAMMING_DELAY;
+    iris_reset_high();
 }
 
 /**
@@ -119,7 +90,7 @@ void iris_post_sequence() {
  * @return
  *   Returns 0 data written, <0 if unable to write data.
  **/
-int iris_write_page(uint32_t flash_addr, uint8_t * buffer) {
+int iris_write_page(uint32_t flash_addr, uint8_t *buffer) {
     /* number of bytes is equal to page size of flash memory on Iris */
     uint8_t num_bytes = FLASH_MEM_PAGE_SIZE;
     /*  Allocate bytes equal to page size of flash memory */
@@ -134,33 +105,31 @@ int iris_write_page(uint32_t flash_addr, uint8_t * buffer) {
     packet[1] = N_OPC_WRITE;
     iris_write_packet(packet, 2);
     iris_read_packet(&rx_data, 1);
-    memset(packet, 0, WRITE_PACKET_LENGTH*sizeof(uint8_t));
-
+    memset(packet, 0, WRITE_PACKET_LENGTH * sizeof(uint8_t));
 
     /* Second I2C transaction (5 bytes) */
-    packet[0] = (flash_addr >> (8*3)) & 0xff;
-    packet[1] = (flash_addr >> (8*2)) & 0xff;
-    packet[2] = (flash_addr >> (8*1)) & 0xff;
-    packet[3] = (flash_addr >> (8*0)) & 0xff;
+    packet[0] = (flash_addr >> (8 * 3)) & 0xff;
+    packet[1] = (flash_addr >> (8 * 2)) & 0xff;
+    packet[2] = (flash_addr >> (8 * 1)) & 0xff;
+    packet[3] = (flash_addr >> (8 * 0)) & 0xff;
     flash_mem_checksum = packet[0] ^ packet[1] ^ packet[2] ^ packet[3];
     packet[4] = flash_mem_checksum;
     iris_write_packet(packet, 5);
     iris_read_packet(&rx_data, 1);
-    memset(packet, 0, WRITE_PACKET_LENGTH*sizeof(uint8_t));
-
+    memset(packet, 0, WRITE_PACKET_LENGTH * sizeof(uint8_t));
 
     /* Third I2C transaction (2 + num_bytes) */
     packet[0] = num_bytes - 1;
     data_checksum ^= packet[0];
     // transmit N+1 bytes of data
-    for(int i = 0; i < FLASH_MEM_PAGE_SIZE; i++){
-        packet[i+1] = buffer[i];
+    for (int i = 0; i < FLASH_MEM_PAGE_SIZE; i++) {
+        packet[i + 1] = buffer[i];
         data_checksum ^= *(packet + i + 1);
     }
     packet[num_bytes + 1] = data_checksum;
     iris_write_packet(packet, WRITE_PACKET_LENGTH);
     iris_read_packet(&rx_data, 1);
-    memset(packet, 0, WRITE_PACKET_LENGTH*sizeof(uint8_t));
+    memset(packet, 0, WRITE_PACKET_LENGTH * sizeof(uint8_t));
 
     return ret;
 }
@@ -194,7 +163,6 @@ int iris_erase_page(uint16_t page_num) {
     iris_read_packet(&rx_data, 1);
     memset(packet, 0, ERASE_PACKET_LENGTH);
 
-
     /* Second I2C transaction (3 bytes) */
     packet[0] = 0;
     packet[1] = NUM_PAGES_TO_ERASE - 1;
@@ -204,10 +172,9 @@ int iris_erase_page(uint16_t page_num) {
     iris_read_packet(&rx_data, 1);
     memset(packet, 0, ERASE_PACKET_LENGTH);
 
-
     /* Third I2C transaction (2 + num_bytes) */
-    packet[0] = (page_num >> (8*1)) & 0xff;
-    packet[1] = (page_num >> (8*0)) & 0xff;
+    packet[0] = (page_num >> (8 * 1)) & 0xff;
+    packet[1] = (page_num >> (8 * 0)) & 0xff;
     page_num_checksum = packet[0] ^ packet[1];
     packet[2] = page_num_checksum;
     iris_write_packet(packet, 3);
@@ -271,12 +238,11 @@ int iris_go_to(uint32_t start_addr) {
     iris_read_packet(&rx_data, 1);
     memset(packet, 0, GO_PACKET_LENGTH);
 
-
     /* Second I2C transaction (5 bytes) */
-    packet[0] = (start_addr >> (8*3)) & 0xff;
-    packet[1] = (start_addr >> (8*2)) & 0xff;
-    packet[2] = (start_addr >> (8*1)) & 0xff;
-    packet[3] = (start_addr >> (8*0)) & 0xff;
+    packet[0] = (start_addr >> (8 * 3)) & 0xff;
+    packet[1] = (start_addr >> (8 * 2)) & 0xff;
+    packet[2] = (start_addr >> (8 * 1)) & 0xff;
+    packet[3] = (start_addr >> (8 * 0)) & 0xff;
     start_addr_checksum = packet[0] ^ packet[1] ^ packet[2] ^ packet[3];
     packet[4] = start_addr_checksum;
     iris_write_packet(packet, 5);
@@ -308,10 +274,9 @@ int iris_mass_erase_flash() {
     iris_read_packet(&rx_data, 1);
     memset(packet, 0, MASS_ERASE_PACKET_LENGTH);
 
-
     /* Second I2C transaction (3 bytes) */
-    packet[0] = ((num_pages_to_erase - 1) >> (8*1)) & 0xff;
-    packet[1] = ((num_pages_to_erase - 1) >> (8*0)) & 0xff;
+    packet[0] = ((num_pages_to_erase - 1) >> (8 * 1)) & 0xff;
+    packet[1] = ((num_pages_to_erase - 1) >> (8 * 0)) & 0xff;
     checksum = packet[0] ^ packet[1];
     packet[2] = checksum;
     iris_write_packet(packet, 3);
@@ -322,10 +287,10 @@ int iris_mass_erase_flash() {
     uint16_t index;
     uint16_t page = 0x01;
     checksum = 0x00;
-    for (index = 0; index < (num_pages_to_erase * 2); index+=2) {
-        packet[index] = (page >> (8*1)) & 0xff;
-        packet[index+1] = (page >> (8*0)) & 0xff;
-        checksum ^= (packet[index] ^ packet[index+1]);
+    for (index = 0; index < (num_pages_to_erase * 2); index += 2) {
+        packet[index] = (page >> (8 * 1)) & 0xff;
+        packet[index + 1] = (page >> (8 * 0)) & 0xff;
+        checksum ^= (packet[index] ^ packet[index + 1]);
 
         page += 0x01;
     }
@@ -337,3 +302,46 @@ int iris_mass_erase_flash() {
     return ret;
 }
 
+uint32_t get_file_size(int32_t fptr) {
+    REDSTAT file_stat;
+
+    red_fstat(fptr, &file_stat);
+
+    return (uint32_t)file_stat.st_size;
+}
+
+uint32_t get_num_pages(uint32_t fsize) { return (fsize + PAGE_SIZE - 1) / PAGE_SIZE; }
+
+Iris_HAL_return iris_program() {
+    uint32_t flash_addr = FLASH_MEM_BASE_ADDR;
+    uint8_t buffer[128];
+
+    int32_t fptr;
+    fptr = red_open("ex2_Iris_MCU_Software.bin", RED_O_RDONLY);
+
+    if (fptr == -1) {
+        return NULL;
+    }
+
+    uint32_t fsize = get_file_size(fptr);
+    uint32_t num_pages = get_num_pages(fsize);
+
+    iris_pre_sequence();
+
+    for (uint32_t page = 0; page < num_pages; page++) {
+        iris_erase_page(page);
+        red_read(fptr, buffer, 128);
+        iris_write_page(flash_addr, buffer);
+
+        flash_addr += FLASH_MEM_PAGE_SIZE;
+    }
+
+    flash_addr = FLASH_MEM_BASE_ADDR;
+
+    iris_go_to(flash_addr);
+    iris_post_sequence();
+
+    red_close(fptr);
+
+    return IRIS_HAL_OK;
+}

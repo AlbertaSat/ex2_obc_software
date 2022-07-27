@@ -61,6 +61,7 @@
 #include "dfgm.h"
 #include "leop.h"
 #include "adcs.h"
+#include "iris.h"
 #include "ns_payload.h"
 #include "deployablescontrol.h"
 #include "test_sdr.h"
@@ -170,7 +171,7 @@ void ex2_init(void *pvParameters) {
 
 #if PAYLOAD_IS_STUBBED == 0
 #if IS_EXALTA2 == 1
-    // Iris init
+    iris_init();
 #else
     NS_handler_init();
 #endif

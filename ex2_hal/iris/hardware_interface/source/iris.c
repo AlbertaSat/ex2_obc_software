@@ -17,8 +17,10 @@
 #include <stdlib.h>
 
 #include "iris.h"
+#include "iris_gio.h"
 #include "iris_spi.h"
 #include "logger.h"
+#include "redposix.h"
 
 /*
  * Optimization points
@@ -33,13 +35,36 @@ enum {
     ERROR_STATE, // TODO: Potentially used for error handling
 } controller_state;
 
+struct __attribute__((__packed__)) {
+    uint16_t vis_temp;
+    uint16_t nir_temp;
+    uint16_t flash_temp;
+    uint16_t gate_temp;
+    uint8_t imagenum;
+    uint8_t software_version;
+    uint8_t errornum;
+    uint16_t MAX_5V_voltage;
+    uint16_t MAX_5V_power;
+    uint16_t MAX_3V_voltage;
+    uint16_t MAX_3V_power;
+    uint16_t MIN_5V_voltage;
+    uint16_t MIN_3V_voltage;
+} iris_hk_buffer;
+
 /**
  * @brief
  *   Initialize low-level spi driver settings
  **/
 Iris_HAL_return iris_init() {
     iris_spi_init();
+    iris_gio_init();
 
+    iris_boot_low();
+    iris_reset_low();
+    IRIS_POWER_CYCLE_DELAY;
+    iris_reset_high();
+
+    // TODO: Add quick iris loopback test
     return IRIS_HAL_OK;
 }
 
@@ -145,6 +170,13 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
     uint16_t num_transfer;
     IrisLowLevelReturn ret;
 
+    uint32_t fptr;
+    fptr = red_open("iris_image.jpg", RED_O_CREAT | RED_O_WRONLY);
+
+    if (fptr == NULL) {
+        return;
+    }
+
     controller_state = SEND_COMMAND;
 
     while (1) {
@@ -163,6 +195,7 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
         case GET_DATA: // Get image data in chunks/blocks
         {
             static uint16_t image_data_buffer[IMAGE_TRANSFER_SIZE];
+            static uint8_t image_data_buffer_8Bit[IMAGE_TRANSFER_SIZE];
             memset(image_data_buffer, 0, IMAGE_TRANSFER_SIZE);
             num_transfer = (uint16_t)((image_length + (IMAGE_TRANSFER_SIZE - 1)) /
                                       IMAGE_TRANSFER_SIZE); // TODO: Ceiling division not working 100%
@@ -170,12 +203,15 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
             IRIS_WAIT_FOR_STATE_TRANSITION;
             for (uint32_t count_transfer = 0; count_transfer < num_transfer; count_transfer++) {
                 ret = iris_get_data(image_data_buffer, IMAGE_TRANSFER_SIZE);
-                // TODO: Do something with the received data (e.g transfer it to the SD card)
-                // Or just get the data and send it forward to the next stage. Prefer not to have too
-                // much data processing in driver code
 
-                // memset(image_data_buffer, 0, IMAGE_TRANSFER_SIZE);
+                for (int i = 0; i < IMAGE_TRANSFER_SIZE; i++) {
+                    image_data_buffer_8Bit[i] = (image_data_buffer[i] >> (8 * 0)) & 0xff;
+                }
+
+                red_write(fptr, image_data_buffer_8Bit, IMAGE_TRANSFER_SIZE);
+                IRIS_IMAGE_DATA_BLOCK_TRANSFER_DELAY;
             }
+            red_close(fptr);
             controller_state = FINISH;
             break;
         }
@@ -310,20 +346,35 @@ Iris_HAL_return iris_get_housekeeping(IRIS_Housekeeping *hk_data) {
                 controller_state = ERROR_STATE;
             }
 
-            // Transfer data from buffer to struct
-            hk_data->vis_temp = housekeeping_buffer[1] << 8 | housekeeping_buffer[0];
-            hk_data->nir_temp = housekeeping_buffer[3] << 8 | housekeeping_buffer[2];
-            hk_data->flash_temp = housekeeping_buffer[5] << 8 | housekeeping_buffer[4];
-            hk_data->gate_temp = housekeeping_buffer[7] << 8 | housekeeping_buffer[6];
-            hk_data->imagenum = housekeeping_buffer[8];
-            hk_data->software_version = housekeeping_buffer[9];
-            hk_data->errornum = housekeeping_buffer[10];
-            hk_data->MAX_5V_voltage = housekeeping_buffer[12] << 8 | housekeeping_buffer[11];
-            hk_data->MAX_5V_power = housekeeping_buffer[14] << 8 | housekeeping_buffer[13];
-            hk_data->MAX_3V_voltage = housekeeping_buffer[16] << 8 | housekeeping_buffer[15];
-            hk_data->MAX_3V_power = housekeeping_buffer[18] << 8 | housekeeping_buffer[17];
-            hk_data->MIN_5V_voltage = housekeeping_buffer[20] << 8 | housekeeping_buffer[19];
-            hk_data->MIN_3V_voltage = housekeeping_buffer[22] << 8 | housekeeping_buffer[21];
+            // Pre-processed housekeeping data
+            iris_hk_buffer.vis_temp = housekeeping_buffer[1] << 8 | housekeeping_buffer[0];
+            iris_hk_buffer.nir_temp = housekeeping_buffer[3] << 8 | housekeeping_buffer[2];
+            iris_hk_buffer.flash_temp = housekeeping_buffer[5] << 8 | housekeeping_buffer[4];
+            iris_hk_buffer.gate_temp = housekeeping_buffer[7] << 8 | housekeeping_buffer[6];
+            iris_hk_buffer.imagenum = housekeeping_buffer[8];
+            iris_hk_buffer.software_version = housekeeping_buffer[9];
+            iris_hk_buffer.errornum = housekeeping_buffer[10];
+            iris_hk_buffer.MAX_5V_voltage = housekeeping_buffer[12] << 8 | housekeeping_buffer[11];
+            iris_hk_buffer.MAX_5V_power = housekeeping_buffer[14] << 8 | housekeeping_buffer[13];
+            iris_hk_buffer.MAX_3V_voltage = housekeeping_buffer[16] << 8 | housekeeping_buffer[15];
+            iris_hk_buffer.MAX_3V_power = housekeeping_buffer[18] << 8 | housekeeping_buffer[17];
+            iris_hk_buffer.MIN_5V_voltage = housekeeping_buffer[20] << 8 | housekeeping_buffer[19];
+            iris_hk_buffer.MIN_3V_voltage = housekeeping_buffer[22] << 8 | housekeeping_buffer[21];
+
+            // Post-processed housekeeping data
+            hk_data->vis_temp = iris_convert_hk_temperature(iris_hk_buffer.vis_temp);
+            hk_data->nir_temp = iris_convert_hk_temperature(iris_hk_buffer.nir_temp);
+            hk_data->flash_temp = iris_convert_hk_temperature(iris_hk_buffer.flash_temp);
+            hk_data->gate_temp = iris_convert_hk_temperature(iris_hk_buffer.gate_temp);
+            hk_data->imagenum = iris_hk_buffer.imagenum;
+            hk_data->software_version = iris_hk_buffer.software_version;
+            hk_data->errornum = iris_hk_buffer.errornum;
+            hk_data->MAX_5V_voltage = iris_hk_buffer.MAX_5V_voltage;
+            hk_data->MAX_5V_power = iris_hk_buffer.MAX_5V_power;
+            hk_data->MAX_3V_voltage = iris_hk_buffer.MAX_3V_voltage;
+            hk_data->MAX_3V_power = iris_hk_buffer.MAX_3V_power;
+            hk_data->MIN_5V_voltage = iris_hk_buffer.MIN_5V_voltage;
+            hk_data->MIN_3V_voltage = iris_hk_buffer.MIN_3V_voltage;
 
             controller_state = FINISH;
 
@@ -437,4 +488,40 @@ Iris_HAL_return iris_update_current_limit(uint16_t current_limit) {
         }
     }
     return IRIS_HAL_ERROR;
+}
+
+Iris_HAL_return iris_wdt_ack() {
+    IrisLowLevelReturn ret;
+
+    controller_state = SEND_COMMAND;
+
+    while (1) {
+        switch (controller_state) {
+        case SEND_COMMAND: {
+            ret = iris_send_command(IRIS_WDT_ACK);
+            if (ret == IRIS_ACK) {
+                controller_state = FINISH;
+            } else {
+                controller_state = ERROR_STATE;
+            }
+            break;
+        }
+        case FINISH: {
+            sys_log(INFO, "Iris returns ACK on watchdog ack command");
+            return IRIS_HAL_OK;
+        }
+        case ERROR_STATE: {
+            sys_log(INFO, "Iris returns NACK on watchdog ack command");
+            return IRIS_HAL_ERROR;
+        }
+        }
+    }
+}
+
+/*          Iris common functions           */
+float iris_convert_hk_temperature(uint16_t temperature) {
+    float upper = (float)(temperature >> 8);
+    float lower = (float)((temperature & 0xFF) >> 4) * 0.0625;
+
+    return (float)(upper + lower);
 }
