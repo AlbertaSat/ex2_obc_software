@@ -16,10 +16,11 @@
 #include <os_task.h>
 #include "printf.h"
 
-uint16_t CALI_REG = 0xDA73;
+uint16_t CALI_REG = 0xDA73; //
+// uint16_t CALI_REG = 0x186;
 uint16_t POWER_OLREG = 0x0100; // adapt me
-uint16_t ZEROREG = 0x000;
-uint16_t FFREG = 0xFFFF;
+uint16_t ZEROREG = 0x0000;
+uint16_t FFREG = 0x0082;
 
 int ina209_Write1ByteReg(uint8_t addr, uint8_t reg_addr, uint8_t data) {
     uint8_t buf[2];
@@ -31,8 +32,8 @@ int ina209_Write1ByteReg(uint8_t addr, uint8_t reg_addr, uint8_t data) {
 int ina209_Write2ByteReg(uint8_t addr, uint8_t reg_addr, uint16_t data) {
     uint8_t buf[3];
     buf[0] = reg_addr;
-    buf[1] = data & 0x00FF;
-    buf[2] = data & 0xFF00;
+    buf[1] = (data & 0xFF00) >> 8; // 00FF
+    buf[2] = data & 0xFF;          // FF00
     return i2c_Send(i2cREG2, addr, 3, &buf);
 }
 
@@ -59,7 +60,6 @@ int ina209_Read2ByteReg(uint8_t addr, uint8_t reg_addr, uint16_t *val) {
     if (i2c_Receive(i2cREG2, addr, 2, &data) == -1) {
         return -1;
     }
-
     *val = (((uint16_t)(data[0])) << 8) | data[1];
 
     return 0;
@@ -88,7 +88,10 @@ void ina209_get_control_register(uint8_t addr, uint16_t *retval) {
     return;
 }
 
-void ina209_set_control_register(uint8_t addr, uint16_t *val) { ina209_Write2ByteReg(addr, 0x02, *val); }
+void ina209_set_control_register(uint8_t addr, uint16_t *val) {
+    ina209_Write2ByteReg(addr, 0x02, *val);
+    return;
+}
 
 void ina209_get_shunt_voltage(uint8_t addr, uint16_t *retval) {
     ina209_Read2ByteReg(addr, 0x03, retval);
@@ -199,10 +202,20 @@ void init_ina209(uint8_t addr) {
     }
     // ina209_set power overlimit
     ina209_set_power_overlimit(addr, &POWER_OLREG);
+    ina209_set_bus_voltage_overlimit(addr, 0xFFFC);
+    ina209_set_bus_voltage_underlimit(addr, 0xFFFF);
+
     // ina209_set bit masks
     ina209_set_control_register(addr, &ZEROREG);
     vTaskDelay(2);
     ina209_set_control_register(addr, &FFREG);
+
+    ina209_get_power_overlimit(addr, &retval);
+
+    reset_ina209(addr);
+    for (uint8_t i = 0; i < 5; i++) {
+        ina209_get_status_flags(addr, &retval);
+    }
     return;
 }
 
@@ -212,24 +225,21 @@ void reset_ina209(uint8_t addr) {
     ina209_set_control_register(addr, &FFREG);
 }
 
-int test_currentsense(uint8_t addr) {
-    int rtn = 0;
-    printf("Initializing INA209\r\n");
-    init_ina209(SOLAR_INA209_ADDR);
-    vTaskDelay(500);
-
-    uint16_t current, current_reg, shunt_voltage;
-    // current = (1/4096) * (shunt voltage * calibration register)
-    for (int i = 0; i < 30; i++) {
-        // Read current from register
-        ina209_get_current(SOLAR_INA209_ADDR, &current_reg);
-        ina209_get_shunt_voltage(SOLAR_INA209_ADDR, &shunt_voltage);
-        current = (current_reg * shunt_voltage) / 4096;
-        printf("Current Register:\t0x%.4x\r\n", current_reg);
-        printf("Shunt Voltage Register:\t0x%.4x\r\n", shunt_voltage);
-        printf("Calculated Current: 0x%.4x -> %d\r\n\n", current, current);
-        vTaskDelay(500);
-    }
-    printf("Current Test Complete\r\n");
-    return rtn;
-}
+// int test_currentsense(uint8_t addr) {
+//     int rtn = 0;
+//     printf("Initializing INA209\r\n");
+//     init_ina209(SOLAR_INA209_ADDR);
+//     vTaskDelay(500);
+//
+//     uint16_t current, current_reg, shunt_voltage;
+//     // current = (1/4096) * (shunt voltage * calibration register)
+//     for (int i = 0; i < 30; i++) {
+//         // Read current from register
+//         ina209_get_current(SOLAR_INA209_ADDR, &current_reg);
+////        ina209_get_shunt_voltage(SOLAR_INA209_ADDR, &shunt_voltage);
+//        printf("Current Register:\t0x%.4x -> %d \r\n", current_reg, current_reg);
+//        vTaskDelay(500);
+//    }
+//    printf("Current Test Complete\r\n");
+//    return rtn;
+//}
