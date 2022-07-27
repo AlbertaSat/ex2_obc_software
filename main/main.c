@@ -405,7 +405,11 @@ static inline SAT_returnState init_csp_interface() {
 #endif /* CSP_USE_SDR */
 
     char rtable[128] = {0};
-    snprintf(rtable, 128, "%d %s, 17 %s", gs_if_addr, gs_if_name, SDR_IF_SBAND_NAME);
+    snprintf(rtable, 128, "%d %s", gs_if_addr, gs_if_name);
+
+#if SBAND_IS_STUBBED == 0
+    snprintf(rtable, 128, "%s, 17 %s", rtable, SDR_IF_SBAND_NAME);
+#endif /* SBAND_IS_STUBBED */
 
 #if EPS_IS_STUBBED == 0
     snprintf(rtable, 128, "%s, 4 CAN", rtable);
