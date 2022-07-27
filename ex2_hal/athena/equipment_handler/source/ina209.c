@@ -178,17 +178,6 @@ void ina209_set_calibration(uint8_t addr, uint16_t *val) {
     return;
 }
 
-void _flip_byte_order(uint16_t *input) {
-    // Data is transmitted MSB first, but STM is LSB.
-    // This flips the byte order.
-    uint8_t rtn = 0x0000;
-    uint8_t lsb = *input >> 8;
-    uint8_t msb = *input & 0x00FF;
-    rtn = msb << 8 | lsb;
-    *input = rtn;
-    return;
-}
-
 /*
  * Initalize INA209 current sense chip
  */
