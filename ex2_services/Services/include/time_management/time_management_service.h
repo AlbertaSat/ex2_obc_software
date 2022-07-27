@@ -25,5 +25,6 @@
 typedef enum { GET_TIME = 10, SET_TIME = 11 } Time_Management_Subtype; // shared with EPS!
 
 SAT_returnState start_time_management_service(void);
+SAT_returnState synchronize_all_clocks(uint32_t temp_time);
 
 #endif /* TIME_MANAGEMENT_H */

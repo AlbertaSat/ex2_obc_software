@@ -25,6 +25,8 @@
 #include "task_manager/task_manager.h"
 #include "time_management/time_management_service.h"
 #include "util/service_utilities.h"
+#include "eps.h"
+#include "adcs.h"
 #include <csp/csp.h>
 #include <csp/csp_endian.h>
 #include <main/system.h>
@@ -118,23 +120,8 @@ SAT_returnState time_management_app(csp_packet_t *packet) {
     uint32_t temp_time;
 
     switch (ser_subtype) {
-    case SET_TIME:
-        cnv8_32(&packet->data[IN_DATA_BYTE], &temp_time);
-        temp_time = csp_ntoh32(temp_time);
 
-        if (!TIMESTAMP_ISOK(temp_time)) {
-            status = -1;
-            memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-        } else {
-            status = RTCMK_SetUnix(temp_time);
-            memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-        }
-
-        set_packet_length(packet, sizeof(int8_t) + 1); // +1 for subservice
-
-        break;
-
-    case GET_TIME:
+    case GET_TIME: {
         // Step 1: get the data
 
         status = RTCMK_GetUnix(&temp_time);
@@ -147,10 +134,44 @@ SAT_returnState time_management_app(csp_packet_t *packet) {
         // Step 4: set packet length
         set_packet_length(packet, sizeof(int8_t) + sizeof(uint32_t) + 1); // plus one for sub-service
         break;
+    }
+
+    case SET_TIME: {
+        cnv8_32(&packet->data[IN_DATA_BYTE], &temp_time);
+        temp_time = csp_ntoh32(temp_time);
+
+        if (!TIMESTAMP_ISOK(temp_time)) {
+            status = -1;
+            memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        } else {
+            status = RTCMK_SetUnix(temp_time);
+            status += synchronize_all_clocks(temp_time);
+
+            memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        }
+
+        set_packet_length(packet, sizeof(int8_t) + 1); // +1 for subservice
+
+        break;
+    }
 
     default:
         ex2_log("No such subservice\n");
         return SATR_PKT_ILLEGAL_SUBSERVICE;
     }
     return SATR_OK;
+}
+
+SAT_returnState synchronize_all_clocks(uint32_t temp_time){
+    SAT_returnState status = SATR_OK;
+#if ADCS_IS_STUBBED == 0
+    status += (SAT_returnState)HAL_ADCS_set_unix_t(temp_time, 0);
+#endif
+#if EPS_IS_STUBBED == 0
+    status += eps_set_unix_time(&temp_time);
+#endif
+#if IS_EXALTA2 == 1 && PAYLOAD_IS_STUBBED == 0
+    // Iris set time
+#endif
+    return status;
 }
