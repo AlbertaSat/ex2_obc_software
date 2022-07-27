@@ -16,11 +16,10 @@
 #include <os_task.h>
 #include "printf.h"
 
-uint16_t CALI_REG = 0xDA73; //
-// uint16_t CALI_REG = 0x186;
-uint16_t POWER_OLREG = 0x0100; // adapt me
+uint16_t CALI_REG = 0xDA73;
+uint16_t POWER_OLREG = 0x0100;
 uint16_t ZEROREG = 0x0000;
-uint16_t FFREG = 0x0082;
+uint16_t CONTROL_REG = 0x0082;
 
 int ina209_Write1ByteReg(uint8_t addr, uint8_t reg_addr, uint8_t data) {
     uint8_t buf[2];
@@ -190,6 +189,9 @@ void _flip_byte_order(uint16_t *input) {
     return;
 }
 
+/*
+ * Initalize INA209 current sense chip
+ */
 void init_ina209(uint8_t addr) {
     uint16_t retval;
     // clear POR flags
@@ -208,7 +210,7 @@ void init_ina209(uint8_t addr) {
     // ina209_set bit masks
     ina209_set_control_register(addr, &ZEROREG);
     vTaskDelay(2);
-    ina209_set_control_register(addr, &FFREG);
+    ina209_set_control_register(addr, &CONTROL_REG);
 
     ina209_get_power_overlimit(addr, &retval);
 
@@ -222,7 +224,7 @@ void init_ina209(uint8_t addr) {
 void reset_ina209(uint8_t addr) {
     ina209_set_control_register(addr, &ZEROREG);
     vTaskDelay(2);
-    ina209_set_control_register(addr, &FFREG);
+    ina209_set_control_register(addr, &CONTROL_REG);
 }
 
 // int test_currentsense(uint8_t addr) {
