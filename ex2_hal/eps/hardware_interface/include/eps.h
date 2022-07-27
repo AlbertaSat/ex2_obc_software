@@ -27,6 +27,7 @@
 #define SET_TELEMETRY_PERIOD 255
 #define EPS_REQUEST_TIMEOUT 1000
 #define EPS_INSTANTANEOUS_TELEMETRY 7
+#define EPS_TIME_SYNCHRONIZATION 8
 #define EPS_POWER_CONTROL 14
 #define OFF 0
 #define ON 1
@@ -113,16 +114,25 @@ struct __attribute__((packed)) eps_startup_telemetry {
     int8_t tmp107Init;
 };
 
+struct __attribute__((packed)) eps_time_sync {
+    uint8_t cmd;
+    int8_t status;
+    uint32_t timestamp;
+};
+
 enum eps_mode { critical = 0, safe = 1, normal = 2, full = 3 };
 
 typedef struct eps_instantaneous_telemetry eps_instantaneous_telemetry_t;
 typedef struct eps_startup_telemetry eps_startup_telemetry_t;
+typedef struct eps_time_sync eps_time_sync_t;
 typedef enum eps_mode eps_mode_e;
 
 SAT_returnState eps_refresh_instantaneous_telemetry();
 SAT_returnState eps_refresh_startup_telemetry();
 eps_instantaneous_telemetry_t get_eps_instantaneous_telemetry();
 eps_startup_telemetry_t get_eps_startup_telemetry();
+SAT_returnState eps_get_unix_time(uint32_t *timestamp);
+SAT_returnState eps_set_unix_time(uint32_t *timestamp);
 void EPS_getHK(eps_instantaneous_telemetry_t *telembuf, eps_startup_telemetry_t *telem_startup_buf);
 eps_mode_e get_eps_batt_mode();
 void prv_instantaneous_telemetry_letoh(eps_instantaneous_telemetry_t *telembuf);
