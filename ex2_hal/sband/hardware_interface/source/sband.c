@@ -63,6 +63,18 @@ int sband_init() {
     return 0;
 }
 
+int sband_get_rate() {
+    Sband_Encoder encoder = {0};
+    STX_return ret;
+
+    if ((ret = HAL_S_getEncoder(&encoder)) != S_SUCCESS) {
+        sys_log(NOTICE, "S-Band can't get encoder, rc %d", ret);
+        return -1;
+    }
+
+    return encoder.rate;
+}
+
 bool sband_enter_conf_mode() {
     Sband_PowerAmplifier pa = { .status = PA_STATUS_DISABLE, .mode = PA_MODE_CONF };
     STX_return ret = HAL_S_setControl(pa);
@@ -129,5 +141,4 @@ bool sband_buffer_count(uint16_t *cnt) {
     *cnt = sbuf.pointer[S_BUFFER_COUNT];
     return true;
 }
-
     

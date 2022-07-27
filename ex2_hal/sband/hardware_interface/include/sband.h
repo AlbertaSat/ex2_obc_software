@@ -34,8 +34,11 @@
 
 /* The depth of our TX FIFO */
 #define SBAND_FIFO_DEPTH 20 * 1024
+#define SBAND_FIFO_READY_COUNT 2561
 
 int sband_init(void);
+
+int sband_get_rate(void);
 
 bool sband_enter_conf_mode(void);
 bool sband_enter_sync_mode(void);
