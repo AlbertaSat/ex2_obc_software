@@ -66,28 +66,4 @@
 
 #define FLATSAT_TEST 0
 
-/**
- * SANITY CHECKS
- */
-#if IS_SATELLITE == 1
-#if (IS_EXALTA2 == 1 && IS_AURORASAT == 1) || (IS_EXALTA2 == 1 && IS_YUKONSAT == 1) ||                            \
-    (IS_AURORASAT == 1 && IS_YUKONSAT == 1)
-#error "Too many satellites defined!"
-#elif IS_EXALTA2 == 0 && IS_YUKONSAT == 0 && IS_AURORASAT == 0
-#error "Need to define a satellite!"
-#endif
-#endif
-
-#if GOLDEN_IMAGE == 1 && WORKING_IMAGE == 1
-#error "Must be either GOLDEN_IMAGE or WORKING_IMAGE"
-#endif
-
-#if CSP_FREERTOS == 0
-#error "CSP_FREERTOS must be 1"
-#endif
-
-#if CSP_USE_KISS == 0 && CSP_USE_SDR == 0 || CSP_USE_KISS == 1 && CSP_USE_SDR == 1
-#error "CSP must use one of KISS or SDR"
-#endif /* !defined(CSP_USE_KISS) && !defined(CSP_USE_SDR) || defined(CSP_USE_KISS) && defined(CSP_USE_SDR) */
-
 #endif /* MAIN_CONFIG_AURORASAT_H_ */
