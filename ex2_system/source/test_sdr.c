@@ -18,7 +18,7 @@ void test_csp_send(void *arg) {
 
     csp_conn_t *conn = 0;
     while (!conn) {
-        conn = csp_connect(CSP_PRIO_NORM, 17, 17, 1000, CSP_SO_HMACREQ);
+        conn = csp_connect(CSP_PRIO_NORM, 23, 23, 1000, CSP_SO_HMACREQ);
         if (!conn) {
             ex2_log("CSP connection failed %d", xTaskGetTickCount());
             vTaskDelay(1000);
@@ -41,14 +41,80 @@ void test_csp_send(void *arg) {
 
         ex2_log("csp->sdr send %d, len %d\n", count++, len);
 
-        if (csp_send(conn, packet, 1000) != 0) {
+        if (csp_send(conn, packet, 1000) == 0) {
             ex2_log("send failed");
+            csp_buffer_free(packet);
         }
 
         vTaskDelay(5000);
     }
 
     csp_close(conn);
+}
+
+#define SBAND_PACKET_LEN 1024
+
+void test_csp_sband_send(void *arg) {
+    csp_iface_t *csp_iface = (csp_iface_t *)arg;
+    sdr_interface_data_t *ifdata = csp_iface->interface_data;
+    ex2_log("starting CSP->SBAND send");
+    vTaskDelay(1000);
+
+    csp_conn_t *conn = 0;
+    while (!conn) {
+        conn = csp_connect(CSP_PRIO_NORM, 17, 17, 1000, CSP_O_NONE);
+        if (!conn) {
+            ex2_log("CSP connection failed %d", xTaskGetTickCount());
+            vTaskDelay(1000);
+        }
+    }
+
+    int filecount = 0;
+    int too_slow = 0;
+    int too_fast = 0;
+    while (1) {
+        // Turn on the radio
+        sdr_sband_tx_start(ifdata);
+
+        int count;
+        size_t len = SBAND_PACKET_LEN;
+        for (count = 0; count < 1024; count++) {
+            csp_packet_t *packet = csp_buffer_get(len);
+            if (!packet) {
+                ex2_log("no more packets");
+                break;
+            }
+
+            packet->length = len;
+            memset(packet->data, 0, len);
+#if 0
+            for (int i = 0; i < len; i++) {
+                packet->data[i] = i;
+            }
+#endif
+            ex2_log("csp->sband send %d, len %d\n", count, len);
+
+            if (!csp_send(conn, packet, 1000)) {
+                ex2_log("send failed");
+                csp_buffer_free(packet);
+            }
+        }
+
+        ex2_log("end of file transfer %d", ++filecount);
+        sdr_sband_tx_stop(ifdata);
+
+        sdr_sband_conf_t *sband_conf = &ifdata->sdr_conf->sband_conf;
+        if (sband_conf->too_slow > too_slow) {
+            too_slow = sband_conf->too_slow;
+            ex2_log("s-band too slow: %d\n", too_slow);
+        }
+        if (sband_conf->too_fast > too_fast) {
+            too_fast = sband_conf->too_fast;
+            ex2_log("s-band too fast: %d\n", too_fast);
+        }
+
+        vTaskDelay(5000);
+    }
 }
 
 void test_uhf_send(void *arg) {
@@ -88,7 +154,7 @@ void test_uhf_send(void *arg) {
 void test_sband_send(void *arg) {
     sdr_interface_data_t *ifdata = arg;
     int len = 1024;
-    uint8_t *packet = (uint8_t *) pvPortMalloc(len);
+    uint8_t *packet = (uint8_t *)pvPortMalloc(len);
 
     if (!ifdata) {
         ex2_log("no S-BAND interface: exiting");
@@ -103,8 +169,8 @@ void test_sband_send(void *arg) {
         sdr_sband_tx_start(ifdata);
 
         int i, count;
-        for (count=0; count < 10*1024; count++) {
-            for (i=0; i<len; i++) {
+        for (count = 0; count < 10 * 1024; count++) {
+            for (i = 0; i < len; i++) {
                 packet[i] = count & 0x0ff;
             }
             ex2_log("sband send %d, len %d", count, len);
@@ -115,7 +181,7 @@ void test_sband_send(void *arg) {
             }
         }
 
-        ex2_log("sband rest %d", count/len);
+        ex2_log("sband rest %d", count / len);
         sdr_sband_tx_stop(ifdata);
         vTaskDelay(10000);
         ex2_log("sband back at it!");
@@ -184,15 +250,18 @@ static void sdr_uhf_receive(void *conf, uint8_t *data, size_t len, void *unused)
 
 void start_test_sdr(sdr_interface_data_t *uhf_ifdata, sdr_interface_data_t *sband_ifdata) {
     if (SDR_NO_CSP) {
-        uhf_ifdata->sdr_conf->rx_callback = (sdr_rx_callback_t) sdr_uhf_receive;
+        uhf_ifdata->sdr_conf->rx_callback = (sdr_rx_callback_t)sdr_uhf_receive;
         uhf_ifdata->sdr_conf->rx_callback_data = NULL;
 
         xTaskCreate(test_uhf_send, "sdr->uhf", TEST_STACK_SIZE, uhf_ifdata, 0, NULL);
-    }
-    else {
+    } else {
         xTaskCreate(test_csp_receive, "sdr->csp", TEST_STACK_SIZE, NULL, 0, NULL);
         xTaskCreate(test_csp_send, "csp->sdr", TEST_STACK_SIZE, NULL, 0, NULL);
     }
 
     xTaskCreate(test_sband_send, "sdr->sband", TEST_STACK_SIZE, sband_ifdata, 0, NULL);
+}
+
+void start_test_sband(csp_iface_t *sband_iface) {
+    xTaskCreate(test_csp_sband_send, "csp->sband", TEST_STACK_SIZE, sband_iface, 0, NULL);
 }

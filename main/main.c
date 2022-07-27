@@ -78,6 +78,8 @@
 
 static sdr_interface_data_t *test_uhf_ifdata;
 static sdr_interface_data_t *test_sband_ifdata;
+static csp_iface_t *test_sband_iface;
+
 #endif // SDR_TEST
 
 #if FLATSAT_TEST == 1
@@ -184,7 +186,8 @@ void ex2_init(void *pvParameters) {
     init_software();
 
 #if SDR_TEST == 1
-    start_test_sdr(test_uhf_ifdata, test_sband_ifdata);
+    //start_test_sdr(test_uhf_ifdata, test_sband_ifdata);
+    start_test_sband(test_sband_iface);
 #endif
 
 #if FLATSAT_TEST == 1
@@ -388,7 +391,11 @@ static inline SAT_returnState init_csp_interface() {
 #endif
 #else // use CSP
 #if SBAND_IS_STUBBED == 0
-    error = csp_sdr_open_and_add_interface(&sdr_conf, SDR_IF_SBAND_NAME, NULL);
+#if SDR_TEST == 0
+    // Need a dummy iface if NOT testing
+    csp_iface_t *test_sband_iface = 0;
+#endif
+    error = csp_sdr_open_and_add_interface(&sdr_conf, SDR_IF_SBAND_NAME, &test_sband_iface);
     if (error != CSP_ERR_NONE) {
         return SATR_ERROR;
     }

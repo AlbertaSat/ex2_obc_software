@@ -36,10 +36,10 @@
  */
 SAT_returnState start_system_tasks(void) {
 
-    const const static char *system_task_names[] = {
-        "task_manager\0",    "beacon_daemon\0",       "coordinate_management_daemon\0",
-        "diagnostic_daemon", "housekeeping_daemon\0", "NMEA_daemon\0",
-        "RTC_daemon\0",      "logger_daemon\0"};
+    static const char *system_task_names[] = {
+        "task_manager",      "beacon_daemon",       "coordinate_management_daemon",
+        "diagnostic_daemon", "housekeeping_daemon", "NMEA_daemon",
+        "RTC_daemon",        "logger_daemon"};
 
     const system_tasks start_task[] = {
         &start_task_manager,      &start_beacon_daemon,       &start_coordinate_management_daemon,
@@ -54,7 +54,7 @@ SAT_returnState start_system_tasks(void) {
 
     for (int i = 0; start_task[i]; i++) {
         start_task_attempt = 0;
-        char *task_name = system_task_names[i];
+        const char *task_name = system_task_names[i];
         while (start_task_attempt <= 3) {
             state = start_task[i]();
             if (state != SATR_OK && start_task_attempt < 3) {
