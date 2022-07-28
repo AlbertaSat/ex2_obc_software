@@ -33,12 +33,13 @@
 #include "adcs.h"
 #include "logger/logger.h"
 #include "ns_payload.h"
+#include "iris.h"
 
 static void uhf_watchdog_daemon(void *pvParameters);
 static void sband_watchdog_daemon(void *pvParameters);
 static void charon_watchdog_daemon(void *pvParameters);
 static void adcs_watchdog_daemon(void *pvParameters);
-static void ns_watchdog_daemon(void *pvParameters);
+static void payload_watchdog_daemon(void *pvParameters);
 SAT_returnState start_diagnostic_daemon(void);
 
 const unsigned int mutex_timeout = pdMS_TO_TICKS(100);
@@ -49,13 +50,13 @@ static TickType_t uhf_prv_watchdog_delay = ONE_MINUTE;
 static TickType_t sband_prv_watchdog_delay = ONE_MINUTE;
 static TickType_t charon_prv_watchdog_delay = ONE_MINUTE;
 static TickType_t adcs_prv_watchdog_delay = ONE_MINUTE;
-static TickType_t ns_prv_watchdog_delay = ONE_MINUTE;
+static TickType_t payload_prv_watchdog_delay = ONE_MINUTE;
 
 static SemaphoreHandle_t uhf_watchdog_mtx = NULL;
 static SemaphoreHandle_t sband_watchdog_mtx = NULL;
 static SemaphoreHandle_t charon_watchdog_mtx = NULL;
 static SemaphoreHandle_t adcs_watchdog_mtx = NULL;
-static SemaphoreHandle_t ns_watchdog_mtx = NULL;
+static SemaphoreHandle_t payload_watchdog_mtx = NULL;
 
 #if UHF_IS_STUBBED == 0
 /**
@@ -92,9 +93,9 @@ static void uhf_watchdog_daemon(void *pvParameters) {
         }
 
         if (err == U_IN_PIPE) {
-            ex2_log("UHF in PIPE Mode - power not toggled.");
+            sys_log(WARN, "UHF in PIPE Mode - power not toggled.");
         } else if (err != U_GOOD_CONFIG) {
-            ex2_log("UHF was not responsive - attempting to toggle power.");
+            sys_log(ERROR, "UHF was not responsive - attempting to toggle power.");
 
             // Turn off the UHF.
             eps_set_pwr_chnl(UHF_5V0_PWR_CHNL, OFF);
@@ -104,7 +105,7 @@ static void uhf_watchdog_daemon(void *pvParameters) {
 
             // Check that the UHF has been turned off.
             if (eps_get_pwr_chnl(UHF_5V0_PWR_CHNL) != OFF) {
-                ex2_log("UHF failed to power off.");
+                sys_log(ERROR, "UHF failed to power off.");
                 vTaskDelay(delay);
                 continue;
             }
@@ -117,9 +118,9 @@ static void uhf_watchdog_daemon(void *pvParameters) {
 
             // Check that the UHF has been turned on
             if (eps_get_pwr_chnl(UHF_5V0_PWR_CHNL) != ON) {
-                ex2_log("UHF failed to power on.");
+                sys_log(ERROR, "UHF failed to power on.");
             } else {
-                ex2_log("UHF powered back on.");
+                sys_log(INFO, "UHF powered back on.");
             }
         }
 
@@ -142,7 +143,7 @@ static void sband_watchdog_daemon(void *pvParameters) {
     for (;;) {
         TickType_t delay = get_sband_watchdog_delay();
         if (gioGetBit(hetPORT2, 23) == 0) {
-            ex2_log("SBAND not enabled - power not toggled");
+            sys_log(WARN, "SBAND not enabled - power not toggled");
             vTaskDelay(delay);
             continue;
         }
@@ -157,7 +158,7 @@ static void sband_watchdog_daemon(void *pvParameters) {
         }
         if (SBAND_version == 0) {
             // TODO: Currently no way for power toggling to return fail
-            ex2_log("SBAND was not responsive - attempting to toggle power.");
+            sys_log(ERROR, "SBAND was not responsive - attempting to toggle power.");
 
             // Reset the SBAND by toggling the reset pin
             gioSetBit(hetPORT2, 21, 0); // Het2 21 is the S-band nRESET pin
@@ -173,7 +174,7 @@ static void sband_watchdog_daemon(void *pvParameters) {
             STX_Enable();
             vTaskDelay(ONE_SECOND);
 
-            ex2_log("SBAND power toggled");
+            sys_log(INFO, "SBAND power toggled");
         }
 
         if (xSemaphoreTake(sband_watchdog_mtx, mutex_timeout) == pdPASS) {
@@ -196,7 +197,7 @@ static void charon_watchdog_daemon(void *pvParameters) {
     for (;;) {
         TickType_t delay = get_charon_watchdog_delay();
         if (eps_get_pwr_chnl(CHARON_3V3_PWR_CHNL) == 0) {
-            ex2_log("Charon not on - power not toggled");
+            sys_log(WARN, "Charon not on - power not toggled");
             vTaskDelay(delay);
             continue;
         }
@@ -212,7 +213,7 @@ static void charon_watchdog_daemon(void *pvParameters) {
         }
 
         if ((err != GPS_SUCCESS) || (version == NULL)) {
-            ex2_log("Charon was not responsive - attempting to toggle power.");
+            sys_log(ERROR, "Charon was not responsive - attempting to toggle power.");
 
             // Turn Charon off
             eps_set_pwr_chnl(CHARON_3V3_PWR_CHNL, OFF);
@@ -222,7 +223,7 @@ static void charon_watchdog_daemon(void *pvParameters) {
 
             // Check that Charon has been turned off.
             if (eps_get_pwr_chnl(CHARON_3V3_PWR_CHNL) != OFF) {
-                ex2_log("Charon failed to power off.");
+                sys_log(ERROR, "Charon failed to power off.");
                 vTaskDelay(delay);
                 continue;
             }
@@ -235,9 +236,9 @@ static void charon_watchdog_daemon(void *pvParameters) {
 
             // Check that Charon has been turned on
             if (eps_get_pwr_chnl(CHARON_3V3_PWR_CHNL) != ON) {
-                ex2_log("Charon failed to power on.");
+                sys_log(ERROR, "Charon failed to power on.");
             } else {
-                ex2_log("Charon powered back on.");
+                sys_log(INFO, "Charon powered back on.");
             }
         }
 
@@ -262,7 +263,7 @@ static void adcs_watchdog_daemon(void *pvParameters) {
         TickType_t delay = get_adcs_watchdog_delay();
 
         if (eps_get_pwr_chnl(ADCS_3V3_PWR_CHNL) == 0) {
-            ex2_log("ADCS not on - power not toggled");
+            sys_log(WARN, "ADCS not on - power not toggled");
             vTaskDelay(delay);
             continue;
         }
@@ -279,7 +280,7 @@ static void adcs_watchdog_daemon(void *pvParameters) {
         }
 
         if ((err != ADCS_OK) && (err != ADCS_UART_BUSY)) {
-            ex2_log("ADCS was not responsive - attempting to toggle power.");
+            sys_log(ERROR, "ADCS was not responsive - attempting to toggle power.");
 
             // Turn the ADCS off
             eps_set_pwr_chnl(ADCS_3V3_PWR_CHNL, OFF);
@@ -290,7 +291,7 @@ static void adcs_watchdog_daemon(void *pvParameters) {
 
             // Check that the ADCS has been turned off.
             if ((eps_get_pwr_chnl(ADCS_3V3_PWR_CHNL) != OFF) || (eps_get_pwr_chnl(ADCS_5V0_PWR_CHNL) != OFF)) {
-                ex2_log("ADCS failed to power off.");
+                sys_log(ERROR, "ADCS failed to power off.");
                 vTaskDelay(delay);
                 continue;
             }
@@ -304,9 +305,9 @@ static void adcs_watchdog_daemon(void *pvParameters) {
 
             // Check that the ADCS has been turned on
             if ((eps_get_pwr_chnl(ADCS_3V3_PWR_CHNL) != ON) && (eps_get_pwr_chnl(ADCS_5V0_PWR_CHNL) != ON)) {
-                ex2_log("ADCS failed to power on.");
+                sys_log(ERROR, "ADCS failed to power on.");
             } else {
-                ex2_log("ADCS powered back on.");
+                sys_log(INFO, "ADCS powered back on.");
             }
         }
 
@@ -320,69 +321,85 @@ static void adcs_watchdog_daemon(void *pvParameters) {
 #endif
 
 #if PAYLOAD_IS_STUBBED == 0
-#if IS_EXALTA2 == 1
-// Iris watchdog
-#endif
 /**
- * @brief Check that the northern spirit payload is responsive. If not, toggle power.
+ * @brief Check that the payload is responsive. If not, toggle power.
  *
  * @param pvParameters Task parameters (not used)
  */
 
-static void ns_watchdog_daemon(void *pvParameters) {
+static void payload_watchdog_daemon(void *pvParameters) {
     for (;;) {
-        TickType_t delay = get_ns_watchdog_delay();
+        TickType_t delay = get_payload_watchdog_delay();
 
-        if ((eps_get_pwr_chnl(PYLD_5V0_PWR_CHNL) == 0) && (eps_get_pwr_chnl(PYLD_3V3_PWR_CHNL) == 0)) {
-            ex2_log("NS not on - power not toggled");
+#if (IS_EXALTA2 == 1) || (IS_AURORASAT == 1)
+        uint8_t mcu_channel = PYLD_3V3_PWR_CHNL;
+#else
+        uint8_t mcu_channel = PYLD_5V0_PWR_CHNL;
+#endif
+
+        if (eps_get_pwr_chnl(mcu_channel) == 0) {
+            sys_log(WARN, "Payload not on - power not toggled");
             vTaskDelay(delay);
             continue;
         }
 
+#if IS_EXALTA2 == 1
+        Iris_HAL_return err;
+        Iris_HAL_return expected_err = IRIS_HAL_OK;
+#else
         NS_return err;
+        NS_return expected_err = NS_OK;
         uint8_t heartbeat;
+#endif
+
+
         for (int i = 0; i < watchdog_retries; i++) {
+#if IS_EXALTA2 == 1
+            err = iris_wdt_ack();
+#else
             err = HAL_NS_get_heartbeat(&heartbeat);
-            if (err == NS_OK)
+#endif
+            if (err == expected_err){
                 break;
+            }
             vTaskDelay(10 * ONE_SECOND);
         }
 
-        if (err != NS_OK) {
-            ex2_log("NS payload was not responsive - attempting to toggle power.");
+        if (err != expected_err) {
+            sys_log(ERROR, "Payload was not responsive - attempting to toggle power.");
 
-            // Turn the NS payload off
+            // Turn the payload off
             eps_set_pwr_chnl(PYLD_3V3_PWR_CHNL, OFF);
             eps_set_pwr_chnl(PYLD_5V0_PWR_CHNL, OFF);
 
             // Allow the system to fully power off
             vTaskDelay(reset_wait_period);
 
-            // Check that the NS payload has been turned off.
+            // Check that the payload has been turned off.
             if ((eps_get_pwr_chnl(PYLD_3V3_PWR_CHNL) != OFF) || (eps_get_pwr_chnl(PYLD_5V0_PWR_CHNL) != OFF)) {
-                ex2_log("NS payload failed to power off.");
+                sys_log(ERROR, "Payload failed to power off.");
                 vTaskDelay(delay);
                 continue;
             }
 
-            // Turn the NS payload back on.
+            // Turn the payload back on.
             eps_set_pwr_chnl(PYLD_3V3_PWR_CHNL, ON);
             eps_set_pwr_chnl(PYLD_5V0_PWR_CHNL, ON);
 
             // Allow the system to fully power on
             vTaskDelay(reset_wait_period);
 
-            // Check that the NS payload has been turned on
+            // Check that the payload has been turned on
             if ((eps_get_pwr_chnl(PYLD_3V3_PWR_CHNL) != ON) && (eps_get_pwr_chnl(PYLD_5V0_PWR_CHNL) != ON)) {
-                ex2_log("NS payload failed to power on.");
+                sys_log(ERROR, "Payload failed to power on.");
             } else {
-                ex2_log("NS payload powered back on.");
+                sys_log(INFO, "Payload powered back on.");
             }
         }
 
-        if (xSemaphoreTake(ns_watchdog_mtx, mutex_timeout) == pdPASS) {
-            delay = ns_prv_watchdog_delay;
-            xSemaphoreGive(ns_watchdog_mtx);
+        if (xSemaphoreTake(payload_watchdog_mtx, mutex_timeout) == pdPASS) {
+            delay = payload_prv_watchdog_delay;
+            xSemaphoreGive(payload_watchdog_mtx);
         }
         vTaskDelay(delay);
     }
@@ -445,13 +462,13 @@ TickType_t get_adcs_watchdog_delay(void) {
 #endif
 }
 
-TickType_t get_ns_watchdog_delay(void) {
+TickType_t get_payload_watchdog_delay(void) {
 #if PAYLOAD_IS_STUBBED == 1
     return STUBBED_WATCHDOG_DELAY;
 #else
-    if (xSemaphoreTake(ns_watchdog_mtx, mutex_timeout) == pdPASS) {
-        TickType_t delay = ns_prv_watchdog_delay;
-        xSemaphoreGive(ns_watchdog_mtx);
+    if (xSemaphoreTake(payload_watchdog_mtx, mutex_timeout) == pdPASS) {
+        TickType_t delay = payload_prv_watchdog_delay;
+        xSemaphoreGive(payload_watchdog_mtx);
         return delay;
     } else {
         return 0;
@@ -523,16 +540,16 @@ SAT_returnState set_adcs_watchdog_delay(const unsigned int ms_delay) {
 #endif
 }
 
-SAT_returnState set_ns_watchdog_delay(const unsigned int ms_delay) {
+SAT_returnState set_payload_watchdog_delay(const unsigned int ms_delay) {
 #if PAYLOAD_IS_STUBBED == 1
     return SATR_OK;
 #else
     if (ms_delay < WATCHDOG_MINIMUM_DELAY_MS) {
         return SATR_ERROR;
     }
-    if (xSemaphoreTake(ns_watchdog_mtx, mutex_timeout) == pdPASS) {
-        ns_prv_watchdog_delay = pdMS_TO_TICKS(ms_delay);
-        xSemaphoreGive(ns_watchdog_mtx);
+    if (xSemaphoreTake(payload_watchdog_mtx, mutex_timeout) == pdPASS) {
+        payload_prv_watchdog_delay = pdMS_TO_TICKS(ms_delay);
+        xSemaphoreGive(payload_watchdog_mtx);
         return SATR_OK;
     }
     return SATR_ERROR;
@@ -549,13 +566,13 @@ SAT_returnState start_diagnostic_daemon(void) {
 #if UHF_IS_STUBBED == 0
     if (xTaskCreate((TaskFunction_t)uhf_watchdog_daemon, "uhf_watchdog_daemon", 1000, NULL, DIAGNOSTIC_TASK_PRIO,
                     NULL) != pdPASS) {
-        ex2_log("FAILED TO CREATE TASK uhf_watchdog_daemon.\n");
+        sys_log(ERROR, "FAILED TO CREATE TASK uhf_watchdog_daemon.\n");
         return SATR_ERROR;
     }
-    ex2_log("UHF watchdog task started.\n");
+    sys_log(INFO, "UHF watchdog task started.\n");
     uhf_watchdog_mtx = xSemaphoreCreateMutex();
     if (uhf_watchdog_mtx == NULL) {
-        ex2_log("FAILED TO CREATE MUTEX uhf_watchdog_mtx.\n");
+        sys_log(ERROR, "FAILED TO CREATE MUTEX uhf_watchdog_mtx.\n");
         return SATR_ERROR;
     }
 #endif
@@ -563,13 +580,13 @@ SAT_returnState start_diagnostic_daemon(void) {
 #if SBAND_IS_STUBBED == 0
     if (xTaskCreate((TaskFunction_t)sband_watchdog_daemon, "sband_watchdog_daemon", 1000, NULL,
                     DIAGNOSTIC_TASK_PRIO, NULL) != pdPASS) {
-        ex2_log("FAILED TO CREATE TASK sband_watchdog_daemon.\n");
+        sys_log(ERROR, "FAILED TO CREATE TASK sband_watchdog_daemon.\n");
         return SATR_ERROR;
     }
-    ex2_log("SBAND watchdog task started.\n");
+    sys_log(INFO, "SBAND watchdog task started.\n");
     sband_watchdog_mtx = xSemaphoreCreateMutex();
     if (sband_watchdog_mtx == NULL) {
-        ex2_log("FAILED TO CREATE MUTEX sband_watchdog_mtx.\n");
+        sys_log(ERROR, "FAILED TO CREATE MUTEX sband_watchdog_mtx.\n");
         return SATR_ERROR;
     }
 #endif
@@ -577,13 +594,13 @@ SAT_returnState start_diagnostic_daemon(void) {
 #if CHARON_IS_STUBBED == 0 && IS_EXALTA2 == 1
     if (xTaskCreate(charon_watchdog_daemon, "charon_watchdog_daemon", 1000, NULL, DIAGNOSTIC_TASK_PRIO, NULL) !=
         pdPASS) {
-        ex2_log("FAILED TO CREATE TASK charon_watchdog_daemon.\n");
+        sys_log(ERROR, "FAILED TO CREATE TASK charon_watchdog_daemon.\n");
         return SATR_ERROR;
     }
-    ex2_log("Charon watchdog task started.\n");
+    sys_log(INFO, "Charon watchdog task started.\n");
     charon_watchdog_mtx = xSemaphoreCreateMutex();
     if (charon_watchdog_mtx == NULL) {
-        ex2_log("FAILED TO CREATE MUTEX charon_watchdog_mtx.\n");
+        sys_log(ERROR, "FAILED TO CREATE MUTEX charon_watchdog_mtx.\n");
         return SATR_ERROR;
     }
 #endif
@@ -591,31 +608,28 @@ SAT_returnState start_diagnostic_daemon(void) {
 #if ADCS_IS_STUBBED == 0
     if (xTaskCreate(adcs_watchdog_daemon, "adcs_watchdog_daemon", 1000, NULL, DIAGNOSTIC_TASK_PRIO, NULL) !=
         pdPASS) {
-        ex2_log("FAILED TO CREATE TASK adcs_watchdog_daemon.\n");
+        sys_log(ERROR, "FAILED TO CREATE TASK adcs_watchdog_daemon.\n");
         return SATR_ERROR;
     }
-    ex2_log("ADCS watchdog task started.\n");
+    sys_log(INFO, "ADCS watchdog task started.\n");
     adcs_watchdog_mtx = xSemaphoreCreateMutex();
     if (adcs_watchdog_mtx == NULL) {
-        ex2_log("FAILED TO CREATE MUTEX adcs_watchdog_mtx.\n");
+        sys_log(ERROR, "FAILED TO CREATE MUTEX adcs_watchdog_mtx.\n");
         return SATR_ERROR;
     }
 #endif
 
 #if PAYLOAD_IS_STUBBED == 0
-#if IS_EXALTA2 == 1
-#else
-    if (xTaskCreate(ns_watchdog_daemon, "ns_watchdog_daemon", 1000, NULL, DIAGNOSTIC_TASK_PRIO, NULL) != pdPASS) {
-        ex2_log("FAILED TO CREATE TASK ns_watchdog_daemon.\n");
+    if (xTaskCreate(payload_watchdog_daemon, "payload_watchdog_daemon", 1000, NULL, DIAGNOSTIC_TASK_PRIO, NULL) != pdPASS) {
+        sys_log(ERROR, "FAILED TO CREATE TASK payload_watchdog_daemon.\n");
         return SATR_ERROR;
     }
-    ex2_log("NS watchdog task started.\n");
-    ns_watchdog_mtx = xSemaphoreCreateMutex();
-    if (ns_watchdog_mtx == NULL) {
-        ex2_log("FAILED TO CREATE MUTEX ns_watchdog_mtx.\n");
+    sys_log(INFO, "Payload watchdog task started.\n");
+    payload_watchdog_mtx = xSemaphoreCreateMutex();
+    if (payload_watchdog_mtx == NULL) {
+        sys_log(ERROR, "FAILED TO CREATE MUTEX payload_watchdog_mtx.\n");
         return SATR_ERROR;
     }
-#endif
 #endif
     return SATR_OK;
 }
