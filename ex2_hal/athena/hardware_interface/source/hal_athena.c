@@ -24,9 +24,9 @@ int initAthena(void) {
         // pull pin low to cut MOSFET
         gioSetBit(SOLAR_CURRENTSENSE_SHDN_PORT, SOLAR_CURRENTSENSE_SHDN_PIN, 0);
         sys_log(CRITICAL, "Solar panel overcurrent event occurred.");
-#endif
-        return 0;
     }
+#endif
+    return 0;
 }
 
 void is_SolarPanel_overcurrent(void *pvParameters) {
