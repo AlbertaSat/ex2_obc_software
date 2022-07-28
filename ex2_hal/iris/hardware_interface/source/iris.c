@@ -21,6 +21,8 @@
 #include "iris_spi.h"
 #include "logger.h"
 #include "redposix.h"
+#include "time.h"
+#include "rtcmk.h"
 
 /*
  * Optimization points
@@ -68,7 +70,8 @@ Iris_HAL_return iris_init() {
 
 #if IS_ATHENA == 1
     time_t unix_time;
-    iris_set_time(RTCMK_GetUnix(&unix_time));
+    RTCMK_GetUnix(&unix_time);
+    iris_set_time(unix_time);
 #else
     iris_set_time(1659051330);
 #endif
