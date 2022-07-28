@@ -1,13 +1,14 @@
-name: ccs-build
+name: ccs-daily-build
 
-# 4 AM MST (11 AM UTC) on every day
+# 5 AM MST (11 AM UTC) on every day
 on:
+  workflow_dispatch:
   schedule:
     - cron: '0 11 * * *'
 
 jobs:
   sync:
-    name: 'Daily build'
+    name: 'Daily build with all configurations'
     runs-on: ubuntu-latest
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
