@@ -163,9 +163,7 @@ IrisLowLevelReturn iris_send_data(uint16_t *tx_buffer, uint16_t data_length) {
 
     iris_nss_low();
     vTaskDelay(1);
-    iris_spi_send_and_get(tx_buffer, &rx_data, data_length);
-    IRIS_WAIT_FOR_ACK;
-    iris_spi_send_and_get(&tx_dummy, &rx_data, 1);
+    iris_spi_send(tx_buffer, data_length);
     vTaskDelay(1);
     iris_nss_high();
 

@@ -70,7 +70,7 @@ Iris_HAL_return iris_init() {
     time_t unix_time;
     iris_set_time(RTCMK_GetUnix(&unix_time));
 #else
-    iris_set_time(1658777116);
+    iris_set_time(1659051330);
 #endif
 
     // TODO: Add quick iris loopback test
