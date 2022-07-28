@@ -65,15 +65,14 @@ Iris_HAL_return iris_init() {
     iris_reset_low();
     IRIS_POWER_CYCLE_DELAY;
     iris_reset_high();
-
-    vTaskDelay(100);
+    IRIS_INIT_DELAY;
 
 #if IS_ATHENA == 1
     time_t unix_time;
     RTCMK_GetUnix(&unix_time);
     iris_set_time(unix_time);
 #else
-    iris_set_time(1659051330);
+    iris_set_time(1659051330); // Dummy time for dev-card debugging (without RTC)
 #endif
 
     // TODO: Add quick iris loopback test
