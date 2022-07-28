@@ -218,6 +218,34 @@ int8_t eps_set_pwr_chnl(uint8_t pwr_chnl_port, bool status) {
     return response[1];
 }
 
+/* Sends a command to eps to get its unix time */
+SAT_returnState eps_get_unix_time(uint32_t *timestamp) {
+    uint8_t cmd = 0; // 'subservice' command
+    eps_time_sync_t timebuf;
+    int res = csp_ping(EPS_APP_ID, EPS_REQUEST_TIMEOUT, 100, CSP_O_NONE);
+
+    if (csp_transaction_w_opts(CSP_PRIO_LOW, EPS_APP_ID, EPS_TIME_SYNCHRONIZATION, EPS_REQUEST_TIMEOUT, &cmd,
+                               sizeof(cmd), &timebuf, sizeof(eps_time_sync_t), CSP_O_CRC32) <= 1)
+        return SATR_ERROR;
+    *timestamp = csp_letoh32(timebuf.timestamp);
+    return SATR_OK;
+}
+
+/* Sends a command to eps to set its unix time */
+SAT_returnState eps_set_unix_time(uint32_t *timestamp) {
+    int8_t response[2];
+    eps_time_sync_t timebuf;
+    timebuf.timestamp = csp_htole32(*timestamp);
+    uint8_t cmd[5] = {1, 0};
+    memcpy(&cmd[1], &timebuf.timestamp, sizeof(timebuf.timestamp));
+    int res = csp_ping(EPS_APP_ID, EPS_REQUEST_TIMEOUT, 100, CSP_O_NONE);
+
+    if (csp_transaction_w_opts(CSP_PRIO_LOW, EPS_APP_ID, EPS_TIME_SYNCHRONIZATION, EPS_REQUEST_TIMEOUT, &cmd,
+                               sizeof(cmd), &response, sizeof(response), CSP_O_CRC32) <= 1)
+        return SATR_ERROR;
+    return SATR_OK;
+}
+
 /**
  * @brief Convert 64-bit number from host byte order to little endian byte order
  * @attention csp_letoh64 does not work correctly. Moving this function to
