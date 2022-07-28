@@ -20,6 +20,8 @@ uint16_t CALI_REG = 0xDA73;
 uint16_t POWER_OLREG = 0x0100;
 uint16_t ZEROREG = 0x0000;
 uint16_t CONTROL_REG = 0x0082;
+uint16_t BUS_VOLTAGE_OL = 0xFFFC;
+uint16_t BUS_VOLTAGE_UL = 0xFFFF;
 
 int ina209_Write1ByteReg(uint8_t addr, uint8_t reg_addr, uint8_t data) {
     uint8_t buf[2];
@@ -50,7 +52,6 @@ int ina209_Read1ByteReg(uint8_t addr, uint8_t reg_addr, uint8_t *val) {
 int ina209_Read2ByteReg(uint8_t addr, uint8_t reg_addr, uint16_t *val) {
     // TODO: make this use error code return instead
     uint8_t data[2] = {0};
-    uint16_t value = 0;
 
     if (i2c_Send(i2cREG2, addr, 1, &reg_addr) == -1) {
         return -1;
@@ -64,124 +65,78 @@ int ina209_Read2ByteReg(uint8_t addr, uint8_t reg_addr, uint16_t *val) {
     return 0;
 }
 
-void ina209_get_configuration(uint8_t addr, uint16_t *retval) {
+int ina209_get_configuration(uint8_t addr, uint16_t *retval) {
     // POR is x399F
-    ina209_Read2ByteReg(addr, 0x00, retval);
-    return;
+    return ina209_Read2ByteReg(addr, 0x00, retval);
 }
 
-void ina209_set_configuration(uint8_t addr, uint16_t *val) {
-    ina209_Write2ByteReg(addr, 0x00, *val);
-    return;
-}
+int ina209_set_configuration(uint8_t addr, uint16_t *val) { return ina209_Write2ByteReg(addr, 0x00, *val); }
 
-void ina209_get_status_flags(uint8_t addr, uint16_t *retval) {
+int ina209_get_status_flags(uint8_t addr, uint16_t *retval) {
     //  POR is x0000
-    ina209_Read2ByteReg(addr, 0x01, retval);
-    return;
+    return ina209_Read2ByteReg(addr, 0x01, retval);
 }
 
 // probably not needed; designs have alert pin grounded
-void ina209_get_control_register(uint8_t addr, uint16_t *retval) {
-    ina209_Read2ByteReg(addr, 0x02, retval);
-    return;
-}
+int ina209_get_control_register(uint8_t addr, uint16_t *retval) { return ina209_Read2ByteReg(addr, 0x02, retval); }
 
-void ina209_set_control_register(uint8_t addr, uint16_t *val) {
-    ina209_Write2ByteReg(addr, 0x02, *val);
-    return;
-}
+int ina209_set_control_register(uint8_t addr, uint16_t *val) { return ina209_Write2ByteReg(addr, 0x02, *val); }
 
-void ina209_get_shunt_voltage(uint8_t addr, uint16_t *retval) {
-    ina209_Read2ByteReg(addr, 0x03, retval);
-    return;
-}
+int ina209_get_shunt_voltage(uint8_t addr, uint16_t *retval) { return ina209_Read2ByteReg(addr, 0x03, retval); }
 
-void ina209_get_bus_voltage(uint8_t addr, uint16_t *retval) {
-    ina209_Read2ByteReg(addr, 0x04, retval);
-    return;
-}
+int ina209_get_bus_voltage(uint8_t addr, uint16_t *retval) { return ina209_Read2ByteReg(addr, 0x04, retval); }
 
-void ina209_get_power(uint8_t addr, uint16_t *retval) {
-    ina209_Read2ByteReg(addr, 0x05, retval);
-    return;
-}
+int ina209_get_power(uint8_t addr, uint16_t *retval) { return ina209_Read2ByteReg(addr, 0x05, retval); }
 
 // Current defaults to 0 on POR before calibration register (x16) is ina209_set
-void ina209_get_current(uint8_t addr, uint16_t *retval) {
-    ina209_Read2ByteReg(addr, 0x06, retval);
-    return;
+int ina209_get_current(uint8_t addr, uint16_t *retval) { return ina209_Read2ByteReg(addr, 0x06, retval); }
+
+int ina209_get_shunt_voltage_peak_pos(uint8_t addr, uint16_t *retval) {
+    return ina209_Read2ByteReg(addr, 0x07, retval);
 }
 
-void ina209_get_shunt_voltage_peak_pos(uint8_t addr, uint16_t *retval) {
-    ina209_Read2ByteReg(addr, 0x07, retval);
-    return;
+int ina209_get_shunt_voltage_peak_neg(uint8_t addr, uint16_t *retval) {
+    return ina209_Read2ByteReg(addr, 0x08, retval);
 }
 
-void ina209_get_shunt_voltage_peak_neg(uint8_t addr, uint16_t *retval) {
-    ina209_Read2ByteReg(addr, 0x08, retval);
-    return;
+int ina209_get_bus_voltage_peak_max(uint8_t addr, uint16_t *retval) {
+    return ina209_Read2ByteReg(addr, 0x09, retval);
 }
 
-void ina209_get_bus_voltage_peak_max(uint8_t addr, uint16_t *retval) {
-    ina209_Read2ByteReg(addr, 0x09, retval);
-    return;
+int ina209_get_bus_voltage_peak_min(uint8_t addr, uint16_t *retval) {
+    return ina209_Read2ByteReg(addr, 0x0A, retval);
 }
 
-void ina209_get_bus_voltage_peak_min(uint8_t addr, uint16_t *retval) {
-    ina209_Read2ByteReg(addr, 0x0A, retval);
-    return;
+int ina209_get_power_peak(uint8_t addr, uint16_t *retval) { return ina209_Read2ByteReg(addr, 0x0B, retval); }
+
+int ina209_get_power_overlimit(uint8_t addr, uint16_t *retval) { return ina209_Read2ByteReg(addr, 0x11, retval); }
+
+int ina209_set_power_overlimit(uint8_t addr, uint16_t *val) { return ina209_Write2ByteReg(addr, 0x11, *val); }
+
+int ina209_get_bus_voltage_overlimit(uint8_t addr, uint16_t *retval) {
+    return ina209_Read2ByteReg(addr, 0x12, retval);
 }
 
-void ina209_get_power_peak(uint8_t addr, uint16_t *retval) {
-    ina209_Read2ByteReg(addr, 0x0B, retval);
-    return;
+int ina209_set_bus_voltage_overlimit(uint8_t addr, uint16_t *val) {
+    return ina209_Write2ByteReg(addr, 0x12, *val);
 }
 
-void ina209_get_power_overlimit(uint8_t addr, uint16_t *retval) {
-    ina209_Read2ByteReg(addr, 0x11, retval);
-    return;
+int ina209_get_bus_voltage_underlimit(uint8_t addr, uint16_t *retval) {
+    return ina209_Read2ByteReg(addr, 0x13, retval);
 }
 
-void ina209_set_power_overlimit(uint8_t addr, uint16_t *val) {
-    ina209_Write2ByteReg(addr, 0x11, *val);
-    return;
+int ina209_set_bus_voltage_underlimit(uint8_t addr, uint16_t *val) {
+    return ina209_Write2ByteReg(addr, 0x13, *val);
 }
 
-void ina209_get_bus_voltage_overlimit(uint8_t addr, uint16_t *retval) {
-    ina209_Read2ByteReg(addr, 0x12, retval);
-    return;
-}
+int ina209_get_calibration(uint8_t addr, uint16_t *retval) { return ina209_Read2ByteReg(addr, 0x16, retval); }
 
-void ina209_set_bus_voltage_overlimit(uint8_t addr, uint16_t *val) {
-    ina209_Write2ByteReg(addr, 0x12, *val);
-    return;
-}
-
-void ina209_get_bus_voltage_underlimit(uint8_t addr, uint16_t *retval) {
-    ina209_Read2ByteReg(addr, 0x13, retval);
-    return;
-}
-
-void ina209_set_bus_voltage_underlimit(uint8_t addr, uint16_t *val) {
-    ina209_Write2ByteReg(addr, 0x13, *val);
-    return;
-}
-
-void ina209_get_calibration(uint8_t addr, uint16_t *retval) {
-    ina209_Read2ByteReg(addr, 0x16, retval);
-    return;
-}
-
-void ina209_set_calibration(uint8_t addr, uint16_t *val) {
-    ina209_Write2ByteReg(addr, 0x16, *val);
-    return;
-}
+int ina209_set_calibration(uint8_t addr, uint16_t *val) { return ina209_Write2ByteReg(addr, 0x16, *val); }
 
 /*
  * Initalize INA209 current sense chip
  */
-void init_ina209(uint8_t addr) {
+int init_ina209(uint8_t addr) {
     uint16_t retval;
     // clear POR flags
     for (uint8_t i = 0; i < 5; i++) {
@@ -193,8 +148,8 @@ void init_ina209(uint8_t addr) {
     }
     // ina209_set power overlimit
     ina209_set_power_overlimit(addr, &POWER_OLREG);
-    ina209_set_bus_voltage_overlimit(addr, 0xFFFC);
-    ina209_set_bus_voltage_underlimit(addr, 0xFFFF);
+    ina209_set_bus_voltage_overlimit(addr, &BUS_VOLTAGE_OL);
+    ina209_set_bus_voltage_underlimit(addr, &BUS_VOLTAGE_UL);
 
     // ina209_set bit masks
     ina209_set_control_register(addr, &ZEROREG);
@@ -207,13 +162,14 @@ void init_ina209(uint8_t addr) {
     for (uint8_t i = 0; i < 5; i++) {
         ina209_get_status_flags(addr, &retval);
     }
-    return;
+    return 0;
 }
 
-void reset_ina209(uint8_t addr) {
+int reset_ina209(uint8_t addr) {
     ina209_set_control_register(addr, &ZEROREG);
     vTaskDelay(2);
     ina209_set_control_register(addr, &CONTROL_REG);
+    return 0;
 }
 
 // int test_currentsense(uint8_t addr) {
