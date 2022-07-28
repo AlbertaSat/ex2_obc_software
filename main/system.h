@@ -89,7 +89,6 @@
 
 #if IS_ATHENA == 1
 #define IMU_I2C i2cREG2
-#define SOLAR_I2C i2cREG1
 #define TEMPSENSE_I2C i2cREG2
 #define RTC_I2C i2cREG2
 
@@ -98,7 +97,7 @@
 #define UHF_I2C i2cREG1
 #define IRIS_I2C i2cREG1
 
-#if ATHENA_V2 == 1
+#if IS_ATHENA_V2 == 1
 #define SOLAR_I2C i2cREG2
 #else
 #define SOLAR_I2C i2cREG1
