@@ -15,6 +15,7 @@
 #include <FreeRTOS.h>
 #include <os_task.h>
 #include "printf.h"
+#include "logger.h"
 
 uint16_t CALI_REG = 0xDA73;
 uint16_t POWER_OLREG = 0x0100;
@@ -144,19 +145,35 @@ int init_ina209(uint8_t addr) {
     }
     // ina209_set calibration register
     if (addr == SOLAR_INA209_ADDR) {
-        ina209_set_calibration(addr, &CALI_REG);
+        if (ina209_set_calibration(addr, &CALI_REG)) {
+            sys_log(WARN, "Solar Panel Current Sense calibration failed to set");
+            return -1;
+        }
     }
     // ina209_set power overlimit
-    ina209_set_power_overlimit(addr, &POWER_OLREG);
-    ina209_set_bus_voltage_overlimit(addr, &BUS_VOLTAGE_OL);
-    ina209_set_bus_voltage_underlimit(addr, &BUS_VOLTAGE_UL);
+    if (ina209_set_power_overlimit(addr, &POWER_OLREG)) {
+        sys_log(WARN, "Solar Panel Current Sense Power Overlimit failed to set");
+        return -1;
+    }
+    if (ina209_set_bus_voltage_overlimit(addr, &BUS_VOLTAGE_OL)) {
+        sys_log(WARN, "Solar Panel Current Sense Voltage Overlimit failed to set");
+        return -1;
+    }
+    if (ina209_set_bus_voltage_underlimit(addr, &BUS_VOLTAGE_UL)) {
+        sys_log(WARN, "Solar Panel Current Sense Voltage Underlimit failed to set");
+        return -1;
+    }
 
     // ina209_set bit masks
-    ina209_set_control_register(addr, &ZEROREG);
+    if (ina209_set_control_register(addr, &ZEROREG)) {
+        sys_log(WARN, "Solar Panel Current Sense Control Register failed to clear");
+        return -1;
+    }
     vTaskDelay(2);
-    ina209_set_control_register(addr, &CONTROL_REG);
-
-    ina209_get_power_overlimit(addr, &retval);
+    if (ina209_set_control_register(addr, &CONTROL_REG)) {
+        sys_log(WARN, "Solar Panel Current Sense Control Register failed to set");
+        return -1;
+    }
 
     reset_ina209(addr);
     for (uint8_t i = 0; i < 5; i++) {
@@ -166,9 +183,15 @@ int init_ina209(uint8_t addr) {
 }
 
 int reset_ina209(uint8_t addr) {
-    ina209_set_control_register(addr, &ZEROREG);
+    if (ina209_set_control_register(addr, &ZEROREG)) {
+        sys_log(WARN, "Solar Panel Current Sense Control Register failed to clear");
+        return -1;
+    }
     vTaskDelay(2);
-    ina209_set_control_register(addr, &CONTROL_REG);
+    if (ina209_set_control_register(addr, &CONTROL_REG)) {
+        sys_log(WARN, "Solar Panel Current Sense Control Register failed to set");
+        return -1;
+    }
     return 0;
 }
 
