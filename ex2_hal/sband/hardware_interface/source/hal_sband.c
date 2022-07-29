@@ -34,7 +34,7 @@
 static Sband_config S_config_reg;
 static Sband_Full_Status S_FS;
 
-STX_return HAL_S_getFreq(float *S_freq) {
+STX_return HAL_S_getFreq(uint32_t *S_freq) {
     STX_return status;
 #if SBAND_IS_STUBBED == 0
     status = STX_getFrequency(&S_config_reg.freq);
@@ -59,8 +59,8 @@ STX_return HAL_S_getControl(Sband_PowerAmplifier *S_PA) {
 STX_return HAL_S_getEncoder(Sband_Encoder *S_Enc) {
     STX_return status;
 #if SBAND_IS_STUBBED == 0
-    status = STX_getEncoder(&S_config_reg.enc.bit_order, &S_config_reg.enc.scrambler, &S_config_reg.enc.filter, &S_config_reg.enc.modulation,
-                            &S_config_reg.enc.rate);
+    status = STX_getEncoder(&S_config_reg.enc.bit_order, &S_config_reg.enc.scrambler, &S_config_reg.enc.filter,
+                            &S_config_reg.enc.modulation, &S_config_reg.enc.rate);
 #else
     status = IS_STUBBED_S;
 #endif
@@ -162,11 +162,9 @@ STX_return HAL_S_getBuffer(int quantity, Sband_Buffer *S_buffer) {
     return status;
 }
 
-STX_return HAL_S_softResetFPGA(void) {
-    return STX_softResetFPGA();
-}
+STX_return HAL_S_softResetFPGA(void) { return STX_softResetFPGA(); }
 
-STX_return HAL_S_setFreq(float S_freq_new) {
+STX_return HAL_S_setFreq(uint32_t S_freq_new) {
     S_config_reg.freq = S_freq_new;
     return STX_setFrequency(S_config_reg.freq);
 }
@@ -178,14 +176,11 @@ STX_return HAL_S_setPAPower(uint8_t S_PA_Power_new) {
 
 STX_return HAL_S_setControl(Sband_PowerAmplifier S_PA_new) {
     S_config_reg.PA = S_PA_new;
-    return STX_setControl((uint8_t) S_config_reg.PA.status, (uint8_t) S_config_reg.PA.mode);
+    return STX_setControl((uint8_t)S_config_reg.PA.status, (uint8_t)S_config_reg.PA.mode);
 }
 
 STX_return HAL_S_setEncoder(Sband_Encoder S_enc_new) {
     S_config_reg.enc = S_enc_new;
-    return STX_setEncoder(S_config_reg.enc.bit_order,
-                          S_config_reg.enc.scrambler,
-                          S_config_reg.enc.filter,
-                          S_config_reg.enc.modulation,
-                          S_config_reg.enc.rate);
+    return STX_setEncoder(S_config_reg.enc.bit_order, S_config_reg.enc.scrambler, S_config_reg.enc.filter,
+                          S_config_reg.enc.modulation, S_config_reg.enc.rate);
 }

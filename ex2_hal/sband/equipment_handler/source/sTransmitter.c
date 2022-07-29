@@ -356,16 +356,16 @@ STX_return STX_setPaPower(uint8_t new_paPower) {
  * @return STX_return
  *      Success of the function defined in sTransmitter.h
  */
-STX_return STX_getFrequency(float *freq) {
+STX_return STX_getFrequency(uint32_t *freq) {
     uint8_t offset = 0;
     if (read_reg(S_FREQ_REG, &offset) != S_SUCCESS) {
         return S_BAD_READ;
     } else {
 
 #ifdef SBAND_COMMERCIAL_FREQUENCY
-        *freq = (float)offset / S_FREQ_OFFSET_SCALING + S_FREQ_COMMERCIAL_MIN;
+        *freq = offset * S_MHZ_TO_HZ / S_FREQ_OFFSET_SCALING + S_FREQ_COMMERCIAL_MIN;
 #else
-        *freq = (float)offset / S_FREQ_OFFSET_SCALING + S_FREQ_AMATEUR_MIN;
+        *freq = offset * S_MHZ_TO_HZ / S_FREQ_OFFSET_SCALING + S_FREQ_AMATEUR_MIN;
 #endif
 
         return S_SUCCESS;
@@ -382,12 +382,17 @@ STX_return STX_getFrequency(float *freq) {
  * @return STX_return
  *      Success of the function defined in sTransmitter.h
  */
-STX_return STX_setFrequency(float new_frequency) {
+STX_return STX_setFrequency(uint32_t new_frequency) {
 #if SBAND_COMMERCIAL_FREQUENCY == 1
+
+    // Minimum frequency resolution is 500 kHz
+    if ((new_frequency % S_FREQ_RESOLUTION) != 0) {
+        return S_BAD_PARAM;
+    }
 
     // Check if commercial frequency is within allowed bounds
     if ((new_frequency >= S_FREQ_COMMERCIAL_MIN) && (new_frequency <= S_FREQ_COMMERCIAL_MAX)) {
-        uint8_t offset = (uint8_t)((new_frequency - S_FREQ_COMMERCIAL_MIN) * S_FREQ_OFFSET_SCALING);
+        uint8_t offset = (uint8_t)((new_frequency - S_FREQ_COMMERCIAL_MIN) * S_FREQ_OFFSET_SCALING / S_MHZ_TO_HZ);
 
         if (write_reg(S_FREQ_REG, offset) != S_SUCCESS) {
             return S_BAD_WRITE;
@@ -559,6 +564,20 @@ STX_return STX_getHK(Sband_Housekeeping *hkStruct) {
     int16_t temp = 0;
 
     uint8_t address = S_OUTPWR_REG_1; // Output power is the first hk value to collect
+
+    if (STX_getControl(&hkStruct->pa_status, &hkStruct->mode) != S_SUCCESS) {
+        return S_BAD_READ;
+    }
+    if (STX_getFrequency(&hkStruct->frequency) != S_SUCCESS) {
+        return S_BAD_READ;
+    }
+    if (STX_getEncoder(&hkStruct->bit_order, &hkStruct->scrambler, &hkStruct->filter, &hkStruct->modulation,
+                       &hkStruct->rate) != S_SUCCESS) {
+        return S_BAD_READ;
+    }
+    if (STX_getStatus(&hkStruct->PWRGD, &hkStruct->TXL) != S_SUCCESS) {
+        return S_BAD_READ;
+    }
 
     // Loop to collect all housekeeping. Values are stored across two 8-bit registers
     // TODO: use ints instead of floats

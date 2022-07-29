@@ -24,9 +24,9 @@
 #include <spi.h>
 
 #if SBAND_COMMERCIAL_FREQUENCY == 1
-#define SBAND_FREQUENCY 2228.0
+#define SBAND_FREQUENCY 2228000000
 #else
-#define SBAND_FREQUENCY 2428.0
+#define SBAND_FREQUENCY 2428000000
 #endif
 
 /* Send an S-Band Sync word every sync interval bytes */

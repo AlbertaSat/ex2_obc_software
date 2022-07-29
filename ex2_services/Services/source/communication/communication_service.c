@@ -136,14 +136,14 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
     switch (ser_subtype) {
     case S_GET_FREQ: {
         // Step 1: get the data
-        float freq;
+        uint32_t freq;
         status = HAL_S_getFreq(&freq);
         // Step 2: Check the size before proceeding
         if (sizeof(freq) + 1 > csp_buffer_data_size()) { // plus one for subservice
             return_state = SATR_ERROR;
         }
         // Step 3: convert to network order
-        freq = csp_htonflt(freq);
+        freq = csp_hton32(freq);
         // step 4: copy data & status byte into packet
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         memcpy(&packet->data[OUT_DATA_BYTE], &freq, sizeof(freq));
@@ -201,7 +201,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         if (sizeof(S_config) + 1 > csp_buffer_data_size()) {
             return_state = SATR_ERROR;
         }
-        S_config.freq = csp_htonflt(S_config.freq);
+        S_config.freq = csp_hton32(S_config.freq);
 
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         memcpy(&packet->data[OUT_DATA_BYTE], &S_config, sizeof(S_config));
@@ -223,17 +223,17 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
     }
 
     case S_GET_FW: {
-      Sband_FirmwareV firmware;
-      status = HAL_S_getFirmwareV(&firmware);
-      if (sizeof(firmware) + 1 > csp_buffer_data_size()) {
-        return_state = SATR_ERROR;
-      }
-      firmware.firmware = csp_hton16(firmware.firmware);
-      memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-      memcpy(&packet->data[OUT_DATA_BYTE], &firmware, sizeof(firmware));
-      set_packet_length(packet, sizeof(int8_t) + sizeof(firmware) + 1);
+        Sband_FirmwareV firmware;
+        status = HAL_S_getFirmwareV(&firmware);
+        if (sizeof(firmware) + 1 > csp_buffer_data_size()) {
+            return_state = SATR_ERROR;
+        }
+        firmware.firmware = csp_hton16(firmware.firmware);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        memcpy(&packet->data[OUT_DATA_BYTE], &firmware, sizeof(firmware));
+        set_packet_length(packet, sizeof(int8_t) + sizeof(firmware) + 1);
 
-      break;
+        break;
     }
 
     case S_GET_TR: {
@@ -297,37 +297,37 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         break;
 
     case S_GET_FULL_STATUS: {
-      Sband_Full_Status S_FS;  // FS: Full Status
-      status = HAL_S_getStatus(&S_FS.status) + HAL_S_getFirmwareV(&S_FS.firmware) +
-              HAL_S_getTR(&S_FS.transmit) + HAL_S_getHK(&S_FS.HK);
-      for (i = 0; i <= 2; i++) {
-        status += HAL_S_getBuffer(i, &S_FS.buffer);
-      }
-      if (sizeof(S_FS) + 1 > csp_buffer_data_size()) {
-        return_state = SATR_ERROR;
-      }
-      S_FS.HK.Output_Power = csp_htonflt(S_FS.HK.Output_Power);
-      S_FS.HK.PA_Temp = csp_htonflt(S_FS.HK.PA_Temp);
-      S_FS.HK.Top_Temp = csp_htonflt(S_FS.HK.Top_Temp);
-      S_FS.HK.Bottom_Temp = csp_htonflt(S_FS.HK.Bottom_Temp);
-      S_FS.HK.Bat_Current = csp_htonflt(S_FS.HK.Bat_Current);
-      S_FS.HK.Bat_Voltage = csp_htonflt(S_FS.HK.Bat_Voltage);
-      S_FS.HK.PA_Current = csp_htonflt(S_FS.HK.PA_Current);
-      S_FS.HK.PA_Voltage = csp_htonflt(S_FS.HK.PA_Voltage);
-      for (i = 0; i <= 2; i++) {
-        S_FS.buffer.pointer[i] = csp_hton16(S_FS.buffer.pointer[i]);
-      }
+        Sband_Full_Status S_FS; // FS: Full Status
+        status = HAL_S_getStatus(&S_FS.status) + HAL_S_getFirmwareV(&S_FS.firmware) + HAL_S_getTR(&S_FS.transmit) +
+                 HAL_S_getHK(&S_FS.HK);
+        for (i = 0; i <= 2; i++) {
+            status += HAL_S_getBuffer(i, &S_FS.buffer);
+        }
+        if (sizeof(S_FS) + 1 > csp_buffer_data_size()) {
+            return_state = SATR_ERROR;
+        }
+        S_FS.HK.Output_Power = csp_htonflt(S_FS.HK.Output_Power);
+        S_FS.HK.PA_Temp = csp_htonflt(S_FS.HK.PA_Temp);
+        S_FS.HK.Top_Temp = csp_htonflt(S_FS.HK.Top_Temp);
+        S_FS.HK.Bottom_Temp = csp_htonflt(S_FS.HK.Bottom_Temp);
+        S_FS.HK.Bat_Current = csp_htonflt(S_FS.HK.Bat_Current);
+        S_FS.HK.Bat_Voltage = csp_htonflt(S_FS.HK.Bat_Voltage);
+        S_FS.HK.PA_Current = csp_htonflt(S_FS.HK.PA_Current);
+        S_FS.HK.PA_Voltage = csp_htonflt(S_FS.HK.PA_Voltage);
+        for (i = 0; i <= 2; i++) {
+            S_FS.buffer.pointer[i] = csp_hton16(S_FS.buffer.pointer[i]);
+        }
 
-      memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-      memcpy(&packet->data[OUT_DATA_BYTE], &S_FS, sizeof(S_FS));
-      set_packet_length(packet, sizeof(int8_t) + sizeof(S_FS) + 1);
-      break;
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        memcpy(&packet->data[OUT_DATA_BYTE], &S_FS, sizeof(S_FS));
+        set_packet_length(packet, sizeof(int8_t) + sizeof(S_FS) + 1);
+        break;
     }
 
     case S_SET_FREQ: {
-        float freq;
-        cnv8_F(&packet->data[IN_DATA_BYTE], &freq);
-        freq = csp_ntohflt(freq);
+        uint32_t freq;
+        memcpy(&freq, &packet->data[IN_DATA_BYTE], sizeof(freq));
+        freq = csp_ntoh32(freq);
         status = HAL_S_setFreq(freq);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         set_packet_length(packet, sizeof(int8_t) + 1);
@@ -371,8 +371,8 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
 
     case S_SET_CONFIG: {
         Sband_config S_config;
-        cnv8_F(&packet->data[IN_DATA_BYTE], &S_config.freq);
-        S_config.freq = csp_ntohflt(S_config.freq);
+        memcpy(&S_config.freq, &packet->data[IN_DATA_BYTE], sizeof(S_config.freq));
+        S_config.freq = csp_ntoh32(S_config.freq);
         S_config.PA_Power = (uint8_t)packet->data[IN_DATA_BYTE + 4]; // plus 4 because float takes 4B
         S_config.PA.status = (Sband_PowerAmplifier_Status_t)packet->data[IN_DATA_BYTE + 5];
         S_config.PA.mode = (Sband_Transmitter_Mode_t)packet->data[IN_DATA_BYTE + 6];
@@ -780,7 +780,6 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
 
         break;
     }
-
 
     default:
         ex2_log("No such subservice\n");
