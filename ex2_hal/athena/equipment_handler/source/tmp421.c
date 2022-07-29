@@ -59,87 +59,48 @@ static const uint8_t TMP421_TEMP_LSB[2] = {0x10, 0x11};
 #define TMP441_DEVICE_ID 0x41
 #define TMP442_DEVICE_ID 0x42
 
-// static const struct i2c_device_id tmp421_id[] = {
-// 	{ "tmp421", 2 },
-// 	{ "tmp422", 3 },
-// 	{ "tmp423", 4 },
-// 	{ "tmp441", 2 },
-// 	{ "tmp442", 3 },
-// 	{ }
-// };
-// MODULE_DEVICE_TABLE(i2c, tmp421_id);
-
-// static const struct of_device_id __maybe_unused tmp421_of_match[] = {
-//	{
-//		.compatible = "ti,tmp421",
-//		.data = (void *)2
-//	},
-//	{
-//		.compatible = "ti,tmp422",
-//		.data = (void *)3
-//	},
-//	{
-//		.compatible = "ti,tmp423",
-//		.data = (void *)4
-//	},
-//	{
-//		.compatible = "ti,tmp441",
-//		.data = (void *)2
-//	},
-//	{
-//		.compatible = "ti,tmp442",
-//		.data = (void *)3
-//	},
-//	{ },
-//};
-// MODULE_DEVICE_TABLE(of, tmp421_of_match);
-
-// struct tmp421_data {
-//	uint8_t sadd;
-//	//struct mutex update_lock;
-//	//u32 temp_config[5];
-//	//struct hwmon_channel_info temp_info;
-//	//const struct hwmon_channel_info *info[2];
-//	//struct hwmon_chip_info chip;
-//	//char valid;
-//	//unsigned long last_updated;
-//	//unsigned long channels;
-//	uint8_t config;
-//	uint16_t temp[4];
-//};
-
-// CODE TO MAYBE BE ADDED TO I2C DRIVERS BELOW
-int i2cSlaveWriteReg(uint8_t sadd, uint8_t reg, uint8_t data) {
-    // TODO: make this use error code return instead
+int tmp421_Write1ByteReg(uint8_t addr, uint8_t reg_addr, uint8_t data) {
     uint8_t buf[2];
-    buf[0] = reg;
+    buf[0] = reg_addr;
     buf[1] = data;
-    return i2c_Send(i2cREG2, sadd, 2, &buf);
+    return i2c_Send(i2cREG2, addr, 2, &buf);
 }
 
-uint8_t i2cSlaveRead1ByteReg(uint8_t sadd, uint8_t reg) {
+int tmp421_Write2ByteReg(uint8_t addr, uint8_t reg_addr, uint16_t data) {
+    uint8_t buf[3];
+    buf[0] = reg_addr;
+    buf[1] = data & 0x00FF;
+    buf[2] = data & 0xFF00;
+    return i2c_Send(i2cREG2, addr, 3, &buf);
+}
+
+int tmp421_Read1ByteReg(uint8_t addr, uint8_t reg_addr, uint8_t * val) {
     // TODO: make this use error code return instead
     uint8_t value = 0;
 
-    i2c_Send(i2cREG2, sadd, 1, &reg);
+    i2c_Send(i2cREG2, addr, 1, &reg_addr);
 
-    i2c_Receive(i2cREG2, sadd, 1, &value);
+    i2c_Receive(i2cREG2, addr, 1, &value);
 
     return value;
 }
 
-uint16_t i2cSlaveRead2ByteReg(uint8_t sadd, uint8_t reg) {
+int tmp421_Read2ByteReg(uint8_t addr, uint8_t reg_addr, uint16_t * val) {
     // TODO: make this use error code return instead
     uint8_t data[2] = {0};
     uint16_t value = 0;
 
-    i2c_Send(i2cREG2, sadd, 1, &reg);
+    if(i2c_Send(i2cREG2, addr, 1, &reg_addr) == -1){
+        return -1;
+    }
 
-    i2c_Receive(i2cREG2, sadd, 2, &data);
+    if(i2c_Receive(i2cREG2, addr, 2, &data) == -1){
+        return -1;
+    }
 
-    value = (((uint16_t)(data[0])) << 8) | data[1];
+    *val = (((uint16_t)(data[0])) << 8) | data[1];
 
-    return value;
+    return 0;
 }
 
 long calc_temp_pos(uint16_t reg) {
@@ -161,38 +122,7 @@ long calc_temp_neg(uint16_t reg) { return (((~(reg >> 8) + 1) & 0x7F) * -10000) 
 //	return (temp * 1000 + 128) / 256;
 //}
 
-// int tmp421_update_device(uint8_t sadd, uint16_t * localtemp, uint16_t * remotetemp) {
-//	// struct tmp421_data *data = dev_get_drvdata(dev);
-//    uint8_t temp[4] - {0};
-// 	// struct i2c_client *client = data->client;
-//	int i;
-//
-//	//mutex_lock(&data->update_lock);
-//
-//	// if (time_after(jiffies, data->last_updated + (HZ / 2)) ||
-//	//     !data->valid) {
-//		//data->config = i2c_smbus_read_byte_data(client,
-//		//	TMP421_CONFIG_REG_1);
-//		//data->config = i2cSlaveRead1ByteReg(sadd, TMP421_CONFIG_REG_1);
-//
-////		for (i = 0; i < CHANNELS; i++) {
-//			//data->temp[i] = i2c_smbus_read_byte_data(client,
-//			//	TMP421_TEMP_MSB[i]) << 8;
-////			data->temp[i] = i2cSlaveRead1ByteReg(sadd, TMP421_TEMP_MSB[i]) << 8;
-////			//data->temp[i] |= i2c_smbus_read_byte_data(client,
-////			//	TMP421_TEMP_LSB[i]);
-////			data->temp[i] = i2cSlaveRead1ByteReg(sadd, TMP421_TEMP_LSB[i]);
-//	  	}
-//	// 	data->last_updated = jiffies;
-//	// 	data->valid = 1;
-//	// }
-//
-//	//mutex_unlock(&data->update_lock);
-//
-//
-//
-//	return 0;//check this
-//}
+
 
 // Note that because val is stored as an integer, the actual temperature is the decimal integer value shifted 4
 // digits to the right Ex: val == 276875 means a measurement of 27.6875 degrees C
@@ -202,18 +132,18 @@ int tmp421_read(uint8_t sadd, int channel, long *val) {
     uint16_t temp16 = 0;
 
     if (channel == CHANNEL_LOCAL) {
-        temp[0] = i2cSlaveRead1ByteReg(sadd, TMP421_TEMP_MSB[0]);
+        tmp421_Read1ByteReg(sadd, TMP421_TEMP_MSB[0], &(temp[0]));
         int delay;
         for (delay = 0; delay < 0x1000; delay++)
             ; // temporary fix... don't want delay down the road
-        temp[1] = i2cSlaveRead1ByteReg(sadd, TMP421_TEMP_LSB[0]);
+        tmp421_Read1ByteReg(sadd, TMP421_TEMP_LSB[0], &(temp[1]));
         temp16 = (((uint16_t)(temp[0])) << 8) | temp[1];
     } else if (channel == CHANNEL_REMOTE) {
-        temp[0] = i2cSlaveRead1ByteReg(sadd, TMP421_TEMP_MSB[1]);
+        tmp421_Read1ByteReg(sadd, TMP421_TEMP_MSB[1], &(temp[0]));
         int delay;
         for (delay = 0; delay < 0x1000; delay++)
             ; // temporary fix... don't want delay down the road
-        temp[1] = i2cSlaveRead1ByteReg(sadd, TMP421_TEMP_LSB[1]);
+        tmp421_Read1ByteReg(sadd, TMP421_TEMP_LSB[1], &(temp[1]));
         temp16 = (((uint16_t)(temp[0])) << 8) | temp[1];
     } else {
         return 1;
@@ -244,27 +174,12 @@ int tmp421_read(uint8_t sadd, int channel, long *val) {
     //	}
 }
 
-// static umode_t tmp421_is_visible(const void *data, enum hwmon_sensor_types type,
-// 				 u32 attr, int channel)
-// {
-// 	switch (attr) {
-// 	case hwmon_temp_fault:
-// 		if (channel == 0)
-// 			return 0;
-// 		return 0444;
-// 	case hwmon_temp_input:
-// 		return 0444;
-// 	default:
-// 		return 0;
-// 	}
-// }
-
 int tmp421_init_client(uint8_t sadd) {
-    int config, config_orig;
+    uint8_t config, config_orig;
 
     /* Set the conversion rate to 2 Hz */
     // i2c_smbus_write_byte_data(client, TMP421_CONVERSION_RATE_REG, 0x05);
-    i2cSlaveWriteReg(sadd, TMP421_CONVERSION_RATE_REG, 0x05);
+    tmp421_Write1ByteReg(sadd, TMP421_CONVERSION_RATE_REG, 0x05);
 
     int temp;
     for (temp = 0; temp < 0x1000; temp++)
@@ -272,11 +187,7 @@ int tmp421_init_client(uint8_t sadd) {
 
     /* Start conversions (disable shutdown if necessary) */
     // config = i2c_smbus_read_byte_data(client, TMP421_CONFIG_REG_1);
-    config = i2cSlaveRead1ByteReg(sadd, TMP421_CONFIG_REG_1);
-    if (config < 0) {
-        fprintf(stderr, "Could not read configuration register (%d)\n", config);
-        return config;
-    }
+    tmp421_Read1ByteReg(sadd, (uint8_t)TMP421_CONFIG_REG_1, &config);
 
     for (temp = 0; temp < 0x1000; temp++)
         ;
@@ -287,7 +198,7 @@ int tmp421_init_client(uint8_t sadd) {
     if (config != config_orig) {
         fprintf(stderr, "Enable monitoring chip\n");
         // i2c_smbus_write_byte_data(client, TMP421_CONFIG_REG_1, config);
-        i2cSlaveWriteReg(sadd, TMP421_CONFIG_REG_1, config);
+        tmp421_Write1ByteReg(sadd, TMP421_CONFIG_REG_1, config);
     }
 
     for (temp = 0; temp < 0x1000; temp++)
@@ -303,11 +214,7 @@ int tmp421_detect(uint8_t sadd) {
     //	int addr = client->addr;
     uint8_t reg;
 
-    //	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA))
-    //		return 1;
-
-    // reg = i2c_smbus_read_byte_data(client, TMP421_MANUFACTURER_ID_REG);
-    reg = i2cSlaveRead1ByteReg(sadd, TMP421_MANUFACTURER_ID_REG);
+    tmp421_Read1ByteReg(sadd, TMP421_MANUFACTURER_ID_REG, &reg);
     if (reg != TMP421_MANUFACTURER_ID)
         return 1;
 
@@ -315,24 +222,21 @@ int tmp421_detect(uint8_t sadd) {
     for (temp = 0; temp < 0x1000; temp++)
         ;
 
-    // reg = i2c_smbus_read_byte_data(client, TMP421_CONVERSION_RATE_REG);
-    reg = i2cSlaveRead1ByteReg(sadd, TMP421_CONVERSION_RATE_REG);
+    tmp421_Read1ByteReg(sadd, TMP421_CONVERSION_RATE_REG, &reg);
     if (reg & 0xf8)
         return 1;
 
     for (temp = 0; temp < 0x1000; temp++)
         ;
 
-    // reg = i2c_smbus_read_byte_data(client, TMP421_STATUS_REG);
-    reg = i2cSlaveRead1ByteReg(sadd, TMP421_STATUS_REG);
+    tmp421_Read1ByteReg(sadd, TMP421_STATUS_REG, &reg);
     if (reg & 0x7f)
         return 1;
 
     for (temp = 0; temp < 0x1000; temp++)
         ;
 
-    // reg = i2c_smbus_read_byte_data(client, TMP421_DEVICE_ID_REG);
-    reg = i2cSlaveRead1ByteReg(sadd, TMP421_DEVICE_ID_REG);
+    tmp421_Read1ByteReg(sadd, TMP421_DEVICE_ID_REG, &reg);
     switch (reg) {
     case TMP421_DEVICE_ID:
         kind = tmp421;
@@ -368,71 +272,6 @@ int tmp421_detect(uint8_t sadd) {
     return 0;
 }
 
-// static const struct hwmon_ops tmp421_ops = {
-// 	.is_visible = tmp421_is_visible,
-// 	.read = tmp421_read,
-// };
-
-// static int tmp421_probe(struct i2c_client *client,
-// 			const struct i2c_device_id *id)
-// {
-// 	struct device *dev = &client->dev;
-// 	struct device *hwmon_dev;
-// 	struct tmp421_data *data;
-// 	int i, err;
-
-// 	data = devm_kzalloc(dev, sizeof(struct tmp421_data), GFP_KERNEL);
-// 	if (!data)
-// 		return -ENOMEM;
-
-// 	mutex_init(&data->update_lock);
-// 	if (client->dev.of_node)
-// 		data->channels = (unsigned long)
-// 			of_device_get_match_data(&client->dev);
-// 	else
-// 		data->channels = id->driver_data;
-// 	data->client = client;
-
-// 	err = tmp421_init_client(client);
-// 	if (err)
-// 		return err;
-
-// 	for (i = 0; i < data->channels; i++)
-// 		data->temp_config[i] = HWMON_T_INPUT | HWMON_T_FAULT;
-
-// 	data->chip.ops = &tmp421_ops;
-// 	data->chip.info = data->info;
-
-// 	data->info[0] = &data->temp_info;
-
-// 	data->temp_info.type = hwmon_temp;
-// 	data->temp_info.config = data->temp_config;
-
-// 	hwmon_dev = devm_hwmon_device_register_with_info(dev, client->name,
-// 							 data,
-// 							 &data->chip,
-// 							 NULL);
-// 	return PTR_ERR_OR_ZERO(hwmon_dev);
-// }
-
-// static struct i2c_driver tmp421_driver = {
-// 	.class = I2C_CLASS_HWMON,
-// 	.driver = {
-// 		.name	= "tmp421",
-// 		.of_match_table = of_match_ptr(tmp421_of_match),
-// 	},
-// 	.probe = tmp421_probe,
-// 	.id_table = tmp421_id,
-// 	.detect = tmp421_detect,
-// 	.address_list = normal_i2c,
-// };
-
-// module_i2c_driver(tmp421_driver);
-
-// MODULE_AUTHOR("Andre Prendel <andre.prendel@gmx.de>");
-// MODULE_DESCRIPTION("Texas Instruments TMP421/422/423/441/442 temperature sensor driver");
-// MODULE_LICENSE("GPL");
-
 void TMP421test(uint8_t sadd) {
     long temp_val = 0;
 
@@ -454,35 +293,3 @@ void TMP421test(uint8_t sadd) {
     }
     fprintf(stderr, "Remote t = %d\n", temp_val);
 }
-
-// Add the following to a new file: athena_temp.c
-/*
-int init_temp(void){
-    return 0;
-}
-
-
-int get_all_temp(){
-
-    if(tmp421_read(0x4c, CHANNEL_REMOTE, )){
-        return 1;
-    }
-    if(tmp421_read(0x4f, CHANNEL_REMOTE, )){
-        return 1;
-    }
-    if(tmp421_read(0x1e, CHANNEL_REMOTE, )){
-        return 1;
-    }
-    if(tmp421_read(0x1d, CHANNEL_REMOTE, )){
-        return 1;
-    }
-    if(tmp421_read(0x45, CHANNEL_REMOTE, )){
-        return 1;
-    }
-    if(tmp421_read(0x4d, CHANNEL_REMOTE, )){
-        return 1;
-    }
-
-    return 0;
-}
-*/

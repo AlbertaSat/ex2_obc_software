@@ -50,6 +50,7 @@
 #include "ads7128.h"
 #include "pcal9538a.h"
 #include "skytraq_gps.h"
+#include "hal_athena.h"
 
 #include <FreeRTOS.h>
 #include <os_task.h>
@@ -142,7 +143,7 @@ void ex2_init(void *pvParameters) {
 #endif                                  // ADCS_IS_STUBBED
 
 #if ATHENA_IS_STUBBED == 0
-    // PLACEHOLDER: athena hardware init
+    initAthena();
 #endif
 
 #if EPS_IS_STUBBED == 0
@@ -182,7 +183,6 @@ void ex2_init(void *pvParameters) {
     /* Software Initialization */
 
     /* Start service server, and response server */
-
     init_software();
 
 #if SDR_TEST == 1
