@@ -11,7 +11,7 @@
 #include "FreeRTOSConfig.h"
 #include "privileged_functions.h"
 #include "flash_defines.h"
-#include "F021.h"
+#include "F021_API/F021.h"
 
 #define EXISTS_FLAG 0x5A5A5A5A
 

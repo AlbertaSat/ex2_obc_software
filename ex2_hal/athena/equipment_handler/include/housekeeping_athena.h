@@ -22,7 +22,7 @@
 #define ATHENA_TEMP_ARRAY_SIZE 2
 
 #include "FreeRTOS.h"
-#include "task.h"
+#include "ex2_os/task.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
