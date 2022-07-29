@@ -255,14 +255,11 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         if (sizeof(HK) + 1 > csp_buffer_data_size()) {
             return_state = SATR_ERROR;
         }
-        HK.Output_Power = csp_htonflt(HK.Output_Power);
-        HK.PA_Temp = csp_htonflt(HK.PA_Temp);
-        HK.Top_Temp = csp_htonflt(HK.Top_Temp);
-        HK.Bottom_Temp = csp_htonflt(HK.Bottom_Temp);
-        HK.Bat_Current = csp_htonflt(HK.Bat_Current);
-        HK.Bat_Voltage = csp_htonflt(HK.Bat_Voltage);
-        HK.PA_Current = csp_htonflt(HK.PA_Current);
-        HK.PA_Voltage = csp_htonflt(HK.PA_Voltage);
+        HK.frequency = csp_hton32(HK.frequency);
+        HK.Bat_Current = csp_hton16(HK.Bat_Current);
+        HK.Bat_Voltage = csp_hton16(HK.Bat_Voltage);
+        HK.PA_Current = csp_hton16(HK.PA_Current);
+        HK.PA_Voltage = csp_hton16(HK.PA_Voltage);
 
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         memcpy(&packet->data[OUT_DATA_BYTE], &HK, sizeof(HK));
@@ -380,6 +377,7 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         S_config.enc.filter = (uint8_t)packet->data[IN_DATA_BYTE + 8];
         S_config.enc.modulation = (uint8_t)packet->data[IN_DATA_BYTE + 9];
         S_config.enc.rate = (uint8_t)packet->data[IN_DATA_BYTE + 10];
+        S_config.enc.bit_order = (uint8_t)packet->data[IN_DATA_BYTE + 11];
         status = HAL_S_setFreq(S_config.freq) + HAL_S_setPAPower(S_config.PA_Power) +
                  HAL_S_setControl(S_config.PA) + HAL_S_setEncoder(S_config.enc);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));

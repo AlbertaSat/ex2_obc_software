@@ -111,14 +111,14 @@ typedef struct PACKED sband_housekeeping {
     uint8_t bit_order;
     uint8_t PWRGD;
     uint8_t TXL;
-    float Output_Power;
-    float PA_Temp;
-    float Top_Temp;
-    float Bottom_Temp;
-    float Bat_Current;
-    float Bat_Voltage;
-    float PA_Current;
-    float PA_Voltage;
+    uint8_t Output_Power;
+    int8_t PA_Temp;
+    int8_t Top_Temp;
+    int8_t Bottom_Temp;
+    uint16_t Bat_Current;
+    uint16_t Bat_Voltage;
+    uint16_t PA_Current;
+    uint16_t PA_Voltage;
 } Sband_Housekeeping;
 
 typedef struct PACKED {

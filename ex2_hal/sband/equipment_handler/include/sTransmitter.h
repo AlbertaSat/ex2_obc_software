@@ -108,12 +108,12 @@
 // Conversion factors
 #define S_FREQ_OFFSET_SCALING 2
 #define S_FWVER_MAJORNUM_SCALING 100
-#define S_OUTPWR_SCALING 0.00114f
-#define S_PATEMP_SCALING 0.07324f
-#define S_PATEMP_OFFSET -50.0f
-#define S_TEMP_SCALING 0.0625f
-#define S_CURRENT_SCALING 0.00004f
-#define S_VOLTAGE_SCALING 0.004F
+#define S_OUTPWR_SCALING 114 / 100000
+#define S_PATEMP_SCALING 7324 / 100000
+#define S_PATEMP_OFFSET -50
+#define S_TEMP_SCALING 6250 / 100000
+#define S_CURRENT_SCALING 4 / 100 // mA
+#define S_VOLTAGE_SCALING 400 / 100 // mV
 
 #define S_MHZ_TO_HZ 1000000
 
@@ -141,7 +141,7 @@ STX_return write_reg(uint8_t, uint8_t);
 
 // Internal bit manipulation functions
 uint16_t append_bytes(uint8_t, uint8_t);
-float calculateTemp(uint16_t);
+uint8_t calculateTemp(uint16_t);
 
 // External access/control functions
 

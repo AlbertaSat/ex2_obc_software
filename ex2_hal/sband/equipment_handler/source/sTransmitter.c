@@ -104,17 +104,15 @@ uint16_t append_bytes(uint8_t b1, uint8_t b2) {
  * @return float
  *      Returns temperature in degrees Celsius
  */
-float calculateTemp(uint16_t b) {
-    float temperature = 0;
+uint8_t calculateTemp(uint16_t b) {
     b = b >> S_TEMP_BITSHIFT;
 
     // Check signed bit
     if (b & 0b100000000000) {
-        temperature = -S_TEMP_SCALING * (float)((~b & S_TEMP_BITMASK) + 1);
+        return -1 * ((~b & S_TEMP_BITMASK) + 1) * S_TEMP_SCALING;
     } else {
-        temperature = S_TEMP_SCALING * (float)(b & S_TEMP_BITMASK);
+        return (b & S_TEMP_BITMASK) * S_TEMP_SCALING;
     }
-    return temperature;
 }
 
 /**
@@ -560,7 +558,7 @@ STX_return STX_getBuffer(Sband_Buffer_t quantity, uint16_t *ptr) {
  *      Success of the function defined in sTransmitter.h
  */
 STX_return STX_getHK(Sband_Housekeeping *hkStruct) {
-    uint16_t val = 0;
+    uint32_t val = 0;
     int16_t temp = 0;
 
     uint8_t address = S_OUTPWR_REG_1; // Output power is the first hk value to collect
@@ -589,16 +587,16 @@ STX_return STX_getHK(Sband_Housekeeping *hkStruct) {
         } else if (read_reg(1 + address, &val2) != S_SUCCESS) {
             return S_BAD_READ;
         } else {
-            val = append_bytes(val1, val2);
+            val = (uint32_t)append_bytes(val1, val2);
             switch (address) {
             case S_OUTPWR_REG_1:
                 val &= S_POWER_BITMASK;
-                hkStruct->Output_Power = (float)val * S_OUTPWR_SCALING;
+                hkStruct->Output_Power = val * S_OUTPWR_SCALING;
                 break;
 
             case S_PATEMP_REG_1:
                 val &= S_POWER_BITMASK;
-                hkStruct->PA_Temp = (float)val * S_PATEMP_SCALING + S_PATEMP_OFFSET;
+                hkStruct->PA_Temp = (int32_t)val * S_PATEMP_SCALING + S_PATEMP_OFFSET;
                 break;
 
             case S_TOPTEMP_REG_1:
@@ -611,22 +609,22 @@ STX_return STX_getHK(Sband_Housekeeping *hkStruct) {
 
             case S_CURRENT_REG_1:
                 temp = (int16_t)val;
-                hkStruct->Bat_Current = (float)temp * S_CURRENT_SCALING;
+                hkStruct->Bat_Current = temp * S_CURRENT_SCALING;
                 break;
 
             case S_VOLTAGE_REG_1:
                 val &= S_VOLTAGE_BITMASK;
-                hkStruct->Bat_Voltage = (float)val * S_VOLTAGE_SCALING;
+                hkStruct->Bat_Voltage = val * S_VOLTAGE_SCALING;
                 break;
 
             case S_PACURRENT_REG_1:
                 temp = (int16_t)val;
-                hkStruct->PA_Current = (float)temp * S_CURRENT_SCALING;
+                hkStruct->PA_Current = temp * S_CURRENT_SCALING;
                 break;
 
             case S_PAVOLTAGE_REG_1:
                 val &= S_VOLTAGE_BITMASK;
-                hkStruct->PA_Voltage = (float)val * S_VOLTAGE_SCALING;
+                hkStruct->PA_Voltage = val * S_VOLTAGE_SCALING;
                 break;
             }
         }
