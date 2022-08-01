@@ -32,5 +32,5 @@ jobs:
         git submodule foreach 'git checkout master || :'
         git submodule foreach git pull
     
-    - name: Build ccs project (Debug config) 
+    - name: Run unit tests 
       uses: AlbertaSat/CCS_v10_4_build_action@v0.2.1 #cgreen integration
