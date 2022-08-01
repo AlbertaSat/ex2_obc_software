@@ -158,6 +158,7 @@ SECTIONS
     .kernelHEAP   : {} > RAM
     .bss          : {} > RAM
     .data         : {} > RAM
+    .sysmem		  : {} > RAM
 
 	.flashAPI :
 	    {
