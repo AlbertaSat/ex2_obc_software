@@ -8,13 +8,16 @@ RUN apt-get update -qq && \
     curl \
     ca-certificates \
     git \
+    cmake \
+    python3.8 \
     # CCS Requirements \
     libc6-i386 \
     libusb-0.1-4  \
     libgconf-2-4 \
     libncurses5  \
     libpython2.7 \
-    libtinfo5
+    libtinfo5 \
+    build-essential
 # Requirements for ubuntu 19
 #    libgtk2.0-0  \
 #    build-essential
@@ -32,5 +35,14 @@ RUN /download_ccs/ccs_setup_10.4.0.00006.run --prefix /ti/ --mode unattended --e
 # RUN /ti/ccs/install_scripts/install_drivers.sh
 
 ENV PATH="/ti/ccs/eclipse:${PATH}"
+
+# Cgreen installation (Working docker image is pushed to DockerHub).
+# Changes were committed to a previous docker image and pushed.
+# Notice: This Dockerfile was not used to generate that new image.
+RUN git clone https://github.com/cgreen-devs/cgreen.git && \
+    cd cgreen && \
+    make && \
+    make test && \
+    make install
 
 # Credit: Dockerfile was adopted from following user -> The-MEO (https://github.com/The-MEO/ticcs). Changes were made to use CCS_10_4_0
