@@ -129,7 +129,7 @@ void iris_spi_get(uint16_t *rx_data, uint16_t data_length) {
  **/
 IrisLowLevelReturn iris_send_command(uint16_t command) {
     if (xSemaphoreTake(iris_spi_mutex, IRIS_SPI_MUTEX_TIMEOUT) != pdTRUE) {
-        return IRIS_HANDLER_BUSY;
+        return IRIS_SPI_BUSY;
     }
 
     uint16_t rx_data;
@@ -175,7 +175,7 @@ IrisLowLevelReturn iris_send_command(uint16_t command) {
  **/
 IrisLowLevelReturn iris_send_data(uint16_t *tx_buffer, uint16_t data_length) {
     if (xSemaphoreTake(iris_spi_mutex, IRIS_SPI_MUTEX_TIMEOUT) != pdTRUE) {
-        return IRIS_HANDLER_BUSY;
+        return IRIS_SPI_BUSY;
     }
 
     iris_nss_low();
@@ -204,7 +204,7 @@ IrisLowLevelReturn iris_send_data(uint16_t *tx_buffer, uint16_t data_length) {
  **/
 IrisLowLevelReturn iris_get_data(uint16_t *rx_buffer, uint16_t data_length) {
     if (xSemaphoreTake(iris_spi_mutex, IRIS_SPI_MUTEX_TIMEOUT) != pdTRUE) {
-        return IRIS_HANDLER_BUSY;
+        return IRIS_SPI_BUSY;
     }
 
     uint16_t tx_dummy = 0xFF;

@@ -37,15 +37,19 @@
  *
  * TODO: Will need to change during stress testing
  */
+#define IRIS_HAL_MUTEX_TIMEOUT pdMS_TO_TICKS(1000)
 #define IRIS_POWER_CYCLE_DELAY vTaskDelay(pdMS_TO_TICKS(1))
 #define IRIS_INIT_DELAY vTaskDelay(pdMS_TO_TICKS(1000))
 #define IRIS_WAIT_FOR_STATE_TRANSITION vTaskDelay(pdMS_TO_TICKS(100))
 #define IRIS_IMAGE_DATA_BLOCK_TRANSFER_DELAY vTaskDelay(pdMS_TO_TICKS(10))
+#define IRIS_WAIT_FOR_SENSORS_TO_TURN_ON vTaskDelay(pdMS_TO_TICKS(10000))
+#define IRIS_WAIT_FOR_SENSORS_TO_TURN_OFF vTaskDelay(pdMS_TO_TICKS(1000))
 
 typedef enum {
     // TODO: Add more meaningful return types
     IRIS_HAL_OK = 0,
     IRIS_HAL_ERROR = 1,
+    IRIS_HAL_BUSY = 2,
 } Iris_HAL_return;
 
 // Legal Iris commands
@@ -93,7 +97,7 @@ typedef struct __attribute__((__packed__)) {
 Iris_HAL_return iris_init();
 Iris_HAL_return iris_take_pic();
 Iris_HAL_return iris_get_image_length(uint32_t *image_length);
-Iris_HAL_return iris_transfer_image(uint32_t image_length, const char *file_name);
+Iris_HAL_return iris_transfer_image(uint32_t image_length);
 Iris_HAL_return iris_get_image_count(uint16_t *image_count);
 Iris_HAL_return iris_toggle_sensor(uint8_t toggle);
 Iris_HAL_return iris_get_housekeeping(IRIS_Housekeeping *hk_data);

@@ -17,6 +17,7 @@
 #include <stdio.h>
 
 #include "FreeRTOS.h"
+#include "os_semphr.h"
 
 #include "iris.h"
 #include "iris_gio.h"
@@ -25,6 +26,8 @@
 #include "redposix.h"
 #include "time.h"
 #include "rtcmk.h"
+
+static SemaphoreHandle_t iris_hal_mutex;
 
 /*
  * Optimization points
@@ -62,6 +65,11 @@ struct __attribute__((__packed__)) {
 Iris_HAL_return iris_init() {
     uint8_t ret;
 
+    iris_hal_mutex = xSemaphoreCreateMutex();
+    if (iris_hal_mutex == NULL) {
+        return IRIS_LL_ERROR;
+    }
+
     ret = iris_spi_init();
     if (ret != IRIS_LL_OK) {
         return IRIS_HAL_ERROR;
@@ -95,6 +103,9 @@ Iris_HAL_return iris_init() {
  *   Returns IRIS_HAL_OK if equipment handler returns IRIS_LL_OK, else IRIS_HAL_ERROR
  **/
 Iris_HAL_return iris_take_pic() {
+    if (xSemaphoreTake(iris_hal_mutex, IRIS_HAL_MUTEX_TIMEOUT) != pdTRUE) {
+        return IRIS_HAL_BUSY;
+    }
     IrisLowLevelReturn ret;
 
     controller_state = SEND_COMMAND;
@@ -112,10 +123,12 @@ Iris_HAL_return iris_take_pic() {
         }
         case FINISH: {
             sys_log(INFO, "Iris returns ACK on take a picture command");
+            xSemaphoreGive(iris_hal_mutex);
             return IRIS_HAL_OK;
         }
         case ERROR_STATE: {
             sys_log(INFO, "Iris returns NACK on take a picture command");
+            xSemaphoreGive(iris_hal_mutex);
             return IRIS_HAL_ERROR;
         }
         }
@@ -131,6 +144,9 @@ Iris_HAL_return iris_take_pic() {
  *   Returns the length in bytes of image stored on Iris
  **/
 Iris_HAL_return iris_get_image_length(uint32_t *image_length) {
+    if (xSemaphoreTake(iris_hal_mutex, IRIS_HAL_MUTEX_TIMEOUT) != pdTRUE) {
+        return IRIS_HAL_BUSY;
+    }
     IrisLowLevelReturn ret;
 
     controller_state = SEND_COMMAND;
@@ -164,10 +180,12 @@ Iris_HAL_return iris_get_image_length(uint32_t *image_length) {
         }
         case FINISH: {
             sys_log(INFO, "Iris returns ACK on get image length command");
+            xSemaphoreGive(iris_hal_mutex);
             return IRIS_HAL_OK;
         }
         case ERROR_STATE: {
             sys_log(INFO, "Iris returns NACK on get image length command");
+            xSemaphoreGive(iris_hal_mutex);
             return IRIS_HAL_ERROR;
         }
         }
@@ -185,12 +203,15 @@ Iris_HAL_return iris_get_image_length(uint32_t *image_length) {
  * @return
  *   Returns IRIS_HAL_OK if equipment handler returns IRIS_LL_OK, else IRIS_HAL_ERROR
  **/
-Iris_HAL_return iris_transfer_image(uint32_t image_length, const char *file_name) {
+Iris_HAL_return iris_transfer_image(uint32_t image_length) {
+    if (xSemaphoreTake(iris_hal_mutex, IRIS_HAL_MUTEX_TIMEOUT) != pdTRUE) {
+        return IRIS_HAL_BUSY;
+    }
     uint16_t num_transfer;
     IrisLowLevelReturn ret;
 
     uint32_t fptr;
-    fptr = red_open(file_name, RED_O_CREAT | RED_O_WRONLY);
+    fptr = red_open("iris_image.jpg", RED_O_CREAT | RED_O_WRONLY);
 
     if (fptr == -1) {
         return IRIS_HAL_ERROR;
@@ -236,10 +257,12 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length, const char *file_name
         }
         case FINISH: {
             sys_log(INFO, "Iris returns ACK on transfer image command");
+            xSemaphoreGive(iris_hal_mutex);
             return IRIS_HAL_OK;
         }
         case ERROR_STATE: {
             sys_log(INFO, "Iris returns NACK on transfer image command");
+            xSemaphoreGive(iris_hal_mutex);
             return IRIS_HAL_ERROR;
         }
         }
@@ -255,6 +278,9 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length, const char *file_name
  *   Returns the number of images stored on Iris
  **/
 Iris_HAL_return iris_get_image_count(uint16_t *image_count) {
+    if (xSemaphoreTake(iris_hal_mutex, IRIS_HAL_MUTEX_TIMEOUT) != pdTRUE) {
+        return IRIS_HAL_BUSY;
+    }
     IrisLowLevelReturn ret;
 
     controller_state = SEND_COMMAND;
@@ -277,10 +303,12 @@ Iris_HAL_return iris_get_image_count(uint16_t *image_count) {
         }
         case FINISH: {
             sys_log(INFO, "Iris returns ACK on transfer image command");
+            xSemaphoreGive(iris_hal_mutex);
             return IRIS_HAL_OK;
         }
         case ERROR_STATE: {
             sys_log(INFO, "Iris returns NACK on transfer image command");
+            xSemaphoreGive(iris_hal_mutex);
             return IRIS_HAL_ERROR;
         }
         }
@@ -299,7 +327,11 @@ Iris_HAL_return iris_get_image_count(uint16_t *image_count) {
  *   Returns IRIS_HAL_OK if equipment handler returns IRIS_LL_OK, else IRIS_HAL_ERROR
  **/
 Iris_HAL_return iris_toggle_sensor(IRIS_SENSOR_TOGGLE toggle) {
+    if (xSemaphoreTake(iris_hal_mutex, IRIS_HAL_MUTEX_TIMEOUT) != pdTRUE) {
+        return IRIS_HAL_BUSY;
+    }
     IrisLowLevelReturn ret;
+    uint8_t response = 0;
 
     controller_state = SEND_COMMAND;
 
@@ -308,22 +340,30 @@ Iris_HAL_return iris_toggle_sensor(IRIS_SENSOR_TOGGLE toggle) {
         case SEND_COMMAND: {
             if (toggle == IRIS_SENSOR_ON) {
                 ret = iris_send_command(IRIS_ON_SENSOR_IDLE);
+                IRIS_WAIT_FOR_SENSORS_TO_TURN_ON;
             } else if (toggle == IRIS_SENSOR_OFF) {
                 ret = iris_send_command(IRIS_OFF_SENSOR_IDLE);
+                IRIS_WAIT_FOR_SENSORS_TO_TURN_OFF;
             }
             if (ret == IRIS_LL_OK) {
-                controller_state = FINISH;
+                controller_state = GET_DATA;
             } else {
                 controller_state = ERROR_STATE;
             }
             break;
         }
+        case GET_DATA: {
+            ret = iris_get_data(&response, 1);
+            controller_state = FINISH;
+        }
         case FINISH: {
             sys_log(INFO, "Iris returns ACK on toggling sensor command");
+            xSemaphoreGive(iris_hal_mutex);
             return IRIS_HAL_OK;
         }
         case ERROR_STATE: {
             sys_log(INFO, "Iris returns NACK on toggling sensor command");
+            xSemaphoreGive(iris_hal_mutex);
             return IRIS_HAL_ERROR;
         }
         }
@@ -339,6 +379,9 @@ Iris_HAL_return iris_toggle_sensor(IRIS_SENSOR_TOGGLE toggle) {
  *   Returns a housekeeping data structure
  **/
 Iris_HAL_return iris_get_housekeeping(IRIS_Housekeeping *hk_data) {
+    if (xSemaphoreTake(iris_hal_mutex, IRIS_HAL_MUTEX_TIMEOUT) != pdTRUE) {
+        return IRIS_HAL_BUSY;
+    }
     IrisLowLevelReturn ret;
 
     controller_state = SEND_COMMAND;
@@ -402,10 +445,12 @@ Iris_HAL_return iris_get_housekeeping(IRIS_Housekeeping *hk_data) {
         }
         case FINISH: {
             sys_log(INFO, "Iris returns ACK on housekeeping command");
+            xSemaphoreGive(iris_hal_mutex);
             return IRIS_HAL_OK;
         }
         case ERROR_STATE: {
             sys_log(INFO, "Iris returns NACK on housekeeping command");
+            xSemaphoreGive(iris_hal_mutex);
             return IRIS_HAL_ERROR;
         }
         }
@@ -560,6 +605,9 @@ Iris_HAL_return iris_set_time(uint32_t unix_time) {
 }
 
 Iris_HAL_return iris_wdt_ack() {
+    if (xSemaphoreTake(iris_hal_mutex, IRIS_HAL_MUTEX_TIMEOUT) != pdTRUE) {
+        return IRIS_HAL_BUSY;
+    }
     IrisLowLevelReturn ret;
 
     controller_state = SEND_COMMAND;
@@ -577,10 +625,12 @@ Iris_HAL_return iris_wdt_ack() {
         }
         case FINISH: {
             sys_log(INFO, "Iris returns ACK on watchdog ack command");
+            xSemaphoreGive(iris_hal_mutex);
             return IRIS_HAL_OK;
         }
         case ERROR_STATE: {
             sys_log(INFO, "Iris returns NACK on watchdog ack command");
+            xSemaphoreGive(iris_hal_mutex);
             return IRIS_HAL_ERROR;
         }
         }

@@ -29,7 +29,7 @@ typedef enum {
     IRIS_LL_OK = 0, // LL stands for Low-Level
     IRIS_LL_FAIL = 1,
     IRIS_LL_ERROR = 2,
-    IRIS_HANDLER_BUSY = 3,
+    IRIS_SPI_BUSY = 3,
 } IrisLowLevelReturn;
 
 // pre-defined SPI communication constants

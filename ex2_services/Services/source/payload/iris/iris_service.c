@@ -163,25 +163,14 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
          * HAL function execution path
          * 1. Get image length
          * 2. Transfer image
-         *
-         * Until NAND flash on Iris electronics is not functional we will
-         * need to call transfer_image 2 times to properly get images from
-         * both sensors
          */
         uint32_t image_length;
 
         status = iris_get_image_length(&image_length);
         IRIS_SERVICE_IMAGE_TRANSFER_DELAY;
-        if (status == IRIS_HAL_OK && image_length != NULL) {
-            status = iris_transfer_image(image_length, "iris_image_vis.jpg");
-        }
-        IRIS_SERVICE_IMAGE_TRANSFER_DELAY;
 
-        image_length = 0;
-        status = iris_get_image_length(&image_length);
-        IRIS_SERVICE_IMAGE_TRANSFER_DELAY;
         if (status == IRIS_HAL_OK && image_length != NULL) {
-            status = iris_transfer_image(image_length, "iris_image_nir.jpg");
+            status = iris_transfer_image(image_length);
         }
 
         // Return success/failure report

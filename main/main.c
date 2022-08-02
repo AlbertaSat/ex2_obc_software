@@ -186,7 +186,7 @@ void ex2_init(void *pvParameters) {
     init_software();
 
 #if SDR_TEST == 1
-    //start_test_sdr(test_uhf_ifdata, test_sband_ifdata);
+    // start_test_sdr(test_uhf_ifdata, test_sband_ifdata);
     start_test_sband(test_sband_iface);
 #endif
 
@@ -202,40 +202,12 @@ void ex2_init(void *pvParameters) {
 void flatsat_test(void *pvParameters) { vTaskDelete(NULL); }
 #endif
 
-TaskHandle_t iris_spi_handle;
-
-void iris_spi_test(void * pvParameters) {
-    iris_spi_init();
-    //iris_take_pic();
-
-    iris_housekeeping_data hk_data;
-    uint16_t image_count;
-    uint32_t image_length;
-
-    for(;;) {
-//        spi_write_read(1, &tx_data, rx_data);
-//        vTaskDelay(pdMS_TO_TICKS( 1000UL ));
-//        iris_take_pic();
-        iris_get_image_length(&image_length);
-        iris_transfer_image(image_length);
-
-//        iris_get_image_count(&image_count);
-//        iris_toggle_sensor_idle(0);
-//        iris_toggle_sensor_idle(1);
-        iris_get_housekeeping(&hk_data);
-
-        // iris_update_sensor_i2c_reg();
-    }
-    // vTaskDelay(pdMS_TO_TICKS( 1000UL ));
-}
-
 int ex2_main(void) {
     _enable_IRQ_interrupt_(); // enable inturrupts
     InitIO();
     for (int i = 0; i < 1000000; i++)
         ;
-    // xTaskCreate(ex2_init, "init", INIT_STACK_SIZE, NULL, INIT_PRIO, NULL);
-    xTaskCreate(iris_spi_test, "IRIS SPI", 256, NULL, (tskIDLE_PRIORITY + 1), &iris_spi_handle);
+    xTaskCreate(ex2_init, "init", INIT_STACK_SIZE, NULL, INIT_PRIO, NULL);
 
     /* Start FreeRTOS! */
     vTaskStartScheduler();
@@ -397,14 +369,15 @@ static inline SAT_returnState init_csp_interface() {
     sdr_conf.uhf_conf.uhf_baudrate = SDR_UHF_9600_BAUD;
     sdr_conf.uhf_conf.uart_baudrate = 115200;
 
- #if SDR_NO_CSP == 1
+#if SDR_NO_CSP == 1
     sdr_interface_data_t *ifdata = sdr_interface_init(&sdr_conf, gs_if_name);
-    if (!ifdata) return SATR_ERROR;
+    if (!ifdata)
+        return SATR_ERROR;
 
 #if SDR_TEST == 1
     test_uhf_ifdata = ifdata;
 #endif
-#else // use CSP
+#else  // use CSP
     error = csp_sdr_open_and_add_interface(&sdr_conf, gs_if_name, NULL);
     if (error != CSP_ERR_NONE) {
         return SATR_ERROR;
@@ -413,7 +386,8 @@ static inline SAT_returnState init_csp_interface() {
 
 #if SDR_NO_CSP == 1
     sdr_interface_data_t *ifdata = sdr_interface_init(&sdr_conf, SDR_IF_SBAND_NAME);
-    if (!ifdata) return SATR_ERROR;
+    if (!ifdata)
+        return SATR_ERROR;
 #if SDR_TEST == 1
     test_sband_ifdata = ifdata;
 #endif
