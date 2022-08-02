@@ -36,6 +36,7 @@
  *      Success of the function defined in sTransmitter.h
  */
 STX_return read_reg(uint8_t internal_address, uint8_t *answer) {
+#if SBAND_IS_STUBBED == 0
     uint8_t command = internal_address;
     if (i2c_Send(SBAND_I2C, SBAND_I2C_ADD, MAX_SBAND_R_CMDLEN, &command) != 0) {
         return S_BAD_READ;
@@ -43,6 +44,9 @@ STX_return read_reg(uint8_t internal_address, uint8_t *answer) {
     if (i2c_Receive(SBAND_I2C, SBAND_I2C_ADD, MAX_SBAND_R_ANSLEN, answer) != 0) {
         return S_BAD_READ;
     }
+#else
+    *answer = 0;
+#endif
     return S_SUCCESS;
 }
 
@@ -59,10 +63,12 @@ STX_return read_reg(uint8_t internal_address, uint8_t *answer) {
  *      Success of the function defined in sTransmitter.h
  */
 STX_return write_reg(uint8_t internal_address, uint8_t val) {
+#if SBAND_IS_STUBBED == 0
     uint8_t command[2] = {internal_address, val};
     if (i2c_Send(SBAND_I2C, SBAND_I2C_ADD, MAX_SBAND_W_CMDLEN, command) != 0) {
         return S_BAD_WRITE;
     }
+#endif
     return S_SUCCESS;
 }
 
@@ -377,7 +383,7 @@ STX_return STX_getFrequency(float *freq) {
  *      Success of the function defined in sTransmitter.h
  */
 STX_return STX_setFrequency(float new_frequency) {
-#ifdef SBAND_COMMERCIAL_FREQUENCY
+#if SBAND_COMMERCIAL_FREQUENCY == 1
 
     // Check if commercial frequency is within allowed bounds
     if ((new_frequency >= S_FREQ_COMMERCIAL_MIN) && (new_frequency <= S_FREQ_COMMERCIAL_MAX)) {

@@ -56,11 +56,15 @@ SAT_returnState start_service_server(void) {
         pdPASS) {
         return SATR_ERROR;
     }
+    const const static char *service_names[] = {
+        "cli_service\0",          "communication_service\0", "time_management_service\0", "scheduler_service\0",
+        "housekeeping_service\0", "general_service\0",       "logger_service\0",          "dfgm_service\0",
+        "adcs_service\0",         "FTP_service\0",           "ns_payload_service\0",      "iris_service\0"};
     services start_service_function[] = {
         &start_cli_service,       &start_communication_service, &start_time_management_service,
         &start_scheduler_service, &start_housekeeping_service,  &start_general_service,
         &start_logger_service,    &start_dfgm_service,          &start_adcs_service,
-        &start_FTP_service,       &start_ns_payload_service,    NULL};
+        &start_FTP_service,       &start_ns_payload_service,    &start_iris_service, NULL};
 
     int number_of_cmds = ((sizeof(start_service_function) - 1) / sizeof(services));
 

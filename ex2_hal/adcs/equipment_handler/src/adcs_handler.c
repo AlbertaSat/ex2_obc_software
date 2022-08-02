@@ -1375,7 +1375,7 @@ ADCS_returnState ADCS_copy_internal_flash_progress(bool *busy, bool *err) {
  * 		Success of function defined in adcs_types.h
  */
 ADCS_returnState ADCS_deploy_magnetometer_boom(uint8_t actuation_timeout) {
-#if ADCS_MAG_FLIGHT_CONFIG == 0 // Safeguard against unintended mag deployment
+#if FLIGHT_CONFIGURATION == 0 // Safeguard against unintended mag deployment
     return ADCS_INVALID_PARAMETERS;
 #else
     uint8_t command[2];

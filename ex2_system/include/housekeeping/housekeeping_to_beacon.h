@@ -23,3 +23,11 @@
 #include "adcs_handler.h"
 
 #define max(X, Y) (((X) > (Y)) ? (X) : (Y))
+
+// Last EPS reset reason
+typedef enum {
+    Power_on = 0, // After power supply removal or hard reset
+    IWDG = 1, // Internal watchdog reseted system due to software process hanging or MCU hardware malfunction
+    NRST = 2, // MCU reset pin driven low
+    Software = 3, // Software reset by command
+} EPS_reset_TypeDef;

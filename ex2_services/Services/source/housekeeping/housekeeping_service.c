@@ -371,10 +371,10 @@ Result mock_everyone(All_systems_housekeeping *all_hk_data) {
     all_hk_data->DFGM_hk.reserved4 = tempFloat;
 
     // IRIS
-    all_hk_data->IRIS_hk.vis_temp = tempu16;
-    all_hk_data->IRIS_hk.nir_temp = tempu16;
-    all_hk_data->IRIS_hk.flash_temp = tempu16;
-    all_hk_data->IRIS_hk.gate_temp = tempu16;
+    all_hk_data->IRIS_hk.vis_temp = tempFloat;
+    all_hk_data->IRIS_hk.nir_temp = tempFloat;
+    all_hk_data->IRIS_hk.flash_temp = tempFloat;
+    all_hk_data->IRIS_hk.gate_temp = tempFloat;
     all_hk_data->IRIS_hk.imagenum = tempu8;
     all_hk_data->IRIS_hk.software_version = tempu8;
     all_hk_data->IRIS_hk.errornum = tempu8;
@@ -450,7 +450,7 @@ Result collect_hk_from_devices(All_systems_housekeeping *all_hk_data) {
 
 #if PAYLOAD_IS_STUBBED == 0
 #if IS_EXALTA2 == 1
-    // Iris housekeeping
+    Iris_HAL_return Iris_return_code = iris_get_housekeeping(&all_hk_data->IRIS_hk);
 #else
     NS_return NS_return_code = HAL_NS_get_telemetry(&all_hk_data->NS_hk);
 #endif /* IS_EXALTA2 */
@@ -543,7 +543,7 @@ uint16_t get_size_of_housekeeping(All_systems_housekeeping *all_hk_data) {
                            sizeof(all_hk_data->EPS_hk) + sizeof(all_hk_data->UHF_hk) +
                            sizeof(all_hk_data->S_band_hk) + sizeof(all_hk_data->adcs_hk) +
                            sizeof(all_hk_data->hyperion_hk) + sizeof(all_hk_data->charon_hk) +
-                           sizeof(all_hk_data->DFGM_hk) + sizeof(all_hk_data->NS_hk);
+                           sizeof(all_hk_data->DFGM_hk) + sizeof(all_hk_data->NS_hk) + sizeof(all_hk_data->IRIS_hk);
     return needed_size;
 }
 
@@ -584,6 +584,7 @@ Result write_hk_to_file(uint16_t filenumber, All_systems_housekeeping *all_hk_da
     red_write(fout, &all_hk_data->charon_hk, sizeof(all_hk_data->charon_hk));
     red_write(fout, &all_hk_data->DFGM_hk, sizeof(all_hk_data->DFGM_hk));
     red_write(fout, &all_hk_data->NS_hk, sizeof(all_hk_data->NS_hk));
+    red_write(fout, &all_hk_data->IRIS_hk, sizeof(all_hk_data->IRIS_hk));
 
     if (red_errno != 0) {
         sys_log(ERROR, "Failed to write to file: '%s'\n", fileName);
@@ -634,6 +635,7 @@ Result read_hk_from_file(uint16_t filenumber, All_systems_housekeeping *all_hk_d
     red_read(fin, &all_hk_data->charon_hk, sizeof(all_hk_data->charon_hk));
     red_read(fin, &all_hk_data->DFGM_hk, sizeof(all_hk_data->DFGM_hk));
     red_read(fin, &all_hk_data->NS_hk, sizeof(all_hk_data->NS_hk));
+    red_read(fin, &all_hk_data->IRIS_hk, sizeof(all_hk_data->IRIS_hk));
 
     if (red_errno != 0) {
         sys_log(ERROR, "Failed to read: '%c'\n", fileName);
@@ -787,6 +789,17 @@ Result set_max_files(uint16_t new_max) {
 
 /**
  * @brief
+ *      Get current file used by the housekeeping service
+ * @return
+ *      MAX_FILES
+ */
+
+uint16_t get_current_file(){
+    return current_file;
+}
+
+/**
+ * @brief
  *      Is given a struct of all the housekeeping data and converts the
  *      endianness of each value to be sent over the network
  * @param hk
@@ -907,6 +920,8 @@ Result fetch_historic_hk_and_transmit(csp_conn_t *conn, uint16_t limit, uint16_t
         used_size += sizeof(all_hk_data.DFGM_hk);
         memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.NS_hk, sizeof(all_hk_data.NS_hk));
         used_size += sizeof(all_hk_data.NS_hk);
+        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.IRIS_hk, sizeof(all_hk_data.IRIS_hk));
+        used_size += sizeof(all_hk_data.IRIS_hk);
 
         set_packet_length(packet, used_size + 2);
 

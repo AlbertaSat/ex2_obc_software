@@ -63,9 +63,9 @@ STX_return sband_binary_test(){
     uint8_t filler[50] = "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU";
     uint8_t message[50] = "Quentinen and Tarantined by Writtin Directinoooooo";
     uint16_t filler_16[25] = {0};
-    uint16_t message_16[25] = {0};
 
-    ret = STX_setFrequency(2228.0f);
+    freq = 2228.0;
+    ret = STX_setFrequency(freq);
     if(ret != S_SUCCESS) return ret;
     ret = STX_setPaPower(30u);
     if(ret != S_SUCCESS) return ret;
@@ -73,19 +73,18 @@ STX_return sband_binary_test(){
     if(ret != S_SUCCESS) return ret;
 
     for(int k = 0; k<25; k++){
-        message_16[k] = (message[2*k] << 8) || message[2*k+1];
         filler_16[k] = (filler[2*k] << 8) || filler[2*k+1];
     }
-    uint16_t syncword[3] = {0xdadb, 0x0d3d};
+    uint8_t syncword[6] = {0xda, 0xdb, 0x0d, 0x3d};
 
     // Send message forever over SPI to fill buffer
     ret = STX_setControl(S_PA_ENABLE, S_DATA_MODE);
     for(int i = 0; i < 20; i++){
         // Loop 20 times aka 1kB
-        SPISbandTx(filler_16, 25);
+        SPISbandTx((uint8_t *) filler_16, 25);
     }
-    SPISbandTx(syncword, 3);
-    SPISbandTx(message_16, 25);
+    SPISbandTx(syncword, sizeof(syncword));
+    SPISbandTx(message, sizeof(message));
 
     ret = STX_getBuffer(0, &count);
     printf("Buffer count at start of transmission: %d\n", count);
@@ -152,14 +151,13 @@ STX_return sband_inf_tx(){
    vTaskDelay(2*ONE_SECOND);
    STX_setControl(S_PA_DISABLE, S_CONF_MODE);
    STX_setEncoder(S_BIT_ORDER_MSB, S_SCRAMBLER_DISABLE, S_FILTER_ENABLE,S_MOD_QPSK, S_RATE_FULL);
-   STX_setFrequency(2228);
 
    uint8_t filler[50] = "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU";
    uint8_t message[50] = "Quentinen and Tarantined by Writtin Directinoooooo";
    uint16_t filler_16[25] = {0};
-   uint16_t message_16[25] = {0};
 
-   ret = STX_setFrequency(2228.0f);
+   float freq = 2228;
+   ret = STX_setFrequency(freq);
    if(ret != S_SUCCESS) return ret;
    ret = STX_setPaPower(30u);
    if(ret != S_SUCCESS) return ret;
@@ -167,10 +165,9 @@ STX_return sband_inf_tx(){
    if(ret != S_SUCCESS) return ret;
 
    for(int k = 0; k<25; k++){
-       message_16[k] = (message[2*k] << 8) || message[2*k+1];
        filler_16[k] = (filler[2*k] << 8) || filler[2*k+1];
    }
-   uint16_t syncword[3] = {0xdadb, 0x0d3d};
+   uint8_t syncword[6] = {0xda, 0xdb, 0x0d, 0x3d};
 
    // Send message forever over SPI to fill buffer
    while(1){
@@ -179,10 +176,10 @@ STX_return sband_inf_tx(){
        for(int j = 0; j < 10; j++){
            for(int i = 0; i < 20; i++){
                // Loop 20 times aka 1kB
-               SPISbandTx(filler_16, 25);
+               SPISbandTx((uint8_t *) filler_16, sizeof(filler_16));
            }
-           SPISbandTx(syncword, 3);
-           SPISbandTx(message_16, 25);
+           SPISbandTx(syncword, sizeof(syncword));
+           SPISbandTx(message, sizeof(message));
            ret = STX_setControl(S_PA_ENABLE, S_DATA_MODE);
        }
        while(gioGetBit(hetPORT1, 25) == 0);//cpu hog

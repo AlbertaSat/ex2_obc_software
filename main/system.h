@@ -77,20 +77,18 @@
 #endif
 
 #if IS_ATHENA == 1
+#define IRIS_SPI spiREG4  // SPI1
+#define SBAND_SPI spiREG3 // SPI2
+#define SD_SPI spiREG1    //?
+#else                     // These values are expected to be adjusted based on what the developer is working on
 #define IRIS_CONFIG_SPI spiREG4 // SPI1
-#define IRIS_SPI spiREG5        // SPI3
-#define SBAND_SPI spiREG3       // SPI2
-#define SD_SPI spiREG1          //?
-#else // These values are expected to be adjusted based on what the developer is working on
-#define IRIS_CONFIG_SPI spiREG4 // SPI1
-#define IRIS_SPI spiREG5        // SPI3
+#define IRIS_SPI spiREG3        // SPI3
 #define SBAND_SPI spiREG3       // SPI2
 #define SD_SPI spiREG1          //?
 #endif
 
 #if IS_ATHENA == 1
 #define IMU_I2C i2cREG2
-#define SOLAR_I2C i2cREG1
 #define TEMPSENSE_I2C i2cREG2
 #define RTC_I2C i2cREG2
 
@@ -99,7 +97,7 @@
 #define UHF_I2C i2cREG1
 #define IRIS_I2C i2cREG1
 
-#if ATHENA_V2 == 1
+#if IS_ATHENA_V2 == 1
 #define SOLAR_I2C i2cREG2
 #else
 #define SOLAR_I2C i2cREG1
@@ -177,5 +175,29 @@ typedef enum {
 #define DEPLOYABLES_5V0_PWR_CHNL 9
 #define PYLD_3V3_PWR_CHNL 10
 // SBAND_PWR_CHNL does not exist as it is on the 5V_AO (always on) channel
+
+/**
+ * SANITY CHECKS
+ */
+#if IS_SATELLITE == 1
+#if (IS_EXALTA2 == 1 && IS_AURORASAT == 1) || (IS_EXALTA2 == 1 && IS_YUKONSAT == 1) ||                            \
+    (IS_AURORASAT == 1 && IS_YUKONSAT == 1)
+#error "Too many satellites defined!"
+#elif IS_EXALTA2 == 0 && IS_YUKONSAT == 0 && IS_AURORASAT == 0
+#error "Need to define a satellite!"
+#endif
+#endif
+
+#if GOLDEN_IMAGE == 1 && WORKING_IMAGE == 1
+#error "Must be either GOLDEN_IMAGE or WORKING_IMAGE"
+#endif
+
+#if CSP_FREERTOS == 0
+#error "CSP_FREERTOS must be 1"
+#endif
+
+#if CSP_USE_KISS == 0 && CSP_USE_SDR == 0 || CSP_USE_KISS == 1 && CSP_USE_SDR == 1
+#error "CSP must use one of KISS or SDR"
+#endif /* !defined(CSP_USE_KISS) && !defined(CSP_USE_SDR) || defined(CSP_USE_KISS) && defined(CSP_USE_SDR) */
 
 #endif /* SYSTEM_H */

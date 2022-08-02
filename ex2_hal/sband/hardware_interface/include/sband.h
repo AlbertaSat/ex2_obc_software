@@ -23,12 +23,22 @@
 #include <hal_sband.h>
 #include <spi.h>
 
-/* Send an S-Band Sync word every sync interval bytes */
-#define SBAND_SYNC_INTERVAL 8*1024
+#if SBAND_COMMERCIAL_FREQUENCY == 1
+#define SBAND_FREQUENCY 2228.0
+#else
+#define SBAND_FREQUENCY 2428.0
+#endif
 
-#define SBAND_FIFO_DEPTH 20*1024
+/* Send an S-Band Sync word every sync interval bytes */
+#define SBAND_SYNC_INTERVAL 8 * 1024
+
+/* The depth of our TX FIFO */
+#define SBAND_FIFO_DEPTH 20 * 1024
+#define SBAND_FIFO_READY_COUNT 2561
 
 int sband_init(void);
+
+int sband_get_rate(void);
 
 bool sband_enter_conf_mode(void);
 bool sband_enter_sync_mode(void);

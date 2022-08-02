@@ -32,6 +32,10 @@ void SPIMasterTx(spiBASE_t *regset, uint16_t *data, uint32_t length, uint8_t for
     spiTransmitData(regset, &dataconfig1_t, length, data);
 }
 
-void SPISbandTx(uint16_t *data, uint32_t length) {
-    SPIMasterTx(SBAND_SPI, data, length, SPI_SBAND_DEF_FMT);
+void SPISbandTx(uint8_t *data8, uint32_t length) {
+    /* Convert bytes to shorts. This should work as is on a big-endian machine.
+     * Note: spiTransmitData appears hard coded to a big-endian machine anyway.
+     */
+    uint16_t *data16 = (uint16_t *) data8;
+    SPIMasterTx(SBAND_SPI, data16, length/sizeof(uint16_t), SPI_SBAND_DEF_FMT);
 }

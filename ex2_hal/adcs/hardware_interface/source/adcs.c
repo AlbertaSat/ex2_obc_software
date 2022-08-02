@@ -951,6 +951,13 @@ ADCS_returnState HAL_ADCS_getHK(ADCS_HouseKeeping *adcs_hk) {
     if ((temp = HAL_ADCS_get_current_state(&data)) != ADCS_OK) {
         return_state = temp;
     } else {
+        adcs_hk->att_estimate_mode = data.att_estimate_mode;
+        adcs_hk->att_control_mode = data.att_ctrl_mode;
+        adcs_hk->run_mode = data.run_mode;
+        memcpy(&adcs_hk->flags_arr, &data.flags_arr, sizeof(adcs_hk->flags_arr));
+        adcs_hk->longlatalt.x = data.longlatalt.x;
+        adcs_hk->longlatalt.y = data.longlatalt.y;
+        adcs_hk->longlatalt.z = data.longlatalt.z;
         // adcs_hk->Estimated_Angular_Rate = data.est_angular_rate;
         adcs_hk->Estimated_Angular_Rate_X = data.est_angular_rate.x;
         adcs_hk->Estimated_Angular_Rate_Y = data.est_angular_rate.y;

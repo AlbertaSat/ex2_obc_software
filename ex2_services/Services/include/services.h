@@ -57,9 +57,9 @@
 // LOGGING SERVICE
 #define TC_LOGGER_SERVICE 13
 // CLI service
-#define TC_CLI_SERVICE 14
+#define TC_CLI_SERVICE 24
 // SCHEDULER SERVICE
-#define TC_SCHEDULER_SERVICE 15
+#define TC_SCHEDULER_SERVICE 25
 // DFGM SERVICE
 #define TC_DFGM_SERVICE 19
 // FTP SERVICE
@@ -90,11 +90,6 @@ union _cnv {
     uint16_t cnv16[4];
     uint8_t cnv8[8];
 };
-
-static char *service_names[] = {"cli_service\0",       "communication_service\0", "time_management_service\0",
-                                "scheduler_service\0", "housekeeping_service\0",  "general_service\0",
-                                "logger_service\0",    "dfgm_service\0",          "adcs_service\0",
-                                "FTP_service\0",       "ns_payload_service\0"};
 
 SAT_returnState start_service_server(void);
 

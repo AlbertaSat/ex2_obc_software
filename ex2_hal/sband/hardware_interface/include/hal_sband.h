@@ -52,12 +52,36 @@ typedef enum {
     PA_MODE_TEST
 } Sband_Transmitter_Mode_t;
 
-typedef struct __attribute__((packed)) {
+#define PACKED __attribute__((packed))
+// #define PACKED
+
+typedef struct PACKED {
     Sband_PowerAmplifier_Status_t status;
     Sband_Transmitter_Mode_t mode;
 } Sband_PowerAmplifier;
 
-typedef struct __attribute__((packed)) {
+// Data rates
+#define S_RATE_FULL 0
+#define S_RATE_HALF 1
+#define S_RATE_QUARTER 2
+
+// Modulation type
+#define S_MOD_QPSK 0
+#define S_MOD_OQPSK 1
+
+// Filter status
+#define S_FILTER_ENABLE 0
+#define S_FILTER_DISABLE 1
+
+// Scrambler status
+#define S_SCRAMBLER_ENABLE 0
+#define S_SCRAMBLER_DISABLE 1
+
+// Bit Order
+#define S_BIT_ORDER_MSB 0
+#define S_BIT_ORDER_LSB 1
+
+typedef struct PACKED {
     uint8_t scrambler;
     uint8_t filter;
     uint8_t modulation;
@@ -65,31 +89,31 @@ typedef struct __attribute__((packed)) {
     uint8_t bit_order;
 } Sband_Encoder;
 
-typedef struct __attribute__((packed)) {
+typedef struct PACKED {
     float freq;
     uint8_t PA_Power;
     Sband_PowerAmplifier PA;
     Sband_Encoder enc;
 } Sband_config;
 
-typedef struct __attribute__((packed)) {
+typedef struct PACKED {
     uint8_t PWRGD;
     uint8_t TXL;
 } Sband_Status;
 
-typedef struct __attribute__((packed)) {
+typedef struct PACKED {
     uint8_t transmit;
 } Sband_TR;
 
-typedef struct __attribute__((packed)) {
+typedef struct PACKED {
     uint16_t firmware;
 } Sband_FirmwareV;
 
-typedef struct __attribute__((packed)) {
+typedef struct PACKED {
     uint16_t pointer[S_BUFFER_LAST];
 } Sband_Buffer;
 
-typedef struct __attribute__((packed)) sband_housekeeping {
+typedef struct PACKED sband_housekeeping {
     float Output_Power;
     float PA_Temp;
     float Top_Temp;
@@ -100,7 +124,7 @@ typedef struct __attribute__((packed)) sband_housekeeping {
     float PA_Voltage;
 } Sband_Housekeeping;
 
-typedef struct __attribute__((packed)) {
+typedef struct PACKED {
     Sband_Status status;
     Sband_TR transmit;
     Sband_FirmwareV firmware;

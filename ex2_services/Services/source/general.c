@@ -32,7 +32,7 @@
 #include "diagnostic.h"
 #include "deployablescontrol.h"
 #include "bl_eeprom.h"
-#include "uhf_pipe_timer.h"
+#include "beacon_task.h"
 
 SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet);
 void general_service(void *param);
@@ -252,25 +252,49 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
         break;
     }
 
-    case GET_NS_PAYLOAD_WATCHDOG_TIMEOUT: {
+    case GET_PAYLOAD_WATCHDOG_TIMEOUT: {
         status = 0;
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-        unsigned int timeout = get_ns_watchdog_delay();
+        unsigned int timeout = get_payload_watchdog_delay();
         memcpy(&packet->data[OUT_DATA_BYTE], &timeout, sizeof(unsigned int));
         set_packet_length(packet, sizeof(int8_t) + sizeof(unsigned int) + 1); // +1 for subservice
 
         break;
     }
 
-    case SET_NS_PAYLOAD_WATCHDOG_TIMEOUT: {
+    case SET_PAYLOAD_WATCHDOG_TIMEOUT: {
         unsigned int timeout_new = 0;
         memcpy(&timeout_new, &packet->data[IN_DATA_BYTE], sizeof(unsigned int));
-        status = set_ns_watchdog_delay(timeout_new);
+        status = set_payload_watchdog_delay(timeout_new);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         set_packet_length(packet, sizeof(int8_t) + 1); // +1 for subservice
 
         break;
     }
+
+    case ENABLE_BEACON_TASK: {
+        status = (int8_t)enable_beacon_task();
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        set_packet_length(packet, sizeof(int8_t) + 1); // +1 for subservice
+        break;
+    }
+
+    case DISABLE_BEACON_TASK: {
+        status = (int8_t)disable_beacon_task();
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        set_packet_length(packet, sizeof(int8_t) + 1); // +1 for subservice
+        break;
+    }
+
+    case BEACON_TASK_GET_STATE: {
+        status = 0;
+        bool state = beacon_task_get_state();
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        memcpy(&packet->data[OUT_DATA_BYTE], &state, sizeof(int8_t));
+        set_packet_length(packet, sizeof(int8_t) + sizeof(bool) + 1); // +1 for subservice
+        break;
+    }
+
 
     default: {
         ex2_log("No such subservice\n");

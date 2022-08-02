@@ -38,10 +38,11 @@ typedef enum {
     GET_ADCS_WATCHDOG_TIMEOUT = 9,
     SET_ADCS_WATCHDOG_TIMEOUT = 10,
 
-    UHF_IS_IN_PIPE_NOTIFICATION = 11,
-
-    GET_NS_PAYLOAD_WATCHDOG_TIMEOUT = 12,
-    SET_NS_PAYLOAD_WATCHDOG_TIMEOUT = 13,
+    GET_PAYLOAD_WATCHDOG_TIMEOUT = 12,
+    SET_PAYLOAD_WATCHDOG_TIMEOUT = 13,
+    ENABLE_BEACON_TASK = 14,
+    DISABLE_BEACON_TASK = 15,
+    BEACON_TASK_GET_STATE = 16
 } General_Subtype;
 
 typedef enum { bootloader = 'B', golden = 'G', application = 'A' } reboot_mode;

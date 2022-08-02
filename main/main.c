@@ -50,6 +50,7 @@
 #include "ads7128.h"
 #include "pcal9538a.h"
 #include "skytraq_gps.h"
+#include "hal_athena.h"
 
 #include <FreeRTOS.h>
 #include <os_task.h>
@@ -61,6 +62,7 @@
 #include "dfgm.h"
 #include "leop.h"
 #include "adcs.h"
+#include "iris.h"
 #include "ns_payload.h"
 #include "deployablescontrol.h"
 #include "test_sdr.h"
@@ -77,6 +79,8 @@
 
 static sdr_interface_data_t *test_uhf_ifdata;
 static sdr_interface_data_t *test_sband_ifdata;
+static csp_iface_t *test_sband_iface;
+
 #endif // SDR_TEST
 
 #if FLATSAT_TEST == 1
@@ -139,7 +143,7 @@ void ex2_init(void *pvParameters) {
 #endif                                  // ADCS_IS_STUBBED
 
 #if ATHENA_IS_STUBBED == 0
-    // PLACEHOLDER: athena hardware init
+    initAthena();
 #endif
 
 #if EPS_IS_STUBBED == 0
@@ -170,7 +174,7 @@ void ex2_init(void *pvParameters) {
 
 #if PAYLOAD_IS_STUBBED == 0
 #if IS_EXALTA2 == 1
-    // Iris init
+    iris_init();
 #else
     NS_handler_init();
 #endif
@@ -179,11 +183,11 @@ void ex2_init(void *pvParameters) {
     /* Software Initialization */
 
     /* Start service server, and response server */
-
     init_software();
 
 #if SDR_TEST == 1
-    start_test_sdr(test_uhf_ifdata, test_sband_ifdata);
+    //start_test_sdr(test_uhf_ifdata, test_sband_ifdata);
+    start_test_sband(test_sband_iface);
 #endif
 
 #if FLATSAT_TEST == 1
@@ -365,38 +369,47 @@ static inline SAT_returnState init_csp_interface() {
     sdr_conf.uhf_conf.uhf_baudrate = SDR_UHF_9600_BAUD;
     sdr_conf.uhf_conf.uart_baudrate = 115200;
 
-    if (SDR_NO_CSP) {
-        sdr_interface_data_t *ifdata = sdr_interface_init(&sdr_conf, gs_if_name);
-        if (!ifdata)
-            return SATR_ERROR;
-#if SDR_TEST == 1
-        test_uhf_ifdata = ifdata;
-#endif
-    } else {
-        error = csp_sdr_open_and_add_interface(&sdr_conf, gs_if_name, NULL);
-        if (error != CSP_ERR_NONE) {
-            return SATR_ERROR;
-        }
-    }
+ #if SDR_NO_CSP == 1
+    sdr_interface_data_t *ifdata = sdr_interface_init(&sdr_conf, gs_if_name);
+    if (!ifdata) return SATR_ERROR;
 
-#if SBAND_IS_STUBBED == 0
-#if 0
-    error = csp_sdr_open_and_add_interface(&sdr_conf, SDR_IF_SBAND_NAME, NULL);
+#if SDR_TEST == 1
+    test_uhf_ifdata = ifdata;
+#endif
+#else // use CSP
+    error = csp_sdr_open_and_add_interface(&sdr_conf, gs_if_name, NULL);
     if (error != CSP_ERR_NONE) {
         return SATR_ERROR;
     }
-#endif
-#endif /* !SBAND_IS_STUBBED */
+#endif // SDR_NO_CSP
 
+#if SDR_NO_CSP == 1
+    sdr_interface_data_t *ifdata = sdr_interface_init(&sdr_conf, SDR_IF_SBAND_NAME);
+    if (!ifdata) return SATR_ERROR;
 #if SDR_TEST == 1
-    test_sband_ifdata = sdr_interface_init(&sdr_conf, SDR_IF_SBAND_NAME);
-    if (!test_sband_ifdata)
-        return SATR_ERROR;
+    test_sband_ifdata = ifdata;
 #endif
+#else // use CSP
+#if SBAND_IS_STUBBED == 0
+#if SDR_TEST == 0
+    // Need a dummy iface if NOT testing
+    csp_iface_t *test_sband_iface = 0;
+#endif
+    error = csp_sdr_open_and_add_interface(&sdr_conf, SDR_IF_SBAND_NAME, &test_sband_iface);
+    if (error != CSP_ERR_NONE) {
+        return SATR_ERROR;
+    }
+#endif // has S-BAND
+#endif // SDR_NO_CSP
+
 #endif /* CSP_USE_SDR */
 
     char rtable[128] = {0};
     snprintf(rtable, 128, "%d %s", gs_if_addr, gs_if_name);
+
+#if SBAND_IS_STUBBED == 0
+    snprintf(rtable, 128, "%s, 17 %s", rtable, SDR_IF_SBAND_NAME);
+#endif /* SBAND_IS_STUBBED */
 
 #if EPS_IS_STUBBED == 0
     snprintf(rtable, 128, "%s, 4 CAN", rtable);
