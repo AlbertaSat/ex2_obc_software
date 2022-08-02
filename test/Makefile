@@ -15,7 +15,7 @@ CFLAGS=$(INC)
 SHELL:=/bin/bash
 #entrypoint
 MAIN = main
-SUT=$(shell ./sut_deps.py)
+SUT=$(python3.8 sut_deps.py)
 
 #---------------------------Build---------------------------
 OBJS_FILES = $(patsubst %.c, %.o, $(SRC))
