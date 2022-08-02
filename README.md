@@ -1,4 +1,4 @@
-# EX2_OBC_SOFTWARE  [![ccs-build](https://github.com/AlbertaSat/ex2_obc_software/actions/workflows/ccs-build-action-pr.yml/badge.svg)](https://github.com/AlbertaSat/ex2_obc_software/actions/workflows/ccs-build-action-pr.yml)
+# EX2_OBC_SOFTWARE  [![nightly-build](https://github.com/AlbertaSat/ex2_obc_software/actions/workflows/ccs-build-action-schedule.yml/badge.svg)](https://github.com/AlbertaSat/ex2_obc_software/actions/workflows/ccs-build-action-schedule.yml)
 Welcome 👋 - this is the central repository for the Ex-alta 2 OBC, dubbed 'Athena'. 
 
 The software in this repository reflects the designs found in the Ex-Alta 2 Critical Design Review document, and separate folders contain software submodules for the Equipment Handlers (EH), Hardware Interface (HIL) and On-board services.
