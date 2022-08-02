@@ -167,7 +167,7 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
         uint32_t image_length;
 
         status = iris_get_image_length(&image_length);
-        IRIS_SERVICE_IMAGE_TRANSFER_DELAY;
+        IRIS_SERVICE_IMAGE_TRANSFER_DELAY; // 100 ms delay
 
         if (status == IRIS_HAL_OK && image_length != NULL) {
             status = iris_transfer_image(image_length);
