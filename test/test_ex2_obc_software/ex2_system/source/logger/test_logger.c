@@ -9,6 +9,7 @@
 #include <cgreen/mocks.h>
 
 #include "FreeRTOS.h"
+#include "config.h"
 #include "logger/logger.h"
 #include "os_queue.h"
 #include "os_task.h"

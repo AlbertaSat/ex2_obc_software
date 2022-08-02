@@ -5,6 +5,7 @@
  *      Author: Grace
  */
 
+#include <config.h>
 #include "test_system_tasks.h"
 
 Describe(system_tasks);
