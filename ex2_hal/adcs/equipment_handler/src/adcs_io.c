@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include "adcs_io.h"
 #include "adcs_types.h"
+#include "logger.h"
 
 static QueueHandle_t adcsQueue;
 static uint8_t adcsBuffer;
@@ -440,7 +441,7 @@ void write_packet_to_file(int32_t file_des, uint8_t *packet_data, uint8_t length
     // Write data to file
     int32_t iErr = red_write(file_des, packet_data, length);
     if (iErr == -1) {
-        printf("Unexpected error %d from red_write() in write_pkt_to_file()\r\n", (int)red_errno);
+        sys_log(ERROR, "Unexpected error %d from red_write() in write_pkt_to_file()\r\n", (int)red_errno);
         return;
     }
 }
