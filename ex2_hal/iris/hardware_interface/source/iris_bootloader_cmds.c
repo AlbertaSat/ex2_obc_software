@@ -27,6 +27,7 @@
 #include "iris_gio.h"
 #include "FreeRTOS.h"
 #include "redposix.h"
+#include "logger.h"
 #include <string.h>
 
 /* Optimization points
@@ -97,14 +98,14 @@ int iris_write_page(uint32_t flash_addr, uint8_t *buffer) {
     static uint8_t packet[WRITE_PACKET_LENGTH];
     uint8_t flash_mem_checksum = 0x00;
     uint8_t data_checksum = 0x00;
-    int ret = 0x00;
+    int ret = 0;
     uint8_t rx_data;
 
     /* First I2C transaction (2 bytes) */
     packet[0] = OPC_WRITE;
     packet[1] = N_OPC_WRITE;
-    iris_write_packet(packet, 2);
-    iris_read_packet(&rx_data, 1);
+    ret += iris_write_packet(packet, 2);
+    ret += iris_read_packet(&rx_data, 1);
     memset(packet, 0, WRITE_PACKET_LENGTH * sizeof(uint8_t));
 
     /* Second I2C transaction (5 bytes) */
@@ -114,8 +115,8 @@ int iris_write_page(uint32_t flash_addr, uint8_t *buffer) {
     packet[3] = (flash_addr >> (8 * 0)) & 0xff;
     flash_mem_checksum = packet[0] ^ packet[1] ^ packet[2] ^ packet[3];
     packet[4] = flash_mem_checksum;
-    iris_write_packet(packet, 5);
-    iris_read_packet(&rx_data, 1);
+    ret += iris_write_packet(packet, 5);
+    ret += iris_read_packet(&rx_data, 1);
     memset(packet, 0, WRITE_PACKET_LENGTH * sizeof(uint8_t));
 
     /* Third I2C transaction (2 + num_bytes) */
@@ -127,10 +128,13 @@ int iris_write_page(uint32_t flash_addr, uint8_t *buffer) {
         data_checksum ^= *(packet + i + 1);
     }
     packet[num_bytes + 1] = data_checksum;
-    iris_write_packet(packet, WRITE_PACKET_LENGTH);
-    iris_read_packet(&rx_data, 1);
+    ret += iris_write_packet(packet, WRITE_PACKET_LENGTH);
+    ret += iris_read_packet(&rx_data, 1);
     memset(packet, 0, WRITE_PACKET_LENGTH * sizeof(uint8_t));
 
+    if (ret < 0) {
+        sys_log(WARN, "Iris bootloader write failure, unable to write packet");
+    }
     return ret;
 }
 
@@ -153,14 +157,14 @@ int iris_erase_page(uint16_t page_num) {
     uint8_t num_page_erased_checksum = 0x00;
     uint8_t page_num_checksum = 0x00;
 
-    int ret = 0x00;
+    int ret = 0;
     uint8_t rx_data;
 
     /* First I2C transaction (2 bytes) */
     packet[0] = OPC_ERASE;
     packet[1] = N_OPC_ERASE;
-    iris_write_packet(packet, 2);
-    iris_read_packet(&rx_data, 1);
+    ret += iris_write_packet(packet, 2);
+    ret += iris_read_packet(&rx_data, 1);
     memset(packet, 0, ERASE_PACKET_LENGTH);
 
     /* Second I2C transaction (3 bytes) */
@@ -168,8 +172,8 @@ int iris_erase_page(uint16_t page_num) {
     packet[1] = NUM_PAGES_TO_ERASE - 1;
     num_page_erased_checksum = packet[0] ^ packet[1];
     packet[2] = num_page_erased_checksum;
-    iris_write_packet(packet, 3);
-    iris_read_packet(&rx_data, 1);
+    ret += iris_write_packet(packet, 3);
+    ret += iris_read_packet(&rx_data, 1);
     memset(packet, 0, ERASE_PACKET_LENGTH);
 
     /* Third I2C transaction (2 + num_bytes) */
@@ -177,10 +181,13 @@ int iris_erase_page(uint16_t page_num) {
     packet[1] = (page_num >> (8 * 0)) & 0xff;
     page_num_checksum = packet[0] ^ packet[1];
     packet[2] = page_num_checksum;
-    iris_write_packet(packet, 3);
-    iris_read_packet(&rx_data, 1);
+    ret += iris_write_packet(packet, 3);
+    ret += iris_read_packet(&rx_data, 1);
     memset(packet, 0, ERASE_PACKET_LENGTH);
 
+    if (ret < 0) {
+        sys_log(WARN, "Iris bootloader erase failure, unable to erase page");
+    }
     return ret;
 }
 
@@ -194,22 +201,25 @@ int iris_erase_page(uint16_t page_num) {
 int iris_check_bootloader_version(uint8_t *version) {
     static uint8_t packet[CHECK_VERSION_PACKET_LENGTH];
 
-    int ret = 0x00;
+    int ret = 0;
     uint8_t rx_data;
 
     /* First I2C transaction (2 bytes) */
     packet[0] = OPC_CHECK_VERSION;
     packet[1] = N_OPC_CHECK_VERSION;
-    iris_write_packet(packet, 2);
-    iris_read_packet(&rx_data, 1);
+    ret += iris_write_packet(packet, 2);
+    ret += iris_read_packet(&rx_data, 1);
     memset(packet, 0, 2);
 
     /* Read bootloader version */
-    iris_read_packet(&version, 1);
+    ret += iris_read_packet(&version, 1);
 
     /* Wait for ACK/NACK */
-    iris_read_packet(&rx_data, 1);
+    ret += iris_read_packet(&rx_data, 1);
 
+    if (ret < 0) {
+        sys_log(WARN, "Iris bootloader check version failure");
+    }
     return ret;
 }
 
@@ -228,14 +238,14 @@ int iris_go_to(uint32_t start_addr) {
     static uint8_t packet[GO_PACKET_LENGTH];
     uint8_t start_addr_checksum = 0x00;
 
-    int ret = 0x00;
+    int ret = 0;
     uint8_t rx_data;
 
     /* First I2C transaction (2 bytes) */
     packet[0] = OPC_GO;
     packet[1] = N_OPC_GO;
-    iris_write_packet(packet, 2);
-    iris_read_packet(&rx_data, 1);
+    ret += iris_write_packet(packet, 2);
+    ret += iris_read_packet(&rx_data, 1);
     memset(packet, 0, GO_PACKET_LENGTH);
 
     /* Second I2C transaction (5 bytes) */
@@ -245,60 +255,13 @@ int iris_go_to(uint32_t start_addr) {
     packet[3] = (start_addr >> (8 * 0)) & 0xff;
     start_addr_checksum = packet[0] ^ packet[1] ^ packet[2] ^ packet[3];
     packet[4] = start_addr_checksum;
-    iris_write_packet(packet, 5);
-    iris_read_packet(&rx_data, 1);
+    ret += iris_write_packet(packet, 5);
+    ret += iris_read_packet(&rx_data, 1);
     memset(packet, 0, GO_PACKET_LENGTH);
 
-    return ret;
-}
-
-/**
- * @brief
- *   Erase entire flash program memory. TODO: Not yet being verified
- *
- * @return
- *   Returns 0 flash memory is erased, <0 if unable to mass erase.
- **/
-int iris_mass_erase_flash() {
-    static uint8_t packet[MASS_ERASE_PACKET_LENGTH];
-    uint16_t num_pages_to_erase = 512;
-    uint8_t checksum = 0x00;
-
-    int ret = 0x00;
-    uint8_t rx_data;
-
-    /* First I2C transaction (2 bytes) */
-    packet[0] = OPC_ERASE;
-    packet[1] = N_OPC_ERASE;
-    iris_write_packet(packet, 2);
-    iris_read_packet(&rx_data, 1);
-    memset(packet, 0, MASS_ERASE_PACKET_LENGTH);
-
-    /* Second I2C transaction (3 bytes) */
-    packet[0] = ((num_pages_to_erase - 1) >> (8 * 1)) & 0xff;
-    packet[1] = ((num_pages_to_erase - 1) >> (8 * 0)) & 0xff;
-    checksum = packet[0] ^ packet[1];
-    packet[2] = checksum;
-    iris_write_packet(packet, 3);
-    iris_read_packet(&rx_data, 1);
-    memset(packet, 0, MASS_ERASE_PACKET_LENGTH);
-
-    /* Second I2C transaction (3 bytes) */
-    uint16_t index;
-    uint16_t page = 0x01;
-    checksum = 0x00;
-    for (index = 0; index < (num_pages_to_erase * 2); index += 2) {
-        packet[index] = (page >> (8 * 1)) & 0xff;
-        packet[index + 1] = (page >> (8 * 0)) & 0xff;
-        checksum ^= (packet[index] ^ packet[index + 1]);
-
-        page += 0x01;
+    if (ret < 0) {
+        sys_log(WARN, "Iris bootloader go to failure, unable to jump to specified address");
     }
-    packet[1024] = checksum;
-    iris_write_packet(packet, 1025);
-    iris_read_packet(&rx_data, 1);
-    memset(packet, 0, MASS_ERASE_PACKET_LENGTH);
-
     return ret;
 }
 
@@ -315,12 +278,14 @@ uint32_t get_num_pages(uint32_t fsize) { return (fsize + PAGE_SIZE - 1) / PAGE_S
 Iris_HAL_return iris_program() {
     uint32_t flash_addr = FLASH_MEM_BASE_ADDR;
     uint8_t buffer[128];
+    int ret = 0;
 
     int32_t fptr;
     fptr = red_open("ex2_Iris_MCU_Software.bin", RED_O_RDONLY);
 
     if (fptr == -1) {
-        return NULL;
+        sys_log(ERROR, "Unable to open Iris firmware image file from SD card");
+        return IRIS_HAL_ERROR;
     }
 
     uint32_t fsize = get_file_size(fptr);
@@ -330,7 +295,11 @@ Iris_HAL_return iris_program() {
 
     for (uint32_t page = 0; page < num_pages; page++) {
         iris_erase_page(page);
-        red_read(fptr, buffer, 128);
+        ret = red_read(fptr, buffer, 128);
+        if (ret < 0) {
+            sys_log(ERROR, "Unable to read Iris firmware image file from SD card");
+            return IRIS_HAL_ERROR;
+        }
         iris_write_page(flash_addr, buffer);
 
         flash_addr += FLASH_MEM_PAGE_SIZE;
@@ -341,7 +310,11 @@ Iris_HAL_return iris_program() {
     iris_go_to(flash_addr);
     iris_post_sequence();
 
-    red_close(fptr);
+    ret = red_close(fptr);
+    if (ret < 0) {
+        sys_log(ERROR, "Unable to close Iris firmware image file in SD card");
+        return IRIS_HAL_ERROR;
+    }
 
     return IRIS_HAL_OK;
 }

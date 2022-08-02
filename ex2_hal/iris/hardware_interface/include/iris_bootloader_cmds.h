@@ -63,7 +63,6 @@ int iris_write_page(uint32_t flash_addr, uint8_t *buffer);
 int iris_erase_page(uint16_t page_num);
 int iris_check_bootloader_version();
 int iris_go_to(uint32_t start_addr);
-int iris_mass_erase_flash();
 
 uint32_t get_file_size(int32_t fptr);
 uint32_t get_num_pages(uint32_t fsize);

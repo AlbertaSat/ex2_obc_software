@@ -66,11 +66,13 @@ Iris_HAL_return iris_init() {
 
     iris_hal_mutex = xSemaphoreCreateMutex();
     if (iris_hal_mutex == NULL) {
+        sys_log(ERROR, "xSemaphoreCreateMutex failed iris_init()");
         return IRIS_LL_ERROR;
     }
 
     ret = iris_spi_init();
     if (ret != IRIS_LL_OK) {
+        sys_log(ERROR, "iris_spi_init() returned IRIS_LL_ERROR, possible xSemaphoreCreateMutex failure");
         return IRIS_HAL_ERROR;
     }
 
@@ -90,7 +92,7 @@ Iris_HAL_return iris_init() {
     iris_set_time(1659051330); // Dummy time for dev-card debugging (without RTC)
 #endif
 
-    // TODO: Add quick iris loopback test
+    sys_log(ERROR, "Iris successfully initialized");
     return IRIS_HAL_OK;
 }
 
@@ -121,7 +123,7 @@ Iris_HAL_return iris_take_pic() {
             break;
         }
         case FINISH: {
-            sys_log(INFO, "Iris returns ACK on take a picture command");
+            sys_log(INFO, "Iris commanded to take a picture");
             xSemaphoreGive(iris_hal_mutex);
             return IRIS_HAL_OK;
         }
@@ -178,7 +180,7 @@ Iris_HAL_return iris_get_image_length(uint32_t *image_length) {
             break;
         }
         case FINISH: {
-            sys_log(INFO, "Iris returns ACK on get image length command");
+            sys_log(INFO, "Iris successfully returned image length");
             xSemaphoreGive(iris_hal_mutex);
             return IRIS_HAL_OK;
         }
@@ -208,11 +210,13 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
     }
     uint16_t num_transfer;
     IrisLowLevelReturn ret;
+    int red_ret;
 
     uint32_t fptr;
     fptr = red_open("iris_image.jpg", RED_O_CREAT | RED_O_WRONLY);
 
     if (fptr == -1) {
+        sys_log(ERROR, "Unable to open iris image file from SD card");
         return IRIS_HAL_ERROR;
     }
 
@@ -247,15 +251,23 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
                     image_data_buffer_8Bit[i] = (image_data_buffer[i] >> (8 * 0)) & 0xff;
                 }
 
-                red_write(fptr, image_data_buffer_8Bit, IMAGE_TRANSFER_SIZE);
+                red_ret = red_write(fptr, image_data_buffer_8Bit, IMAGE_TRANSFER_SIZE);
+                if (ret < 0) {
+                    sys_log(ERROR, "Unable to write image data to SD card");
+                    return IRIS_HAL_ERROR;
+                }
                 IRIS_IMAGE_DATA_BLOCK_TRANSFER_DELAY;
             }
             red_close(fptr);
+            if (ret < 0) {
+                sys_log(ERROR, "Unable to close iris image file in SD card");
+                return IRIS_HAL_ERROR;
+            }
             controller_state = FINISH;
             break;
         }
         case FINISH: {
-            sys_log(INFO, "Iris returns ACK on transfer image command");
+            sys_log(INFO, "Iris successfully transferred image data");
             xSemaphoreGive(iris_hal_mutex);
             return IRIS_HAL_OK;
         }
@@ -301,7 +313,7 @@ Iris_HAL_return iris_get_image_count(uint16_t *image_count) {
             break;
         }
         case FINISH: {
-            sys_log(INFO, "Iris returns ACK on transfer image command");
+            sys_log(INFO, "Iris successfully return image count");
             xSemaphoreGive(iris_hal_mutex);
             return IRIS_HAL_OK;
         }
@@ -356,7 +368,11 @@ Iris_HAL_return iris_toggle_sensor(IRIS_SENSOR_TOGGLE toggle) {
             controller_state = FINISH;
         }
         case FINISH: {
-            sys_log(INFO, "Iris returns ACK on toggling sensor command");
+            if (toggle == IRIS_SENSOR_ON) {
+                sys_log(INFO, "Iris successfully turned on image sensors");
+            } else {
+                sys_log(INFO, "Iris successfully turned off image sensors");
+            }
             xSemaphoreGive(iris_hal_mutex);
             return IRIS_HAL_OK;
         }
@@ -443,7 +459,7 @@ Iris_HAL_return iris_get_housekeeping(IRIS_Housekeeping *hk_data) {
             break;
         }
         case FINISH: {
-            sys_log(INFO, "Iris returns ACK on housekeeping command");
+            sys_log(INFO, "Iris successfully returned housekeeping data");
             xSemaphoreGive(iris_hal_mutex);
             return IRIS_HAL_OK;
         }
@@ -628,7 +644,7 @@ Iris_HAL_return iris_wdt_ack() {
             break;
         }
         case FINISH: {
-            sys_log(INFO, "Iris returns ACK on watchdog ack command");
+            sys_log(INFO, "Iris successfully acknowledged watchdog timer check");
             xSemaphoreGive(iris_hal_mutex);
             return IRIS_HAL_OK;
         }
