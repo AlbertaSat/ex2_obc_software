@@ -12,12 +12,11 @@
  * GNU General Public License for more details.
  */
 
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-
 #include "FreeRTOS.h"
 #include "os_semphr.h"
+
+#include <string.h>
+#include <stdlib.h>
 
 #include "iris.h"
 #include "iris_gio.h"
