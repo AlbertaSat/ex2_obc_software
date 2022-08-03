@@ -139,10 +139,11 @@ struct __attribute__((packed)) eps_startup_telemetry {
     uint8_t FallbackConfigUsed;
     uint8_t rtcInit;
     uint8_t rtcClkSourceLSE;
-    //    uint8_t flashAppInit;
+    uint8_t flashAppInit;
     int8_t Fram4kPartitionInit;
     int8_t Fram520kPartitionInit;
     int8_t intFlashPartitionInit;
+    uint8_t fwUpdInit;
     int8_t FSInit;
     int8_t FTInit;
     int8_t supervisorInit;
