@@ -39,16 +39,14 @@ int HAL_get_temp_all(long *MCU_core_temp_add, long *converter_temp_add) {
     return gettemp_all(temparray);
 #endif
 }
-gaRedVolConf
-    /**
-     * @brief
-     *      Getter to Athena uptime
-     * @return
-     * 		integer OBC_uptime to store Athena uptime
-     *      Seconds = OBC_uptime*10
-     */
-    uint32_t
-    Athena_get_OBC_uptime() {
+/**
+ * @brief
+ *      Getter to Athena uptime
+ * @return
+ * 		integer OBC_uptime to store Athena uptime
+ *      Seconds = OBC_uptime*10
+ */
+uint32_t Athena_get_OBC_uptime() {
 
     TickType_t OBC_ticks = xTaskGetTickCount(); // 1 tick/ms
     uint32_t OBC_uptime = OBC_ticks / 1000;
