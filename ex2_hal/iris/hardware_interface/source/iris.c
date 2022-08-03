@@ -67,7 +67,7 @@ Iris_HAL_return iris_init() {
     iris_hal_mutex = xSemaphoreCreateMutex();
     if (iris_hal_mutex == NULL) {
         sys_log(ERROR, "xSemaphoreCreateMutex failed iris_init()");
-        return IRIS_LL_ERROR;
+        return IRIS_HAL_ERROR;
     }
 
     ret = iris_spi_init();
