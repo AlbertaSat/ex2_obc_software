@@ -17,6 +17,7 @@
  * GNU General Public License for more details.
  */
 #include "pcal9538a.h"
+#include "system.h"
 #include <i2c_io.h>
 
 /*

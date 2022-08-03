@@ -164,7 +164,6 @@ void ex2_init(void *pvParameters) {
 #if IS_EXALTA2 == 1
     gps_skytraq_driver_init();
 #endif
-    ads7128Init();
     setuppcal9538a();
 #endif
 

@@ -96,6 +96,7 @@
 #define ADCS_I2C i2cREG1
 #define UHF_I2C i2cREG1
 #define IRIS_I2C i2cREG1
+#define PCAL9538A_PORT i2cREG1
 
 #if IS_ATHENA_V2 == 1
 #define SOLAR_I2C i2cREG2
@@ -114,6 +115,7 @@
 #define SBAND_I2C i2cREG1
 #define ADCS_I2C i2cREG1
 #define UHF_I2C i2cREG1
+#define PCAL9538A_PORT i2cREG1
 
 #endif
 
