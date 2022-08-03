@@ -73,7 +73,7 @@ uint16_t Athena_get_solar_supply_curr() {
     // insert getter function for solar panel supply current;
     uint8_t addr = 0b1000101;
     uint16_t retval;
-    int get_status = ina209_get_current(addr, &retval);
+    ina209_get_current(addr, &retval);
     return retval;
 }
 
