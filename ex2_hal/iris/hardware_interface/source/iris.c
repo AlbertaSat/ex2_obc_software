@@ -564,6 +564,9 @@ Iris_HAL_return iris_update_current_limit(uint16_t current_limit) {
  *   Returns IRIS_HAL_OK if equipment handler returns IRIS_ACK, else IRIS_HAL_ERROR
  **/
 Iris_HAL_return iris_set_time(uint32_t unix_time) {
+    if (xSemaphoreTake(iris_hal_mutex, IRIS_HAL_MUTEX_TIMEOUT) != pdTRUE) {
+        return IRIS_HAL_BUSY;
+    }
     IrisLowLevelReturn ret;
     uint16_t iris_unix_time_buffer[IRIS_UNIX_TIME_SIZE];
 
@@ -573,7 +576,7 @@ Iris_HAL_return iris_set_time(uint32_t unix_time) {
         switch (controller_state) {
         case SEND_COMMAND: {
             ret = iris_send_command(IRIS_SET_TIME);
-            if (ret == IRIS_ACK) {
+            if (ret == IRIS_LL_OK) {
                 controller_state = SEND_DATA;
             } else {
                 controller_state = FINISH;
@@ -593,10 +596,12 @@ Iris_HAL_return iris_set_time(uint32_t unix_time) {
         }
         case FINISH: {
             sys_log(INFO, "Iris successful on update current limit command");
+            xSemaphoreGive(iris_hal_mutex);
             return IRIS_HAL_OK;
         }
         case ERROR_STATE: {
             sys_log(WARN, "Iris failure on update current limit command");
+            xSemaphoreGive(iris_hal_mutex);
             return IRIS_HAL_ERROR;
         }
         }
