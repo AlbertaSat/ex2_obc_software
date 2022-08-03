@@ -108,6 +108,7 @@ Iris_HAL_return iris_take_pic() {
         return IRIS_HAL_BUSY;
     }
     IrisLowLevelReturn ret;
+    uint32 time;
 
     controller_state = SEND_COMMAND;
 
@@ -123,7 +124,8 @@ Iris_HAL_return iris_take_pic() {
             break;
         }
         case FINISH: {
-            sys_log(INFO, "Iris commanded to take a picture");
+            RTCMK_GetUnix(&time);
+            sys_log(INFO, "Iris commanded to take a picture at time: %d", time);
             xSemaphoreGive(iris_hal_mutex);
             return IRIS_HAL_OK;
         }
@@ -161,6 +163,7 @@ Iris_HAL_return iris_get_image_length(uint32_t *image_length) {
             } else {
                 controller_state = ERROR_STATE;
             }
+            IRIS_WAIT_FOR_STATE_TRANSITION;
             break;
         }
         case GET_DATA: {
@@ -212,7 +215,7 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
     IrisLowLevelReturn ret;
     int red_ret;
 
-    uint32_t fptr;
+    int32_t fptr;
     fptr = red_open("iris_image.jpg", RED_O_CREAT | RED_O_WRONLY);
 
     if (fptr == -1) {
@@ -252,14 +255,14 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
                 }
 
                 red_ret = red_write(fptr, image_data_buffer_8Bit, IMAGE_TRANSFER_SIZE);
-                if (ret < 0) {
+                if (red_ret < 0) {
                     sys_log(ERROR, "Unable to write image data to SD card");
                     return IRIS_HAL_ERROR;
                 }
                 IRIS_IMAGE_DATA_BLOCK_TRANSFER_DELAY;
             }
             red_close(fptr);
-            if (ret < 0) {
+            if (red_ret < 0) {
                 sys_log(ERROR, "Unable to close iris image file in SD card");
                 return IRIS_HAL_ERROR;
             }
@@ -342,7 +345,7 @@ Iris_HAL_return iris_toggle_sensor(IRIS_SENSOR_TOGGLE toggle) {
         return IRIS_HAL_BUSY;
     }
     IrisLowLevelReturn ret;
-    uint8_t response = 0;
+    uint16_t response = 0;
 
     controller_state = SEND_COMMAND;
 
@@ -597,6 +600,7 @@ Iris_HAL_return iris_set_time(uint32_t unix_time) {
             } else {
                 controller_state = FINISH;
             }
+            IRIS_WAIT_FOR_STATE_TRANSITION;
             break;
         }
         case SEND_DATA: {
@@ -608,15 +612,16 @@ Iris_HAL_return iris_set_time(uint32_t unix_time) {
             iris_send_data(iris_unix_time_buffer, IRIS_UNIX_TIME_SIZE);
 
             controller_state = FINISH;
+            IRIS_WAIT_FOR_STATE_TRANSITION;
             break;
         }
         case FINISH: {
-            sys_log(INFO, "Iris successful on update current limit command");
+            sys_log(INFO, "Iris successfully sync-ed with OBC's rtc");
             xSemaphoreGive(iris_hal_mutex);
             return IRIS_HAL_OK;
         }
         case ERROR_STATE: {
-            sys_log(WARN, "Iris failure on update current limit command");
+            sys_log(WARN, "Iris failure on set iris time command");
             xSemaphoreGive(iris_hal_mutex);
             return IRIS_HAL_ERROR;
         }
