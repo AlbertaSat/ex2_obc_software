@@ -74,7 +74,7 @@ int tmp421_Write2ByteReg(uint8_t addr, uint8_t reg_addr, uint16_t data) {
     return i2c_Send(i2cREG2, addr, 3, &buf);
 }
 
-int tmp421_Read1ByteReg(uint8_t addr, uint8_t reg_addr, uint8_t * val) {
+int tmp421_Read1ByteReg(uint8_t addr, uint8_t reg_addr, uint8_t *val) {
     // TODO: make this use error code return instead
     uint8_t value = 0;
 
@@ -85,16 +85,16 @@ int tmp421_Read1ByteReg(uint8_t addr, uint8_t reg_addr, uint8_t * val) {
     return value;
 }
 
-int tmp421_Read2ByteReg(uint8_t addr, uint8_t reg_addr, uint16_t * val) {
+int tmp421_Read2ByteReg(uint8_t addr, uint8_t reg_addr, uint16_t *val) {
     // TODO: make this use error code return instead
     uint8_t data[2] = {0};
     uint16_t value = 0;
 
-    if(i2c_Send(i2cREG2, addr, 1, &reg_addr) == -1){
+    if (i2c_Send(i2cREG2, addr, 1, &reg_addr) == -1) {
         return -1;
     }
 
-    if(i2c_Receive(i2cREG2, addr, 2, &data) == -1){
+    if (i2c_Receive(i2cREG2, addr, 2, &data) == -1) {
         return -1;
     }
 
@@ -121,8 +121,6 @@ long calc_temp_neg(uint16_t reg) { return (((~(reg >> 8) + 1) & 0x7F) * -10000) 
 //
 //	return (temp * 1000 + 128) / 256;
 //}
-
-
 
 // Note that because val is stored as an integer, the actual temperature is the decimal integer value shifted 4
 // digits to the right Ex: val == 276875 means a measurement of 27.6875 degrees C

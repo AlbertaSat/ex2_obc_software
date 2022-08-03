@@ -33,24 +33,11 @@ typedef enum {
 } STX_return;
 
 // Buffer parameter types
-typedef enum {
-    S_BUFFER_COUNT = 0,
-    S_BUFFER_UNDERRUN,
-    S_BUFFER_OVERRUN,
-    S_BUFFER_LAST
-} Sband_Buffer_t;
+typedef enum { S_BUFFER_COUNT = 0, S_BUFFER_UNDERRUN, S_BUFFER_OVERRUN, S_BUFFER_LAST } Sband_Buffer_t;
 
-typedef enum {
-    PA_STATUS_DISABLE = 0,
-    PA_STATUS_ENABLE
-} Sband_PowerAmplifier_Status_t;
+typedef enum { PA_STATUS_DISABLE = 0, PA_STATUS_ENABLE } Sband_PowerAmplifier_Status_t;
 
-typedef enum {
-    PA_MODE_CONF = 0,
-    PA_MODE_SYNC,
-    PA_MODE_DATA,
-    PA_MODE_TEST
-} Sband_Transmitter_Mode_t;
+typedef enum { PA_MODE_CONF = 0, PA_MODE_SYNC, PA_MODE_DATA, PA_MODE_TEST } Sband_Transmitter_Mode_t;
 
 #define PACKED __attribute__((packed))
 // #define PACKED

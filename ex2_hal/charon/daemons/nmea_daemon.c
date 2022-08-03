@@ -45,8 +45,7 @@ void NMEA_daemon() {
 
 SAT_returnState start_NMEA_daemon() {
     TaskHandle_t nmea_handle;
-    if (xTaskCreate((TaskFunction_t)NMEA_daemon, "NMEA_daemon", NMEA_TASK_SIZE, NULL, 1, &nmea_handle) !=
-        pdPASS) {
+    if (xTaskCreate((TaskFunction_t)NMEA_daemon, "NMEA_daemon", NMEA_TASK_SIZE, NULL, 1, &nmea_handle) != pdPASS) {
         return SATR_ERROR;
     }
     taskFunctions nmea_funcs = {0};

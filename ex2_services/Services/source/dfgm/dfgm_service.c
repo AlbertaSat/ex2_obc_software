@@ -97,8 +97,8 @@ SAT_returnState start_dfgm_service(void) {
     taskFunctions svc_funcs = {0};
     svc_funcs.getCounterFunction = get_svc_wdt_counter;
 
-    if (xTaskCreate((TaskFunction_t)dfgm_service, "dfgm_service", 1024, NULL,
-                    NORMAL_SERVICE_PRIO, &svc_tsk) != pdPASS) {
+    if (xTaskCreate((TaskFunction_t)dfgm_service, "dfgm_service", 1024, NULL, NORMAL_SERVICE_PRIO, &svc_tsk) !=
+        pdPASS) {
         ex2_log("FAILED TO CREATE TASK start_dfgm_service\n");
         return SATR_ERROR;
     }

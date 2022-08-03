@@ -37,7 +37,7 @@ uint32_t get_rtc_wdt_counter() { return rtc_wdt_counter; }
 static TickType_t last_second;
 
 int RTCMK_GetMs() {
-    return ( ( xTaskGetTickCount() * 1000 ) / configTICK_RATE_HZ ) - ( ( last_second * 1000 ) / configTICK_RATE_HZ );
+    return ((xTaskGetTickCount() * 1000) / configTICK_RATE_HZ) - ((last_second * 1000) / configTICK_RATE_HZ);
 }
 
 /**
@@ -87,8 +87,8 @@ void RTC_discipline_daemon(void) {
  */
 SAT_returnState start_RTC_daemon() {
     TaskHandle_t rtc_handle;
-    if (xTaskCreate((TaskFunction_t)RTC_discipline_daemon, "RTC_daemon", RTC_DAEMON_TASK_SIZE, NULL, 1, &rtc_handle) !=
-        pdPASS) {
+    if (xTaskCreate((TaskFunction_t)RTC_discipline_daemon, "RTC_daemon", RTC_DAEMON_TASK_SIZE, NULL, 1,
+                    &rtc_handle) != pdPASS) {
         return SATR_ERROR;
     }
     taskFunctions rtc_funcs = {0};
@@ -99,6 +99,4 @@ SAT_returnState start_RTC_daemon() {
     return SATR_OK;
 }
 
-void rtcInt_gioNotification(gioPORT_t *port, uint32 bit) {
-    last_second = xTaskGetTickCountFromISR();
-}
+void rtcInt_gioNotification(gioPORT_t *port, uint32 bit) { last_second = xTaskGetTickCountFromISR(); }

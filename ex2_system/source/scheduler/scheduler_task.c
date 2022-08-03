@@ -28,7 +28,8 @@ extern int delay_aborted;
  * Command scheduler
  *
  * @param pvParameters
- *    scheduleSemaphore, which is the mutex used for protecting the file system from being accessed by multiple threads
+ *    scheduleSemaphore, which is the mutex used for protecting the file system from being accessed by multiple
+ * threads
  */
 void vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
     TickType_t xLastWakeTime;
@@ -39,14 +40,16 @@ void vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
     if (xSemaphoreTake(scheduleSemaphore, (TickType_t)EX2_SEMAPHORE_WAIT) == pdTRUE) {
         fout = red_open(fileName1, RED_O_CREAT | RED_O_RDWR);
         if (fout < 0) {
-            sys_log(ERROR, "vSchedulerHandler failed on error %d from red_open() for file: '%s'", (int)red_errno, fileName1);
+            sys_log(ERROR, "vSchedulerHandler failed on error %d from red_open() for file: '%s'", (int)red_errno,
+                    fileName1);
             xSemaphoreGive(scheduleSemaphore);
             vTaskDelete(0);
         }
         // get file size through file stats
         f_stat = red_fstat(fout, &scheduler_stat);
         if (f_stat < 0) {
-            sys_log(ERROR, "vSchedulerHandler failed on error %d from red_fstat() for file: '%s'", (int)red_errno, fileName1);
+            sys_log(ERROR, "vSchedulerHandler failed on error %d from red_fstat() for file: '%s'", (int)red_errno,
+                    fileName1);
             red_close(fout);
             xSemaphoreGive(scheduleSemaphore);
             vTaskDelete(0);
@@ -54,7 +57,8 @@ void vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
         // close file from SD card
         f_close = red_close(fout);
         if (f_close < 0) {
-            sys_log(NOTICE, "error %d from red_close() in vSchedulerHandler for file: '%s'", (int)red_errno, fileName1);
+            sys_log(NOTICE, "error %d from red_close() in vSchedulerHandler for file: '%s'", (int)red_errno,
+                    fileName1);
         }
         xSemaphoreGive(scheduleSemaphore);
     }
@@ -62,7 +66,8 @@ void vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
     while (scheduler_stat.st_size >= sizeof(scheduled_commands_unix_t)) {
         // initialize buffer to read the commands
         uint32_t number_of_cmds = scheduler_stat.st_size / sizeof(scheduled_commands_unix_t);
-        scheduled_commands_unix_t *cmds = (scheduled_commands_unix_t *)pvPortMalloc(number_of_cmds * sizeof(scheduled_commands_unix_t));
+        scheduled_commands_unix_t *cmds =
+            (scheduled_commands_unix_t *)pvPortMalloc(number_of_cmds * sizeof(scheduled_commands_unix_t));
         memset(cmds, 0, number_of_cmds * sizeof(scheduled_commands_unix_t));
         if (number_of_cmds > 0 && cmds == NULL) {
             sys_log(ERROR, "pvPortMalloc for cmds failed in vSchedulerHandler, out of memory");
@@ -73,7 +78,8 @@ void vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
         if (xSemaphoreTake(scheduleSemaphore, (TickType_t)EX2_SEMAPHORE_WAIT) == pdTRUE) {
             fout = red_open(fileName1, RED_O_RDWR); // open or create file to write binary
             if (fout < 0) {
-                sys_log(ERROR, "vSchedulerHandler failed on error %d from red_open() for file: '%s'", (int)red_errno, fileName1);
+                sys_log(ERROR, "vSchedulerHandler failed on error %d from red_open() for file: '%s'",
+                        (int)red_errno, fileName1);
                 vPortFree(cmds);
                 xSemaphoreGive(scheduleSemaphore);
                 vTaskDelete(0);
@@ -82,7 +88,8 @@ void vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
             red_lseek(fout, 0, RED_SEEK_SET);
             f_read = red_read(fout, cmds, number_of_cmds * sizeof(scheduled_commands_unix_t));
             if (f_read < 0) {
-                sys_log(ERROR, "vSchedulerHandler failed on error %d from red_read() for file: '%s'", (int)red_errno, fileName1);
+                sys_log(ERROR, "vSchedulerHandler failed on error %d from red_read() for file: '%s'",
+                        (int)red_errno, fileName1);
                 red_close(fout);
                 vPortFree(cmds);
                 xSemaphoreGive(scheduleSemaphore);
@@ -91,7 +98,8 @@ void vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
             // close file from SD card
             f_close = red_close(fout);
             if (f_close < 0) {
-                sys_log(NOTICE, "error %d from red_close() in vSchedulerHandler for file: '%s'", (int)red_errno, fileName1);
+                sys_log(NOTICE, "error %d from red_close() in vSchedulerHandler for file: '%s'", (int)red_errno,
+                        fileName1);
             }
             xSemaphoreGive(scheduleSemaphore);
         }
@@ -105,8 +113,7 @@ void vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
         char *args = (char *)pvPortMalloc(cmds->length + 1);
         if (args == NULL) {
             sys_log(NOTICE, "pvPortMalloc for args failed in vSchedulerHandler, out of memory");
-        }
-        else {
+        } else {
             memcpy(args, &(cmds->data[IN_DATA_BYTE]), cmds->length - 1);
             args[cmds->length] = '\0';
         }
@@ -128,12 +135,14 @@ void vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
         if (delay_time < 0) {
             sys_log(NOTICE, "scheduled time is invalid or in the past");
         }
-        TickType_t delay_ticks = pdMS_TO_TICKS(1000 * delay_time) - RTC_ms + cmds->milliseconds; // in # of ticks, ie. milliseconds
+        TickType_t delay_ticks =
+            pdMS_TO_TICKS(1000 * delay_time) - RTC_ms + cmds->milliseconds; // in # of ticks, ie. milliseconds
 
         // get the freeRTOS time
         xLastWakeTime = xTaskGetTickCount();
 
-        /*-------------------------------wait until it's time to execute the command--------------------------------*/
+        /*-------------------------------wait until it's time to execute the
+         * command--------------------------------*/
         if (delay_time >= 0) {
             vTaskDelayUntil(&xLastWakeTime, delay_ticks);
         }
@@ -160,21 +169,24 @@ void vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
             if (xSemaphoreTake(scheduleSemaphore, (TickType_t)EX2_SEMAPHORE_WAIT) == pdTRUE) {
                 fout = red_open(fileName1, RED_O_RDWR); // open or create file to write binary
                 if (fout < 0) {
-                    sys_log(ERROR, "vSchedulerHandler failed on error %d from red_open() for file: '%s'", (int)red_errno, fileName1);
+                    sys_log(ERROR, "vSchedulerHandler failed on error %d from red_open() for file: '%s'",
+                            (int)red_errno, fileName1);
                     xSemaphoreGive(scheduleSemaphore);
                     vTaskDelete(0);
                 }
                 // get file size through file stats
                 f_stat = red_fstat(fout, &scheduler_stat);
                 if (f_stat < 0) {
-                    sys_log(ERROR, "vSchedulerHandler failed on error %d from red_fstat() for file: '%s'", (int)red_errno, fileName1);
+                    sys_log(ERROR, "vSchedulerHandler failed on error %d from red_fstat() for file: '%s'",
+                            (int)red_errno, fileName1);
                     red_close(fout);
                     xSemaphoreGive(scheduleSemaphore);
                     vTaskDelete(0);
                 }
                 // initialize buffer to read the commands
                 uint32_t updated_num_cmds = scheduler_stat.st_size / sizeof(scheduled_commands_unix_t);
-                scheduled_commands_unix_t *cmds = (scheduled_commands_unix_t *)pvPortMalloc(updated_num_cmds * sizeof(scheduled_commands_unix_t));
+                scheduled_commands_unix_t *cmds = (scheduled_commands_unix_t *)pvPortMalloc(
+                    updated_num_cmds * sizeof(scheduled_commands_unix_t));
                 memset(cmds, 0, updated_num_cmds * sizeof(scheduled_commands_unix_t));
                 if (updated_num_cmds > 0 && cmds == NULL) {
                     sys_log(ERROR, "pvPortMalloc for cmds failed in vSchedulerHandler, out of memory");
@@ -186,7 +198,8 @@ void vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
                 red_lseek(fout, 0, RED_SEEK_SET);
                 f_read = red_read(fout, cmds, updated_num_cmds * sizeof(scheduled_commands_unix_t));
                 if (f_read < 0) {
-                    sys_log(ERROR, "vSchedulerHandler failed on error %d from red_read() for file: '%s'", (int)red_errno, fileName1);
+                    sys_log(ERROR, "vSchedulerHandler failed on error %d from red_read() for file: '%s'",
+                            (int)red_errno, fileName1);
                     red_close(fout);
                     xSemaphoreGive(scheduleSemaphore);
                     vTaskDelete(0);
@@ -194,7 +207,8 @@ void vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
                 // close file from SD card
                 f_close = red_close(fout);
                 if (f_close < 0) {
-                    sys_log(NOTICE, "error %d from red_close() in vSchedulerHandler for file: '%s'", (int)red_errno, fileName1);
+                    sys_log(NOTICE, "error %d from red_close() in vSchedulerHandler for file: '%s'",
+                            (int)red_errno, fileName1);
                 }
                 xSemaphoreGive(scheduleSemaphore);
             }
@@ -209,8 +223,7 @@ void vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
             char *args = (char *)pvPortMalloc(cmds->length + 1);
             if (args == NULL) {
                 sys_log(NOTICE, "pvPortMalloc for args failed in vSchedulerHandler, out of memory");
-            }
-            else {
+            } else {
                 memcpy(args, &(cmds->data[IN_DATA_BYTE]), cmds->length - 1);
                 args[cmds->length] = '\0';
             }
@@ -230,7 +243,8 @@ void vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
             }
         }
 
-        /*------------------------------------execute the scheduled cmds with CSP------------------------------------*/
+        /*------------------------------------execute the scheduled cmds with
+         * CSP------------------------------------*/
 
         // if cmds->unix_time is 0, it means a problem occurred with the RTC and the unix time is not valid, skip
         // to the next command
@@ -247,28 +261,35 @@ void vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
             }
             int close_connection = csp_close(connect);
 
-            /*-------------------------------TODO: test code below, delete after testing-----------------------------------*/
+            /*-------------------------------TODO: test code below, delete after
+             * testing-----------------------------------*/
             RTCMK_GetUnix(&current_time);
-            /*-------------------------------TODO: test code above, delete after testing-----------------------------------*/
+            /*-------------------------------TODO: test code above, delete after
+             * testing-----------------------------------*/
 
-            /*------------------------------------keep a log of executed commands------------------------------------*/
+            /*------------------------------------keep a log of executed
+             * commands------------------------------------*/
             // store only the useful information into history in ex2_log, discard things like CSP id and padding
             // the max length of each log entry is defined with STRING_MAX_LEN in logger.h
             if (args != NULL) {
-                sys_log(INFO, "cmd executed: unix_time %d, milliseconds %d, frequency %d , dst %d, dport %d, subservice %d, data '%s'", cmds->unix_time, cmds->milliseconds, cmds->frequency, cmds->dst, cmds->dport, args);
+                sys_log(INFO,
+                        "cmd executed: unix_time %d, milliseconds %d, frequency %d , dst %d, dport %d, subservice "
+                        "%d, data '%s'",
+                        cmds->unix_time, cmds->milliseconds, cmds->frequency, cmds->dst, cmds->dport, args);
                 vPortFree(args);
             }
-        } 
-        else {
+        } else {
             sys_log(NOTICE, "cmd not executed due to invalid time, skipping to the next cmd");
         }
 
-        /*---------------------------------prepare the scheduler for the next command--------------------------------*/
+        /*---------------------------------prepare the scheduler for the next
+         * command--------------------------------*/
         // open file from SD card
         if (xSemaphoreTake(scheduleSemaphore, (TickType_t)EX2_SEMAPHORE_WAIT) == pdTRUE) {
             fout = red_open(fileName1, RED_O_RDWR); // open or create file to write binary
             if (fout < 0) {
-                sys_log(ERROR, "vSchedulerHandler failed on error %d from red_open() for file: '%s'", (int)red_errno, fileName1);
+                sys_log(ERROR, "vSchedulerHandler failed on error %d from red_open() for file: '%s'",
+                        (int)red_errno, fileName1);
                 xSemaphoreGive(scheduleSemaphore);
                 vPortFree(cmds);
                 vTaskDelete(0);
@@ -290,7 +311,8 @@ void vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
                 // update the file
                 f_write = red_write(fout, cmds, (uint32_t)scheduler_stat.st_size);
                 if (f_write < 0) {
-                    sys_log(ERROR, "failed to write to file: '%s' in vSchedulerHandler for file: '%s'", (int)red_errno, fileName1);
+                    sys_log(ERROR, "failed to write to file: '%s' in vSchedulerHandler for file: '%s'",
+                            (int)red_errno, fileName1);
                     red_close(fout);
                     xSemaphoreGive(scheduleSemaphore);
                     vPortFree(cmds);
@@ -299,7 +321,8 @@ void vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
                 // close file
                 f_close = red_close(fout);
                 if (f_close < 0) {
-                    sys_log(NOTICE, "error %d from red_close() in vSchedulerHandler for file: '%s'", (int)red_errno, fileName1);
+                    sys_log(NOTICE, "error %d from red_close() in vSchedulerHandler for file: '%s'",
+                            (int)red_errno, fileName1);
                 }
             }
 
@@ -314,7 +337,8 @@ void vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
                     // TODO: confirm that the file overwrites all old contents, or truncate the file to new length
                     int32_t f_write = red_write(fout, cmds + 1, needed_size);
                     if (f_write < 0) {
-                        sys_log(ERROR, "vSchedulerHandler failed on error %d from red_write() for file: '%s'", (int)red_errno, fileName1);
+                        sys_log(ERROR, "vSchedulerHandler failed on error %d from red_write() for file: '%s'",
+                                (int)red_errno, fileName1);
                         red_close(fout);
                         xSemaphoreGive(scheduleSemaphore);
                         vPortFree(cmds);
@@ -323,15 +347,15 @@ void vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
                     // truncate file to new size
                     int32_t f_truc = red_ftruncate(fout, needed_size);
                     if (f_truc < 0) {
-                        sys_log(NOTICE,
-                                "error %d from red_ftruncate() in vSchedulerHandler for file: '%s'",
+                        sys_log(NOTICE, "error %d from red_ftruncate() in vSchedulerHandler for file: '%s'",
                                 (int)red_errno, fileName1);
                     }
                     // update the file size
                     red_lseek(fout, 0, RED_SEEK_SET);
                     f_stat = red_fstat(fout, &scheduler_stat);
                     if (f_stat < 0) {
-                        sys_log(ERROR, "vSchedulerHandler failed on error %d from red_fstat() for file: '%s'", (int)red_errno, fileName1);
+                        sys_log(ERROR, "vSchedulerHandler failed on error %d from red_fstat() for file: '%s'",
+                                (int)red_errno, fileName1);
                         red_close(fout);
                         xSemaphoreGive(scheduleSemaphore);
                         vPortFree(cmds);
@@ -340,7 +364,8 @@ void vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
                     // close file
                     f_close = red_close(fout);
                     if (f_close < 0) {
-                        sys_log(ERROR, "vSchedulerHandler failed on error %d from red_close() for file: '%s'", (int)red_errno, fileName1);
+                        sys_log(ERROR, "vSchedulerHandler failed on error %d from red_close() for file: '%s'",
+                                (int)red_errno, fileName1);
                         xSemaphoreGive(scheduleSemaphore);
                         vPortFree(cmds);
                         vTaskDelete(0);
@@ -354,12 +379,14 @@ void vSchedulerHandler(SemaphoreHandle_t scheduleSemaphore) {
                     // close file
                     f_close = red_close(fout);
                     if (f_close < 0) {
-                        sys_log(NOTICE, "error %d from red_close() in vSchedulerHandler for file: '%s'", (int)red_errno, fileName1);
+                        sys_log(NOTICE, "error %d from red_close() in vSchedulerHandler for file: '%s'",
+                                (int)red_errno, fileName1);
                     }
                     // delete file once all cmds have been executed
                     int32_t f_delete = red_unlink(fileName1);
                     if (f_delete < 0) {
-                        sys_log(ERROR, "vSchedulerHandler failed on error %d from red_unlink() for file: '%s'", (int)red_errno, fileName1);
+                        sys_log(ERROR, "vSchedulerHandler failed on error %d from red_unlink() for file: '%s'",
+                                (int)red_errno, fileName1);
                         xSemaphoreGive(scheduleSemaphore);
                         vPortFree(cmds);
                         vTaskDelete(0);

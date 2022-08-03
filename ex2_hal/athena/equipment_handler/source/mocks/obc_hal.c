@@ -47,18 +47,17 @@ void HAL_sys_setTime(uint32_t unix_timestamp) { HAL_RTC_SetTime(unix_timestamp);
 void HAL_sys_getTime(uint32_t *unix_timestamp) { HAL_RTC_GetTime(unix_timestamp); }
 
 SAT_returnState HAL_hk_report(uint8_t sid, void *output) {
-  switch (sid) {
-    case BATTERY_1:
-        {
-	    if ((sizeof((char *)output) + 1) > csp_buffer_data_size()) {
-	        return SATR_BUFFER_ERR;
-	    }
-	    HK_battery *battery1 = (HK_battery *)output;
-	    HAL_get_current_1(&(*battery1).current);
-	    HAL_get_voltage_1(&(*battery1).voltage);
-	    HAL_get_temperature(&(*battery1).temperature);
-	    return SATR_OK;
-	}
+    switch (sid) {
+    case BATTERY_1: {
+        if ((sizeof((char *)output) + 1) > csp_buffer_data_size()) {
+            return SATR_BUFFER_ERR;
+        }
+        HK_battery *battery1 = (HK_battery *)output;
+        HAL_get_current_1(&(*battery1).current);
+        HAL_get_voltage_1(&(*battery1).voltage);
+        HAL_get_temperature(&(*battery1).temperature);
+        return SATR_OK;
+    }
 
     case BATTERY_2:
         return SATR_OK;

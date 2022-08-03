@@ -38,26 +38,26 @@ SAT_returnState start_beacon_daemon();
  */
 static void *beacon_daemon() {
 
-    while(1){
+    while (1) {
 
-        if(!beacon_task_enabled){
+        if (!beacon_task_enabled) {
             vTaskDelay(5 * ONE_SECOND);
             continue;
         }
 
         /* Main beacon loop to update beacon contents with latest housekeeping data */
-        while(beacon_task_enabled) {
+        while (beacon_task_enabled) {
 
             /* Fetch most recent housekeeping */
             All_systems_housekeeping all_hk_data;
             uint16_t current_file = get_current_file();
-            if(current_file == 1){
+            if (current_file == 1) {
                 // No housekeeping files saved yet
                 vTaskDelay(20 * ONE_SECOND);
                 continue;
             }
             Result err = load_historic_hk_data(current_file - 1, &all_hk_data);
-            if(err == FAILURE){
+            if (err == FAILURE) {
                 vTaskDelay(20 * ONE_SECOND);
                 continue;
             }
@@ -72,7 +72,7 @@ static void *beacon_daemon() {
             /* Get the beacon period from the UHF so that we know how long to wait */
             uint32_t beacon_t_s;
             UHF_return uhf_status = HAL_UHF_getBeaconT(&beacon_t_s);
-            if(uhf_status != U_GOOD_CONFIG){
+            if (uhf_status != U_GOOD_CONFIG) {
                 vTaskDelay(20 * ONE_SECOND);
                 continue;
             }
@@ -80,7 +80,7 @@ static void *beacon_daemon() {
             /* Encode the first beacon content */
             size_t output_len;
             unsigned char *temparray = (unsigned char *)pvPortMalloc(sizeof(beacon_msg.message));
-            if(temparray == NULL){
+            if (temparray == NULL) {
                 sys_log(ERROR, "Malloc failed in beacon task\n");
                 vTaskDelay(20 * ONE_SECOND);
                 continue;
@@ -88,7 +88,7 @@ static void *beacon_daemon() {
             char *beacon_content;
             memcpy(temparray, &beacon_packet_one, sizeof(beacon_packet_1_t));
             beacon_content = base64_encode(temparray, sizeof(beacon_packet_1_t), &output_len);
-            if(output_len > sizeof(beacon_msg.message)){
+            if (output_len > sizeof(beacon_msg.message)) {
                 sys_log(NOTICE, "Tried to set a beacon message which was too long\n");
                 vTaskDelay(20 * ONE_SECOND);
                 vPortFree(temparray);
@@ -100,7 +100,7 @@ static void *beacon_daemon() {
             memcpy(&beacon_msg.message, beacon_content, sizeof(beacon_msg.message));
             beacon_msg.len = output_len;
             uhf_status = HAL_UHF_setBeaconMsg(beacon_msg);
-            if(uhf_status != U_GOOD_CONFIG){
+            if (uhf_status != U_GOOD_CONFIG) {
                 vTaskDelay(20 * ONE_SECOND);
                 vPortFree(temparray);
                 vPortFree(beacon_content);
@@ -114,7 +114,7 @@ static void *beacon_daemon() {
             /* Encode the second beacon content */
             memcpy(temparray, &beacon_packet_two, sizeof(beacon_packet_2_t));
             beacon_content = base64_encode(temparray, sizeof(beacon_packet_2_t), &output_len);
-            if(output_len > sizeof(beacon_msg.message)){
+            if (output_len > sizeof(beacon_msg.message)) {
                 sys_log(NOTICE, "Tried to set a beacon message which was too long\n");
                 vTaskDelay(20 * ONE_SECOND);
                 vPortFree(temparray);
@@ -126,7 +126,7 @@ static void *beacon_daemon() {
             memcpy(&(beacon_msg.message), beacon_content, sizeof(beacon_packet_2_t));
             beacon_msg.len = output_len;
             uhf_status = HAL_UHF_setBeaconMsg(beacon_msg);
-            if(uhf_status != U_GOOD_CONFIG){
+            if (uhf_status != U_GOOD_CONFIG) {
                 vTaskDelay(20 * ONE_SECOND);
                 vPortFree(temparray);
                 vPortFree(beacon_content);
@@ -139,20 +139,18 @@ static void *beacon_daemon() {
             /* Wait for UHF to send second beacon */
             vTaskDelay(pdMS_TO_TICKS(beacon_t_s * 1000));
         }
-
     }
-
 }
 #endif
 
-bool enable_beacon_task(void){
+bool enable_beacon_task(void) {
 
     /* Enable the beacon on the UHF */
 
     /* Read the status control word (SCW) */
     uint8_t scw[SCW_LEN];
     UHF_return uhf_status = HAL_UHF_getSCW(scw);
-    if(uhf_status != U_GOOD_CONFIG){
+    if (uhf_status != U_GOOD_CONFIG) {
         sys_log(ERROR, "Error %d to start UHF beacon, could not read SCW\n", uhf_status);
         return 1;
     }
@@ -160,7 +158,7 @@ bool enable_beacon_task(void){
     /* Only change the beacon flag and set the SCW */
     scw[UHF_SCW_BCN_INDEX] = UHF_BCN_ON;
     uhf_status = HAL_UHF_setSCW(scw);
-    if(uhf_status != U_GOOD_CONFIG){
+    if (uhf_status != U_GOOD_CONFIG) {
         sys_log(ERROR, "Error %d to start UHF beacon, could not write SCW\n", uhf_status);
         return 1;
     }
@@ -169,7 +167,7 @@ bool enable_beacon_task(void){
     return 0;
 }
 
-bool disable_beacon_task(void){
+bool disable_beacon_task(void) {
     beacon_task_enabled = false;
 
     /* Disable the beacon on the UHF */
@@ -181,22 +179,20 @@ bool disable_beacon_task(void){
     /* Only change the beacon flag and set the SCW */
     scw[UHF_SCW_BCN_INDEX] = UHF_BCN_OFF;
 
-    for(int attempts = 5; attempts > 0; attempts--){
+    for (int attempts = 5; attempts > 0; attempts--) {
         uhf_status = HAL_UHF_setSCW(scw);
-        if(uhf_status == U_GOOD_CONFIG){
+        if (uhf_status == U_GOOD_CONFIG) {
             return 1;
         }
     }
-    if(uhf_status != U_GOOD_CONFIG){
+    if (uhf_status != U_GOOD_CONFIG) {
         sys_log(ERROR, "Unable to stop UHF beacon, could not write SCW\n");
         return 1;
     }
     return 0;
 }
 
-bool beacon_task_get_state(void){
-    return beacon_task_enabled;
-}
+bool beacon_task_get_state(void) { return beacon_task_enabled; }
 
 /**
  * Start the beacon daemon
@@ -212,7 +208,7 @@ SAT_returnState start_beacon_daemon(void) {
         return SATR_ERROR;
     }
 
-    if(enable_beacon_task() != 0){
+    if (enable_beacon_task() != 0) {
         sys_log(CRITICAL, "FAILED to enable beacon\n");
         return SATR_ERROR;
     }

@@ -1099,7 +1099,7 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
 
         strncat(file_name, ".txt", 4);
         int32_t iErr = red_chdir("VOL0:/adcs");
-        if(iErr == -1){
+        if (iErr == -1) {
             sys_log(ERROR, "Error %d trying to change into adcs directory\r\n", red_errno);
             status = ADCS_FILESYSTEM_FAIL;
             memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -1108,7 +1108,7 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
         }
 
         int32_t file1 = red_open(file_name, RED_O_RDONLY);
-        if(file1 == -1){
+        if (file1 == -1) {
             uint16_t error = red_errno;
             sys_log(ERROR, "ADCS_SET_LOG_CONFIG file error %d\r\n", red_errno);
             status = ADCS_FILE_DNE;
@@ -1119,7 +1119,7 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
 
         char buf[160];
         iErr = red_read(file1, buf, 160);
-        if(iErr == -1){
+        if (iErr == -1) {
             sys_log(ERROR, "Error %d trying to read from file %s\r\n", red_errno, file_name);
             status = ADCS_FILESYSTEM_FAIL;
             memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -1130,7 +1130,7 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
         char *token;
         token = strtok(buf, "\n");
         uint8_t flags_arr[80];
-        for(uint8_t flags_index = 0; flags_index < 80; flags_index++){
+        for (uint8_t flags_index = 0; flags_index < 80; flags_index++) {
             flags_arr[flags_index] = atoi(token);
             token = strtok(NULL, "\n");
         }
@@ -1285,7 +1285,7 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
 
         strncat(file_name, ".txt", 4);
         int32_t iErr = red_chdir("VOL0:/adcs");
-        if(iErr == -1){
+        if (iErr == -1) {
             sys_log(ERROR, "Error %d trying to change into adcs directory\r\n", red_errno);
             status = ADCS_FILESYSTEM_FAIL;
             memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -1295,7 +1295,7 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
 
         // Open file for reading config
         int32_t file1 = red_open(file_name, RED_O_RDONLY);
-        if(file1 == -1){
+        if (file1 == -1) {
             sys_log(ERROR, "Error %d trying to open file %s\r\n", red_errno, file_name);
             status = ADCS_FILE_DNE;
             memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -1305,7 +1305,7 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
 
         char buf[512];
         iErr = red_read(file1, buf, 512);
-        if(iErr == -1){
+        if (iErr == -1) {
             sys_log(ERROR, "Error %d trying to read from file %s\r\n", red_errno, file_name);
             status = ADCS_FILESYSTEM_FAIL;
             memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
@@ -1316,7 +1316,7 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
         char *token;
         token = strtok(buf, "\n");
 
-        for(uint8_t camsensor_counter = 0; camsensor_counter < 2; camsensor_counter++){
+        for (uint8_t camsensor_counter = 0; camsensor_counter < 2; camsensor_counter++) {
             camsensor_config conf;
             conf.mounting_angle.x = atof(token);
             token = strtok(NULL, "\n");
@@ -1334,9 +1334,9 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
             token = strtok(NULL, "\n");
             conf.boresight_y = atof(token);
             token = strtok(NULL, "\n");
-            if(camsensor_counter == 0){
+            if (camsensor_counter == 0) {
                 cs_config.cam1_sense = conf;
-            }else{
+            } else {
                 cs_config.cam2_sense = conf;
             }
         }
@@ -1350,7 +1350,7 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
         cs_config.nadir_min_radius = atoi(token);
         token = strtok(NULL, "\n");
 
-        for(uint8_t area_counter = 0; area_counter < 2; area_counter++){
+        for (uint8_t area_counter = 0; area_counter < 2; area_counter++) {
             cam_area temp;
             temp.area1.x.min = atoi(token);
             token = strtok(NULL, "\n");
@@ -1392,9 +1392,9 @@ SAT_returnState adcs_service_app(csp_packet_t *packet) {
             token = strtok(NULL, "\n");
             temp.area5.y.max = atoi(token);
             token = strtok(NULL, "\n");
-            if(area_counter == 0){
+            if (area_counter == 0) {
                 cs_config.cam1_area = temp;
-            }else{
+            } else {
                 cs_config.cam2_area = temp;
             }
 
@@ -1599,10 +1599,10 @@ SAT_returnState start_adcs_service(void) {
     ex2_log("ADCS service started\n");
 
     int32_t iErr = red_mkdir("adcs");
-    if(iErr == -1){
+    if (iErr == -1) {
         sys_log(ERROR, "Unexpected error %d from creating adcs directory", red_errno);
         return SATR_ERROR;
-    }else{
+    } else {
         sys_log(INFO, "Successfully created adcs directory");
     }
     return SATR_OK;

@@ -295,7 +295,6 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
         break;
     }
 
-
     default: {
         ex2_log("No such subservice\n");
         return SATR_PKT_ILLEGAL_SUBSERVICE;

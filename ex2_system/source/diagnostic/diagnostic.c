@@ -353,14 +353,13 @@ static void payload_watchdog_daemon(void *pvParameters) {
         uint8_t heartbeat;
 #endif
 
-
         for (int i = 0; i < watchdog_retries; i++) {
 #if IS_EXALTA2 == 1
             err = iris_wdt_ack();
 #else
             err = HAL_NS_get_heartbeat(&heartbeat);
 #endif
-            if (err == expected_err){
+            if (err == expected_err) {
                 break;
             }
             vTaskDelay(10 * ONE_SECOND);
@@ -621,7 +620,8 @@ SAT_returnState start_diagnostic_daemon(void) {
 #endif
 
 #if PAYLOAD_IS_STUBBED == 0
-    if (xTaskCreate(payload_watchdog_daemon, "payload_watchdog_daemon", 1000, NULL, DIAGNOSTIC_TASK_PRIO, NULL) != pdPASS) {
+    if (xTaskCreate(payload_watchdog_daemon, "payload_watchdog_daemon", 1000, NULL, DIAGNOSTIC_TASK_PRIO, NULL) !=
+        pdPASS) {
         sys_log(ERROR, "FAILED TO CREATE TASK payload_watchdog_daemon.\n");
         return SATR_ERROR;
     }

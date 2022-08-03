@@ -38,5 +38,4 @@ SAT_returnState set_charon_watchdog_delay(const unsigned int ms_delay);
 SAT_returnState set_adcs_watchdog_delay(const unsigned int ms_delay);
 SAT_returnState set_payload_watchdog_delay(const unsigned int ms_delay);
 
-
 #endif /* EX2_SYSTEM_INCLUDE_DIAGNOSTIC_DIAGNOSTIC_H_ */

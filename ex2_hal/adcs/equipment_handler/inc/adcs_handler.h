@@ -47,13 +47,13 @@ typedef struct __attribute__((packed)) {
     int16_t z;
 } xyz16;
 
-typedef struct __attribute__((packed)){
+typedef struct __attribute__((packed)) {
     uint8_t x;
     uint8_t y;
     uint8_t z;
 } xyzu8;
 
-typedef struct __attribute__((packed)){
+typedef struct __attribute__((packed)) {
     int32_t x;
     int32_t y;
     int32_t z;
@@ -159,7 +159,7 @@ typedef struct {
     uint8_t detect_result;
 } cam_sensor;
 
-typedef struct __attribute__((packed)){
+typedef struct __attribute__((packed)) {
     cam_sensor cam1;
     cam_sensor cam2;
     uint8_t css[10];
@@ -297,7 +297,7 @@ typedef struct __attribute__((packed)) {
     uint8_t threshold;
 } css_config;
 
-typedef struct __attribute__((packed)){
+typedef struct __attribute__((packed)) {
     xyz mounting_angle; // alpha, beta, gamma
     uint16_t exposure_t;
     uint16_t analog_gain;

@@ -38,19 +38,9 @@ typedef struct __attribute__((packed)) {
     uint16_t crc;
 } image_info;
 
-typedef enum {
-    NONE,
-    UNDEF,
-    DABORT,
-    PREFETCH,
-    REQUESTED
-} SW_RESET_REASON;
+typedef enum { NONE, UNDEF, DABORT, PREFETCH, REQUESTED } SW_RESET_REASON;
 
-typedef enum {
-    BOOTLOADER = 'B',
-    GOLDEN = 'G',
-    APPLICATION = 'A'
-} SYSTEM_TYPE;
+typedef enum { BOOTLOADER = 'B', GOLDEN = 'G', APPLICATION = 'A' } SYSTEM_TYPE;
 
 typedef struct __attribute__((packed)) {
     resetSource_t rstsrc;
@@ -67,7 +57,7 @@ typedef struct __attribute__((packed)) {
 
 typedef struct __attribute__((packed)) {
     char type;
-    uint32_t count; // total number of boot attempts
+    uint32_t count;    // total number of boot attempts
     uint32_t attempts; // total attempts since last failure
     boot_reason reason;
 } boot_info;

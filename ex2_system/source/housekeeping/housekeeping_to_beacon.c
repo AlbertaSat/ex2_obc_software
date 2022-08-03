@@ -38,7 +38,7 @@ void update_beacon(All_systems_housekeeping *all_hk_data, beacon_packet_1_t *bea
     beacon_packet_two->packet_number = 2;
 
     /*-------Deployables-------*/
-    for(Deployable_t i = DFGM; i <= Starboard; i++){
+    for (Deployable_t i = DFGM; i <= Starboard; i++) {
         bool status = switchstatus(i);
         beacon_packet_one->switch_stat |= (status << i);
     }
@@ -47,14 +47,15 @@ void update_beacon(All_systems_housekeeping *all_hk_data, beacon_packet_1_t *bea
     beacon_packet_one->eps_mode = all_hk_data->EPS_hk.battMode;
     beacon_packet_one->battery_voltage = all_hk_data->EPS_hk.vBatt;
     beacon_packet_one->battery_input_current = all_hk_data->EPS_hk.curBattIn;
-    for(int i = 0; i < sizeof(beacon_packet_one->current_channels); i++){
+    for (int i = 0; i < sizeof(beacon_packet_one->current_channels); i++) {
         beacon_packet_one->current_channels[i] = all_hk_data->EPS_hk.curOutput[i];
         beacon_packet_one->output_faults[i] = all_hk_data->EPS_hk.outputFaultCnt[i];
     }
     beacon_packet_one->output_status = all_hk_data->EPS_hk.outputStatus;
     beacon_packet_one->EPS_boot_count = all_hk_data->EPS_hk.bootCnt;
 
-    beacon_packet_one->eps_last_reset_reason = (uint8_t)determine_eps_last_reset_reason(all_hk_data->EPS_startup_hk.last_reset_reason_reg);
+    beacon_packet_one->eps_last_reset_reason =
+        (uint8_t)determine_eps_last_reset_reason(all_hk_data->EPS_startup_hk.last_reset_reason_reg);
 
     /*-------Watchdog-------*/
     beacon_packet_one->gs_wdt_time = all_hk_data->EPS_hk.wdt_gs_time_left;
@@ -64,13 +65,14 @@ void update_beacon(All_systems_housekeeping *all_hk_data, beacon_packet_1_t *bea
 
     /*-------Temperatures-------*/
     beacon_packet_two->temps[0] = all_hk_data->EPS_hk.temp[10]; // Battery pack temp
-    beacon_packet_two->temps[1] = all_hk_data->EPS_hk.temp[8]; // On-board battery temp
+    beacon_packet_two->temps[1] = all_hk_data->EPS_hk.temp[8];  // On-board battery temp
     beacon_packet_two->temps[2] = (int8_t)all_hk_data->Athena_hk.temparray[0];
     beacon_packet_two->temps[3] = (int8_t)all_hk_data->Athena_hk.temparray[1];
     beacon_packet_two->temps[4] = (int8_t)all_hk_data->UHF_hk.temperature;
     beacon_packet_two->temps[5] = (int8_t)all_hk_data->S_band_hk.Top_Temp;
     beacon_packet_two->temps[6] = (int8_t)all_hk_data->adcs_hk.MCU_Temp;
-    int8_t max_adcs_rate_temp = (int8_t)max(all_hk_data->adcs_hk.Rate_Sensor_Temp_X, all_hk_data->adcs_hk.Rate_Sensor_Temp_Y);
+    int8_t max_adcs_rate_temp =
+        (int8_t)max(all_hk_data->adcs_hk.Rate_Sensor_Temp_X, all_hk_data->adcs_hk.Rate_Sensor_Temp_Y);
     beacon_packet_two->temps[7] = (int8_t)max(all_hk_data->adcs_hk.Rate_Sensor_Temp_Z, max_adcs_rate_temp);
     beacon_packet_two->temps[8] = (int8_t)all_hk_data->DFGM_hk.boardTemp;
 #if IS_EXALTA2 == 1
@@ -108,7 +110,7 @@ void update_beacon(All_systems_housekeeping *all_hk_data, beacon_packet_1_t *bea
     beacon_packet_two->pckts_uncovered_by_FEC = all_hk_data->Athena_hk.pckts_uncovered_by_FEC;
 }
 
-static EPS_reset_TypeDef determine_eps_last_reset_reason(uint32_t reg){
+static EPS_reset_TypeDef determine_eps_last_reset_reason(uint32_t reg) {
 
     EPS_reset_TypeDef EPS_last_reset_reason;
     switch (reg) {

@@ -539,11 +539,11 @@ Result load_config() {
  *    uint16_t of the size of the structure
  */
 uint16_t get_size_of_housekeeping(All_systems_housekeeping *all_hk_data) {
-    uint16_t needed_size = sizeof(all_hk_data->hk_timeorder) + sizeof(all_hk_data->Athena_hk) +
-                           sizeof(all_hk_data->EPS_hk) + sizeof(all_hk_data->UHF_hk) +
-                           sizeof(all_hk_data->S_band_hk) + sizeof(all_hk_data->adcs_hk) +
-                           sizeof(all_hk_data->hyperion_hk) + sizeof(all_hk_data->charon_hk) +
-                           sizeof(all_hk_data->DFGM_hk) + sizeof(all_hk_data->NS_hk) + sizeof(all_hk_data->IRIS_hk);
+    uint16_t needed_size =
+        sizeof(all_hk_data->hk_timeorder) + sizeof(all_hk_data->Athena_hk) + sizeof(all_hk_data->EPS_hk) +
+        sizeof(all_hk_data->UHF_hk) + sizeof(all_hk_data->S_band_hk) + sizeof(all_hk_data->adcs_hk) +
+        sizeof(all_hk_data->hyperion_hk) + sizeof(all_hk_data->charon_hk) + sizeof(all_hk_data->DFGM_hk) +
+        sizeof(all_hk_data->NS_hk) + sizeof(all_hk_data->IRIS_hk);
     return needed_size;
 }
 
@@ -794,9 +794,7 @@ Result set_max_files(uint16_t new_max) {
  *      MAX_FILES
  */
 
-uint16_t get_current_file(){
-    return current_file;
-}
+uint16_t get_current_file() { return current_file; }
 
 /**
  * @brief
