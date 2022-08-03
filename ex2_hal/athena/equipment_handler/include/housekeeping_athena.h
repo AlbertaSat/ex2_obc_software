@@ -64,7 +64,7 @@ typedef struct __attribute__((packed)) {
 
 int Athena_getHK(athena_housekeeping *athena_hk);
 int Athena_hk_convert_endianness(athena_housekeeping *athena_hk);
-uint16_t Athena_get_OBC_uptime();
+uint32_t Athena_get_OBC_uptime();
 uint16_t Athena_get_solar_supply_curr();
 
 #endif /* HOUSEKEEPING_ATHENA_H */

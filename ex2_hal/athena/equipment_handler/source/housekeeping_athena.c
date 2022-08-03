@@ -46,19 +46,13 @@ int HAL_get_temp_all(long *MCU_core_temp_add, long *converter_temp_add) {
  * @return
  * 		integer OBC_uptime to store Athena uptime
  *      Seconds = OBC_uptime*10
- *      Max = 655350 seconds (7.6 days)
  */
-uint16_t Athena_get_OBC_uptime() {
+uint32_t Athena_get_OBC_uptime() {
 
     TickType_t OBC_ticks = xTaskGetTickCount(); // 1 tick/ms
-    uint32_t OBC_uptime_32 = OBC_ticks / 1000;
-    if (OBC_uptime_32 > 655350) {
-        OBC_uptime_32 = 655350;
-    }
-    // Seconds = value*10. Max = 655350 seconds (7.6 days)
-    OBC_uptime_32 = OBC_uptime_32 / 10;
-    // convert OBC_uptime from 32 bit to 16 bit
-    uint16_t OBC_uptime = (OBC_uptime_32 & 255);
+    uint32_t OBC_uptime = OBC_ticks / 1000;
+    // Seconds = value*10
+    OBC_uptime = OBC_uptime / 10;
 
     return OBC_uptime;
 }
