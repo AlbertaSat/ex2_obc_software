@@ -19,27 +19,27 @@
 
 #include "tempsense_athena.h"
 #include "tmp421.h"
+#include "tmp117.h"
 #include "housekeeping_athena.h"
 #include "system.h"
 
 #define CHANNEL_LOCAL 0
 #define CHANNEL_REMOTE 1
 #define ATHENA_TEMPSENSE_DELAY 0.01 * ONE_SECOND
+#define MCU_CORE_TEMP_ADD 0x4A
+#define CONVERTER_TEMP_ADD 0x49
 
 uint8_t tmp_addr[NUM_TEMP_SENSOR] = {TEMP_ADDRESS_1, TEMP_ADDRESS_2};
 
 void inittemp_all(void) {
-    int i;
-    for (i = 0; i < NUM_TEMP_SENSOR; i++) {
-        tmp421_init_client(tmp_addr[i]);
-    }
+    tmp117_init(MCU_CORE_TEMP_ADD);
+    tmp117_init(CONVERTER_TEMP_ADD);
 }
 
-int gettemp_all(long *temparray) {
-    int i;
-    for (i = 0; i < NUM_TEMP_SENSOR; i++) {
-        tmp421_read(tmp_addr[i], CHANNEL_LOCAL, &temparray[i]); // assuming we want to read remote channel
-        vTaskDelay(ATHENA_TEMPSENSE_DELAY);
-    }
+int gettemp_all(long *MCU_core_temp_add, long *converter_temp_add) {
+    tmp117_read(MCU_CORE_TEMP_ADD, MCU_core_temp_add); // assuming we want to read remote channel
+    vTaskDelay(ATHENA_TEMPSENSE_DELAY);
+    tmp117_read(CONVERTER_TEMP_ADD, converter_temp_add);
+
     return 0;
 }

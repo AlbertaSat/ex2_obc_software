@@ -28,6 +28,10 @@
 #include <stdlib.h>
 #include "system.h"
 #include "version.h"
+#include "bl_eeprom.h"
+#include "redstat.h"
+#include "redposix.h"
+#include "redconf.h"
 
 /*Add includes for other athena files to get hk data from*/
 #include "tempsense_athena.h"
@@ -43,25 +47,25 @@ ATTENTION:
 */
 
 typedef struct __attribute__((packed)) {
-    long temparray[ATHENA_TEMP_ARRAY_SIZE]; // Athena temperature array
     char OBC_software_ver[8];
+    long MCU_core_temp;
     long converter_temp;
-    uint16_t OBC_uptime;             // Seconds=value*10 , Max=655360 sec (7.6 days)
-    uint8_t vol0_usage_percent;      // Expected usage is 0-80%
-    uint8_t vol1_usage_percent;      // Expected usage is 0-80%
-    uint16_t boot_cnt;               // Total # of OBC boots
-    uint16_t boot_src;               //
-    uint8_t last_reset_reason;       //
-    uint8_t OBC_mode;                //
-    uint8_t solar_panel_supply_curr; //
-    uint16_t cmds_received;          // Total # since last boot
-    uint16_t pckts_uncovered_by_FEC; // Total # since last boot
+    uint16_t OBC_uptime;              // Seconds=value*10 , Max=655360 sec (7.6 days)
+    uint8_t vol0_usage_percent;       // Expected usage is 0-80%
+    uint8_t vol1_usage_percent;       // Expected usage is 0-80%
+    uint16_t boot_cnt;                // Total # of OBC boots
+    uint16_t boot_src;                //
+    uint8_t last_reset_reason;        //
+    uint8_t OBC_mode;                 //
+    uint16_t solar_panel_supply_curr; //
+    uint16_t cmds_received;           // Total # since last boot
+    uint16_t pckts_uncovered_by_FEC;  // Total # since last boot
 } athena_housekeeping;
 
 int Athena_getHK(athena_housekeeping *athena_hk);
 int Athena_hk_convert_endianness(athena_housekeeping *athena_hk);
 uint16_t Athena_get_OBC_uptime();
-uint8_t Athena_get_solar_supply_curr();
+uint16_t Athena_get_solar_supply_curr();
 
 #endif /* HOUSEKEEPING_ATHENA_H */
 

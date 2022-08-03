@@ -32,7 +32,7 @@
  * @return
  * 		0 for success. other for failure
  */
-int HAL_get_temp_all(long *temparray) {
+int HAL_get_temp_all(long *MCU_core_temp_add, long *converter_temp_add) {
 #if ATHENA_IS_STUBBED == 1
     return 0;
 #else
@@ -69,9 +69,12 @@ uint16_t Athena_get_OBC_uptime() {
  * @return
  * 		  integer solar_panel_supply_curr to store solar panel supply current
  */
-uint8_t Athena_get_solar_supply_curr() {
+uint16_t Athena_get_solar_supply_curr() {
     // insert getter function for solar panel supply current;
-    return 0;
+    uint8_t addr = 0b1000101;
+    uint16_t retval;
+    int get_status = ina209_get_current(addr, &retval);
+    return retval;
 }
 
 /**
@@ -89,13 +92,13 @@ uint8_t Athena_get_solar_supply_curr() {
  * 		Last found error will be returned. else no error returned
  */
 int Athena_getHK(athena_housekeeping *athena_hk) {
-    int temporary;
+    int temp_status;
     int return_code = 0;
 
     /*Add athena HAL housekeeping getters here and put fields in h file
     create HAL functions here following format of existing
     also add endianness conversion in Athena_hk_convert_endianness*/
-    temporary = HAL_get_temp_all(athena_hk->temparray);
+    temp_status = HAL_get_temp_all(&athena_hk->MCU_core_temp, &athena_hk->converter_temp);
 
     // Get last 8 digits of the software version
     memcpy(athena_hk->OBC_software_ver, ex2_hk_version, 8 * sizeof(char));
@@ -115,8 +118,8 @@ int Athena_getHK(athena_housekeeping *athena_hk) {
     // Get solar panel supply current
     athena_hk->solar_panel_supply_curr = Athena_get_solar_supply_curr();
 
-    if (temporary != 0)
-        return_code = temporary;
+    if (temp_status != 0)
+        return_code = temp_status;
 
     // Get solar panel supply current
     athena_hk->solar_panel_supply_curr = Athena_get_solar_supply_curr();
@@ -150,8 +153,8 @@ int Athena_getHK(athena_housekeeping *athena_hk) {
     athena_hk->vol0_usage_percent = 0; // stub if no card
 #endif // HAS_SD_CARD
 
-    if (temporary != 0)
-        return_code = temporary;
+    if (temp_status != 0)
+        return_code = temp_status;
 
     return return_code;
 }
@@ -167,9 +170,8 @@ int Athena_getHK(athena_housekeeping *athena_hk) {
  */
 int Athena_hk_convert_endianness(athena_housekeeping *athena_hk) {
     uint8_t i;
-    for (i = 0; i < 2; i++) {
-        athena_hk->temparray[i] = (long)csp_ntoh32((uint32_t)athena_hk->temparray[i]);
-    }
+    athena_hk->MCU_core_temp = (long)csp_ntoh32((uint32_t)athena_hk->MCU_core_temp);
+    athena_hk->converter_temp = (long)csp_ntoh32((uint32_t)athena_hk->converter_temp);
     athena_hk->boot_cnt = csp_ntoh16(athena_hk->boot_cnt);
     athena_hk->OBC_uptime = csp_ntoh16(athena_hk->OBC_uptime);
     athena_hk->cmds_received = csp_ntoh16(athena_hk->cmds_received);

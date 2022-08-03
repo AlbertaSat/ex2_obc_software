@@ -22,6 +22,7 @@
 #include <os_semphr.h>
 #include <redposix.h> //include for file system
 #include "rtcmk.h"    //to get time from RTC
+#include "redconf.h"
 #include "services.h"
 #include "task_manager/task_manager.h"
 #include "util/service_utilities.h"
@@ -227,10 +228,8 @@ Result mock_everyone(All_systems_housekeeping *all_hk_data) {
     all_hk_data->adcs_hk.Rate_Sensor_Temp_Z = tempFloat;
 
     // Athena
-    uint8_t i;
-    for (i = 0; i < ATHENA_TEMP_ARRAY_SIZE; i++) {
-        all_hk_data->Athena_hk.temparray[i] = tempLong;
-    }
+    all_hk_data->Athena_hk.MCU_core_temp = tempLong;
+    all_hk_data->Athena_hk.converter_temp = tempLong;
     all_hk_data->Athena_hk.boot_cnt = tempu16;
     all_hk_data->Athena_hk.OBC_mode = tempu8;
     all_hk_data->Athena_hk.OBC_uptime = tempu16;
@@ -262,23 +261,23 @@ Result mock_everyone(All_systems_housekeeping *all_hk_data) {
     all_hk_data->EPS_hk.PingWdt_toggles = tempu16;
     all_hk_data->EPS_hk.PingWdt_turnOffs = tempu8;
 
-    for (i = 0; i < 2; i++) {
+    for (int i = 0; i < 2; i++) {
         all_hk_data->EPS_hk.AOcurOutput[i] = tempu16;
     }
-    for (i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++) {
         all_hk_data->EPS_hk.mpptConverterVoltage[i] = tempu16;
     }
-    for (i = 0; i < 8; i++) {
+    for (int i = 0; i < 8; i++) {
         all_hk_data->EPS_hk.curSolarPanels[i] = tempu16;
         all_hk_data->EPS_hk.OutputConverterVoltage[i] = tempu16;
     }
-    for (i = 0; i < 18; i++) {
+    for (int i = 0; i < 18; i++) {
         all_hk_data->EPS_hk.curOutput[i] = tempu16;
         all_hk_data->EPS_hk.outputOnDelta[i] = tempu16;
         all_hk_data->EPS_hk.outputOffDelta[i] = tempu16;
         all_hk_data->EPS_hk.outputFaultCnt[i] = tempu8;
     }
-    for (i = 0; i < 14; i++) {
+    for (int i = 0; i < 14; i++) {
         all_hk_data->EPS_hk.temp[i] = temp8;
     }
 
@@ -293,7 +292,7 @@ Result mock_everyone(All_systems_housekeeping *all_hk_data) {
     all_hk_data->UHF_hk.pckts_in_crc16 = tempu32;
     all_hk_data->UHF_hk.temperature = tempFloat;
 
-    for (i = 0; i < SCW_LEN; i++) {
+    for (int i = 0; i < SCW_LEN; i++) {
         all_hk_data->UHF_hk.scw[i] = tempu8;
     }
 
@@ -539,11 +538,11 @@ Result load_config() {
  *    uint16_t of the size of the structure
  */
 uint16_t get_size_of_housekeeping(All_systems_housekeeping *all_hk_data) {
-    uint16_t needed_size = sizeof(all_hk_data->hk_timeorder) + sizeof(all_hk_data->Athena_hk) +
-                           sizeof(all_hk_data->EPS_hk) + sizeof(all_hk_data->UHF_hk) +
-                           sizeof(all_hk_data->S_band_hk) + sizeof(all_hk_data->adcs_hk) +
-                           sizeof(all_hk_data->hyperion_hk) + sizeof(all_hk_data->charon_hk) +
-                           sizeof(all_hk_data->DFGM_hk) + sizeof(all_hk_data->NS_hk) + sizeof(all_hk_data->IRIS_hk);
+    uint16_t needed_size =
+        sizeof(all_hk_data->hk_timeorder) + sizeof(all_hk_data->Athena_hk) + sizeof(all_hk_data->EPS_hk) +
+        sizeof(all_hk_data->UHF_hk) + sizeof(all_hk_data->S_band_hk) + sizeof(all_hk_data->adcs_hk) +
+        sizeof(all_hk_data->hyperion_hk) + sizeof(all_hk_data->charon_hk) + sizeof(all_hk_data->DFGM_hk) +
+        sizeof(all_hk_data->NS_hk) + sizeof(all_hk_data->IRIS_hk);
     return needed_size;
 }
 
@@ -794,9 +793,7 @@ Result set_max_files(uint16_t new_max) {
  *      MAX_FILES
  */
 
-uint16_t get_current_file(){
-    return current_file;
-}
+uint16_t get_current_file() { return current_file; }
 
 /**
  * @brief

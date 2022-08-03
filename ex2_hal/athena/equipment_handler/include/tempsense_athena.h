@@ -22,4 +22,4 @@
 #define TEMP_ADDRESS_2 0x4A
 
 void inittemp_all(void);
-int gettemp_all(long *temparray);
+int gettemp_all(long *MCU_core_temp_add, long *converter_temp_add);
