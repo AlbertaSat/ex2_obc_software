@@ -128,7 +128,7 @@ int Athena_getHK(athena_housekeeping *athena_hk) {
 #if defined(HAS_SD_CARD)
     int32_t iErr;
     REDSTATFS volstat;
-    iErr = red_statvfs(gaRedVolConf[0].pszPathPrefix, &volstat);
+    iErr = red_statvfs("VOL0:", &volstat);
     athena_hk->vol0_usage_percent =
         (uint8_t)((float)(volstat.f_bfree) * 100.0 /
                   ((float)(volstat.f_blocks))); // assuming block size == sector size = 512B
@@ -137,7 +137,7 @@ int Athena_getHK(athena_housekeeping *athena_hk) {
     }
 
 #ifdef IS_ATHENA_V2
-    iErr = red_statvfs(gaRedVolConf[1].pszPathPrefix, &volstat);
+    iErr = red_statvfs("VOL1:", &volstat);
     athena_hk->vol1_usage_percent =
         (uint8_t)((float)(volstat.f_bfree) * 100.0 /
                   ((float)(volstat.f_blocks))); // assuming block size == sector size = 512B
