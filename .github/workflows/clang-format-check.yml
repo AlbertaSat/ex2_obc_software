@@ -11,6 +11,6 @@ jobs:
     - uses: DoozyX/clang-format-lint-action@v0.13
       with:
         source: '.'
-        exclude: './source ./include ./FreeRTOS-Plus-CLI ./reliance_edge ./F021_API'
+        exclude: './source ./include ./FreeRTOS-Plus-CLI ./reliance_edge ./F021_API ./test'
         extensions: 'c,h,cpp,hpp'
         clangFormatVersion: 10
