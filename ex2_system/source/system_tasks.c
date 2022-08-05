@@ -36,7 +36,7 @@
  */
 SAT_returnState start_system_tasks(void) {
 
-    static const char *system_task_names[] = {
+    const static char *system_task_names[] = {
         "task_manager",      "beacon_daemon",       "coordinate_management_daemon",
         "diagnostic_daemon", "housekeeping_daemon", "NMEA_daemon",
         "RTC_daemon",        "logger_daemon"};
@@ -46,31 +46,12 @@ SAT_returnState start_system_tasks(void) {
         &start_diagnostic_daemon, &start_housekeeping_daemon, &start_NMEA_daemon,
         &start_RTC_daemon,        &start_logger_daemon,       NULL};
 
-    int number_of_system_tasks = (sizeof(start_task) - 1) / sizeof(system_tasks);
-    uint8_t *start_task_flag = pvPortMalloc(number_of_system_tasks * sizeof(uint8_t));
-    memset(start_task_flag, 0, number_of_system_tasks * sizeof(uint8_t));
-    int start_task_attempt;
-    SAT_returnState state;
-
     for (int i = 0; start_task[i]; i++) {
-        start_task_attempt = 0;
+        SAT_returnState state;
         const char *task_name = system_task_names[i];
-        while (start_task_attempt <= 3) {
-            state = start_task[i]();
-            if (state != SATR_OK && start_task_attempt < 3) {
-                sys_log(WARN, "start %s failed, try again", task_name);
-                vTaskDelay(10);
-            } else if (state != SATR_OK && start_task_attempt == 3) {
-                sys_log(ERROR, "start %s failed", task_name);
-                break;
-            } else {
-                start_task_flag[i] = 1;
-                sys_log(INFO, "start %s succeeded", task_name);
-                break;
-            }
-            start_task_attempt++;
-        }
+        sys_log(INFO, "Starting %s", task_name);
+        state = start_task[i]();
+        sys_log(INFO, "Start daemon %s reports %d", task_name, state);
     }
-    vPortFree(start_task_flag);
     return SATR_OK;
 }
