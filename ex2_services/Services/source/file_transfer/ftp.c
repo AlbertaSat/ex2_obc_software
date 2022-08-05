@@ -28,6 +28,7 @@
 #include "task_manager/task_manager.h"
 #include "util/service_utilities.h"
 #include <string.h>
+#include "logger.h"
 
 #define FTP_STACK_SIZE 500
 
@@ -93,7 +94,7 @@ SAT_returnState send_download_burst(csp_conn_t *conn, FTP_t *ftp) {
         int32_t bytes_read = red_read(fd, &(packet->data[OUT_DATA_BYTE]) + 10, current->blocksize);
         memcpy(&(packet->data[OUT_DATA_BYTE]) + 4, &bytes_read, sizeof(bytes_read));
         memcpy(&(packet->data[OUT_DATA_BYTE]) + 8, &blocknumber, sizeof(blocknumber));
-        if (bytes_read == 0) {
+        if (bytes_read < current->blocksize) {
             sys_log(INFO, "FTP is done reading file %s", current->fname);
             status = -1;
         }
