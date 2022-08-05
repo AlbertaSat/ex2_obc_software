@@ -28,6 +28,7 @@
 #include "task_manager/task_manager.h"
 #include "util/service_utilities.h"
 #include <string.h>
+#include "logger.h"
 
 #define FTP_STACK_SIZE 500
 
@@ -52,6 +53,10 @@ csp_conn_t *ftp_make_new_connection(uint8_t dest_addr) {
     return csp_connect(1, dest_addr, TC_FTP_DATA_SERVICE, portMAX_DELAY, CSP_SO_HMACREQ);
 }
 
+/**
+ * If SATR_error is returned, check red_errno for the error.
+ * If SATR_BUFFER_ERR is returned, the issue was in CSP
+ */
 SAT_returnState send_download_burst(csp_conn_t *conn, FTP_t *ftp) {
     /*
      * #TODO: Maybe this should be a struct..
@@ -75,7 +80,7 @@ SAT_returnState send_download_burst(csp_conn_t *conn, FTP_t *ftp) {
         return SATR_ERROR;
     }
     int8_t status = 0;
-    uint16_t blocknumber = 0;
+    uint16_t blocknumber = current->skip;
     while (current->count--) {
         csp_packet_t *packet = csp_buffer_get(current->blocksize);
         if (packet == NULL) {
@@ -89,7 +94,7 @@ SAT_returnState send_download_burst(csp_conn_t *conn, FTP_t *ftp) {
         int32_t bytes_read = red_read(fd, &(packet->data[OUT_DATA_BYTE]) + 10, current->blocksize);
         memcpy(&(packet->data[OUT_DATA_BYTE]) + 4, &bytes_read, sizeof(bytes_read));
         memcpy(&(packet->data[OUT_DATA_BYTE]) + 8, &blocknumber, sizeof(blocknumber));
-        if (bytes_read == 0) {
+        if (bytes_read < current->blocksize) {
             sys_log(INFO, "FTP is done reading file %s", current->fname);
             status = -1;
         }
@@ -104,7 +109,7 @@ SAT_returnState send_download_burst(csp_conn_t *conn, FTP_t *ftp) {
             csp_buffer_free(packet);
             red_close(fd);
             sys_log(WARN, "Could not send packet");
-            return SATR_ERROR;
+            return SATR_BUFFER_ERR;
         }
         if (status == -1) {
             break;
@@ -215,12 +220,12 @@ SAT_returnState FTP_app(csp_packet_t *packet, csp_conn_t *conn) {
         int fd = red_open(fname, open_flags);
         if (fd < 0) {
             sys_log(WARN, "FTP failed to open file %s, red_errno: %d", fname, red_errno);
-            status = -1;
+            status = -red_errno;
             break;
         }
         REDSTAT stat = {0};
         if (red_fstat(fd, &stat) < 0) {
-            status = -1;
+            status = -red_errno;
             red_close(fd);
             break;
         }
@@ -289,8 +294,13 @@ SAT_returnState FTP_app(csp_packet_t *packet, csp_conn_t *conn) {
         ftp.count = count;
 
         red_close(fd);
-
-        send_download_burst(destconn, &ftp);
+        red_errno = 0;
+        SAT_returnState err = send_download_burst(destconn, &ftp);
+        if (err == SATR_BUFFER_ERR) {
+            status = -1;
+        } else if (status == SATR_ERROR) {
+            status = -red_errno;
+        }
 
         memcpy(&packet->data[OUT_DATA_BYTE], &stat.st_mtime, sizeof(stat.st_mtime));
         memcpy(&packet->data[OUT_DATA_BYTE + 4], &stat.st_ctime, sizeof(stat.st_ctime));
