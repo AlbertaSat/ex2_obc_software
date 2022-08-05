@@ -186,7 +186,7 @@ void ex2_init(void *pvParameters) {
     init_software();
 
 #if SDR_TEST == 1
-    //start_test_sdr(test_uhf_ifdata, test_sband_ifdata);
+    // start_test_sdr(test_uhf_ifdata, test_sband_ifdata);
     start_test_sband(test_sband_iface);
 #endif
 
@@ -369,14 +369,15 @@ static inline SAT_returnState init_csp_interface() {
     sdr_conf.uhf_conf.uhf_baudrate = SDR_UHF_9600_BAUD;
     sdr_conf.uhf_conf.uart_baudrate = 115200;
 
- #if SDR_NO_CSP == 1
+#if SDR_NO_CSP == 1
     sdr_interface_data_t *ifdata = sdr_interface_init(&sdr_conf, gs_if_name);
-    if (!ifdata) return SATR_ERROR;
+    if (!ifdata)
+        return SATR_ERROR;
 
 #if SDR_TEST == 1
     test_uhf_ifdata = ifdata;
 #endif
-#else // use CSP
+#else  // use CSP
     error = csp_sdr_open_and_add_interface(&sdr_conf, gs_if_name, NULL);
     if (error != CSP_ERR_NONE) {
         return SATR_ERROR;
@@ -385,7 +386,8 @@ static inline SAT_returnState init_csp_interface() {
 
 #if SDR_NO_CSP == 1
     sdr_interface_data_t *ifdata = sdr_interface_init(&sdr_conf, SDR_IF_SBAND_NAME);
-    if (!ifdata) return SATR_ERROR;
+    if (!ifdata)
+        return SATR_ERROR;
 #if SDR_TEST == 1
     test_sband_ifdata = ifdata;
 #endif

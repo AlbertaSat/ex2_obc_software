@@ -37,15 +37,19 @@
  *
  * TODO: Will need to change during stress testing
  */
+#define IRIS_HAL_MUTEX_TIMEOUT pdMS_TO_TICKS(1000)
 #define IRIS_POWER_CYCLE_DELAY vTaskDelay(pdMS_TO_TICKS(1))
 #define IRIS_INIT_DELAY vTaskDelay(pdMS_TO_TICKS(1000))
 #define IRIS_WAIT_FOR_STATE_TRANSITION vTaskDelay(pdMS_TO_TICKS(100))
-#define IRIS_IMAGE_DATA_BLOCK_TRANSFER_DELAY vTaskDelay(pdMS_TO_TICKS(10))
+#define IRIS_IMAGE_DATA_BLOCK_TRANSFER_DELAY vTaskDelay(pdMS_TO_TICKS(5))
+#define IRIS_WAIT_FOR_SENSORS_TO_TURN_ON vTaskDelay(pdMS_TO_TICKS(8000))
+#define IRIS_WAIT_FOR_SENSORS_TO_TURN_OFF vTaskDelay(pdMS_TO_TICKS(1000))
 
 typedef enum {
     // TODO: Add more meaningful return types
     IRIS_HAL_OK = 0,
     IRIS_HAL_ERROR = 1,
+    IRIS_HAL_BUSY = 2,
 } Iris_HAL_return;
 
 // Legal Iris commands
