@@ -327,7 +327,6 @@ Iris_HAL_return iris_get_image_count(uint16_t *image_count) {
         }
         }
     }
-    return IRIS_HAL_ERROR;
 }
 
 /**
@@ -368,6 +367,10 @@ Iris_HAL_return iris_toggle_sensor(IRIS_SENSOR_TOGGLE toggle) {
         }
         case GET_DATA: {
             ret = iris_get_data(&response, 1);
+            if (response == NACK_FLAG) {
+                sys_log(INFO, "Iris failed to initialize sensors");
+                controller_state = ERROR_STATE;
+            }
             controller_state = FINISH;
         }
         case FINISH: {
@@ -564,7 +567,7 @@ Iris_HAL_return iris_update_current_limit(uint16_t current_limit) {
             return IRIS_HAL_OK;
         }
         case ERROR_STATE: {
-            sys_log(WARN, "Iris failure on update current limit command");
+            sys_log(INFO, "Iris failure on update current limit command");
             return IRIS_HAL_ERROR;
         }
         }
@@ -621,7 +624,7 @@ Iris_HAL_return iris_set_time(uint32_t unix_time) {
             return IRIS_HAL_OK;
         }
         case ERROR_STATE: {
-            sys_log(WARN, "Iris failure on set iris time command");
+            sys_log(INFO, "Iris failure on set iris time command");
             xSemaphoreGive(iris_hal_mutex);
             return IRIS_HAL_ERROR;
         }
