@@ -109,9 +109,9 @@ uint8_t calculateTemp(uint16_t b) {
 
     // Check signed bit
     if (b & 0b100000000000) {
-        return -1 * ((~b & S_TEMP_BITMASK) + 1) * S_TEMP_SCALING;
+        return S_TEMP_SCALING(-1 * ((~b & S_TEMP_BITMASK) + 1));
     } else {
-        return (b & S_TEMP_BITMASK) * S_TEMP_SCALING;
+        return S_TEMP_SCALING(b & S_TEMP_BITMASK);
     }
 }
 
@@ -591,12 +591,12 @@ STX_return STX_getHK(Sband_Housekeeping *hkStruct) {
             switch (address) {
             case S_OUTPWR_REG_1:
                 val &= S_POWER_BITMASK;
-                hkStruct->Output_Power = val * S_OUTPWR_SCALING;
+                hkStruct->Output_Power = S_OUTPWR_SCALING(val);
                 break;
 
             case S_PATEMP_REG_1:
                 val &= S_POWER_BITMASK;
-                hkStruct->PA_Temp = (int32_t)val * S_PATEMP_SCALING + S_PATEMP_OFFSET;
+                hkStruct->PA_Temp = (int32_t)S_PATEMP_SCALING(val) + S_PATEMP_OFFSET;
                 break;
 
             case S_TOPTEMP_REG_1:
@@ -609,22 +609,22 @@ STX_return STX_getHK(Sband_Housekeeping *hkStruct) {
 
             case S_CURRENT_REG_1:
                 temp = (int16_t)val;
-                hkStruct->Bat_Current = temp * S_CURRENT_SCALING;
+                hkStruct->Bat_Current = S_CURRENT_SCALING(temp);
                 break;
 
             case S_VOLTAGE_REG_1:
                 val &= S_VOLTAGE_BITMASK;
-                hkStruct->Bat_Voltage = val * S_VOLTAGE_SCALING;
+                hkStruct->Bat_Voltage = S_VOLTAGE_SCALING(val);
                 break;
 
             case S_PACURRENT_REG_1:
                 temp = (int16_t)val;
-                hkStruct->PA_Current = temp * S_CURRENT_SCALING;
+                hkStruct->PA_Current = S_CURRENT_SCALING(temp);
                 break;
 
             case S_PAVOLTAGE_REG_1:
                 val &= S_VOLTAGE_BITMASK;
-                hkStruct->PA_Voltage = val * S_VOLTAGE_SCALING;
+                hkStruct->PA_Voltage = S_VOLTAGE_SCALING(val);
                 break;
             }
         }

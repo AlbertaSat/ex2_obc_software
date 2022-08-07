@@ -108,12 +108,12 @@
 // Conversion factors
 #define S_FREQ_OFFSET_SCALING 2
 #define S_FWVER_MAJORNUM_SCALING 100
-#define S_OUTPWR_SCALING 114 / 100000
-#define S_PATEMP_SCALING 7324 / 100000
+#define S_OUTPWR_SCALING(n) ((n * 114) / 100000)
+#define S_PATEMP_SCALING(n) ((n * 7324) / 100000)
 #define S_PATEMP_OFFSET -50
-#define S_TEMP_SCALING 6250 / 100000
-#define S_CURRENT_SCALING 4 / 100 // mA
-#define S_VOLTAGE_SCALING 400 / 100 // mV
+#define S_TEMP_SCALING(n) ((n * 6250) / 100000)
+#define S_CURRENT_SCALING(n) ((n * 4) / 100) // mA
+#define S_VOLTAGE_SCALING(n) ((n * 400) / 100) // mV
 
 #define S_MHZ_TO_HZ 1000000
 
