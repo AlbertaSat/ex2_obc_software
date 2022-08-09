@@ -220,6 +220,7 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
 
     if (fptr == -1) {
         sys_log(ERROR, "Unable to open iris image file from SD card");
+        xSemaphoreGive(iris_hal_mutex);
         return IRIS_HAL_ERROR;
     }
 
@@ -257,6 +258,7 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
                 red_ret = red_write(fptr, image_data_buffer_8Bit, IMAGE_TRANSFER_SIZE);
                 if (red_ret < 0) {
                     sys_log(ERROR, "Unable to write image data to SD card");
+                    xSemaphoreGive(iris_hal_mutex);
                     return IRIS_HAL_ERROR;
                 }
                 IRIS_IMAGE_DATA_BLOCK_TRANSFER_DELAY;
@@ -264,6 +266,7 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
             red_close(fptr);
             if (red_ret < 0) {
                 sys_log(ERROR, "Unable to close iris image file in SD card");
+                xSemaphoreGive(iris_hal_mutex);
                 return IRIS_HAL_ERROR;
             }
             controller_state = FINISH;
