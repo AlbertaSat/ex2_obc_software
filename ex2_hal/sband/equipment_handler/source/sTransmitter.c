@@ -104,17 +104,15 @@ uint16_t append_bytes(uint8_t b1, uint8_t b2) {
  * @return float
  *      Returns temperature in degrees Celsius
  */
-float calculateTemp(uint16_t b) {
-    float temperature = 0;
+uint8_t calculateTemp(uint16_t b) {
     b = b >> S_TEMP_BITSHIFT;
 
     // Check signed bit
     if (b & 0b100000000000) {
-        temperature = -S_TEMP_SCALING * (float)((~b & S_TEMP_BITMASK) + 1);
+        return S_TEMP_SCALING(-1 * ((~b & S_TEMP_BITMASK) + 1));
     } else {
-        temperature = S_TEMP_SCALING * (float)(b & S_TEMP_BITMASK);
+        return S_TEMP_SCALING(b & S_TEMP_BITMASK);
     }
-    return temperature;
 }
 
 /**
@@ -356,16 +354,16 @@ STX_return STX_setPaPower(uint8_t new_paPower) {
  * @return STX_return
  *      Success of the function defined in sTransmitter.h
  */
-STX_return STX_getFrequency(float *freq) {
+STX_return STX_getFrequency(uint32_t *freq) {
     uint8_t offset = 0;
     if (read_reg(S_FREQ_REG, &offset) != S_SUCCESS) {
         return S_BAD_READ;
     } else {
 
 #ifdef SBAND_COMMERCIAL_FREQUENCY
-        *freq = (float)offset / S_FREQ_OFFSET_SCALING + S_FREQ_COMMERCIAL_MIN;
+        *freq = offset * S_MHZ_TO_HZ / S_FREQ_OFFSET_SCALING + S_FREQ_COMMERCIAL_MIN;
 #else
-        *freq = (float)offset / S_FREQ_OFFSET_SCALING + S_FREQ_AMATEUR_MIN;
+        *freq = offset * S_MHZ_TO_HZ / S_FREQ_OFFSET_SCALING + S_FREQ_AMATEUR_MIN;
 #endif
 
         return S_SUCCESS;
@@ -382,12 +380,17 @@ STX_return STX_getFrequency(float *freq) {
  * @return STX_return
  *      Success of the function defined in sTransmitter.h
  */
-STX_return STX_setFrequency(float new_frequency) {
+STX_return STX_setFrequency(uint32_t new_frequency) {
 #if SBAND_COMMERCIAL_FREQUENCY == 1
+
+    // Minimum frequency resolution is 500 kHz
+    if ((new_frequency % S_FREQ_RESOLUTION) != 0) {
+        return S_BAD_PARAM;
+    }
 
     // Check if commercial frequency is within allowed bounds
     if ((new_frequency >= S_FREQ_COMMERCIAL_MIN) && (new_frequency <= S_FREQ_COMMERCIAL_MAX)) {
-        uint8_t offset = (uint8_t)((new_frequency - S_FREQ_COMMERCIAL_MIN) * S_FREQ_OFFSET_SCALING);
+        uint8_t offset = (uint8_t)((new_frequency - S_FREQ_COMMERCIAL_MIN) * S_FREQ_OFFSET_SCALING / S_MHZ_TO_HZ);
 
         if (write_reg(S_FREQ_REG, offset) != S_SUCCESS) {
             return S_BAD_WRITE;
@@ -555,10 +558,24 @@ STX_return STX_getBuffer(Sband_Buffer_t quantity, uint16_t *ptr) {
  *      Success of the function defined in sTransmitter.h
  */
 STX_return STX_getHK(Sband_Housekeeping *hkStruct) {
-    uint16_t val = 0;
+    uint32_t val = 0;
     int16_t temp = 0;
 
     uint8_t address = S_OUTPWR_REG_1; // Output power is the first hk value to collect
+
+    if (STX_getControl(&hkStruct->pa_status, &hkStruct->mode) != S_SUCCESS) {
+        return S_BAD_READ;
+    }
+    if (STX_getFrequency(&hkStruct->frequency) != S_SUCCESS) {
+        return S_BAD_READ;
+    }
+    if (STX_getEncoder(&hkStruct->bit_order, &hkStruct->scrambler, &hkStruct->filter, &hkStruct->modulation,
+                       &hkStruct->rate) != S_SUCCESS) {
+        return S_BAD_READ;
+    }
+    if (STX_getStatus(&hkStruct->PWRGD, &hkStruct->TXL) != S_SUCCESS) {
+        return S_BAD_READ;
+    }
 
     // Loop to collect all housekeeping. Values are stored across two 8-bit registers
     // TODO: use ints instead of floats
@@ -570,16 +587,16 @@ STX_return STX_getHK(Sband_Housekeeping *hkStruct) {
         } else if (read_reg(1 + address, &val2) != S_SUCCESS) {
             return S_BAD_READ;
         } else {
-            val = append_bytes(val1, val2);
+            val = (uint32_t)append_bytes(val1, val2);
             switch (address) {
             case S_OUTPWR_REG_1:
                 val &= S_POWER_BITMASK;
-                hkStruct->Output_Power = (float)val * S_OUTPWR_SCALING;
+                hkStruct->Output_Power = S_OUTPWR_SCALING(val);
                 break;
 
             case S_PATEMP_REG_1:
                 val &= S_POWER_BITMASK;
-                hkStruct->PA_Temp = (float)val * S_PATEMP_SCALING + S_PATEMP_OFFSET;
+                hkStruct->PA_Temp = (int32_t)S_PATEMP_SCALING(val) + S_PATEMP_OFFSET;
                 break;
 
             case S_TOPTEMP_REG_1:
@@ -592,22 +609,22 @@ STX_return STX_getHK(Sband_Housekeeping *hkStruct) {
 
             case S_CURRENT_REG_1:
                 temp = (int16_t)val;
-                hkStruct->Bat_Current = (float)temp * S_CURRENT_SCALING;
+                hkStruct->Bat_Current = S_CURRENT_SCALING(temp);
                 break;
 
             case S_VOLTAGE_REG_1:
                 val &= S_VOLTAGE_BITMASK;
-                hkStruct->Bat_Voltage = (float)val * S_VOLTAGE_SCALING;
+                hkStruct->Bat_Voltage = S_VOLTAGE_SCALING(val);
                 break;
 
             case S_PACURRENT_REG_1:
                 temp = (int16_t)val;
-                hkStruct->PA_Current = (float)temp * S_CURRENT_SCALING;
+                hkStruct->PA_Current = S_CURRENT_SCALING(temp);
                 break;
 
             case S_PAVOLTAGE_REG_1:
                 val &= S_VOLTAGE_BITMASK;
-                hkStruct->PA_Voltage = (float)val * S_VOLTAGE_SCALING;
+                hkStruct->PA_Voltage = S_VOLTAGE_SCALING(val);
                 break;
             }
         }

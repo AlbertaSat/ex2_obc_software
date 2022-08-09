@@ -24,7 +24,7 @@
 #include <logger/logger.h>
 
 #define SBAND_SYNC_BYTES 8
-static uint16_t syncword[SBAND_SYNC_BYTES/sizeof(uint16_t)] = {0xdadb, 0x0dba, 0xbeee, 0xd00d};
+static uint16_t syncword[SBAND_SYNC_BYTES / sizeof(uint16_t)] = {0xdadb, 0x0dba, 0xbeee, 0xd00d};
 
 int sband_init() {
     STX_return ret;
@@ -32,21 +32,19 @@ int sband_init() {
 #if SBAND_IS_STUBBED == 0
     STX_Enable();
 #endif
-    vTaskDelay(2*ONE_SECOND);
- 
-    Sband_PowerAmplifier pa = { .status = PA_STATUS_DISABLE, .mode = PA_MODE_CONF };
+    vTaskDelay(2 * ONE_SECOND);
+
+    Sband_PowerAmplifier pa = {.status = PA_STATUS_DISABLE, .mode = PA_MODE_CONF};
     if ((ret = HAL_S_setControl(pa)) != S_SUCCESS) {
         sys_log(WARN, "S-Band can't set CONF mode, rc %d", ret);
         return -1;
     }
 
-    Sband_Encoder encoder = {
-        .scrambler = S_SCRAMBLER_ENABLE,
-        .filter = S_FILTER_ENABLE,
-        .modulation = S_MOD_QPSK,
-        .rate = S_RATE_FULL,
-        .bit_order = S_BIT_ORDER_MSB
-    };
+    Sband_Encoder encoder = {.scrambler = S_SCRAMBLER_ENABLE,
+                             .filter = S_FILTER_ENABLE,
+                             .modulation = S_MOD_QPSK,
+                             .rate = S_RATE_FULL,
+                             .bit_order = S_BIT_ORDER_MSB};
     if ((ret = HAL_S_setEncoder(encoder)) != S_SUCCESS) {
         sys_log(NOTICE, "S-Band can't set encoder, rc %d", ret);
         return -2;
@@ -76,7 +74,7 @@ int sband_get_rate() {
 }
 
 bool sband_enter_conf_mode() {
-    Sband_PowerAmplifier pa = { .status = PA_STATUS_DISABLE, .mode = PA_MODE_CONF };
+    Sband_PowerAmplifier pa = {.status = PA_STATUS_DISABLE, .mode = PA_MODE_CONF};
     STX_return ret = HAL_S_setControl(pa);
     if (ret != S_SUCCESS) {
         sys_log(NOTICE, "%s failed: %d", __FUNCTION__, ret);
@@ -87,7 +85,7 @@ bool sband_enter_conf_mode() {
 
 bool sband_enter_sync_mode() {
     // Call this to get ready to transmit
-    Sband_PowerAmplifier pa = { .status = PA_STATUS_ENABLE, .mode = PA_MODE_SYNC };
+    Sband_PowerAmplifier pa = {.status = PA_STATUS_ENABLE, .mode = PA_MODE_SYNC};
     STX_return ret = HAL_S_setControl(pa);
     if (ret != S_SUCCESS) {
         sys_log(WARN, "%s failed: %d", __FUNCTION__, ret);
@@ -98,7 +96,7 @@ bool sband_enter_sync_mode() {
 
 bool sband_enter_data_mode() {
     // Call this to start transmitting once the FIFO is full
-    Sband_PowerAmplifier pa = { .status = PA_STATUS_ENABLE, .mode = PA_MODE_DATA };
+    Sband_PowerAmplifier pa = {.status = PA_STATUS_ENABLE, .mode = PA_MODE_DATA};
     STX_return ret = HAL_S_setControl(pa);
     if (ret != S_SUCCESS) {
         sys_log(WARN, "%s failed: %d", __FUNCTION__, ret);
@@ -141,4 +139,3 @@ bool sband_buffer_count(uint16_t *cnt) {
     *cnt = sbuf.pointer[S_BUFFER_COUNT];
     return true;
 }
-    

@@ -33,24 +33,11 @@ typedef enum {
 } STX_return;
 
 // Buffer parameter types
-typedef enum {
-    S_BUFFER_COUNT = 0,
-    S_BUFFER_UNDERRUN,
-    S_BUFFER_OVERRUN,
-    S_BUFFER_LAST
-} Sband_Buffer_t;
+typedef enum { S_BUFFER_COUNT = 0, S_BUFFER_UNDERRUN, S_BUFFER_OVERRUN, S_BUFFER_LAST } Sband_Buffer_t;
 
-typedef enum {
-    PA_STATUS_DISABLE = 0,
-    PA_STATUS_ENABLE
-} Sband_PowerAmplifier_Status_t;
+typedef enum { PA_STATUS_DISABLE = 0, PA_STATUS_ENABLE } Sband_PowerAmplifier_Status_t;
 
-typedef enum {
-    PA_MODE_CONF = 0,
-    PA_MODE_SYNC,
-    PA_MODE_DATA,
-    PA_MODE_TEST
-} Sband_Transmitter_Mode_t;
+typedef enum { PA_MODE_CONF = 0, PA_MODE_SYNC, PA_MODE_DATA, PA_MODE_TEST } Sband_Transmitter_Mode_t;
 
 #define PACKED __attribute__((packed))
 // #define PACKED
@@ -90,7 +77,7 @@ typedef struct PACKED {
 } Sband_Encoder;
 
 typedef struct PACKED {
-    float freq;
+    uint32_t freq;
     uint8_t PA_Power;
     Sband_PowerAmplifier PA;
     Sband_Encoder enc;
@@ -114,14 +101,24 @@ typedef struct PACKED {
 } Sband_Buffer;
 
 typedef struct PACKED sband_housekeeping {
-    float Output_Power;
-    float PA_Temp;
-    float Top_Temp;
-    float Bottom_Temp;
-    float Bat_Current;
-    float Bat_Voltage;
-    float PA_Current;
-    float PA_Voltage;
+    uint8_t mode;
+    uint8_t pa_status;
+    uint32_t frequency;
+    uint8_t scrambler;
+    uint8_t filter;
+    uint8_t modulation;
+    uint8_t rate;
+    uint8_t bit_order;
+    uint8_t PWRGD;
+    uint8_t TXL;
+    uint8_t Output_Power;
+    int8_t PA_Temp;
+    int8_t Top_Temp;
+    int8_t Bottom_Temp;
+    uint16_t Bat_Current;
+    uint16_t Bat_Voltage;
+    uint16_t PA_Current;
+    uint16_t PA_Voltage;
 } Sband_Housekeeping;
 
 typedef struct PACKED {
@@ -132,7 +129,7 @@ typedef struct PACKED {
     Sband_Housekeeping HK;
 } Sband_Full_Status;
 
-STX_return HAL_S_getFreq(float *S_freq);
+STX_return HAL_S_getFreq(uint32_t *S_freq);
 STX_return HAL_S_getPAPower(uint8_t *S_PA_power);
 STX_return HAL_S_getControl(Sband_PowerAmplifier *S_PA);
 STX_return HAL_S_getEncoder(Sband_Encoder *S_Enc);
@@ -143,7 +140,7 @@ STX_return HAL_S_getFirmwareV(Sband_FirmwareV *S_firmwareV);
 STX_return HAL_S_hk_convert_endianness(Sband_Housekeeping *S_hk);
 STX_return HAL_S_getBuffer(int quantity, Sband_Buffer *S_buffer);
 STX_return HAL_S_softResetFPGA(void);
-STX_return HAL_S_setFreq(float S_freq_new);
+STX_return HAL_S_setFreq(uint32_t S_freq_new);
 STX_return HAL_S_setPAPower(uint8_t S_PA_Power_new);
 STX_return HAL_S_setControl(Sband_PowerAmplifier S_PA_new);
 STX_return HAL_S_setEncoder(Sband_Encoder S_enc_new);

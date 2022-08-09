@@ -66,7 +66,7 @@
 #define S_PAVOLTAGE_REG_1 0x28
 #define S_PAVOLTAGE_REG_2 0x29
 
-#define S_LAST_REG S_VOLTAGE_REG_2
+#define S_LAST_REG S_PAVOLTAGE_REG_2
 
 // Max Lenghts for S-band commands and responses
 #define MAX_SBAND_W_CMDLEN 2
@@ -91,10 +91,11 @@
 #define S_PAPWR_30DBM 30
 
 // Frequency maximums/minimums
-#define S_FREQ_COMMERCIAL_MAX 2300.0f
-#define S_FREQ_COMMERCIAL_MIN 2200.0f
-#define S_FREQ_AMATEUR_MAX 2450.0f
-#define S_FREQ_AMATEUR_MIN 2400.0f
+#define S_FREQ_COMMERCIAL_MAX 2300000000 // Hz
+#define S_FREQ_COMMERCIAL_MIN 2200000000 // Hz
+#define S_FREQ_AMATEUR_MAX 2450000000    // Hz
+#define S_FREQ_AMATEUR_MIN 2400000000    // Hz
+#define S_FREQ_RESOLUTION 500000         // Hz
 
 // Power Amplifier operating status
 #define S_PAPWR_NOTGOOD 0
@@ -107,12 +108,14 @@
 // Conversion factors
 #define S_FREQ_OFFSET_SCALING 2
 #define S_FWVER_MAJORNUM_SCALING 100
-#define S_OUTPWR_SCALING 0.00114f
-#define S_PATEMP_SCALING 0.07324f
-#define S_PATEMP_OFFSET -50.0f
-#define S_TEMP_SCALING 0.0625f
-#define S_CURRENT_SCALING 0.00004f
-#define S_VOLTAGE_SCALING 0.004F
+#define S_OUTPWR_SCALING(n) ((n * 114) / 100000)
+#define S_PATEMP_SCALING(n) ((n * 7324) / 100000)
+#define S_PATEMP_OFFSET -50
+#define S_TEMP_SCALING(n) ((n * 6250) / 100000)
+#define S_CURRENT_SCALING(n) ((n * 4) / 100) // mA
+#define S_VOLTAGE_SCALING(n) ((n * 400) / 100) // mV
+
+#define S_MHZ_TO_HZ 1000000
 
 // Bit masks/shifting
 #define S_CONTROL_MODE_BIT_INDEX 0
@@ -138,7 +141,7 @@ STX_return write_reg(uint8_t, uint8_t);
 
 // Internal bit manipulation functions
 uint16_t append_bytes(uint8_t, uint8_t);
-float calculateTemp(uint16_t);
+uint8_t calculateTemp(uint16_t);
 
 // External access/control functions
 
@@ -159,9 +162,9 @@ STX_return STX_getPaPower(uint8_t *power);
 
 STX_return STX_setPaPower(uint8_t new_paPower);
 
-STX_return STX_getFrequency(float *freq);
+STX_return STX_getFrequency(uint32_t *freq);
 
-STX_return STX_setFrequency(float new_frequency);
+STX_return STX_setFrequency(uint32_t new_frequency);
 
 STX_return STX_softResetFPGA(void);
 
