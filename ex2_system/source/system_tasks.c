@@ -42,9 +42,9 @@ SAT_returnState start_system_tasks(void) {
         "RTC_daemon",        "logger_daemon"};
 
     const system_tasks start_task[] = {
-        &start_task_manager,      &start_beacon_daemon,       &start_coordinate_management_daemon,
-        &start_diagnostic_daemon, &start_housekeeping_daemon, &start_NMEA_daemon,
-        &start_RTC_daemon,        &start_logger_daemon,       NULL};
+        start_task_manager,      start_beacon_daemon,       start_coordinate_management_daemon,
+        start_diagnostic_daemon, start_housekeeping_daemon, start_NMEA_daemon,
+        start_RTC_daemon,        start_logger_daemon,       NULL};
 
     for (int i = 0; start_task[i]; i++) {
         SAT_returnState state;
