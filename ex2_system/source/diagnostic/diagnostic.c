@@ -589,13 +589,12 @@ SAT_returnState start_diagnostic_daemon(void) {
     if (xTaskCreate((TaskFunction_t)uhf_watchdog_daemon, "uhf_watchdog_daemon", 1000, NULL, DIAGNOSTIC_TASK_PRIO,
                     NULL) != pdPASS) {
         sys_log(ERROR, "FAILED TO CREATE TASK uhf_watchdog_daemon.\n");
-        return SATR_ERROR;
+    } else {
+        sys_log(INFO, "UHF watchdog task started.\n");
     }
-    sys_log(INFO, "UHF watchdog task started.\n");
     uhf_watchdog_mtx = xSemaphoreCreateMutex();
     if (uhf_watchdog_mtx == NULL) {
         sys_log(ERROR, "FAILED TO CREATE MUTEX uhf_watchdog_mtx.\n");
-        return SATR_ERROR;
     }
 #endif
 
@@ -603,13 +602,12 @@ SAT_returnState start_diagnostic_daemon(void) {
     if (xTaskCreate((TaskFunction_t)sband_watchdog_daemon, "sband_watchdog_daemon", 1000, NULL,
                     DIAGNOSTIC_TASK_PRIO, NULL) != pdPASS) {
         sys_log(ERROR, "FAILED TO CREATE TASK sband_watchdog_daemon.\n");
-        return SATR_ERROR;
+    } else {
+        sys_log(INFO, "SBAND watchdog task started.\n");
     }
-    sys_log(INFO, "SBAND watchdog task started.\n");
     sband_watchdog_mtx = xSemaphoreCreateMutex();
     if (sband_watchdog_mtx == NULL) {
         sys_log(ERROR, "FAILED TO CREATE MUTEX sband_watchdog_mtx.\n");
-        return SATR_ERROR;
     }
 #endif
 
@@ -617,13 +615,12 @@ SAT_returnState start_diagnostic_daemon(void) {
     if (xTaskCreate(charon_watchdog_daemon, "charon_watchdog_daemon", 1000, NULL, DIAGNOSTIC_TASK_PRIO, NULL) !=
         pdPASS) {
         sys_log(ERROR, "FAILED TO CREATE TASK charon_watchdog_daemon.\n");
-        return SATR_ERROR;
+    } else {
+        sys_log(INFO, "Charon watchdog task started.\n");
     }
-    sys_log(INFO, "Charon watchdog task started.\n");
     charon_watchdog_mtx = xSemaphoreCreateMutex();
     if (charon_watchdog_mtx == NULL) {
         sys_log(ERROR, "FAILED TO CREATE MUTEX charon_watchdog_mtx.\n");
-        return SATR_ERROR;
     }
 #endif
 
@@ -631,13 +628,12 @@ SAT_returnState start_diagnostic_daemon(void) {
     if (xTaskCreate(adcs_watchdog_daemon, "adcs_watchdog_daemon", 1000, NULL, DIAGNOSTIC_TASK_PRIO, NULL) !=
         pdPASS) {
         sys_log(ERROR, "FAILED TO CREATE TASK adcs_watchdog_daemon.\n");
-        return SATR_ERROR;
+    } else {
+        sys_log(INFO, "ADCS watchdog task started.\n");
     }
-    sys_log(INFO, "ADCS watchdog task started.\n");
     adcs_watchdog_mtx = xSemaphoreCreateMutex();
     if (adcs_watchdog_mtx == NULL) {
         sys_log(ERROR, "FAILED TO CREATE MUTEX adcs_watchdog_mtx.\n");
-        return SATR_ERROR;
     }
 #endif
 
@@ -645,13 +641,12 @@ SAT_returnState start_diagnostic_daemon(void) {
     if (xTaskCreate(payload_watchdog_daemon, "payload_watchdog_daemon", 1000, NULL, DIAGNOSTIC_TASK_PRIO, NULL) !=
         pdPASS) {
         sys_log(ERROR, "FAILED TO CREATE TASK payload_watchdog_daemon.\n");
-        return SATR_ERROR;
+    } else {
+        sys_log(INFO, "Payload watchdog task started.\n");
     }
-    sys_log(INFO, "Payload watchdog task started.\n");
     payload_watchdog_mtx = xSemaphoreCreateMutex();
     if (payload_watchdog_mtx == NULL) {
         sys_log(ERROR, "FAILED TO CREATE MUTEX payload_watchdog_mtx.\n");
-        return SATR_ERROR;
     }
 #endif
 
@@ -660,9 +655,9 @@ SAT_returnState start_diagnostic_daemon(void) {
     if (xTaskCreate(is_SolarPanel_overcurrent, "Solar_Panel_Current_Monitor", SOLAR_INA209_STACK_LEN, NULL,
                     DIAGNOSTIC_TASK_PRIO, NULL) != pdPASS) {
         sys_log(ERROR, "FAILED TO CREATE TASK: Solar Panel monitor failed to start!");
-        return SATR_ERROR;
+    } else {
+        sys_log(INFO, "Created Task: Solar Panel Current Monitor.");
     }
-    sys_log(INFO, "Created Task: Solar Panel Current Monitor.");
 #endif
 #endif
     if (xTaskCreate(boot_counter_reset, "BootRst", 128, NULL, 1, NULL) != pdPASS) {
