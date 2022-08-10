@@ -24,6 +24,7 @@
 
 #define STUBBED_WATCHDOG_DELAY 42
 #define WATCHDOG_MINIMUM_DELAY_MS 30000
+#define BOOT_COUNTER_RESET_DELAY pdMS_TO_TICKS(600000)
 
 SAT_returnState start_diagnostic_daemon(void);
 TickType_t get_uhf_watchdog_delay(void);
@@ -37,6 +38,5 @@ SAT_returnState set_sband_watchdog_delay(const unsigned int ms_delay);
 SAT_returnState set_charon_watchdog_delay(const unsigned int ms_delay);
 SAT_returnState set_adcs_watchdog_delay(const unsigned int ms_delay);
 SAT_returnState set_payload_watchdog_delay(const unsigned int ms_delay);
-
 
 #endif /* EX2_SYSTEM_INCLUDE_DIAGNOSTIC_DIAGNOSTIC_H_ */

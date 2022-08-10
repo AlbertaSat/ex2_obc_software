@@ -35,6 +35,7 @@
 #include "ns_payload.h"
 #include "iris.h"
 #include "hal_athena.h"
+#include "bl_eeprom.h"
 
 static void uhf_watchdog_daemon(void *pvParameters);
 static void sband_watchdog_daemon(void *pvParameters);
@@ -58,6 +59,27 @@ static SemaphoreHandle_t sband_watchdog_mtx = NULL;
 static SemaphoreHandle_t charon_watchdog_mtx = NULL;
 static SemaphoreHandle_t adcs_watchdog_mtx = NULL;
 static SemaphoreHandle_t payload_watchdog_mtx = NULL;
+
+static void boot_counter_reset(void *pvParameters) {
+    while (1) { // Syntactic sugar, freertos tasks should be a loop.
+        vTaskDelay(BOOT_COUNTER_RESET_DELAY);
+        boot_info b_inf = {0};
+        Fapi_StatusType status = eeprom_get_boot_info(&b_inf);
+        if (status != Fapi_Status_Success) {
+            sys_log(WARN, "Could not get boot info");
+            break;
+        }
+        b_inf.attempts = 0;
+        status = eeprom_set_boot_info(&b_inf);
+        if (status != Fapi_Status_Success) {
+            sys_log(WARN, "Could not set boot info");
+            break;
+        }
+        break;
+    }
+    sys_log(INFO, "Boot attempts reset to 0");
+    vTaskDelete(0);
+}
 
 #if UHF_IS_STUBBED == 0
 /**
@@ -353,14 +375,13 @@ static void payload_watchdog_daemon(void *pvParameters) {
         uint8_t heartbeat;
 #endif
 
-
         for (int i = 0; i < watchdog_retries; i++) {
 #if IS_EXALTA2 == 1
             err = iris_wdt_ack();
 #else
             err = HAL_NS_get_heartbeat(&heartbeat);
 #endif
-            if (err == expected_err){
+            if (err == expected_err) {
                 break;
             }
             vTaskDelay(10 * ONE_SECOND);
@@ -621,7 +642,8 @@ SAT_returnState start_diagnostic_daemon(void) {
 #endif
 
 #if PAYLOAD_IS_STUBBED == 0
-    if (xTaskCreate(payload_watchdog_daemon, "payload_watchdog_daemon", 1000, NULL, DIAGNOSTIC_TASK_PRIO, NULL) != pdPASS) {
+    if (xTaskCreate(payload_watchdog_daemon, "payload_watchdog_daemon", 1000, NULL, DIAGNOSTIC_TASK_PRIO, NULL) !=
+        pdPASS) {
         sys_log(ERROR, "FAILED TO CREATE TASK payload_watchdog_daemon.\n");
         return SATR_ERROR;
     }
@@ -643,5 +665,9 @@ SAT_returnState start_diagnostic_daemon(void) {
     sys_log(INFO, "Created Task: Solar Panel Current Monitor.");
 #endif
 #endif
+    if (xTaskCreate(boot_counter_reset, "BootRst", 128, NULL, 1, NULL) != pdPASS) {
+        sys_log(ERROR, "FAILED TO CREATE TASK BootRst.");
+    }
+    sys_log(INFO, "BootRst task started.\n");
     return SATR_OK;
 }
