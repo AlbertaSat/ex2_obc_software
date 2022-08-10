@@ -35,6 +35,7 @@ typedef enum {
     IRIS_COUNT_IMAGES = 6,
     IRIS_PROGRAM_FLASH = 7,
     IRIS_GET_HK = 8,
+    IRIS_DELIVER_LOG = 9,
 } IRIS_Subtype;
 
 #endif /* IRIS_SERVICE_H */

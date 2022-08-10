@@ -22,11 +22,12 @@
 #define INCLUDE_IRIS_H_
 
 // Iris data transfer constants
-#define IMAGE_TRANSFER_SIZE 512 // 512 data bytes
-#define MAX_IMAGE_LENGTH 3      // In bytes
-#define MAX_IMAGE_COUNT 1       // In bytes
-#define HOUSEKEEPING_SIZE 23    // In bytes
-#define IRIS_UNIX_TIME_SIZE 4   // In bytes
+#define IMAGE_TRANSFER_SIZE 512    // 512 data bytes
+#define IRIS_LOG_TRANSFER_SIZE 512 // 512 data bytes
+#define MAX_IMAGE_LENGTH 3         // In bytes
+#define MAX_IMAGE_COUNT 1          // In bytes
+#define HOUSEKEEPING_SIZE 23       // In bytes
+#define IRIS_UNIX_TIME_SIZE 4      // In bytes
 
 // Iris timeout constants
 /* We need to specify a delay between spi state transitions on OBC
@@ -42,6 +43,7 @@
 #define IRIS_INIT_DELAY vTaskDelay(pdMS_TO_TICKS(4000))
 #define IRIS_WAIT_FOR_STATE_TRANSITION vTaskDelay(pdMS_TO_TICKS(100))
 #define IRIS_IMAGE_DATA_BLOCK_TRANSFER_DELAY vTaskDelay(pdMS_TO_TICKS(10)) // Depends on optimization level
+#define IRIS_LOG_DATA_BLOCK_TRANSFER_DELAY vTaskDelay(pdMS_TO_TICKS(10))
 #define IRIS_WAIT_FOR_SENSORS_TO_TURN_ON vTaskDelay(pdMS_TO_TICKS(8000))
 #define IRIS_WAIT_FOR_SENSORS_TO_TURN_OFF vTaskDelay(pdMS_TO_TICKS(1000))
 
@@ -57,6 +59,7 @@ typedef enum {
     IRIS_TAKE_PIC = 0x10,
     IRIS_GET_IMAGE_LENGTH = 0x20,
     IRIS_TRANSFER_IMAGE = 0x31,
+    IRIS_TRANSFER_LOG = 0x34,
     IRIS_GET_IMAGE_COUNT = 0x30,
     IRIS_ON_SENSOR_IDLE = 0x40,
     IRIS_OFF_SENSOR_IDLE = 0x41,
@@ -98,6 +101,7 @@ Iris_HAL_return iris_init();
 Iris_HAL_return iris_take_pic();
 Iris_HAL_return iris_get_image_length(uint32_t *image_length);
 Iris_HAL_return iris_transfer_image(uint32_t image_length);
+Iris_HAL_return iris_transfer_log();
 Iris_HAL_return iris_get_image_count(uint16_t *image_count);
 Iris_HAL_return iris_toggle_sensor(uint8_t toggle);
 Iris_HAL_return iris_get_housekeeping(IRIS_Housekeeping *hk_data);

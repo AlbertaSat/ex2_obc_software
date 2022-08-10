@@ -289,6 +289,92 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
 
 /**
  * @brief
+ *   Sends a transfer log command to Iris, and expects to receive the
+ *   log data from reserved blocks on Iris' NAND flash
+ *
+ * @return
+ *   Returns IRIS_HAL_OK if equipment handler returns IRIS_LL_OK, else IRIS_HAL_ERROR
+ **/
+Iris_HAL_return iris_transfer_log() {
+    if (xSemaphoreTake(iris_hal_mutex, IRIS_HAL_MUTEX_TIMEOUT) != pdTRUE) {
+        return IRIS_HAL_BUSY;
+    }
+    uint16_t num_transfer = 512; // 512 (transfers) * 512 (bytes per transfer) = 262144 = 2048 (bytes per page) *
+                                 // 64 (pages per block) * 2 (blocks)
+    IrisLowLevelReturn ret;
+    int red_ret;
+
+    int32_t fptr;
+    fptr = red_open("iris_log.txt", RED_O_CREAT | RED_O_WRONLY);
+
+    if (fptr == -1) {
+        sys_log(ERROR, "Unable to open iris log file from SD card");
+        xSemaphoreGive(iris_hal_mutex);
+        return IRIS_HAL_ERROR;
+    }
+
+    controller_state = SEND_COMMAND;
+
+    while (1) {
+        switch (controller_state) {
+        case SEND_COMMAND: // Send start image transfer command
+        {
+            ret = iris_send_command(IRIS_TRANSFER_LOG);
+            if (ret == IRIS_LL_OK) {
+                controller_state = GET_DATA;
+            } else {
+                controller_state = ERROR_STATE;
+            }
+            IRIS_WAIT_FOR_STATE_TRANSITION;
+            break;
+        }
+        case GET_DATA: // Get log data in chunks/blocks
+        {
+            static uint16_t iris_log_buffer[IRIS_LOG_TRANSFER_SIZE];
+            static uint8_t iris_log_buffer_8Bit[IRIS_LOG_TRANSFER_SIZE];
+            memset(iris_log_buffer, 0, IRIS_LOG_TRANSFER_SIZE);
+
+            IRIS_WAIT_FOR_STATE_TRANSITION;
+            for (uint32_t count_transfer = 0; count_transfer < num_transfer; count_transfer++) {
+                ret = iris_get_data(iris_log_buffer, IRIS_LOG_TRANSFER_SIZE);
+
+                for (int i = 0; i < IRIS_LOG_TRANSFER_SIZE; i++) {
+                    iris_log_buffer_8Bit[i] = (iris_log_buffer[i] >> (8 * 0)) & 0xff;
+                }
+
+                red_ret = red_write(fptr, iris_log_buffer_8Bit, IRIS_LOG_TRANSFER_SIZE);
+                if (red_ret < 0) {
+                    sys_log(ERROR, "Unable to write iris log data to SD card");
+                    xSemaphoreGive(iris_hal_mutex);
+                    return IRIS_HAL_ERROR;
+                }
+                IRIS_LOG_DATA_BLOCK_TRANSFER_DELAY;
+            }
+            red_close(fptr);
+            if (red_ret < 0) {
+                sys_log(ERROR, "Unable to close iris log file in SD card");
+                xSemaphoreGive(iris_hal_mutex);
+                return IRIS_HAL_ERROR;
+            }
+            controller_state = FINISH;
+            break;
+        }
+        case FINISH: {
+            sys_log(INFO, "Iris successfully transferred image data");
+            xSemaphoreGive(iris_hal_mutex);
+            return IRIS_HAL_OK;
+        }
+        case ERROR_STATE: {
+            sys_log(INFO, "Iris returns NACK on transfer image command");
+            xSemaphoreGive(iris_hal_mutex);
+            return IRIS_HAL_ERROR;
+        }
+        }
+    }
+}
+
+/**
+ * @brief
  *   Sends a get image count command to Iris, and expects to receive the
  *   number of images stored on iris
  *

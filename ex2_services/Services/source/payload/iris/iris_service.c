@@ -240,6 +240,17 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
         sys_log(ERROR, "Iris: End sub-service 8");
         break;
     }
+    case IRIS_DELIVER_LOG: {
+        sys_log(ERROR, "Iris: Start sub-service 9");
+
+        status = iris_transfer_log();
+
+        // Return success/failure report
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));
+        set_packet_length(packet, sizeof(int8_t) + 1);
+        sys_log(ERROR, "Iris: End sub-service 9");
+        break;
+    }
     default:
         sys_log(WARN, "No such sub-service %d", ser_subtype);
         return SATR_PKT_ILLEGAL_SUBSERVICE;
