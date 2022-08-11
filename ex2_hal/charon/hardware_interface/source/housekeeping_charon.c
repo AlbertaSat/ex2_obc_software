@@ -21,13 +21,10 @@
 #include "housekeeping_charon.h"
 
 GPS_RETURNSTATE Charon_getHK(charon_housekeeping *hk) {
-    // Read temperature sensors
-    if (readAllTemps(&hk->temparray[0])) {
-        return UNKNOWN_ERROR;
-    }
-
     // Read GPS firmware CRC
 #if IS_EXALTA2 == 1
     return gps_skytraq_get_software_crc(&hk->crc);
+#else
+    return GPS_SUCCESS;
 #endif
 }
