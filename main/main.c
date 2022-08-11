@@ -409,7 +409,7 @@ static inline SAT_returnState init_csp_interface() {
     char rtable[128] = {0};
     snprintf(rtable, 128, "%d %s", gs_if_addr, gs_if_name);
 
-#if SBAND_IS_STUBBED == 0
+#if SBAND_IS_STUBBED == 0 && CSP_USE_SDR == 1
     snprintf(rtable, 128, "%s, 17 %s", rtable, SDR_IF_SBAND_NAME);
 #endif /* SBAND_IS_STUBBED */
 
