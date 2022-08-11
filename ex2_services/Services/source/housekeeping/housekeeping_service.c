@@ -539,11 +539,11 @@ Result load_config() {
  *    uint16_t of the size of the structure
  */
 uint16_t get_size_of_housekeeping(All_systems_housekeeping *all_hk_data) {
-    uint16_t needed_size = sizeof(all_hk_data->hk_timeorder) + sizeof(all_hk_data->Athena_hk) +
-                           sizeof(all_hk_data->EPS_hk) + sizeof(all_hk_data->UHF_hk) +
-                           sizeof(all_hk_data->S_band_hk) + sizeof(all_hk_data->adcs_hk) +
-                           sizeof(all_hk_data->hyperion_hk) + sizeof(all_hk_data->charon_hk) +
-                           sizeof(all_hk_data->DFGM_hk) + sizeof(all_hk_data->NS_hk) + sizeof(all_hk_data->IRIS_hk);
+    uint16_t needed_size =
+        sizeof(all_hk_data->hk_timeorder) + sizeof(all_hk_data->Athena_hk) + sizeof(all_hk_data->EPS_hk) +
+        sizeof(all_hk_data->UHF_hk) + sizeof(all_hk_data->S_band_hk) + sizeof(all_hk_data->adcs_hk) +
+        sizeof(all_hk_data->hyperion_hk) + sizeof(all_hk_data->charon_hk) + sizeof(all_hk_data->DFGM_hk) +
+        sizeof(all_hk_data->NS_hk) + sizeof(all_hk_data->IRIS_hk);
     return needed_size;
 }
 
@@ -573,18 +573,7 @@ Result write_hk_to_file(uint16_t filenumber, All_systems_housekeeping *all_hk_da
     red_lseek(fout, (filenumber - 1) * needed_size, RED_SEEK_SET);
 
     red_errno = 0;
-    /*The order of writes and subsequent reads must match*/
-    red_write(fout, &all_hk_data->hk_timeorder, sizeof(all_hk_data->hk_timeorder));
-    red_write(fout, &all_hk_data->adcs_hk, sizeof(all_hk_data->adcs_hk));
-    red_write(fout, &all_hk_data->Athena_hk, sizeof(all_hk_data->Athena_hk));
-    red_write(fout, &all_hk_data->EPS_hk, sizeof(all_hk_data->EPS_hk));
-    red_write(fout, &all_hk_data->UHF_hk, sizeof(all_hk_data->UHF_hk));
-    red_write(fout, &all_hk_data->S_band_hk, sizeof(all_hk_data->S_band_hk));
-    red_write(fout, &all_hk_data->hyperion_hk, sizeof(all_hk_data->hyperion_hk));
-    red_write(fout, &all_hk_data->charon_hk, sizeof(all_hk_data->charon_hk));
-    red_write(fout, &all_hk_data->DFGM_hk, sizeof(all_hk_data->DFGM_hk));
-    red_write(fout, &all_hk_data->NS_hk, sizeof(all_hk_data->NS_hk));
-    red_write(fout, &all_hk_data->IRIS_hk, sizeof(all_hk_data->IRIS_hk));
+    red_write(fout, all_hk_data, sizeof(All_systems_housekeeping));
 
     if (red_errno != 0) {
         sys_log(ERROR, "Failed to write to file: '%s'\n", fileName);
@@ -625,17 +614,7 @@ Result read_hk_from_file(uint16_t filenumber, All_systems_housekeeping *all_hk_d
 
     red_errno = 0;
     /*The order of writes and subsequent reads must match*/
-    red_read(fin, &all_hk_data->hk_timeorder, sizeof(all_hk_data->hk_timeorder));
-    red_read(fin, &all_hk_data->adcs_hk, sizeof(all_hk_data->adcs_hk));
-    red_read(fin, &all_hk_data->Athena_hk, sizeof(all_hk_data->Athena_hk));
-    red_read(fin, &all_hk_data->EPS_hk, sizeof(all_hk_data->EPS_hk));
-    red_read(fin, &all_hk_data->UHF_hk, sizeof(all_hk_data->UHF_hk));
-    red_read(fin, &all_hk_data->S_band_hk, sizeof(all_hk_data->S_band_hk));
-    red_read(fin, &all_hk_data->hyperion_hk, sizeof(all_hk_data->hyperion_hk));
-    red_read(fin, &all_hk_data->charon_hk, sizeof(all_hk_data->charon_hk));
-    red_read(fin, &all_hk_data->DFGM_hk, sizeof(all_hk_data->DFGM_hk));
-    red_read(fin, &all_hk_data->NS_hk, sizeof(all_hk_data->NS_hk));
-    red_read(fin, &all_hk_data->IRIS_hk, sizeof(all_hk_data->IRIS_hk));
+    red_read(fin, all_hk_data, sizeof(All_systems_housekeeping));
 
     if (red_errno != 0) {
         sys_log(ERROR, "Failed to read: '%c'\n", fileName);
@@ -709,7 +688,7 @@ Result populate_and_store_hk_data(void) {
     }
     store_config(0);
 
-    ex2_log("%zu written to disk", current_file);
+    ex2_log("File num %zu written to disk", current_file);
 
     ++current_file;
     if (current_file > MAX_FILES) {
@@ -794,9 +773,7 @@ Result set_max_files(uint16_t new_max) {
  *      MAX_FILES
  */
 
-uint16_t get_current_file(){
-    return current_file;
-}
+uint16_t get_current_file() { return current_file; }
 
 /**
  * @brief

@@ -54,12 +54,6 @@ static TickType_t charon_prv_watchdog_delay = ONE_MINUTE;
 static TickType_t adcs_prv_watchdog_delay = ONE_MINUTE;
 static TickType_t payload_prv_watchdog_delay = ONE_MINUTE;
 
-static SemaphoreHandle_t uhf_watchdog_mtx = NULL;
-static SemaphoreHandle_t sband_watchdog_mtx = NULL;
-static SemaphoreHandle_t charon_watchdog_mtx = NULL;
-static SemaphoreHandle_t adcs_watchdog_mtx = NULL;
-static SemaphoreHandle_t payload_watchdog_mtx = NULL;
-
 static void boot_counter_reset(void *pvParameters) {
     while (1) { // Syntactic sugar, freertos tasks should be a loop.
         vTaskDelay(BOOT_COUNTER_RESET_DELAY);
@@ -147,10 +141,7 @@ static void uhf_watchdog_daemon(void *pvParameters) {
             }
         }
 
-        if (xSemaphoreTake(uhf_watchdog_mtx, mutex_timeout) == pdPASS) {
-            delay = uhf_prv_watchdog_delay;
-            xSemaphoreGive(uhf_watchdog_mtx);
-        }
+        delay = get_uhf_watchdog_delay();
         vTaskDelay(delay);
     }
 }
@@ -200,10 +191,7 @@ static void sband_watchdog_daemon(void *pvParameters) {
             sys_log(INFO, "SBAND power toggled");
         }
 
-        if (xSemaphoreTake(sband_watchdog_mtx, mutex_timeout) == pdPASS) {
-            delay = sband_prv_watchdog_delay;
-            xSemaphoreGive(sband_watchdog_mtx);
-        }
+        delay = get_sband_watchdog_delay();
         vTaskDelay(delay);
     }
 }
@@ -265,10 +253,7 @@ static void charon_watchdog_daemon(void *pvParameters) {
             }
         }
 
-        if (xSemaphoreTake(charon_watchdog_mtx, mutex_timeout) == pdPASS) {
-            delay = charon_prv_watchdog_delay;
-            xSemaphoreGive(charon_watchdog_mtx);
-        }
+        delay = get_charon_watchdog_delay();
         vTaskDelay(delay);
     }
 }
@@ -334,10 +319,7 @@ static void adcs_watchdog_daemon(void *pvParameters) {
             }
         }
 
-        if (xSemaphoreTake(adcs_watchdog_mtx, mutex_timeout) == pdPASS) {
-            delay = adcs_prv_watchdog_delay;
-            xSemaphoreGive(adcs_watchdog_mtx);
-        }
+        delay = get_adcs_watchdog_delay();
         vTaskDelay(delay);
     }
 }
@@ -419,10 +401,7 @@ static void payload_watchdog_daemon(void *pvParameters) {
             }
         }
 
-        if (xSemaphoreTake(payload_watchdog_mtx, mutex_timeout) == pdPASS) {
-            delay = payload_prv_watchdog_delay;
-            xSemaphoreGive(payload_watchdog_mtx);
-        }
+        delay = get_payload_watchdog_delay();
         vTaskDelay(delay);
     }
 }
@@ -432,13 +411,7 @@ TickType_t get_uhf_watchdog_delay(void) {
 #if UHF_IS_STUBBED == 1
     return STUBBED_WATCHDOG_DELAY;
 #else
-    if (xSemaphoreTake(uhf_watchdog_mtx, mutex_timeout) == pdPASS) {
-        TickType_t delay = uhf_prv_watchdog_delay;
-        xSemaphoreGive(uhf_watchdog_mtx);
-        return delay;
-    } else {
-        return 0;
-    }
+    return uhf_prv_watchdog_delay;
 #endif
 }
 
@@ -446,13 +419,7 @@ TickType_t get_sband_watchdog_delay(void) {
 #if SBAND_IS_STUBBED == 1
     return STUBBED_WATCHDOG_DELAY;
 #else
-    if (xSemaphoreTake(sband_watchdog_mtx, mutex_timeout) == pdPASS) {
-        TickType_t delay = sband_prv_watchdog_delay;
-        xSemaphoreGive(sband_watchdog_mtx);
-        return delay;
-    } else {
-        return 0;
-    }
+    return sband_prv_watchdog_delay;
 #endif
 }
 
@@ -460,13 +427,7 @@ TickType_t get_charon_watchdog_delay(void) {
 #if CHARON_IS_STUBBED == 1
     return STUBBED_WATCHDOG_DELAY;
 #else
-    if (xSemaphoreTake(charon_watchdog_mtx, mutex_timeout) == pdPASS) {
-        TickType_t delay = charon_prv_watchdog_delay;
-        xSemaphoreGive(charon_watchdog_mtx);
-        return delay;
-    } else {
-        return 0;
-    }
+    return charon_prv_watchdog_delay;
 #endif
 }
 
@@ -474,13 +435,7 @@ TickType_t get_adcs_watchdog_delay(void) {
 #if ADCS_IS_STUBBED == 1
     return STUBBED_WATCHDOG_DELAY;
 #else
-    if (xSemaphoreTake(adcs_watchdog_mtx, mutex_timeout) == pdPASS) {
-        TickType_t delay = adcs_prv_watchdog_delay;
-        xSemaphoreGive(adcs_watchdog_mtx);
-        return delay;
-    } else {
-        return 0;
-    }
+    return adcs_prv_watchdog_delay;
 #endif
 }
 
@@ -488,13 +443,7 @@ TickType_t get_payload_watchdog_delay(void) {
 #if PAYLOAD_IS_STUBBED == 1
     return STUBBED_WATCHDOG_DELAY;
 #else
-    if (xSemaphoreTake(payload_watchdog_mtx, mutex_timeout) == pdPASS) {
-        TickType_t delay = payload_prv_watchdog_delay;
-        xSemaphoreGive(payload_watchdog_mtx);
-        return delay;
-    } else {
-        return 0;
-    }
+    return payload_prv_watchdog_delay;
 #endif
 }
 
@@ -505,12 +454,8 @@ SAT_returnState set_uhf_watchdog_delay(const unsigned int ms_delay) {
     if (ms_delay < WATCHDOG_MINIMUM_DELAY_MS) {
         return SATR_ERROR;
     }
-    if (xSemaphoreTake(uhf_watchdog_mtx, mutex_timeout) == pdPASS) {
-        uhf_prv_watchdog_delay = pdMS_TO_TICKS(ms_delay);
-        xSemaphoreGive(uhf_watchdog_mtx);
-        return SATR_OK;
-    }
-    return SATR_ERROR;
+    uhf_prv_watchdog_delay = pdMS_TO_TICKS(ms_delay);
+    return SATR_OK;
 #endif
 }
 
@@ -521,12 +466,8 @@ SAT_returnState set_sband_watchdog_delay(const unsigned int ms_delay) {
     if (ms_delay < WATCHDOG_MINIMUM_DELAY_MS) {
         return SATR_ERROR;
     }
-    if (xSemaphoreTake(sband_watchdog_mtx, mutex_timeout) == pdPASS) {
-        sband_prv_watchdog_delay = pdMS_TO_TICKS(ms_delay);
-        xSemaphoreGive(sband_watchdog_mtx);
-        return SATR_OK;
-    }
-    return SATR_ERROR;
+    sband_prv_watchdog_delay = pdMS_TO_TICKS(ms_delay);
+    return SATR_OK;
 #endif
 }
 
@@ -537,12 +478,8 @@ SAT_returnState set_charon_watchdog_delay(const unsigned int ms_delay) {
     if (ms_delay < WATCHDOG_MINIMUM_DELAY_MS) {
         return SATR_ERROR;
     }
-    if (xSemaphoreTake(charon_watchdog_mtx, mutex_timeout) == pdPASS) {
-        charon_prv_watchdog_delay = pdMS_TO_TICKS(ms_delay);
-        xSemaphoreGive(charon_watchdog_mtx);
-        return SATR_OK;
-    }
-    return SATR_ERROR;
+    charon_prv_watchdog_delay = pdMS_TO_TICKS(ms_delay);
+    return SATR_OK;
 #endif
 }
 
@@ -553,12 +490,8 @@ SAT_returnState set_adcs_watchdog_delay(const unsigned int ms_delay) {
     if (ms_delay < WATCHDOG_MINIMUM_DELAY_MS) {
         return SATR_ERROR;
     }
-    if (xSemaphoreTake(adcs_watchdog_mtx, mutex_timeout) == pdPASS) {
-        adcs_prv_watchdog_delay = pdMS_TO_TICKS(ms_delay);
-        xSemaphoreGive(adcs_watchdog_mtx);
-        return SATR_OK;
-    }
-    return SATR_ERROR;
+    adcs_prv_watchdog_delay = pdMS_TO_TICKS(ms_delay);
+    return SATR_OK;
 #endif
 }
 
@@ -569,12 +502,8 @@ SAT_returnState set_payload_watchdog_delay(const unsigned int ms_delay) {
     if (ms_delay < WATCHDOG_MINIMUM_DELAY_MS) {
         return SATR_ERROR;
     }
-    if (xSemaphoreTake(payload_watchdog_mtx, mutex_timeout) == pdPASS) {
-        payload_prv_watchdog_delay = pdMS_TO_TICKS(ms_delay);
-        xSemaphoreGive(payload_watchdog_mtx);
-        return SATR_OK;
-    }
-    return SATR_ERROR;
+    payload_prv_watchdog_delay = pdMS_TO_TICKS(ms_delay);
+    return SATR_OK;
 #endif
 }
 
@@ -589,13 +518,8 @@ SAT_returnState start_diagnostic_daemon(void) {
     if (xTaskCreate((TaskFunction_t)uhf_watchdog_daemon, "uhf_watchdog_daemon", 1000, NULL, DIAGNOSTIC_TASK_PRIO,
                     NULL) != pdPASS) {
         sys_log(ERROR, "FAILED TO CREATE TASK uhf_watchdog_daemon.\n");
-        return SATR_ERROR;
-    }
-    sys_log(INFO, "UHF watchdog task started.\n");
-    uhf_watchdog_mtx = xSemaphoreCreateMutex();
-    if (uhf_watchdog_mtx == NULL) {
-        sys_log(ERROR, "FAILED TO CREATE MUTEX uhf_watchdog_mtx.\n");
-        return SATR_ERROR;
+    } else {
+        sys_log(INFO, "UHF watchdog task started.\n");
     }
 #endif
 
@@ -603,13 +527,8 @@ SAT_returnState start_diagnostic_daemon(void) {
     if (xTaskCreate((TaskFunction_t)sband_watchdog_daemon, "sband_watchdog_daemon", 1000, NULL,
                     DIAGNOSTIC_TASK_PRIO, NULL) != pdPASS) {
         sys_log(ERROR, "FAILED TO CREATE TASK sband_watchdog_daemon.\n");
-        return SATR_ERROR;
-    }
-    sys_log(INFO, "SBAND watchdog task started.\n");
-    sband_watchdog_mtx = xSemaphoreCreateMutex();
-    if (sband_watchdog_mtx == NULL) {
-        sys_log(ERROR, "FAILED TO CREATE MUTEX sband_watchdog_mtx.\n");
-        return SATR_ERROR;
+    } else {
+        sys_log(INFO, "SBAND watchdog task started.\n");
     }
 #endif
 
@@ -617,13 +536,8 @@ SAT_returnState start_diagnostic_daemon(void) {
     if (xTaskCreate(charon_watchdog_daemon, "charon_watchdog_daemon", 1000, NULL, DIAGNOSTIC_TASK_PRIO, NULL) !=
         pdPASS) {
         sys_log(ERROR, "FAILED TO CREATE TASK charon_watchdog_daemon.\n");
-        return SATR_ERROR;
-    }
-    sys_log(INFO, "Charon watchdog task started.\n");
-    charon_watchdog_mtx = xSemaphoreCreateMutex();
-    if (charon_watchdog_mtx == NULL) {
-        sys_log(ERROR, "FAILED TO CREATE MUTEX charon_watchdog_mtx.\n");
-        return SATR_ERROR;
+    } else {
+        sys_log(INFO, "Charon watchdog task started.\n");
     }
 #endif
 
@@ -631,13 +545,8 @@ SAT_returnState start_diagnostic_daemon(void) {
     if (xTaskCreate(adcs_watchdog_daemon, "adcs_watchdog_daemon", 1000, NULL, DIAGNOSTIC_TASK_PRIO, NULL) !=
         pdPASS) {
         sys_log(ERROR, "FAILED TO CREATE TASK adcs_watchdog_daemon.\n");
-        return SATR_ERROR;
-    }
-    sys_log(INFO, "ADCS watchdog task started.\n");
-    adcs_watchdog_mtx = xSemaphoreCreateMutex();
-    if (adcs_watchdog_mtx == NULL) {
-        sys_log(ERROR, "FAILED TO CREATE MUTEX adcs_watchdog_mtx.\n");
-        return SATR_ERROR;
+    } else {
+        sys_log(INFO, "ADCS watchdog task started.\n");
     }
 #endif
 
@@ -645,13 +554,8 @@ SAT_returnState start_diagnostic_daemon(void) {
     if (xTaskCreate(payload_watchdog_daemon, "payload_watchdog_daemon", 1000, NULL, DIAGNOSTIC_TASK_PRIO, NULL) !=
         pdPASS) {
         sys_log(ERROR, "FAILED TO CREATE TASK payload_watchdog_daemon.\n");
-        return SATR_ERROR;
-    }
-    sys_log(INFO, "Payload watchdog task started.\n");
-    payload_watchdog_mtx = xSemaphoreCreateMutex();
-    if (payload_watchdog_mtx == NULL) {
-        sys_log(ERROR, "FAILED TO CREATE MUTEX payload_watchdog_mtx.\n");
-        return SATR_ERROR;
+    } else {
+        sys_log(INFO, "Payload watchdog task started.\n");
     }
 #endif
 
@@ -660,9 +564,9 @@ SAT_returnState start_diagnostic_daemon(void) {
     if (xTaskCreate(is_SolarPanel_overcurrent, "Solar_Panel_Current_Monitor", SOLAR_INA209_STACK_LEN, NULL,
                     DIAGNOSTIC_TASK_PRIO, NULL) != pdPASS) {
         sys_log(ERROR, "FAILED TO CREATE TASK: Solar Panel monitor failed to start!");
-        return SATR_ERROR;
+    } else {
+        sys_log(INFO, "Created Task: Solar Panel Current Monitor.");
     }
-    sys_log(INFO, "Created Task: Solar Panel Current Monitor.");
 #endif
 #endif
     if (xTaskCreate(boot_counter_reset, "BootRst", 128, NULL, 1, NULL) != pdPASS) {
