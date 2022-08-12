@@ -572,7 +572,7 @@ DFGM_return DFGM_get_HK(dfgm_housekeeping *hk) {
     // Only update HK buffer if it has old data
     if (timeDiff > DFGM_TIME_THRESHOLD) {
         // Check if collecting HK semaphore exists
-        if (collecting_HK_semaphore == NULL) {
+        if (collecting_HK_semaphore != NULL) {
             // If collecting HK semaphore exists, use it to timeout the DFGM rx Task
             // in the case that it takes too long to collect HK data (should take 1-2 seconds)
             if (xSemaphoreTake(collecting_HK_semaphore, DFGM_HK_COLLECTION_MAX_RUNTIME) == pdTRUE) {
