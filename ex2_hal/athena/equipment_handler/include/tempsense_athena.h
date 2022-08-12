@@ -16,10 +16,10 @@
  * @author  Josh Lazaruk
  * @date    2020-08-16
  */
+#include <stdint.h>
 
 #define NUM_TEMP_SENSOR 2
 #define TEMP_ADDRESS_1 0x49
 #define TEMP_ADDRESS_2 0x4A
 
-void inittemp_all(void);
-int gettemp_all(long *MCU_core_temp_add, long *converter_temp_add);
+int get_Athena_Temperatures(int16_t *MCU_core_temp, int16_t *converter_temp);

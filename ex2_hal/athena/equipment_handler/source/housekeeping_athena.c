@@ -31,6 +31,7 @@
 #include "redstat.h"
 #include "redposix.h"
 #include "redconf.h"
+#include "ina209.h"
 
 /**
  * @brief
@@ -41,12 +42,10 @@
  * @return
  * 		0 for success. other for failure
  */
-int HAL_get_temp_all(long *MCU_core_temp_add, long *converter_temp_add) {
-#if ATHENA_IS_STUBBED == 1
+int Athena_hk_get_temps(int16_t *MCU_core_temp, int16_t *converter_temp) {
+    *MCU_core_temp = 25565; // TODO: Work on temperature sensors
+    *converter_temp = 25565;
     return 0;
-#else
-    return gettemp_all(temparray);
-#endif
 }
 
 /**
@@ -99,10 +98,10 @@ int Athena_getHK(athena_housekeeping *athena_hk) {
     /*Add athena HAL housekeeping getters here and put fields in h file
     create HAL functions here following format of existing
     also add endianness conversion in Athena_hk_convert_endianness*/
-    temp_status = HAL_get_temp_all(&athena_hk->MCU_core_temp, &athena_hk->converter_temp);
+    temp_status = Athena_hk_get_temps(&athena_hk->MCU_core_temp, &athena_hk->converter_temp);
 
     // Get last 8 digits of the software version
-    memcpy(athena_hk->OBC_software_ver, ex2_hk_version, 8 * sizeof(char));
+    memcpy(athena_hk->OBC_software_ver, ex2_hk_version, VERSION_ID_SIZE);
 
     // Get OBC uptime: Seconds = value*10. Max = 655360 seconds (7.6 days)
     athena_hk->OBC_uptime = Athena_get_OBC_uptime();
@@ -162,9 +161,8 @@ int Athena_getHK(athena_housekeeping *athena_hk) {
  * 		0 for success. other for failure
  */
 int Athena_hk_convert_endianness(athena_housekeeping *athena_hk) {
-    uint8_t i;
-    athena_hk->MCU_core_temp = (long)csp_ntoh32((uint32_t)athena_hk->MCU_core_temp);
-    athena_hk->converter_temp = (long)csp_ntoh32((uint32_t)athena_hk->converter_temp);
+    athena_hk->MCU_core_temp = csp_ntoh16(athena_hk->MCU_core_temp);
+    athena_hk->converter_temp = csp_ntoh16(athena_hk->converter_temp);
     athena_hk->boot_cnt = csp_ntoh16(athena_hk->boot_cnt);
     athena_hk->OBC_uptime = csp_ntoh16(athena_hk->OBC_uptime);
     athena_hk->solar_panel_supply_curr = csp_ntoh16(athena_hk->solar_panel_supply_curr);
