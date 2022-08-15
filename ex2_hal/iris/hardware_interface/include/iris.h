@@ -42,8 +42,8 @@
 #define IRIS_POWER_CYCLE_DELAY vTaskDelay(pdMS_TO_TICKS(1))
 #define IRIS_INIT_DELAY vTaskDelay(pdMS_TO_TICKS(4000))
 #define IRIS_WAIT_FOR_STATE_TRANSITION vTaskDelay(pdMS_TO_TICKS(100))
-#define IRIS_IMAGE_DATA_BLOCK_TRANSFER_DELAY vTaskDelay(pdMS_TO_TICKS(10)) // Depends on optimization level
-#define IRIS_LOG_DATA_BLOCK_TRANSFER_DELAY vTaskDelay(pdMS_TO_TICKS(10))
+#define IRIS_IMAGE_DATA_BLOCK_TRANSFER_DELAY vTaskDelay(pdMS_TO_TICKS(20)) // Depends on optimization level
+#define IRIS_LOG_DATA_BLOCK_TRANSFER_DELAY vTaskDelay(pdMS_TO_TICKS(20))
 #define IRIS_WAIT_FOR_SENSORS_TO_TURN_ON vTaskDelay(pdMS_TO_TICKS(8000))
 #define IRIS_WAIT_FOR_SENSORS_TO_TURN_OFF vTaskDelay(pdMS_TO_TICKS(1000))
 
