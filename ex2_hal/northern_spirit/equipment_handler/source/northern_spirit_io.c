@@ -87,6 +87,8 @@ NS_return NS_sendAndReceive(uint8_t *command, uint32_t command_length, uint8_t *
         return NS_UART_BUSY;
     }
 
+    xQueueReset(nsQueue);
+
     sciSend(PAYLOAD_SCI, command_length, command);
 
     if (xSemaphoreTake(ns_tx_semphr, NS_SEMAPHORE_TIMEOUT_MS) != pdTRUE) {
@@ -139,6 +141,7 @@ NS_return NS_expectResponse(uint8_t *response, uint8_t length) {
     if (xSemaphoreTake(uart_mutex, NS_SEMAPHORE_TIMEOUT_MS) != pdTRUE) {
         return NS_UART_BUSY;
     }
+
     uint8_t received = 0;
     while (received < length) {
         if (xQueueReceive(nsQueue, (response + received), NS_UART_LONG_TIMEOUT_MS) != pdPASS) {
@@ -148,8 +151,8 @@ NS_return NS_expectResponse(uint8_t *response, uint8_t length) {
             received++;
         }
     }
-
     xSemaphoreGive(uart_mutex);
+    xQueueReset(nsQueue);
     return NS_OK;
 }
 
