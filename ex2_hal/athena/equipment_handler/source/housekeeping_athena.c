@@ -101,7 +101,9 @@ int Athena_getHK(athena_housekeeping *athena_hk) {
     temp_status = Athena_hk_get_temps(&athena_hk->MCU_core_temp, &athena_hk->converter_temp);
 
     // Get last 8 digits of the software version
-    memcpy(athena_hk->OBC_software_ver, ex2_hk_version, VERSION_ID_SIZE);
+    athena_hk->version_major = VERSION_MAJOR;
+    athena_hk->version_minor = VERSION_MINOR;
+    athena_hk->version_patch = VERSION_PATCH;
 
     // Get OBC uptime: Seconds = value*10. Max = 655360 seconds (7.6 days)
     athena_hk->OBC_uptime = Athena_get_OBC_uptime();

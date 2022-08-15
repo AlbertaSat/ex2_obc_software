@@ -234,7 +234,9 @@ Result mock_everyone(All_systems_housekeeping *all_hk_data) {
     all_hk_data->Athena_hk.OBC_mode = tempu8;
     all_hk_data->Athena_hk.OBC_uptime = tempu16;
     all_hk_data->Athena_hk.solar_panel_supply_curr = tempu8;
-    memset(all_hk_data->Athena_hk.OBC_software_ver, 0, VERSION_ID_SIZE);
+    all_hk_data->Athena_hk.version_major = tempu16;
+    all_hk_data->Athena_hk.version_minor = tempu16;
+    all_hk_data->Athena_hk.version_patch = tempu16;
     all_hk_data->Athena_hk.cmds_received = tempu16;
     all_hk_data->Athena_hk.pckts_uncovered_by_FEC = tempu16;
 

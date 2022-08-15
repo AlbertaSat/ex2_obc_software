@@ -21,8 +21,6 @@
 #define HOUSEKEEPING_ATHENA_H
 #define ATHENA_TEMP_ARRAY_SIZE 2
 
-#define VERSION_ID_SIZE 8 * sizeof(char)
-
 #include <stdint.h>
 
 /*Add includes for other athena files to get hk data from*/
@@ -39,7 +37,9 @@ ATTENTION:
 */
 
 typedef struct __attribute__((packed)) {
-    char OBC_software_ver[VERSION_ID_SIZE];
+    uint16_t version_major;
+    uint16_t version_minor;
+    uint16_t version_patch;
     int16_t MCU_core_temp;
     int16_t converter_temp;
     uint32_t OBC_uptime;              // Seconds
