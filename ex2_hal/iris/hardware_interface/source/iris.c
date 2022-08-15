@@ -117,6 +117,7 @@ Iris_HAL_return iris_take_pic() {
         case SEND_COMMAND: {
             ret = iris_send_command(IRIS_TAKE_PIC);
             if (ret == IRIS_LL_OK) {
+                sys_log(INFO, "Iris commanded to take a picture at time: %d", time);
                 controller_state = FINISH;
             } else {
                 controller_state = ERROR_STATE;
@@ -125,7 +126,7 @@ Iris_HAL_return iris_take_pic() {
         }
         case FINISH: {
             RTCMK_GetUnix(&time);
-            sys_log(INFO, "Iris commanded to take a picture at time: %d", time);
+            sys_log(INFO, "Iris successfully captured image");
             xSemaphoreGive(iris_hal_mutex);
             return IRIS_HAL_OK;
         }
@@ -183,7 +184,7 @@ Iris_HAL_return iris_get_image_length(uint32_t *image_length) {
             break;
         }
         case FINISH: {
-            sys_log(INFO, "Iris successfully returned image length");
+            sys_log(INFO, "Iris successfully returned image length: %d", *(image_length));
             xSemaphoreGive(iris_hal_mutex);
             return IRIS_HAL_OK;
         }
