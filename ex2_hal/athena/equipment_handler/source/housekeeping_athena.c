@@ -16,13 +16,22 @@
  * @author  Dustin Wagner
  * @date    2021-05-13
  */
-
+#include "FreeRTOS.h"
+#include "task.h"
+#include <stdint.h>
+#include "system.h"
+#include "version.h"
 #include "housekeeping_athena.h"
 #include <stdlib.h>
 #include <string.h>
 #include <csp/csp_endian.h>
 #include "os_portmacro.h"
-const uint8_t software_version = 3;
+#include "version.h"
+#include "bl_eeprom.h"
+#include "redstat.h"
+#include "redposix.h"
+#include "redconf.h"
+#include "ina209.h"
 
 /**
  * @brief
@@ -33,12 +42,10 @@ const uint8_t software_version = 3;
  * @return
  * 		0 for success. other for failure
  */
-int HAL_get_temp_all(long *temparray) {
-#if ATHENA_IS_STUBBED == 1
+int Athena_hk_get_temps(int16_t *MCU_core_temp, int16_t *converter_temp) {
+    *MCU_core_temp = 25565; // TODO: Work on temperature sensors
+    *converter_temp = 25565;
     return 0;
-#else
-    return gettemp_all(temparray);
-#endif
 }
 
 /**
@@ -47,19 +54,11 @@ int HAL_get_temp_all(long *temparray) {
  * @return
  * 		integer OBC_uptime to store Athena uptime
  *      Seconds = OBC_uptime*10
- *      Max = 655350 seconds (7.6 days)
  */
-uint16_t Athena_get_OBC_uptime() {
+uint32_t Athena_get_OBC_uptime() {
 
     TickType_t OBC_ticks = xTaskGetTickCount(); // 1 tick/ms
-    uint32_t OBC_uptime_32 = OBC_ticks / 1000;
-    if (OBC_uptime_32 > 655350) {
-        OBC_uptime_32 = 655350;
-    }
-    // Seconds = value*10. Max = 655350 seconds (7.6 days)
-    OBC_uptime_32 = OBC_uptime_32 / 10;
-    // convert OBC_uptime from 32 bit to 16 bit
-    uint16_t OBC_uptime = (OBC_uptime_32 & 255);
+    uint32_t OBC_uptime = OBC_ticks / 1000;
 
     return OBC_uptime;
 }
@@ -70,9 +69,12 @@ uint16_t Athena_get_OBC_uptime() {
  * @return
  * 		  integer solar_panel_supply_curr to store solar panel supply current
  */
-uint8_t Athena_get_solar_supply_curr() {
+uint16_t Athena_get_solar_supply_curr() {
     // insert getter function for solar panel supply current;
-    return 0;
+    uint8_t addr = 0b1000101;
+    uint16_t retval;
+    int get_status = ina209_get_current(addr, &retval);
+    return retval;
 }
 
 /**
@@ -90,31 +92,61 @@ uint8_t Athena_get_solar_supply_curr() {
  * 		Last found error will be returned. else no error returned
  */
 int Athena_getHK(athena_housekeeping *athena_hk) {
-    int temporary;
+    int temp_status;
     int return_code = 0;
 
     /*Add athena HAL housekeeping getters here and put fields in h file
     create HAL functions here following format of existing
     also add endianness conversion in Athena_hk_convert_endianness*/
-    temporary = HAL_get_temp_all(athena_hk->temparray);
+    temp_status = Athena_hk_get_temps(&athena_hk->MCU_core_temp, &athena_hk->converter_temp);
+
+    // Get last 8 digits of the software version
+    memcpy(athena_hk->OBC_software_ver, ex2_hk_version, VERSION_ID_SIZE);
 
     // Get OBC uptime: Seconds = value*10. Max = 655360 seconds (7.6 days)
     athena_hk->OBC_uptime = Athena_get_OBC_uptime();
 
+    // Get boot info
+    boot_info info;
+    if (eeprom_get_boot_info(&info)) {
+        return_code = -1;
+    }
+    athena_hk->boot_cnt = info.count;
+    athena_hk->last_reset_reason = info.reason.swr_reason;
+    athena_hk->boot_src = info.reason.rstsrc;
+
     // Get solar panel supply current
     athena_hk->solar_panel_supply_curr = Athena_get_solar_supply_curr();
 
-    // placeholder for software version
-    athena_hk->OBC_software_ver = software_version;
-
-    if (temporary != 0)
-        return_code = temporary;
+    if (temp_status != 0)
+        return_code = temp_status;
 
     // Get solar panel supply current
     athena_hk->solar_panel_supply_curr = Athena_get_solar_supply_curr();
 
-    if (temporary != 0)
-        return_code = temporary;
+    // Get SD card usage percentages
+    int32_t iErr;
+    REDSTATFS volstat;
+    iErr = red_statvfs("VOL0:", &volstat);
+    if (iErr == -1) {
+        athena_hk->vol0_usage_percent = 255;
+    } else {
+        athena_hk->vol0_usage_percent =
+            (uint8_t)((float)(volstat.f_bfree) * 100.0 /
+                      ((float)(volstat.f_blocks))); // assuming block size == sector size = 512B
+    }
+
+    iErr = red_statvfs("VOL1:", &volstat);
+    if (iErr == -1) {
+        athena_hk->vol1_usage_percent = 255;
+    } else {
+        athena_hk->vol1_usage_percent =
+            (uint8_t)((float)(volstat.f_bfree) * 100.0 /
+                      ((float)(volstat.f_blocks))); // assuming block size == sector size = 512B
+    }
+
+    if (temp_status != 0)
+        return_code = temp_status;
 
     return return_code;
 }
@@ -129,12 +161,11 @@ int Athena_getHK(athena_housekeeping *athena_hk) {
  * 		0 for success. other for failure
  */
 int Athena_hk_convert_endianness(athena_housekeeping *athena_hk) {
-    uint8_t i;
-    for (i = 0; i < 2; i++) {
-        athena_hk->temparray[i] = (long)csp_ntoh32((uint32_t)athena_hk->temparray[i]);
-    }
+    athena_hk->MCU_core_temp = csp_ntoh16(athena_hk->MCU_core_temp);
+    athena_hk->converter_temp = csp_ntoh16(athena_hk->converter_temp);
     athena_hk->boot_cnt = csp_ntoh16(athena_hk->boot_cnt);
     athena_hk->OBC_uptime = csp_ntoh16(athena_hk->OBC_uptime);
+    athena_hk->solar_panel_supply_curr = csp_ntoh16(athena_hk->solar_panel_supply_curr);
     athena_hk->cmds_received = csp_ntoh16(athena_hk->cmds_received);
     athena_hk->pckts_uncovered_by_FEC = csp_ntoh16(athena_hk->pckts_uncovered_by_FEC);
     return 0;

@@ -16,30 +16,23 @@
  * @author  Josh Lazaruk
  * @date    2020-08-16
  */
-
+#include "FreeRTOS.h"
+#include "os_task.h"
 #include "tempsense_athena.h"
-#include "tmp421.h"
-#include "housekeeping_athena.h"
-#include "system.h"
+#include "tmp117.h"
 
 #define CHANNEL_LOCAL 0
 #define CHANNEL_REMOTE 1
-#define ATHENA_TEMPSENSE_DELAY 0.01 * ONE_SECOND
+#define ATHENA_TEMPSENSE_DELAY pdMS_TO_TICKS(10)
+#define MCU_CORE_TEMP_ADD 0x4A
+#define CONVERTER_TEMP_ADD 0x49
 
 uint8_t tmp_addr[NUM_TEMP_SENSOR] = {TEMP_ADDRESS_1, TEMP_ADDRESS_2};
 
-void inittemp_all(void) {
-    int i;
-    for (i = 0; i < NUM_TEMP_SENSOR; i++) {
-        tmp421_init_client(tmp_addr[i]);
-    }
-}
+int get_Athena_Temperatures(int16_t *MCU_core_temp, int16_t *converter_temp) {
+    tmp117_read(MCU_CORE_TEMP_ADD, MCU_core_temp); // assuming we want to read remote channel
+    vTaskDelay(ATHENA_TEMPSENSE_DELAY);
+    tmp117_read(CONVERTER_TEMP_ADD, converter_temp);
 
-int gettemp_all(long *temparray) {
-    int i;
-    for (i = 0; i < NUM_TEMP_SENSOR; i++) {
-        tmp421_read(tmp_addr[i], CHANNEL_LOCAL, &temparray[i]); // assuming we want to read remote channel
-        vTaskDelay(ATHENA_TEMPSENSE_DELAY);
-    }
     return 0;
 }
