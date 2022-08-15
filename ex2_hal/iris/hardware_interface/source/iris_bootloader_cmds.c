@@ -18,6 +18,8 @@
  *      Author: jenish
  */
 
+#include <string.h>
+
 #include "iris_bootloader_cmds.h"
 #include "iris.h"
 #include "i2c_io.h"
@@ -28,7 +30,6 @@
 #include "FreeRTOS.h"
 #include "redposix.h"
 #include "logger.h"
-#include <string.h>
 
 /* Optimization points
  * - As of now, the mass erase functionality is not verified and
@@ -105,7 +106,11 @@ int iris_write_page(uint32_t flash_addr, uint8_t *buffer) {
     packet[0] = OPC_WRITE;
     packet[1] = N_OPC_WRITE;
     ret += iris_write_packet(packet, 2);
+    if (ret < 0)
+        return -1;
     ret += iris_read_packet(&rx_data, 1);
+    if (ret < 0)
+        return -1;
     memset(packet, 0, WRITE_PACKET_LENGTH * sizeof(uint8_t));
 
     /* Second I2C transaction (5 bytes) */
@@ -116,7 +121,11 @@ int iris_write_page(uint32_t flash_addr, uint8_t *buffer) {
     flash_mem_checksum = packet[0] ^ packet[1] ^ packet[2] ^ packet[3];
     packet[4] = flash_mem_checksum;
     ret += iris_write_packet(packet, 5);
+    if (ret < 0)
+        return -1;
     ret += iris_read_packet(&rx_data, 1);
+    if (ret < 0)
+        return -1;
     memset(packet, 0, WRITE_PACKET_LENGTH * sizeof(uint8_t));
 
     /* Third I2C transaction (2 + num_bytes) */
@@ -129,13 +138,14 @@ int iris_write_page(uint32_t flash_addr, uint8_t *buffer) {
     }
     packet[num_bytes + 1] = data_checksum;
     ret += iris_write_packet(packet, WRITE_PACKET_LENGTH);
+    if (ret < 0)
+        return -1;
     ret += iris_read_packet(&rx_data, 1);
+    if (ret < 0)
+        return -1;
     memset(packet, 0, WRITE_PACKET_LENGTH * sizeof(uint8_t));
 
-    if (ret < 0) {
-        sys_log(WARN, "Iris bootloader write failure, unable to write packet");
-    }
-    return ret;
+    return 0;
 }
 
 /**
@@ -164,7 +174,11 @@ int iris_erase_page(uint16_t page_num) {
     packet[0] = OPC_ERASE;
     packet[1] = N_OPC_ERASE;
     ret += iris_write_packet(packet, 2);
+    if (ret < 0)
+        return -1;
     ret += iris_read_packet(&rx_data, 1);
+    if (ret < 0)
+        return -1;
     memset(packet, 0, ERASE_PACKET_LENGTH);
 
     /* Second I2C transaction (3 bytes) */
@@ -173,7 +187,11 @@ int iris_erase_page(uint16_t page_num) {
     num_page_erased_checksum = packet[0] ^ packet[1];
     packet[2] = num_page_erased_checksum;
     ret += iris_write_packet(packet, 3);
+    if (ret < 0)
+        return -1;
     ret += iris_read_packet(&rx_data, 1);
+    if (ret < 0)
+        return -1;
     memset(packet, 0, ERASE_PACKET_LENGTH);
 
     /* Third I2C transaction (2 + num_bytes) */
@@ -182,13 +200,14 @@ int iris_erase_page(uint16_t page_num) {
     page_num_checksum = packet[0] ^ packet[1];
     packet[2] = page_num_checksum;
     ret += iris_write_packet(packet, 3);
+    if (ret < 0)
+        return -1;
     ret += iris_read_packet(&rx_data, 1);
+    if (ret < 0)
+        return -1;
     memset(packet, 0, ERASE_PACKET_LENGTH);
 
-    if (ret < 0) {
-        sys_log(WARN, "Iris bootloader erase failure, unable to erase page");
-    }
-    return ret;
+    return 0;
 }
 
 /**
@@ -208,19 +227,24 @@ int iris_check_bootloader_version(uint8_t *version) {
     packet[0] = OPC_CHECK_VERSION;
     packet[1] = N_OPC_CHECK_VERSION;
     ret += iris_write_packet(packet, 2);
+    if (ret < 0)
+        return -1;
     ret += iris_read_packet(&rx_data, 1);
+    if (ret < 0)
+        return -1;
     memset(packet, 0, 2);
 
     /* Read bootloader version */
     ret += iris_read_packet(&version, 1);
+    if (ret < 0)
+        return -1;
 
     /* Wait for ACK/NACK */
     ret += iris_read_packet(&rx_data, 1);
+    if (ret < 0)
+        return -1;
 
-    if (ret < 0) {
-        sys_log(WARN, "Iris bootloader check version failure");
-    }
-    return ret;
+    return 0;
 }
 
 /**
@@ -245,7 +269,11 @@ int iris_go_to(uint32_t start_addr) {
     packet[0] = OPC_GO;
     packet[1] = N_OPC_GO;
     ret += iris_write_packet(packet, 2);
+    if (ret < 0)
+        return -1;
     ret += iris_read_packet(&rx_data, 1);
+    if (ret < 0)
+        return -1;
     memset(packet, 0, GO_PACKET_LENGTH);
 
     /* Second I2C transaction (5 bytes) */
@@ -256,13 +284,14 @@ int iris_go_to(uint32_t start_addr) {
     start_addr_checksum = packet[0] ^ packet[1] ^ packet[2] ^ packet[3];
     packet[4] = start_addr_checksum;
     ret += iris_write_packet(packet, 5);
+    if (ret < 0)
+        return -1;
     ret += iris_read_packet(&rx_data, 1);
+    if (ret < 0)
+        return -1;
     memset(packet, 0, GO_PACKET_LENGTH);
 
-    if (ret < 0) {
-        sys_log(WARN, "Iris bootloader go to failure, unable to jump to specified address");
-    }
-    return ret;
+    return 0;
 }
 
 uint32_t get_file_size(int32_t fptr) {
@@ -276,6 +305,8 @@ uint32_t get_file_size(int32_t fptr) {
 uint32_t get_num_pages(uint32_t fsize) { return (fsize + PAGE_SIZE - 1) / PAGE_SIZE; }
 
 Iris_HAL_return iris_program() {
+    sys_log(INFO, "Starting Iris firmware update");
+
     uint32_t flash_addr = FLASH_MEM_BASE_ADDR;
     uint8_t buffer[128];
     int ret = 0;
@@ -294,20 +325,34 @@ Iris_HAL_return iris_program() {
     iris_pre_sequence();
 
     for (uint32_t page = 0; page < num_pages; page++) {
-        iris_erase_page(page);
+        ret = iris_erase_page(page);
+        if (ret < 0) {
+            sys_log(ERROR, "Unable to erase page %d during Iris firmware update", page);
+            return IRIS_HAL_ERROR;
+        }
+
         ret = red_read(fptr, buffer, 128);
         if (ret < 0) {
             sys_log(ERROR, "Unable to read Iris firmware image file from SD card");
             return IRIS_HAL_ERROR;
         }
-        iris_write_page(flash_addr, buffer);
+
+        ret = iris_write_page(flash_addr, buffer);
+        if (ret < 0) {
+            sys_log(ERROR, "Unable to write page %d during Iris firmware update", page);
+            return IRIS_HAL_ERROR;
+        }
 
         flash_addr += FLASH_MEM_PAGE_SIZE;
     }
 
     flash_addr = FLASH_MEM_BASE_ADDR;
 
-    iris_go_to(flash_addr);
+    ret = iris_go_to(flash_addr);
+    if (ret < 0) {
+        sys_log(ERROR, "Unable to go to flash addr %x during Iris firmware update", flash_addr);
+        return IRIS_HAL_ERROR;
+    }
     iris_post_sequence();
 
     ret = red_close(fptr);
@@ -316,5 +361,6 @@ Iris_HAL_return iris_program() {
         return IRIS_HAL_ERROR;
     }
 
+    sys_log(INFO, "Successful Iris firmware update");
     return IRIS_HAL_OK;
 }
