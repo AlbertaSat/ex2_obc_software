@@ -138,6 +138,8 @@ IrisLowLevelReturn iris_send_command(uint16_t command) {
     iris_nss_low();
     vTaskDelay(1);
     iris_spi_send(&command, 1);
+    vTaskDelay(1);
+    iris_spi_get(&rx_data, 1);
     /* This delay is modifiable and will depend on how fast Iris
      * can switch from running idle/background tasks to receiving
      * obc command and returning ACK

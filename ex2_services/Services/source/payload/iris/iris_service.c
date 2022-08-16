@@ -20,6 +20,7 @@
 #include "task_manager/task_manager.h"
 #include "payload/iris/iris_service.h"
 #include "util/service_utilities.h"
+#include "logger.h"
 #include <csp/csp.h>
 #include <csp/csp_endian.h>
 #include <main/system.h>
@@ -91,7 +92,7 @@ SAT_returnState start_iris_service(void) {
     svc_funcs.getCounterFunction = get_svc_wdt_counter;
     if (xTaskCreate((TaskFunction_t)iris_service, "iris_service", IRIS_SIZE, NULL, NORMAL_SERVICE_PRIO,
                     &svc_tsk) != pdPASS) {
-        ex2_log("FAILED TO CREATE TASK iris_service\n");
+        sys_log(ERROR, "FAILED TO CREATE TASK iris_service");
         return SATR_ERROR;
     }
     ex2_register(svc_tsk, svc_funcs);
@@ -117,6 +118,7 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
 
     switch (ser_subtype) {
     case IRIS_POWER_ON:
+        sys_log(ERROR, "Iris: Start sub-service 0");
 #if IS_ATHENA == 1 && IS_FLATSAT == 0
         status = eps_set_pwr_chnl(PYLD_3V3_PWR_CHNL, ON);
         status += eps_set_pwr_chnl(PYLD_5V0_PWR_CHNL, ON);
@@ -126,8 +128,10 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
         // Return success/failure report
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));
         set_packet_length(packet, sizeof(int8_t) + 1);
+        sys_log(ERROR, "Iris: End sub-service 0");
         break;
     case IRIS_POWER_OFF:
+        sys_log(ERROR, "Iris: Start sub-service 1");
 #if IS_ATHENA == 1 && IS_FLATSAT == 0
         status = eps_set_pwr_chnl(PYLD_3V3_PWR_CHNL, OFF);
         status += eps_set_pwr_chnl(PYLD_5V0_PWR_CHNL, OFF);
@@ -135,30 +139,38 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
         // Return success/failure report
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));
         set_packet_length(packet, sizeof(int8_t) + 1);
+        sys_log(ERROR, "Iris: End sub-service 1");
         break;
     case IRIS_TURN_ON_IMAGE_SENSORS:
+        sys_log(ERROR, "Iris: Start sub-service 2");
         status = iris_toggle_sensor(1);
 
         // Return success/failure report
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));
         set_packet_length(packet, sizeof(int8_t) + 1);
+        sys_log(ERROR, "Iris: End sub-service 2");
         break;
     case IRIS_TURN_OFF_IMAGE_SENSORS:
+        sys_log(ERROR, "Iris: Start sub-service 3");
         status = iris_toggle_sensor(0);
 
         // Return success/failure report
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));
         set_packet_length(packet, sizeof(int8_t) + 1);
+        sys_log(ERROR, "Iris: End sub-service 3");
         break;
     case IRIS_TAKE_IMAGE: {
+        sys_log(ERROR, "Iris: Start sub-service 4");
         status = iris_take_pic();
 
         // Return success/failure report
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));
         set_packet_length(packet, sizeof(int8_t) + 1);
+        sys_log(ERROR, "Iris: End sub-service 4");
         break;
     }
     case IRIS_DELIVER_IMAGE: {
+        sys_log(ERROR, "Iris: Start sub-service 5");
         /*
          * HAL function execution path
          * 1. Get image length
@@ -176,9 +188,11 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
         // Return success/failure report
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));
         set_packet_length(packet, sizeof(int8_t) + 1);
+        sys_log(ERROR, "Iris: End sub-service 5");
         break;
     }
     case IRIS_COUNT_IMAGES: {
+        sys_log(ERROR, "Iris: Start sub-service 6");
         uint16_t image_count;
 
         status = iris_get_image_count(&image_count);
@@ -186,17 +200,21 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
         // Return success/failure report
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));
         set_packet_length(packet, sizeof(int8_t) + 1);
+        sys_log(ERROR, "Iris: End sub-service 6");
         break;
     }
     case IRIS_PROGRAM_FLASH: {
+        sys_log(ERROR, "Iris: Start sub-service 7");
         status = iris_program();
 
         // Return success/failure report
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));
         set_packet_length(packet, sizeof(int8_t) + 1);
+        sys_log(ERROR, "Iris: End sub-service 7");
         break;
     }
     case IRIS_GET_HK: {
+        sys_log(ERROR, "Iris: Start sub-service 8");
         // Get Iris housekeeping data
         IRIS_Housekeeping HK = {0};
         status = iris_get_housekeeping(&HK);
@@ -219,10 +237,11 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         memcpy(&packet->data[OUT_DATA_BYTE], &HK, sizeof(HK));
         set_packet_length(packet, sizeof(int8_t) + sizeof(HK) + 1);
+        sys_log(ERROR, "Iris: End sub-service 8");
         break;
     }
     default:
-        ex2_log("No such subservice\n");
+        sys_log(WARN, "No such sub-service %d", ser_subtype);
         return SATR_PKT_ILLEGAL_SUBSERVICE;
     }
     return SATR_OK;
