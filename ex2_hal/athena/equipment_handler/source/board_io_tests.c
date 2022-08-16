@@ -516,43 +516,6 @@ uint8_t CANRxTest(canBASE_t *regset, uint8_t msgbox) {
     return (pings / 8);
 }
 
-/* Used by SDRAM_Test() */
-#pragma SET_CODE_SECTION(".blinky_section")
-void blinky() {
-    int i;
-    while (1) {
-        gioSetBit(hetPORT1, 18, 1);
-        for (i = 0; i < 1000000; i++)
-            ;
-        gioSetBit(hetPORT1, 18, 0);
-        for (i = 0; i < 1000000; i++)
-            ;
-    }
-}
-#pragma SET_CODE_SECTION()
-
-extern uint32 BlinkyLoadStart;
-extern uint32 BlinkyLoadEnd;
-extern uint32 BlinkySize;
-extern uint32 BlinkyStartAddr;
-extern uint32 BlinkyEndAddr;
-
-/*  Tests SDRAM by blinking LED using code stored/executed in SDRAM
- *
- *  Currently not working
- */
-void SDRAM_Test() {
-
-    int i;
-    uint32 size = (uint32)&BlinkySize;
-
-    for (i = 0; i < size; i++) {
-        ((char *)&BlinkyStartAddr)[i] = ((char *)&BlinkyLoadStart)[i];
-    }
-
-    blinky();
-}
-
 void fs_stress_worker1(void *pvParameters) {
     char buf[100] = {0};
     char inbuf[100] = {0};
