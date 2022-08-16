@@ -32,7 +32,7 @@ A branch may be made off a release tag to fix bugs. Bugfix commits may be cherry
 Ensure the submodule pointer is at the correct commit for this version. When downloading the source the current position of the submodule pointer must be used. This is the version that will be compiled in the binaries.
 
 ### Binaries
-Build binaries for all the satellite configurations. Ensure the correct hardware is configured for each and any other settings. Set the value BOOTLOADER_PRESENT in the configs and in the HL_sys_link.cmd. This will give the image bootloader linkage, so it may be uploaded to the satellite through the updater program.
+Build binaries for all the satellite configurations. Ensure the correct hardware is configured for each and any other settings. Set the value BOOTLOADER_LINKAGE to 1 the HL_sys_link.cmd. This will give the image bootloader linkage, so it may be uploaded to the satellite through the updater program.
 Ensure the binaries have -O3 enabled.
 
 Github provides a way to upload binaries with a release. Upload the compiled binary for each satellite.
