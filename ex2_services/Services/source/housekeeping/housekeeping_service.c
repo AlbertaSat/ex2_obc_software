@@ -658,7 +658,7 @@ Result populate_and_store_hk_data(void) {
         sys_log(WARN, "Error collecting hk data from peripherals\n");
     }
 
-    // RTC_get_unix_time(&temp_hk_data.hk_timeorder.UNIXtimestamp);
+    RTCMK_GetUnix(&temp_hk_data.hk_timeorder.UNIXtimestamp);
 
     prv_get_lock(&f_count_lock); // lock
 
