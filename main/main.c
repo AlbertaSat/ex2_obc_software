@@ -372,7 +372,8 @@ static inline SAT_returnState init_csp_interface() {
     int gs_if_addr = 16;
 #endif /* SDR_TEST */
 
-    sdr_conf_t sdr_conf;
+    sdr_conf_t sdr_conf = {0};
+    sdr_conf.use_fec = USE_RADIO_ERROR_CORRECTION;
     sdr_conf.uhf_conf.uhf_baudrate = SDR_UHF_9600_BAUD;
     sdr_conf.uhf_conf.uart_baudrate = 115200;
 
