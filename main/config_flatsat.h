@@ -53,6 +53,8 @@
 
 #define SBAND_COMMERCIAL_FREQUENCY 1
 
+#define USE_RADIO_ERROR_CORRECTION 0
+
 /* Only defined for final flight build of software */
 #define FLIGHT_CONFIGURATION 0
 
