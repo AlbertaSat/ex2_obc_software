@@ -259,6 +259,11 @@ static BaseType_t prvEchoCommand(char *pcWriteBuffer, size_t xWriteBufferLen, co
     return xReturn;
 }
 
+static BaseType_t prvHostNameCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString) {
+    snprintf(pcWriteBuffer, xWriteBufferLen, "%s\r\n", CSP_HOSTNAME);
+    return pdFALSE;
+}
+
 /*
  * Command Struct Definitions
  *
@@ -271,10 +276,16 @@ static const CLI_Command_Definition_t xEchoCommand = {"echo", "echo:\n\tEchoes a
 static const CLI_Command_Definition_t xHelloCommand = {"hello", "hello:\n\tSays hello :)\n", prvHelloCommand, 0};
 static const CLI_Command_Definition_t xTimeCommand = {
     "time", "time:\n\tNo parameter: get time\n\tWith parameter: set time to parameter\n", prvTimeCommand, -1};
-static const CLI_Command_Definition_t xImageTypeCommand = {"imagetype", "imagetype:\n\tGet type of image booted\n", prvImageTypeCommand, 0};
-static const CLI_Command_Definition_t xRebootCommand = {"reboot", "reboot:\n\tReboot to a mode. Can be B, G, or A\n", prvRebootCommand, 1};
-static const CLI_Command_Definition_t xBootInfoCommand = {"bootinfo", "bootinfo:\n\tGives a breakdown of the boot info\n", prvBootInfoCommand, 0};
-static const CLI_Command_Definition_t xUptimeCommand = {"uptime", "uptime:\n\tGet uptime in seconds\n", prvUptimeCommand, 0};
+static const CLI_Command_Definition_t xImageTypeCommand = {"imagetype", "imagetype:\n\tGet type of image booted\n",
+                                                           prvImageTypeCommand, 0};
+static const CLI_Command_Definition_t xRebootCommand = {
+    "reboot", "reboot:\n\tReboot to a mode. Can be B, G, or A\n", prvRebootCommand, 1};
+static const CLI_Command_Definition_t xBootInfoCommand = {
+    "bootinfo", "bootinfo:\n\tGives a breakdown of the boot info\n", prvBootInfoCommand, 0};
+static const CLI_Command_Definition_t xUptimeCommand = {"uptime", "uptime:\n\tGet uptime in seconds\n",
+                                                        prvUptimeCommand, 0};
+static const CLI_Command_Definition_t xHostNameCommand = {"hostname", "hostname\n\tReturns hostname\n",
+                                                          prvHostNameCommand, 0};
 
 /**
  * @brief
@@ -367,6 +378,7 @@ void register_commands() {
     FreeRTOS_CLIRegisterCommand(&xRebootCommand);
     FreeRTOS_CLIRegisterCommand(&xBootInfoCommand);
     FreeRTOS_CLIRegisterCommand(&xUptimeCommand);
+    FreeRTOS_CLIRegisterCommand(&xHostNameCommand);
     register_fs_utils();
 }
 

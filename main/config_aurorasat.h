@@ -62,6 +62,9 @@
 #define CSP_USE_SDR 1
 #define CSP_USE_KISS 0
 
+#define CSP_ADDRESS 3
+#define CSP_HOSTNAME "AuroraSat"
+
 /* Define SDR_NO_CSP==0 to use CSP for SDR */
 #define SDR_NO_CSP 0
 #define OS_FREERTOS

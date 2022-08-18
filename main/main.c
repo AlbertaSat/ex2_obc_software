@@ -287,17 +287,9 @@ static void init_csp() {
     csp_debug_hook_set(csp_wrap_debug);
     /* Init CSP with address and default settings */
     csp_conf_t csp_conf;
-#if IS_SATELLITE == 0 || IS_EXALTA2 == 1
-    csp_conf.address = 1;
-    csp_conf.model = "Ex-Alta2";
-#elif IS_YUKONSAT == 1
-    csp_conf.address = 2;
-    csp_conf.model = "YukonSat";
-#elif IS_AURORASAT == 1
-    csp_conf.address = 3;
-    csp_conf.model = "AuroraSat";
-#endif
-    csp_conf.hostname = "Athena";
+    csp_conf.address = CSP_ADDRESS;
+    csp_conf.model = "Athena";
+    csp_conf.hostname = CSP_HOSTNAME;
     csp_conf.revision = "2";
     csp_conf.conn_max = 20;
     csp_conf.conn_queue_length = 10;
