@@ -25,6 +25,8 @@
 
 #define LEOP_INFO_BLOCKNUMBER 4
 
+#define KEY_STORE_BLOCKNUMBER 5
+
 Fapi_StatusType eeprom_write(void *dat, uint8_t block, uint32_t size);
 Fapi_StatusType eeprom_read(void *dat, uint8_t block, uint32_t size);
 

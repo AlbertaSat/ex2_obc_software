@@ -19,23 +19,112 @@
  */
 
 #include "crypto.h"
+#include "bl_eeprom.h"
+#include <stdbool.h>
 
-#define KEY_TEST_MODE
+#define KEY_TEST_MODE 1
+#define KEY_SET_MODE 0
+#define KEY_LEN 64
 
-
-#ifdef KEY_TEST_MODE
-const char test_key[] = "6e477331cd51d63d6492fa969a3acfc75fc26370446465a339fe380c096193fa1fc7d866f17ec1bce02b9b5f955c9df41bdd26927891cd4c8c877913138bd6ca27bb05167462c2e028b0afeb372cd23720278f48715f065fd7bab587d6e0e7a86d904580aa6ad1f771f9d651e6934f361d2816187d934ad87691f977bd5b964fc8e6ed4debbc32f0144e03bb6c94982ea801fa5d2efdd381836fd63a28bebf1f877efdf0e12f7063d13de186ecf1bf295cd64c65ab7b74893578b3fde314cfcabc4946ffec142faab6019aedfd2cfc723ae51c3771a45b2004ab77865261e91e763c76b271086f069f4598b25ed8567ef72b4a554046b395d4815bf7974d2962";
+#if KEY_TEST_MODE
+const char test_key[] =
+    "6e477331cd51d63d6492fa969a3acfc75fc26370446465a339fe380c096193fa1fc7d866f17ec1bce02b9b5f955c9df41bdd26927891c"
+    "d4c8c877913138bd6ca27bb05167462c2e028b0afeb372cd23720278f48715f065fd7bab587d6e0e7a86d904580aa6ad1f771f9d651e6"
+    "934f361d2816187d934ad87691f977bd5b964fc8e6ed4debbc32f0144e03bb6c94982ea801fa5d2efdd381836fd63a28bebf1f877efdf"
+    "0e12f7063d13de186ecf1bf295cd64c65ab7b74893578b3fde314cfcabc4946ffec142faab6019aedfd2cfc723ae51c3771a45b2004ab"
+    "77865261e91e763c76b271086f069f4598b25ed8567ef72b4a554046b395d4815bf7974d2962";
 #endif
+
+#if KEY_SET_MODE
+#include <stdio.h>
+#endif
+
+void set_keys_from_keyfile() {
+#if KEY_SET_MODE
+    FILE *fh = fopen("hmacKey.dat", "rb");
+    FILE *fx = fopen("encryptKey.dat", "rb");
+
+    char hmac_key[KEY_LEN] = {0};
+    fread(&hmac_key, KEY_LEN, 1, fh);
+    set_crypto_key(HMAC_KEY, (char *)&hmac_key, KEY_LEN);
+
+    char encrypt_key[KEY_LEN] = {0};
+    fread(&encrypt_key, KEY_LEN, 1, fx);
+    set_crypto_key(ENCRYPT_KEY, (char *)&encrypt_key, KEY_LEN);
+
+    fclose(fh);
+    fclose(fx);
+#endif
+    return;
+}
+
+static key_store keys = {0};
+static bool keys_initialized = false;
+
+void init_keys() {
+    eeprom_get_key_store(&keys);
+    keys_initialized = true;
+}
+
+void set_hmac_key(char *key, int key_len) {
+    if (key_len != KEY_LEN) {
+        return; // This can silently return since it is intended to run with supervision
+    }
+    eeprom_get_key_store(&keys);
+    memcpy(&keys.hmac_key.key, key, key_len);
+    keys.hmac_key.key_len = key_len;
+    eeprom_set_key_store(&keys);
+}
+
+void get_hmac_key(char **hmac_key, int *key_len) {
+    if (keys_initialized == false) {
+        init_keys();
+    }
+    *hmac_key = (char *)&keys.hmac_key.key;
+    *key_len = (int)keys.hmac_key.key_len;
+}
+
+void set_xtea_key(char *key, int key_len) {
+    if (key_len != KEY_LEN) {
+        return; // This can silently return since it is intended to run with supervision
+    }
+    eeprom_get_key_store(&keys);
+    memcpy(&keys.encrypt_key.key, key, key_len);
+    keys.encrypt_key.key_len = key_len;
+    eeprom_set_key_store(&keys);
+}
+
+void get_xtea_key(char **xtea_key, int *key_len) {
+    if (keys_initialized == false) {
+        init_keys();
+    }
+    *xtea_key = (char *)&keys.encrypt_key.key;
+    *key_len = (int)keys.encrypt_key.key_len;
+}
 
 void get_crypto_key(CRYPTO_KEY_T type, char **key, int *key_len) {
     (void)type; // Same key for test mode
 
-#ifdef KEY_TEST_MODE
-    *key = &test_key;
-    *key_len = strlen(test_key);
+#if KEY_TEST_MODE
+    *key = (char *)&test_key;
+    *key_len = (int)strlen(test_key);
 #else
-    *key = 0;
-    *key_len = 0;
+    if (type == ENCRYPT_KEY) {
+        get_xtea_key(key, key_len);
+    } else if (type == HMAC_KEY) {
+        get_hmac_key(key, key_len);
+    }
 #endif
 }
-void set_crypto_key(CRYPTO_KEY_T type, char *key, int *key_len);
+
+void set_crypto_key(CRYPTO_KEY_T type, char *key, int key_len) {
+#if KEY_TEST_MODE
+    return;
+#else
+    if (type == ENCRYPT_KEY) {
+        set_xtea_key(key, key_len);
+    } else if (type == HMAC_KEY) {
+        set_hmac_key(key, key_len);
+    }
+#endif
+}

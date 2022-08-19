@@ -27,6 +27,6 @@ typedef enum {
 } CRYPTO_KEY_T;
 
 void get_crypto_key(CRYPTO_KEY_T type, char **key, int *key_len);
-void set_crypto_key(CRYPTO_KEY_T type, char *key, int *key_len);
+void set_crypto_key(CRYPTO_KEY_T type, char *key, int key_len);
 
 #endif /* EX2_SYSTEM_INCLUDE_CRYPTO_H_ */
