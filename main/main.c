@@ -69,6 +69,7 @@
 #include <csp/interfaces/csp_if_sdr.h>
 #include "printf.h"
 #include "csp/crypto/csp_hmac.h"
+#include "csp/crypto/csp_xtea.h"
 #include "crypto.h"
 #include "csp_debug_wrapper.h"
 #include "bl_eeprom.h"
@@ -312,10 +313,14 @@ static void init_csp() {
     if (init_csp_interface() != SATR_OK) {
         exit(SATR_ERROR);
     }
-    char *test_key;
-    int key_len;
-    get_crypto_key(HMAC_KEY, &test_key, &key_len);
-    csp_hmac_set_key(test_key, key_len);
+    char *hmac_key;
+    int hmac_len;
+    get_crypto_key(HMAC_KEY, &hmac_key, &hmac_len);
+    csp_hmac_set_key(hmac_key, hmac_len);
+    char *xtea_key;
+    int xtea_len;
+    get_crypto_key(ENCRYPT_KEY, &xtea_key, &xtea_len);
+    csp_xtea_set_key(xtea_key, xtea_len);
     return;
 }
 

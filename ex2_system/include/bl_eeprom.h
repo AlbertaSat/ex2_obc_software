@@ -14,11 +14,13 @@
 #include <F021.h>
 #include "privileged_functions.h"
 #include "eeprom.h"
+#include "crypto.h"
 
 #define APP_STATUS_LEN sizeof(image_info)
 #define GOLD_STATUS_LEN sizeof(image_info)
 #define BOOT_INFO_LEN sizeof(boot_info)
 #define UPDATE_INFO_LEN sizeof(update_info)
+#define KEY_STORE_LEN sizeof(key_store)
 
 #define GOLD_MINIMUM_ADDR 0x00020000
 #define GOLD_DEFAULT_ADDR 0x00020000
@@ -38,19 +40,9 @@ typedef struct __attribute__((packed)) {
     uint16_t crc;
 } image_info;
 
-typedef enum {
-    NONE,
-    UNDEF,
-    DABORT,
-    PREFETCH,
-    REQUESTED
-} SW_RESET_REASON;
+typedef enum { NONE, UNDEF, DABORT, PREFETCH, REQUESTED } SW_RESET_REASON;
 
-typedef enum {
-    BOOTLOADER = 'B',
-    GOLDEN = 'G',
-    APPLICATION = 'A'
-} SYSTEM_TYPE;
+typedef enum { BOOTLOADER = 'B', GOLDEN = 'G', APPLICATION = 'A' } SYSTEM_TYPE;
 
 typedef struct __attribute__((packed)) {
     resetSource_t rstsrc;
@@ -67,10 +59,20 @@ typedef struct __attribute__((packed)) {
 
 typedef struct __attribute__((packed)) {
     char type;
-    uint32_t count; // total number of boot attempts
+    uint32_t count;    // total number of boot attempts
     uint32_t attempts; // total attempts since last failure
     boot_reason reason;
 } boot_info;
+
+typedef struct __attribute__((packed)) {
+    uint32_t key_len;
+    uint8_t key[64];
+} satellite_key_t;
+
+typedef struct __attribute__((packed)) {
+    satellite_key_t hmac_key;
+    satellite_key_t encrypt_key;
+} key_store;
 
 void sw_reset(char reboot_type, SW_RESET_REASON reason);
 
@@ -89,6 +91,10 @@ Fapi_StatusType eeprom_set_boot_info(boot_info *b);
 Fapi_StatusType eeprom_set_update_info(update_info *u);
 
 Fapi_StatusType eeprom_get_update_info(update_info *u);
+
+Fapi_StatusType eeprom_get_key_store(key_store *k);
+
+Fapi_StatusType eeprom_set_key_store(key_store *k);
 
 bool verify_application();
 
