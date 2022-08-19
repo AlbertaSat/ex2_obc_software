@@ -105,7 +105,7 @@ void update_beacon(All_systems_housekeeping *all_hk_data, beacon_packet_1_t *bea
     beacon_packet_two->OBC_mode = all_hk_data->Athena_hk.OBC_mode;
     beacon_packet_two->OBC_uptime = all_hk_data->Athena_hk.OBC_uptime;
     beacon_packet_two->solar_panel_supply_curr = all_hk_data->Athena_hk.solar_panel_supply_curr;
-    beacon_packet_two->OBC_software_ver = all_hk_data->Athena_hk.OBC_software_ver;
+    beacon_packet_two->OBC_software_ver = all_hk_data->Athena_hk.version_major;
     beacon_packet_two->cmds_received = all_hk_data->Athena_hk.cmds_received;
     beacon_packet_two->pckts_uncovered_by_FEC = all_hk_data->Athena_hk.pckts_uncovered_by_FEC;
 }

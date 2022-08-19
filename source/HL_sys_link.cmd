@@ -108,20 +108,13 @@ SECTIONS
 
 --retain="*(.intvecs)"
 
-#define GOLDEN_IMAGE
-//#define APPLICATION_IMAGE
-//#define BOOTLOADER_PRESENT
+#define BOOTLOADER_LINKAGE 0
 
 /*----------------------------------------------------------------------------*/
 /* Memory Map                                                                 */
 MEMORY
 {
-	#if defined(GOLDEN_IMAGE) && defined(BOOTLOADER_PRESENT)
-    VECTORS (X)  : origin=0x00018000 length=0x00000040
-    KERNEL  (RX) : origin=0x00018040 length=0x00008000
-    FLASH   (RX) : origin=end(KERNEL) length=0x00200000 - 0x8040
-
-    #elif defined(APPLICATION_IMAGE) && defined(BOOTLOADER_PRESENT)
+    #if BOOTLOADER_LINKAGE
     VECTORS (X)  : origin=0x00200000 length=0x00000040
     KERNEL  (RX) : origin=0x00200040 length=0x00008000
     FLASH   (RX) : origin=end(KERNEL) length=0x00200000 - 0x8040
@@ -135,8 +128,6 @@ MEMORY
     RAMINTVECS (RWX) : origin=0x08000000 length = 0x20
     KRAM    (RW)     : origin=end(RAMINTVECS) length=0x00000800
     RAM     (RW)     : origin=end(KRAM)   length=0x0007f800 - 0x400 - 0x800 - 0x20
-	SDRAM  (RWX) : origin=0x80000000 length=0x07FFFFFF//experimental
-
 }
 
 /*----------------------------------------------------------------------------*/
@@ -150,6 +141,7 @@ SECTIONS
     .pinit       align(32) : {} > KERNEL
     /* Rest of code to user mode flash region */
     .text        align(32) : {} > FLASH
+    .clean		 align(32) : {} > FLASH
     .const       align(32) : {} > FLASH
     .ARM.extab    : {} > FLASH
     .ARM.exidx    : {} > FLASH
@@ -164,10 +156,6 @@ SECTIONS
 	    {
 	        --library = ../lib/F021_API_CortexR4_BE_L2FMC_V3D16.lib (.text)
 	    } > FLASH
-
- 	.blinky_section :  RUN = SDRAM, LOAD = FLASH
-		   LOAD_START(BlinkyLoadStart), LOAD_END(BlinkyLoadEnd),  LOAD_SIZE(BlinkySize),
-		   RUN_START(BlinkyStartAddr ), RUN_END(BlinkyEndAddr )
 
 	.ramIntvecs : {} load=FLASH, run=RAMINTVECS, palign=8, LOAD_START(ramint_LoadStart), SIZE(ramint_LoadSize), RUN_START(ramint_RunStart)
 }

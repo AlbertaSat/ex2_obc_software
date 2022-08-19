@@ -71,6 +71,7 @@
 #include "csp/crypto/csp_hmac.h"
 #include "crypto.h"
 #include "csp_debug_wrapper.h"
+#include "bl_eeprom.h"
 
 #define SDR_TEST 0
 
@@ -459,12 +460,12 @@ uint32 getProfilerTimerCount() {
 
 void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName) {
     for (;;)
-        ;
+        sw_reset('A', DABORT);
 }
 
 void vApplicationMallocFailedHook(void) {
     for (;;)
-        ;
+        sw_reset('A', DABORT); // This function is disabled in FreeRTOS.h, but this is here anyway just in case
 }
 
 void vApplicationDaemonTaskStartupHook(void) { init_logger_queue(); }
