@@ -398,6 +398,7 @@ Iris_HAL_return iris_get_image_count(uint16_t *image_count) {
             } else {
                 controller_state = ERROR_STATE;
             }
+            IRIS_WAIT_FOR_STATE_TRANSITION;
             break;
         }
         case GET_DATA: {

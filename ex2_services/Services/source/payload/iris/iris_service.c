@@ -176,8 +176,8 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
          * 1. Get image length
          * 2. Transfer image
          */
-        uint32_t image_length;
-        uint16_t image_count;
+        uint32_t image_length = 0;
+        uint16_t image_count = 0;
         char filename[100];
 
         status = iris_get_image_count(&image_count);
