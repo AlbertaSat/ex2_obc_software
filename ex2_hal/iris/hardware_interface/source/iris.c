@@ -100,6 +100,9 @@ Iris_HAL_return iris_init() {
  * @brief
  *   Sends take a picture command to Iris
  *
+ *   Notice: Make sure that there is minimal to no delay during the execution
+ *   of this command. This is because we want to ensure millisecond accuracy
+ *
  * @return
  *   Returns IRIS_HAL_OK if equipment handler returns IRIS_LL_OK, else IRIS_HAL_ERROR
  **/
