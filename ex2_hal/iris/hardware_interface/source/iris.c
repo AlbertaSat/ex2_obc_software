@@ -87,9 +87,9 @@ Iris_HAL_return iris_init() {
 #if IS_ATHENA == 1
     time_t unix_time;
     RTCMK_GetUnix(&unix_time);
-    iris_set_time(unix_time);
+    iris_update_rtc(unix_time);
 #else
-    iris_set_time(1659051330); // Dummy time for dev-card debugging (without RTC)
+    iris_update_rtc(1659051330); // Dummy time for dev-card debugging (without RTC)
 #endif
 
     sys_log(ERROR, "Iris successfully initialized");
@@ -679,7 +679,7 @@ Iris_HAL_return iris_update_current_limit(uint16_t current_limit) {
  * @return
  *   Returns IRIS_HAL_OK if equipment handler returns IRIS_ACK, else IRIS_HAL_ERROR
  **/
-Iris_HAL_return iris_set_time(uint32_t unix_time) {
+Iris_HAL_return iris_update_rtc(uint32_t unix_time) {
     if (xSemaphoreTake(iris_hal_mutex, IRIS_HAL_MUTEX_TIMEOUT) != pdTRUE) {
         return IRIS_HAL_BUSY;
     }
@@ -691,7 +691,7 @@ Iris_HAL_return iris_set_time(uint32_t unix_time) {
     while (1) {
         switch (controller_state) {
         case SEND_COMMAND: {
-            ret = iris_send_command(IRIS_SET_TIME);
+            ret = iris_send_command(IRIS_UPDATE_RTC);
             if (ret == IRIS_LL_OK) {
                 controller_state = SEND_DATA;
             } else {

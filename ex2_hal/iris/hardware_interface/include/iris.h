@@ -66,7 +66,7 @@ typedef enum {
     IRIS_SEND_HOUSEKEEPING = 0x51,
     IRIS_UPDATE_SENSOR_I2C_REG = 0x60,
     IRIS_UPDATE_CURRENT_LIMIT = 0x70,
-    IRIS_SET_TIME = 0x05,
+    IRIS_UPDATE_RTC = 0x05,
     IRIS_WDT_ACK = 0x80,
 } IRIS_COMMANDS;
 
@@ -107,7 +107,7 @@ Iris_HAL_return iris_toggle_sensor(uint8_t toggle);
 Iris_HAL_return iris_get_housekeeping(IRIS_Housekeeping *hk_data);
 Iris_HAL_return iris_update_sensor_i2c_reg();
 Iris_HAL_return iris_update_current_limit(uint16_t current_limit);
-Iris_HAL_return iris_set_time(uint32_t unix_time);
+Iris_HAL_return iris_update_rtc(uint32_t unix_time);
 Iris_HAL_return iris_wdt_ack();
 
 float iris_convert_hk_temperature(uint16_t temperature);
