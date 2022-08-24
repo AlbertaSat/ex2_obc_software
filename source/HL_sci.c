@@ -89,13 +89,13 @@ void sciInit(void)
     sciREG1->GCR1 =  (uint32)((uint32)1U << 25U)  /* enable transmit */
                   | (uint32)((uint32)1U << 24U)  /* enable receive */
                   | (uint32)((uint32)1U << 5U)   /* internal clock (device has no clock pin) */
-                  | (uint32)((uint32)(2U-1U) << 4U)  /* number of stop bits */
+                  | (uint32)((uint32)(1U-1U) << 4U)  /* number of stop bits */
                   | (uint32)((uint32)0U << 3U)  /* even parity, otherwise odd */
                   | (uint32)((uint32)0U << 2U)  /* enable parity */
                   | (uint32)((uint32)1U << 1U);  /* asynchronous timing mode */
 
     /** - set baudrate */
-    sciREG1->BRS = 487U;  /* baudrate */
+    sciREG1->BRS = 40U;  /* baudrate */
 
     /** - transmission length */
     sciREG1->FORMAT = 8U - 1U;  /* length */
@@ -118,7 +118,7 @@ void sciInit(void)
 
     /** - set SCI1 pins pullup/pulldown enable */
     sciREG1->PIO7 = (uint32)((uint32)0U << 2U)  /* tx pin */
-                 | (uint32)((uint32)0U << 1U); /* rx pin */
+                 | (uint32)((uint32)1U << 1U); /* rx pin */
 
     /** - set SCI1 pins pullup/pulldown select */
     sciREG1->PIO8 = (uint32)((uint32)1U << 2U)  /* tx pin */
