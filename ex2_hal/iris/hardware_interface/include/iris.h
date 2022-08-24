@@ -22,12 +22,12 @@
 #define INCLUDE_IRIS_H_
 
 // Iris data transfer constants
-#define IMAGE_TRANSFER_SIZE 512    // 512 data bytes
-#define IRIS_LOG_TRANSFER_SIZE 512 // 512 data bytes
+#define IMAGE_TRANSFER_SIZE 512    // In bytes
+#define IRIS_LOG_TRANSFER_SIZE 512 // In bytes
 #define MAX_IMAGE_LENGTH 3         // In bytes
-#define MAX_IMAGE_COUNT 1          // In bytes
-#define HOUSEKEEPING_SIZE 23       // In bytes
-#define IRIS_UNIX_TIME_SIZE 4      // In bytes
+#define MAX_IMAGE_COUNT 1
+#define HOUSEKEEPING_SIZE 23  // In bytes
+#define IRIS_UNIX_TIME_SIZE 4 // In bytes
 
 // Iris timeout constants
 /* We need to specify a delay between spi state transitions on OBC
@@ -42,7 +42,7 @@
 #define IRIS_POWER_CYCLE_DELAY vTaskDelay(pdMS_TO_TICKS(1))
 #define IRIS_INIT_DELAY vTaskDelay(pdMS_TO_TICKS(4000))
 #define IRIS_WAIT_FOR_STATE_TRANSITION vTaskDelay(pdMS_TO_TICKS(100))
-#define IRIS_IMAGE_DATA_BLOCK_TRANSFER_DELAY vTaskDelay(pdMS_TO_TICKS(20)) // Depends on optimization level
+#define IRIS_IMAGE_DATA_BLOCK_TRANSFER_DELAY vTaskDelay(pdMS_TO_TICKS(20))
 #define IRIS_LOG_DATA_BLOCK_TRANSFER_DELAY vTaskDelay(pdMS_TO_TICKS(20))
 #define IRIS_WAIT_FOR_SENSORS_TO_TURN_ON vTaskDelay(pdMS_TO_TICKS(8000))
 #define IRIS_WAIT_FOR_SENSORS_TO_TURN_OFF vTaskDelay(pdMS_TO_TICKS(1000))
