@@ -16,6 +16,12 @@
  * @author Andrew Rooney, Vasu Gupta, Arash Yazdani, Thomas Ganley, Nick Sorensen, Pundeep Hundal
  * @date 2020-08-09
  */
+ 
+#ifndef IS_EXALTA2
+#define IS_EXALTA2
+#endif
+
+
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>

@@ -17,7 +17,7 @@
  * @date Oct. 2021
  */
 
-#include "leop.h"
+#include "leop/leop.h"
 #include "logger/logger.h"
 #include "printf.h"
 #include <redposix.h>

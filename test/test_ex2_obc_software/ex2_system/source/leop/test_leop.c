@@ -5,11 +5,15 @@
  *      Author: Grace
  */
 
+#ifndef IS_EXALTA2
+#define IS_EXALTA2
+#endif
+
 #include <cgreen/cgreen.h>
 #include <cgreen/mocks.h>
 
 #include "FreeRTOS.h"
-#include "leop.h"
+//#include "leop.h"
 #include "os_queue.h"
 #include "os_task.h"
 #include <redposix.h>
@@ -21,11 +25,12 @@
 
 #include "HL_gio.h"
 #include "HL_het.h"
-//#include "deployablescontrol.h"
-#include "test_leop.h"
+#include "deployablescontrol.h"
+#include "leop/test_leop.h"
 //#include "leop_eeprom.h"
 
-#include "../source/leop.c"
+//#include "../source/leop.c"
+#include "../ex2_system/source/leop/leop.c"
 
 Describe(leop);
 BeforeEach(leop){};
@@ -41,8 +46,8 @@ bool eeprom_set_leop_status() { return (bool)mock(); }
 bool switchstatus(Deployable_t sw) { return (bool)mock(sw); }
 // bool hard_switch_status() { return (bool)mock(); }
 
-bool deploy(Deployable_t deployable) { return (bool)mock(deployable); }
-int activate(Deployable_t knife) { return (int)mock(knife); }
+bool deploy(Deployable_t deployable, uint16_t *burnwire_current) { return (bool)mock(deployable); }
+int activate(Deployable_t knife, uint16_t *burnwire_current) { return (int)mock(knife); }
 
 /*
 bool switchstatus(Deployable_t sw) {

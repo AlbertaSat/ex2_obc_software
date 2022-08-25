@@ -5,6 +5,10 @@
  *      Author: Andrew
  */
 
+#ifndef IS_EXALTA2
+#define IS_EXALTA2
+#endif
+
 #include <cgreen/cgreen.h>
 #include <cgreen/mocks.h>
 
@@ -16,6 +20,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+
 
 Describe(logger);
 BeforeEach(logger){};

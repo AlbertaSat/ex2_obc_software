@@ -5,11 +5,17 @@
  *      Author: Ron Unrau
  */
 
+#ifndef IS_EXALTA2
+#define IS_EXALTA2
+#endif
+
 #include <cgreen/cgreen.h>
 #include <cgreen/mocks.h>
 
 #include "adcs_types.h"
 #include "adcs_handler.h"
+
+#include "../ex2_hal/adcs/equipment_handler/src/adcs_handler.c"
 
 static uint8_t values[256];
 
