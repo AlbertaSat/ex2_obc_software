@@ -36,7 +36,7 @@ typedef enum {
 #define ACK_FLAG 0xAA
 #define NACK_FLAG 0x0F
 #define DUMMY_BYTE 0xFF
-#define IRIS_WAIT_FOR_ACK vTaskDelay(pdMS_TO_TICKS(20))
+#define IRIS_WAIT_FOR_ACK vTaskDelay(pdMS_TO_TICKS(1))
 
 void iris_spi_send(uint16_t *tx_data, uint16_t data_length);
 void iris_spi_get(uint16_t *rx_data, uint16_t data_length);

@@ -21,6 +21,7 @@
 #include "payload/iris/iris_service.h"
 #include "util/service_utilities.h"
 #include "logger.h"
+#include "redconf.h"
 #include <csp/csp.h>
 #include <csp/csp_endian.h>
 #include <main/system.h>
@@ -176,13 +177,21 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
          * 1. Get image length
          * 2. Transfer image
          */
-        uint32_t image_length;
+        uint32_t image_length = 0;
+        uint16_t image_count = 0;
+        char filename[REDCONF_NAME_MAX];
 
-        status = iris_get_image_length(&image_length);
-        IRIS_SERVICE_IMAGE_TRANSFER_DELAY; // 100 ms delay
+        status = iris_get_image_count(&image_count);
+        if (status == IRIS_HAL_OK) {
+            for (int i = 0; i < image_count; i++) {
+                status = iris_get_image_length(&image_length);
+                IRIS_SERVICE_IMAGE_TRANSFER_DELAY;
 
-        if (status == IRIS_HAL_OK && image_length != NULL) {
-            status = iris_transfer_image(image_length);
+                if (status == IRIS_HAL_OK && image_length != NULL) {
+                    sprintf(filename, "iris_image_%d.jpg", i);
+                    status = iris_transfer_image(image_length, filename);
+                }
+            }
         }
 
         // Return success/failure report

@@ -100,6 +100,9 @@ Iris_HAL_return iris_init() {
  * @brief
  *   Sends take a picture command to Iris
  *
+ *   Notice: Make sure that there is minimal to no delay during the execution
+ *   of this command. This is because we want to ensure millisecond accuracy
+ *
  * @return
  *   Returns IRIS_HAL_OK if equipment handler returns IRIS_LL_OK, else IRIS_HAL_ERROR
  **/
@@ -208,7 +211,7 @@ Iris_HAL_return iris_get_image_length(uint32_t *image_length) {
  * @return
  *   Returns IRIS_HAL_OK if equipment handler returns IRIS_LL_OK, else IRIS_HAL_ERROR
  **/
-Iris_HAL_return iris_transfer_image(uint32_t image_length) {
+Iris_HAL_return iris_transfer_image(uint32_t image_length, char *filename) {
     if (xSemaphoreTake(iris_hal_mutex, IRIS_HAL_MUTEX_TIMEOUT) != pdTRUE) {
         return IRIS_HAL_BUSY;
     }
@@ -217,7 +220,7 @@ Iris_HAL_return iris_transfer_image(uint32_t image_length) {
     int red_ret;
 
     int32_t fptr;
-    fptr = red_open("iris_image.jpg", RED_O_CREAT | RED_O_WRONLY);
+    fptr = red_open(filename, RED_O_CREAT | RED_O_WRONLY);
 
     if (fptr == -1) {
         sys_log(ERROR, "Unable to open iris image file from SD card");
@@ -398,6 +401,7 @@ Iris_HAL_return iris_get_image_count(uint16_t *image_count) {
             } else {
                 controller_state = ERROR_STATE;
             }
+            IRIS_WAIT_FOR_STATE_TRANSITION;
             break;
         }
         case GET_DATA: {
