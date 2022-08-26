@@ -22,11 +22,12 @@
 #define INCLUDE_IRIS_H_
 
 // Iris data transfer constants
-#define IMAGE_TRANSFER_SIZE 512 // 512 data bytes
-#define MAX_IMAGE_LENGTH 3      // In bytes
-#define MAX_IMAGE_COUNT 1       // In bytes
-#define HOUSEKEEPING_SIZE 23    // In bytes
-#define IRIS_UNIX_TIME_SIZE 4   // In bytes
+#define IMAGE_TRANSFER_SIZE 512    // In bytes
+#define IRIS_LOG_TRANSFER_SIZE 512 // In bytes
+#define MAX_IMAGE_LENGTH 3         // In bytes
+#define MAX_IMAGE_COUNT 1
+#define HOUSEKEEPING_SIZE 23  // In bytes
+#define IRIS_UNIX_TIME_SIZE 4 // In bytes
 
 // Iris timeout constants
 /* We need to specify a delay between spi state transitions on OBC
@@ -41,7 +42,8 @@
 #define IRIS_POWER_CYCLE_DELAY vTaskDelay(pdMS_TO_TICKS(1))
 #define IRIS_INIT_DELAY vTaskDelay(pdMS_TO_TICKS(4000))
 #define IRIS_WAIT_FOR_STATE_TRANSITION vTaskDelay(pdMS_TO_TICKS(100))
-#define IRIS_IMAGE_DATA_BLOCK_TRANSFER_DELAY vTaskDelay(pdMS_TO_TICKS(10)) // Depends on optimization level
+#define IRIS_IMAGE_DATA_BLOCK_TRANSFER_DELAY vTaskDelay(pdMS_TO_TICKS(20))
+#define IRIS_LOG_DATA_BLOCK_TRANSFER_DELAY vTaskDelay(pdMS_TO_TICKS(20))
 #define IRIS_WAIT_FOR_SENSORS_TO_TURN_ON vTaskDelay(pdMS_TO_TICKS(8000))
 #define IRIS_WAIT_FOR_SENSORS_TO_TURN_OFF vTaskDelay(pdMS_TO_TICKS(1000))
 
@@ -57,13 +59,14 @@ typedef enum {
     IRIS_TAKE_PIC = 0x10,
     IRIS_GET_IMAGE_LENGTH = 0x20,
     IRIS_TRANSFER_IMAGE = 0x31,
+    IRIS_TRANSFER_LOG = 0x34,
     IRIS_GET_IMAGE_COUNT = 0x30,
     IRIS_ON_SENSOR_IDLE = 0x40,
     IRIS_OFF_SENSOR_IDLE = 0x41,
     IRIS_SEND_HOUSEKEEPING = 0x51,
     IRIS_UPDATE_SENSOR_I2C_REG = 0x60,
     IRIS_UPDATE_CURRENT_LIMIT = 0x70,
-    IRIS_SET_TIME = 0x05,
+    IRIS_UPDATE_RTC = 0x05,
     IRIS_WDT_ACK = 0x80,
 } IRIS_COMMANDS;
 
@@ -97,13 +100,14 @@ typedef struct __attribute__((__packed__)) {
 Iris_HAL_return iris_init();
 Iris_HAL_return iris_take_pic();
 Iris_HAL_return iris_get_image_length(uint32_t *image_length);
-Iris_HAL_return iris_transfer_image(uint32_t image_length);
+Iris_HAL_return iris_transfer_image(uint32_t image_length, char *filename);
+Iris_HAL_return iris_transfer_log();
 Iris_HAL_return iris_get_image_count(uint16_t *image_count);
 Iris_HAL_return iris_toggle_sensor(uint8_t toggle);
 Iris_HAL_return iris_get_housekeeping(IRIS_Housekeeping *hk_data);
 Iris_HAL_return iris_update_sensor_i2c_reg();
 Iris_HAL_return iris_update_current_limit(uint16_t current_limit);
-Iris_HAL_return iris_set_time(uint32_t unix_time);
+Iris_HAL_return iris_update_rtc(uint32_t unix_time);
 Iris_HAL_return iris_wdt_ack();
 
 float iris_convert_hk_temperature(uint16_t temperature);
