@@ -40,7 +40,7 @@
  */
 #define IRIS_HAL_MUTEX_TIMEOUT pdMS_TO_TICKS(1000)
 #define IRIS_POWER_CYCLE_DELAY vTaskDelay(pdMS_TO_TICKS(1))
-#define IRIS_INIT_DELAY vTaskDelay(pdMS_TO_TICKS(4000))
+#define IRIS_INIT_DELAY vTaskDelay(pdMS_TO_TICKS(1000))
 #define IRIS_WAIT_FOR_STATE_TRANSITION vTaskDelay(pdMS_TO_TICKS(100))
 #define IRIS_IMAGE_DATA_BLOCK_TRANSFER_DELAY vTaskDelay(pdMS_TO_TICKS(20))
 #define IRIS_LOG_DATA_BLOCK_TRANSFER_DELAY vTaskDelay(pdMS_TO_TICKS(20))
@@ -68,6 +68,7 @@ typedef enum {
     IRIS_UPDATE_CURRENT_LIMIT = 0x70,
     IRIS_UPDATE_RTC = 0x05,
     IRIS_WDT_ACK = 0x80,
+    IRIS_UPDATE_CONFIG = 0x90,
 } IRIS_COMMANDS;
 
 typedef enum {
@@ -91,10 +92,14 @@ typedef struct __attribute__((__packed__)) {
     uint16_t MIN_3V_voltage;
 } IRIS_Housekeeping;
 
-typedef struct __attribute__((__packed__)) {
-    uint16_t sensor_reg_addr;
-    uint8_t sensor_data;
-} sensor_reg;
+#define IRIS_CONFIG_SIZE 6 // Number of bytes in below struct
+typedef struct __attribute__((packed)) {
+    uint8_t toggle_iris_logger;
+    uint8_t toggle_direct_method;
+    uint8_t format_iris_nand;
+    uint16_t set_resolution;
+    uint8_t set_saturation;
+} Iris_config;
 
 // Command functions prototypes
 Iris_HAL_return iris_init();
@@ -109,6 +114,7 @@ Iris_HAL_return iris_update_sensor_i2c_reg();
 Iris_HAL_return iris_update_current_limit(uint16_t current_limit);
 Iris_HAL_return iris_update_rtc(uint32_t unix_time);
 Iris_HAL_return iris_wdt_ack();
+Iris_HAL_return iris_update_config(Iris_config config);
 
 float iris_convert_hk_temperature(uint16_t temperature);
 

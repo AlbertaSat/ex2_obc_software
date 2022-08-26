@@ -252,6 +252,16 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
         set_packet_length(packet, sizeof(int8_t) + 1);
         break;
     }
+    case IRIS_SET_CONFIG: {
+        Iris_config config = {0};
+        memcpy(&config, &packet->data[IN_DATA_BYTE], sizeof(config));
+        status = iris_update_config(config);
+
+        // Return success/failure report
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));
+        set_packet_length(packet, sizeof(int8_t) + 1);
+        break;
+    }
     default:
         sys_log(WARN, "No such sub-service %d", ser_subtype);
         return SATR_PKT_ILLEGAL_SUBSERVICE;
