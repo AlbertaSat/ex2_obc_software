@@ -174,7 +174,6 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
         if (status == IRIS_HAL_OK) {
             for (int i = 0; i < image_count; i++) {
                 status = iris_get_image_length(&image_length);
-                IRIS_SERVICE_IMAGE_TRANSFER_DELAY;
 
                 if (status == IRIS_HAL_OK && image_length != NULL) {
                     sprintf(filename, "iris_image_%d.jpg", i);
