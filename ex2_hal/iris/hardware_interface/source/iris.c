@@ -95,8 +95,8 @@ Iris_HAL_return iris_init() {
     Iris_config default_config = {.toggle_iris_logger = 0,
                                   .toggle_direct_method = 0,
                                   .format_iris_nand = 0,
-                                  .set_resolution = 2592,
-                                  .set_saturation = 4};
+                                  .set_resolution = IRIS_DEFAULT_RESOLUTION,
+                                  .set_saturation = IRIS_DEFAULT_SATURATION};
 
     iris_update_config(default_config);
     IRIS_INIT_DELAY;

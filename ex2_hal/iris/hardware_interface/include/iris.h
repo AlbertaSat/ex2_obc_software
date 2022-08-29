@@ -93,6 +93,8 @@ typedef struct __attribute__((__packed__)) {
 } IRIS_Housekeeping;
 
 #define IRIS_CONFIG_SIZE 6 // Number of bytes in below struct
+#define IRIS_DEFAULT_RESOLUTION 2592
+#define IRIS_DEFAULT_SATURATION 4
 typedef struct __attribute__((packed)) {
     uint8_t toggle_iris_logger;
     uint8_t toggle_direct_method;
