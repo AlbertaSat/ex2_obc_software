@@ -88,6 +88,7 @@ Iris_HAL_return iris_init() {
     time_t unix_time;
     RTCMK_GetUnix(&unix_time);
     iris_update_rtc(unix_time);
+    IRIS_INIT_DELAY;
 #else
     iris_update_rtc(1659051330); // Dummy time for dev-card debugging (without RTC)
 #endif
