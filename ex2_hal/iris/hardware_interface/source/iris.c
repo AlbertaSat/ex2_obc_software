@@ -88,9 +88,19 @@ Iris_HAL_return iris_init() {
     time_t unix_time;
     RTCMK_GetUnix(&unix_time);
     iris_update_rtc(unix_time);
+    IRIS_INIT_DELAY;
 #else
     iris_update_rtc(1659051330); // Dummy time for dev-card debugging (without RTC)
 #endif
+
+    Iris_config default_config = {.toggle_iris_logger = 0,
+                                  .toggle_direct_method = 0,
+                                  .format_iris_nand = 0,
+                                  .set_resolution = IRIS_DEFAULT_RESOLUTION,
+                                  .set_saturation = IRIS_DEFAULT_SATURATION};
+
+    iris_update_config(default_config);
+    IRIS_INIT_DELAY;
 
     sys_log(ERROR, "Iris successfully initialized");
     return IRIS_HAL_OK;
@@ -752,6 +762,64 @@ Iris_HAL_return iris_wdt_ack() {
         }
         case ERROR_STATE: {
             sys_log(INFO, "Iris returns NACK on watchdog ack command");
+            xSemaphoreGive(iris_hal_mutex);
+            return IRIS_HAL_ERROR;
+        }
+        }
+    }
+}
+
+/**
+ * @brief
+ *   Update configuration on Iris
+ *
+ * @param[in] Iris_config
+ *
+ * @return
+ *   Returns IRIS_HAL_OK if equipment handler returns IRIS_ACK, else IRIS_HAL_ERROR
+ **/
+Iris_HAL_return iris_update_config(Iris_config config) {
+    if (xSemaphoreTake(iris_hal_mutex, IRIS_HAL_MUTEX_TIMEOUT) != pdTRUE) {
+        return IRIS_HAL_BUSY;
+    }
+    IrisLowLevelReturn ret;
+    uint16_t iris_config_buffer[IRIS_CONFIG_SIZE];
+
+    controller_state = SEND_COMMAND;
+
+    while (1) {
+        switch (controller_state) {
+        case SEND_COMMAND: {
+            ret = iris_send_command(IRIS_UPDATE_CONFIG);
+            if (ret == IRIS_LL_OK) {
+                controller_state = SEND_DATA;
+            } else {
+                controller_state = FINISH;
+            }
+            IRIS_WAIT_FOR_STATE_TRANSITION;
+            break;
+        }
+        case SEND_DATA: {
+            iris_config_buffer[0] = (uint16_t)config.toggle_iris_logger;
+            iris_config_buffer[1] = (uint16_t)config.toggle_direct_method;
+            iris_config_buffer[2] = (uint16_t)config.format_iris_nand;
+            iris_config_buffer[3] = (uint16_t)(config.set_resolution >> (8 * 1)) & 0xff;
+            iris_config_buffer[4] = (uint16_t)(config.set_resolution >> (8 * 0)) & 0xff;
+            iris_config_buffer[5] = (uint16_t)config.set_saturation;
+
+            iris_send_data(iris_config_buffer, IRIS_CONFIG_SIZE);
+
+            controller_state = FINISH;
+            IRIS_WAIT_FOR_STATE_TRANSITION;
+            break;
+        }
+        case FINISH: {
+            sys_log(INFO, "Iris successfully configured");
+            xSemaphoreGive(iris_hal_mutex);
+            return IRIS_HAL_OK;
+        }
+        case ERROR_STATE: {
+            sys_log(INFO, "Iris failure on update iris config command");
             xSemaphoreGive(iris_hal_mutex);
             return IRIS_HAL_ERROR;
         }

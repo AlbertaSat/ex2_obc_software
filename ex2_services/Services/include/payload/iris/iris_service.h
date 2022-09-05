@@ -37,6 +37,7 @@ typedef enum {
     IRIS_GET_HK = 8,
     IRIS_DELIVER_LOG = 9,
     IRIS_SET_TIME = 10,
+    IRIS_SET_CONFIG = 11,
 } IRIS_Subtype;
 
 #endif /* IRIS_SERVICE_H */

@@ -174,7 +174,6 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
         if (status == IRIS_HAL_OK) {
             for (int i = 0; i < image_count; i++) {
                 status = iris_get_image_length(&image_length);
-                IRIS_SERVICE_IMAGE_TRANSFER_DELAY;
 
                 if (status == IRIS_HAL_OK && image_length != NULL) {
                     sprintf(filename, "iris_image_%d.jpg", i);
@@ -246,6 +245,16 @@ SAT_returnState iris_service_app(csp_packet_t *packet) {
         unix_time = csp_ntoh32(unix_time);
 
         status = iris_update_rtc(unix_time);
+
+        // Return success/failure report
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));
+        set_packet_length(packet, sizeof(int8_t) + 1);
+        break;
+    }
+    case IRIS_SET_CONFIG: {
+        Iris_config config = {0};
+        memcpy(&config, &packet->data[IN_DATA_BYTE], sizeof(config));
+        status = iris_update_config(config);
 
         // Return success/failure report
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(uint8_t));
