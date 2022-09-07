@@ -17,13 +17,18 @@
  * @date    2021-12-29
  */
 
+#ifndef HOUSEKEEPING_CHARON_H
+#define HOUSEKEEPING_CHARON_H
+
 #include <stdint.h>
 #include "skytraq_binary_types.h"
 #include "ads7128.h"
 
 typedef struct __attribute__((packed)) {
     uint16_t crc;
-    int8_t   temparray[8];           // Charon temperature array
+    int8_t temparray[8]; // Charon temperature array
 } charon_housekeeping;
 
 GPS_RETURNSTATE Charon_getHK(charon_housekeeping *hk);
+
+#endif /* HOUSEKEEPING_CHARON_H */
