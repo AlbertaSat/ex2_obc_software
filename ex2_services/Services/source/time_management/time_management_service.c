@@ -162,7 +162,7 @@ SAT_returnState time_management_app(csp_packet_t *packet) {
     return SATR_OK;
 }
 
-SAT_returnState synchronize_all_clocks(uint32_t temp_time){
+SAT_returnState synchronize_all_clocks(uint32_t temp_time) {
     SAT_returnState status = SATR_OK;
 #if ADCS_IS_STUBBED == 0
     status += (SAT_returnState)HAL_ADCS_set_unix_t(temp_time, 0);
@@ -170,7 +170,7 @@ SAT_returnState synchronize_all_clocks(uint32_t temp_time){
 #if EPS_IS_STUBBED == 0
     status += eps_set_unix_time(&temp_time);
 #endif
-#if IS_EXALTA2 == 1 && PAYLOAD_IS_STUBBED == 0
+#if IRIS_IS_STUBBED == 0
     // Iris set time
 #endif
     return status;

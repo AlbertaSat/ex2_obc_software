@@ -248,13 +248,13 @@ Result collect_hk_from_devices(All_systems_housekeeping *all_hk_data) {
     DFGM_return DFGM_return_code = HAL_DFGM_get_HK(&all_hk_data->DFGM_hk); /* DFGM Housekeeping */
 #endif                                                                     /* DFGM_IS_STUBBED */
 
-#if PAYLOAD_IS_STUBBED == 0
-#if IS_EXALTA2 == 1
+#if IRIS_IS_STUBBED == 0
     Iris_HAL_return Iris_return_code = iris_get_housekeeping(&all_hk_data->IRIS_hk);
-#else
+#endif
+
+#if NS_IS_STUBBED == 0
     NS_return NS_return_code = HAL_NS_get_telemetry(&all_hk_data->NS_hk);
-#endif /* IS_EXALTA2 */
-#endif /* PAYLOAD_IS_STUBBED */
+#endif
     /*consider if struct should hold error codes returned from these functions*/
     return SUCCESS;
 }
