@@ -670,9 +670,10 @@ Result fetch_historic_hk_and_transmit(csp_conn_t *conn, uint16_t limit, uint16_t
         ex2_log("Successfully did nothing O_o");
         return SUCCESS;
     }
-    All_systems_housekeeping all_hk_data = {0};
+    All_systems_housekeeping all_hk_data;
     // fetch each appropriate set of data from file
     while (limit > 0) {
+        memset(&all_hk_data, 0, sizeof(All_systems_housekeeping));
         locked_before_id--;
 
         if (locked_before_id == 0) {
