@@ -178,6 +178,9 @@ Result mock_everyone(All_systems_housekeeping *all_hk_data) {
     // Hyperion
     mock_hyperion(&all_hk_data->hyperion_hk);
 
+    // Charon
+    mock_charon(&all_hk_data->charon_hk);
+
     // DFGM
     mock_dfgm(&all_hk_data->DFGM_hk);
 
@@ -206,11 +209,15 @@ Result collect_hk_from_devices(All_systems_housekeeping *all_hk_data) {
 /*populate struct by calling appropriate functions*/
 #if ADCS_IS_STUBBED == 0
     ADCS_returnState ADCS_return_code = HAL_ADCS_getHK(&all_hk_data->adcs_hk); /* ADCS Housekeeping */
-#endif                                                                         /* ADCS_IS_STUBBED */
+#else
+    mock_adcs(&all_hk_data->adcs_hk);
+#endif /* ADCS_IS_STUBBED */
 
 #if ATHENA_IS_STUBBED == 0
     int Athena_return_code = Athena_getHK(&all_hk_data->Athena_hk); /* Athena Housekeeping */
-#endif                                                              /* ATHENA_IS_STUBBED */
+#else
+    mock_athena(&all_hk_data->Athena_hk);
+#endif /* ATHENA_IS_STUBBED */
 
 #if EPS_IS_STUBBED == 0
     SAT_returnState EPS_return_code = SATR_OK;
@@ -219,16 +226,22 @@ Result collect_hk_from_devices(All_systems_housekeeping *all_hk_data) {
     if (eps_refresh_startup_telemetry() != SATR_OK)
         EPS_return_code = SATR_ERROR;
     EPS_getHK(&all_hk_data->EPS_hk, &all_hk_data->EPS_startup_hk); /* EPS Housekeeping */
-#endif                                                             /* EPS_IS_STUBBED */
+#else
+    mock_eps_instantaneous(&all_hk_data->EPS_hk);
+    mock_eps_startup(&all_hk_data->EPS_startup_hk);
+#endif /* EPS_IS_STUBBED */
 
 #if UHF_IS_STUBBED == 0
     UHF_return UHF_return_code = UHF_getHK(&all_hk_data->UHF_hk); /* UHF Housekeeping */
-
+#else
+    mock_uhf(&all_hk_data->UHF_hk);
 #endif /* UHF_IS_STUBBED */
 
 #if SBAND_IS_STUBBED == 0
     STX_return STX_return_code = HAL_S_getHK(&all_hk_data->S_band_hk); /* SBAND Housekeeping */
-#endif                                                                 /* SBAND_IS_STUBBED */
+#else
+    mock_sband(&all_hk_data->S_band_hk);
+#endif /* SBAND_IS_STUBBED */
 
 #if HYPERION_IS_STUBBED == 0
 #if HYPERION_PANEL_3U == 1
@@ -238,22 +251,32 @@ Result collect_hk_from_devices(All_systems_housekeeping *all_hk_data) {
 #if HYPERION_PANEL_2U == 1
     Hyperion_config3_getHK(&all_hk_data->hyperion_hk); /* Hyperion 2U Housekeeping */
 #endif                                                 /* HYPERION_PANEL_2U */
-#endif                                                 /* HYPERION_IS_STUBBED */
+#else
+    mock_hyperion(&all_hk_data->hyperion_hk);
+#endif /* HYPERION_IS_STUBBED */
 
 #if CHARON_IS_STUBBED == 0
     GPS_RETURNSTATE Charon_return_code = Charon_getHK(&all_hk_data->charon_hk); /* Charon Houskeeping */
-#endif                                                                          /* CHARON_IS_STUBBED */
+#else
+    mock_charon(&all_hk_data->charon_hk);
+#endif /* CHARON_IS_STUBBED */
 
 #if DFGM_IS_STUBBED == 0
     DFGM_return DFGM_return_code = HAL_DFGM_get_HK(&all_hk_data->DFGM_hk); /* DFGM Housekeeping */
-#endif                                                                     /* DFGM_IS_STUBBED */
+#else
+    mock_dfgm(&all_hk_data->DFGM_hk);
+#endif /* DFGM_IS_STUBBED */
 
 #if IRIS_IS_STUBBED == 0
     Iris_HAL_return Iris_return_code = iris_get_housekeeping(&all_hk_data->IRIS_hk);
+#else
+    mock_iris(&all_hk_data->IRIS_hk);
 #endif
 
 #if NS_IS_STUBBED == 0
     NS_return NS_return_code = HAL_NS_get_telemetry(&all_hk_data->NS_hk);
+#else
+    mock_ns(&all_hk_data->NS_hk);
 #endif
     /*consider if struct should hold error codes returned from these functions*/
     return SUCCESS;
