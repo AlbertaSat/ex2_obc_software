@@ -150,6 +150,9 @@ int Athena_getHK(athena_housekeeping *athena_hk) {
     if (temp_status != 0)
         return_code = temp_status;
 
+    athena_hk->heap_free = xPortGetFreeHeapSize();
+    athena_hk->lowest_heap_free = xPortGetMinimumEverFreeHeapSize();
+
     return return_code;
 }
 
