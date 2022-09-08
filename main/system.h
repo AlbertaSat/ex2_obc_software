@@ -190,6 +190,10 @@ typedef enum {
 #endif
 #endif
 
+#if NS_IS_STUBBED == 0 && IRIS_IS_STUBBED == 0
+#error "Can't have NS and IRIS payloads"
+#endif
+
 #if GOLDEN_IMAGE == 1 && WORKING_IMAGE == 1
 #error "Must be either GOLDEN_IMAGE or WORKING_IMAGE"
 #endif

@@ -29,6 +29,7 @@
 #include "logger/logger.h"
 #include "csp/csp_endian.h"
 #include "ns_payload.h"
+#include "housekeeping_mocks.h"
 
 uint16_t MAX_FILES = 20160; // value is 20160 (7 days) based on 30 second period
 char fileName[] = "VOL0:/tempHKdata.TMP";
@@ -153,241 +154,42 @@ Result dynamic_timestamp_array_handler(uint16_t num_items) {
     return SUCCESS;
 }
 
-// temp function for testing. not for final project build
-int32_t temp = 0;
-uint32_t tempTime = 1000;
-
 Result mock_everyone(All_systems_housekeeping *all_hk_data) {
-    // universal temps
-    long tempLong = (long)temp;
-    uint8_t tempu8 = (uint8_t)temp;
-    int8_t temp8 = (int8_t)temp;
-    double tempDouble = (temp * 1.0);
-    uint16_t tempu16 = (uint16_t)temp;
-    uint32_t tempu32 = (uint32_t)temp;
-    float tempFloat = (temp * 1.0);
 
     // Packet meta
-    all_hk_data->hk_timeorder.UNIXtimestamp = tempTime;
+    all_hk_data->hk_timeorder.UNIXtimestamp = mock_time();
 
     // ADCS
-    all_hk_data->adcs_hk.Estimated_Angular_Rate_X = tempFloat;
-    all_hk_data->adcs_hk.Estimated_Angular_Rate_Y = tempFloat;
-    all_hk_data->adcs_hk.Estimated_Angular_Rate_Z = tempFloat;
-    all_hk_data->adcs_hk.Estimated_Angular_Angle_X = tempFloat;
-    all_hk_data->adcs_hk.Estimated_Angular_Angle_Y = tempFloat;
-    all_hk_data->adcs_hk.Estimated_Angular_Angle_Z = tempFloat;
-    all_hk_data->adcs_hk.Sat_Position_ECI_X = tempFloat;
-    all_hk_data->adcs_hk.Sat_Position_ECI_Y = tempFloat;
-    all_hk_data->adcs_hk.Sat_Position_ECI_Z = tempFloat;
-    all_hk_data->adcs_hk.Sat_Velocity_ECI_X = tempFloat;
-    all_hk_data->adcs_hk.Sat_Velocity_ECI_Y = tempFloat;
-    all_hk_data->adcs_hk.Sat_Velocity_ECI_Z = tempFloat;
-    all_hk_data->adcs_hk.Sat_Position_LLH_X = tempFloat;
-    all_hk_data->adcs_hk.Sat_Position_LLH_Y = tempFloat;
-    all_hk_data->adcs_hk.Sat_Position_LLH_Z = tempFloat;
-    all_hk_data->adcs_hk.ECEF_Position_X = tempFloat;
-    all_hk_data->adcs_hk.ECEF_Position_Y = tempFloat;
-    all_hk_data->adcs_hk.ECEF_Position_Z = tempFloat;
-    all_hk_data->adcs_hk.Coarse_Sun_Vector_X = tempFloat;
-    all_hk_data->adcs_hk.Coarse_Sun_Vector_Y = tempFloat;
-    all_hk_data->adcs_hk.Coarse_Sun_Vector_Z = tempFloat;
-    all_hk_data->adcs_hk.Fine_Sun_Vector_X = tempFloat;
-    all_hk_data->adcs_hk.Fine_Sun_Vector_Y = tempFloat;
-    all_hk_data->adcs_hk.Fine_Sun_Vector_Z = tempFloat;
-    all_hk_data->adcs_hk.Nadir_Vector_X = tempFloat;
-    all_hk_data->adcs_hk.Nadir_Vector_Y = tempFloat;
-    all_hk_data->adcs_hk.Nadir_Vector_Z = tempFloat;
-    all_hk_data->adcs_hk.Wheel_Speed_X = tempFloat;
-    all_hk_data->adcs_hk.Wheel_Speed_Y = tempFloat;
-    all_hk_data->adcs_hk.Wheel_Speed_Z = tempFloat;
-    all_hk_data->adcs_hk.Mag_Field_Vector_X = tempFloat;
-    all_hk_data->adcs_hk.Mag_Field_Vector_Y = tempFloat;
-    all_hk_data->adcs_hk.Mag_Field_Vector_Z = tempFloat;
-    all_hk_data->adcs_hk.TC_num = tempFloat;
-    all_hk_data->adcs_hk.TM_num = tempFloat;
-    all_hk_data->adcs_hk.CommsStat_flags[0] = tempFloat;
-    all_hk_data->adcs_hk.CommsStat_flags[1] = tempFloat;
-    all_hk_data->adcs_hk.CommsStat_flags[2] = tempFloat;
-    all_hk_data->adcs_hk.CommsStat_flags[3] = tempFloat;
-    all_hk_data->adcs_hk.CommsStat_flags[4] = tempFloat;
-    all_hk_data->adcs_hk.CommsStat_flags[5] = tempFloat;
-    all_hk_data->adcs_hk.Wheel1_Current = tempFloat;
-    all_hk_data->adcs_hk.Wheel2_Current = tempFloat;
-    all_hk_data->adcs_hk.Wheel3_Current = tempFloat;
-    all_hk_data->adcs_hk.CubeSense1_Current = tempFloat;
-    all_hk_data->adcs_hk.CubeSense2_Current = tempFloat;
-    all_hk_data->adcs_hk.CubeControl_Current3v3 = tempFloat;
-    all_hk_data->adcs_hk.CubeControl_Current5v0 = tempFloat;
-    all_hk_data->adcs_hk.CubeStar_Current = tempFloat;
-    all_hk_data->adcs_hk.CubeStar_Temp = tempFloat;
-    all_hk_data->adcs_hk.Magnetorquer_Current = tempFloat;
-    all_hk_data->adcs_hk.MCU_Temp = tempFloat;
-    all_hk_data->adcs_hk.Rate_Sensor_Temp_X = tempFloat;
-    all_hk_data->adcs_hk.Rate_Sensor_Temp_Y = tempFloat;
-    all_hk_data->adcs_hk.Rate_Sensor_Temp_Z = tempFloat;
+    mock_adcs(&all_hk_data->adcs_hk);
 
     // Athena
-    all_hk_data->Athena_hk.MCU_core_temp = tempLong;
-    all_hk_data->Athena_hk.converter_temp = tempLong;
-    all_hk_data->Athena_hk.boot_cnt = tempu16;
-    all_hk_data->Athena_hk.OBC_mode = tempu8;
-    all_hk_data->Athena_hk.OBC_uptime = tempu16;
-    all_hk_data->Athena_hk.solar_panel_supply_curr = tempu8;
-    all_hk_data->Athena_hk.version_major = tempu16;
-    all_hk_data->Athena_hk.version_minor = tempu16;
-    all_hk_data->Athena_hk.version_patch = tempu16;
-    all_hk_data->Athena_hk.cmds_received = tempu16;
-    all_hk_data->Athena_hk.pckts_uncovered_by_FEC = tempu16;
+    mock_athena(&all_hk_data->Athena_hk);
 
     // EPS
-    all_hk_data->EPS_hk.cmd = tempu8;
-    all_hk_data->EPS_hk.status = temp8;
-    all_hk_data->EPS_hk.timestampInS = tempDouble;
-    all_hk_data->EPS_hk.uptimeInS = tempu32;
-    all_hk_data->EPS_hk.bootCnt = tempu32;
-    all_hk_data->EPS_hk.wdt_gs_time_left = tempu32;
-    all_hk_data->EPS_hk.wdt_gs_counter = tempu32;
-    all_hk_data->EPS_hk.vBatt = tempu16;
-    all_hk_data->EPS_hk.curSolar = tempu16;
-    all_hk_data->EPS_hk.curBattIn = tempu16;
-    all_hk_data->EPS_hk.curBattOut = tempu16;
-    all_hk_data->EPS_hk.outputConverterState = tempu8;
-    all_hk_data->EPS_hk.outputStatus = tempu32;
-    all_hk_data->EPS_hk.outputFaultStatus = tempu32;
-    all_hk_data->EPS_hk.protectedOutputAccessCnt = tempu16;
-    all_hk_data->EPS_hk.battMode = tempu8;
-    all_hk_data->EPS_hk.mpptMode = tempu8;
-    all_hk_data->EPS_hk.batHeaterMode = tempu8;
-    all_hk_data->EPS_hk.batHeaterState = tempu8;
-    all_hk_data->EPS_hk.PingWdt_toggles = tempu16;
-    all_hk_data->EPS_hk.PingWdt_turnOffs = tempu8;
-
-    for (int i = 0; i < 2; i++) {
-        all_hk_data->EPS_hk.AOcurOutput[i] = tempu16;
-    }
-    for (int i = 0; i < 4; i++) {
-        all_hk_data->EPS_hk.mpptConverterVoltage[i] = tempu16;
-    }
-    for (int i = 0; i < 8; i++) {
-        all_hk_data->EPS_hk.curSolarPanels[i] = tempu16;
-        all_hk_data->EPS_hk.OutputConverterVoltage[i] = tempu16;
-    }
-    for (int i = 0; i < 18; i++) {
-        all_hk_data->EPS_hk.curOutput[i] = tempu16;
-        all_hk_data->EPS_hk.outputOnDelta[i] = tempu16;
-        all_hk_data->EPS_hk.outputOffDelta[i] = tempu16;
-        all_hk_data->EPS_hk.outputFaultCnt[i] = tempu8;
-    }
-    for (int i = 0; i < 14; i++) {
-        all_hk_data->EPS_hk.temp[i] = temp8;
-    }
+    mock_eps_instantaneous(&all_hk_data->EPS_hk);
+    mock_eps_startup(&all_hk_data->EPS_startup_hk);
 
     // UHF
-    all_hk_data->UHF_hk.freq = tempu32;
-    all_hk_data->UHF_hk.pipe_t = tempu32;
-    all_hk_data->UHF_hk.beacon_t = tempu32;
-    all_hk_data->UHF_hk.audio_t = tempu32;
-    all_hk_data->UHF_hk.uptime = tempu32;
-    all_hk_data->UHF_hk.pckts_out = tempu32;
-    all_hk_data->UHF_hk.pckts_in = tempu32;
-    all_hk_data->UHF_hk.pckts_in_crc16 = tempu32;
-    all_hk_data->UHF_hk.temperature = tempFloat;
-
-    for (int i = 0; i < SCW_LEN; i++) {
-        all_hk_data->UHF_hk.scw[i] = tempu8;
-    }
+    mock_uhf(&all_hk_data->UHF_hk);
 
     // Sband
-    all_hk_data->S_band_hk.Output_Power = tempFloat;
-    all_hk_data->S_band_hk.PA_Temp = tempFloat;
-    all_hk_data->S_band_hk.Top_Temp = tempFloat;
-    all_hk_data->S_band_hk.Bottom_Temp = tempFloat;
-    all_hk_data->S_band_hk.Bat_Current = tempFloat;
-    all_hk_data->S_band_hk.Bat_Voltage = tempFloat;
-    all_hk_data->S_band_hk.PA_Current = tempFloat;
-    all_hk_data->S_band_hk.PA_Voltage = tempFloat;
+    mock_sband(&all_hk_data->S_band_hk);
 
     // Hyperion
-    all_hk_data->hyperion_hk.Nadir_Temp1 = tempFloat;
-    all_hk_data->hyperion_hk.Port_Temp1 = tempFloat;
-    all_hk_data->hyperion_hk.Port_Temp2 = tempFloat;
-    all_hk_data->hyperion_hk.Port_Temp3 = tempFloat;
-    all_hk_data->hyperion_hk.Port_Temp_Adc = tempFloat;
-    all_hk_data->hyperion_hk.Port_Dep_Temp1 = tempFloat;
-    all_hk_data->hyperion_hk.Port_Dep_Temp2 = tempFloat;
-    all_hk_data->hyperion_hk.Port_Dep_Temp3 = tempFloat;
-    all_hk_data->hyperion_hk.Port_Dep_Temp_Adc = tempFloat;
-    all_hk_data->hyperion_hk.Star_Temp1 = tempFloat;
-    all_hk_data->hyperion_hk.Star_Temp2 = tempFloat;
-    all_hk_data->hyperion_hk.Star_Temp3 = tempFloat;
-    all_hk_data->hyperion_hk.Star_Temp_Adc = tempFloat;
-    all_hk_data->hyperion_hk.Star_Dep_Temp1 = tempFloat;
-    all_hk_data->hyperion_hk.Star_Dep_Temp2 = tempFloat;
-    all_hk_data->hyperion_hk.Star_Dep_Temp3 = tempFloat;
-    all_hk_data->hyperion_hk.Star_Dep_Temp_Adc = tempFloat;
-    all_hk_data->hyperion_hk.Zenith_Temp1 = tempFloat;
-    all_hk_data->hyperion_hk.Zenith_Temp2 = tempFloat;
-    all_hk_data->hyperion_hk.Zenith_Temp3 = tempFloat;
-    all_hk_data->hyperion_hk.Zenith_Temp_Adc = tempFloat;
-    all_hk_data->hyperion_hk.Nadir_Pd1 = tempFloat;
-    all_hk_data->hyperion_hk.Port_Pd1 = tempFloat;
-    all_hk_data->hyperion_hk.Port_Pd2 = tempFloat;
-    all_hk_data->hyperion_hk.Port_Pd3 = tempFloat;
-    all_hk_data->hyperion_hk.Port_Dep_Pd1 = tempFloat;
-    all_hk_data->hyperion_hk.Port_Dep_Pd2 = tempFloat;
-    all_hk_data->hyperion_hk.Port_Dep_Pd3 = tempFloat;
-    all_hk_data->hyperion_hk.Star_Pd1 = tempFloat;
-    all_hk_data->hyperion_hk.Star_Pd2 = tempFloat;
-    all_hk_data->hyperion_hk.Star_Pd3 = tempFloat;
-    all_hk_data->hyperion_hk.Star_Dep_Pd1 = tempFloat;
-    all_hk_data->hyperion_hk.Star_Dep_Pd2 = tempFloat;
-    all_hk_data->hyperion_hk.Star_Dep_Pd3 = tempFloat;
-    all_hk_data->hyperion_hk.Zenith_Pd1 = tempFloat;
-    all_hk_data->hyperion_hk.Zenith_Pd2 = tempFloat;
-    all_hk_data->hyperion_hk.Zenith_Pd3 = tempFloat;
-    all_hk_data->hyperion_hk.Port_Voltage = tempFloat;
-    all_hk_data->hyperion_hk.Port_Dep_Voltage = tempFloat;
-    all_hk_data->hyperion_hk.Star_Voltage = tempFloat;
-    all_hk_data->hyperion_hk.Star_Dep_Voltage = tempFloat;
-    all_hk_data->hyperion_hk.Zenith_Voltage = tempFloat;
-    all_hk_data->hyperion_hk.Port_Current = tempFloat;
-    all_hk_data->hyperion_hk.Port_Dep_Current = tempFloat;
-    all_hk_data->hyperion_hk.Star_Current = tempFloat;
-    all_hk_data->hyperion_hk.Star_Dep_Current = tempFloat;
-    all_hk_data->hyperion_hk.Zenith_Current = tempFloat;
+    mock_hyperion(&all_hk_data->hyperion_hk);
+
+    // Charon
+    mock_charon(&all_hk_data->charon_hk);
 
     // DFGM
-    all_hk_data->DFGM_hk.coreVoltage = tempFloat;
-    all_hk_data->DFGM_hk.sensorTemp = tempFloat;
-    all_hk_data->DFGM_hk.refTemp = tempFloat;
-    all_hk_data->DFGM_hk.boardTemp = tempFloat;
-    all_hk_data->DFGM_hk.posRailVoltage = tempFloat;
-    all_hk_data->DFGM_hk.inputVoltage = tempFloat;
-    all_hk_data->DFGM_hk.refVoltage = tempFloat;
-    all_hk_data->DFGM_hk.inputCurrent = tempFloat;
-    all_hk_data->DFGM_hk.reserved1 = tempFloat;
-    all_hk_data->DFGM_hk.reserved2 = tempFloat;
-    all_hk_data->DFGM_hk.reserved3 = tempFloat;
-    all_hk_data->DFGM_hk.reserved4 = tempFloat;
+    mock_dfgm(&all_hk_data->DFGM_hk);
 
     // IRIS
-    all_hk_data->IRIS_hk.vis_temp = tempFloat;
-    all_hk_data->IRIS_hk.nir_temp = tempFloat;
-    all_hk_data->IRIS_hk.flash_temp = tempFloat;
-    all_hk_data->IRIS_hk.gate_temp = tempFloat;
-    all_hk_data->IRIS_hk.imagenum = tempu8;
-    all_hk_data->IRIS_hk.software_version = tempu8;
-    all_hk_data->IRIS_hk.errornum = tempu8;
-    all_hk_data->IRIS_hk.MAX_5V_voltage = tempu16;
-    all_hk_data->IRIS_hk.MAX_5V_power = tempu16;
-    all_hk_data->IRIS_hk.MAX_3V_voltage = tempu16;
-    all_hk_data->IRIS_hk.MAX_3V_power = tempu16;
-    all_hk_data->IRIS_hk.MIN_5V_voltage = tempu16;
-    all_hk_data->IRIS_hk.MIN_3V_voltage = tempu16;
+    mock_iris(&all_hk_data->IRIS_hk);
 
-    temp++;
-    tempTime += 30;
+    // NS
+    mock_ns(&all_hk_data->NS_hk);
+
     return SUCCESS;
 }
 
@@ -407,11 +209,15 @@ Result collect_hk_from_devices(All_systems_housekeeping *all_hk_data) {
 /*populate struct by calling appropriate functions*/
 #if ADCS_IS_STUBBED == 0
     ADCS_returnState ADCS_return_code = HAL_ADCS_getHK(&all_hk_data->adcs_hk); /* ADCS Housekeeping */
-#endif                                                                         /* ADCS_IS_STUBBED */
+#else
+    mock_adcs(&all_hk_data->adcs_hk);
+#endif /* ADCS_IS_STUBBED */
 
 #if ATHENA_IS_STUBBED == 0
     int Athena_return_code = Athena_getHK(&all_hk_data->Athena_hk); /* Athena Housekeeping */
-#endif                                                              /* ATHENA_IS_STUBBED */
+#else
+    mock_athena(&all_hk_data->Athena_hk);
+#endif /* ATHENA_IS_STUBBED */
 
 #if EPS_IS_STUBBED == 0
     SAT_returnState EPS_return_code = SATR_OK;
@@ -420,16 +226,22 @@ Result collect_hk_from_devices(All_systems_housekeeping *all_hk_data) {
     if (eps_refresh_startup_telemetry() != SATR_OK)
         EPS_return_code = SATR_ERROR;
     EPS_getHK(&all_hk_data->EPS_hk, &all_hk_data->EPS_startup_hk); /* EPS Housekeeping */
-#endif                                                             /* EPS_IS_STUBBED */
+#else
+    mock_eps_instantaneous(&all_hk_data->EPS_hk);
+    mock_eps_startup(&all_hk_data->EPS_startup_hk);
+#endif /* EPS_IS_STUBBED */
 
 #if UHF_IS_STUBBED == 0
     UHF_return UHF_return_code = UHF_getHK(&all_hk_data->UHF_hk); /* UHF Housekeeping */
-
+#else
+    mock_uhf(&all_hk_data->UHF_hk);
 #endif /* UHF_IS_STUBBED */
 
 #if SBAND_IS_STUBBED == 0
     STX_return STX_return_code = HAL_S_getHK(&all_hk_data->S_band_hk); /* SBAND Housekeeping */
-#endif                                                                 /* SBAND_IS_STUBBED */
+#else
+    mock_sband(&all_hk_data->S_band_hk);
+#endif /* SBAND_IS_STUBBED */
 
 #if HYPERION_IS_STUBBED == 0
 #if HYPERION_PANEL_3U == 1
@@ -439,23 +251,33 @@ Result collect_hk_from_devices(All_systems_housekeeping *all_hk_data) {
 #if HYPERION_PANEL_2U == 1
     Hyperion_config3_getHK(&all_hk_data->hyperion_hk); /* Hyperion 2U Housekeeping */
 #endif                                                 /* HYPERION_PANEL_2U */
-#endif                                                 /* HYPERION_IS_STUBBED */
+#else
+    mock_hyperion(&all_hk_data->hyperion_hk);
+#endif /* HYPERION_IS_STUBBED */
 
 #if CHARON_IS_STUBBED == 0
     GPS_RETURNSTATE Charon_return_code = Charon_getHK(&all_hk_data->charon_hk); /* Charon Houskeeping */
-#endif                                                                          /* CHARON_IS_STUBBED */
+#else
+    mock_charon(&all_hk_data->charon_hk);
+#endif /* CHARON_IS_STUBBED */
 
 #if DFGM_IS_STUBBED == 0
     DFGM_return DFGM_return_code = HAL_DFGM_get_HK(&all_hk_data->DFGM_hk); /* DFGM Housekeeping */
-#endif                                                                     /* DFGM_IS_STUBBED */
+#else
+    mock_dfgm(&all_hk_data->DFGM_hk);
+#endif /* DFGM_IS_STUBBED */
 
-#if PAYLOAD_IS_STUBBED == 0
-#if IS_EXALTA2 == 1
+#if IRIS_IS_STUBBED == 0
     Iris_HAL_return Iris_return_code = iris_get_housekeeping(&all_hk_data->IRIS_hk);
 #else
+    mock_iris(&all_hk_data->IRIS_hk);
+#endif
+
+#if NS_IS_STUBBED == 0
     NS_return NS_return_code = HAL_NS_get_telemetry(&all_hk_data->NS_hk);
-#endif /* IS_EXALTA2 */
-#endif /* PAYLOAD_IS_STUBBED */
+#else
+    mock_ns(&all_hk_data->NS_hk);
+#endif
     /*consider if struct should hold error codes returned from these functions*/
     return SUCCESS;
 }
@@ -490,6 +312,7 @@ Result store_config(uint8_t rewrite_all) {
         sys_log(ERROR, "Failed to open or create file to write: '%s'\n", hk_config);
         return FAILURE;
     }
+    uint32_t tempTime = mock_time();
     red_write(fout, &MAX_FILES, sizeof(MAX_FILES));
     red_write(fout, &current_file, sizeof(current_file));
     red_write(fout, &tempTime, sizeof(tempTime)); // for debugging
@@ -513,6 +336,7 @@ Result load_config() {
         sys_log(ERROR, "Failed to open file to read: '%s'\n", hk_config);
         return FAILURE;
     }
+    uint32_t tempTime;
     red_read(fin, &MAX_FILES, sizeof(MAX_FILES));
     red_read(fin, &current_file, sizeof(current_file));
     red_read(fin, &tempTime, sizeof(tempTime)); // for debugging
@@ -846,9 +670,10 @@ Result fetch_historic_hk_and_transmit(csp_conn_t *conn, uint16_t limit, uint16_t
         ex2_log("Successfully did nothing O_o");
         return SUCCESS;
     }
-    All_systems_housekeeping all_hk_data = {0};
+    All_systems_housekeeping all_hk_data;
     // fetch each appropriate set of data from file
     while (limit > 0) {
+        memset(&all_hk_data, 0, sizeof(All_systems_housekeeping));
         locked_before_id--;
 
         if (locked_before_id == 0) {

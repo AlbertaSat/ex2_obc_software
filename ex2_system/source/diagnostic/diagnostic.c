@@ -325,7 +325,7 @@ static void adcs_watchdog_daemon(void *pvParameters) {
 }
 #endif
 
-#if PAYLOAD_IS_STUBBED == 0
+#if IRIS_IS_STUBBED == 0 || NS_IS_STUBBED == 0
 /**
  * @brief Check that the payload is responsive. If not, toggle power.
  *
@@ -348,19 +348,23 @@ static void payload_watchdog_daemon(void *pvParameters) {
             continue;
         }
 
-#if IS_EXALTA2 == 1
+#if IRIS_IS_STUBBED == 0
         Iris_HAL_return err;
         Iris_HAL_return expected_err = IRIS_HAL_OK;
-#else
+#endif
+
+#if NS_IS_STUBBED == 0
         NS_return err;
         NS_return expected_err = NS_OK;
         uint8_t heartbeat;
 #endif
 
         for (int i = 0; i < watchdog_retries; i++) {
-#if IS_EXALTA2 == 1
+#if IRIS_IS_STUBBED == 0
             err = iris_wdt_ack();
-#else
+#endif
+
+#if NS_IS_STUBBED == 0
             err = HAL_NS_get_heartbeat(&heartbeat);
 #endif
             if (err == expected_err) {
@@ -440,7 +444,7 @@ TickType_t get_adcs_watchdog_delay(void) {
 }
 
 TickType_t get_payload_watchdog_delay(void) {
-#if PAYLOAD_IS_STUBBED == 1
+#if IRIS_IS_STUBBED == 1 || NS_IS_STUBBED == 1
     return STUBBED_WATCHDOG_DELAY;
 #else
     return payload_prv_watchdog_delay;
@@ -496,7 +500,7 @@ SAT_returnState set_adcs_watchdog_delay(const unsigned int ms_delay) {
 }
 
 SAT_returnState set_payload_watchdog_delay(const unsigned int ms_delay) {
-#if PAYLOAD_IS_STUBBED == 1
+#if IRIS_IS_STUBBED == 1 || NS_IS_STUBBED == 1
     return SATR_OK;
 #else
     if (ms_delay < WATCHDOG_MINIMUM_DELAY_MS) {
@@ -550,7 +554,7 @@ SAT_returnState start_diagnostic_daemon(void) {
     }
 #endif
 
-#if PAYLOAD_IS_STUBBED == 0
+#if IRIS_IS_STUBBED == 0 || NS_IS_STUBBED == 0
     if (xTaskCreate(payload_watchdog_daemon, "payload_watchdog_daemon", 1000, NULL, DIAGNOSTIC_TASK_PRIO, NULL) !=
         pdPASS) {
         sys_log(ERROR, "FAILED TO CREATE TASK payload_watchdog_daemon.\n");

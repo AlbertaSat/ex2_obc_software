@@ -56,7 +56,7 @@ typedef enum {
     NS_UART_BUSY,
     NS_MALLOC_FAIL,
 
-    NS_IS_STUBBED = 0
+    NS_STUBBED = 0
 } NS_return;
 
 typedef struct __attribute__((packed)) {

@@ -173,12 +173,11 @@ void ex2_init(void *pvParameters) {
     DFGM_init();
 #endif
 
-#if PAYLOAD_IS_STUBBED == 0
-#if IS_EXALTA2 == 1
+#if IRIS_IS_STUBBED == 0
     iris_init();
-#else
-    NS_handler_init();
 #endif
+#if NS_IS_STUBBED == 0
+    NS_handler_init();
 #endif
 
     /* Software Initialization */
