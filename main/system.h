@@ -51,13 +51,12 @@
 #define ADCS_SCI sciREG3 // UART4
 #define DFGM_SCI sciREG4 // UART1
 #define UHF_SCI CSP_SCI  // UART2
-#if IS_EXALTA2 == 1
+#if IRIS_IS_STUBBED == 0
 #define GPS_SCI sciREG1 // UART3
 #define PAYLOAD_SCI NULL
-#elif IS_AURORASAT == 1 || IS_YUKONSAT == 1
+#elif NS_IS_STUBBED == 0
 #define GPS_SCI NULL
 #define PAYLOAD_SCI sciREG1 // UART3
-#define GPS_SCI NULL
 #endif
 #else
 // These values are expected to be adjusted based on what the developer is working on
