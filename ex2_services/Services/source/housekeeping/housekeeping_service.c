@@ -805,6 +805,57 @@ SAT_returnState hk_service_app(csp_conn_t *conn, csp_packet_t *packet) {
             return SATR_ERROR;
         }
         break;
+    case GET_INSTANTANEOUS_HK:
+        All_systems_housekeeping all_hk_data;
+        Result res = collect_hk_from_devices(&all_hk_data);
+        if (res == FAILURE) {
+            status = -1;
+        } else {
+            int8_t status = 0;
+        }
+
+        all_hk_data.hk_timeorder.final = 1;
+
+        uint16_t needed_size = get_size_of_housekeeping(&all_hk_data) + 2; // +2 for subservice and error
+
+        csp_packet_t *packet = csp_buffer_get((size_t)needed_size);
+        uint8_t ser_subtype = GET_HK;
+
+        memcpy(&packet->data[SUBSERVICE_BYTE], &ser_subtype, sizeof(int8_t));
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+
+        uint16_t used_size = 0;
+        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.hk_timeorder,
+               sizeof(all_hk_data.hk_timeorder));
+        used_size += sizeof(all_hk_data.hk_timeorder);
+        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.adcs_hk, sizeof(all_hk_data.adcs_hk));
+        used_size += sizeof(all_hk_data.adcs_hk);
+        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.Athena_hk, sizeof(all_hk_data.Athena_hk));
+        used_size += sizeof(all_hk_data.Athena_hk);
+        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.EPS_hk, sizeof(all_hk_data.EPS_hk));
+        used_size += sizeof(all_hk_data.EPS_hk);
+        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.EPS_startup_hk,
+               sizeof(all_hk_data.EPS_startup_hk));
+        used_size += sizeof(all_hk_data.EPS_startup_hk);
+        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.UHF_hk, sizeof(all_hk_data.UHF_hk));
+        used_size += sizeof(all_hk_data.UHF_hk);
+        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.S_band_hk, sizeof(all_hk_data.S_band_hk));
+        used_size += sizeof(all_hk_data.S_band_hk);
+        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.hyperion_hk,
+               sizeof(all_hk_data.hyperion_hk));
+        used_size += sizeof(all_hk_data.hyperion_hk);
+        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.charon_hk, sizeof(all_hk_data.charon_hk));
+        used_size += sizeof(all_hk_data.charon_hk);
+        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.DFGM_hk, sizeof(all_hk_data.DFGM_hk));
+        used_size += sizeof(all_hk_data.DFGM_hk);
+        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.NS_hk, sizeof(all_hk_data.NS_hk));
+        used_size += sizeof(all_hk_data.NS_hk);
+        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.IRIS_hk, sizeof(all_hk_data.IRIS_hk));
+        used_size += sizeof(all_hk_data.IRIS_hk);
+
+        set_packet_length(packet, used_size + 2);
+        csp_send(conn, packet, 50);
+        csp_buffer_free(packet);
 
     default:
         ex2_log("No such subservice\n");
