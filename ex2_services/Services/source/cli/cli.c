@@ -106,6 +106,15 @@ static BaseType_t prvUptimeCommand(char *pcWriteBuffer, size_t xWriteBufferLen, 
     return pdFALSE;
 }
 
+static BaseType_t prvHeapCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString) {
+    BaseType_t heap_used = xPortGetFreeHeapSize();
+    BaseType_t heap_total = xPortGetMinimumEverFreeHeapSize();
+    int heap_percent = configTOTAL_HEAP_SIZE / heap_used;
+    snprintf(pcWriteBuffer, xWriteBufferLen, "Free: %d\nMinimum: %d\nPercent: %d\n", heap_used, heap_total,
+             heap_percent);
+    return pdFALSE;
+}
+
 static BaseType_t prvBootInfoCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString) {
     boot_info inf = {0};
     eeprom_get_boot_info(&inf);
@@ -308,7 +317,7 @@ static const CLI_Command_Definition_t xUptimeCommand = {"uptime", "uptime:\n\tGe
                                                         prvUptimeCommand, 0};
 static const CLI_Command_Definition_t xHostNameCommand = {"hostname", "hostname\n\tReturns hostname\n",
                                                           prvHostNameCommand, 0};
-
+static const CLI_Command_Definition_t xHeapCommand = {"heap", "heap\n\tReturns heap stats\n", prvHeapCommand, 0};
 /**
  * @brief
  *      Handle incoming csp_packet_t
@@ -401,6 +410,7 @@ void register_commands() {
     FreeRTOS_CLIRegisterCommand(&xBootInfoCommand);
     FreeRTOS_CLIRegisterCommand(&xUptimeCommand);
     FreeRTOS_CLIRegisterCommand(&xHostNameCommand);
+    FreeRTOS_CLIRegisterCommand(&xHeapCommand);
     register_fs_utils();
 }
 
