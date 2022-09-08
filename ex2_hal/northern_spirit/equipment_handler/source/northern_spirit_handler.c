@@ -220,6 +220,7 @@ NS_return NS_get_telemetry(ns_telemetry *telemetry) {
     // Initiate telemetry command and receive ack
     NS_return return_val = NS_sendAndReceive(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN);
     if (answer[0] != 't') {
+        xSemaphoreGive(ns_command_mutex);
         return NS_FAIL;
     }
 
