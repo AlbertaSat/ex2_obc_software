@@ -595,40 +595,6 @@ uint16_t get_current_file() { return current_file; }
 
 /**
  * @brief
- *      Is given a struct of all the housekeeping data and converts the
- *      endianness of each value to be sent over the network
- * @param hk
- *      A struct of all the housekeeping data
- * @return
- *      enum for SUCCESS or FAILURE
- */
-Result convert_hk_endianness(All_systems_housekeeping *hk) {
-    /*hk_time_and_order*/
-    hk->hk_timeorder.UNIXtimestamp = csp_hton32(hk->hk_timeorder.UNIXtimestamp);
-    hk->hk_timeorder.dataPosition = csp_hton16(hk->hk_timeorder.dataPosition);
-
-    // TODO:
-    // hk->ADCS_hk.
-
-    /*athena_housekeeping*/
-    Athena_hk_convert_endianness(&hk->Athena_hk);
-
-    /*eps_instantaneous_telemetry_t*/
-    prv_instantaneous_telemetry_letoh(&hk->EPS_hk);
-
-    /*UHF_housekeeping*/
-    UHF_convert_endianness(&hk->UHF_hk);
-
-    /*Sband_Housekeeping*/
-    HAL_S_hk_convert_endianness(&hk->S_band_hk);
-
-    /* The endianness converters for ADCS and Hyperion were never created */
-
-    return SUCCESS;
-}
-
-/**
- * @brief
  *      Paging function to retrieve sets of data so they can be transmitted
  * @param conn
  *      Pointer to the connection on which to send packets
@@ -674,9 +640,6 @@ Result fetch_historic_hk_and_transmit(csp_conn_t *conn, uint16_t limit, uint16_t
         }
 
         if (load_historic_hk_data(locked_before_id, &all_hk_data) != SUCCESS) {
-            return FAILURE;
-        }
-        if (convert_hk_endianness(&all_hk_data) != SUCCESS) {
             return FAILURE;
         }
         int8_t status = 0;
