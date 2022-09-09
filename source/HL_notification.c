@@ -223,7 +223,7 @@ void sciNotification(sciBASE_t *sci, uint32 flags)
 /* USER CODE BEGIN (32) */
     uint32_t int_reg = (uint32_t)sci;
     switch(int_reg) {
-#if IS_EXALTA2 == 1
+#if NS_IS_STUBBED == 1
     case (uint32_t)GPS_SCI: gps_sciNotification(sci, flags); break;
 #else
     case (uint32_t)PAYLOAD_SCI: ns_sciNotification(sci, flags); break;
