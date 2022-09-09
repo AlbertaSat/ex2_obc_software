@@ -363,14 +363,7 @@ Result load_config() {
  * @return needed_size
  *    uint16_t of the size of the structure
  */
-uint16_t get_size_of_housekeeping(All_systems_housekeeping *all_hk_data) {
-    uint16_t needed_size =
-        sizeof(all_hk_data->hk_timeorder) + sizeof(all_hk_data->Athena_hk) + sizeof(all_hk_data->EPS_hk) +
-        sizeof(all_hk_data->EPS_startup_hk) + sizeof(all_hk_data->UHF_hk) + sizeof(all_hk_data->S_band_hk) +
-        sizeof(all_hk_data->adcs_hk) + sizeof(all_hk_data->hyperion_hk) + sizeof(all_hk_data->charon_hk) +
-        sizeof(all_hk_data->DFGM_hk) + sizeof(all_hk_data->NS_hk) + sizeof(all_hk_data->IRIS_hk);
-    return needed_size;
-}
+uint16_t get_size_of_housekeeping() { return sizeof(All_systems_housekeeping); }
 
 /**
  * @brief
@@ -393,12 +386,12 @@ Result write_hk_to_file(uint16_t filenumber, All_systems_housekeeping *all_hk_da
         sys_log(ERROR, "Failed to open or create file to write: '%s'\n", fileName);
         return FAILURE;
     }
-    uint16_t needed_size = get_size_of_housekeeping(all_hk_data);
+    uint16_t needed_size = get_size_of_housekeeping();
 
     red_lseek(fout, (filenumber - 1) * needed_size, RED_SEEK_SET);
 
     red_errno = 0;
-    red_write(fout, all_hk_data, sizeof(All_systems_housekeeping));
+    red_write(fout, all_hk_data, needed_size);
 
     if (red_errno != 0) {
         sys_log(ERROR, "Failed to write to file: '%s'\n", fileName);
@@ -433,13 +426,13 @@ Result read_hk_from_file(uint16_t filenumber, All_systems_housekeeping *all_hk_d
         return FAILURE;
     }
 
-    uint16_t needed_size = get_size_of_housekeeping(all_hk_data);
+    uint16_t needed_size = get_size_of_housekeeping();
 
     red_lseek(fin, (filenumber - 1) * needed_size, RED_SEEK_SET);
 
     red_errno = 0;
     /*The order of writes and subsequent reads must match*/
-    red_read(fin, all_hk_data, sizeof(All_systems_housekeeping));
+    red_read(fin, all_hk_data, needed_size);
 
     if (red_errno != 0) {
         sys_log(ERROR, "Failed to read: '%c'\n", fileName);
@@ -673,7 +666,7 @@ Result fetch_historic_hk_and_transmit(csp_conn_t *conn, uint16_t limit, uint16_t
     All_systems_housekeeping all_hk_data;
     // fetch each appropriate set of data from file
     while (limit > 0) {
-        memset(&all_hk_data, 0, sizeof(All_systems_housekeeping));
+        memset(&all_hk_data, 0, get_size_of_housekeeping());
         locked_before_id--;
 
         if (locked_before_id == 0) {
@@ -692,7 +685,7 @@ Result fetch_historic_hk_and_transmit(csp_conn_t *conn, uint16_t limit, uint16_t
             all_hk_data.hk_timeorder.final = 1;
         }
 
-        uint16_t needed_size = get_size_of_housekeeping(&all_hk_data) + 2; // +2 for subservice and error
+        uint16_t needed_size = get_size_of_housekeeping() + 2; // +2 for subservice and error
 
         csp_packet_t *packet = csp_buffer_get((size_t)needed_size);
         uint8_t ser_subtype = GET_HK;
@@ -700,36 +693,7 @@ Result fetch_historic_hk_and_transmit(csp_conn_t *conn, uint16_t limit, uint16_t
         memcpy(&packet->data[SUBSERVICE_BYTE], &ser_subtype, sizeof(int8_t));
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
 
-        uint16_t used_size = 0;
-        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.hk_timeorder,
-               sizeof(all_hk_data.hk_timeorder));
-        used_size += sizeof(all_hk_data.hk_timeorder);
-        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.adcs_hk, sizeof(all_hk_data.adcs_hk));
-        used_size += sizeof(all_hk_data.adcs_hk);
-        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.Athena_hk, sizeof(all_hk_data.Athena_hk));
-        used_size += sizeof(all_hk_data.Athena_hk);
-        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.EPS_hk, sizeof(all_hk_data.EPS_hk));
-        used_size += sizeof(all_hk_data.EPS_hk);
-        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.EPS_startup_hk,
-               sizeof(all_hk_data.EPS_startup_hk));
-        used_size += sizeof(all_hk_data.EPS_startup_hk);
-        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.UHF_hk, sizeof(all_hk_data.UHF_hk));
-        used_size += sizeof(all_hk_data.UHF_hk);
-        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.S_band_hk, sizeof(all_hk_data.S_band_hk));
-        used_size += sizeof(all_hk_data.S_band_hk);
-        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.hyperion_hk,
-               sizeof(all_hk_data.hyperion_hk));
-        used_size += sizeof(all_hk_data.hyperion_hk);
-        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.charon_hk, sizeof(all_hk_data.charon_hk));
-        used_size += sizeof(all_hk_data.charon_hk);
-        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.DFGM_hk, sizeof(all_hk_data.DFGM_hk));
-        used_size += sizeof(all_hk_data.DFGM_hk);
-        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.NS_hk, sizeof(all_hk_data.NS_hk));
-        used_size += sizeof(all_hk_data.NS_hk);
-        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.IRIS_hk, sizeof(all_hk_data.IRIS_hk));
-        used_size += sizeof(all_hk_data.IRIS_hk);
-
-        set_packet_length(packet, used_size + 2);
+        memcpy(&packet->data[OUT_DATA_BYTE], &all_hk_data, get_size_of_housekeeping());
 
         if (!csp_send(conn, packet, 50)) { // why are we all using magic number?
             ex2_log("Failed to send packet");
@@ -816,7 +780,7 @@ SAT_returnState hk_service_app(csp_conn_t *conn, csp_packet_t *packet) {
 
         all_hk_data.hk_timeorder.final = 1;
 
-        uint16_t needed_size = get_size_of_housekeeping(&all_hk_data) + 2; // +2 for subservice and error
+        uint16_t needed_size = get_size_of_housekeeping() + 2; // +2 for subservice and error
 
         csp_packet_t *packet = csp_buffer_get((size_t)needed_size);
         uint8_t ser_subtype = GET_HK;
@@ -824,36 +788,8 @@ SAT_returnState hk_service_app(csp_conn_t *conn, csp_packet_t *packet) {
         memcpy(&packet->data[SUBSERVICE_BYTE], &ser_subtype, sizeof(int8_t));
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
 
-        uint16_t used_size = 0;
-        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.hk_timeorder,
-               sizeof(all_hk_data.hk_timeorder));
-        used_size += sizeof(all_hk_data.hk_timeorder);
-        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.adcs_hk, sizeof(all_hk_data.adcs_hk));
-        used_size += sizeof(all_hk_data.adcs_hk);
-        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.Athena_hk, sizeof(all_hk_data.Athena_hk));
-        used_size += sizeof(all_hk_data.Athena_hk);
-        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.EPS_hk, sizeof(all_hk_data.EPS_hk));
-        used_size += sizeof(all_hk_data.EPS_hk);
-        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.EPS_startup_hk,
-               sizeof(all_hk_data.EPS_startup_hk));
-        used_size += sizeof(all_hk_data.EPS_startup_hk);
-        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.UHF_hk, sizeof(all_hk_data.UHF_hk));
-        used_size += sizeof(all_hk_data.UHF_hk);
-        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.S_band_hk, sizeof(all_hk_data.S_band_hk));
-        used_size += sizeof(all_hk_data.S_band_hk);
-        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.hyperion_hk,
-               sizeof(all_hk_data.hyperion_hk));
-        used_size += sizeof(all_hk_data.hyperion_hk);
-        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.charon_hk, sizeof(all_hk_data.charon_hk));
-        used_size += sizeof(all_hk_data.charon_hk);
-        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.DFGM_hk, sizeof(all_hk_data.DFGM_hk));
-        used_size += sizeof(all_hk_data.DFGM_hk);
-        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.NS_hk, sizeof(all_hk_data.NS_hk));
-        used_size += sizeof(all_hk_data.NS_hk);
-        memcpy(&packet->data[OUT_DATA_BYTE + used_size], &all_hk_data.IRIS_hk, sizeof(all_hk_data.IRIS_hk));
-        used_size += sizeof(all_hk_data.IRIS_hk);
+        memcpy(&packet->data[OUT_DATA_BYTE], &all_hk_data, get_size_of_housekeeping());
 
-        set_packet_length(packet, used_size + 2);
         csp_send(conn, packet, 50);
         csp_buffer_free(packet);
 
