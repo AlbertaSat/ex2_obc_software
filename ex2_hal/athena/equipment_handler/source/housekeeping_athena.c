@@ -155,23 +155,3 @@ int Athena_getHK(athena_housekeeping *athena_hk) {
 
     return return_code;
 }
-
-/**
- * @brief
- *      Converts endianness of values in athena_housekeeping struct
- *
- * @param athena_hk
- * 		  struct of athena housekeeping data
- * @return
- * 		0 for success. other for failure
- */
-int Athena_hk_convert_endianness(athena_housekeeping *athena_hk) {
-    athena_hk->MCU_core_temp = csp_ntoh16(athena_hk->MCU_core_temp);
-    athena_hk->converter_temp = csp_ntoh16(athena_hk->converter_temp);
-    athena_hk->boot_cnt = csp_ntoh16(athena_hk->boot_cnt);
-    athena_hk->OBC_uptime = csp_ntoh32(athena_hk->OBC_uptime);
-    athena_hk->solar_panel_supply_curr = csp_ntoh16(athena_hk->solar_panel_supply_curr);
-    athena_hk->cmds_received = csp_ntoh16(athena_hk->cmds_received);
-    athena_hk->pckts_uncovered_by_FEC = csp_ntoh16(athena_hk->pckts_uncovered_by_FEC);
-    return 0;
-}
