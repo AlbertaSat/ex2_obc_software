@@ -86,5 +86,6 @@ NS_return NS_get_flag(char flag, bool *stat);
 NS_return NS_get_filename(char subcode, char *filename);
 NS_return NS_get_telemetry(ns_telemetry *telemetry);
 NS_return NS_get_software_version(uint8_t *version);
+NS_return NS_clear_sd_card();
 
 #endif // NORTHERN_SPIRIT_HANDLER_H
