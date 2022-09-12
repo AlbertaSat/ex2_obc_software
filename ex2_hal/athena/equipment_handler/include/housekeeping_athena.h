@@ -52,6 +52,8 @@ typedef struct __attribute__((packed)) {
     uint16_t solar_panel_supply_curr; //
     uint16_t cmds_received;           // Total # since last boot
     uint16_t pckts_uncovered_by_FEC;  // Total # since last boot
+    uint32_t heap_free;               // Number of bytes left in the heap
+    uint32_t lowest_heap_free;        // Lowest number of bytes free this boot
 } athena_housekeeping;
 
 int Athena_getHK(athena_housekeeping *athena_hk);
