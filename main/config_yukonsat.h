@@ -65,6 +65,7 @@
 
 #define CSP_ADDRESS 2
 #define CSP_HOSTNAME "YukonSat"
+#define EPS_ADDRESS 6
 
 /* Define SDR_NO_CSP==0 to use CSP for SDR */
 #define SDR_NO_CSP 0

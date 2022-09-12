@@ -65,6 +65,7 @@
 
 #define CSP_ADDRESS 1
 #define CSP_HOSTNAME "Ex-Alta2"
+#define EPS_ADDRESS 4
 
 /* Define SDR_NO_CSP==0 to use CSP for SDR */
 #define SDR_NO_CSP 0
