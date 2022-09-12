@@ -284,12 +284,13 @@ NS_return NS_clear_sd_card() {
     if (xSemaphoreTake(ns_command_mutex, NS_COMMAND_MUTEX_TIMEOUT) != pdTRUE) {
         return NS_HANDLER_BUSY;
     }
-    uint8_t command[NS_STANDARD_CMD_LEN] = {'l', 'l', 'l'};
-    uint8_t command2[NS_STANDARD_CMD_LEN] = {'r', 'r', 'r'};
+    uint8_t command[2 * NS_STANDARD_CMD_LEN] = {'l', 'l', 'l', 'r', 'r', 'r'};
+    uint8_t answer[NS_STANDARD_ANS_LEN];
 
-    NS_return return_val = NS_sendOnly(command, NS_STANDARD_CMD_LEN);
-    return_val = NS_sendOnly(command2, NS_STANDARD_CMD_LEN);
-
+    NS_return return_val = NS_sendAndReceive(command, 2 * NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN);
+    if (answer[0] != 'l' || answer[1] != 0x06) {
+        return NS_BAD_ANS;
+    }
     xSemaphoreGive(ns_command_mutex);
     return return_val;
 }
