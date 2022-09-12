@@ -135,16 +135,21 @@ STX_return HAL_S_getHK(Sband_Housekeeping *S_hk) {
     return status;
 }
 
-STX_return HAL_S_hk_convert_endianness(Sband_Housekeeping *S_hk) {
-    S_hk->Output_Power = csp_htonflt(S_hk->Output_Power);
-    S_hk->PA_Temp = csp_htonflt(S_hk->PA_Temp);
-    S_hk->Top_Temp = csp_htonflt(S_hk->Top_Temp);
-    S_hk->Bottom_Temp = csp_htonflt(S_hk->Bottom_Temp);
-    S_hk->Bat_Current = csp_htonflt(S_hk->Bat_Current);
-    S_hk->Bat_Voltage = csp_htonflt(S_hk->Bat_Voltage);
-    S_hk->PA_Current = csp_htonflt(S_hk->PA_Current);
-    S_hk->PA_Voltage = csp_htonflt(S_hk->PA_Voltage);
-    S_hk->PA_Voltage = csp_htonflt(S_hk->PA_Voltage);
+STX_return HAL_S_hk_hton(Sband_Housekeeping *S_hk) {
+    S_hk->frequency = csp_hton32(S_hk->frequency);
+    S_hk->Bat_Current = csp_hton16(S_hk->Bat_Current);
+    S_hk->Bat_Voltage = csp_hton16(S_hk->Bat_Voltage);
+    S_hk->PA_Current = csp_hton16(S_hk->PA_Current);
+    S_hk->PA_Voltage = csp_hton16(S_hk->PA_Voltage);
+    return S_SUCCESS;
+}
+
+STX_return HAL_S_hk_ntoh(Sband_Housekeeping *S_hk) {
+    S_hk->frequency = csp_ntoh32(S_hk->frequency);
+    S_hk->Bat_Current = csp_ntoh16(S_hk->Bat_Current);
+    S_hk->Bat_Voltage = csp_ntoh16(S_hk->Bat_Voltage);
+    S_hk->PA_Current = csp_ntoh16(S_hk->PA_Current);
+    S_hk->PA_Voltage = csp_ntoh16(S_hk->PA_Voltage);
     return S_SUCCESS;
 }
 
