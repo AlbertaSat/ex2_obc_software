@@ -43,6 +43,8 @@ NS_return NS_handler_init() {
 }
 
 NS_return NS_upload_artwork(char *filename) {
+    NS_clear_sd_card();
+
     if (xSemaphoreTake(ns_command_mutex, NS_COMMAND_MUTEX_TIMEOUT) != pdTRUE) {
         return NS_HANDLER_BUSY;
     }
@@ -274,6 +276,20 @@ NS_return NS_get_software_version(uint8_t *version) {
                                              NS_STANDARD_ANS_LEN + NS_SWVERSION_DATA_LEN + NS_STANDARD_ANS_LEN);
 
     memcpy(version, (answer + NS_STANDARD_ANS_LEN), NS_SWVERSION_DATA_LEN);
+    xSemaphoreGive(ns_command_mutex);
+    return return_val;
+}
+
+NS_return NS_clear_sd_card() {
+    if (xSemaphoreTake(ns_command_mutex, NS_COMMAND_MUTEX_TIMEOUT) != pdTRUE) {
+        return NS_HANDLER_BUSY;
+    }
+    uint8_t command[NS_STANDARD_CMD_LEN] = {'l', 'l', 'l'};
+    uint8_t command2[NS_STANDARD_CMD_LEN] = {'r', 'r', 'r'};
+
+    NS_return return_val = NS_sendOnly(command, NS_STANDARD_CMD_LEN);
+    return_val = NS_sendOnly(command2, NS_STANDARD_CMD_LEN);
+
     xSemaphoreGive(ns_command_mutex);
     return return_val;
 }
