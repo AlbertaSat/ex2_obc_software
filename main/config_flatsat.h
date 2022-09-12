@@ -8,8 +8,6 @@
 #ifndef CONFIG_FLATSAT_H_
 #define CONFIG_FLATSAT_H_
 
-#define SYSTEM_APP_ID _OBC_APP_ID_
-
 #define IS_ATHENA 1
 #define IS_ATHENA_V2 0
 

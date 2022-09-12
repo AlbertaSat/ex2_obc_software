@@ -72,16 +72,6 @@
 
 #define DELAY_WAIT_TIMEOUT 8000
 
-typedef enum {
-    OBC_APP_ID = _OBC_APP_ID_,
-    EPS_APP_ID = _EPS_APP_ID_,
-    ADCS_APP_ID = _ADCS_APP_ID_,
-    COMMS_APP_ID = _COMMS_APP_ID_,
-    GND_APP_ID = _GND_APP_ID_,
-    DEMO_APP_ID = _DEMO_APP_ID_,
-    LAST_APP_ID = _LAST_APP_ID_
-} TC_TM_app_id;
-
 /* Utility definitions */
 union _cnv {
     double cnvD;
