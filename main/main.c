@@ -303,14 +303,14 @@ static void init_csp() {
 
     int error = csp_init(&csp_conf);
     if (error != CSP_ERR_NONE) {
-        // ex2_log("csp_init() failed, error: %d\n", error);
-        exit(SATR_ERROR);
+        sys_log(ERROR, "csp_init() failed, error: %d\n", error);
     }
     // ex2_log("Running at %d\n", my_address);
     /* Set default route and start router & server */
     csp_route_start_task(1000, 2);
-    if (init_csp_interface() != SATR_OK) {
-        exit(SATR_ERROR);
+    error = init_csp_interface();
+    if (error != SATR_OK) {
+        sys_log(ERROR, "Error %d in init_csp_interface", error);
     }
     char *hmac_key;
     int hmac_len;
@@ -320,6 +320,10 @@ static void init_csp() {
     int xtea_len;
     get_crypto_key(ENCRYPT_KEY, &xtea_key, &xtea_len);
     csp_xtea_set_key(xtea_key, xtea_len);
+    SAT_returnState server_ret = start_csp_server();
+    if (server_ret != SATR_OK) {
+        sys_log(ERROR, "Error %d in start_csp_server()", server_ret);
+    }
     return;
 }
 

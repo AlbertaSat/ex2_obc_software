@@ -92,6 +92,7 @@ union _cnv {
 };
 
 SAT_returnState start_service_server(void);
+SAT_returnState start_csp_server(void);
 
 void hex_dump(char *stuff, int size);
 typedef SAT_returnState (*services)();
