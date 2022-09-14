@@ -52,10 +52,6 @@ SAT_returnState start_service_server(void);
  *      success or failure
  */
 SAT_returnState start_service_server(void) {
-    if (xTaskCreate((TaskFunction_t)csp_server, "csp_server THREAD", 256, NULL, NORMAL_SERVICE_PRIO, NULL) !=
-        pdPASS) {
-        return SATR_ERROR;
-    }
     const static char *service_names[] = {"cli_service",       "communication_service", "time_management_service",
                                           "scheduler_service", "housekeeping_service",  "general_service",
                                           "logger_service",    "dfgm_service",          "adcs_service",
@@ -142,4 +138,11 @@ void hex_dump(char *stuff, int size) {
         }
     }
     printf("\n");
+}
+
+SAT_returnState start_csp_server(void) {
+    if (xTaskCreate((TaskFunction_t)csp_server, "csp_server THREAD", 256, NULL, NORMAL_SERVICE_PRIO, NULL) !=
+        pdPASS) {
+        return SATR_ERROR;
+    }
 }
