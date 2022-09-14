@@ -55,9 +55,9 @@ static eps_t prvEps;
 SAT_returnState eps_refresh_instantaneous_telemetry() {
     uint8_t cmd = 0; // 'subservice' command
     eps_instantaneous_telemetry_t telembuf;
-    int res = csp_ping(EPS_APP_ID, EPS_REQUEST_TIMEOUT, 100, CSP_O_NONE);
+    int res = csp_ping(EPS_ADDRESS, EPS_REQUEST_TIMEOUT, 100, CSP_O_NONE);
 
-    if (csp_transaction_w_opts(CSP_PRIO_LOW, EPS_APP_ID, EPS_INSTANTANEOUS_TELEMETRY, EPS_REQUEST_TIMEOUT, &cmd,
+    if (csp_transaction_w_opts(CSP_PRIO_LOW, EPS_ADDRESS, EPS_INSTANTANEOUS_TELEMETRY, EPS_REQUEST_TIMEOUT, &cmd,
                                sizeof(cmd), &telembuf, sizeof(eps_instantaneous_telemetry_t), CSP_O_CRC32) <= 1)
         return SATR_ERROR;
     // data is little endian, must convert to host order
@@ -71,7 +71,7 @@ SAT_returnState eps_refresh_startup_telemetry() {
     uint8_t cmd = 1; // ' subservice' command defined in ICD Section 24.2.2
     eps_startup_telemetry_t telem_startup_buf;
 
-    if (csp_transaction_w_opts(CSP_PRIO_LOW, EPS_APP_ID, EPS_INSTANTANEOUS_TELEMETRY, 10000, &cmd, sizeof(cmd),
+    if (csp_transaction_w_opts(CSP_PRIO_LOW, EPS_ADDRESS, EPS_INSTANTANEOUS_TELEMETRY, 10000, &cmd, sizeof(cmd),
                                &telem_startup_buf, sizeof(eps_startup_telemetry_t), CSP_O_CRC32) <= 1)
         return SATR_ERROR;
     // data is little endian, must convert to host order
@@ -214,7 +214,7 @@ int8_t eps_set_pwr_chnl(uint8_t pwr_chnl_port, bool status) {
     cmd[1] = pwr_chnl_port;
     cmd[2] = status;
     // delay = 0 so cmd{4] = cmd[5] = 0
-    csp_transaction_w_opts(CSP_PRIO_LOW, EPS_APP_ID, EPS_POWER_CONTROL, EPS_REQUEST_TIMEOUT, &cmd, sizeof(cmd),
+    csp_transaction_w_opts(CSP_PRIO_LOW, EPS_ADDRESS, EPS_POWER_CONTROL, EPS_REQUEST_TIMEOUT, &cmd, sizeof(cmd),
                            &response, sizeof(response), CSP_O_CRC32);
     return response[1];
 }
@@ -223,9 +223,9 @@ int8_t eps_set_pwr_chnl(uint8_t pwr_chnl_port, bool status) {
 SAT_returnState eps_get_unix_time(uint32_t *timestamp) {
     uint8_t cmd = 0; // 'subservice' command
     eps_time_sync_t timebuf;
-    int res = csp_ping(EPS_APP_ID, EPS_REQUEST_TIMEOUT, 100, CSP_O_NONE);
+    int res = csp_ping(EPS_ADDRESS, EPS_REQUEST_TIMEOUT, 100, CSP_O_NONE);
 
-    if (csp_transaction_w_opts(CSP_PRIO_LOW, EPS_APP_ID, EPS_TIME_SYNCHRONIZATION, EPS_REQUEST_TIMEOUT, &cmd,
+    if (csp_transaction_w_opts(CSP_PRIO_LOW, EPS_ADDRESS, EPS_TIME_SYNCHRONIZATION, EPS_REQUEST_TIMEOUT, &cmd,
                                sizeof(cmd), &timebuf, sizeof(eps_time_sync_t), CSP_O_CRC32) <= 1)
         return SATR_ERROR;
     *timestamp = csp_letoh32(timebuf.timestamp);
@@ -239,9 +239,9 @@ SAT_returnState eps_set_unix_time(uint32_t *timestamp) {
     timebuf.timestamp = csp_htole32(*timestamp);
     uint8_t cmd[5] = {1, 0};
     memcpy(&cmd[1], &timebuf.timestamp, sizeof(timebuf.timestamp));
-    int res = csp_ping(EPS_APP_ID, EPS_REQUEST_TIMEOUT, 100, CSP_O_NONE);
+    int res = csp_ping(EPS_ADDRESS, EPS_REQUEST_TIMEOUT, 100, CSP_O_NONE);
 
-    if (csp_transaction_w_opts(CSP_PRIO_LOW, EPS_APP_ID, EPS_TIME_SYNCHRONIZATION, EPS_REQUEST_TIMEOUT, &cmd,
+    if (csp_transaction_w_opts(CSP_PRIO_LOW, EPS_ADDRESS, EPS_TIME_SYNCHRONIZATION, EPS_REQUEST_TIMEOUT, &cmd,
                                sizeof(cmd), &response, sizeof(response), CSP_O_CRC32) <= 1)
         return SATR_ERROR;
     return SATR_OK;
