@@ -67,6 +67,7 @@ typedef struct __attribute__((packed)) {
     int16_t eNIM0;
     int16_t eNIM1;
     int16_t eNIM2;
+    int16_t eNIM3;
     int16_t ram_avail;
     int16_t lowest_img_num;
     int16_t first_blank_img_num;
