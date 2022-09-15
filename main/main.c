@@ -177,6 +177,7 @@ void ex2_init(void *pvParameters) {
     iris_init();
 #endif
 #if NS_IS_STUBBED == 0
+    sciSetBaudrate(PAYLOAD_SCI, 57600);
     NS_handler_init();
 #endif
 
