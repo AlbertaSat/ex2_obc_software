@@ -400,27 +400,13 @@ static inline SAT_returnState init_csp_interface() {
 #if SDR_TEST == 1
     test_sband_ifdata = ifdata;
 #endif
-#else // use CSP
-#if SBAND_IS_STUBBED == 0
-#if SDR_TEST == 0
-    // Need a dummy iface if NOT testing
-    csp_iface_t *test_sband_iface = 0;
-#endif
-    error = csp_sdr_open_and_add_interface(&sdr_conf, SDR_IF_SBAND_NAME, &test_sband_iface);
-    if (error != CSP_ERR_NONE) {
-        return SATR_ERROR;
-    }
-#endif // has S-BAND
+#else  // use CSP
 #endif // SDR_NO_CSP
 
 #endif /* CSP_USE_SDR */
 
     char rtable[128] = {0};
     snprintf(rtable, 128, "%d %s", gs_if_addr, gs_if_name);
-
-#if SBAND_IS_STUBBED == 0 && CSP_USE_SDR == 1
-    snprintf(rtable, 128, "%s, 17 %s", rtable, SDR_IF_SBAND_NAME);
-#endif /* SBAND_IS_STUBBED */
 
 #if EPS_IS_STUBBED == 0
     snprintf(rtable, 128, "%s, %d CAN", rtable, EPS_ADDRESS);
