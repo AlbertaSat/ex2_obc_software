@@ -72,7 +72,7 @@ unsigned char *base64_decode(const char *data, size_t input_length, size_t *outp
     if (data[input_length - 2] == '=')
         (output_length)--;
 
-    unsigned char *decoded_data = (unsigned char *)pvPortMalloc(output_length);
+    unsigned char *decoded_data = (unsigned char *)pvPortMalloc(*output_length);
 
     if (decoded_data == NULL)
         return NULL;
@@ -86,11 +86,11 @@ unsigned char *base64_decode(const char *data, size_t input_length, size_t *outp
 
         uint32_t triple = (sextet_a << 3 * 6) + (sextet_b << 2 * 6) + (sextet_c << 1 * 6) + (sextet_d << 0 * 6);
 
-        if (j < (int)output_length)
+        if (j < (int)*output_length)
             decoded_data[j++] = (triple >> 2 * 8) & 0xFF;
-        if (j < (int)output_length)
+        if (j < (int)*output_length)
             decoded_data[j++] = (triple >> 1 * 8) & 0xFF;
-        if (j < (int)output_length)
+        if (j < (int)*output_length)
             decoded_data[j++] = (triple >> 0 * 8) & 0xFF;
     }
 
