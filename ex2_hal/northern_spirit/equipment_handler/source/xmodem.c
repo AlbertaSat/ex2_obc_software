@@ -227,12 +227,12 @@ int xmodemTransmit(int32_t filedes, uint64_t filesz) {
             if (c > 0) {
                 // Transmit next xmodem packet
                 memset(&xbuff[3], 0, bufsz);
-                int32_t iErr = red_read(filedes, xbuff, 96);
-                if (iErr == -1) {
-                    return iErr;
+                int32_t bytes_read = red_read(filedes, &xbuff[3], 96);
+                if (bytes_read == -1) {
+                    return -1;
                 } else {
-                    char *temp = base64_encode(xbuff, iErr, &c);
-                    memcpy(xbuff, temp, c);
+                    char *temp = base64_encode(&xbuff[3], bytes_read, &c);
+                    memcpy(&xbuff[3], temp, c);
                 }
                 if (c < bufsz)
                     xbuff[3 + c] = CTRLZ;
