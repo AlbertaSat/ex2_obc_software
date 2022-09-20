@@ -8,10 +8,10 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
-#define IS_ATHENA 1
+#define IS_ATHENA 0
 #define IS_ATHENA_V2 0
 
-#define IS_SATELLITE 1
+#define IS_SATELLITE 0
 #if IS_SATELLITE == 1
 #define IS_FLATSAT 0
 #define IS_EXALTA2 1
@@ -25,12 +25,12 @@
 #define GOLDEN_IMAGE 1
 #define WORKING_IMAGE 0
 
-#define HAS_SD_CARD 1
+#define HAS_SD_CARD 0
 #if HAS_SD_CARD == 1
 #define SD_CARD_REFORMAT 0
 #endif
 
-#define ATHENA_IS_STUBBED 0
+#define ATHENA_IS_STUBBED 1
 #define UHF_IS_STUBBED 1
 #define ADCS_IS_STUBBED 1
 #define SBAND_IS_STUBBED 1
@@ -40,7 +40,7 @@
 #define DFGM_IS_STUBBED 1
 #define WATCHDOG_IS_STUBBED 1
 #define IRIS_IS_STUBBED 1
-#define NS_IS_STUBBED 0
+#define NS_IS_STUBBED 1
 
 #define HYPERION_PANEL_3U 0
 #define HYPERION_PANEL_2U 0
