@@ -43,8 +43,6 @@ NS_return NS_handler_init() {
 }
 
 NS_return NS_upload_artwork(char *filename) {
-    NS_clear_sd_card();
-
     if (xSemaphoreTake(ns_command_mutex, NS_COMMAND_MUTEX_TIMEOUT) != pdTRUE) {
         return NS_HANDLER_BUSY;
     }
