@@ -112,7 +112,7 @@ SAT_returnState ns_payload_service_app(csp_packet_t *packet) {
 
     case NS_UPLOAD_ARTWORK: {
         char filename[11]; // File name is supposed to be 7 bytes long
-        memcpy(filename, &packet->data[IN_DATA_BYTE], 30);
+        memcpy(filename, &packet->data[IN_DATA_BYTE], 11);
         status = HAL_NS_upload_artwork(filename);
         set_packet_length(packet, sizeof(int8_t) + 1);
         break;
