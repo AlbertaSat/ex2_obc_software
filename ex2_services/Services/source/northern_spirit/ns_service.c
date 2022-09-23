@@ -114,21 +114,18 @@ SAT_returnState ns_payload_service_app(csp_packet_t *packet) {
         char filename[11]; // File name is supposed to be 7 bytes long
         memcpy(filename, &packet->data[IN_DATA_BYTE], 30);
         status = HAL_NS_upload_artwork(filename);
-        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         set_packet_length(packet, sizeof(int8_t) + 1);
         break;
     }
 
     case NS_CAPTURE_IMAGE: {
         status = HAL_NS_capture_image();
-        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         set_packet_length(packet, sizeof(int8_t) + 1);
         break;
     }
     case NS_CONFIRM_DOWNLINK: {
         uint8_t conf;
         status = HAL_NS_confirm_downlink(&conf);
-        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         memcpy(&packet->data[OUT_DATA_BYTE], &conf, sizeof(conf));
         set_packet_length(packet, sizeof(int8_t) + sizeof(conf) + 1);
         break;
@@ -137,7 +134,6 @@ SAT_returnState ns_payload_service_app(csp_packet_t *packet) {
     case NS_GET_HEARTBEAT: {
         uint8_t heartbeat;
         status = HAL_NS_get_heartbeat(&heartbeat);
-        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         memcpy(&packet->data[OUT_DATA_BYTE], &heartbeat, sizeof(heartbeat));
         set_packet_length(packet, sizeof(int8_t) + sizeof(heartbeat) + 1);
         break;
@@ -148,7 +144,6 @@ SAT_returnState ns_payload_service_app(csp_packet_t *packet) {
         bool flag_stat;
         memcpy(&flag, &packet->data[IN_DATA_BYTE], sizeof(flag));
         status = HAL_NS_get_flag(flag, &flag_stat);
-        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         memcpy(&packet->data[OUT_DATA_BYTE], &flag_stat, sizeof(flag_stat));
         set_packet_length(packet, sizeof(int8_t) + sizeof(flag_stat) + 1);
         break;
@@ -159,7 +154,6 @@ SAT_returnState ns_payload_service_app(csp_packet_t *packet) {
         char filename[11];
         memcpy(&subcode, &packet->data[IN_DATA_BYTE], sizeof(subcode));
         status = HAL_NS_get_filename(subcode, filename);
-        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         memcpy(&packet->data[OUT_DATA_BYTE], filename, 11);
         set_packet_length(packet, sizeof(int8_t) + 11 + 1);
         break;
@@ -168,7 +162,6 @@ SAT_returnState ns_payload_service_app(csp_packet_t *packet) {
     case NS_GET_TELEMETRY: {
         ns_telemetry tlm;
         status = HAL_NS_get_telemetry(&tlm);
-        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         memcpy(&packet->data[OUT_DATA_BYTE], &tlm, sizeof(tlm));
         set_packet_length(packet, sizeof(int8_t) + sizeof(tlm) + 1);
         break;
@@ -177,7 +170,6 @@ SAT_returnState ns_payload_service_app(csp_packet_t *packet) {
     case NS_GET_SW_VERSION: {
         uint8_t sw_version[7];
         status = HAL_NS_get_software_version(sw_version);
-        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         memcpy(&packet->data[OUT_DATA_BYTE], sw_version, 7);
         set_packet_length(packet, sizeof(int8_t) + 7 + 1);
         break;
@@ -187,6 +179,7 @@ SAT_returnState ns_payload_service_app(csp_packet_t *packet) {
         ex2_log("No such subservice!\n");
         return_state = SATR_PKT_ILLEGAL_SUBSERVICE;
     }
-
+    status = status * -1;
+    memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
     return return_state;
 }

@@ -67,6 +67,7 @@ typedef struct __attribute__((packed)) {
     int16_t eNIM0;
     int16_t eNIM1;
     int16_t eNIM2;
+    int16_t eNIM3;
     int16_t ram_avail;
     int16_t lowest_img_num;
     int16_t first_blank_img_num;
@@ -86,5 +87,6 @@ NS_return NS_get_flag(char flag, bool *stat);
 NS_return NS_get_filename(char subcode, char *filename);
 NS_return NS_get_telemetry(ns_telemetry *telemetry);
 NS_return NS_get_software_version(uint8_t *version);
+NS_return NS_clear_sd_card();
 
 #endif // NORTHERN_SPIRIT_HANDLER_H
