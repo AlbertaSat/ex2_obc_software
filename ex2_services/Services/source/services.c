@@ -94,7 +94,7 @@ void csp_server(void *parameters) {
     csp_socket_t *sock;
 
     /* Create socket and listen for incoming connections */
-    sock = csp_socket(CSP_SO_HMACREQ);
+    sock = csp_socket(CSP_SO_NONE);
     //  csp_bind(sock, CSP_CMP);
     csp_bind(sock, CSP_PING);
     //  csp_bind(sock, CSP_PS);
