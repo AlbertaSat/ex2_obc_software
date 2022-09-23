@@ -29,9 +29,10 @@
 
 NS_return init_ns_io();
 
-NS_return NS_sendAndReceive(uint8_t *command, uint32_t command_length, uint8_t *answer, uint8_t answer_length);
+NS_return NS_sendAndReceive(uint8_t *command, uint32_t command_length, uint8_t *answer, uint8_t answer_length,
+                            TickType_t timeout);
 NS_return NS_sendOnly(uint8_t *command, uint32_t command_length);
-NS_return NS_expectResponse(uint8_t *response, uint8_t length);
+NS_return NS_expectResponse(uint8_t *response, uint8_t length, TickType_t timeout);
 void NS_resetQueue(void);
 
 #endif // NORTHERN_SPIRIT_IO_H

@@ -41,7 +41,7 @@
 
 int _inbyte(unsigned short timeout) {
     uint8_t b;
-    if (NS_expectResponse(&b, 1) == NS_OK) {
+    if (NS_expectResponse(&b, 1, timeout) == NS_OK) {
         return b;
     } else {
         return -1;
