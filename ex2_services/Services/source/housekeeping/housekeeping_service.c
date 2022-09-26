@@ -704,7 +704,7 @@ SAT_returnState hk_service_app(csp_conn_t *conn, csp_packet_t *packet) {
     uint32_t before_time;
 
     switch (ser_subtype) {
-    case SET_MAX_FILES:
+    case SET_MAX_FILES: {
         cnv8_16(&packet->data[IN_DATA_BYTE], &new_max_files);
         new_max_files = csp_ntoh16(new_max_files);
 
@@ -722,8 +722,8 @@ SAT_returnState hk_service_app(csp_conn_t *conn, csp_packet_t *packet) {
             csp_buffer_free(packet);
         }
         break;
-
-    case GET_MAX_FILES:
+    }
+    case GET_MAX_FILES: {
         new_max_files = MAX_FILES;
         new_max_files = csp_hton16(new_max_files);
         status = 0;
@@ -736,8 +736,8 @@ SAT_returnState hk_service_app(csp_conn_t *conn, csp_packet_t *packet) {
             csp_buffer_free(packet);
         }
         break;
-
-    case GET_HK:
+    }
+    case GET_HK: {
         data16 = (uint16_t *)(packet->data + 1);
         limit = data16[0];
         before_id = data16[1];
@@ -748,7 +748,8 @@ SAT_returnState hk_service_app(csp_conn_t *conn, csp_packet_t *packet) {
             return SATR_ERROR;
         }
         break;
-    case GET_INSTANTANEOUS_HK:
+    }
+    case GET_INSTANTANEOUS_HK: {
         All_systems_housekeeping all_hk_data;
         Result res = collect_hk_from_devices(&all_hk_data);
         if (res == FAILURE) {
@@ -771,7 +772,26 @@ SAT_returnState hk_service_app(csp_conn_t *conn, csp_packet_t *packet) {
 
         csp_send(conn, packet, 50);
         csp_buffer_free(packet);
+    }
+    case GET_LATEST_HK: {
+        All_systems_housekeeping all_hk_data;
+        get_latest_hk(&all_hk_data);
 
+        all_hk_data.hk_timeorder.final = 1;
+
+        uint16_t needed_size = get_size_of_housekeeping() + 2; // +2 for subservice and error
+
+        csp_packet_t *packet = csp_buffer_get((size_t)needed_size);
+        uint8_t ser_subtype = GET_HK;
+
+        memcpy(&packet->data[SUBSERVICE_BYTE], &ser_subtype, sizeof(int8_t));
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+
+        memcpy(&packet->data[OUT_DATA_BYTE], &all_hk_data, get_size_of_housekeeping());
+
+        csp_send(conn, packet, 50);
+        csp_buffer_free(packet);
+    }
     default:
         ex2_log("No such subservice\n");
         return SATR_PKT_ILLEGAL_SUBSERVICE;
