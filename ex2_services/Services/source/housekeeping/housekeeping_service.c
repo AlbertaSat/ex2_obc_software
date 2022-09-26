@@ -758,7 +758,7 @@ SAT_returnState hk_service_app(csp_conn_t *conn, csp_packet_t *packet) {
             int8_t status = 0;
         }
 
-        all_hk_data.hk_timeorder.final = 1;
+        all_hk_data.hk_timeorder.final = 0;
 
         uint16_t needed_size = get_size_of_housekeeping() + 2; // +2 for subservice and error
 
@@ -779,7 +779,7 @@ SAT_returnState hk_service_app(csp_conn_t *conn, csp_packet_t *packet) {
         All_systems_housekeeping all_hk_data;
         get_latest_hk(&all_hk_data);
 
-        all_hk_data.hk_timeorder.final = 1;
+        all_hk_data.hk_timeorder.final = 0;
 
         uint16_t needed_size = get_size_of_housekeeping() + 2; // +2 for subservice and error
 
