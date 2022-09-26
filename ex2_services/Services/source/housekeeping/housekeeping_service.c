@@ -696,12 +696,12 @@ Result fetch_historic_hk_and_transmit(csp_conn_t *conn, uint16_t limit, uint16_t
  */
 SAT_returnState hk_service_app(csp_conn_t *conn, csp_packet_t *packet) {
     uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
-    int8_t status;
-    uint16_t new_max_files;
-    uint16_t *data16;
-    uint16_t limit;
-    uint16_t before_id;
-    uint32_t before_time;
+    int8_t status = 0;
+    uint16_t new_max_files = 0;
+    uint16_t *data16 = 0;
+    uint16_t limit = 0;
+    uint16_t before_id = 0;
+    uint32_t before_time = 0;
 
     switch (ser_subtype) {
     case SET_MAX_FILES: {
@@ -768,10 +768,12 @@ SAT_returnState hk_service_app(csp_conn_t *conn, csp_packet_t *packet) {
         memcpy(&packet->data[SUBSERVICE_BYTE], &ser_subtype, sizeof(int8_t));
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
 
-        memcpy(&packet->data[OUT_DATA_BYTE], &all_hk_data, get_size_of_housekeeping());
+        memcpy(&packet->data[OUT_DATA_BYTE], &all_hk_data, needed_size);
+        set_packet_length(packet, needed_size);
 
         csp_send(conn, packet, 50);
         csp_buffer_free(packet);
+        break;
     }
     case GET_LATEST_HK: {
         All_systems_housekeeping all_hk_data;
@@ -787,10 +789,12 @@ SAT_returnState hk_service_app(csp_conn_t *conn, csp_packet_t *packet) {
         memcpy(&packet->data[SUBSERVICE_BYTE], &ser_subtype, sizeof(int8_t));
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
 
-        memcpy(&packet->data[OUT_DATA_BYTE], &all_hk_data, get_size_of_housekeeping());
+        memcpy(&packet->data[OUT_DATA_BYTE], &all_hk_data, needed_size);
+        set_packet_length(packet, needed_size);
 
         csp_send(conn, packet, 50);
         csp_buffer_free(packet);
+        break;
     }
     default:
         ex2_log("No such subservice\n");
