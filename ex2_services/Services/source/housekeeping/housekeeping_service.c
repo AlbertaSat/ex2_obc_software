@@ -46,6 +46,9 @@ SemaphoreHandle_t f_count_lock = NULL;
 static uint32_t svc_wdt_counter = 0;
 static uint32_t get_svc_wdt_counter() { return svc_wdt_counter; }
 
+static All_systems_housekeeping latest_hk = {0};
+SemaphoreHandle_t latest_hk_lock = {0};
+
 /**
  * @brief
  *      gets the hk file id that holds a timestamp closest to that given
@@ -463,6 +466,18 @@ static inline void prv_get_lock(SemaphoreHandle_t *lock) {
 
 static inline void prv_give_lock(SemaphoreHandle_t *lock) { xSemaphoreGive(*lock); }
 
+void get_latest_hk(All_systems_housekeeping *hk) {
+    prv_get_lock(&latest_hk_lock);
+    memcpy(hk, &latest_hk, sizeof(All_systems_housekeeping));
+    prv_give_lock(&latest_hk_lock);
+}
+
+void set_latest_hk(All_systems_housekeeping *hk) {
+    prv_get_lock(&latest_hk_lock);
+    memcpy(&latest_hk, hk, sizeof(All_systems_housekeeping));
+    prv_give_lock(&latest_hk_lock);
+}
+
 /**
  * @brief
  *      Public. Performs all calls and operations to retrieve hk data and store it
@@ -514,6 +529,7 @@ Result populate_and_store_hk_data(void) {
     }
 
     prv_give_lock(&f_count_lock); // unlock
+    set_latest_hk(&temp_hk_data);
     return SUCCESS;
 }
 
