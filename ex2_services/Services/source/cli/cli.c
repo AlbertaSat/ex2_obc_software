@@ -32,17 +32,11 @@
 #include "cli/cli.h"
 #include "system.h"
 #include "util/service_utilities.h"
-#include "task_manager/task_manager.h"
 #include "printf.h"
 #include "rtcmk.h"
 #include "cli/fs_utils.h"
 #include "bl_eeprom.h"
 #include "main/version.h"
-
-static uint32_t svc_wdt_counter = 0;
-
-static uint32_t get_svc_wdt_counter() { return svc_wdt_counter; }
-
 /*
  * Command Implementations
  *
@@ -379,17 +373,17 @@ void cli_service(void *param) {
     sock = csp_socket(CSP_SO_HMACREQ); // require RDP connection
     csp_bind(sock, TC_CLI_SERVICE);
     csp_listen(sock, SERVICE_BACKLOG_LEN);
-    svc_wdt_counter++;
+
     for (;;) {
-        svc_wdt_counter++;
+
         csp_conn_t *conn;
         csp_packet_t *packet;
         if ((conn = csp_accept(sock, DELAY_WAIT_TIMEOUT)) == NULL) {
-            svc_wdt_counter++;
+
             /* timeout */
             continue;
         }
-        svc_wdt_counter++;
+
         while ((packet = csp_read(conn, 50)) != NULL) {
             SAT_returnState status = cli_app(packet, conn);
             if (status != SATR_OK) {
@@ -425,15 +419,12 @@ void register_commands() {
  *      success report
  */
 SAT_returnState start_cli_service(void) {
-    TaskHandle_t svc_tsk;
-    taskFunctions svc_funcs = {0};
-    svc_funcs.getCounterFunction = get_svc_wdt_counter;
-    if (xTaskCreate((TaskFunction_t)cli_service, "cli_svc", CLI_SVC_SIZE, NULL, NORMAL_SERVICE_PRIO, &svc_tsk) !=
+
+    if (xTaskCreate((TaskFunction_t)cli_service, "cli_svc", CLI_SVC_SIZE, NULL, NORMAL_SERVICE_PRIO, NULL) !=
         pdPASS) {
         ex2_log("FAILED TO CREATE TASK cli_svc\n");
         return SATR_ERROR;
     }
-    ex2_register(svc_tsk, svc_funcs);
     register_commands();
     return SATR_OK;
 }

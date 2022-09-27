@@ -26,17 +26,11 @@
 
 #include "dfgm.h"
 #include "services.h"
-#include "task_manager/task_manager.h"
 #include "util/service_utilities.h"
-
 #include <limits.h>
 #include <stdint.h>
 
 SAT_returnState dfgm_service_app(csp_packet_t *packet);
-
-static uint32_t svc_wdt_counter = 0;
-static uint32_t get_svc_wdt_counter() { return svc_wdt_counter; }
-
 /**
  * @brief
  *      FreeRTOS DFGM server task
@@ -53,18 +47,15 @@ void dfgm_service(void *param) {
     csp_bind(sock, TC_DFGM_SERVICE);
     csp_listen(sock, SERVICE_BACKLOG_LEN);
 
-    svc_wdt_counter++;
-
     for (;;) {
         // establish a connection
         csp_packet_t *packet;
         csp_conn_t *conn;
         if ((conn = csp_accept(sock, DELAY_WAIT_TIMEOUT)) == NULL) {
-            svc_wdt_counter++;
+
             /* timeout */
             continue;
         }
-        svc_wdt_counter++;
 
         // read and process packets
         while ((packet = csp_read(conn, 50)) != NULL) {
@@ -93,16 +84,12 @@ void dfgm_service(void *param) {
  *      Success report
  */
 SAT_returnState start_dfgm_service(void) {
-    TaskHandle_t svc_tsk;
-    taskFunctions svc_funcs = {0};
-    svc_funcs.getCounterFunction = get_svc_wdt_counter;
 
-    if (xTaskCreate((TaskFunction_t)dfgm_service, "dfgm_service", 1024, NULL,
-                    NORMAL_SERVICE_PRIO, &svc_tsk) != pdPASS) {
+    if (xTaskCreate((TaskFunction_t)dfgm_service, "dfgm_service", 1024, NULL, NORMAL_SERVICE_PRIO, NULL) !=
+        pdPASS) {
         ex2_log("FAILED TO CREATE TASK start_dfgm_service\n");
         return SATR_ERROR;
     }
-    ex2_register(svc_tsk, svc_funcs);
     ex2_log("DFGM service started\n");
     return SATR_OK;
 }

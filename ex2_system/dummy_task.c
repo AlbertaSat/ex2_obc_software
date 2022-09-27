@@ -14,7 +14,6 @@
 #include <FreeRTOS.h>
 #include "os_task.h"
 #include "system.h"
-#include "task_manager/task_manager.h"
 
 uint32_t delay = 1000;
 static uint32_t wdt_counter = 0;
@@ -24,10 +23,9 @@ void dummy_task(void *pvParameters) {
 
     for (;;) {
         delayed_time = 0;
-        wdt_counter++;
         ex2_log("Dummy Task Running");
         delayed_time += delay;
-        vTaskDelay(delay); // as long as delay is lower than DELAY_WAIT_INTERVAL this is okay
+        vTaskDelay(delay);
     }
 }
 
@@ -43,10 +41,6 @@ SAT_returnState start_dummy_task() {
         ex2_log("Could not start dummy task");
         return SATR_ERROR;
     }
-    taskFunctions funcs;
-    funcs.setDelayFunction = setDelay;
-    funcs.getDelayFunction = getDelay;
-    funcs.getCounterFunction = getCounter;
-    ex2_register(hand, funcs);
+
     return SATR_OK;
 }

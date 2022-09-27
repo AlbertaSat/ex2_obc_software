@@ -25,7 +25,7 @@
 
 #include "ftp.h"
 #include "services.h"
-#include "task_manager/task_manager.h"
+
 #include "util/service_utilities.h"
 #include <string.h>
 #include "logger.h"
@@ -34,10 +34,6 @@
 #define FTP_STACK_SIZE 500
 
 typedef enum { GET_REQUEST = 0, POST_REQUEST = 1 } FTP_REQUESTTYPE;
-
-static uint32_t svc_wdt_counter = 0;
-static uint32_t get_svc_wdt_counter() { return svc_wdt_counter; }
-
 typedef struct {
     uint32_t req_id;
     char fname[REDCONF_NAME_MAX];
@@ -180,7 +176,7 @@ void FTP_service(void *param) {
     sock = csp_socket(CSP_SO_HMACREQ);
     csp_bind(sock, TC_FTP_COMMAND_SERVICE);
     csp_listen(sock, SERVICE_BACKLOG_LEN);
-    svc_wdt_counter++;
+
     csp_packet_t *packet;
     csp_conn_t *conn;
 
@@ -188,11 +184,10 @@ void FTP_service(void *param) {
         // establish a connection
 
         if ((conn = csp_accept(sock, DELAY_WAIT_TIMEOUT)) == NULL) {
-            svc_wdt_counter++;
+
             /* timeout */
             continue;
         }
-        svc_wdt_counter++;
 
         // read and process packets
         while ((packet = csp_read(conn, 50)) != NULL) {
@@ -220,17 +215,13 @@ void FTP_service(void *param) {
  *      Success report
  */
 SAT_returnState start_FTP_service(void) {
-    TaskHandle_t svc_tsk;
-    taskFunctions svc_funcs = {0};
-    svc_funcs.getCounterFunction = get_svc_wdt_counter;
 
-    if (xTaskCreate((TaskFunction_t)FTP_service, "FTP_service", FTP_STACK_SIZE, NULL, NORMAL_SERVICE_PRIO,
-                    &svc_tsk) != pdPASS) {
+    if (xTaskCreate((TaskFunction_t)FTP_service, "FTP_service", FTP_STACK_SIZE, NULL, NORMAL_SERVICE_PRIO, NULL) !=
+        pdPASS) {
         sys_log(CRITICAL, "FAILED TO CREATE TASK FTP_service");
         return SATR_ERROR;
     }
 
-    ex2_register(svc_tsk, svc_funcs);
     sys_log(INFO, "File Transfer service started\n");
     return SATR_OK;
 }

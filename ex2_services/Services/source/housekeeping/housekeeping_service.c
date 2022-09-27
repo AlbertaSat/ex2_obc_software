@@ -24,7 +24,6 @@
 #include "rtcmk.h"    //to get time from RTC
 #include "redconf.h"
 #include "services.h"
-#include "task_manager/task_manager.h"
 #include "util/service_utilities.h"
 #include "logger/logger.h"
 #include "csp/csp_endian.h"
@@ -42,9 +41,6 @@ uint32_t *timestamps = 0;             // This is a dynamic array to handle file 
 uint16_t hk_timestamp_array_size = 0; // NOT BYTES. stored as number of items. 1 indexed. 0 element unused
 
 SemaphoreHandle_t f_count_lock = NULL;
-
-static uint32_t svc_wdt_counter = 0;
-static uint32_t get_svc_wdt_counter() { return svc_wdt_counter; }
 
 static All_systems_housekeeping latest_hk = {0};
 SemaphoreHandle_t latest_hk_lock = {0};
@@ -819,7 +815,6 @@ void housekeeping_service(void *param) {
     sock = csp_socket(CSP_SO_HMACREQ);
     csp_bind(sock, TC_HOUSEKEEPING_SERVICE);
     csp_listen(sock, SERVICE_BACKLOG_LEN);
-    svc_wdt_counter++;
 
     for (;;) {
         csp_conn_t *conn;
@@ -828,7 +823,6 @@ void housekeeping_service(void *param) {
             /* timeout */
             continue;
         }
-        svc_wdt_counter++;
 
         while ((packet = csp_read(conn, 50)) != NULL) {
             if (hk_service_app(conn, packet) != SATR_OK) {
@@ -850,15 +844,12 @@ void housekeeping_service(void *param) {
  *      success report
  */
 SAT_returnState start_housekeeping_service(void) {
-    TaskHandle_t svc_tsk;
-    taskFunctions svc_funcs = {0};
-    svc_funcs.getCounterFunction = get_svc_wdt_counter;
+
     if (xTaskCreate((TaskFunction_t)housekeeping_service, "start_housekeeping_service", 600, NULL,
-                    NORMAL_SERVICE_PRIO, &svc_tsk) != pdPASS) {
+                    NORMAL_SERVICE_PRIO, NULL) != pdPASS) {
         ex2_log("FAILED TO CREATE TASK start_housekeeping_service\n");
         return SATR_ERROR;
     }
-    ex2_register(svc_tsk, svc_funcs);
     ex2_log("Service handlers started\n");
     return SATR_OK;
 }
