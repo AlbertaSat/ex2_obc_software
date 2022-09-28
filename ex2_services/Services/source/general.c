@@ -294,7 +294,23 @@ SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
         set_packet_length(packet, sizeof(int8_t) + sizeof(bool) + 1); // +1 for subservice
         break;
     }
+    case GET_SOLAR_SWITCH_STATUS: {
+        uint8_t state = gioGetBit(hetPORT1, 12);
+        uint8_t status = 0;
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        memcpy(&packet->data[OUT_DATA_BYTE], &state, sizeof(int8_t));
+        set_packet_length(packet, sizeof(int8_t) + sizeof(int8_t) + 1); // +1 for subservice
+        break;
+    }
 
+    case SET_SOLAR_SWITCH: {
+        uint8_t state;
+        memcpy(&state, &(packet->data[IN_DATA_BYTE]), sizeof(uint8_t));
+        gioSetBit(hetPORT1, 12, state);
+        uint8_t status = 0;
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        break;
+    }
 
     default: {
         ex2_log("No such subservice\n");
