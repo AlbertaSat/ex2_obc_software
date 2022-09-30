@@ -28,6 +28,14 @@ NS_return HAL_NS_upload_artwork(char *filename) {
 #endif
 }
 
+NS_return HAL_NS_download_image() {
+#if NS_IS_STUBBED == 0
+    return NS_download_image();
+#else
+    return NS_STUBBED;
+#endif
+}
+
 NS_return HAL_NS_clear_sd_card() {
 #if NS_IS_STUBBED == 0
     return NS_clear_sd_card();

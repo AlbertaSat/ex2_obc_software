@@ -37,7 +37,7 @@
 #include <string.h>
 #include "HL_sci.h"
 
-#define NS_QUEUE_LENGTH 100
+#define NS_QUEUE_LENGTH 500
 #define ITEM_SIZE 1
 
 static QueueHandle_t nsQueue;

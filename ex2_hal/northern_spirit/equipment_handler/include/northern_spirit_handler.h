@@ -40,6 +40,7 @@
 #define NS_SWVERSION_DATA_LEN 7
 
 #define NS_IMAGE_COLLECTION_DELAY pdMS_TO_TICKS(30000)
+#define NS_UPLOAD_ARTWORK_DELAY pdMS_TO_TICKS(10000)
 #define NS_TELEMETRY_COLLECTION_DELAY pdMS_TO_TICKS(15000)
 #define NS_GETFLAG_DELAY pdMS_TO_TICKS(2000)
 #define NS_GETFILENAME_DELAY pdMS_TO_TICKS(2000)
@@ -96,6 +97,7 @@ typedef enum {
 
 NS_return NS_handler_init(void);
 NS_return NS_upload_artwork(char *filename);
+NS_return NS_download_image();
 NS_return NS_capture_image(void);
 NS_return NS_confirm_downlink(uint8_t *conf);
 NS_return NS_get_heartbeat(uint8_t *heartbeat);

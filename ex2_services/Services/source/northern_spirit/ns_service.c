@@ -174,6 +174,10 @@ SAT_returnState ns_payload_service_app(csp_packet_t *packet) {
         set_packet_length(packet, sizeof(int8_t) + 7 + 1);
         break;
     }
+    case NS_DOWNLOAD_IMAGE: {
+        status = HAL_NS_download_image();
+        break;
+    }
 
     default:
         ex2_log("No such subservice!\n");

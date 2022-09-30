@@ -46,7 +46,7 @@ static const unsigned short crc16tab[256] = {
     0x2e93, 0x3eb2, 0x0ed1, 0x1ef0};
 
 unsigned short crc16_ccitt(const void *buf, int len);
-int xmodemReceive(unsigned char *dest, int destsz);
+int xmodemReceive(const unsigned char *dest, int destsz);
 int xmodemTransmit(int32_t filedes, uint64_t filesz);
 
 #endif /* EX2_HAL_NORTHERN_SPIRIT_EQUIPMENT_HANDLER_INCLUDE_XMODEM_H_ */

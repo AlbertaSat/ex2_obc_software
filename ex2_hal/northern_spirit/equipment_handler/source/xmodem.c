@@ -39,9 +39,10 @@
 #include <string.h>
 #include <redposix.h>
 
-int _inbyte(unsigned short timeout) {
+int _inbyte(void *dat, size_t len, unsigned short timeout) {
     uint8_t b;
-    if (NS_expectResponse(&b, 1, timeout) == NS_OK) {
+    memset(dat, 0, len);
+    if (NS_expectResponse(dat, len, timeout) == NS_OK) {
         return b;
     } else {
         return -1;
@@ -81,20 +82,24 @@ static int check(int crc, const unsigned char *buf, int sz) {
 
 static void flushinput(void) { NS_resetQueue(); }
 
-int xmodemReceive(unsigned char *dest, int destsz) {
-    unsigned char xbuff[1030]; /* 1024 for XModem 1k + 3 head chars + 2 crc + nul */
-    unsigned char *p;
+int xmodemReceive(const unsigned char *dest, int destsz) {
+    unsigned char xbuff[133]; /* 128 for XModem 1k + 3 head chars + 2 crc + nul */
     int bufsz, crc = 0;
     unsigned char trychar = 'C';
     unsigned char packetno = 1;
-    int i, c, len = 0;
+    int len = 0;
+    char c;
     int retry, retrans = MAXRETRANS;
-
+    int fd = red_open(dest, RED_O_WRONLY | RED_O_CREAT);
+    if (fd < 0) {
+        return -1;
+    }
     for (;;) {
         for (retry = 0; retry < 16; ++retry) {
             if (trychar)
                 _outbyte(trychar);
-            if ((c = _inbyte((DLY_1S) << 1)) >= 0) {
+            _inbyte(&c, 1, DLY_1S);
+            if ((c << 1) >= 0) {
                 switch (c) {
                 case SOH:
                     bufsz = 128;
@@ -105,11 +110,14 @@ int xmodemReceive(unsigned char *dest, int destsz) {
                 case EOT:
                     flushinput();
                     _outbyte(ACK);
+                    red_close(fd);
                     return len; /* normal end */
                 case CAN:
-                    if ((c = _inbyte(DLY_1S)) == CAN) {
+                    _inbyte(&c, 1, DLY_1S);
+                    if (c == CAN) {
                         flushinput();
                         _outbyte(ACK);
+                        red_close(fd);
                         return -1; /* canceled by remote */
                     }
                     break;
@@ -132,13 +140,9 @@ int xmodemReceive(unsigned char *dest, int destsz) {
         if (trychar == 'C')
             crc = 1;
         trychar = 0;
-        p = xbuff;
-        *p++ = c;
-        for (i = 0; i < (bufsz + (crc ? 1 : 0) + 3); ++i) {
-            if ((c = _inbyte(DLY_1S)) < 0)
-                goto reject;
-            *p++ = c;
-        }
+        int buflen = (bufsz + (crc ? 1 : 0) + 3);
+        xbuff[0] = c;
+        _inbyte(&(xbuff[1]), buflen, 100);
 
         if (xbuff[1] == (unsigned char)(~xbuff[2]) &&
             (xbuff[1] == packetno || xbuff[1] == (unsigned char)packetno - 1) && check(crc, &xbuff[3], bufsz)) {
@@ -147,7 +151,10 @@ int xmodemReceive(unsigned char *dest, int destsz) {
                 if (count > bufsz)
                     count = bufsz;
                 if (count > 0) {
-                    memcpy(&dest[len], &xbuff[3], count);
+                    int binary_size;
+                    void *data = base64_decode(&xbuff[3], count, &binary_size);
+                    red_write(fd, data, binary_size);
+                    free(data);
                     len += count;
                 }
                 ++packetno;
@@ -158,6 +165,7 @@ int xmodemReceive(unsigned char *dest, int destsz) {
                 _outbyte(CAN);
                 _outbyte(CAN);
                 _outbyte(CAN);
+                red_close(fd);
                 return -3; /* too many retry error */
             }
             _outbyte(ACK);
@@ -178,12 +186,13 @@ int xmodemTransmit(int32_t filedes, uint64_t filesz) {
 
     int bufsz, crc = -1;
     unsigned char packetno = 1;
-    int i, c, len = 0;
+    int i, len = 0;
     int retry;
-
+    char c = 0;
     for (;;) {
         for (retry = 0; retry < 16; ++retry) {
-            if ((c = _inbyte((DLY_1S) << 1)) >= 0) {
+            _inbyte(&c, 1, DLY_1S);
+            if ((c << 1) >= 0) {
                 switch (c) {
                 case 'C':
                     crc = 1;
@@ -192,7 +201,8 @@ int xmodemTransmit(int32_t filedes, uint64_t filesz) {
                     crc = 0;
                     goto start_trans;
                 case CAN:
-                    if ((c = _inbyte(DLY_1S)) == CAN) {
+                    _inbyte(&c, 1, DLY_1S);
+                    if (c == CAN) {
                         _outbyte(ACK);
                         flushinput();
                         return -1; /* canceled by remote */
@@ -230,9 +240,13 @@ int xmodemTransmit(int32_t filedes, uint64_t filesz) {
                 int32_t bytes_read = red_read(filedes, &xbuff[3], 96);
                 if (bytes_read == -1) {
                     return -1;
+
+                } else if (bytes_read == 0) {
+                    return len;
                 } else {
                     char *temp = base64_encode(&xbuff[3], bytes_read, &c);
                     memcpy(&xbuff[3], temp, c);
+                    free(temp);
                 }
                 if (c < bufsz)
                     xbuff[3 + c] = CTRLZ;
@@ -251,14 +265,16 @@ int xmodemTransmit(int32_t filedes, uint64_t filesz) {
                     for (i = 0; i < bufsz + 4 + (crc ? 1 : 0); ++i) {
                         _outbyte(xbuff[i]);
                     }
-                    if ((c = _inbyte(DLY_1S)) >= 0) {
+                    _inbyte(&c, 1, DLY_1S);
+                    if (c >= 0) {
                         switch (c) {
                         case ACK:
                             ++packetno;
                             len += bufsz;
                             goto start_trans;
                         case CAN:
-                            if ((c = _inbyte(DLY_1S)) == CAN) {
+                            _inbyte(&c, 1, DLY_1S);
+                            if (c == CAN) {
                                 _outbyte(ACK);
                                 flushinput();
                                 return -1; /* canceled by remote */
@@ -279,7 +295,8 @@ int xmodemTransmit(int32_t filedes, uint64_t filesz) {
                 // Reached end of transmission
                 for (retry = 0; retry < 10; ++retry) {
                     _outbyte(EOT);
-                    if ((c = _inbyte((DLY_1S) << 1)) == ACK)
+                    _inbyte(&c, 1, DLY_1S);
+                    if ((c << 1) == ACK)
                         break;
                 }
                 flushinput();
