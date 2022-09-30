@@ -69,6 +69,9 @@
 #include <stdint.h>
 #include "system.h"
 
+#pragma WEAK(irisWdoNotification)
+    void irisWdoNotification();
+
 #pragma WEAK(gps_sciNotification)
 void gps_sciNotification(sciBASE_t *sci, unsigned flags);
 
@@ -273,6 +276,9 @@ void edgeNotification(hetBASE_t * hetREG,uint32 edge)
 {
 /*  enter user code between the USER CODE BEGIN and USER CODE END. */
 /* USER CODE BEGIN (40) */
+    if((hetREG == hetREG1) && (edge == IRIS_WDO_PIN)){//iris "ping" watchdog output
+        irisWdoNotification();
+    }
 /* USER CODE END */
 }
 

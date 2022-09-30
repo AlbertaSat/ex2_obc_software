@@ -93,6 +93,7 @@ extern void esmHighInterrupt(void);
 extern void phantomInterrupt(void);
 extern void vPortPreemptiveTick(void);
 extern void gioHighLevelInterrupt(void);
+extern void het1HighLevelInterrupt(void);
 extern void mibspi1HighLevelInterrupt(void);
 extern void lin1HighLevelInterrupt(void);
 extern void can1HighLevelInterrupt(void);
@@ -287,7 +288,7 @@ typedef struct vim_config_reg
                                     |(uint32)((uint32)0U << 7U)\
                                     |(uint32)((uint32)0U << 8U)\
                                     |(uint32)((uint32)1U << 9U)\
-                                    |(uint32)((uint32)0U << 10U)\
+                                    |(uint32)((uint32)1U << 10U)\
                                     |(uint32)((uint32)0U << 11U)\
                                     |(uint32)((uint32)1U << 12U)\
                                     |(uint32)((uint32)1U << 13U)\

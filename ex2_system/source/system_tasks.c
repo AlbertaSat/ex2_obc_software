@@ -28,6 +28,7 @@
 #include "time_management/rtc_daemon.h"
 #include "task_manager/task_manager.h"
 #include "sband_sender/sband_sender.h"
+#include "external_watchdog.h"
 
 /**
  * Start all system daemon tasks
@@ -40,7 +41,8 @@ SAT_returnState start_system_tasks(void) {
     const static char *system_task_names[] = {
         "task_manager",      "beacon_daemon",       "coordinate_management_daemon",
         "diagnostic_daemon", "housekeeping_daemon", "NMEA_daemon",
-        "RTC_daemon",        "logger_daemon",       "sband_daemon"};
+        "RTC_daemon",        "logger_daemon",       "sband_daemon",
+        "ext_watchdog_handler"};
 
     const system_tasks start_task[] = {start_task_manager,
                                        start_beacon_daemon,
@@ -51,6 +53,7 @@ SAT_returnState start_system_tasks(void) {
                                        start_RTC_daemon,
                                        start_logger_daemon,
                                        start_sband_daemon,
+                                       start_ext_watchdog_handler,
                                        NULL};
 
     for (int i = 0; start_task[i]; i++) {
