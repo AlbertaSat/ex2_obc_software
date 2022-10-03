@@ -266,7 +266,7 @@ uint8_t calc_checksum(uint8_t *message, uint16_t payload_length) {
     // skip first 4 bytes of message
     message += 4;
     uint8_t checksum = 0;
-    for (int i=0; i<payload_length; i++) {
+    for (int i = 0; i < payload_length; i++) {
         checksum ^= *(message + i);
     }
     return checksum;

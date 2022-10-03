@@ -193,7 +193,7 @@ int RTCMK_EnableInt(uint8_t addr) {
         return success;
     }
 
-    uint8_t setReg =  controlReg & 0xFE;
+    uint8_t setReg = controlReg & 0xFE;
     success = RTCMK_RegisterSet(addr, RTCMK_RegControl, setReg);
     if (success != 0) {
         return success;

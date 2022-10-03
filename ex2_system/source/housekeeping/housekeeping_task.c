@@ -51,8 +51,8 @@ static void *housekeeping_daemon(void *pvParameters) {
  *   error report of task creation
  */
 SAT_returnState start_housekeeping_daemon(void) {
-    if (xTaskCreate((TaskFunction_t)housekeeping_daemon, "housekeeping_daemon", HK_DAEMON_STACK_SIZE, NULL, HOUSEKEEPING_TASK_PRIO,
-                    NULL) != pdPASS) {
+    if (xTaskCreate((TaskFunction_t)housekeeping_daemon, "housekeeping_daemon", HK_DAEMON_STACK_SIZE, NULL,
+                    HOUSEKEEPING_TASK_PRIO, NULL) != pdPASS) {
         ex2_log("FAILED TO CREATE TASK housekeeping_daemon\n");
         return SATR_ERROR;
     }

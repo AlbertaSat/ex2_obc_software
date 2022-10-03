@@ -27,24 +27,24 @@
 #define MAX_FREQ = 2290
 
 typedef enum {
-  S_GET_TEMP = 0,
-  S_GET_FREQ = 1,
-  S_GET_CONTROL = 2,
-  S_GET_ENCODER = 3,
-  S_GET_PA_POWER = 4,
-  S_GET_STATUS = 5,
-  S_GET_FW = 6,
-  S_GET_TR = 7,
-  S_GET_BUFFER = 8,
-  S_GET_HK = 9,
-  S_SOFT_RESET = 10,
-  S_GET_FULL_STATUS = 11,
-  S_SET_FREQ = 12,
-  S_SET_CONTROL = 13,
-  S_SET_ENCODER = 14,
-  S_SET_PA_POWER = 15,
-  S_GET_CONFIG = 16,
-  S_SET_CONFIG = 17
+    S_GET_TEMP = 0,
+    S_GET_FREQ = 1,
+    S_GET_CONTROL = 2,
+    S_GET_ENCODER = 3,
+    S_GET_PA_POWER = 4,
+    S_GET_STATUS = 5,
+    S_GET_FW = 6,
+    S_GET_TR = 7,
+    S_GET_BUFFER = 8,
+    S_GET_HK = 9,
+    S_SOFT_RESET = 10,
+    S_GET_FULL_STATUS = 11,
+    S_SET_FREQ = 12,
+    S_SET_CONTROL = 13,
+    S_SET_ENCODER = 14,
+    S_SET_PA_POWER = 15,
+    S_GET_CONFIG = 16,
+    S_SET_CONFIG = 17
 } Sband_Subtype;
 
 typedef enum {
