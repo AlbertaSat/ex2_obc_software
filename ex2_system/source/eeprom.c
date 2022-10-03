@@ -63,4 +63,3 @@ Fapi_StatusType eeprom_read(void *dat, uint8_t block, uint32_t size) {
     memcpy(dat, addr, size);
     return Fapi_Status_Success;
 }
-

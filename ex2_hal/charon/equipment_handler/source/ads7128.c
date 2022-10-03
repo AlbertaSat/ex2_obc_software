@@ -119,7 +119,8 @@ uint8_t readSingleTemp(uint8_t channel, int8_t *temperature) { // note int8 max 
  * @return
  *      1 if error, 0 if successful
  */
-uint8_t readAllTemps(int8_t *temperatures) { // could rework to read out all 16 registers at once instead of in 8 chunks
+uint8_t
+readAllTemps(int8_t *temperatures) { // could rework to read out all 16 registers at once instead of in 8 chunks
     for (int i = 0; i < 8; i++) {
         if (readSingleTemp(i, &temperatures[i])) {
             return 1;

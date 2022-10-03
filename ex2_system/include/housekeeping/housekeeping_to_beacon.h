@@ -16,7 +16,7 @@
  * @author Grace Yi
  * @date 2021-10-27
  */
-#include "beacon_task.h" //contains beacon packets (ie. a summary of housekeeping data)
+#include "beacon_task.h"          //contains beacon packets (ie. a summary of housekeeping data)
 #include "housekeeping_service.h" //contains all housekeeping data
 #include "rtcmk.h"                //to get time from RTC
 #include "services.h"
@@ -27,7 +27,7 @@
 // Last EPS reset reason
 typedef enum {
     Power_on = 0, // After power supply removal or hard reset
-    IWDG = 1, // Internal watchdog reseted system due to software process hanging or MCU hardware malfunction
-    NRST = 2, // MCU reset pin driven low
+    IWDG = 1,     // Internal watchdog reseted system due to software process hanging or MCU hardware malfunction
+    NRST = 2,     // MCU reset pin driven low
     Software = 3, // Software reset by command
 } EPS_reset_TypeDef;

@@ -43,10 +43,10 @@ SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t s
             (scheduled_commands_t *)pvPortMalloc(MAX_NUM_CMDS * sizeof(scheduled_commands_t));
         memset(cmds, 0, MAX_NUM_CMDS * sizeof(scheduled_commands_t));
         //------------------------------------TODO: test code below, to be
-        //deleted-----------------------------------//
+        // deleted-----------------------------------//
         //        scheduled_commands_t *cmds = NULL;
         //------------------------------------TODO: test code above, to be
-        //deleted-----------------------------------//
+        // deleted-----------------------------------//
         if (MAX_NUM_CMDS > 0 && cmds == NULL) {
             sys_log(ERROR, "pvPortMalloc for cmds failed in SET_SCHEDULE, out of memory");
             status = CALLOC_ERROR;
