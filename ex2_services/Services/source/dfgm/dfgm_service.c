@@ -85,8 +85,8 @@ void dfgm_service(void *param) {
  */
 SAT_returnState start_dfgm_service(void) {
 
-    if (xTaskCreate((TaskFunction_t)dfgm_service, "dfgm_service", 1024, NULL, NORMAL_SERVICE_PRIO, NULL) !=
-        pdPASS) {
+    if (xTaskCreate((TaskFunction_t)dfgm_service, "dfgm_service", DFGM_SVC_SIZE, NULL, NORMAL_SERVICE_PRIO,
+                    NULL) != pdPASS) {
         ex2_log("FAILED TO CREATE TASK start_dfgm_service\n");
         return SATR_ERROR;
     }

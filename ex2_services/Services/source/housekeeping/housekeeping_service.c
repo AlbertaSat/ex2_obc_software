@@ -845,7 +845,7 @@ void housekeeping_service(void *param) {
  */
 SAT_returnState start_housekeeping_service(void) {
 
-    if (xTaskCreate((TaskFunction_t)housekeeping_service, "start_housekeeping_service", 600, NULL,
+    if (xTaskCreate((TaskFunction_t)housekeeping_service, "start_housekeeping_service", HK_SVC_SIZE, NULL,
                     NORMAL_SERVICE_PRIO, NULL) != pdPASS) {
         ex2_log("FAILED TO CREATE TASK start_housekeeping_service\n");
         return SATR_ERROR;

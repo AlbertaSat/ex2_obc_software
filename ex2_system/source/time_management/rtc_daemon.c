@@ -29,8 +29,6 @@
 
 #define DISCIPLINE_DELAY 10000 // every 10 seconds for testing purposes
 
-#define RTC_DAEMON_TASK_SIZE 256
-
 static TickType_t last_second;
 
 int RTCMK_GetMs() {
@@ -79,8 +77,8 @@ void RTC_discipline_daemon(void) {
  */
 SAT_returnState start_RTC_daemon() {
     TaskHandle_t rtc_handle;
-    if (xTaskCreate((TaskFunction_t)RTC_discipline_daemon, "RTC_daemon", RTC_DAEMON_TASK_SIZE, NULL, 1,
-                    &rtc_handle) != pdPASS) {
+    if (xTaskCreate((TaskFunction_t)RTC_discipline_daemon, "RTC_daemon", RTC_DM_SIZE, NULL, 1, &rtc_handle) !=
+        pdPASS) {
         return SATR_ERROR;
     }
 

@@ -1587,8 +1587,8 @@ void adcs_service(void *param) {
  */
 SAT_returnState start_adcs_service(void) {
     // create adcs service
-    if (xTaskCreate((TaskFunction_t)adcs_service, "adcs_service", 1536, NULL, NORMAL_SERVICE_PRIO, NULL) !=
-        pdPASS) {
+    if (xTaskCreate((TaskFunction_t)adcs_service, "adcs_service", ADCS_SVC_SIZE, NULL, NORMAL_SERVICE_PRIO,
+                    NULL) != pdPASS) {
         ex2_log("FAILED TO CREATE TASK start_adcs_service\n");
         return SATR_ERROR;
     }

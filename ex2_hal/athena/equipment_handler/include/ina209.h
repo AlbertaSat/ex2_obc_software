@@ -15,8 +15,6 @@
 #define SOLAR_INA209_ADDR 0x40
 #define CORE_V_INA209_ADDR 0x45
 
-#define SOLAR_INA209_STACK_LEN 1000 // arbitrary for now
-
 int ina209_get_configuration(uint8_t addr, uint16_t *retval);
 int ina209_set_configuration(uint8_t addr, uint16_t *val);
 int ina209_get_status_flags(uint8_t addr, uint16_t *retval);

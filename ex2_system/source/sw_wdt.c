@@ -55,6 +55,6 @@ void sw_watchdog(void *pvParameters) {
 }
 
 SAT_returnState start_sw_watchdog() {
-    xTaskCreate(sw_watchdog, "WDT", 128, NULL, configMAX_PRIORITIES - 1, NULL);
+    xTaskCreate(sw_watchdog, "WDT", SWWDT_DM_SIZE, NULL, configMAX_PRIORITIES - 1, NULL);
     return SATR_OK;
 }

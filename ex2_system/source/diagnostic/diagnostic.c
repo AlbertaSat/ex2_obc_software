@@ -519,8 +519,8 @@ SAT_returnState set_payload_watchdog_delay(const unsigned int ms_delay) {
  */
 SAT_returnState start_diagnostic_daemon(void) {
 #if UHF_IS_STUBBED == 0
-    if (xTaskCreate((TaskFunction_t)uhf_watchdog_daemon, "uhf_watchdog_daemon", 1000, NULL, DIAGNOSTIC_TASK_PRIO,
-                    NULL) != pdPASS) {
+    if (xTaskCreate((TaskFunction_t)uhf_watchdog_daemon, "uhf_watchdog_daemon", DIAGNOSTIC_DM_SIZE, NULL,
+                    DIAGNOSTIC_TASK_PRIO, NULL) != pdPASS) {
         sys_log(ERROR, "FAILED TO CREATE TASK uhf_watchdog_daemon.\n");
     } else {
         sys_log(INFO, "UHF watchdog task started.\n");
@@ -528,7 +528,7 @@ SAT_returnState start_diagnostic_daemon(void) {
 #endif
 
 #if SBAND_IS_STUBBED == 0
-    if (xTaskCreate((TaskFunction_t)sband_watchdog_daemon, "sband_watchdog_daemon", 1000, NULL,
+    if (xTaskCreate((TaskFunction_t)sband_watchdog_daemon, "sband_watchdog_daemon", DIAGNOSTIC_DM_SIZE, NULL,
                     DIAGNOSTIC_TASK_PRIO, NULL) != pdPASS) {
         sys_log(ERROR, "FAILED TO CREATE TASK sband_watchdog_daemon.\n");
     } else {
@@ -537,8 +537,8 @@ SAT_returnState start_diagnostic_daemon(void) {
 #endif
 
 #if CHARON_IS_STUBBED == 0 && IS_EXALTA2 == 1
-    if (xTaskCreate(charon_watchdog_daemon, "charon_watchdog_daemon", 1000, NULL, DIAGNOSTIC_TASK_PRIO, NULL) !=
-        pdPASS) {
+    if (xTaskCreate(charon_watchdog_daemon, "charon_watchdog_daemon", DIAGNOSTIC_DM_SIZE, NULL,
+                    DIAGNOSTIC_TASK_PRIO, NULL) != pdPASS) {
         sys_log(ERROR, "FAILED TO CREATE TASK charon_watchdog_daemon.\n");
     } else {
         sys_log(INFO, "Charon watchdog task started.\n");
@@ -546,8 +546,8 @@ SAT_returnState start_diagnostic_daemon(void) {
 #endif
 
 #if ADCS_IS_STUBBED == 0
-    if (xTaskCreate(adcs_watchdog_daemon, "adcs_watchdog_daemon", 1000, NULL, DIAGNOSTIC_TASK_PRIO, NULL) !=
-        pdPASS) {
+    if (xTaskCreate(adcs_watchdog_daemon, "adcs_watchdog_daemon", DIAGNOSTIC_DM_SIZE, NULL, DIAGNOSTIC_TASK_PRIO,
+                    NULL) != pdPASS) {
         sys_log(ERROR, "FAILED TO CREATE TASK adcs_watchdog_daemon.\n");
     } else {
         sys_log(INFO, "ADCS watchdog task started.\n");
@@ -555,8 +555,8 @@ SAT_returnState start_diagnostic_daemon(void) {
 #endif
 
 #if IRIS_IS_STUBBED == 0 || NS_IS_STUBBED == 0
-    if (xTaskCreate(payload_watchdog_daemon, "payload_watchdog_daemon", 1000, NULL, DIAGNOSTIC_TASK_PRIO, NULL) !=
-        pdPASS) {
+    if (xTaskCreate(payload_watchdog_daemon, "payload_watchdog_daemon", DIAGNOSTIC_DM_SIZE, NULL,
+                    DIAGNOSTIC_TASK_PRIO, NULL) != pdPASS) {
         sys_log(ERROR, "FAILED TO CREATE TASK payload_watchdog_daemon.\n");
     } else {
         sys_log(INFO, "Payload watchdog task started.\n");
@@ -565,7 +565,7 @@ SAT_returnState start_diagnostic_daemon(void) {
 
 #if ATHENA_IS_STUBBED == 0
 #if IS_ATHENA_V2 == 1
-    if (xTaskCreate(is_SolarPanel_overcurrent, "Solar_Panel_Current_Monitor", SOLAR_INA209_STACK_LEN, NULL,
+    if (xTaskCreate(is_SolarPanel_overcurrent, "Solar_Panel_Current_Monitor", DIAGNOSTIC_DM_SIZE, NULL,
                     DIAGNOSTIC_TASK_PRIO, NULL) != pdPASS) {
         sys_log(ERROR, "FAILED TO CREATE TASK: Solar Panel monitor failed to start!");
     } else {

@@ -19,7 +19,6 @@
 #ifndef EX2_SYSTEM_HOUSEKEEPING_TASK_H_
 #define EX2_SYSTEM_HOUSEKEEPING_TASK_H_
 
-#define HK_DAEMON_STACK_SIZE 1200
 #include "system.h"
 
 SAT_returnState start_housekeeping_daemon(void);

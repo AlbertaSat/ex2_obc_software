@@ -72,8 +72,8 @@ void ns_payload_service(void *param) {
  */
 SAT_returnState start_ns_payload_service(void) {
 
-    if (xTaskCreate((TaskFunction_t)ns_payload_service, "ns_payload_service", 1024, NULL, NORMAL_SERVICE_PRIO,
-                    NULL) != pdPASS) {
+    if (xTaskCreate((TaskFunction_t)ns_payload_service, "ns_payload_service", NS_SVC_SIZE, NULL,
+                    NORMAL_SERVICE_PRIO, NULL) != pdPASS) {
         sys_log(ERROR, "FAILED TO CREATE TASK ns_payload_service\n");
         return SATR_ERROR;
     }

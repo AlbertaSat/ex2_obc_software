@@ -31,8 +31,6 @@
 #include "logger.h"
 #include "sband_sender/sband_sender.h"
 
-#define FTP_STACK_SIZE 500
-
 typedef enum { GET_REQUEST = 0, POST_REQUEST = 1 } FTP_REQUESTTYPE;
 typedef struct {
     uint32_t req_id;
@@ -216,7 +214,7 @@ void FTP_service(void *param) {
  */
 SAT_returnState start_FTP_service(void) {
 
-    if (xTaskCreate((TaskFunction_t)FTP_service, "FTP_service", FTP_STACK_SIZE, NULL, NORMAL_SERVICE_PRIO, NULL) !=
+    if (xTaskCreate((TaskFunction_t)FTP_service, "FTP_service", FTP_SVC_SIZE, NULL, NORMAL_SERVICE_PRIO, NULL) !=
         pdPASS) {
         sys_log(CRITICAL, "FAILED TO CREATE TASK FTP_service");
         return SATR_ERROR;

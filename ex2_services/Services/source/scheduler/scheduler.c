@@ -1226,7 +1226,7 @@ SAT_returnState start_scheduler_service(void) {
     // create mutex to protect file system
     scheduleSemaphore = xSemaphoreCreateMutex();
 
-    if (xTaskCreate((TaskFunction_t)scheduler_service, "scheduler_service", SCHEDULER_SIZE, scheduleSemaphore,
+    if (xTaskCreate((TaskFunction_t)scheduler_service, "scheduler_service", SCHEDULER_SVC_SIZE, scheduleSemaphore,
                     NORMAL_SERVICE_PRIO, NULL) != pdPASS) {
         sys_log(ERROR, "FAILED TO CREATE TASK scheduler_service\n");
         return SATR_ERROR;
