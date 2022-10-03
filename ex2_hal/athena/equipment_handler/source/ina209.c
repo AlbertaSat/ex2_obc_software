@@ -18,11 +18,11 @@
 #include "logger.h"
 
 uint16_t CALI_REG = 0xDA73;
-uint16_t POWER_OLREG = 0x0100;
+uint16_t POWER_OLREG = 0x001B; // 0.004 W
 uint16_t ZEROREG = 0x0000;
 uint16_t CONTROL_REG = 0x0082;
-uint16_t BUS_VOLTAGE_OL = 0xFFFC;
-uint16_t BUS_VOLTAGE_UL = 0xFFFF;
+uint16_t BUS_VOLTAGE_OL = 0xEFFF; // max possible (twos compliment)
+uint16_t BUS_VOLTAGE_UL = 0xFFFF; // min possible (twos compliment)
 
 int ina209_Write1ByteReg(uint8_t addr, uint8_t reg_addr, uint8_t data) {
     uint8_t buf[2];
