@@ -32,8 +32,6 @@ void update_beacon(All_systems_housekeeping *all_hk_data, beacon_packet_1_t *bea
                    beacon_packet_2_t *beacon_packet_two) {
 
     /*-------META-------*/
-    beacon_packet_one->time = all_hk_data->hk_timeorder.UNIXtimestamp;
-    beacon_packet_two->time = all_hk_data->hk_timeorder.UNIXtimestamp;
     beacon_packet_one->packet_number = 1;
     beacon_packet_two->packet_number = 2;
 
@@ -97,17 +95,15 @@ void update_beacon(All_systems_housekeeping *all_hk_data, beacon_packet_1_t *bea
 
     /*-------UHF-------*/
     // Convert uint32_t to uint16_t, seconds = UHF_uptime*10. Max = 655350 seconds (7.6 days)
-    beacon_packet_two->uhf_uptime = (uint16_t)(all_hk_data->UHF_hk.uptime / 10);
+    beacon_packet_two->uhf_uptime = (all_hk_data->UHF_hk.uptime / 10);
 
     /*-------OBC-------*/
     beacon_packet_two->boot_cnt = all_hk_data->Athena_hk.boot_cnt;
     beacon_packet_two->last_reset_reason = all_hk_data->Athena_hk.last_reset_reason;
-    beacon_packet_two->OBC_mode = all_hk_data->Athena_hk.OBC_mode;
     beacon_packet_two->OBC_uptime = all_hk_data->Athena_hk.OBC_uptime;
     beacon_packet_two->solar_panel_supply_curr = all_hk_data->Athena_hk.solar_panel_supply_curr;
     beacon_packet_two->OBC_software_ver = all_hk_data->Athena_hk.version_major;
     beacon_packet_two->cmds_received = all_hk_data->Athena_hk.cmds_received;
-    beacon_packet_two->pckts_uncovered_by_FEC = all_hk_data->Athena_hk.pckts_uncovered_by_FEC;
 }
 
 static EPS_reset_TypeDef determine_eps_last_reset_reason(uint32_t reg) {

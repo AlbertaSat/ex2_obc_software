@@ -65,18 +65,14 @@ typedef struct __attribute__((packed)) {
     int8_t angular_rate_Z;
     int8_t adcs_control_mode;
     // UHF
-    uint16_t uhf_uptime;
-    // Payload
-    uint8_t payload_software_version;
+    uint32_t uhf_uptime;
     // OBC
     uint16_t boot_cnt;
     uint8_t last_reset_reason;
-    uint8_t OBC_mode;
-    uint16_t OBC_uptime;
+    uint32_t OBC_uptime;
     uint8_t solar_panel_supply_curr;
     uint8_t OBC_software_ver;
     uint16_t cmds_received;
-    uint16_t pckts_uncovered_by_FEC;
 } beacon_packet_2_t;
 
 /**

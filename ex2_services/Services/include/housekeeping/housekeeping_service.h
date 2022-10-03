@@ -52,7 +52,13 @@ typedef enum { FILE_EXISTS = 1, FILE_NOT_EXIST = 0 } Found_file;
 
 typedef enum { SUCCESS = 0, FAILURE = 1 } Result;
 
-typedef enum { GET_HK = 0, SET_MAX_FILES = 1, GET_MAX_FILES = 2, GET_INSTANTANEOUS_HK = 3 } subservice;
+typedef enum {
+    GET_HK = 0,
+    SET_MAX_FILES = 1,
+    GET_MAX_FILES = 2,
+    GET_INSTANTANEOUS_HK = 3,
+    GET_LATEST_HK = 4
+} subservice;
 
 /*hk data sample*/
 typedef enum { EPS, ADCS, OBC, COMMS } hardware;
@@ -89,6 +95,7 @@ SAT_returnState start_housekeeping_service(void);
 Result populate_and_store_hk_data(void);
 
 uint16_t get_size_of_housekeeping();
+void get_latest_hk(All_systems_housekeeping *hk);
 
 uint16_t get_file_id_from_timestamp(uint32_t timestamp);
 Result load_historic_hk_data(uint16_t file_num, All_systems_housekeeping *all_hk_data);

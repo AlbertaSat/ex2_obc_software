@@ -46,6 +46,9 @@ SemaphoreHandle_t f_count_lock = NULL;
 static uint32_t svc_wdt_counter = 0;
 static uint32_t get_svc_wdt_counter() { return svc_wdt_counter; }
 
+static All_systems_housekeeping latest_hk = {0};
+SemaphoreHandle_t latest_hk_lock = {0};
+
 /**
  * @brief
  *      gets the hk file id that holds a timestamp closest to that given
@@ -463,6 +466,18 @@ static inline void prv_get_lock(SemaphoreHandle_t *lock) {
 
 static inline void prv_give_lock(SemaphoreHandle_t *lock) { xSemaphoreGive(*lock); }
 
+void get_latest_hk(All_systems_housekeeping *hk) {
+    prv_get_lock(&latest_hk_lock);
+    memcpy(hk, &latest_hk, sizeof(All_systems_housekeeping));
+    prv_give_lock(&latest_hk_lock);
+}
+
+void set_latest_hk(All_systems_housekeeping *hk) {
+    prv_get_lock(&latest_hk_lock);
+    memcpy(&latest_hk, hk, sizeof(All_systems_housekeeping));
+    prv_give_lock(&latest_hk_lock);
+}
+
 /**
  * @brief
  *      Public. Performs all calls and operations to retrieve hk data and store it
@@ -514,6 +529,7 @@ Result populate_and_store_hk_data(void) {
     }
 
     prv_give_lock(&f_count_lock); // unlock
+    set_latest_hk(&temp_hk_data);
     return SUCCESS;
 }
 
@@ -680,15 +696,15 @@ Result fetch_historic_hk_and_transmit(csp_conn_t *conn, uint16_t limit, uint16_t
  */
 SAT_returnState hk_service_app(csp_conn_t *conn, csp_packet_t *packet) {
     uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
-    int8_t status;
-    uint16_t new_max_files;
-    uint16_t *data16;
-    uint16_t limit;
-    uint16_t before_id;
-    uint32_t before_time;
+    int8_t status = 0;
+    uint16_t new_max_files = 0;
+    uint16_t *data16 = 0;
+    uint16_t limit = 0;
+    uint16_t before_id = 0;
+    uint32_t before_time = 0;
 
     switch (ser_subtype) {
-    case SET_MAX_FILES:
+    case SET_MAX_FILES: {
         cnv8_16(&packet->data[IN_DATA_BYTE], &new_max_files);
         new_max_files = csp_ntoh16(new_max_files);
 
@@ -706,8 +722,8 @@ SAT_returnState hk_service_app(csp_conn_t *conn, csp_packet_t *packet) {
             csp_buffer_free(packet);
         }
         break;
-
-    case GET_MAX_FILES:
+    }
+    case GET_MAX_FILES: {
         new_max_files = MAX_FILES;
         new_max_files = csp_hton16(new_max_files);
         status = 0;
@@ -720,8 +736,8 @@ SAT_returnState hk_service_app(csp_conn_t *conn, csp_packet_t *packet) {
             csp_buffer_free(packet);
         }
         break;
-
-    case GET_HK:
+    }
+    case GET_HK: {
         data16 = (uint16_t *)(packet->data + 1);
         limit = data16[0];
         before_id = data16[1];
@@ -732,7 +748,8 @@ SAT_returnState hk_service_app(csp_conn_t *conn, csp_packet_t *packet) {
             return SATR_ERROR;
         }
         break;
-    case GET_INSTANTANEOUS_HK:
+    }
+    case GET_INSTANTANEOUS_HK: {
         All_systems_housekeeping all_hk_data;
         Result res = collect_hk_from_devices(&all_hk_data);
         if (res == FAILURE) {
@@ -741,7 +758,7 @@ SAT_returnState hk_service_app(csp_conn_t *conn, csp_packet_t *packet) {
             int8_t status = 0;
         }
 
-        all_hk_data.hk_timeorder.final = 1;
+        all_hk_data.hk_timeorder.final = 0;
 
         uint16_t needed_size = get_size_of_housekeeping() + 2; // +2 for subservice and error
 
@@ -751,11 +768,34 @@ SAT_returnState hk_service_app(csp_conn_t *conn, csp_packet_t *packet) {
         memcpy(&packet->data[SUBSERVICE_BYTE], &ser_subtype, sizeof(int8_t));
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
 
-        memcpy(&packet->data[OUT_DATA_BYTE], &all_hk_data, get_size_of_housekeeping());
+        memcpy(&packet->data[OUT_DATA_BYTE], &all_hk_data, needed_size);
+        set_packet_length(packet, needed_size);
 
         csp_send(conn, packet, 50);
         csp_buffer_free(packet);
+        break;
+    }
+    case GET_LATEST_HK: {
+        All_systems_housekeeping all_hk_data;
+        get_latest_hk(&all_hk_data);
 
+        all_hk_data.hk_timeorder.final = 0;
+
+        uint16_t needed_size = get_size_of_housekeeping() + 2; // +2 for subservice and error
+
+        csp_packet_t *packet = csp_buffer_get((size_t)needed_size);
+        uint8_t ser_subtype = GET_HK;
+
+        memcpy(&packet->data[SUBSERVICE_BYTE], &ser_subtype, sizeof(int8_t));
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+
+        memcpy(&packet->data[OUT_DATA_BYTE], &all_hk_data, needed_size);
+        set_packet_length(packet, needed_size);
+
+        csp_send(conn, packet, 50);
+        csp_buffer_free(packet);
+        break;
+    }
     default:
         ex2_log("No such subservice\n");
         return SATR_PKT_ILLEGAL_SUBSERVICE;
