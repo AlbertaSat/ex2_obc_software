@@ -7,7 +7,7 @@ jobs:
     strategy:
       matrix:
         path:
-          - check: 'ex2_*'
+          - check: '.'
             exclude: '(F021_API|source|include|reliance_edge|ex2_hal/ex2_uhf_software|ex2_sdr|FreeRTOS-Plus-CLI|libcsp|test)' # Exclude file paths containing "hello" or "world"
     steps:
     - uses: actions/checkout@v3
