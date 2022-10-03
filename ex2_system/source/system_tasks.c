@@ -26,7 +26,8 @@
 #include "logger/logger.h"
 #include "nmea_daemon.h"
 #include "time_management/rtc_daemon.h"
-#include "task_manager/task_manager.h"
+#include "sw_wdt.h"
+
 #include "sband_sender/sband_sender.h"
 
 /**
@@ -37,21 +38,21 @@
  */
 SAT_returnState start_system_tasks(void) {
 
-    const static char *system_task_names[] = {
-        "task_manager",      "beacon_daemon",       "coordinate_management_daemon",
-        "diagnostic_daemon", "housekeeping_daemon", "NMEA_daemon",
-        "RTC_daemon",        "logger_daemon",       "sband_daemon"};
+    const static char *system_task_names[] = {"beacon_daemon",
+                                              "coordinate_management_daemon",
+                                              "diagnostic_daemon",
+                                              "housekeeping_daemon",
+                                              "NMEA_daemon",
+                                              "RTC_daemon",
+                                              "logger_daemon",
+                                              "sband_daemon",
+                                              "sw_wdt"};
 
-    const system_tasks start_task[] = {start_task_manager,
-                                       start_beacon_daemon,
-                                       start_coordinate_management_daemon,
-                                       start_diagnostic_daemon,
-                                       start_housekeeping_daemon,
-                                       start_NMEA_daemon,
-                                       start_RTC_daemon,
-                                       start_logger_daemon,
-                                       start_sband_daemon,
-                                       NULL};
+    const system_tasks start_task[] = {start_beacon_daemon,     start_coordinate_management_daemon,
+                                       start_diagnostic_daemon, start_housekeeping_daemon,
+                                       start_NMEA_daemon,       start_RTC_daemon,
+                                       start_logger_daemon,     start_sband_daemon,
+                                       start_sw_watchdog,       NULL};
 
     for (int i = 0; start_task[i]; i++) {
         SAT_returnState state;

@@ -17,7 +17,7 @@
 
 #include "rtcmk.h"
 #include "services.h"
-#include "task_manager/task_manager.h"
+
 #include "payload/iris/iris_service.h"
 #include "util/service_utilities.h"
 #include "logger.h"
@@ -35,10 +35,6 @@
 
 SAT_returnState iris_service_app(csp_packet_t *packet);
 
-static uint32_t svc_wdt_counter = 0;
-
-static uint32_t get_svc_wdt_counter() { return svc_wdt_counter; }
-
 /**
  * @brief
  *      Initialize and bind socket, and listen for packets in an infinite loop
@@ -52,17 +48,17 @@ void iris_service(void *param) {
     sock = csp_socket(CSP_SO_HMACREQ); // require RDP connection
     csp_bind(sock, TC_IRIS_SERVICE);
     csp_listen(sock, SERVICE_BACKLOG_LEN);
-    svc_wdt_counter++;
+
     for (;;) {
-        svc_wdt_counter++;
+
         csp_conn_t *conn;
         csp_packet_t *packet;
         if ((conn = csp_accept(sock, DELAY_WAIT_TIMEOUT)) == NULL) {
-            svc_wdt_counter++;
+
             /* timeout */
             continue;
         }
-        svc_wdt_counter++;
+
         while ((packet = csp_read(conn, 50)) != NULL) {
             if (iris_service_app(packet) != SATR_OK) {
                 // something went wrong, this shouldn't happen
@@ -88,16 +84,12 @@ void iris_service(void *param) {
  *      success report
  */
 SAT_returnState start_iris_service(void) {
-    TaskHandle_t svc_tsk;
-    taskFunctions svc_funcs = {0};
-    svc_funcs.getCounterFunction = get_svc_wdt_counter;
-    if (xTaskCreate((TaskFunction_t)iris_service, "iris_service", IRIS_SIZE, NULL, NORMAL_SERVICE_PRIO,
-                    &svc_tsk) != pdPASS) {
+
+    if (xTaskCreate((TaskFunction_t)iris_service, "iris_service", IRIS_SIZE, NULL, NORMAL_SERVICE_PRIO, NULL) !=
+        pdPASS) {
         sys_log(ERROR, "FAILED TO CREATE TASK iris_service");
         return SATR_ERROR;
     }
-    ex2_register(svc_tsk, svc_funcs);
-
     return SATR_OK;
 }
 
