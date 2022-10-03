@@ -37,7 +37,7 @@
 #include <string.h>
 #include "HL_sci.h"
 
-#define NS_QUEUE_LENGTH 100
+#define NS_QUEUE_LENGTH 500
 #define ITEM_SIZE 1
 
 static QueueHandle_t nsQueue;
@@ -82,7 +82,8 @@ void ns_sciNotification(sciBASE_t *sci, int flags) {
     }
 }
 
-NS_return NS_sendAndReceive(uint8_t *command, uint32_t command_length, uint8_t *answer, uint8_t answer_length) {
+NS_return NS_sendAndReceive(uint8_t *command, uint32_t command_length, uint8_t *answer, uint8_t answer_length,
+                            TickType_t timeout) {
     if (xSemaphoreTake(uart_mutex, NS_SEMAPHORE_TIMEOUT_MS) != pdTRUE) {
         return NS_UART_BUSY;
     }
@@ -99,7 +100,7 @@ NS_return NS_sendAndReceive(uint8_t *command, uint32_t command_length, uint8_t *
     uint8_t received = 0;
 
     while (received < answer_length) {
-        if (xQueueReceive(nsQueue, (answer + received), NS_UART_TIMEOUT_MS) != pdPASS) {
+        if (xQueueReceive(nsQueue, (answer + received), timeout) != pdPASS) {
             xSemaphoreGive(uart_mutex);
             return NS_UART_FAIL;
         } else {
@@ -127,14 +128,14 @@ NS_return NS_sendOnly(uint8_t *command, uint32_t command_length) {
     return NS_OK;
 }
 
-NS_return NS_expectResponse(uint8_t *response, uint8_t length) {
+NS_return NS_expectResponse(uint8_t *response, uint8_t length, TickType_t timeout) {
     if (xSemaphoreTake(uart_mutex, NS_SEMAPHORE_TIMEOUT_MS) != pdTRUE) {
         return NS_UART_BUSY;
     }
 
     uint8_t received = 0;
     while (received < length) {
-        if (xQueueReceive(nsQueue, (response + received), NS_UART_LONG_TIMEOUT_MS) != pdPASS) {
+        if (xQueueReceive(nsQueue, (response + received), timeout) != pdPASS) {
             xSemaphoreGive(uart_mutex);
             return NS_UART_FAIL;
         } else {

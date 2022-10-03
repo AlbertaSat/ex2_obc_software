@@ -25,6 +25,7 @@
 
 NS_return HAL_NS_upload_artwork(char *filename);
 NS_return HAL_NS_capture_image(void);
+NS_return HAL_NS_download_image();
 NS_return HAL_NS_clear_sd_card();
 NS_return HAL_NS_confirm_downlink(uint8_t *conf);
 NS_return HAL_NS_get_heartbeat(uint8_t *heartbeat);

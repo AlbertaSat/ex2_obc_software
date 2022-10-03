@@ -63,19 +63,15 @@ NS_return NS_upload_artwork(char *filename) {
     red_fstat(file1, &stat);
 
     // Initiate image transaction and receive first ack
-    NS_return return_val = NS_sendAndReceive(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN);
+    NS_return return_val =
+        NS_sendAndReceive(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN, NS_UART_LONG_TIMEOUT_MS);
     if (return_val != NS_OK) {
         xSemaphoreGive(ns_command_mutex);
         red_close(file1);
         return return_val;
     }
     // Try 10 times to received the ack
-    for (int i = 0; i < 10; i++) {
-        return_val = NS_expectResponse(answer, NS_STANDARD_ANS_LEN);
-        if (return_val == NS_OK) {
-            break;
-        }
-    }
+    return_val = NS_expectResponse(answer, NS_STANDARD_ANS_LEN, NS_UPLOAD_ARTWORK_DELAY);
     if (return_val != NS_OK) {
         xSemaphoreGive(ns_command_mutex);
         red_close(file1);
@@ -92,10 +88,54 @@ NS_return NS_upload_artwork(char *filename) {
         return_val = NS_FAIL;
     } else {
         uint8_t last_command[1] = {ETB};
-        return_val = NS_sendAndReceive(last_command, 1, answer, NS_STANDARD_ANS_LEN);
+        return_val = NS_sendAndReceive(last_command, 1, answer, NS_STANDARD_ANS_LEN, NS_UART_LONG_TIMEOUT_MS);
     }
     red_close(file1);
     xSemaphoreGive(ns_command_mutex);
+    return return_val;
+}
+
+NS_return NS_download_image() {
+    if (xSemaphoreTake(ns_command_mutex, NS_COMMAND_MUTEX_TIMEOUT) != pdTRUE) {
+        return NS_HANDLER_BUSY;
+    }
+    uint8_t command[NS_STANDARD_CMD_LEN] = {'f', 'f', 'f'};
+    uint8_t standard_answer[NS_STANDARD_ANS_LEN * 2];
+
+    // Initiate image capture and receive first two acks
+    NS_return return_val = NS_sendAndReceive(command, NS_STANDARD_CMD_LEN, standard_answer,
+                                             NS_STANDARD_ANS_LEN * 2, NS_UART_LONG_TIMEOUT_MS);
+    if (return_val != NS_OK) {
+        xSemaphoreGive(ns_command_mutex);
+        return return_val;
+    }
+    if (standard_answer[2] == 0x15) {
+        xSemaphoreGive(ns_command_mutex);
+        return (NS_return)(standard_answer[3]);
+    }
+    uint8_t size_arr[8] = {0, 0, 0, 0, 0, 0, '=', '='};
+    NS_expectResponse(size_arr, 6, NS_UART_LONG_TIMEOUT_MS);
+    size_t output_len;
+    unsigned char *returned_size = base64_decode((const char *)size_arr, 8, &output_len);
+    if (output_len != 4) {
+        xSemaphoreGive(ns_command_mutex);
+        return NS_FAIL;
+    }
+    int file_size = 0;
+    file_size |= returned_size[0];
+    file_size |= returned_size[1] << 8;
+    file_size |= returned_size[2] << 16;
+    file_size |= returned_size[3] << 24;
+    vPortFree(returned_size);
+
+    sys_log(INFO, "NIM said it would send %d bytes", file_size);
+
+    const unsigned char *file_name = "NS_IMAGE.jpg"; // Hardcoded is probably not the best idea
+    int recvd = xmodemReceive(file_name, file_size);
+
+    sys_log(INFO, "NIM sent %d bytes", recvd);
+    xSemaphoreGive(ns_command_mutex);
+
     return return_val;
 }
 
@@ -107,22 +147,22 @@ NS_return NS_capture_image(void) {
     uint8_t standard_answer[NS_STANDARD_ANS_LEN + NS_STANDARD_ANS_LEN];
 
     // Initiate image capture and receive first two acks
-    NS_return return_val = NS_sendAndReceive(command, NS_STANDARD_CMD_LEN, standard_answer,
-                                             NS_STANDARD_ANS_LEN + NS_STANDARD_ANS_LEN);
+    NS_return return_val = NS_sendAndReceive(command, NS_STANDARD_CMD_LEN, standard_answer, NS_STANDARD_ANS_LEN,
+                                             NS_UART_LONG_TIMEOUT_MS);
     if (return_val != NS_OK) {
         xSemaphoreGive(ns_command_mutex);
         return return_val;
     }
 
-    // Wait until image is captured
-    vTaskDelay(NS_IMAGE_COLLECTION_DELAY);
-
     // Receive final ack
     uint8_t final_ack[NS_STANDARD_ANS_LEN];
-    return_val = NS_expectResponse(final_ack, NS_STANDARD_ANS_LEN);
+    return_val = NS_expectResponse(final_ack, NS_STANDARD_ANS_LEN, NS_IMAGE_COLLECTION_DELAY);
     if (return_val != NS_OK) {
         xSemaphoreGive(ns_command_mutex);
         return return_val;
+    }
+    if (final_ack[0] == NS_NAK_VAL) {
+        return_val = (NS_return)final_ack[1];
     }
 
     xSemaphoreGive(ns_command_mutex);
@@ -136,18 +176,18 @@ NS_return NS_confirm_downlink(uint8_t *conf) {
     uint8_t command[NS_STANDARD_CMD_LEN] = {'g', 'g', 'g'};
     uint8_t answer[NS_STANDARD_ANS_LEN];
 
-    NS_return return_val = NS_sendAndReceive(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN);
+    NS_return return_val =
+        NS_sendAndReceive(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN, NS_UART_LONG_TIMEOUT_MS);
     if (return_val != NS_OK) {
         xSemaphoreGive(ns_command_mutex);
         return return_val;
     }
 
-    // Wait for confirmation of image deletion
-    vTaskDelay(NS_CONFIRM_DOWNLINK_DELAY);
-
     uint8_t confirmation[NS_STANDARD_ANS_LEN];
-    return_val = NS_expectResponse(confirmation, NS_STANDARD_ANS_LEN);
-
+    return_val = NS_expectResponse(confirmation, NS_STANDARD_ANS_LEN, NS_CONFIRM_DOWNLINK_DELAY);
+    if (confirmation[0] == NS_NAK_VAL) {
+        return_val = confirmation[1];
+    }
     *conf = (confirmation[0] == 'g') ? 0 : 1;
 
     xSemaphoreGive(ns_command_mutex);
@@ -161,9 +201,13 @@ NS_return NS_get_heartbeat(uint8_t *heartbeat) {
     uint8_t command[NS_STANDARD_CMD_LEN] = {'h', 'h', 'h'};
     uint8_t answer[NS_STANDARD_ANS_LEN];
 
-    NS_return return_val = NS_sendAndReceive(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN);
+    NS_return return_val =
+        NS_sendAndReceive(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN, NS_UART_LONG_TIMEOUT_MS);
 
     *heartbeat = answer[0];
+    if (answer[0] == NS_NAK_VAL) {
+        return_val = answer[1];
+    }
     xSemaphoreGive(ns_command_mutex);
     return return_val;
 }
@@ -176,19 +220,18 @@ NS_return NS_get_flag(char flag, bool *stat) {
     uint8_t command[NS_SUBCODED_CMD_LEN] = {'k', 'k', 'k', flag, flag, flag};
     uint8_t answer[NS_STANDARD_ANS_LEN];
 
-    NS_return return_val =
-        NS_sendAndReceive(command, NS_STANDARD_CMD_LEN + NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN);
+    NS_return return_val = NS_sendAndReceive(command, NS_STANDARD_CMD_LEN + NS_STANDARD_CMD_LEN, answer,
+                                             NS_STANDARD_ANS_LEN, NS_UART_LONG_TIMEOUT_MS);
     if (return_val != NS_OK) {
         xSemaphoreGive(ns_command_mutex);
         return return_val;
     }
 
-    // Wait until flag is returned
-    vTaskDelay(NS_GETFLAG_DELAY);
-
     uint8_t flag_ans[NS_FLAG_DATA_LEN + NS_STANDARD_ANS_LEN];
-    return_val = NS_expectResponse(flag_ans, NS_FLAG_DATA_LEN + NS_STANDARD_ANS_LEN);
-
+    return_val = NS_expectResponse(flag_ans, NS_FLAG_DATA_LEN + NS_STANDARD_ANS_LEN, NS_GETFLAG_DELAY);
+    if (flag_ans[0] == NS_NAK_VAL) {
+        return_val = flag_ans[1];
+    }
     *stat = (flag_ans[0] != '0') ? 1 : 0;
 
     xSemaphoreGive(ns_command_mutex);
@@ -203,18 +246,15 @@ NS_return NS_get_filename(char subcode, char *filename) {
     uint8_t command[NS_SUBCODED_CMD_LEN] = {'l', 'l', 'l', subcode, subcode, subcode};
     uint8_t answer[NS_STANDARD_ANS_LEN];
 
-    NS_return return_val =
-        NS_sendAndReceive(command, NS_STANDARD_CMD_LEN + NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN);
+    NS_return return_val = NS_sendAndReceive(command, NS_STANDARD_CMD_LEN + NS_STANDARD_CMD_LEN, answer,
+                                             NS_STANDARD_ANS_LEN, NS_UART_LONG_TIMEOUT_MS);
     if (return_val != NS_OK) {
         xSemaphoreGive(ns_command_mutex);
         return return_val;
     }
 
-    // Wait until flag is returned
-    vTaskDelay(NS_GETFILENAME_DELAY);
-
     uint8_t filename_ans[NS_FILENAME_DATA_LEN];
-    return_val = NS_expectResponse(filename_ans, NS_FILENAME_DATA_LEN);
+    return_val = NS_expectResponse(filename_ans, NS_FILENAME_DATA_LEN, NS_GETFILENAME_DELAY);
 
     memcpy(filename, filename_ans, 11);
     xSemaphoreGive(ns_command_mutex);
@@ -229,7 +269,8 @@ NS_return NS_get_telemetry(ns_telemetry *telemetry) {
     uint8_t answer[NS_STANDARD_ANS_LEN];
 
     // Initiate telemetry command and receive ack
-    NS_return return_val = NS_sendAndReceive(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN);
+    NS_return return_val =
+        NS_sendAndReceive(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN, NS_UART_LONG_TIMEOUT_MS);
     if (answer[0] != 't') {
         xSemaphoreGive(ns_command_mutex);
         return NS_FAIL;
@@ -240,12 +281,10 @@ NS_return NS_get_telemetry(ns_telemetry *telemetry) {
         return return_val;
     }
 
-    // Wait until telemetry is collected
-    // vTaskDelay(NS_TELEMETRY_COLLECTION_DELAY);
-
     // Receive telemetry data
     char response_data[NS_ENCODED_TELEMETRY_DATA_LEN];
-    return_val = NS_expectResponse((uint8_t *)response_data, NS_ENCODED_TELEMETRY_DATA_LEN);
+    return_val =
+        NS_expectResponse((uint8_t *)response_data, NS_ENCODED_TELEMETRY_DATA_LEN, NS_UART_LONG_TIMEOUT_MS);
 
     if (return_val != NS_OK) {
         xSemaphoreGive(ns_command_mutex);
@@ -285,7 +324,8 @@ NS_return NS_get_software_version(uint8_t *version) {
     uint8_t answer[NS_STANDARD_ANS_LEN + NS_SWVERSION_DATA_LEN + NS_STANDARD_ANS_LEN];
 
     NS_return return_val = NS_sendAndReceive(command, NS_STANDARD_CMD_LEN, answer,
-                                             NS_STANDARD_ANS_LEN + NS_SWVERSION_DATA_LEN + NS_STANDARD_ANS_LEN);
+                                             NS_STANDARD_ANS_LEN + NS_SWVERSION_DATA_LEN + NS_STANDARD_ANS_LEN,
+                                             NS_UART_LONG_TIMEOUT_MS);
 
     memcpy(version, (answer + NS_STANDARD_ANS_LEN), NS_SWVERSION_DATA_LEN);
     xSemaphoreGive(ns_command_mutex);
@@ -293,15 +333,18 @@ NS_return NS_get_software_version(uint8_t *version) {
 }
 
 NS_return NS_clear_sd_card() {
+    return NS_STUBBED;
     if (xSemaphoreTake(ns_command_mutex, NS_COMMAND_MUTEX_TIMEOUT) != pdTRUE) {
         return NS_HANDLER_BUSY;
     }
     uint8_t command[2 * NS_STANDARD_CMD_LEN] = {'l', 'l', 'l', 'r', 'r', 'r'};
     uint8_t answer[NS_STANDARD_ANS_LEN];
 
-    NS_return return_val = NS_sendAndReceive(command, 2 * NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN);
+    NS_return return_val =
+        NS_sendAndReceive(command, 2 * NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN, NS_UART_LONG_TIMEOUT_MS);
+    // TODO: check the NAK value
     if (answer[0] != 'l' || answer[1] != 0x06) {
-        return NS_BAD_ANS;
+        return NS_FAIL;
     }
     xSemaphoreGive(ns_command_mutex);
     return return_val;
