@@ -80,7 +80,7 @@ static void *beacon_daemon() {
             /* Set first beacon packet time */
             time_t unix_time;
             RTCMK_GetUnix(&unix_time); // If it fails it's inconsequential
-            beacon_packet_one->time = unix_time;
+            beacon_packet_one.time = unix_time;
 
             /* Set first beacon packet */
             memcpy(&beacon_msg.message, beacon_content, sizeof(beacon_msg.message));
@@ -107,7 +107,7 @@ static void *beacon_daemon() {
 
             // Set second packet time
             RTCMK_GetUnix(&unix_time); // If it fails it's inconsequential
-            beacon_packet_two->time = unix_time;
+            beacon_packet_two.time = unix_time;
 
             /* Set the second beacon packet */
             memcpy(&(beacon_msg.message), beacon_content, sizeof(beacon_packet_2_t));
