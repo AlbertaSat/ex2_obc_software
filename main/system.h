@@ -51,11 +51,13 @@
 #define ADCS_SCI sciREG3 // UART4
 #define DFGM_SCI sciREG4 // UART1
 #define UHF_SCI CSP_SCI  // UART2
-#if IRIS_IS_STUBBED == 0
-#define GPS_SCI sciREG1 // UART3
-#define PAYLOAD_SCI NULL
-#elif NS_IS_STUBBED == 0
 #define GPS_SCI NULL
+#define PAYLOAD_SCI NULL
+#if IRIS_IS_STUBBED == 0
+#undef GPS_SCI
+#define GPS_SCI sciREG1 // UART3
+#elif NS_IS_STUBBED == 0
+#undef PAYLOAD_SCI
 #define PAYLOAD_SCI sciREG1 // UART3
 #endif
 #else
