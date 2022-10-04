@@ -33,7 +33,7 @@ typedef struct GPGSV_s {
     TickType_t _logtime; // relative time packet was received
 } GPGSV_s;
 
-typedef struct GPRMC_s {
+typedef struct RMC_s {
     uint32_t _time;                             // UTC time in hundredths of a second
     int32_t _latitude_lower, _latitude_upper;   // latitude in ten millionths of a degree
     int32_t _longitude_lower, _longitude_upper; // longitude in ten millionths of a degree
@@ -41,6 +41,6 @@ typedef struct GPRMC_s {
     uint32_t _course;                           // course in hundredths of a degree
     uint32_t _date;                             // UTC date
     TickType_t _logtime;                        // relative time packet was received
-} GPRMC_s;
+} RMC_s;
 
 #endif // NMEA_TYPES_H

@@ -236,12 +236,12 @@ bool gps_get_utc_time(time_t *utc_time) {
     struct gps_time g_t;
     struct gps_date g_d;
 
-    // this will take GPRMC time
+    // this will take RMC time
     bool RMC = RMC_ENABLED;
-    GPRMC_s RMC_s;
+    RMC_s RMC_s;
 
     if (RMC) {
-        bool RMC_valid = NMEAParser_get_GPRMC(&RMC_s);
+        bool RMC_valid = NMEAParser_get_RMC(&RMC_s);
         if (RMC_valid) {
             // time will be used to correct for if we overflow to a new utc date
             bool date_overflow = extract_time(RMC_s._time, RMC_s._logtime, &g_t);
@@ -286,14 +286,14 @@ bool gps_get_altitude(uint32_t *alt) {
 bool gps_get_position(int32_t *latitude_upper, int32_t *latitude_lower, int32_t *longitude_upper,
                       int32_t *longitude_lower) {
 
-    // this will take GPRMC position if it is available, otherwise GPGGA
+    // this will take RMC position if it is available, otherwise GPGGA
     bool GGA = GGA_ENABLED;
     bool RMC = RMC_ENABLED;
     GPGGA_s GGA_s;
-    GPRMC_s RMC_s;
+    RMC_s RMC_s;
 
     if (RMC) {
-        bool RMC_valid = NMEAParser_get_GPRMC(&RMC_s);
+        bool RMC_valid = NMEAParser_get_RMC(&RMC_s);
         if (RMC_valid) {
             *latitude_upper = RMC_s._latitude_upper;
             *latitude_lower = RMC_s._latitude_lower;
@@ -345,9 +345,9 @@ bool gps_get_visible_satellite_count(uint8_t *numsats) {
  */
 bool gps_get_speed(uint32_t *speed) {
     bool RMC = RMC_ENABLED;
-    GPRMC_s RMC_s;
+    RMC_s RMC_s;
     if (RMC) {
-        bool RMC_valid = NMEAParser_get_GPRMC(&RMC_s);
+        bool RMC_valid = NMEAParser_get_RMC(&RMC_s);
         if (RMC_valid) {
             *speed = RMC_s._speed;
             return true;
@@ -365,9 +365,9 @@ bool gps_get_speed(uint32_t *speed) {
  */
 bool gps_get_course(uint32_t *course) {
     bool RMC = RMC_ENABLED;
-    GPRMC_s RMC_s;
+    RMC_s RMC_s;
     if (RMC) {
-        bool RMC_valid = NMEAParser_get_GPRMC(&RMC_s);
+        bool RMC_valid = NMEAParser_get_RMC(&RMC_s);
         if (RMC_valid) {
             *course = RMC_s._course;
             return true;

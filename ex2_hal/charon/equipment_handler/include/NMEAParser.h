@@ -57,18 +57,18 @@ bool init_NMEA();
 static GPGGA_s GPGGA;
 static GPGSA_s GPGSA;
 static GPGSV_s GPGSV;
-static GPRMC_s GPRMC;
+static RMC_s RMC;
 
 bool NMEAParser_get_GPGGA(GPGGA_s *output);
 bool NMEAParser_get_GPGSA(GPGSA_s *output);
 bool NMEAParser_get_GPGSV(GPGSV_s *output);
-bool NMEAParser_get_GPRMC(GPRMC_s *output);
+bool NMEAParser_get_RMC(RMC_s *output);
 
 bool NMEAParser_encode(char c);
 void NMEAParser_clear_GPGGA(void);      // set GPGGA storage to invalid
 void NMEAParser_clear_GPGSA(void);      // set GPGSA storage to invalid
 void NMEAParser_clear_GPGSV(void);      // set GPGSV storage to invalid
-void NMEAParser_clear_GPRMC(void);      // set GPRMC storage to invalid
+void NMEAParser_clear_RMC(void);      // set RMC storage to invalid
 void NMEAParser_reset_all_values(void); // set all storage to invalid
 
 #endif
