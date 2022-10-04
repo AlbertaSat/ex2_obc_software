@@ -100,38 +100,22 @@ NS_return NS_download_image() {
         return NS_HANDLER_BUSY;
     }
     uint8_t command[NS_STANDARD_CMD_LEN] = {'f', 'f', 'f'};
-    uint8_t standard_answer[NS_STANDARD_ANS_LEN * 2];
+    uint8_t answer[NS_STANDARD_ANS_LEN * 2];
 
     // Initiate image capture and receive first two acks
-    NS_return return_val = NS_sendAndReceive(command, NS_STANDARD_CMD_LEN, standard_answer,
-                                             NS_STANDARD_ANS_LEN * 2, NS_UART_LONG_TIMEOUT_MS);
+    NS_return return_val =
+        NS_sendAndReceive(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN * 2, NS_UART_LONG_TIMEOUT_MS);
     if (return_val != NS_OK) {
         xSemaphoreGive(ns_command_mutex);
         return return_val;
     }
-    if (standard_answer[2] == 0x15) {
+    if (answer[2] == 0x15) {
         xSemaphoreGive(ns_command_mutex);
-        return (NS_return)(standard_answer[3]);
+        return (NS_return)(answer[3]);
     }
-    uint8_t size_arr[8] = {0, 0, 0, 0, 0, 0, '=', '='};
-    NS_expectResponse(size_arr, 6, NS_UART_LONG_TIMEOUT_MS);
-    size_t output_len;
-    unsigned char *returned_size = base64_decode((const char *)size_arr, 8, &output_len);
-    if (output_len != 4) {
-        xSemaphoreGive(ns_command_mutex);
-        return NS_FAIL;
-    }
-    int file_size = 0;
-    file_size |= returned_size[0];
-    file_size |= returned_size[1] << 8;
-    file_size |= returned_size[2] << 16;
-    file_size |= returned_size[3] << 24;
-    vPortFree(returned_size);
-
-    sys_log(INFO, "NIM said it would send %d bytes", file_size);
 
     const unsigned char *file_name = "NS_IMAGE.jpg"; // Hardcoded is probably not the best idea
-    int recvd = xmodemReceive(file_name, file_size);
+    int recvd = xmodemReceive(file_name);
 
     sys_log(INFO, "NIM sent %d bytes", recvd);
     xSemaphoreGive(ns_command_mutex);

@@ -82,7 +82,7 @@ static int check(int crc, const unsigned char *buf, int sz) {
 
 static void flushinput(void) { NS_resetQueue(); }
 
-int xmodemReceive(const unsigned char *dest, int destsz) {
+int xmodemReceive(const unsigned char *dest) {
     unsigned char xbuff[133]; /* 128 for XModem 1k + 3 head chars + 2 crc + nul */
     int bufsz, crc = 0;
     unsigned char trychar = 'C';
@@ -147,16 +147,11 @@ int xmodemReceive(const unsigned char *dest, int destsz) {
         if (xbuff[1] == (unsigned char)(~xbuff[2]) &&
             (xbuff[1] == packetno || xbuff[1] == (unsigned char)packetno - 1) && check(crc, &xbuff[3], bufsz)) {
             if (xbuff[1] == packetno) {
-                register int count = destsz - len;
-                if (count > bufsz)
-                    count = bufsz;
-                if (count > 0) {
-                    int binary_size;
-                    void *data = base64_decode(&xbuff[3], count, &binary_size);
-                    red_write(fd, data, binary_size);
-                    vPortFree(data);
-                    len += count;
-                }
+                int binary_size;
+                void *data = base64_decode(&xbuff[3], bufsz, &binary_size);
+                red_write(fd, data, binary_size);
+                free(data);
+                len += bufsz;
                 ++packetno;
                 retrans = MAXRETRANS + 1;
             }
