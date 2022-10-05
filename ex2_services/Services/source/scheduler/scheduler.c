@@ -6,6 +6,7 @@
  */
 
 #include <FreeRTOS.h>
+#include "os_timer.h"
 #include "csp.h"
 #include "services.h"
 #include "util/service_utilities.h"
@@ -14,7 +15,45 @@
 #include "logger/logger.h"
 #include <redposix.h>
 
-char *fileName1 = "VOL0:/schedule.txt";
+static const char *schedule_filename = "VOL0:/schedule.txt";
+
+// schedule context: timer, run semaphore, recursive change mutex, next_command_to_run (base64)
+
+void scheduler_runner(void *pvParameters) {
+    // parameter is schedule context
+    // init
+    // highest priority task
+
+    for (;;) {
+        // wait on semaphore for timer
+        // grab change mutex
+        // decode next command to run
+        // send CSP packet
+        // receive reply??
+        // if no reply, just log that
+        // encode reply to base64
+        // log reply
+        // dispatch schedule
+        // release change mutex
+        // continue
+    }
+    vTaskDelete(0); // Better to delete than return
+}
+
+void scheduler_timer_cb(TimerHandle_t timer) {
+    // timer ID stores pointer to schedule context
+    // send semaphore telling scheduler implementer to run
+    // done
+}
+
+void schedule_dispatch(void *data) {
+    // parameter is schedule context
+    // grab change mutex
+    // load next command from schedule file
+    // set timer for the right amount of time
+    // start timer
+    // release change mutex
+}
 
 /**
  * @brief
