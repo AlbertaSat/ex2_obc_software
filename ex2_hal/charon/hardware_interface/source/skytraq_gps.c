@@ -107,7 +107,6 @@ GPS_RETURNSTATE b16_configure_nmea_output_rate(uint8_t GGA_interval, uint8_t GNS
     retval = skytraq_configure_nmea_string_interval("THS", THS_interval, attribute);
     if(retval){return retval;}
     retval = skytraq_configure_nmea_string_interval("HDT", HDT_interval, attribute);
-    if(retval){return retval;}
 
     return retval;
 }
