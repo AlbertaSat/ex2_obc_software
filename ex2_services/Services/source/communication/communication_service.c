@@ -768,6 +768,13 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
 
         break;
     }
+    case UHF_SET_CRC16_ENABLE: {
+        bool enabled = (uint8_t)packet->data[IN_DATA_BYTE];
+        status = HAL_UHF_setCRC16Enable(enabled);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        set_packet_length(packet, sizeof(int8_t) + 1);
+        break;
+    }
 
     default:
         ex2_log("No such subservice\n");
