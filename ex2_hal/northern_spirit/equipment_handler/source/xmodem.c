@@ -154,7 +154,7 @@ int xmodemReceive(const unsigned char *dest, int destsz) {
                     int binary_size;
                     void *data = base64_decode(&xbuff[3], count, &binary_size);
                     red_write(fd, data, binary_size);
-                    free(data);
+                    vPortFree(data);
                     len += count;
                 }
                 ++packetno;
@@ -246,7 +246,7 @@ int xmodemTransmit(int32_t filedes, uint64_t filesz) {
                 } else {
                     char *temp = base64_encode(&xbuff[3], bytes_read, &c);
                     memcpy(&xbuff[3], temp, c);
-                    free(temp);
+                    vPortFree(temp);
                 }
                 if (c < bufsz)
                     xbuff[3 + c] = CTRLZ;
