@@ -105,7 +105,7 @@ void canInit(void)
     *     - Enter initialization mode
     */
     canREG1->CTL = (uint32)0x00000000U 
-                 | (uint32)0x00000000U 
+                 | (uint32)0x00000020U 
                  | (uint32)((uint32)0x00000005U  << 10U)
                  | (uint32)0x00020043U;
 
