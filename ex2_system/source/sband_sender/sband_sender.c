@@ -64,7 +64,7 @@ void sband_sender(void *pvParameters) {
                 break;
             }
             sdr_sband_tx(&ifdata, ctx.data, ctx.len);
-            free(ctx.data);
+            vPortFree(ctx.data);
         };
         case ENDING: {
             sys_log(INFO, "Ending sband transfer");

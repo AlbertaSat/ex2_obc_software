@@ -294,7 +294,7 @@ NS_return NS_get_telemetry(ns_telemetry *telemetry) {
     size_t decoded_len;
     unsigned char *decoded_data = base64_decode(response_data, NS_ENCODED_TELEMETRY_DATA_LEN, &decoded_len);
     if ((decoded_data == NULL) || (decoded_len != NS_DECODED_TELEMETRY_DATA_LEN)) {
-        free(decoded_data);
+        vPortFree(decoded_data);
         xSemaphoreGive(ns_command_mutex);
         return NS_FAIL;
     }
@@ -312,7 +312,7 @@ NS_return NS_get_telemetry(ns_telemetry *telemetry) {
     convert_bytes_to_int16(&telemetry->ram_avail, decoded_data[32], decoded_data[33]);
     convert_bytes_to_int16(&telemetry->lowest_img_num, decoded_data[34], decoded_data[35]);
     convert_bytes_to_int16(&telemetry->first_blank_img_num, decoded_data[36], decoded_data[37]);
-    free(decoded_data);
+    vPortFree(decoded_data);
     return return_val;
 }
 
