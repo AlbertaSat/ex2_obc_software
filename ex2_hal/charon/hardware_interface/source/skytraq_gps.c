@@ -70,7 +70,7 @@ bool gps_skytraq_driver_init() {
     return true;
 }
 
-#if FLIGHT_CONFIGURATION == 1
+#if IS_B16_GPS == 1
 GPS_RETURNSTATE b16_configure_nmea_output_rate(uint8_t GGA_interval, uint8_t GNS_interval,
                                                    uint8_t GSA_interval, uint8_t GSV_interval,
                                                    uint8_t GLL_interval, uint8_t RMC_interval,
@@ -125,7 +125,7 @@ GPS_RETURNSTATE gps_configure_message_types(uint8_t GGA, uint8_t GSA, uint8_t GS
     GSA_ENABLED = GSA ? true : false;
     GSV_ENABLED = GSV ? true : false;
     RMC_ENABLED = RMC ? true : false;
-#if FLIGHT_CONFIGURATION == 1
+#if IS_B16_GPS == 1
     return b16_configure_nmea_output_rate(GGA, 0, GSA, GSV, 0, RMC, 0, 0, 0, 0, 0, 0, 0, 0, UPDATE_TO_FLASH);
 #else
     return skytraq_configure_nmea_output_rate(GGA, GSA, GSV, 0, RMC, 0, 0, UPDATE_TO_FLASH);
