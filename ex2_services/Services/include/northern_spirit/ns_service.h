@@ -39,7 +39,8 @@ typedef enum {
     NS_GET_FILENAME,
     NS_GET_TELEMETRY,
     NS_GET_SW_VERSION,
-    NS_DOWNLOAD_IMAGE
+    NS_DOWNLOAD_IMAGE,
+    NS_CLEAR_SD_CARD
 } ns_payload_service_subtype;
 
 void ns_payload_service(void *param);

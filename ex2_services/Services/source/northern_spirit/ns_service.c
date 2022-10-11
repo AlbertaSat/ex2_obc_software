@@ -168,6 +168,10 @@ SAT_returnState ns_payload_service_app(csp_packet_t *packet) {
         status = HAL_NS_download_image();
         break;
     }
+    case NS_CLEAR_SD_CARD: {
+        status = HAL_NS_clear_sd_card();
+        break;
+    }
 
     default:
         ex2_log("No such subservice!\n");
