@@ -166,6 +166,7 @@ SAT_returnState ns_payload_service_app(csp_packet_t *packet) {
     }
     case NS_DOWNLOAD_IMAGE: {
         status = HAL_NS_download_image();
+        set_packet_length(packet, sizeof(int8_t) * 2);
         break;
     }
     case NS_CLEAR_SD_CARD: {
