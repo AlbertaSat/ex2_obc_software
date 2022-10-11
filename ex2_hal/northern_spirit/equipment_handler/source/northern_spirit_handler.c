@@ -77,7 +77,7 @@ NS_return NS_upload_artwork(char *filename) {
         red_close(file1);
         return return_val;
     }
-    if (answer[0] == 0x15) {
+    if (answer[0] == NS_NAK_VAL) {
         xSemaphoreGive(ns_command_mutex);
         red_close(file1);
         return answer[1];
@@ -113,7 +113,7 @@ NS_return NS_download_image() {
         xSemaphoreGive(ns_command_mutex);
         return return_val;
     }
-    if (answer[2] == 0x15) {
+    if (answer[2] == NS_NAK_VAL) {
         xSemaphoreGive(ns_command_mutex);
         return (NS_return)(answer[3]);
     }
@@ -330,11 +330,11 @@ NS_return NS_clear_sd_card() {
     NS_return return_val =
         NS_sendAndReceive(commandpreface, NS_STANDARD_CMD_LEN * 2, answer, NS_STANDARD_ANS_LEN * 2, 10000);
     // TODO: check the NAK value
-    if (answer[0] != 'l' || answer[1] != 0x06) {
+    if (answer[0] != 'l' || answer[1] != NS_ACK_VAL) {
         xSemaphoreGive(ns_command_mutex);
         return NS_FAIL;
     }
-    if (answer[2] == 0x15) {
+    if (answer[2] == NS_NAK_VAL) {
         xSemaphoreGive(ns_command_mutex);
         return (NS_return)answer[3];
     }
