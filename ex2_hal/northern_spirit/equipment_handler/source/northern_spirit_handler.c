@@ -117,7 +117,7 @@ NS_return NS_download_image() {
         xSemaphoreGive(ns_command_mutex);
         return (NS_return)(answer[3]);
     }
-
+    red_unlink("NS_IMAGE.jpg");                      // Failure doesn't matter. Just try
     const unsigned char *file_name = "NS_IMAGE.jpg"; // Hardcoded is probably not the best idea
     int recvd = xmodemReceive(file_name);
 
