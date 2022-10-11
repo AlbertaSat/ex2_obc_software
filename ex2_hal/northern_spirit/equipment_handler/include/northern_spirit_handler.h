@@ -73,6 +73,7 @@ typedef enum {
     NO_ARTWORK_ROOM = 0x42,
     NO_IMAGES = 0x43,
     NO_IMAGES_ROOM = 0x44,
+    SUBCMD_NOT_RECOGNIZED = 0x45,
     NS_STUBBED = 0
 } NS_return;
 
