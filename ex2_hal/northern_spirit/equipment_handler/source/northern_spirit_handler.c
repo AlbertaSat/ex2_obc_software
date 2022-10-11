@@ -77,6 +77,11 @@ NS_return NS_upload_artwork(char *filename) {
         red_close(file1);
         return return_val;
     }
+    if (answer[0] == 0x15) {
+        xSemaphoreGive(ns_command_mutex);
+        red_close(file1);
+        return answer[1];
+    }
 
     // Start xmodem transfer
     int status = xmodemTransmit(file1, stat.st_size);
@@ -87,8 +92,7 @@ NS_return NS_upload_artwork(char *filename) {
         sys_log(ERROR, "Unknown error during xmodem transfer of %s in NS_upload_artwork\r\n", red_errno, filename);
         return_val = NS_FAIL;
     } else {
-        uint8_t last_command[1] = {ETB};
-        return_val = NS_sendAndReceive(last_command, 1, answer, NS_STANDARD_ANS_LEN, NS_UART_LONG_TIMEOUT_MS);
+        sys_log(INFO, "Status after xmodem transfer returned %d", status);
     }
     red_close(file1);
     xSemaphoreGive(ns_command_mutex);
@@ -317,19 +321,21 @@ NS_return NS_get_software_version(uint8_t *version) {
 }
 
 NS_return NS_clear_sd_card() {
-    return NS_STUBBED;
     if (xSemaphoreTake(ns_command_mutex, NS_COMMAND_MUTEX_TIMEOUT) != pdTRUE) {
         return NS_HANDLER_BUSY;
     }
-    uint8_t command[2 * NS_STANDARD_CMD_LEN] = {'l', 'l', 'l', 'r', 'r', 'r'};
+    uint8_t commandpreface[NS_STANDARD_CMD_LEN] = {'l', 'l', 'l'};
     uint8_t answer[NS_STANDARD_ANS_LEN];
 
-    NS_return return_val =
-        NS_sendAndReceive(command, 2 * NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN, NS_UART_LONG_TIMEOUT_MS);
+    NS_return return_val = NS_sendAndReceive(commandpreface, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN,
+                                             NS_UART_LONG_TIMEOUT_MS);
     // TODO: check the NAK value
     if (answer[0] != 'l' || answer[1] != 0x06) {
         return NS_FAIL;
     }
+    uint8_t command[NS_STANDARD_CMD_LEN] = {'r', 'r', 'r'};
+    return_val =
+        NS_sendAndReceive(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN, NS_UART_LONG_TIMEOUT_MS);
     xSemaphoreGive(ns_command_mutex);
     return return_val;
 }
