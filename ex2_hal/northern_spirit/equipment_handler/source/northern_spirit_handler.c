@@ -324,18 +324,20 @@ NS_return NS_clear_sd_card() {
     if (xSemaphoreTake(ns_command_mutex, NS_COMMAND_MUTEX_TIMEOUT) != pdTRUE) {
         return NS_HANDLER_BUSY;
     }
-    uint8_t commandpreface[NS_STANDARD_CMD_LEN] = {'l', 'l', 'l'};
-    uint8_t answer[NS_STANDARD_ANS_LEN];
+    uint8_t commandpreface[NS_STANDARD_CMD_LEN * 2] = {'l', 'l', 'l', 'r', 'r', 'r'};
+    uint8_t answer[NS_STANDARD_ANS_LEN * 2];
 
-    NS_return return_val = NS_sendAndReceive(commandpreface, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN,
-                                             NS_UART_LONG_TIMEOUT_MS);
+    NS_return return_val =
+        NS_sendAndReceive(commandpreface, NS_STANDARD_CMD_LEN * 2, answer, NS_STANDARD_ANS_LEN * 2, 10000);
     // TODO: check the NAK value
     if (answer[0] != 'l' || answer[1] != 0x06) {
+        xSemaphoreGive(ns_command_mutex);
         return NS_FAIL;
     }
-    uint8_t command[NS_STANDARD_CMD_LEN] = {'r', 'r', 'r'};
-    return_val =
-        NS_sendAndReceive(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN, NS_UART_LONG_TIMEOUT_MS);
+    if (answer[2] == 0x15) {
+        xSemaphoreGive(ns_command_mutex);
+        return (NS_return)answer[3];
+    }
     xSemaphoreGive(ns_command_mutex);
     return return_val;
 }

@@ -170,6 +170,7 @@ SAT_returnState ns_payload_service_app(csp_packet_t *packet) {
     }
     case NS_CLEAR_SD_CARD: {
         status = HAL_NS_clear_sd_card();
+        set_packet_length(packet, sizeof(int8_t) * 2);
         break;
     }
 
