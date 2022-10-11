@@ -199,8 +199,8 @@ void logger_service(void *param) {
  */
 SAT_returnState start_logger_service(void) {
 
-    if (xTaskCreate((TaskFunction_t)logger_service, "start_logger_service", 1200, NULL, NORMAL_SERVICE_PRIO,
-                    NULL) != pdPASS) {
+    if (xTaskCreate((TaskFunction_t)logger_service, "start_logger_service", LOGGER_SVC_SIZE, NULL,
+                    NORMAL_SERVICE_PRIO, NULL) != pdPASS) {
         ex2_log("FAILED TO CREATE TASK start_logger_service\n");
         return SATR_ERROR;
     }

@@ -71,8 +71,8 @@ static void *coordinate_management_daemon(void *pvParameters) {
  *   error report of task creation
  */
 SAT_returnState start_coordinate_management_daemon(void) {
-    if (xTaskCreate((TaskFunction_t)coordinate_management_daemon, "coordinate_management_daemon", 2048, NULL,
-                    COORDINATE_MANAGEMENT_TASK_PRIO, NULL) != pdPASS) {
+    if (xTaskCreate((TaskFunction_t)coordinate_management_daemon, "coordinate_management_daemon", COORD_DM_SIZE,
+                    NULL, COORDINATE_MANAGEMENT_TASK_PRIO, NULL) != pdPASS) {
         ex2_log("FAILED TO CREATE TASK coordinate_management_daemon\n");
         return SATR_ERROR;
     }

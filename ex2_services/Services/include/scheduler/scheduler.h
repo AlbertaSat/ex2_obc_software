@@ -43,7 +43,6 @@
 #include "logger.h"
 #include "util/service_utilities.h"
 
-#define SCHEDULER_SIZE 1000
 #define EX2_SEMAPHORE_WAIT 8000
 #define MAX_NUM_CMDS 5
 #define MAX_DATA_LEN 12   // TODO: determine if this is the best max length

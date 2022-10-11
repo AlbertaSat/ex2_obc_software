@@ -101,7 +101,6 @@ static void flatsat_test();
  */
 
 #define INIT_PRIO configMAX_PRIORITIES - 1
-#define INIT_STACK_SIZE 2000
 
 static void init_filesystem();
 static void init_csp();
@@ -195,7 +194,6 @@ void ex2_init(void *pvParameters) {
     /* Test Task */
     xTaskCreate(flatsat_test, "flatsat_test", 500, NULL, 1, NULL);
 #endif
-
     vTaskDelete(0); // delete self to free up heap
 }
 

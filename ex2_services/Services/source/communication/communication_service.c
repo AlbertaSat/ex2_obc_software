@@ -92,7 +92,7 @@ void communication_service(void *param) {
  */
 SAT_returnState start_communication_service(void) {
 
-    if (xTaskCreate((TaskFunction_t)communication_service, "communication_service", 1024, NULL,
+    if (xTaskCreate((TaskFunction_t)communication_service, "communication_service", COMM_SVC_SIZE, NULL,
                     NORMAL_SERVICE_PRIO, NULL) != pdPASS) {
         ex2_log("FAILED TO CREATE TASK start_communication_service\n");
         return SATR_ERROR;

@@ -141,8 +141,8 @@ void hex_dump(char *stuff, int size) {
 }
 
 SAT_returnState start_csp_server(void) {
-    if (xTaskCreate((TaskFunction_t)csp_server, "csp_server THREAD", 256, NULL, NORMAL_SERVICE_PRIO, NULL) !=
-        pdPASS) {
+    if (xTaskCreate((TaskFunction_t)csp_server, "csp_server THREAD", CSPSERVER_SVC_SIZE, NULL, NORMAL_SERVICE_PRIO,
+                    NULL) != pdPASS) {
         return SATR_ERROR;
     }
 }

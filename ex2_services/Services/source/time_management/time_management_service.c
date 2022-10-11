@@ -32,8 +32,6 @@
 #include <main/system.h>
 #include <stdio.h>
 
-#define TIME_MANAGEMENT_SIZE 300
-
 SAT_returnState time_management_app(csp_packet_t *packet);
 
 /**
@@ -86,8 +84,8 @@ void time_management_service(void *param) {
  */
 SAT_returnState start_time_management_service(void) {
 
-    if (xTaskCreate((TaskFunction_t)time_management_service, "time_management_service", TIME_MANAGEMENT_SIZE, NULL,
-                    NORMAL_SERVICE_PRIO, NULL) != pdPASS) {
+    if (xTaskCreate((TaskFunction_t)time_management_service, "time_management_service", TIMEMANAGEMENT_SVC_SIZE,
+                    NULL, NORMAL_SERVICE_PRIO, NULL) != pdPASS) {
         ex2_log("FAILED TO CREATE TASK time_management_service\n");
         return SATR_ERROR;
     }

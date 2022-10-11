@@ -22,8 +22,6 @@
 #ifndef EX2_SERVICES_SERVICES_INCLUDE_CLI_H_
 #define EX2_SERVICES_SERVICES_INCLUDE_CLI_H_
 
-#define CLI_SVC_SIZE 1000
-
 SAT_returnState start_cli_service(void);
 
 #endif /* EX2_SERVICES_SERVICES_INCLUDE_CLI_H_ */

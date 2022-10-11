@@ -31,8 +31,6 @@
 #include "iris_bootloader_cmds.h"
 #include "eps.h"
 
-#define IRIS_SIZE 1000
-
 SAT_returnState iris_service_app(csp_packet_t *packet);
 
 /**
@@ -85,8 +83,8 @@ void iris_service(void *param) {
  */
 SAT_returnState start_iris_service(void) {
 
-    if (xTaskCreate((TaskFunction_t)iris_service, "iris_service", IRIS_SIZE, NULL, NORMAL_SERVICE_PRIO, NULL) !=
-        pdPASS) {
+    if (xTaskCreate((TaskFunction_t)iris_service, "iris_service", IRIS_SVC_SIZE, NULL, NORMAL_SERVICE_PRIO,
+                    NULL) != pdPASS) {
         sys_log(ERROR, "FAILED TO CREATE TASK iris_service");
         return SATR_ERROR;
     }

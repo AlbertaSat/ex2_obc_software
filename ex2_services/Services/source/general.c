@@ -48,8 +48,8 @@ void general_service(void *param);
  */
 SAT_returnState start_general_service(void) {
 
-    if (xTaskCreate((TaskFunction_t)general_service, "general_service", 300, NULL, NORMAL_SERVICE_PRIO, NULL) !=
-        pdPASS) {
+    if (xTaskCreate((TaskFunction_t)general_service, "general_service", GENERAL_SVC_SIZE, NULL,
+                    NORMAL_SERVICE_PRIO, NULL) != pdPASS) {
         ex2_log("FAILED TO CREATE TASK general_service\n");
         return SATR_ERROR;
     }

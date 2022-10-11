@@ -83,7 +83,8 @@ void sband_sender(void *pvParameters) {
 
 SAT_returnState start_sband_daemon() {
     send_queue = xQueueCreate(10, sizeof(sband_data_ctx_t));
-    if (xTaskCreate(sband_sender, "sband_daemon", 200, NULL, configMAX_PRIORITIES - 1, NULL) != pdPASS) {
+    if (xTaskCreate(sband_sender, "sband_daemon", SBANDSEND_DM_SIZE, NULL, configMAX_PRIORITIES - 1, NULL) !=
+        pdPASS) {
         ex2_log("Could not start sband_daemon task");
         return SATR_ERROR;
     }
