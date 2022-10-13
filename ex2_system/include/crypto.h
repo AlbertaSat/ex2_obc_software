@@ -30,6 +30,7 @@ typedef enum {
     ENCRYPT_KEY,
 } CRYPTO_KEY_T;
 
+void set_keys_from_keyfile();
 void get_crypto_key(CRYPTO_KEY_T type, char **key, int *key_len);
 void set_crypto_key(CRYPTO_KEY_T type, char *key, int key_len);
 

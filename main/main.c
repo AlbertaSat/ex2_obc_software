@@ -206,6 +206,13 @@ int ex2_main(void) {
     InitIO();
     for (int i = 0; i < 1000000; i++)
         ;
+
+#if KEY_SET_MODE
+    set_keys_from_keyfile();
+    while (1)
+        ;
+#endif
+
     xTaskCreate(ex2_init, "init", INIT_STACK_SIZE, NULL, INIT_PRIO, NULL);
 
     /* Start FreeRTOS! */
