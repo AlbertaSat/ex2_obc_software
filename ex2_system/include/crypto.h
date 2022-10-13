@@ -21,6 +21,10 @@
 #ifndef EX2_SYSTEM_INCLUDE_CRYPTO_H_
 #define EX2_SYSTEM_INCLUDE_CRYPTO_H_
 
+#define KEY_TEST_MODE 1
+#define KEY_SET_MODE 0
+#define KEY_LEN 64
+
 typedef enum {
     HMAC_KEY,
     ENCRYPT_KEY,
