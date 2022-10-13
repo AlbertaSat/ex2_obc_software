@@ -204,8 +204,6 @@ void flatsat_test(void *pvParameters) { vTaskDelete(NULL); }
 int ex2_main(void) {
     _enable_IRQ_interrupt_(); // enable inturrupts
     InitIO();
-    for (int i = 0; i < 1000000; i++)
-        ;
 
 #if KEY_SET_MODE
     set_keys_from_keyfile();
