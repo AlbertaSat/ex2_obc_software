@@ -235,7 +235,7 @@ int xmodemTransmit(int32_t filedes, uint64_t filesz) {
                 c = bufsz;
             if (c > 0) {
                 // Transmit next xmodem packet
-                memset(&xbuff[3], 0, bufsz);
+                memset(&xbuff[3], '=', bufsz);
                 int32_t bytes_read = red_read(filedes, &xbuff[3], 96);
                 len += 96;
                 if (bytes_read == -1) {
