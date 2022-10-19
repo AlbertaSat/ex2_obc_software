@@ -255,8 +255,6 @@ int xmodemTransmit(int32_t filedes, uint64_t filesz) {
                     memcpy(&xbuff[3], temp, encoded_len);
                     vPortFree(temp);
                 }
-                if (c < bufsz)
-                    xbuff[3 + c] = CTRLZ;
                 if (crc) {
                     unsigned short ccrc = crc16_ccitt(&xbuff[3], bufsz);
                     xbuff[bufsz + 3] = (ccrc >> 8) & 0xFF;
@@ -276,7 +274,7 @@ int xmodemTransmit(int32_t filedes, uint64_t filesz) {
                         switch (c) {
                         case ACK:
                             ++packetno;
-                            len += bufsz;
+                            // len += bufsz;
                             goto start_trans;
                         case CAN:
                             _inbyte(&c, 1, DLY_1S);
