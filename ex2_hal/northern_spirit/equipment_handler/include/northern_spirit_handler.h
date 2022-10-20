@@ -46,6 +46,7 @@
 #define NS_GETFILENAME_DELAY pdMS_TO_TICKS(2000)
 #define NS_CONFIRM_DOWNLINK_DELAY pdMS_TO_TICKS(1000)
 #define NS_COMMAND_MUTEX_TIMEOUT pdMS_TO_TICKS(1000)
+#define NS_RESET_DELAY pdMS_TO_TICKS(200)
 
 #define NS_ACK_VAL 0x06
 #define NS_NAK_VAL 0x15
@@ -103,6 +104,7 @@ NS_return NS_get_flag(char flag, bool *stat);
 NS_return NS_get_filename(char subcode, char *filename);
 NS_return NS_get_telemetry(ns_telemetry *telemetry);
 NS_return NS_get_software_version(uint8_t *version);
+NS_return NS_reset_mcu();
 NS_return NS_clear_sd_card();
 
 #endif // NORTHERN_SPIRIT_HANDLER_H

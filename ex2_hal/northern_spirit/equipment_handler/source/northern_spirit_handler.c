@@ -24,6 +24,8 @@
 #include "xmodem.h"
 #include <redposix.h>
 #include <os_semphr.h>
+#include "HL_reg_het.h"
+#include "HL_gio.h"
 
 static SemaphoreHandle_t ns_command_mutex;
 
@@ -32,6 +34,7 @@ static void convert_bytes_to_int16(int16_t *dest, uint8_t little_byte, uint8_t b
 // Functions fulfilling functionality common to AuroraSat and YukonSat
 
 NS_return NS_handler_init() {
+    gioSetBit(NS_RESET_GIO_PORT, NS_RESET_GIO_PIN, 0); // Pull reset line low during normal use
     ns_command_mutex = xSemaphoreCreateMutex();
     if (ns_command_mutex == NULL) {
         return NS_FAIL;
@@ -318,6 +321,13 @@ NS_return NS_get_software_version(uint8_t *version) {
     memcpy(version, (answer + NS_STANDARD_ANS_LEN), NS_SWVERSION_DATA_LEN);
     xSemaphoreGive(ns_command_mutex);
     return return_val;
+}
+
+NS_return NS_reset_mcu() {
+    gioSetBit(NS_RESET_GIO_PORT, NS_RESET_GIO_PIN, 1);
+    vTaskDelay(NS_RESET_DELAY);
+    gioSetBit(NS_RESET_GIO_PORT, NS_RESET_GIO_PIN, 0);
+    return NS_OK;
 }
 
 NS_return NS_clear_sd_card() {

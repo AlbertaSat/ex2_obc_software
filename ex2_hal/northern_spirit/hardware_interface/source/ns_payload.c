@@ -92,6 +92,14 @@ NS_return HAL_NS_get_telemetry(ns_telemetry *tlm) {
 #endif
 }
 
+NS_return HAL_NS_reset_mcu() {
+#if NS_IS_STUBBED == 0
+    return NS_reset_mcu();
+#else
+    return NS_STUBBED;
+#endif
+}
+
 NS_return HAL_NS_get_software_version(uint8_t *version) {
 #if NS_IS_STUBBED == 0
     return NS_get_software_version(version);
