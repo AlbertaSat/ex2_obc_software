@@ -41,6 +41,7 @@ typedef struct {
     uint32_t skip;
     uint32_t count;
     uint8_t use_sband;
+    int upload_fd;
 } FTP_t;
 
 typedef struct __attribute__((packed)) {
@@ -338,6 +339,11 @@ SAT_returnState FTP_app(csp_packet_t *packet, csp_conn_t *conn) {
         uint32_t req_id;
         uint64_t file_size;
         uint32_t blocksize;
+        if (current_upload.upload_fd) {
+            red_close(current_upload.upload_fd);
+            current_upload.upload_fd = 0;
+        }
+
         cnv8_32(&packet->data[IN_DATA_BYTE], &req_id);
         memcpy(&file_size, &packet->data[IN_DATA_BYTE + 4], sizeof(uint64_t));
         file_size = csp_ntoh64(file_size);
@@ -370,7 +376,7 @@ SAT_returnState FTP_app(csp_packet_t *packet, csp_conn_t *conn) {
             status = -1;
             break;
         }
-        red_close(fd);
+        current_upload.upload_fd = fd;
         break;
     }
     case FTP_UPLOAD_PACKET: {
@@ -398,20 +404,17 @@ SAT_returnState FTP_app(csp_packet_t *packet, csp_conn_t *conn) {
             break;
         }
 
-        int fd = red_open(current_upload.fname, RED_O_RDWR);
-        if (fd < 0) {
-            sys_log(WARN, "Failed to open file red_errno: %d, %s, ", red_errno, current_upload.fname);
-            status = -1;
-            break;
-        }
+        int fd = current_upload.upload_fd;
         if (red_lseek(fd, current_upload.count * current_upload.blocksize, RED_SEEK_SET) < 0) {
             sys_log(WARN, "Failed to seek file red_errno: %d, %s, ", red_errno, current_upload.fname);
             red_close(fd);
+            current_upload.upload_fd = 0;
             status = -1;
         }
         if (red_write(fd, &packet->data[IN_DATA_BYTE + 12], size) < 0) {
             sys_log(WARN, "Failed to write file red_errno: %d, %s, ", red_errno, current_upload.fname);
             red_close(fd);
+            current_upload.upload_fd = 0;
             status = -1;
             break;
         }
@@ -419,8 +422,9 @@ SAT_returnState FTP_app(csp_packet_t *packet, csp_conn_t *conn) {
         if (size < current_upload.blocksize) {
             sys_log(INFO, "Done writing file %s", current_upload.fname);
             memset(&current_upload, 0, sizeof(current_upload));
+            red_close(fd);
+            current_upload.upload_fd = 0;
         }
-        red_close(fd);
         break;
     }
     default:
