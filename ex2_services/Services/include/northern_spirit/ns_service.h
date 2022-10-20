@@ -40,7 +40,8 @@ typedef enum {
     NS_GET_TELEMETRY,
     NS_GET_SW_VERSION,
     NS_DOWNLOAD_IMAGE,
-    NS_CLEAR_SD_CARD
+    NS_CLEAR_SD_CARD,
+    NS_RESET_MCU
 } ns_payload_service_subtype;
 
 void ns_payload_service(void *param);

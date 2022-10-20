@@ -174,6 +174,11 @@ SAT_returnState ns_payload_service_app(csp_packet_t *packet) {
         set_packet_length(packet, sizeof(int8_t) * 2);
         break;
     }
+    case NS_RESET_MCU: {
+        status = HAL_NS_reset_mcu();
+        set_packet_length(packet, sizeof(int8_t) * 2);
+        break;
+    }
 
     default:
         ex2_log("No such subservice!\n");
