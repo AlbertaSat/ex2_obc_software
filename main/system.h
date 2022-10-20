@@ -168,6 +168,9 @@ typedef enum {
 #define RTC_INT_PORT gioPORTA
 #define RTC_INT_PIN 2
 
+#define NS_RESET_GIO_PORT hetPORT1
+#define NS_RESET_GIO_PIN 3
+
 #define ADCS_5V0_PWR_CHNL 1
 #if IS_SN0072_EPS == 1
 #warning                                                                                                          \
