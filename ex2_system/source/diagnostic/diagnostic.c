@@ -343,7 +343,7 @@ static void payload_watchdog_daemon(void *pvParameters) {
 #endif
 
         if (eps_get_pwr_chnl(mcu_channel) == 0) {
-            sys_log(WARN, "Payload not on - power not toggled");
+            sys_log(INFO, "Payload not on - power not toggled");
             vTaskDelay(delay);
             continue;
         }
@@ -444,7 +444,7 @@ TickType_t get_adcs_watchdog_delay(void) {
 }
 
 TickType_t get_payload_watchdog_delay(void) {
-#if IRIS_IS_STUBBED == 1 || NS_IS_STUBBED == 1
+#if IRIS_IS_STUBBED == 1 && NS_IS_STUBBED == 1
     return STUBBED_WATCHDOG_DELAY;
 #else
     return payload_prv_watchdog_delay;
