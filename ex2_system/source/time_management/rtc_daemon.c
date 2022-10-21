@@ -27,7 +27,7 @@
 #include "HL_gio.h"
 #include "logger/logger.h"
 
-#define DISCIPLINE_DELAY 10000 // every 10 seconds for testing purposes
+#define DISCIPLINE_DELAY 86400 // Do it once per day
 
 static TickType_t last_second;
 
