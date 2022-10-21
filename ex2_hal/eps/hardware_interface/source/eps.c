@@ -55,7 +55,6 @@ static eps_t prvEps;
 SAT_returnState eps_refresh_instantaneous_telemetry() {
     uint8_t cmd = 0; // 'subservice' command
     eps_instantaneous_telemetry_t telembuf;
-    int res = csp_ping(EPS_ADDRESS, EPS_REQUEST_TIMEOUT, 100, CSP_O_NONE);
 
     if (csp_transaction_w_opts(CSP_PRIO_LOW, EPS_ADDRESS, EPS_INSTANTANEOUS_TELEMETRY, EPS_REQUEST_TIMEOUT, &cmd,
                                sizeof(cmd), &telembuf, sizeof(eps_instantaneous_telemetry_t), CSP_O_CRC32) <= 1)
@@ -223,7 +222,6 @@ int8_t eps_set_pwr_chnl(uint8_t pwr_chnl_port, bool status) {
 SAT_returnState eps_get_unix_time(uint32_t *timestamp) {
     uint8_t cmd = 0; // 'subservice' command
     eps_time_sync_t timebuf;
-    int res = csp_ping(EPS_ADDRESS, EPS_REQUEST_TIMEOUT, 100, CSP_O_NONE);
 
     if (csp_transaction_w_opts(CSP_PRIO_LOW, EPS_ADDRESS, EPS_TIME_SYNCHRONIZATION, EPS_REQUEST_TIMEOUT, &cmd,
                                sizeof(cmd), &timebuf, sizeof(eps_time_sync_t), CSP_O_CRC32) <= 1)
@@ -239,7 +237,6 @@ SAT_returnState eps_set_unix_time(uint32_t *timestamp) {
     timebuf.timestamp = csp_htole32(*timestamp);
     uint8_t cmd[5] = {1, 0};
     memcpy(&cmd[1], &timebuf.timestamp, sizeof(timebuf.timestamp));
-    int res = csp_ping(EPS_ADDRESS, EPS_REQUEST_TIMEOUT, 100, CSP_O_NONE);
 
     if (csp_transaction_w_opts(CSP_PRIO_LOW, EPS_ADDRESS, EPS_TIME_SYNCHRONIZATION, EPS_REQUEST_TIMEOUT, &cmd,
                                sizeof(cmd), &response, sizeof(response), CSP_O_CRC32) <= 1)
