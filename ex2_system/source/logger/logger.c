@@ -188,8 +188,7 @@ static void do_output(const char *str) {
         red_write(logger_file_handle, output_string, string_length);
         red_transact("VOL0:");
     }
-
-#if IS_SATELLITE == 0
+#if PRINTF_SCI
     printf("%s", output_string);
 #endif
 }
