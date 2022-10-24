@@ -21,11 +21,16 @@
 #ifndef EX2_SYSTEM_INCLUDE_CRYPTO_H_
 #define EX2_SYSTEM_INCLUDE_CRYPTO_H_
 
+#define KEY_TEST_MODE 1
+#define KEY_SET_MODE 0
+#define KEY_LEN 64
+
 typedef enum {
     HMAC_KEY,
     ENCRYPT_KEY,
 } CRYPTO_KEY_T;
 
+void set_keys_from_keyfile();
 void get_crypto_key(CRYPTO_KEY_T type, char **key, int *key_len);
 void set_crypto_key(CRYPTO_KEY_T type, char *key, int key_len);
 

@@ -22,10 +22,6 @@
 #include "bl_eeprom.h"
 #include <stdbool.h>
 
-#define KEY_TEST_MODE 1
-#define KEY_SET_MODE 0
-#define KEY_LEN 64
-
 #if KEY_TEST_MODE
 const char test_key[] =
     "6e477331cd51d63d6492fa969a3acfc75fc26370446465a339fe380c096193fa1fc7d866f17ec1bce02b9b5f955c9df41bdd26927891c"
