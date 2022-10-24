@@ -24,6 +24,8 @@
 #include "xmodem.h"
 #include <redposix.h>
 #include <os_semphr.h>
+#include "HL_reg_het.h"
+#include "HL_gio.h"
 
 static SemaphoreHandle_t ns_command_mutex;
 
@@ -32,6 +34,7 @@ static void convert_bytes_to_int16(int16_t *dest, uint8_t little_byte, uint8_t b
 // Functions fulfilling functionality common to AuroraSat and YukonSat
 
 NS_return NS_handler_init() {
+    gioSetBit(NS_RESET_GIO_PORT, NS_RESET_GIO_PIN, 0); // Pull reset line low during normal use
     ns_command_mutex = xSemaphoreCreateMutex();
     if (ns_command_mutex == NULL) {
         return NS_FAIL;
@@ -77,6 +80,11 @@ NS_return NS_upload_artwork(char *filename) {
         red_close(file1);
         return return_val;
     }
+    if (answer[0] == NS_NAK_VAL) {
+        xSemaphoreGive(ns_command_mutex);
+        red_close(file1);
+        return answer[1];
+    }
 
     // Start xmodem transfer
     int status = xmodemTransmit(file1, stat.st_size);
@@ -87,8 +95,7 @@ NS_return NS_upload_artwork(char *filename) {
         sys_log(ERROR, "Unknown error during xmodem transfer of %s in NS_upload_artwork\r\n", red_errno, filename);
         return_val = NS_FAIL;
     } else {
-        uint8_t last_command[1] = {ETB};
-        return_val = NS_sendAndReceive(last_command, 1, answer, NS_STANDARD_ANS_LEN, NS_UART_LONG_TIMEOUT_MS);
+        sys_log(INFO, "Status after xmodem transfer returned %d", status);
     }
     red_close(file1);
     xSemaphoreGive(ns_command_mutex);
@@ -100,38 +107,22 @@ NS_return NS_download_image() {
         return NS_HANDLER_BUSY;
     }
     uint8_t command[NS_STANDARD_CMD_LEN] = {'f', 'f', 'f'};
-    uint8_t standard_answer[NS_STANDARD_ANS_LEN * 2];
+    uint8_t answer[NS_STANDARD_ANS_LEN * 2];
 
     // Initiate image capture and receive first two acks
-    NS_return return_val = NS_sendAndReceive(command, NS_STANDARD_CMD_LEN, standard_answer,
-                                             NS_STANDARD_ANS_LEN * 2, NS_UART_LONG_TIMEOUT_MS);
+    NS_return return_val =
+        NS_sendAndReceive(command, NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN * 2, NS_UART_LONG_TIMEOUT_MS);
     if (return_val != NS_OK) {
         xSemaphoreGive(ns_command_mutex);
         return return_val;
     }
-    if (standard_answer[2] == 0x15) {
+    if (answer[2] == NS_NAK_VAL) {
         xSemaphoreGive(ns_command_mutex);
-        return (NS_return)(standard_answer[3]);
+        return (NS_return)(answer[3]);
     }
-    uint8_t size_arr[8] = {0, 0, 0, 0, 0, 0, '=', '='};
-    NS_expectResponse(size_arr, 6, NS_UART_LONG_TIMEOUT_MS);
-    size_t output_len;
-    unsigned char *returned_size = base64_decode((const char *)size_arr, 8, &output_len);
-    if (output_len != 4) {
-        xSemaphoreGive(ns_command_mutex);
-        return NS_FAIL;
-    }
-    int file_size = 0;
-    file_size |= returned_size[0];
-    file_size |= returned_size[1] << 8;
-    file_size |= returned_size[2] << 16;
-    file_size |= returned_size[3] << 24;
-    vPortFree(returned_size);
-
-    sys_log(INFO, "NIM said it would send %d bytes", file_size);
-
+    red_unlink("NS_IMAGE.jpg");                      // Failure doesn't matter. Just try
     const unsigned char *file_name = "NS_IMAGE.jpg"; // Hardcoded is probably not the best idea
-    int recvd = xmodemReceive(file_name, file_size);
+    int recvd = xmodemReceive(file_name);
 
     sys_log(INFO, "NIM sent %d bytes", recvd);
     xSemaphoreGive(ns_command_mutex);
@@ -332,19 +323,30 @@ NS_return NS_get_software_version(uint8_t *version) {
     return return_val;
 }
 
+NS_return NS_reset_mcu() {
+    gioSetBit(NS_RESET_GIO_PORT, NS_RESET_GIO_PIN, 1);
+    vTaskDelay(NS_RESET_DELAY);
+    gioSetBit(NS_RESET_GIO_PORT, NS_RESET_GIO_PIN, 0);
+    return NS_OK;
+}
+
 NS_return NS_clear_sd_card() {
-    return NS_STUBBED;
     if (xSemaphoreTake(ns_command_mutex, NS_COMMAND_MUTEX_TIMEOUT) != pdTRUE) {
         return NS_HANDLER_BUSY;
     }
-    uint8_t command[2 * NS_STANDARD_CMD_LEN] = {'l', 'l', 'l', 'r', 'r', 'r'};
-    uint8_t answer[NS_STANDARD_ANS_LEN];
+    uint8_t commandpreface[NS_STANDARD_CMD_LEN * 2] = {'l', 'l', 'l', 'r', 'r', 'r'};
+    uint8_t answer[NS_STANDARD_ANS_LEN * 2];
 
     NS_return return_val =
-        NS_sendAndReceive(command, 2 * NS_STANDARD_CMD_LEN, answer, NS_STANDARD_ANS_LEN, NS_UART_LONG_TIMEOUT_MS);
+        NS_sendAndReceive(commandpreface, NS_STANDARD_CMD_LEN * 2, answer, NS_STANDARD_ANS_LEN * 2, 10000);
     // TODO: check the NAK value
-    if (answer[0] != 'l' || answer[1] != 0x06) {
+    if (answer[0] != 'l' || answer[1] != NS_ACK_VAL) {
+        xSemaphoreGive(ns_command_mutex);
         return NS_FAIL;
+    }
+    if (answer[2] == NS_NAK_VAL) {
+        xSemaphoreGive(ns_command_mutex);
+        return (NS_return)answer[3];
     }
     xSemaphoreGive(ns_command_mutex);
     return return_val;

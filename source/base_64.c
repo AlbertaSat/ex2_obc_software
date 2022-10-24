@@ -35,7 +35,7 @@ char *base64_encode(const unsigned char *data, size_t input_length, size_t *outp
 
     *output_length = 4 * ((input_length + 2) / 3);
 
-    char *encoded_data = (char *)pvPortMalloc(output_length);
+    char *encoded_data = (char *)pvPortMalloc(*output_length);
 
     if (encoded_data == NULL)
         return NULL;

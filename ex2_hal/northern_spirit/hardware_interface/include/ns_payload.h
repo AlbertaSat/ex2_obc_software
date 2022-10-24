@@ -32,6 +32,7 @@ NS_return HAL_NS_get_heartbeat(uint8_t *heartbeat);
 NS_return HAL_NS_get_flag(char flag, bool *stat);
 NS_return HAL_NS_get_filename(char subcode, char *filename);
 NS_return HAL_NS_get_telemetry(ns_telemetry *tlm);
+NS_return HAL_NS_reset_mcu();
 NS_return HAL_NS_get_software_version(uint8_t *version);
 
 #endif /* EX2_HAL_NORTHERN_SPIRIT_HARDWARE_INTERFACE_INCLUDE_NS_PAYLOAD_H_ */
