@@ -113,7 +113,7 @@ void ex2_init(void *pvParameters) {
 
     init_filesystem();
     init_csp();
-
+    start_logger_daemon();
     /* LEOP */
 
 #if EXECUTE_LEOP == 1
