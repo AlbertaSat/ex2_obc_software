@@ -55,7 +55,7 @@
 #define USE_RADIO_ERROR_CORRECTION 1
 
 /* Only defined for final flight build of software */
-#define FLIGHT_CONFIGURATION 0
+#define FLIGHT_CONFIGURATION 1
 
 #define CSP_FREERTOS 1
 #define CSP_USE_SDR 1
