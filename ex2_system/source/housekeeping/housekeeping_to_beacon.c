@@ -94,8 +94,7 @@ void update_beacon(All_systems_housekeeping *all_hk_data, beacon_packet_1_t *bea
     beacon_packet_two->adcs_control_mode = all_hk_data->adcs_hk.att_control_mode;
 
     /*-------UHF-------*/
-    // Convert uint32_t to uint16_t, seconds = UHF_uptime*10. Max = 655350 seconds (7.6 days)
-    beacon_packet_two->uhf_uptime = (all_hk_data->UHF_hk.uptime / 10);
+    beacon_packet_two->uhf_uptime = all_hk_data->UHF_hk.uptime;
 
     /*-------OBC-------*/
     beacon_packet_two->boot_cnt = all_hk_data->Athena_hk.boot_cnt;
