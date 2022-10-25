@@ -40,13 +40,8 @@ static void *beacon_daemon() {
 
     while (1) {
 
-        if (!beacon_task_enabled) {
-            vTaskDelay(5 * ONE_SECOND);
-            continue;
-        }
-
         /* Main beacon loop to update beacon contents with latest housekeeping data */
-        while (beacon_task_enabled) {
+        if (beacon_task_enabled) {
 
             /* Fetch most recent housekeeping */
             All_systems_housekeeping all_hk_data;
@@ -54,8 +49,10 @@ static void *beacon_daemon() {
 
             /* Constructing the beacon content */
             UHF_configStruct beacon_msg;
-            beacon_packet_1_t beacon_packet_one = {0};
-            beacon_packet_2_t beacon_packet_two = {0};
+            beacon_packet_1_t beacon_packet_one;
+            beacon_packet_2_t beacon_packet_two;
+            memset(&beacon_packet_one, 0, sizeof(beacon_packet_one));
+            memset(&beacon_packet_two, 0, sizeof(beacon_packet_two));
             update_beacon(&all_hk_data, &beacon_packet_one, &beacon_packet_two);
 
             /* Get the beacon period from the UHF so that we know how long to wait */
@@ -66,56 +63,44 @@ static void *beacon_daemon() {
                 continue;
             }
 
+            /* Set beacon packet times */
+            time_t unix_time;
+            RTCMK_GetUnix(&unix_time); // If it fails it's inconsequential
+            beacon_packet_one.time = unix_time;
+            beacon_packet_two.time = unix_time;
+
             /* Encode the first beacon content */
             size_t output_len = 0;
             char *beacon_content =
                 base64_encode((void *)&beacon_packet_one, sizeof(beacon_packet_1_t), &output_len);
 
-            if (output_len > sizeof(beacon_msg.message)) {
-                sys_log(NOTICE, "Tried to set a beacon message which was too long\n");
-                vTaskDelay(20 * ONE_SECOND);
-                vPortFree(beacon_content);
-                continue;
-            }
-            /* Set first beacon packet time */
-            time_t unix_time;
-            RTCMK_GetUnix(&unix_time); // If it fails it's inconsequential
-            beacon_packet_one.time = unix_time;
-
+            // Truncate len if it's too big. At least some data will get transmitted
+            size_t message_len = output_len > MAX_W_CMDLEN ? MAX_W_CMDLEN : output_len;
             /* Set first beacon packet */
-            memcpy(&beacon_msg.message, beacon_content, sizeof(beacon_msg.message));
-            beacon_msg.len = output_len;
+            memcpy(&beacon_msg.message, beacon_content, message_len);
+            beacon_msg.len = message_len;
             uhf_status = HAL_UHF_setBeaconMsg(beacon_msg);
             if (uhf_status != U_GOOD_CONFIG) {
-                vTaskDelay(20 * ONE_SECOND);
                 vPortFree(beacon_content);
+                vTaskDelay(20 * ONE_SECOND);
                 continue;
             }
 
             /* Wait for UHF to send first beacon */
-            vTaskDelay(pdMS_TO_TICKS(beacon_t_s * 1000));
             vPortFree(beacon_content);
+            vTaskDelay(pdMS_TO_TICKS(beacon_t_s * 1000));
 
             /* Encode the second beacon content */
             beacon_content = base64_encode((void *)&beacon_packet_two, sizeof(beacon_packet_2_t), &output_len);
-            if (output_len > sizeof(beacon_msg.message)) {
-                sys_log(NOTICE, "Tried to set a beacon message which was too long\n");
-                vTaskDelay(20 * ONE_SECOND);
-                vPortFree(beacon_content);
-                continue;
-            }
-
-            // Set second packet time
-            RTCMK_GetUnix(&unix_time); // If it fails it's inconsequential
-            beacon_packet_two.time = unix_time;
+            message_len = output_len > MAX_W_CMDLEN ? MAX_W_CMDLEN : output_len;
 
             /* Set the second beacon packet */
-            memcpy(&(beacon_msg.message), beacon_content, sizeof(beacon_packet_2_t));
-            beacon_msg.len = output_len;
+            memcpy(&(beacon_msg.message), beacon_content, message_len);
+            beacon_msg.len = message_len;
             uhf_status = HAL_UHF_setBeaconMsg(beacon_msg);
             if (uhf_status != U_GOOD_CONFIG) {
-                vTaskDelay(20 * ONE_SECOND);
                 vPortFree(beacon_content);
+                vTaskDelay(20 * ONE_SECOND);
                 continue;
             }
 
@@ -123,6 +108,8 @@ static void *beacon_daemon() {
 
             /* Wait for UHF to send second beacon */
             vTaskDelay(pdMS_TO_TICKS(beacon_t_s * 1000));
+        } else {
+            vTaskDelay(5 * ONE_SECOND);
         }
     }
 }

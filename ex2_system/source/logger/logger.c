@@ -26,6 +26,7 @@
 #include <redposix.h>
 #include <stdbool.h>
 #include <string.h>
+#include "HL_reg_sci.h"
 
 //#define LOGGER_SWAP_PERIOD_MS 10000
 
@@ -188,9 +189,9 @@ static void do_output(const char *str) {
         red_write(logger_file_handle, output_string, string_length);
         red_transact("VOL0:");
     }
-#if PRINTF_SCI
-    printf("%s", output_string);
-#endif
+    if (PRINTF_SCI) {
+        printf("%s", output_string);
+    }
 }
 
 /**
