@@ -17,7 +17,7 @@
  * @date 2022-06-24
  */
 #include "northern_spirit/ns_service.h"
-
+#include "northern_voices/northern_voices.h"
 /**
  * @brief
  *      FreeRTOS 2U Payload server task
@@ -176,6 +176,26 @@ SAT_returnState ns_payload_service_app(csp_packet_t *packet) {
     case NS_RESET_MCU: {
         status = HAL_NS_reset_mcu();
         set_packet_length(packet, sizeof(int8_t) * 2);
+        break;
+    }
+    case NV_START_TRANSMIT: {
+        char fname[128] = {0};
+        strncpy(fname, &(packet->data[IN_DATA_BYTE]), 128);
+        bool ret = start_nv_transmit(fname);
+        if (ret == true) {
+            status = 0;
+        } else {
+            status = 1;
+        }
+        break;
+    }
+    case NV_STOP_TRANSMIT: {
+        bool ret = stop_nv_transmit();
+        if (ret == true) {
+            status = 0;
+        } else {
+            status = 1;
+        }
         break;
     }
 
