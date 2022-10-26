@@ -29,6 +29,7 @@
 #include "uhf.h"
 #include "sband.h"
 #include "util/service_utilities.h"
+#include "sdr_driver.h"
 
 #define CHAR_LEN 1 // If using Numpy unicode string, change to 4
 #define CALLSIGN_LEN 6
@@ -773,6 +774,26 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         status = HAL_UHF_setCRC16Enable(enabled);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         set_packet_length(packet, sizeof(int8_t) + 1);
+        break;
+    }
+    case UHF_SET_RF_MODE: {
+        uint8_t mode;
+        memcpy(&mode, &(packet->data[IN_DATA_BYTE]), sizeof(uint8_t));
+        uint8_t status = 0;
+        uint8_t scw[SCW_LEN] = {0};
+        status = HAL_UHF_getSCW(scw);
+        if (status != U_GOOD_CONFIG) {
+            memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+            break;
+        }
+        scw[UHF_SCW_RFMODE_INDEX] = mode;
+        status = HAL_UHF_setSCW(scw); // don't think a reboot is necessary?
+        if (status != U_GOOD_CONFIG) {
+            memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+            break;
+        }
+        status = sdr_uhf_set_rf_mode(mode);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         break;
     }
 

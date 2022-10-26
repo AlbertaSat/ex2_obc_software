@@ -76,7 +76,8 @@ typedef enum {
     UHF_GET_SECURE_KEY,
     UHF_GET_SWVER,
     UHF_GET_PLDSZ,
-    UHF_SET_CRC16_ENABLE
+    UHF_SET_CRC16_ENABLE,
+    UHF_SET_RF_MODE
 } UHF_Subtype;
 
 SAT_returnState communication_service_app(csp_packet_t *pkt);
