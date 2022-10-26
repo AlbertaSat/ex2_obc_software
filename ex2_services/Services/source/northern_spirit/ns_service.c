@@ -20,10 +20,9 @@
 
 /**
  * @brief
- *      FreeRTOS 2U Payload File Transferring (FT) server task
+ *      FreeRTOS 2U Payload server task
  * @details
- *      Accepts incoming 2U Payload FT service packets and executes
- *      the application
+ *      Executes the application for Northern Images payload and northern voices
  * @param void* param
  * @return None
  */
