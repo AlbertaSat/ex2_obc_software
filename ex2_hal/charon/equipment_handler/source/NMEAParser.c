@@ -50,7 +50,7 @@ const static GPGSV_s GPGSV_invalid = {._numsats_visible = GPS_INVALID_SATELLITES
                                       ._snr_avg = GPS_INVALID_SNR,
                                       ._logtime = (TickType_t)GPS_INVALID_FIX_TIME};
 
-const static GPRMC_s GPRMC_invalid = {._time = GPS_INVALID_TIME,
+const static RMC_s RMC_invalid = {._time = GPS_INVALID_TIME,
                                       ._latitude_lower = GPS_INVALID_ANGLE,
                                       ._latitude_upper = GPS_INVALID_ANGLE,
                                       ._longitude_lower = GPS_INVALID_ANGLE,
@@ -140,18 +140,17 @@ bool NMEAParser_get_GPGSV(GPGSV_s *output) {
 }
 
 /**
- * @brief get GPRMC packet
+ * @brief get RMC packet
  *
  * @param output struct * to store incoming packet
  * @return true success
  * @return false failure
  */
-bool NMEAParser_get_GPRMC(GPRMC_s *output) {
+bool NMEAParser_get_RMC(RMC_s *output) {
     TickType_t tickCount = xTaskGetTickCount();
-
     xSemaphoreTakeRecursive(NMEA_mutex, portMAX_DELAY);
-    if ((GPRMC._logtime != GPS_INVALID_FIX_TIME) && (tickCount - GPRMC._logtime < GPS_AGE_INVALID_THRESHOLD)) {
-        memcpy(output, &GPRMC, sizeof(GPRMC_s));
+    if ((RMC._logtime != GPS_INVALID_FIX_TIME) && (tickCount - RMC._logtime < GPS_AGE_INVALID_THRESHOLD)) {
+        memcpy(output, &RMC, sizeof(RMC_s));
         xSemaphoreGiveRecursive(NMEA_mutex);
         return true;
     }
@@ -165,7 +164,7 @@ bool NMEAParser_get_GPRMC(GPRMC_s *output) {
  */
 void NMEAParser_reset_all_values(void) {
     NMEAParser_clear_GPGSV();
-    NMEAParser_clear_GPRMC();
+    NMEAParser_clear_RMC();
     NMEAParser_clear_GPGGA();
     NMEAParser_clear_GPGSA();
 }
@@ -201,12 +200,12 @@ void NMEAParser_clear_GPGSV(void) {
 }
 
 /**
- * @brief reset GPRMC packet to invalid values
+ * @brief reset RMC packet to invalid values
  *
  */
-void NMEAParser_clear_GPRMC(void) {
+void NMEAParser_clear_RMC(void) {
     xSemaphoreTakeRecursive(NMEA_mutex, portMAX_DELAY);
-    memcpy(&GPRMC, &GPRMC_invalid, sizeof(GPRMC_s));
+    memcpy(&RMC, &RMC_invalid, sizeof(RMC_s));
     xSemaphoreGiveRecursive(NMEA_mutex);
 }
 
@@ -218,7 +217,11 @@ const char _GPGGA_TERM[7] = "$GPGGA";
 const char _GPGLL_TERM[7] = "$GPGLL";
 const char _GPGSA_TERM[7] = "$GPGSA";
 const char _GPGSV_TERM[7] = "$GPGSV";
-const char _GPRMC_TERM[7] = "$GPRMC";
+#if FLIGHT_CONFIGURATION == 1
+const char _RMC_TERM[7] = "$GNRMC";
+#else
+const char _RMC_TERM[7] = "$GPRMC";
+#endif
 const char _GPVTG_TERM[7] = "$GPVTG";
 const char _GPZDA_TERM[7] = "$GPZDA";
 
@@ -275,7 +278,7 @@ static bool NMEAParser_decode_sentence() {
         sentence_type = NMEA_GSA;
     else if (!NMEAParser_termcmp(title, _GPGSV_TERM))
         sentence_type = NMEA_GSV;
-    else if (!NMEAParser_termcmp(title, _GPRMC_TERM))
+    else if (!NMEAParser_termcmp(title, _RMC_TERM))
         sentence_type = NMEA_RMC;
 
     // Add additional NMEA sentence type here
@@ -340,8 +343,8 @@ static bool NMEAParser_decode_sentence() {
         GPGSV._logtime = logtime;
         break;
     case NMEA_RMC:
-        NMEAParser_clear_GPRMC();
-        GPRMC._logtime = logtime;
+        NMEAParser_clear_RMC();
+        RMC._logtime = logtime;
         break;
     }
 
@@ -439,29 +442,29 @@ static bool NMEAParser_decode_sentence() {
             switch (term_number) {
             case 0: // UTC Time
                 //_last_time_fix = logtime;
-                GPRMC._time = NMEAParser_parse_decimal(p);
+                RMC._time = NMEAParser_parse_decimal(p);
                 break;
             case 2: // Latitude
                 //_last_position_fix = logtime;
-                NMEAParser_parse_degrees(p, &(GPRMC._latitude_upper), &(GPRMC._latitude_lower));
+                NMEAParser_parse_degrees(p, &(RMC._latitude_upper), &(RMC._latitude_lower));
                 break;
             case 3: // Latitude Indicator
-                GPRMC._latitude_upper = *p == 'S' ? -GPRMC._latitude_upper : GPRMC._latitude_upper;
+                RMC._latitude_upper = *p == 'S' ? -RMC._latitude_upper : RMC._latitude_upper;
                 break;
             case 4: // Longitude
-                NMEAParser_parse_degrees(p, &(GPRMC._longitude_upper), &(GPRMC._longitude_lower));
+                NMEAParser_parse_degrees(p, &(RMC._longitude_upper), &(RMC._longitude_lower));
                 break;
             case 5: // Longitude Indicator
-                GPRMC._longitude_upper = *p == 'W' ? -GPRMC._longitude_upper : GPRMC._longitude_upper;
+                RMC._longitude_upper = *p == 'W' ? -RMC._longitude_upper : RMC._longitude_upper;
                 break;
             case 6: // Speed
-                GPRMC._speed = NMEAParser_parse_decimal(p);
+                RMC._speed = NMEAParser_parse_decimal(p);
                 break;
             case 7: // Course
-                GPRMC._course = NMEAParser_parse_decimal(p);
+                RMC._course = NMEAParser_parse_decimal(p);
                 break;
             case 8: // UTC Date
-                GPRMC._date = NMEAParser_parse_decimal(p) / 100;
+                RMC._date = NMEAParser_parse_decimal(p) / 100;
                 break;
             }
             break;

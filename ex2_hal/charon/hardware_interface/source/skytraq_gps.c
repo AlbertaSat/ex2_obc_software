@@ -70,6 +70,47 @@ bool gps_skytraq_driver_init() {
     return true;
 }
 
+#if IS_B16_GPS == 1
+GPS_RETURNSTATE b16_configure_nmea_output_rate(uint8_t GGA_interval, uint8_t GNS_interval,
+                                                   uint8_t GSA_interval, uint8_t GSV_interval,
+                                                   uint8_t GLL_interval, uint8_t RMC_interval,
+                                                   uint8_t VTG_interval, uint8_t ZDA_interval,
+                                                   uint8_t DTM_interval, uint8_t GBS_interval,
+                                                   uint8_t GRS_interval, uint8_t GST_interval,
+                                                   uint8_t THS_interval, uint8_t HDT_interval,
+                                                   skytraq_update_attributes attribute){
+    GPS_RETURNSTATE retval;
+    retval = skytraq_configure_nmea_string_interval("GGA", GGA_interval, attribute);
+    if(retval){return retval;}
+    retval = skytraq_configure_nmea_string_interval("GNS", GNS_interval, attribute);
+    if(retval){return retval;}
+    retval = skytraq_configure_nmea_string_interval("GSA", GSA_interval, attribute);
+    if(retval){return retval;}
+    retval = skytraq_configure_nmea_string_interval("GSV", GSV_interval, attribute);
+    if(retval){return retval;}
+    retval = skytraq_configure_nmea_string_interval("GLL", GLL_interval, attribute);
+    if(retval){return retval;}
+    retval = skytraq_configure_nmea_string_interval("RMC", RMC_interval, attribute);
+    if(retval){return retval;}
+    retval = skytraq_configure_nmea_string_interval("VTG", VTG_interval, attribute);
+    if(retval){return retval;}
+    retval = skytraq_configure_nmea_string_interval("ZDA", ZDA_interval, attribute);
+    if(retval){return retval;}
+    retval = skytraq_configure_nmea_string_interval("DTM", DTM_interval, attribute);
+    if(retval){return retval;}
+    retval = skytraq_configure_nmea_string_interval("GBS", GBS_interval, attribute);
+    if(retval){return retval;}
+    retval = skytraq_configure_nmea_string_interval("GRS", GRS_interval, attribute);
+    if(retval){return retval;}
+    retval = skytraq_configure_nmea_string_interval("GST", GST_interval, attribute);
+    if(retval){return retval;}
+    retval = skytraq_configure_nmea_string_interval("THS", THS_interval, attribute);
+    if(retval){return retval;}
+    retval = skytraq_configure_nmea_string_interval("HDT", HDT_interval, attribute);
+
+    return retval;
+}
+#endif
 /**
  * @brief Configure skytraq output messages
  *
@@ -84,7 +125,11 @@ GPS_RETURNSTATE gps_configure_message_types(uint8_t GGA, uint8_t GSA, uint8_t GS
     GSA_ENABLED = GSA ? true : false;
     GSV_ENABLED = GSV ? true : false;
     RMC_ENABLED = RMC ? true : false;
+#if IS_B16_GPS == 1
+    return b16_configure_nmea_output_rate(GGA, 0, GSA, GSV, 0, RMC, 0, 0, 0, 0, 0, 0, 0, 0, UPDATE_TO_FLASH);
+#else
     return skytraq_configure_nmea_output_rate(GGA, GSA, GSV, 0, RMC, 0, 0, UPDATE_TO_FLASH);
+#endif
 }
 
 /**
@@ -236,12 +281,12 @@ bool gps_get_utc_time(time_t *utc_time) {
     struct gps_time g_t;
     struct gps_date g_d;
 
-    // this will take GPRMC time
+    // this will take RMC time
     bool RMC = RMC_ENABLED;
-    GPRMC_s RMC_s;
+    RMC_s RMC_s;
 
     if (RMC) {
-        bool RMC_valid = NMEAParser_get_GPRMC(&RMC_s);
+        bool RMC_valid = NMEAParser_get_RMC(&RMC_s);
         if (RMC_valid) {
             // time will be used to correct for if we overflow to a new utc date
             bool date_overflow = extract_time(RMC_s._time, RMC_s._logtime, &g_t);
@@ -286,14 +331,14 @@ bool gps_get_altitude(uint32_t *alt) {
 bool gps_get_position(int32_t *latitude_upper, int32_t *latitude_lower, int32_t *longitude_upper,
                       int32_t *longitude_lower) {
 
-    // this will take GPRMC position if it is available, otherwise GPGGA
+    // this will take RMC position if it is available, otherwise GPGGA
     bool GGA = GGA_ENABLED;
     bool RMC = RMC_ENABLED;
     GPGGA_s GGA_s;
-    GPRMC_s RMC_s;
+    RMC_s RMC_s;
 
     if (RMC) {
-        bool RMC_valid = NMEAParser_get_GPRMC(&RMC_s);
+        bool RMC_valid = NMEAParser_get_RMC(&RMC_s);
         if (RMC_valid) {
             *latitude_upper = RMC_s._latitude_upper;
             *latitude_lower = RMC_s._latitude_lower;
@@ -345,9 +390,9 @@ bool gps_get_visible_satellite_count(uint8_t *numsats) {
  */
 bool gps_get_speed(uint32_t *speed) {
     bool RMC = RMC_ENABLED;
-    GPRMC_s RMC_s;
+    RMC_s RMC_s;
     if (RMC) {
-        bool RMC_valid = NMEAParser_get_GPRMC(&RMC_s);
+        bool RMC_valid = NMEAParser_get_RMC(&RMC_s);
         if (RMC_valid) {
             *speed = RMC_s._speed;
             return true;
@@ -365,9 +410,9 @@ bool gps_get_speed(uint32_t *speed) {
  */
 bool gps_get_course(uint32_t *course) {
     bool RMC = RMC_ENABLED;
-    GPRMC_s RMC_s;
+    RMC_s RMC_s;
     if (RMC) {
-        bool RMC_valid = NMEAParser_get_GPRMC(&RMC_s);
+        bool RMC_valid = NMEAParser_get_RMC(&RMC_s);
         if (RMC_valid) {
             *course = RMC_s._course;
             return true;

@@ -369,6 +369,22 @@ GPS_RETURNSTATE skytraq_configure_nmea_output_rate(uint8_t GGA_interval, uint8_t
     return skytraq_send_message(payload, length);
 }
 
+//nmea_string options: GGA, GNS, GSA, GSV, GLL, RMC, VTG, ZDA, DTM, GBS, GRS, GST, THS, HDT
+GPS_RETURNSTATE skytraq_configure_nmea_string_interval(char * nmea_string, uint8_t interval, skytraq_update_attributes attribute){
+
+    uint16_t length = 7;
+    uint8_t payload[7];
+    payload[0] = CONFIGURE_NMEA_STRING_INTERVAL >> 8;
+    payload[1] = CONFIGURE_NMEA_STRING_INTERVAL && 0x00FF;
+    payload[2] = (uint8_t)(nmea_string[0]);
+    payload[3] = (uint8_t)(nmea_string[1]);
+    payload[4] = (uint8_t)(nmea_string[2]);
+    payload[5] = interval;
+    payload[6] = attribute;
+
+    return skytraq_send_message(payload, length);
+}
+
 GPS_RETURNSTATE configure_message_type(skytraq_message_type type, skytraq_update_attributes attribute) {
     uint16_t length = 3;
     uint8_t payload[3];

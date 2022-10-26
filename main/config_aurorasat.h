@@ -47,6 +47,7 @@
 #define HYPERION_PANEL_2U_LIMITED 0
 
 #define IS_SN0072_EPS 0
+#define IS_B16_GPS 0 // Ex2 flight model gps only
 
 #define UHF_USE_I2C_CMDS 0
 

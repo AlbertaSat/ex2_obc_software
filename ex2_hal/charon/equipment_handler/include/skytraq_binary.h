@@ -32,6 +32,8 @@ GPS_RETURNSTATE skytraq_restore_factory_defaults(void);
 
 GPS_RETURNSTATE skytraq_configure_serial_port(skytraq_baud_rate rate, skytraq_update_attributes attribute);
 
+GPS_RETURNSTATE skytraq_configure_nmea_string_interval(char * nmea_string, uint8_t interval, skytraq_update_attributes attribute);
+
 GPS_RETURNSTATE skytraq_configure_nmea_output_rate(uint8_t GGA_interval, uint8_t GSA_interval,
                                                    uint8_t GSV_interval, uint8_t GLL_interval,
                                                    uint8_t RMC_interval, uint8_t VTG_interval,
