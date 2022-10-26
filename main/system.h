@@ -68,6 +68,7 @@
 #define RTC_DM_SIZE 256
 #define SWWDT_DM_SIZE 128
 #define INIT_STACK_SIZE 400
+#define NV_DAEMON_STACK_SIZE 400
 
 #if IS_ATHENA == 1
 #define CSP_SCI sciREG2  // UART2
