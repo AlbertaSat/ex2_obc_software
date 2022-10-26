@@ -16,8 +16,10 @@
 #define NV_DELAY_WAIT vTaskDelay(pdMS_TO_TICKS(5000))
 #define NV_TIME_BETWEEN_SENDS (pdMS_TO_TICKS(1000))
 #define NV_BLOCKSIZE 512
+#define NV_REPEATS 5
 
 typedef struct {
+    int repeats;
     bool enabled;
     int fd;
     int packetno;
@@ -51,6 +53,11 @@ void nv_daemon(void *pvParameters) {
             continue;
         }
         if (ctx->enabled) {
+            if (ctx->repeats >= NV_REPEATS) { // Quick hack to make it not go forever
+                give_lock(ctx);
+                NV_DELAY_WAIT;
+                continue;
+            }
             // Do stuff
             char data[NV_BLOCKSIZE] = {0};
             int read = red_read(ctx->fd, data, NV_BLOCKSIZE);
@@ -59,6 +66,7 @@ void nv_daemon(void *pvParameters) {
                 give_lock(ctx);
                 continue;
             } else if (read == 0) {
+                ctx->repeats++;
                 sys_log(INFO, "Reached end of NV transmission, restarting soon");
                 red_lseek(ctx->fd, 0, RED_SEEK_SET);
                 vTaskDelay(NV_TIME_BETWEEN_SENDS);
@@ -98,7 +106,7 @@ bool start_nv_transmit(char *filename) {
     if (!stop_nv_transmit()) {
         return false;
     }
-    if (get_lock(&nv_ctx, 200) != pdTRUE) {
+    if (get_lock(&nv_ctx, 1000) != pdTRUE) {
         return false;
     }
     int fd = red_open(filename, RED_O_RDONLY);
@@ -106,13 +114,15 @@ bool start_nv_transmit(char *filename) {
 
     csp_conn_t *conn = csp_connect(1, nv_ctx.dest_addr, nv_ctx.dest_port, 100000, CSP_O_CRC32);
     nv_ctx.conn = conn;
+    nv_ctx.enabled = 1;
     give_lock(&nv_ctx);
     sys_log(INFO, "Started NV transmission");
     return true;
 }
 
 bool stop_nv_transmit() {
-    if (get_lock(&nv_ctx, 200) != pdTRUE) {
+    nv_ctx.enabled = false; // Yes, this can cause race conditions. But we need it to stop
+    if (get_lock(&nv_ctx, 5000) != pdTRUE) {
         return false;
     } else {
         if (nv_ctx.conn) {
@@ -125,6 +135,7 @@ bool stop_nv_transmit() {
         }
         nv_ctx.enabled = false;
         nv_ctx.packetno = 0;
+        nv_ctx.repeats = 0;
         give_lock(&nv_ctx);
         sys_log(INFO, "Stopped NV transmission");
         return true;
