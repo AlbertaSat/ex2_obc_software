@@ -189,6 +189,7 @@ SAT_returnState ns_payload_service_app(csp_packet_t *packet) {
         } else {
             status = 1;
         }
+        set_packet_length(packet, sizeof(int8_t) * 2);
         break;
     }
     case NV_STOP_TRANSMIT: {
@@ -198,6 +199,7 @@ SAT_returnState ns_payload_service_app(csp_packet_t *packet) {
         } else {
             status = 1;
         }
+        set_packet_length(packet, sizeof(int8_t) * 2);
         break;
     }
 
