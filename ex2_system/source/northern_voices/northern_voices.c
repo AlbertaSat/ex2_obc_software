@@ -14,7 +14,7 @@
 #include "csp/csp.h"
 
 #define NV_DELAY_WAIT vTaskDelay(pdMS_TO_TICKS(5000))
-#define NV_TIME_BETWEEN_SENDS (pdMS_TO_TICKS(1000))
+#define NV_TIME_BETWEEN_SENDS (pdMS_TO_TICKS(10000))
 #define NV_BLOCKSIZE 512
 #define NV_REPEATS 5
 
