@@ -28,7 +28,7 @@ typedef struct __attribute__((packed)) {
     uint16_t packetno;
 } nv_data_packet_header_t;
 
-bool start_nv_transmit(char *filename);
+bool start_nv_transmit(uint16_t repeats, char *filename);
 bool stop_nv_transmit();
 SAT_returnState start_nv_daemon();
 

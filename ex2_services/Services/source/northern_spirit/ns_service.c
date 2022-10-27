@@ -180,8 +180,10 @@ SAT_returnState ns_payload_service_app(csp_packet_t *packet) {
     }
     case NV_START_TRANSMIT: {
         char fname[128] = {0};
-        strncpy(fname, &(packet->data[IN_DATA_BYTE]), 128);
-        bool ret = start_nv_transmit(fname);
+        uint16_t repeats;
+        cnv8_16LE(&(packet->data[IN_DATA_BYTE]), &repeats);
+        strncpy(fname, &(packet->data[IN_DATA_BYTE + 2]), 128);
+        bool ret = start_nv_transmit(repeats, fname);
         if (ret == true) {
             status = 0;
         } else {

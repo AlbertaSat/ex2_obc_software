@@ -20,6 +20,7 @@
 
 typedef struct {
     int repeats;
+    int repeat_goal;
     bool enabled;
     int fd;
     int packetno;
@@ -53,7 +54,7 @@ void nv_daemon(void *pvParameters) {
             continue;
         }
         if (ctx->enabled) {
-            if (ctx->repeats >= NV_REPEATS) { // Quick hack to make it not go forever
+            if (ctx->repeats >= ctx->repeat_goal) { // Quick hack to make it not go forever
                 give_lock(ctx);
                 NV_DELAY_WAIT;
                 continue;
@@ -102,7 +103,7 @@ void nv_daemon(void *pvParameters) {
     }
 }
 
-bool start_nv_transmit(char *filename) {
+bool start_nv_transmit(uint16_t repeats, char *filename) {
     if (!stop_nv_transmit()) {
         return false;
     }
@@ -115,6 +116,7 @@ bool start_nv_transmit(char *filename) {
     csp_conn_t *conn = csp_connect(1, nv_ctx.dest_addr, nv_ctx.dest_port, 100000, CSP_O_CRC32);
     nv_ctx.conn = conn;
     nv_ctx.enabled = 1;
+    nv_ctx.repeat_goal = repeats;
     give_lock(&nv_ctx);
     sys_log(INFO, "Started NV transmission");
     return true;
@@ -136,6 +138,7 @@ bool stop_nv_transmit() {
         nv_ctx.enabled = false;
         nv_ctx.packetno = 0;
         nv_ctx.repeats = 0;
+        nv_ctx.repeat_goal = 0;
         give_lock(&nv_ctx);
         sys_log(INFO, "Stopped NV transmission");
         return true;
