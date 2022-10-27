@@ -32,6 +32,7 @@
 #include "redposix.h"
 #include "redconf.h"
 #include "ina209.h"
+#include "tmp117.h"
 
 /**
  * @brief
@@ -43,8 +44,9 @@
  * 		0 for success. other for failure
  */
 int Athena_hk_get_temps(int16_t *MCU_core_temp, int16_t *converter_temp) {
-    *MCU_core_temp = 25565; // TODO: Work on temperature sensors
-    *converter_temp = 25565;
+
+    tmp117_read(MCU_TEMP_SENSOR_ADDR, MCU_core_temp);
+    tmp117_read(CONVERTER_TEMP_SENSOR_ADDR, converter_temp);
     return 0;
 }
 
