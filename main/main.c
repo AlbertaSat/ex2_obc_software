@@ -140,8 +140,8 @@ void ex2_init(void *pvParameters) {
 
     ADCS_set_attitude_estimate_mode(6); // GyroEKF
     ADCS_set_unix_t(1652976000, 0);     // May 19, 2022
-#endif // FLATSAT_TEST
-#endif // ADCS_IS_STUBBED
+#endif                                  // FLATSAT_TEST
+#endif                                  // ADCS_IS_STUBBED
 
 #if ATHENA_IS_STUBBED == 0
     initAthena();
@@ -154,6 +154,15 @@ void ex2_init(void *pvParameters) {
 #if UHF_IS_STUBBED == 0
     uhf_uart_init();
     uhf_i2c_init();
+
+    uint8_t uhf_scw[SCW_LEN] = {0};
+    uint8_t status = HAL_UHF_getSCW(uhf_scw);
+    uint8_t mode = uhf_scw[UHF_SCW_RFMODE_INDEX];
+    status = sdr_uhf_set_rf_mode(mode);
+    if (status != 0) {
+        sys_log(ERROR, "couldn't set uhf rf mode delay correctly");
+    }
+
     UHF_init_config();
 #endif
 
@@ -380,14 +389,8 @@ static inline SAT_returnState init_csp_interface() {
     sdr_conf_t sdr_conf = {0};
     sdr_conf.use_fec = USE_RADIO_ERROR_CORRECTION;
     sdr_conf.uhf_conf.uart_baudrate = 115200;
-
-    uint8_t uhf_scw[SCW_LEN] = {0};
-    UHF_return status = HAL_UHF_getSCW(uhf_scw);
-    if (status != U_GOOD_CONFIG) {
-        sdr_conf.uhf_conf.uhf_baudrate = SDR_UHF_9600_BAUD;
-    } else {
-        sdr_conf.uhf_conf.uhf_baudrate = get_uhf_baud_t_from_rf_mode_number(uhf_scw[UHF_SCW_RFMODE_INDEX]);
-    }
+    sdr_conf.uhf_conf.uhf_baudrate =
+        SDR_UHF_9600_BAUD; // tentatively set, confirmed via talking to transceiver later in init
 
 #if SDR_NO_CSP == 1
     sdr_interface_data_t *ifdata = sdr_interface_init(&sdr_conf, gs_if_name);
@@ -397,7 +400,7 @@ static inline SAT_returnState init_csp_interface() {
 #if SDR_TEST == 1
     test_uhf_ifdata = ifdata;
 #endif
-#else // use CSP
+#else  // use CSP
     error = csp_sdr_open_and_add_interface(&sdr_conf, gs_if_name, NULL);
     if (error != CSP_ERR_NONE) {
         return SATR_ERROR;
@@ -411,7 +414,7 @@ static inline SAT_returnState init_csp_interface() {
 #if SDR_TEST == 1
     test_sband_ifdata = ifdata;
 #endif
-#else // use CSP
+#else  // use CSP
 #endif // SDR_NO_CSP
 
 #endif /* CSP_USE_SDR */
