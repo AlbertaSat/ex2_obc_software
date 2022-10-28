@@ -30,6 +30,7 @@
 #include "sband.h"
 #include "util/service_utilities.h"
 #include "sdr_driver.h"
+#include "uhf_pipe_timer.h"
 
 #define CHAR_LEN 1 // If using Numpy unicode string, change to 4
 #define CALLSIGN_LEN 6
@@ -781,18 +782,27 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         memcpy(&mode, &(packet->data[IN_DATA_BYTE]), sizeof(uint8_t));
         uint8_t status = 0;
         uint8_t scw[SCW_LEN] = {0};
+        uint8_t counter = 0;
+        while (uhf_is_busy() == true) {
+            vTaskDelay(1000);
+            counter++;
+            if (counter > 60) { // timeout
+                break;
+            }
+        }
         status = HAL_UHF_getSCW(scw);
         if (status != U_GOOD_CONFIG) {
             memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
             break;
         }
         scw[UHF_SCW_RFMODE_INDEX] = mode;
-        status = HAL_UHF_setSCW(scw); // don't think a reboot is necessary?
+        status = HAL_UHF_setSCW(scw);
         if (status != U_GOOD_CONFIG) {
             memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
             break;
         }
         status = sdr_uhf_set_rf_mode(mode);
+        ex2_log("Changed to RF Mode %d successfully\n", mode);
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         break;
     }
