@@ -17,6 +17,7 @@
 #define NV_TIME_BETWEEN_SENDS (pdMS_TO_TICKS(10000))
 #define NV_BLOCKSIZE 512
 #define NV_REPEATS 5
+#define MAX_NV_REPEATS 10
 
 typedef struct {
     int repeats;
@@ -104,12 +105,17 @@ void nv_daemon(void *pvParameters) {
 }
 
 bool start_nv_transmit(uint16_t repeats, char *filename) {
+    if (repeats > MAX_NV_REPEATS) {
+        return false;
+    }
+
     if (!stop_nv_transmit()) {
         return false;
     }
     if (get_lock(&nv_ctx, 1000) != pdTRUE) {
         return false;
     }
+
     int fd = red_open(filename, RED_O_RDONLY);
     nv_ctx.fd = fd;
 
