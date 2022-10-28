@@ -124,7 +124,7 @@ int sband_transmit_ready() {
 #if SBAND_IS_STUBBED == 1
     return 1;
 #else
-    return gioGetBit(hetPORT1, 25);
+    return gioGetBit(hetPORT2, 11);
 #endif
 }
 
