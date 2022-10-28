@@ -117,9 +117,18 @@ bool start_nv_transmit(uint16_t repeats, char *filename) {
     }
 
     int fd = red_open(filename, RED_O_RDONLY);
-    nv_ctx.fd = fd;
+    if (fd < 0) {
+        sys_log(WARN, "Error %d in start_nv_transmit", red_errno);
+        return false;
+    }
 
     csp_conn_t *conn = csp_connect(1, nv_ctx.dest_addr, nv_ctx.dest_port, 100000, CSP_O_CRC32);
+    if (conn == NULL) {
+        sys_log(WARN, "Failed to get connection in start_nv_transmit");
+        red_close(fd);
+        return false;
+    }
+    nv_ctx.fd = fd;
     nv_ctx.conn = conn;
     nv_ctx.enabled = 1;
     nv_ctx.repeat_goal = repeats;
