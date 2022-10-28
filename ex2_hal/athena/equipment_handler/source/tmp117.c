@@ -1,16 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-/* tmp421.c
- *
- * Copyright (C) 2009 Andre Prendel <andre.prendel@gmx.de>
- * Preliminary support by:
- * Melvin Rook, Raymond Ng
- */
-
-/*
- * Driver for the Texas Instruments TMP421 SMBus temperature sensor IC.
- * Supported models: TMP421, TMP422, TMP423, TMP441, TMP442
- */
-
 #include "tmp117.h"
 #include "HL_i2c.h"
 #include "i2c_io.h"
@@ -35,15 +22,15 @@ int tmp117_Read2ByteReg(uint8_t addr, uint8_t reg_addr, uint16_t *val) {
 
 // returns temp in deg C
 int tmp117_read(uint8_t sadd, int16_t *val) {
-    // TODO: Make this work
-    //    uint16_t regval = tmp117_Read2ByteReg(sadd, 0);
-    //    uint8_t negative = (regval >> 15) & 1;
-    //    float scaling_const = 0.0078125;
-    //    if (negative == 1) {
-    //        *val = (int16_t) (scaling_const * (float)((~regval) & 0b0111111111111111));
-    //    } else {
-    //        *val = scaling_const * (float)regval;
-    //    }
+    uint16_t regval = 0;
+    tmp117_Read2ByteReg(sadd, 0, &regval);
+    uint8_t negative = (regval >> 15) & 1;
+    float scaling_const = 0.0078125;
+    if (negative == 1) {
+        *val = (int16_t)(scaling_const * (float)((~regval) & 0b0111111111111111));
+    } else {
+        *val = (int16_t)(scaling_const * (float)regval);
+    }
     return 0;
 }
 
