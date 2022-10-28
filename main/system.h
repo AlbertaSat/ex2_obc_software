@@ -145,7 +145,7 @@
 #endif
 
 // watchdog timer expires in 447ms
-#define WDT_DELAY 300            // 300 miliseconds gives a a good window
+#define WDT_DELAY 100            // 100 miliseconds gives a a good window
 #define DELAY_WAIT_INTERVAL 8000 // a pretty long time, but lets the watchdog know that the task hasn't failed
 #define ONE_SECOND pdMS_TO_TICKS(1000)
 #define ONE_MINUTE pdMS_TO_TICKS(60000)
