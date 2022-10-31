@@ -29,6 +29,10 @@
 #include "uhf.h"
 #include "sband.h"
 #include "util/service_utilities.h"
+#include "sdr_driver.h"
+#include "uhf_pipe_timer.h"
+#include "logger.h"
+#include "sdr_driver.h"
 
 #define CHAR_LEN 1 // If using Numpy unicode string, change to 4
 #define CALLSIGN_LEN 6
@@ -775,9 +779,40 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         set_packet_length(packet, sizeof(int8_t) + 1);
         break;
     }
+    case UHF_SET_RF_MODE: {
+        uint8_t mode;
+        memcpy(&mode, &(packet->data[IN_DATA_BYTE]), sizeof(uint8_t));
+        uint8_t status = 0;
+        uint8_t scw[SCW_LEN] = {0};
+        uint8_t counter = 0;
+        while (uhf_is_busy() == true) {
+            vTaskDelay(1000);
+            counter++;
+            if (counter > 60) { // timeout
+                break;
+            }
+        }
+        status = HAL_UHF_getSCW(scw);
+        if (status != U_GOOD_CONFIG) {
+            memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+            break;
+        }
+        scw[UHF_SCW_RFMODE_INDEX] = mode;
+        status = HAL_UHF_setSCW(scw);
+        if (status != U_GOOD_CONFIG) {
+            memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+            break;
+        }
+        csp_iface_t *iface = csp_iflist_get_by_name(SDR_IF_UHF_NAME);
+        sdr_interface_data_t *ifdata = iface->interface_data;
+        status = sdr_uhf_set_rf_mode(ifdata, mode);
+        sys_log(INFO, "Changed to RF Mode %d successfully\n", mode);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        break;
+    }
 
     default:
-        ex2_log("No such subservice\n");
+        sys_log(NOTICE, "No such subservice\n");
         return_state = SATR_PKT_ILLEGAL_SUBSERVICE;
     }
 

@@ -154,6 +154,17 @@ void ex2_init(void *pvParameters) {
 #if UHF_IS_STUBBED == 0
     uhf_uart_init();
     uhf_i2c_init();
+
+    uint8_t uhf_scw[SCW_LEN] = {0};
+    uint8_t status = HAL_UHF_getSCW(uhf_scw);
+    uint8_t mode = uhf_scw[UHF_SCW_RFMODE_INDEX];
+    csp_iface_t *iface = csp_iflist_get_by_name(SDR_IF_UHF_NAME);
+    sdr_interface_data_t *ifdata = iface->interface_data;
+    status = sdr_uhf_set_rf_mode(ifdata, mode);
+    if (status != 0) {
+        sys_log(ERROR, "couldn't set uhf rf mode delay correctly");
+    }
+
     UHF_init_config();
 #endif
 
@@ -379,8 +390,9 @@ static inline SAT_returnState init_csp_interface() {
 
     sdr_conf_t sdr_conf = {0};
     sdr_conf.use_fec = USE_RADIO_ERROR_CORRECTION;
-    sdr_conf.uhf_conf.uhf_baudrate = SDR_UHF_9600_BAUD;
     sdr_conf.uhf_conf.uart_baudrate = 115200;
+    sdr_conf.uhf_conf.uhf_baudrate =
+        SDR_UHF_9600_BAUD; // tentatively set, confirmed via talking to transceiver later in init
 
 #if SDR_NO_CSP == 1
     sdr_interface_data_t *ifdata = sdr_interface_init(&sdr_conf, gs_if_name);

@@ -173,7 +173,11 @@ void vAssertCalled(unsigned long ulLine, const char * pcFile);
 #include "HL_sys_pmu.h"
 #include "os_portmacro.h"
 
-#pragma SWI_ALIAS(prvRaisePrivilege, 1);
+#ifdef __cplusplus
+    #pragma SWI_ALIAS(1)
+#else
+    #pragma SWI_ALIAS(prvRaisePrivilege, 1);
+#endif
 extern BaseType_t prvRaisePrivilege( void );
 #define RAISE_PRIVILEGE BaseType_t xRunningPrivileged = prvRaisePrivilege ()
 #define RESET_PRIVILEGE if( xRunningPrivileged == 0 ) portSWITCH_TO_USER_MODE()
