@@ -158,7 +158,9 @@ void ex2_init(void *pvParameters) {
     uint8_t uhf_scw[SCW_LEN] = {0};
     uint8_t status = HAL_UHF_getSCW(uhf_scw);
     uint8_t mode = uhf_scw[UHF_SCW_RFMODE_INDEX];
-    status = sdr_uhf_set_rf_mode(mode);
+    csp_iface_t *iface = csp_iflist_get_by_name(SDR_IF_UHF_NAME);
+    sdr_interface_data_t *ifdata = iface->interface_data;
+    status = sdr_uhf_set_rf_mode(ifdata, mode);
     if (status != 0) {
         sys_log(ERROR, "couldn't set uhf rf mode delay correctly");
     }
