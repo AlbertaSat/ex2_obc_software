@@ -15,7 +15,7 @@
 
 #define NV_DELAY_WAIT vTaskDelay(pdMS_TO_TICKS(5000))
 #define NV_TIME_BETWEEN_SENDS (pdMS_TO_TICKS(10000))
-#define NV_BLOCKSIZE 512
+#define NS_MAX_BLOCKSIZE 512
 #define NV_REPEATS 5
 #define MAX_NV_REPEATS 10
 
@@ -27,6 +27,7 @@ typedef struct {
     int packetno;
     int dest_addr;
     int dest_port;
+    int blocksize;
     csp_conn_t *conn;
     SemaphoreHandle_t ctx_mtx;
 } nv_ctx_t;
@@ -61,8 +62,8 @@ void nv_daemon(void *pvParameters) {
                 continue;
             }
             // Do stuff
-            char data[NV_BLOCKSIZE] = {0};
-            int read = red_read(ctx->fd, data, NV_BLOCKSIZE);
+            char data[NS_MAX_BLOCKSIZE];
+            int read = red_read(ctx->fd, data, ctx->blocksize);
             if (read < 0) {
                 sys_log(WARN, "Read failed, errno: %d", red_errno);
                 give_lock(ctx);
@@ -104,8 +105,11 @@ void nv_daemon(void *pvParameters) {
     }
 }
 
-bool start_nv_transmit(uint16_t repeats, char *filename) {
+bool start_nv_transmit(uint16_t repeats, uint16_t tx_size, char *filename) {
     if (repeats > MAX_NV_REPEATS) {
+        return false;
+    }
+    if (tx_size > NS_MAX_BLOCKSIZE) {
         return false;
     }
 
@@ -132,6 +136,7 @@ bool start_nv_transmit(uint16_t repeats, char *filename) {
     nv_ctx.conn = conn;
     nv_ctx.enabled = 1;
     nv_ctx.repeat_goal = repeats;
+    nv_ctx.blocksize = tx_size;
     give_lock(&nv_ctx);
     sys_log(INFO, "Started NV transmission");
     return true;
@@ -154,6 +159,7 @@ bool stop_nv_transmit() {
         nv_ctx.packetno = 0;
         nv_ctx.repeats = 0;
         nv_ctx.repeat_goal = 0;
+        nv_ctx.blocksize = 0;
         give_lock(&nv_ctx);
         sys_log(INFO, "Stopped NV transmission");
         return true;
