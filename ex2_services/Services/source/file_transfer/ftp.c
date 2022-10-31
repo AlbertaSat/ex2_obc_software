@@ -236,6 +236,7 @@ SAT_returnState start_FTP_service(void) {
  *      Success or failure
  */
 SAT_returnState FTP_app(csp_packet_t *packet, csp_conn_t *conn) {
+    increment_commands_recv();
     uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
     int8_t status = 0;
     SAT_returnState return_state = SATR_OK; // OK until an error is encountered

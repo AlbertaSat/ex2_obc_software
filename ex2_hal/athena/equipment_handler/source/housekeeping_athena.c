@@ -33,6 +33,7 @@
 #include "redconf.h"
 #include "ina209.h"
 #include "tmp117.h"
+#include "services.h"
 
 /**
  * @brief
@@ -136,8 +137,8 @@ int Athena_getHK(athena_housekeeping *athena_hk) {
         athena_hk->vol0_usage_percent = 255;
     } else {
         athena_hk->vol0_usage_percent =
-            (uint8_t)((float)(volstat.f_bfree) * 100.0 /
-                      ((float)(volstat.f_blocks))); // assuming block size == sector size = 512B
+            (uint8_t)(100.0 - (float)(volstat.f_bfree) * 100.0 /
+                                  ((float)(volstat.f_blocks))); // assuming block size == sector size = 512B
     }
 
     iErr = red_statvfs("VOL1:", &volstat);
@@ -145,13 +146,14 @@ int Athena_getHK(athena_housekeeping *athena_hk) {
         athena_hk->vol1_usage_percent = 255;
     } else {
         athena_hk->vol1_usage_percent =
-            (uint8_t)((float)(volstat.f_bfree) * 100.0 /
-                      ((float)(volstat.f_blocks))); // assuming block size == sector size = 512B
+            (uint8_t)(100.0 - (float)(volstat.f_bfree) * 100.0 /
+                                  ((float)(volstat.f_blocks))); // assuming block size == sector size = 512B
     }
 
     if (temp_status != 0)
         return_code = temp_status;
 
+    athena_hk->commands_received = get_commands_recv();
     athena_hk->heap_free = xPortGetFreeHeapSize();
     athena_hk->lowest_heap_free = xPortGetMinimumEverFreeHeapSize();
 

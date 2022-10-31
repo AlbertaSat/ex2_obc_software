@@ -104,6 +104,7 @@ SAT_returnState start_iris_service(void) {
  *      success report
  */
 SAT_returnState iris_service_app(csp_packet_t *packet) {
+    increment_commands_recv();
     uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
     int8_t status = 0;
 

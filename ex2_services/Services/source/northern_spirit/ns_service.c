@@ -28,6 +28,7 @@
  * @return None
  */
 void ns_payload_service(void *param) {
+    increment_commands_recv();
     // socket initialization
     csp_socket_t *sock;
     sock = csp_socket(CSP_SO_HMACREQ);

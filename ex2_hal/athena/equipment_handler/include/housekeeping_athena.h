@@ -48,10 +48,8 @@ typedef struct __attribute__((packed)) {
     uint16_t boot_cnt;                // Total # of OBC boots
     uint16_t boot_src;                //
     uint8_t last_reset_reason;        //
-    uint8_t OBC_mode;                 //
     uint16_t solar_panel_supply_curr; //
-    uint16_t cmds_received;           // Total # since last boot
-    uint16_t pckts_uncovered_by_FEC;  // Total # since last boot
+    uint16_t commands_received;       // Number this boot
     uint32_t heap_free;               // Number of bytes left in the heap
     uint32_t lowest_heap_free;        // Lowest number of bytes free this boot
 } athena_housekeeping;

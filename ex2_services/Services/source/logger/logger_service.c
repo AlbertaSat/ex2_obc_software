@@ -111,6 +111,7 @@ SAT_returnState get_file(char *filename, csp_packet_t *packet) {
         state to define success of the operation
  */
 SAT_returnState logger_service_app(csp_packet_t *packet) {
+    increment_commands_recv();
     uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
     int8_t status;
     uint32_t *data32;

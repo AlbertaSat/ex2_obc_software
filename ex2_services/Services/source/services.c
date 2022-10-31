@@ -42,6 +42,12 @@
 void csp_server(void *parameters);
 SAT_returnState start_service_server(void);
 
+static int commands_received = 0;
+
+void increment_commands_recv() { commands_received++; }
+
+int get_commands_recv() { return commands_received; }
+
 /**
  * @brief
  *      Start the services server, and response task

@@ -22,6 +22,7 @@
 #include "logger/logger.h"
 
 SAT_returnState adcs_service_app(csp_packet_t *packet) {
+    increment_commands_recv();
     uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
     int8_t status;
     SAT_returnState return_state = SATR_OK; // temporarily OK

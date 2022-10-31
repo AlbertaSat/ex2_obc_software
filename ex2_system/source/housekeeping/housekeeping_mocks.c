@@ -81,14 +81,12 @@ void mock_athena(athena_housekeeping *hk) {
     hk->MCU_core_temp = tempLong;
     hk->converter_temp = tempLong;
     hk->boot_cnt = tempu16;
-    hk->OBC_mode = tempu8;
     hk->OBC_uptime = tempu16;
     hk->solar_panel_supply_curr = tempu8;
     hk->version_major = tempu16;
     hk->version_minor = tempu16;
     hk->version_patch = tempu16;
-    hk->cmds_received = tempu16;
-    hk->pckts_uncovered_by_FEC = tempu16;
+    hk->commands_received = tempu16;
 }
 
 void mock_eps_instantaneous(eps_instantaneous_telemetry_t *hk) {
