@@ -691,6 +691,7 @@ Result fetch_historic_hk_and_transmit(csp_conn_t *conn, uint16_t limit, uint16_t
  *      enum for return state
  */
 SAT_returnState hk_service_app(csp_conn_t *conn, csp_packet_t *packet) {
+    increment_commands_recv();
     uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
     int8_t status = 0;
     uint16_t new_max_files = 0;

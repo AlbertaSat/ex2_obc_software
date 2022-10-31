@@ -119,6 +119,7 @@ SAT_returnState start_communication_service(void) {
  */
 
 SAT_returnState communication_service_app(csp_packet_t *packet) {
+    increment_commands_recv();
     uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
     int8_t status;                          // Status of HAL functions success
     SAT_returnState return_state = SATR_OK; // Remains OK unless changed by default or if statements.

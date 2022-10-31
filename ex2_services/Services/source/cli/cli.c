@@ -325,6 +325,7 @@ static const CLI_Command_Definition_t xHeapCommand = {"heap", "heap\n\tReturns h
  *      success report
  */
 SAT_returnState cli_app(csp_packet_t *packet, csp_conn_t *conn) {
+    increment_commands_recv();
     uint8_t size = (uint8_t)packet->data[IN_DATA_BYTE]; // reusing subservice byte to store string length
     bool xMoreDataToFollow;
     char pcOutputString[MAX_OUTPUT_SIZE];

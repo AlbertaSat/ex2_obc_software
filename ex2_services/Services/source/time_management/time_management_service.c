@@ -43,6 +43,7 @@ SAT_returnState time_management_app(csp_packet_t *packet);
  * @return None
  */
 void time_management_service(void *param) {
+    increment_commands_recv();
     csp_socket_t *sock;
     sock = csp_socket(CSP_SO_HMACREQ);
     csp_bind(sock, TC_TIME_MANAGEMENT_SERVICE);

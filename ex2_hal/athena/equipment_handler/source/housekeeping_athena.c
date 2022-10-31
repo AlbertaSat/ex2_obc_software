@@ -33,6 +33,7 @@
 #include "redconf.h"
 #include "ina209.h"
 #include "tmp117.h"
+#include "services.h"
 
 /**
  * @brief
@@ -152,6 +153,7 @@ int Athena_getHK(athena_housekeeping *athena_hk) {
     if (temp_status != 0)
         return_code = temp_status;
 
+    athena_hk->commands_received = get_commands_recv();
     athena_hk->heap_free = xPortGetFreeHeapSize();
     athena_hk->lowest_heap_free = xPortGetMinimumEverFreeHeapSize();
 

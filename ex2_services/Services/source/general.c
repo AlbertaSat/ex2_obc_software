@@ -110,6 +110,7 @@ void general_service(void *param) {
  *      success report
  */
 SAT_returnState general_app(csp_conn_t *conn, csp_packet_t *packet) {
+    increment_commands_recv();
     uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
     int8_t status;
     char reboot_type;

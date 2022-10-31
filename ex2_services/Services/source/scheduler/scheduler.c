@@ -24,6 +24,7 @@ static SemaphoreHandle_t scheduleSemaphore = NULL;
  */
 // SAT_returnState scheduler_service_app(char *gs_cmds) {
 SAT_returnState scheduler_service_app(csp_packet_t *gs_cmds, SemaphoreHandle_t scheduleSemaphore) {
+    increment_commands_recv();
     uint8_t ser_subtype = (uint8_t)gs_cmds->data[SUBSERVICE_BYTE];
     int8_t status, number_of_cmds;
 

@@ -105,6 +105,7 @@ SAT_returnState start_dfgm_service(void) {
  *      Success or failure
  */
 SAT_returnState dfgm_service_app(csp_packet_t *packet) {
+    increment_commands_recv();
     uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
     int8_t status;
     SAT_returnState return_state = SATR_OK; // OK until an error is encountered
