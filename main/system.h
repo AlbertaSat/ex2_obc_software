@@ -45,6 +45,7 @@
 #define LOGGER_TASK_PRIO (tskIDLE_PRIORITY + 2)
 #define MOCK_RTC_TASK_PRIO (configMAX_PRIORITIES - 1)
 #define TASK_MANAGER_PRIO (tskIDLE_PRIORITY + 3)
+#define ATH_WDT_DM_PRIO (configMAX_PRIORITIES - 1)
 
 #define CLI_SVC_SIZE 1000
 #define ADCS_SVC_SIZE 1536
@@ -68,6 +69,7 @@
 #define RTC_DM_SIZE 256
 #define SWWDT_DM_SIZE 128
 #define INIT_STACK_SIZE 400
+#define ATH_WD_DM_SIZE 128
 
 #if IS_ATHENA == 1
 #define CSP_SCI sciREG2  // UART2
@@ -167,6 +169,9 @@ typedef enum {
 
 #define RTC_INT_PORT gioPORTA
 #define RTC_INT_PIN 2
+
+#define OBC_HW_WDO_PORT gioPORTB
+#define OBC_HW_WDO_PIN 3
 
 #define NS_RESET_GIO_PORT hetPORT1
 #define NS_RESET_GIO_PIN 3

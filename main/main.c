@@ -114,6 +114,7 @@ void ex2_init(void *pvParameters) {
     init_filesystem();
     init_csp();
     start_logger_daemon();
+    start_athena_hw_wdi_daemon();
     /* LEOP */
 
 #if EXECUTE_LEOP == 1
@@ -140,8 +141,8 @@ void ex2_init(void *pvParameters) {
 
     ADCS_set_attitude_estimate_mode(6); // GyroEKF
     ADCS_set_unix_t(1652976000, 0);     // May 19, 2022
-#endif                                  // FLATSAT_TEST
-#endif                                  // ADCS_IS_STUBBED
+#endif // FLATSAT_TEST
+#endif // ADCS_IS_STUBBED
 
 #if ATHENA_IS_STUBBED == 0
     initAthena();
@@ -390,7 +391,7 @@ static inline SAT_returnState init_csp_interface() {
 #if SDR_TEST == 1
     test_uhf_ifdata = ifdata;
 #endif
-#else  // use CSP
+#else // use CSP
     error = csp_sdr_open_and_add_interface(&sdr_conf, gs_if_name, NULL);
     if (error != CSP_ERR_NONE) {
         return SATR_ERROR;
@@ -404,7 +405,7 @@ static inline SAT_returnState init_csp_interface() {
 #if SDR_TEST == 1
     test_sband_ifdata = ifdata;
 #endif
-#else  // use CSP
+#else // use CSP
 #endif // SDR_NO_CSP
 
 #endif /* CSP_USE_SDR */

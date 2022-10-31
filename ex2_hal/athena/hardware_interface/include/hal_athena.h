@@ -6,6 +6,7 @@
  */
 #include "HL_reg_het.h"
 #include <ina209.h>
+#include "system.h"
 
 #ifndef EX2_HAL_ATHENA_HARDWARE_INTERFACE_INCLUDE_HAL_ATHENA_H_
 #define EX2_HAL_ATHENA_HARDWARE_INTERFACE_INCLUDE_HAL_ATHENA_H_
@@ -18,5 +19,6 @@
 
 int initAthena(void);
 void is_SolarPanel_overcurrent(void *pvParameters);
+SAT_returnState start_athena_hw_wdi_daemon();
 
 #endif /* EX2_HAL_ATHENA_HARDWARE_INTERFACE_INCLUDE_HAL_ATHENA_H_ */

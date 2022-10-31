@@ -84,6 +84,9 @@ void adcs_sciNotification(sciBASE_t *sci, unsigned flags);
 #pragma WEAK(dfgm_sciNotification)
 void dfgm_sciNotification(sciBASE_t *sci, unsigned flags);
 
+#pragma WEAK(obc_wdoInt_gioNotification)
+void obc_wdoInt_gioNotification(gioPORT_t *port, uint32 bit);
+
 /* USER CODE END */
 #pragma WEAK(esmGroup1Notification)
 void esmGroup1Notification(esmBASE_t *esm, uint32 channel)
@@ -193,6 +196,14 @@ void gioNotification(gioPORT_t *port, uint32 bit)
         switch (bit) {
         case RTC_INT_PIN:
             rtcInt_gioNotification(port, bit); break;
+        default:
+            return;
+        }
+    }; break;
+    case (int)OBC_HW_WDO_PORT: {
+        switch (bit) {
+        case OBC_HW_WDO_PIN:
+            obc_wdoInt_gioNotification(port, bit); break;
         default:
             return;
         }
