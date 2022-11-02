@@ -756,6 +756,10 @@ SAT_returnState hk_service_app(csp_conn_t *conn, csp_packet_t *packet) {
         }
 
         all_hk_data.hk_timeorder.final = 0;
+        time_t unix_time;
+        RTCMK_GetUnix(&unix_time);
+        all_hk_data.hk_timeorder.UNIXtimestamp = unix_time;
+        all_hk_data.hk_timeorder.dataPosition = 0;
 
         uint16_t needed_size = get_size_of_housekeeping() + 2; // +2 for subservice and error
 
