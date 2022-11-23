@@ -335,11 +335,13 @@ SAT_returnState FTP_app(csp_packet_t *packet, csp_conn_t *conn) {
          * uint32_t request_id
          * uint64_t file_size
          * uint32_t blocksize
+         * uint64_t skip // Number of BYTES to skip
          * char[REDCONF_NAME_MAX] filename
          */
         uint32_t req_id;
         uint64_t file_size;
         uint32_t blocksize;
+        uint64_t skip;
         if (current_upload.upload_fd) {
             red_close(current_upload.upload_fd);
             current_upload.upload_fd = 0;
@@ -349,7 +351,9 @@ SAT_returnState FTP_app(csp_packet_t *packet, csp_conn_t *conn) {
         memcpy(&file_size, &packet->data[IN_DATA_BYTE + 4], sizeof(uint64_t));
         file_size = csp_ntoh64(file_size);
         cnv8_32(&packet->data[IN_DATA_BYTE + 12], &blocksize);
-        char *fname = (char *)&packet->data[IN_DATA_BYTE + 16];
+        memcpy(&skip, &packet->data[IN_DATA_BYTE + 16], sizeof(uint64_t));
+        skip = csp_ntoh64(skip);
+        char *fname = (char *)&packet->data[IN_DATA_BYTE + 24];
         int fd = red_open(fname, RED_O_CREAT | RED_O_RDWR);
         if (fd < 0) {
             sys_log(WARN, "Failed to open file red_errno: %d, %s, ", red_errno, fname);
@@ -365,8 +369,8 @@ SAT_returnState FTP_app(csp_packet_t *packet, csp_conn_t *conn) {
 
         current_upload.req_id = req_id;
         current_upload.blocksize = blocksize;
-        current_upload.skip = 0; // TODO: Allow skipping so resume can happen
-        current_upload.count = 0;
+        current_upload.skip = skip; // TODO: Allow skipping so resume can happen
+        current_upload.count = skip / blocksize;
         current_upload.type = POST_REQUEST;
         strncpy((char *)&(current_upload.fname), fname, REDCONF_NAME_MAX);
 
