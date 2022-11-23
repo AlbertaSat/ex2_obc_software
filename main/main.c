@@ -374,7 +374,7 @@ static inline SAT_returnState init_csp_interface() {
     }
 
     char *gs_if_name = CSP_IF_KISS_DEFAULT_NAME;
-    int gs_if_addr = 16;
+    int gs_if_addr = GS_CSP_ADDR;
 
 #endif /* defined(CSP_USE_KISS) */
 
@@ -385,7 +385,7 @@ static inline SAT_returnState init_csp_interface() {
     int gs_if_addr = 23;
 #else
     char *gs_if_name = SDR_IF_UHF_NAME;
-    int gs_if_addr = 16;
+    int gs_if_addr = GS_CSP_ADDR;
 #endif /* SDR_TEST */
 
     sdr_conf_t sdr_conf = {0};

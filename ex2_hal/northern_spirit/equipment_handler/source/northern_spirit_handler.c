@@ -135,11 +135,11 @@ NS_return NS_capture_image(void) {
         return NS_HANDLER_BUSY;
     }
     uint8_t command[NS_STANDARD_CMD_LEN] = {'c', 'c', 'c'};
-    uint8_t standard_answer[NS_STANDARD_ANS_LEN + NS_STANDARD_ANS_LEN];
+    uint8_t standard_answer[NS_STANDARD_ANS_LEN * 2];
 
     // Initiate image capture and receive first two acks
-    NS_return return_val = NS_sendAndReceive(command, NS_STANDARD_CMD_LEN, standard_answer, NS_STANDARD_ANS_LEN,
-                                             NS_UART_LONG_TIMEOUT_MS);
+    NS_return return_val = NS_sendAndReceive(command, NS_STANDARD_CMD_LEN, standard_answer,
+                                             NS_STANDARD_ANS_LEN * 2, NS_UART_LONG_TIMEOUT_MS);
     if (return_val != NS_OK) {
         xSemaphoreGive(ns_command_mutex);
         return return_val;

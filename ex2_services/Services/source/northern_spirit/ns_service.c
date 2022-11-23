@@ -17,13 +17,12 @@
  * @date 2022-06-24
  */
 #include "northern_spirit/ns_service.h"
-
+#include "northern_voices/northern_voices.h"
 /**
  * @brief
- *      FreeRTOS 2U Payload File Transferring (FT) server task
+ *      FreeRTOS 2U Payload server task
  * @details
- *      Accepts incoming 2U Payload FT service packets and executes
- *      the application
+ *      Executes the application for Northern Images payload and northern voices
  * @param void* param
  * @return None
  */
@@ -177,6 +176,32 @@ SAT_returnState ns_payload_service_app(csp_packet_t *packet) {
     }
     case NS_RESET_MCU: {
         status = HAL_NS_reset_mcu();
+        set_packet_length(packet, sizeof(int8_t) * 2);
+        break;
+    }
+    case NV_START_TRANSMIT: {
+        char fname[128] = {0};
+        uint16_t repeats;
+        uint16_t tx_size;
+        cnv8_16LE(&(packet->data[IN_DATA_BYTE]), &repeats);
+        cnv8_16LE(&(packet->data[IN_DATA_BYTE + 2]), &tx_size);
+        strncpy(fname, &(packet->data[IN_DATA_BYTE + 4]), 128);
+        bool ret = start_nv_transmit(repeats, tx_size, fname);
+        if (ret == true) {
+            status = 0;
+        } else {
+            status = 1;
+        }
+        set_packet_length(packet, sizeof(int8_t) * 2);
+        break;
+    }
+    case NV_STOP_TRANSMIT: {
+        bool ret = stop_nv_transmit();
+        if (ret == true) {
+            status = 0;
+        } else {
+            status = 1;
+        }
         set_packet_length(packet, sizeof(int8_t) * 2);
         break;
     }

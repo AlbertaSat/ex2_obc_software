@@ -36,6 +36,8 @@
 #define MAX_SUBTYPES 256 // an 8-bit integer
 #define SERVICE_BACKLOG_LEN 3
 
+#define GS_CSP_ADDR 16
+
 #define NORMAL_TICKS_TO_WAIT 1
 #define SERVICE_QUEUE_LEN 3
 #define RESPONSE_QUEUE_LEN 3
@@ -69,6 +71,8 @@
 #define TC_NORTHERN_SPIRIT_SERVICE 22
 // IRIS SERVICE
 #define TC_IRIS_SERVICE 23
+// NV service
+#define TC_NV_SERVICE 24
 
 #define DELAY_WAIT_TIMEOUT 8000
 

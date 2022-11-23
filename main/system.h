@@ -68,6 +68,7 @@
 #define RTC_DM_SIZE 256
 #define SWWDT_DM_SIZE 128
 #define INIT_STACK_SIZE 400
+#define NV_DAEMON_STACK_SIZE 400
 
 #if IS_ATHENA == 1
 #define CSP_SCI sciREG2  // UART2
@@ -144,7 +145,7 @@
 #endif
 
 // watchdog timer expires in 447ms
-#define WDT_DELAY 300            // 300 miliseconds gives a a good window
+#define WDT_DELAY 100            // 100 miliseconds gives a a good window
 #define DELAY_WAIT_INTERVAL 8000 // a pretty long time, but lets the watchdog know that the task hasn't failed
 #define ONE_SECOND pdMS_TO_TICKS(1000)
 #define ONE_MINUTE pdMS_TO_TICKS(60000)
