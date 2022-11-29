@@ -15,8 +15,6 @@ Major updates break backwards compatibility.
 
 In each case, when making a version update, decrement the less significant number(s) to 0. As in, 1.4.5 -> 1.5.0.
 
-We do not use -beta suffixes as they are difficult to represent numerically in housekeeping data.
-
 In the software, each version number is kept by a uint16 to fit in the housekeeping data.
 
 ### Backwards compatibility
@@ -35,7 +33,7 @@ Ensure the submodule pointer is at the correct commit for this version. When dow
 Build binaries for all the satellite configurations. Ensure the correct hardware is configured for each and any other settings. Set the value BOOTLOADER_LINKAGE to 1 the HL_sys_link.cmd. This will give the image bootloader linkage, so it may be uploaded to the satellite through the updater program.
 Ensure the binaries have -O3 enabled.
 
-Github provides a way to upload binaries with a release. Upload the compiled binary for each satellite.
+Github provides a way to upload binaries with a release. Upload the compiled binary for each satellite. Upload the .bin file as well as the .out file for each satellite. The .bin is the program code itself, the .out is the debug symbols. We can use these debug symbols on the engineering model on the ground.
 
 ## Using a release
 Binary files are provided in a working state for the satellites currently deployed. Only binaries for the fullt integrated satellites are provided. Test satellites such as flatsats and engineering models may not be compatible with the binaries provided. A source download is available for manual building. Note that the compiled binary may differ slightly from the binary found on the releases page
