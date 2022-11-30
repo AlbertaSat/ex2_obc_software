@@ -101,7 +101,7 @@
 #define configTICK_RATE_HZ			  ( ( TickType_t ) 1000 )
 #define configMAX_PRIORITIES		  ( 5 )
 #define configMINIMAL_STACK_SIZE	  ( ( unsigned portSHORT ) 256 )
-#define configTOTAL_HEAP_SIZE		  ( ( size_t ) 262144 )
+#define configTOTAL_HEAP_SIZE		  ( ( size_t ) 400000 )
 #define configMAX_TASK_NAME_LEN		  ( 16 )
 #define configIDLE_SHOULD_YIELD		  1
 #define configGENERATE_RUN_TIME_STATS 0
