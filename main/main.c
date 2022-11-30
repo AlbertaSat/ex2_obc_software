@@ -442,6 +442,8 @@ void vAssertCalled(unsigned long ulLine, const char *const pcFileName) {
     (void)pcFileName;
 
     ex2_log("ASSERT! Line %d, file %s\r\n", ulLine, pcFileName);
+    sw_reset('A', DABORT);
+
     for (;;)
         ;
 }
