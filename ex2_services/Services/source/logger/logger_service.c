@@ -28,9 +28,8 @@
 
 const char log_file[] = "VOL0:/syslog.log";         // replace with getter in logger.c
 const char old_log_file[] = "VOL0:/syslog_old.log"; // replace with getter
-uint32_t max_file_size = 500;                       // repalce with getter
 
-uint32_t max_string_length = 500;
+static uint32_t max_string_length = 500;
 
 /* @brief
  *      Check if file with given name exists
@@ -91,11 +90,18 @@ SAT_returnState get_file(char *filename, csp_packet_t *packet) {
         status = -1;
         data_size = sprintf(log_data, "Log file %s does not exist\n", filename);
     }
-    for (uint32_t i = data_size; i < max_file_size; i++) {
-        log_data[i] = '\0';
-    }
     memcpy(&packet->data[STATUS_BYTE], &status, 1);
-    memcpy(&packet->data[OUT_DATA_BYTE], log_data, max_string_length);
+
+    char *ptr = log_data;
+    if (data_size > max_string_length) {
+        // go to the end of the log buffer
+        ptr = log_data + (data_size - max_string_length);
+    }
+    else {
+        memset(&log_data[data_size], 0, max_string_length - data_size);
+    }
+
+    memcpy(&packet->data[OUT_DATA_BYTE], ptr, max_string_length);
     set_packet_length(packet, max_string_length + 2);
     vPortFree(log_data);
     return SATR_OK;
