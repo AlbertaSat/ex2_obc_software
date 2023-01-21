@@ -130,6 +130,27 @@ struct __attribute__((packed)) eps_instantaneous_telemetry {
 };
 #endif
 
+#if IS_SN0072_EPS
+struct __attribute__((packed)) eps_startup_telemetry {
+    uint8_t cmd;
+    int8_t status;
+    double timestamp;               // with ms precision
+    uint32_t last_reset_reason_reg; // Last reset reason register value, see below
+    uint32_t bootCnt;               // total system boot count
+    uint8_t FallbackConfigUsed;
+    uint8_t rtcInit;
+    uint8_t rtcClkSourceLSE;
+    int8_t Fram4kPartitionInit;
+    int8_t Fram520kPartitionInit;
+    int8_t intFlashPartitionInit;
+    int8_t FSInit;
+    int8_t FTInit;
+    int8_t supervisorInit;
+    uint8_t uart1App;
+    uint8_t uart2App;
+    int8_t tmp107Init;
+};
+#else
 struct __attribute__((packed)) eps_startup_telemetry {
     uint8_t cmd;
     int8_t status;
@@ -151,6 +172,7 @@ struct __attribute__((packed)) eps_startup_telemetry {
     uint8_t uart2App;
     int8_t tmp107Init;
 };
+#endif
 
 struct __attribute__((packed)) eps_time_sync {
     uint8_t cmd;
