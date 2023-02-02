@@ -171,7 +171,7 @@ char *get_logger_old_file() { return old_logger_file; }
  * @return None
  */
 static void do_output(const char *str) {
-    char output_string[STRING_MAX_LEN] = {0};
+    char output_string[STRING_MAX_LEN];
 
     uint32_t uptime = (uint32_t)(xTaskGetTickCount() / configTICK_RATE_HZ);
 
@@ -222,7 +222,7 @@ void sys_log(SysLog_Level level, const char *format, ...) {
     if (level < 0 || level > DEBUG)
         level = DEBUG;
 
-    char buffer[PRINT_BUF_LEN + TASK_NAME_SIZE + LEVEL_LEN] = {0};
+    char buffer[PRINT_BUF_LEN + TASK_NAME_SIZE + LEVEL_LEN];
 
     va_list arg;
     va_start(arg, format);
