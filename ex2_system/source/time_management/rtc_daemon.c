@@ -92,6 +92,8 @@ SAT_returnState start_RTC_daemon() {
         return SATR_ERROR;
     }
 
+    RTCMK_GetUnix(&unix_timestamp);
+
     RTCMK_EnableInt(RTCMK_ADDR);
     gioEnableNotification(RTC_INT_PORT, RTC_INT_PIN);
     return SATR_OK;

@@ -248,6 +248,8 @@ int RTCMK_ResetTime(uint8_t addr) {
 
     uint8_t data[8] = {0};
 
+    unix_timestamp = 0;
+
     data[0] = ((uint8_t)RTCMK_RegSec) << 1;
 
     return i2c_Send(RTCMK_PORT, addr, 8, &data);
