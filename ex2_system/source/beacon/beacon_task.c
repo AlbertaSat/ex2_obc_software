@@ -20,6 +20,7 @@
 #include "beacon_task.h"
 #include "base_64.h"
 #include <stdbool.h>
+#include "rtcmk.h"
 
 #define SCW_BCN_ON 1
 #define BEACON_PACKET_LENGTH 97
@@ -64,8 +65,7 @@ static void *beacon_daemon() {
             }
 
             /* Set beacon packet times */
-            time_t unix_time;
-            RTCMK_GetUnix(&unix_time); // If it fails it's inconsequential
+            time_t unix_time = RTCMK_Unix_Now();
             beacon_packet_one.time = unix_time;
             beacon_packet_two.time = unix_time;
 

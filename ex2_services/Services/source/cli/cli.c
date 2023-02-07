@@ -32,6 +32,7 @@
 #include "cli/cli.h"
 #include "system.h"
 #include "util/service_utilities.h"
+#include "logger/logger.h"
 #include "printf.h"
 #include "rtcmk.h"
 #include "cli/fs_utils.h"
@@ -183,13 +184,9 @@ static BaseType_t prvTimeCommand(char *pcWriteBuffer, size_t xWriteBufferLen, co
 
     if (num_parameters == 0) {
         // default behavior: get time
-        if (RTCMK_GetUnix(&unix_time) == -1) {
-            snprintf(pcWriteBuffer, MAX_OUTPUT_SIZE, "Could not get time\r\n", unix_time);
-        } else {
-            snprintf(pcWriteBuffer, MAX_OUTPUT_SIZE, "%d\r\n", unix_time);
-        }
+        unix_time = RTCMK_Unix_Now();
+        snprintf(pcWriteBuffer, MAX_OUTPUT_SIZE, "%d\r\n", unix_time);
         xReturn = pdFALSE;
-
     } else {
         /* lParameter is not 0, so holds the number of the parameter that should
         be returned.  Obtain the complete parameter string. */
