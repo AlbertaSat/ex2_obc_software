@@ -30,6 +30,7 @@
 #include "northern_voices/northern_voices.h"
 
 #include "sband_sender/sband_sender.h"
+#include "scheduler/scheduler_task.h"
 
 /**
  * Start all system daemon tasks
@@ -39,17 +40,20 @@
  */
 SAT_returnState start_system_tasks(void) {
 
-    const static char *system_task_names[] = {"beacon_daemon",     "coordinate_management_daemon",
-                                              "diagnostic_daemon", "housekeeping_daemon",
-                                              "NMEA_daemon",       "RTC_daemon",
-                                              "sband_daemon",      "sw_wdt",
-                                              "nv_daemon"};
+    const static char *system_task_names[] = { "RTC_daemon",
+        "coordinate_management_daemon",  "housekeeping_daemon",
+        "NMEA_daemon", "nv_daemon", "sched_task",
+        "sband_daemon", "sw_wdt",
+        "diagnostic_daemon", "beacon_daemon"
+    };
 
-    const system_tasks start_task[] = {start_beacon_daemon,     start_coordinate_management_daemon,
-                                       start_diagnostic_daemon, start_housekeeping_daemon,
-                                       start_NMEA_daemon,       start_RTC_daemon,
-                                       start_sband_daemon,      start_sw_watchdog,
-                                       start_nv_daemon,         NULL};
+    const system_tasks start_task[] = { start_RTC_daemon,
+        start_coordinate_management_daemon, start_housekeeping_daemon,
+        start_NMEA_daemon,  start_nv_daemon,  start_scheduler_task,
+        start_sband_daemon, start_sw_watchdog,
+        start_diagnostic_daemon, start_beacon_daemon,
+        NULL
+    };
 
     for (int i = 0; start_task[i]; i++) {
         SAT_returnState state;
