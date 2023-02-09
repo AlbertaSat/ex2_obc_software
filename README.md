@@ -12,6 +12,8 @@ The software in this repository reflects the designs found in the Ex-Alta 2 Crit
 	* Collection of background tasks that do work during the satellite's operation
 * libcsp/
 	* Submodule for the for the CSP network software.
+* ex2_sdr/
+	* Submodule for the for the FEC encoding/decoding
 * main/
 	* Main entry point, and LEOP sequence. All background tasks and third-part systems (i.e. Reliance Edge, FreeRTOS Sceduler, and CSP node) are initialized here.
 * source/

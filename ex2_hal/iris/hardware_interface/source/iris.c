@@ -85,8 +85,7 @@ Iris_HAL_return iris_init() {
     IRIS_INIT_DELAY;
 
 #if IS_ATHENA == 1
-    time_t unix_time;
-    RTCMK_GetUnix(&unix_time);
+    time_t unix_time = RTCMK_Unix_Now();
     iris_update_rtc(unix_time);
     IRIS_INIT_DELAY;
 #else
@@ -128,9 +127,10 @@ Iris_HAL_return iris_take_pic() {
     while (1) {
         switch (controller_state) {
         case SEND_COMMAND: {
+            time = RTCMK_Unix_Now();
             ret = iris_send_command(IRIS_TAKE_PIC);
             if (ret == IRIS_LL_OK) {
-                sys_log(INFO, "Iris commanded to take a picture at time: %d", time);
+                sys_log(INFO, "Iris commanded to take a picture at time: %ld", time);
                 controller_state = FINISH;
             } else {
                 controller_state = ERROR_STATE;
@@ -138,7 +138,6 @@ Iris_HAL_return iris_take_pic() {
             break;
         }
         case FINISH: {
-            RTCMK_GetUnix(&time);
             sys_log(INFO, "Iris successfully captured image");
             xSemaphoreGive(iris_hal_mutex);
             return IRIS_HAL_OK;
@@ -629,7 +628,6 @@ Iris_HAL_return iris_update_sensor_i2c_reg() {
         }
         }
     }
-    return IRIS_HAL_ERROR;
 }
 
 /**
@@ -676,7 +674,6 @@ Iris_HAL_return iris_update_current_limit(uint16_t current_limit) {
         }
         }
     }
-    return IRIS_HAL_ERROR;
 }
 
 /**

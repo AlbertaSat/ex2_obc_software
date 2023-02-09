@@ -236,14 +236,17 @@ int ex2_main(void) {
  */
 void init_software() {
     /* start system tasks and service listeners */
+    sys_log(DEBUG, "starting system tasks");
     SAT_returnState state = start_system_tasks();
     if (state != SATR_OK) {
         sys_log(ERROR, "start_system_tasks initialization error");
     }
+    sys_log(DEBUG, "starting services");
     state = start_service_server();
     if (state != SATR_OK) {
         sys_log(ERROR, "start_service_server initialization error");
     }
+    sys_log(DEBUG, "everything is started");
 }
 
 /**
@@ -320,7 +323,7 @@ static void init_csp() {
     if (error != CSP_ERR_NONE) {
         sys_log(ERROR, "csp_init() failed, error: %d\n", error);
     }
-    // ex2_log("Running at %d\n", my_address);
+    ex2_log("Running at %d\n", csp_conf.address);
     /* Set default route and start router & server */
     csp_route_start_task(1000, 2);
     error = init_csp_interface();

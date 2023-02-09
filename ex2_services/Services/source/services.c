@@ -151,4 +151,6 @@ SAT_returnState start_csp_server(void) {
                     NULL) != pdPASS) {
         return SATR_ERROR;
     }
+
+    return SATR_OK;
 }

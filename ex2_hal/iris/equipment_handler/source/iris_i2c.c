@@ -44,11 +44,11 @@
  *   Returns 0 data written, <0 if unable to write data.
  **/
 int iris_write_packet(void *buf_tx_data, uint16_t data_length) {
-    int ret;
-    ret = i2c_Send(IRIS_I2C, IRIS_SLAVE_ADDR, data_length, buf_tx_data);
+    int ret = i2c_Send(IRIS_I2C, IRIS_SLAVE_ADDR, data_length, buf_tx_data);
     if (ret < 0) {
         sys_log(WARN, "Iris bootloader i2c write failure");
     }
+    return ret;
 }
 
 /**
@@ -65,9 +65,9 @@ int iris_write_packet(void *buf_tx_data, uint16_t data_length) {
  *   Returns 0 data read, <0 if unable to read data.
  **/
 int iris_read_packet(void *buf_rx_data, uint16_t data_length) {
-    int ret;
-    ret = i2c_Receive(IRIS_I2C, IRIS_SLAVE_ADDR, data_length, &buf_rx_data);
+    int ret = i2c_Receive(IRIS_I2C, IRIS_SLAVE_ADDR, data_length, &buf_rx_data);
     if (ret < 0) {
         sys_log(WARN, "Iris bootloader i2c read failure");
     }
+    return ret;
 }

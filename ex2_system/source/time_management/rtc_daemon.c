@@ -27,7 +27,8 @@
 #include "HL_gio.h"
 #include "logger/logger.h"
 
-#define DISCIPLINE_DELAY 86400 // Do it once per day
+#define DISCIPLINE_DELAY (24*60*60) // Do it once per day
+#define DRIFT_DELAY_INTERVAL (60*60) // check for drift every hour
 
 static TickType_t last_second;
 
@@ -48,13 +49,22 @@ void RTC_discipline_daemon(void) {
     sys_log(INFO, "GPS Task Started");
 
     time_t utc_time;
-
-    uint16_t total_delay = 0;
+    uint32_t total_delay = 0;
 
     for (;;) {
         while (total_delay < DISCIPLINE_DELAY) {
-            vTaskDelay(DELAY_WAIT_INTERVAL);
-            total_delay += DELAY_WAIT_INTERVAL;
+            vTaskDelay(pdMS_TO_TICKS(DRIFT_DELAY_INTERVAL*1000));
+            total_delay += DRIFT_DELAY_INTERVAL;
+
+            // check for drift between actual clock and cached version
+            int err = RTCMK_GetUnix(&utc_time);
+            time_t unix_time = unix_timestamp;
+            if (!err && unix_time != utc_time) {
+                sys_log(NOTICE, "RTC drift: %ld (cached %ld) diff %ld",
+                        utc_time, unix_time, (utc_time > unix_time) ?
+                        utc_time - unix_time : unix_time - utc_time);
+                unix_timestamp = utc_time;
+            }
         }
         total_delay = 0;
         if (!(gps_get_utc_time(&utc_time))) {
@@ -82,9 +92,14 @@ SAT_returnState start_RTC_daemon() {
         return SATR_ERROR;
     }
 
+    RTCMK_GetUnix(&unix_timestamp);
+
     RTCMK_EnableInt(RTCMK_ADDR);
     gioEnableNotification(RTC_INT_PORT, RTC_INT_PIN);
     return SATR_OK;
 }
 
-void rtcInt_gioNotification(gioPORT_t *port, uint32 bit) { last_second = xTaskGetTickCountFromISR(); }
+void rtcInt_gioNotification(gioPORT_t *port, uint32 bit) {
+    last_second = xTaskGetTickCountFromISR();
+    unix_timestamp++;
+}

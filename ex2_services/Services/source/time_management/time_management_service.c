@@ -30,9 +30,10 @@
 #include <csp/csp.h>
 #include <csp/csp_endian.h>
 #include <main/system.h>
+#include <logger/logger.h>
 #include <stdio.h>
 
-SAT_returnState time_management_app(csp_packet_t *packet);
+static SAT_returnState time_management_app(csp_packet_t *packet);
 
 /**
  * @brief
@@ -42,7 +43,7 @@ SAT_returnState time_management_app(csp_packet_t *packet);
  * @param void* param
  * @return None
  */
-void time_management_service(void *param) {
+static void time_management_service(void *param) {
     increment_commands_recv();
     csp_socket_t *sock;
     sock = csp_socket(CSP_SO_HMACREQ);
@@ -87,7 +88,7 @@ SAT_returnState start_time_management_service(void) {
 
     if (xTaskCreate((TaskFunction_t)time_management_service, "time_management_service", TIMEMANAGEMENT_SVC_SIZE,
                     NULL, NORMAL_SERVICE_PRIO, NULL) != pdPASS) {
-        ex2_log("FAILED TO CREATE TASK time_management_service\n");
+        sys_log(WARN, "FAILED TO CREATE TASK time_management_service");
         return SATR_ERROR;
     }
     return SATR_OK;
@@ -105,22 +106,20 @@ SAT_returnState start_time_management_service(void) {
  * @return SAT_returnState
  * 		success report
  */
-SAT_returnState time_management_app(csp_packet_t *packet) {
+static SAT_returnState time_management_app(csp_packet_t *packet) {
     uint8_t ser_subtype = (uint8_t)packet->data[SUBSERVICE_BYTE];
-    int8_t status;
+    int8_t status = SATR_OK;
     uint32_t temp_time;
 
     switch (ser_subtype) {
-
     case GET_TIME: {
         // Step 1: get the data
-
-        status = RTCMK_GetUnix(&temp_time);
+        temp_time = RTCMK_Unix_Now();
         // Step 2: convert to network order
+        sys_log(INFO, "get_time: %ld", temp_time);
+
+        // step3: copy data into packet
         temp_time = csp_hton32(temp_time);
-        // step3: copy data & status byte into packet
-        memcpy(&packet->data[STATUS_BYTE], &status,
-               sizeof(int8_t)); // 0 for success
         memcpy(&packet->data[OUT_DATA_BYTE], &temp_time, sizeof(uint32_t));
         // Step 4: set packet length
         set_packet_length(packet, sizeof(int8_t) + sizeof(uint32_t) + 1); // plus one for sub-service
@@ -128,28 +127,29 @@ SAT_returnState time_management_app(csp_packet_t *packet) {
     }
 
     case SET_TIME: {
-        cnv8_32(&packet->data[IN_DATA_BYTE], &temp_time);
+        memcpy((char *) &temp_time, &packet->data[IN_DATA_BYTE], sizeof(uint32_t));
         temp_time = csp_ntoh32(temp_time);
 
         if (!TIMESTAMP_ISOK(temp_time)) {
+            sys_log(NOTICE, "set_time illegal time: %ld", temp_time);
             status = -1;
-            memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         } else {
+            sys_log(INFO, "set_time: %ld", temp_time);
             status = RTCMK_SetUnix(temp_time);
             status += synchronize_all_clocks(temp_time);
-
-            memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         }
-
-        set_packet_length(packet, sizeof(int8_t) + 1); // +1 for subservice
-
+        set_packet_length(packet, 2); // +1 for subservice
         break;
     }
 
     default:
-        ex2_log("No such subservice\n");
-        return SATR_PKT_ILLEGAL_SUBSERVICE;
+        sys_log(NOTICE, "No such subservice\n");
+        status = SATR_PKT_ILLEGAL_SUBSERVICE;
+        set_packet_length(packet, 2); // +1 for subservice
+        break;
     }
+
+    packet->data[STATUS_BYTE] = status;
     return SATR_OK;
 }
 

@@ -11,12 +11,19 @@
  */
 
 #include "rtcmk.h"
+#include "rtcmk_driver.h"
 #include "HL_i2c.h"
 #include "i2c_io.h"
 
+time_t unix_timestamp;
+
 /*******************************************************************************
- **************************   GLOBAL FUNCTIONS   *******************************
+ *****************************   PROTOTYPES   **********************************
  ******************************************************************************/
+
+static int RTCMK_RegisterSet(uint8_t addr, RTCMK_Register_TypeDef reg, uint8_t val);
+
+static int RTCMK_RegisterGet(uint8_t addr, RTCMK_Register_TypeDef reg, uint8_t *val);
 
 /**
  * @brief
@@ -29,7 +36,9 @@
  * @return
  *   Input represented as BCD
  ******************************************************************************/
-unsigned int toBCD(unsigned int val) { return val + 6 * (val / 10); }
+static inline unsigned int toBCD(unsigned int val) {
+    return val + 6 * (val / 10);
+}
 
 /**
  * @brief
@@ -42,7 +51,13 @@ unsigned int toBCD(unsigned int val) { return val + 6 * (val / 10); }
  * @return
  *   Input represented as binary
  ******************************************************************************/
-unsigned int toBIN(unsigned int val) { return val - 6 * (val >> 4); }
+static inline unsigned int toBIN(unsigned int val) {
+    return val - 6 * (val >> 4);
+}
+
+/*******************************************************************************
+ **************************   GLOBAL FUNCTIONS   *******************************
+ ******************************************************************************/
 
 /**
  * @brief
@@ -57,6 +72,8 @@ unsigned int toBIN(unsigned int val) { return val - 6 * (val >> 4); }
  ******************************************************************************/
 int RTCMK_SetUnix(time_t new_time) {
     // TODO: Make these use a single array
+    unix_timestamp = new_time;
+
     tmElements_t t = {0};
     breakTime(new_time, &t);
     if (RTCMK_SetSecond(RTCMK_ADDR, t.Second) == -1)
@@ -145,7 +162,7 @@ int RTCMK_GetUnix(time_t *unix_time) {
  *   Returns 0 if register written,
  *<0 if unable to write to register.
  ******************************************************************************/
-int RTCMK_RegisterSet(uint8_t addr, RTCMK_Register_TypeDef reg, uint8_t val) {
+static int RTCMK_RegisterSet(uint8_t addr, RTCMK_Register_TypeDef reg, uint8_t val) {
     uint8_t data[2];
 
     data[0] = reg;
@@ -174,7 +191,7 @@ int RTCMK_RegisterSet(uint8_t addr, RTCMK_Register_TypeDef reg, uint8_t val) {
  *   Returns 0 if register read, <0
  *if unable to read register.
  ******************************************************************************/
-int RTCMK_RegisterGet(uint8_t addr, RTCMK_Register_TypeDef reg, uint8_t *val) {
+static int RTCMK_RegisterGet(uint8_t addr, RTCMK_Register_TypeDef reg, uint8_t *val) {
     uint8_t data;
 
     data = reg;
@@ -230,6 +247,8 @@ int RTCMK_EnableInt(uint8_t addr) {
 int RTCMK_ResetTime(uint8_t addr) {
 
     uint8_t data[8] = {0};
+
+    unix_timestamp = 0;
 
     data[0] = ((uint8_t)RTCMK_RegSec) << 1;
 

@@ -181,6 +181,10 @@ void vAssertCalled(unsigned long ulLine, const char * pcFile);
 extern BaseType_t prvRaisePrivilege( void );
 #define RAISE_PRIVILEGE BaseType_t xRunningPrivileged = prvRaisePrivilege ()
 #define RESET_PRIVILEGE if( xRunningPrivileged == 0 ) portSWITCH_TO_USER_MODE()
+
+void initializeProfiler();
+uint32 getProfilerTimerCount();
+
 #define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() initializeProfiler()
 #define portGET_RUN_TIME_COUNTER_VALUE() getProfilerTimerCount()
 #define configINCLUDE_APPLICATION_DEFINED_PRIVILEGED_FUNCTIONS 1

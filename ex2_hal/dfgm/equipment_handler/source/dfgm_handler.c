@@ -382,7 +382,7 @@ void dfgm_rx_task(void *pvParameters) {
         if (secondsPassed < DFGM_runtime) {
 
             // Get time
-            RTCMK_GetUnix(&(data.time));
+            data.time = RTCMK_Unix_Now();
 
             if (firstPacketFlag) {
                 snprintf(DFGM_raw_file_name, DFGM_FILE_NAME_MAX_SIZE, "%u_%s", (unsigned int)data.time,
@@ -565,8 +565,7 @@ DFGM_return DFGM_stopDataCollection() {
  */
 DFGM_return DFGM_get_HK(dfgm_housekeeping *hk) {
     DFGM_return status = DFGM_SUCCESS;
-    time_t currentTime;
-    RTCMK_GetUnix(&currentTime);
+    time_t currentTime = RTCMK_Unix_Now();
     time_t timeDiff = currentTime - HK_buffer.time;
 
     // Only update HK buffer if it has old data
