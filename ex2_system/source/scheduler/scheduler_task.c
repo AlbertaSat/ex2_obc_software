@@ -188,8 +188,7 @@ TickType_t schedule_cmd(int32_t fd, ScheduledCmd_t *cmd) {
      * does not change the file pointer, but that doesn't matter if there are
      * no commands left.
      */
-    int32_t err = red_ftruncate(fd, 0);
-    if (err < 0) {
+    if (red_ftruncate(fd, 0) < 0) {
         sys_log(WARN, "red_ftruncate error: %d", (int)red_errno);
     }
 

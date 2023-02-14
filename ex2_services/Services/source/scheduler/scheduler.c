@@ -66,6 +66,10 @@ static int scheduler_service_app(csp_packet_t *packet) {
                 rc = SCHED_ERR_IO;
             }
             else {
+                if (red_ftruncate(fd, 0) < 0) {
+                    // The file pointer should still be at the beginning
+                    sys_log(NOTICE, "red_ftruncate error: %d", (int)red_errno);
+                }
                 for (int i=0; i<num_cmds; i++) {
                     if (red_write(fd, cmds[i], sizeof(ScheduledCmd_t)) < 0) {
                         packet->data[OUT_DATA_BYTE] = red_errno;
