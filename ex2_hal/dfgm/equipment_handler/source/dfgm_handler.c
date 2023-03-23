@@ -335,34 +335,36 @@ void dfgm_rx_task(void *pvParameters) {
 
     // Trigger dfgm_sciNotification
     sciReceive(DFGM_SCI, 1, &DFGM_byteBuffer);
+
     bool dfgm_directory_initialized = false;
 
-    for (;;) {
-        if (!dfgm_directory_initialized) {
-            // Enter DFGM directory
-            iErr = red_chdir("VOL0:/dfgm");
-            if (iErr == -1) {
-                if ((red_errno == RED_ENOENT) || (red_errno == RED_ENOTDIR)) {
-                    // Directory does not exist. Create it
-                    iErr = red_mkdir("VOL0:/dfgm");
-                    if (iErr == -1) {
-                        sys_log(ERROR, "Problem %d creating the DFGM directory", red_errno);
-                        vTaskDelay(10 * ONE_SECOND);
-                        continue;
-                    }
-                }
-                iErr = red_chdir("VOL0:/dfgm");
+    while (!dfgm_directory_initialized) {
+        // Enter DFGM directory
+        iErr = red_chdir("VOL0:/dfgm");
+        if (iErr == -1) {
+            if ((red_errno == RED_ENOENT) || (red_errno == RED_ENOTDIR)) {
+                // Directory does not exist. Create it
+                iErr = red_mkdir("VOL0:/dfgm");
                 if (iErr == -1) {
-                    sys_log(ERROR, "Problem %d changing into the DFGM directory", red_errno);
+                    sys_log(ERROR, "Problem %d creating the DFGM directory", red_errno);
                     vTaskDelay(10 * ONE_SECOND);
                     continue;
                 }
             }
-            sys_log(INFO, "Successfully entered DFGM directory");
-            dfgm_directory_initialized = true;
+            iErr = red_chdir("VOL0:/dfgm");
+            if (iErr == -1) {
+                sys_log(ERROR, "Problem %d changing into the DFGM directory", red_errno);
+                vTaskDelay(10 * ONE_SECOND);
+                continue;
+            }
         }
+        sys_log(INFO, "Successfully entered DFGM directory");
+        dfgm_directory_initialized = true;
+    }
 
+    for (;;) {
         received = 0;
+
         // Always receive packets from queue
         memset(&data, 0, sizeof(dfgm_data_t));
         while (received < sizeof(dfgm_packet_t)) {
