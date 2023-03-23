@@ -174,8 +174,8 @@ void update_HK(dfgm_data_t const *data) {
  *      along with the packet's time stamp
  * @param dfgm_data_t *data
  *      A DFGM data struct containing both the packet data and time stamp needed to save the samples
- * @param char * fileName
- *      The name of the file you want to save data to
+ * @param int fileFD
+ *      The file handle to write to
  * @return None
  */
 static void savePacket(dfgm_data_t *data, int fileFd) {
@@ -259,8 +259,8 @@ static void shiftSecondPointer(void) { secondPointer[0] = secondPointer[1]; }
  *      that struct directly into the file byte by byte with a time stamp
  * @param struct dfgm_second *second
  *      The second struct that contains the data you want to save
- * @param char * fileName
- *      The name of the file you want to save data to
+ * @param int fileFD
+ *      The file handle to write to
  * @return None
  */
 static void saveSecond(struct dfgm_second *second, int fileFD) {
