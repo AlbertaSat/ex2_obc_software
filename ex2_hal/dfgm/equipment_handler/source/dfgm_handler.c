@@ -55,7 +55,8 @@
 static uint8_t DFGM_byteBuffer;
 static xQueueHandle DFGM_queue;
 static SemaphoreHandle_t TX_semaphore;
-static dfgm_housekeeping HK_buffer = {0};
+static DFGM_Housekeeping HK_buffer = {0};
+static int last_hk_rx;
 
 // Flags and counters used by the DFGM Rx Task
 static int secondsPassed = 0;
@@ -151,7 +152,7 @@ static void DFGM_convertRaw_HK_data(dfgm_packet_t *const data) {
  * @return None
  */
 void update_HK(dfgm_data_t const *data) {
-    HK_buffer.time = data->time;
+    last_hk_rx = data->time;
     HK_buffer.coreVoltage = (data->packet).HK[0];
     HK_buffer.sensorTemp = (data->packet).HK[1];
     HK_buffer.refTemp = (data->packet).HK[2];
@@ -562,23 +563,23 @@ DFGM_return DFGM_stopDataCollection() {
  * @details
  *      Gets the most recent DFGM housekeeping data from a buffer. This data is
  *      guaranteed to be at most 3 minutes old
- * @param dfgm_housekeeping *hk
+ * @param DFGM_Housekeeping *hk
  *      The DFGM housekeeping struct that will be populated with the most recent
  *      housekeeping data
  * @return DFGM_return
  *      Success report
  */
-DFGM_return DFGM_get_HK(dfgm_housekeeping *hk) {
+DFGM_return DFGM_get_HK(DFGM_Housekeeping *hk) {
     DFGM_return status = DFGM_SUCCESS;
     time_t currentTime = RTCMK_Unix_Now();
-    time_t timeDiff = currentTime - HK_buffer.time;
+    time_t timeDiff = currentTime - last_hk_rx;
 
     // Only update HK buffer if it has old data
     if (timeDiff > DFGM_TIME_THRESHOLD) {
         status = DFGM_HK_FAIL;
     }
 
-    // Only copy buffer contents into the dfgm_housekeeping struct if HK collection is new
+    // Only copy buffer contents into the DFGM_Housekeeping struct if HK collection is new
     if (status != DFGM_HK_FAIL) {
         memcpy(hk, &HK_buffer, sizeof(*hk));
     }

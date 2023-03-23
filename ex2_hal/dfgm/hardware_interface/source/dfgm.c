@@ -83,20 +83,7 @@ DFGM_return HAL_DFGM_stop() {
 DFGM_return HAL_DFGM_get_HK(DFGM_Housekeeping *DFGM_hk) {
     DFGM_return status;
 #if DFGM_IS_STUBBED == 0
-    dfgm_housekeeping hk;
-    status = DFGM_get_HK(&hk);
-    DFGM_hk->coreVoltage = hk.coreVoltage;
-    DFGM_hk->sensorTemp = hk.sensorTemp;
-    DFGM_hk->refTemp = hk.refTemp;
-    DFGM_hk->boardTemp = hk.boardTemp;
-    DFGM_hk->posRailVoltage = hk.posRailVoltage;
-    DFGM_hk->inputVoltage = hk.inputVoltage;
-    DFGM_hk->refVoltage = hk.refVoltage;
-    DFGM_hk->inputCurrent = hk.inputCurrent;
-    DFGM_hk->reserved1 = hk.reserved1;
-    DFGM_hk->reserved2 = hk.reserved2;
-    DFGM_hk->reserved3 = hk.reserved3;
-    DFGM_hk->reserved4 = hk.reserved4;
+    status = DFGM_get_HK(DFGM_hk);
 #else
     status = IS_STUBBED_DFGM;
 #endif

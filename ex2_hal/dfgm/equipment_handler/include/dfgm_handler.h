@@ -112,7 +112,6 @@ typedef struct __attribute__((packed)) {
 } dfgm_data_t;
 
 typedef struct {
-    time_t time;
     uint16 coreVoltage;
     uint16 sensorTemp;
     uint16 refTemp;
@@ -125,7 +124,7 @@ typedef struct {
     uint16 reserved2;
     uint16 reserved3;
     uint16 reserved4;
-} dfgm_housekeeping;
+} DFGM_Housekeeping;
 
 struct dfgm_second {
     time_t time;
@@ -150,6 +149,6 @@ void DFGM_init();
 // Functions called in hardware interface
 DFGM_return DFGM_startDataCollection(int givenRuntime);
 DFGM_return DFGM_stopDataCollection();
-DFGM_return DFGM_get_HK(dfgm_housekeeping *hk);
+DFGM_return DFGM_get_HK(DFGM_Housekeeping *hk);
 
 #endif /* DFGM_HANDLER_H */
