@@ -60,6 +60,7 @@ static dfgm_housekeeping HK_buffer = {0};
 // Flags and counters used by the DFGM Rx Task
 static int secondsPassed = 0;
 static int DFGM_runtime = 0;
+static bool DFGM_running = false;
 static int firstPacketFlag = 1;
 
 // Makes HK conversions & calculations easier via looping through each array
@@ -177,15 +178,12 @@ void update_HK(dfgm_data_t const *data) {
  *      The name of the file you want to save data to
  * @return None
  */
-static void savePacket(dfgm_data_t *data, char *fileName) {
-    int32_t iErr;
-
-    // Open or create file
-    int32_t dataFile;
-    dataFile = red_open(fileName, RED_O_WRONLY | RED_O_CREAT | RED_O_APPEND);
-    if (dataFile == -1) {
+static void savePacket(dfgm_data_t *data, int fileFd) {
+    if (fileFd <= 0) {
         return;
     }
+
+    int32_t iErr;
 
     // Save only the magnetic field data from the packet sample by sample with time stamps
     dfgm_data_sample_t dataSample = {0};
@@ -196,17 +194,11 @@ static void savePacket(dfgm_data_t *data, char *fileName) {
         dataSample.y = *(float *)&(data->packet).tuple[i].y;
         dataSample.z = *(float *)&(data->packet).tuple[i].z;
 
-        iErr = red_write(dataFile, &dataSample, sizeof(dfgm_data_sample_t));
+        iErr = red_write(fileFd, &dataSample, sizeof(dfgm_data_sample_t));
         if (iErr == -1) {
             return;
             ;
         }
-    }
-
-    // Close file
-    iErr = red_close(dataFile);
-    if (iErr == -1) {
-        return;
     }
 }
 
@@ -271,13 +263,11 @@ static void shiftSecondPointer(void) { secondPointer[0] = secondPointer[1]; }
  *      The name of the file you want to save data to
  * @return None
  */
-static void saveSecond(struct dfgm_second *second, char *fileName) {
+static void saveSecond(struct dfgm_second *second, int fileFD) {
     int32_t iErr;
 
     // Open or create file
-    int32_t dataFile;
-    dataFile = red_open(fileName, RED_O_WRONLY | RED_O_CREAT | RED_O_APPEND);
-    if (dataFile == -1) {
+    if (fileFD <= 0) {
         return;
     }
 
@@ -291,13 +281,7 @@ static void saveSecond(struct dfgm_second *second, char *fileName) {
     dataSample.z = (float)second->zFiltered;
 
     // Save sample
-    iErr = red_write(dataFile, &dataSample, sizeof(dfgm_data_sample_t));
-    if (iErr == -1) {
-        return;
-    }
-
-    // Close file
-    iErr = red_close(dataFile);
+    iErr = red_write(fileFD, &dataSample, sizeof(dfgm_data_sample_t));
     if (iErr == -1) {
         return;
     }
@@ -329,10 +313,6 @@ void dfgm_rx_task(void *pvParameters) {
     DFGM_runtime = 0;
     firstPacketFlag = 1;
 
-    char DFGM_raw_file_name[DFGM_FILE_NAME_MAX_SIZE] = {0};
-    char DFGM_100Hz_file_name[DFGM_FILE_NAME_MAX_SIZE] = {0};
-    char DFGM_1Hz_file_name[DFGM_FILE_NAME_MAX_SIZE] = {0};
-
     // Trigger dfgm_sciNotification
     sciReceive(DFGM_SCI, 1, &DFGM_byteBuffer);
 
@@ -362,6 +342,10 @@ void dfgm_rx_task(void *pvParameters) {
         dfgm_directory_initialized = true;
     }
 
+    int HZ_100_fd = 0;
+    int HZ_1_fd = 0;
+    int HZ_raw_fd = 0;
+
     for (;;) {
         received = 0;
 
@@ -378,29 +362,71 @@ void dfgm_rx_task(void *pvParameters) {
         }
 
         // If a runtime is specified, process data
-        if (secondsPassed < DFGM_runtime) {
+        if (secondsPassed >= DFGM_runtime) {
+            DFGM_running = false;
+        }
 
+        if (DFGM_running == false) {
+            DFGM_runtime = 0;
+            secondsPassed = 0;
+            firstPacketFlag = 1;
+
+            if (HZ_100_fd > 0) {
+                red_close(HZ_100_fd);
+                HZ_100_fd = 0;
+            }
+            if (HZ_1_fd > 0) {
+                red_close(HZ_1_fd);
+                HZ_1_fd = 0;
+            }
+            if (HZ_raw_fd > 0) {
+                red_close(HZ_100_fd);
+                HZ_raw_fd = 0;
+            }
+
+        } else {
             // Get time
             data.time = RTCMK_Unix_Now();
 
             if (firstPacketFlag) {
+                if (HZ_100_fd > 0) {
+                    red_close(HZ_100_fd);
+                    HZ_100_fd = 0;
+                }
+                if (HZ_1_fd > 0) {
+                    red_close(HZ_1_fd);
+                    HZ_1_fd = 0;
+                }
+                if (HZ_raw_fd > 0) {
+                    red_close(HZ_raw_fd);
+                    HZ_raw_fd = 0;
+                }
+
+                char DFGM_raw_file_name[DFGM_FILE_NAME_MAX_SIZE] = {0};
+                char DFGM_100Hz_file_name[DFGM_FILE_NAME_MAX_SIZE] = {0};
+                char DFGM_1Hz_file_name[DFGM_FILE_NAME_MAX_SIZE] = {0};
+
                 snprintf(DFGM_raw_file_name, DFGM_FILE_NAME_MAX_SIZE, "%u_%s", (unsigned int)data.time,
                          "rawDFGM.hex");
                 snprintf(DFGM_100Hz_file_name, DFGM_FILE_NAME_MAX_SIZE, "%u_%s", (unsigned int)data.time,
                          "100HzDFGM.hex");
                 snprintf(DFGM_1Hz_file_name, DFGM_FILE_NAME_MAX_SIZE, "%u_%s", (unsigned int)data.time,
                          "1HzDFGM.hex");
+
+                HZ_raw_fd = red_open(DFGM_raw_file_name, RED_O_WRONLY | RED_O_CREAT | RED_O_APPEND);
+                HZ_100_fd = red_open(DFGM_100Hz_file_name, RED_O_WRONLY | RED_O_CREAT | RED_O_APPEND);
+                HZ_1_fd = red_open(DFGM_1Hz_file_name, RED_O_WRONLY | RED_O_CREAT | RED_O_APPEND);
             }
 
             // Save raw (unconverted) 100Hz data from DFGM
-            savePacket(&data, DFGM_raw_file_name);
+            savePacket(&data, HZ_raw_fd);
             DFGM_convertRawMagData(&(data.packet));
 
             DFGM_convertRaw_HK_data(&(data.packet));
             update_HK(&data);
 
             // Save 100Hz data to DFGM
-            savePacket(&data, DFGM_100Hz_file_name);
+            savePacket(&data, HZ_100_fd);
 
             secondsPassed += 1;
 
@@ -425,20 +451,9 @@ void dfgm_rx_task(void *pvParameters) {
                 } else {
                     applyFilter();
                     // Save 1Hz (filtered) data from DFGM
-                    saveSecond(secondPointer[1], DFGM_1Hz_file_name);
+                    saveSecond(secondPointer[1], HZ_1_fd);
                     shiftSecondPointer();
                 }
-            }
-
-            // Just before the task stops processing data, reset all flags and counters
-            if (secondsPassed >= DFGM_runtime) {
-                secondsPassed = 0;
-                DFGM_runtime = 0;
-                firstPacketFlag = 1;
-                // Erase strings
-                DFGM_raw_file_name[0] = '\0';
-                DFGM_100Hz_file_name[0] = '\0';
-                DFGM_1Hz_file_name[0] = '\0';
             }
         }
     }
@@ -504,16 +519,22 @@ void dfgm_sciNotification(sciBASE_t *sci, unsigned flags) {
  */
 DFGM_return DFGM_startDataCollection(int givenRuntime) {
     DFGM_return status = DFGM_SUCCESS;
-    if (DFGM_runtime == 0 && givenRuntime >= DFGM_MIN_RUNTIME) {
-        DFGM_runtime = givenRuntime;
-        status = DFGM_SUCCESS;
-    } else if (DFGM_runtime != 0) {
+    if (DFGM_running) {
         // DFGM is already running
-        status = DFGM_BUSY;
-    } else if (givenRuntime < DFGM_MIN_RUNTIME) {
-        status = DFGM_BAD_PARAM;
+        return DFGM_BUSY;
     }
-    return status;
+
+    if (givenRuntime < DFGM_MIN_RUNTIME) {
+        return DFGM_BAD_PARAM;
+    }
+
+    if (givenRuntime >= DFGM_MIN_RUNTIME) {
+        DFGM_runtime = givenRuntime;
+        DFGM_running = true;
+        return DFGM_SUCCESS;
+    }
+
+    return DFGM_BAD_PARAM;
 }
 
 /**
@@ -527,10 +548,10 @@ DFGM_return DFGM_startDataCollection(int givenRuntime) {
  *      Success report
  */
 DFGM_return DFGM_stopDataCollection() {
-    secondsPassed = 0;
+    DFGM_running = false;
     DFGM_runtime = 0;
+    secondsPassed = 0;
     firstPacketFlag = 1;
-
     // Will always work whether or not the data collection task is running
     return DFGM_SUCCESS;
 }
@@ -557,21 +578,9 @@ DFGM_return DFGM_get_HK(dfgm_housekeeping *hk) {
         status = DFGM_HK_FAIL;
     }
 
-    // Only copy buffer contents into the dfgm_housekeeping struct if HK collection succeeds
+    // Only copy buffer contents into the dfgm_housekeeping struct if HK collection is new
     if (status != DFGM_HK_FAIL) {
-        hk->time = HK_buffer.time;
-        hk->coreVoltage = HK_buffer.coreVoltage;
-        hk->sensorTemp = HK_buffer.sensorTemp;
-        hk->refTemp = HK_buffer.refTemp;
-        hk->boardTemp = HK_buffer.boardTemp;
-        hk->posRailVoltage = HK_buffer.posRailVoltage;
-        hk->inputVoltage = HK_buffer.inputVoltage;
-        hk->refVoltage = HK_buffer.refVoltage;
-        hk->inputCurrent = HK_buffer.inputCurrent;
-        hk->reserved1 = HK_buffer.reserved1;
-        hk->reserved2 = HK_buffer.reserved2;
-        hk->reserved3 = HK_buffer.reserved3;
-        hk->reserved4 = HK_buffer.reserved4;
+        memcpy(hk, &HK_buffer, sizeof(*hk));
     }
 
     return status;
