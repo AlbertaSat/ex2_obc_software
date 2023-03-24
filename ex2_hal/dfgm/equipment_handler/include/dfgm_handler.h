@@ -34,16 +34,49 @@ typedef enum {
     IS_STUBBED_DFGM = 0
 } DFGM_return;
 
+#if (IS_EXALTA2 == 1) /* DFGM B2 */ | (IS_FLATSAT == 1) | (IS_SATELLITE == 0)
 // Conversion macros for mag data (have to be calibrated for each sensor/acquisition system)
-#define X_DAC_SCALE 1.757421875 // DAC stands for Digital to Analog Converter
-#define X_ADC_SCALE -0.0353     // ADC stands for Analog to Digital Converter
-#define X_OFFSET 0
-#define Y_DAC_SCALE 2.031835938
-#define Y_ADC_SCALE -0.0267
-#define Y_OFFSET 0
-#define Z_DAC_SCALE 1.934375
-#define Z_ADC_SCALE -0.0302
-#define Z_OFFSET 0
+#define X_DAC_SCALE 4.19948 // DAC stands for Digital to Analog Converter
+#define Y_DAC_SCALE 4.22865
+#define Z_DAC_SCALE 4.05755
+
+#define X_ADC_SCALE 0.15112 // ADC stands for Analog to Digital Converter
+#define Y_ADC_SCALE 0.1823565
+#define Z_ADC_SCALE 0.2841758
+
+#define X_OFFSET 512.5
+#define Y_OFFSET 46.5
+#define Z_OFFSET -554
+
+#elif IS_AURORASAT == 1      // DFGM D1
+// Conversion macros for mag data (have to be calibrated for each sensor/acquisition system)
+#define X_DAC_SCALE 4.215625 // DAC stands for Digital to Analog Converter
+#define Y_DAC_SCALE 4.236979
+#define Z_DAC_SCALE 4.0640625
+
+#define X_ADC_SCALE 0.1606543 // ADC stands for Analog to Digital Converter
+#define Y_ADC_SCALE 0.1913664
+#define Z_ADC_SCALE 0.2860879
+
+#define X_OFFSET -142
+#define Y_OFFSET 26
+#define Z_OFFSET -543.5
+
+#elif IS_YUKONSAT == 1      // DFGM E3
+// Conversion macros for mag data (have to be calibrated for each sensor/acquisition system)
+#define X_DAC_SCALE 4.14375 // DAC stands for Digital to Analog Converter
+#define Y_DAC_SCALE 3.82083
+#define Z_DAC_SCALE 4.02214
+
+#define X_ADC_SCALE 0.1612974 // ADC stands for Analog to Digital Converter
+#define Y_ADC_SCALE 0.2719562
+#define Z_ADC_SCALE 0.25733607
+
+#define X_OFFSET -67.5
+#define Y_OFFSET 58.5
+#define Z_OFFSET -566.5
+
+#endif
 
 // Conversion macros for housekeeping (HK) data
 #define HK_SCALE_0 (2.5 / 4096.0 * 1000.0) // for core voltage (in mV)
