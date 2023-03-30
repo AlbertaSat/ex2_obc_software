@@ -30,6 +30,7 @@
 #include <main/system.h>
 #include <os_semphr.h>
 #include <os_task.h>
+#include <stdio.h>
 
 #include "eps.h"
 #include "services.h"
@@ -55,10 +56,21 @@ static eps_t prvEps;
 SAT_returnState eps_refresh_instantaneous_telemetry() {
     uint8_t cmd = 0; // 'subservice' command
     eps_instantaneous_telemetry_t telembuf;
-
+#if IS_SN0072_EPS == 0
     if (csp_transaction_w_opts(CSP_PRIO_LOW, EPS_ADDRESS, EPS_INSTANTANEOUS_TELEMETRY, EPS_REQUEST_TIMEOUT, &cmd,
                                sizeof(cmd), &telembuf, sizeof(eps_instantaneous_telemetry_t), CSP_O_CRC32) <= 1)
         return SATR_ERROR;
+#else
+    if (csp_transaction_w_opts(CSP_PRIO_LOW, EPS_ADDRESS, EPS_INSTANTANEOUS_TELEMETRY, EPS_REQUEST_TIMEOUT, &cmd,
+                               sizeof(cmd), &telembuf, sizeof(eps_instantaneous_telemetry_t) - 8,
+                               CSP_O_CRC32) <= 1)
+        return SATR_ERROR;
+
+    // ThermalProtTemperature is not part of flatsat EPS telemetry, therefore is stubbed.
+    for (int i = 0; i < 8; i++) {
+        telembuf.thermalProtTemperature[i] = 0;
+    }
+#endif
     // data is little endian, must convert to host order
     // refer to the NanoAvionics datasheet for details
     prv_instantaneous_telemetry_letoh(&telembuf);
@@ -70,9 +82,22 @@ SAT_returnState eps_refresh_startup_telemetry() {
     uint8_t cmd = 1; // ' subservice' command defined in ICD Section 24.2.2
     eps_startup_telemetry_t telem_startup_buf;
 
+#if IS_SN0072_EPS == 0
     if (csp_transaction_w_opts(CSP_PRIO_LOW, EPS_ADDRESS, EPS_INSTANTANEOUS_TELEMETRY, 10000, &cmd, sizeof(cmd),
                                &telem_startup_buf, sizeof(eps_startup_telemetry_t), CSP_O_CRC32) <= 1)
         return SATR_ERROR;
+#else
+    if (csp_transaction_w_opts(CSP_PRIO_LOW, EPS_ADDRESS, EPS_INSTANTANEOUS_TELEMETRY, 10000, &cmd, sizeof(cmd),
+                               &telem_startup_buf, sizeof(eps_startup_telemetry_t) - 2, CSP_O_CRC32) <= 1)
+        return SATR_ERROR;
+
+    // Lil memcpy to rearrange the struct and stub values not present on the flatsat EPS.
+    memcpy(&telem_startup_buf.Fram4kPartitionInit, &telem_startup_buf.flashAppInit, 9);
+    memcpy(&telem_startup_buf.FSInit, &telem_startup_buf.fwUpdInit, 6);
+    telem_startup_buf.flashAppInit = 0;
+    telem_startup_buf.fwUpdInit = 0;
+
+#endif
     // data is little endian, must convert to host order
     // refer to the NanoAvionics datasheet for details
     prv_startup_telemetry_letoh(&telem_startup_buf);
@@ -166,6 +191,10 @@ void EPS_getHK(eps_instantaneous_telemetry_t *telembuf, eps_startup_telemetry_t 
         telembuf->temp[i] = eps->hk_telemetery.temp[i];
     }
 
+    for (i = 0; i < 8; i++) {
+        telembuf->thermalProtTemperature[i] = eps->hk_telemetery.thermalProtTemperature[i];
+    }
+
     // Startup telemetry (defined in ICD Section 24.2.2)
     telem_startup_buf->cmd = eps->hk_startup_telemetry.cmd;
     telem_startup_buf->status = eps->hk_startup_telemetry.status;
@@ -175,11 +204,11 @@ void EPS_getHK(eps_instantaneous_telemetry_t *telembuf, eps_startup_telemetry_t 
     telem_startup_buf->FallbackConfigUsed = eps->hk_startup_telemetry.FallbackConfigUsed;
     telem_startup_buf->rtcInit = eps->hk_startup_telemetry.rtcInit;
     telem_startup_buf->rtcClkSourceLSE = eps->hk_startup_telemetry.rtcClkSourceLSE;
-    // telem_startup_buf->flashAppInit = eps->hk_startup_telemetry.flashAppInit;
+    telem_startup_buf->flashAppInit = eps->hk_startup_telemetry.flashAppInit;
     telem_startup_buf->Fram4kPartitionInit = eps->hk_startup_telemetry.Fram4kPartitionInit;
     telem_startup_buf->Fram520kPartitionInit = eps->hk_startup_telemetry.Fram520kPartitionInit;
     telem_startup_buf->intFlashPartitionInit = eps->hk_startup_telemetry.intFlashPartitionInit;
-    // telem_startup_buf->fwUpdInit = eps->hk_startup_telemetry.fwUpdInit;
+    telem_startup_buf->fwUpdInit = eps->hk_startup_telemetry.fwUpdInit;
     telem_startup_buf->FSInit = eps->hk_startup_telemetry.FSInit;
     telem_startup_buf->FTInit = eps->hk_startup_telemetry.FTInit;
     telem_startup_buf->supervisorInit = eps->hk_startup_telemetry.supervisorInit;
