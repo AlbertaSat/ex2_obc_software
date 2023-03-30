@@ -52,7 +52,7 @@
 #define COMM_SVC_SIZE 1024
 #define DFGM_SVC_SIZE 1024
 #define FTP_SVC_SIZE 500
-#define HK_SVC_SIZE 600
+#define HK_SVC_SIZE 1024
 #define LOGGER_SVC_SIZE 1200
 #define NS_SVC_SIZE 1024
 #define IRIS_SVC_SIZE 1000
@@ -125,7 +125,11 @@
 #define PCAL9538A_PORT i2cREG1
 
 #if IS_ATHENA_V2 == 1
+#if IS_FLATSAT == 0
 #define SOLAR_I2C i2cREG2
+#else
+#define SOLAR_I2C i2cREG1
+#endif
 #else
 #define SOLAR_I2C i2cREG1
 #endif

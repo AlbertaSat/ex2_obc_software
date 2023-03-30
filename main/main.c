@@ -174,6 +174,9 @@ void ex2_init(void *pvParameters) {
 
 #if CHARON_IS_STUBBED == 0
 #if IS_EXALTA2 == 1
+#if !IS_B16_GPS
+    sciSetBaudrate(GPS_SCI, 9600);
+#endif
     gps_skytraq_driver_init();
 #endif
     setuppcal9538a();

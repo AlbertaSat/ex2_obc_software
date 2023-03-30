@@ -669,12 +669,14 @@ Result fetch_historic_hk_and_transmit(csp_conn_t *conn, uint16_t limit, uint16_t
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
 
         memcpy(&packet->data[OUT_DATA_BYTE], &all_hk_data, get_size_of_housekeeping());
+        set_packet_length(packet, needed_size);
 
         if (!csp_send(conn, packet, 50)) { // why are we all using magic number?
             ex2_log("Failed to send packet");
             csp_buffer_free(packet);
             return FAILURE;
         }
+        csp_buffer_free(packet);
         limit--;
     }
     return SUCCESS;
@@ -768,7 +770,7 @@ SAT_returnState hk_service_app(csp_conn_t *conn, csp_packet_t *packet) {
         memcpy(&packet->data[SUBSERVICE_BYTE], &ser_subtype, sizeof(int8_t));
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
 
-        memcpy(&packet->data[OUT_DATA_BYTE], &all_hk_data, needed_size);
+        memcpy(&packet->data[OUT_DATA_BYTE], &all_hk_data, get_size_of_housekeeping());
         set_packet_length(packet, needed_size);
 
         csp_send(conn, packet, 50);
@@ -789,7 +791,7 @@ SAT_returnState hk_service_app(csp_conn_t *conn, csp_packet_t *packet) {
         memcpy(&packet->data[SUBSERVICE_BYTE], &ser_subtype, sizeof(int8_t));
         memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
 
-        memcpy(&packet->data[OUT_DATA_BYTE], &all_hk_data, needed_size);
+        memcpy(&packet->data[OUT_DATA_BYTE], &all_hk_data, get_size_of_housekeeping());
         set_packet_length(packet, needed_size);
 
         csp_send(conn, packet, 50);
