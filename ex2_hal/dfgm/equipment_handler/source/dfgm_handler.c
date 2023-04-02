@@ -362,6 +362,13 @@ void dfgm_rx_task(void *pvParameters) {
             }
         }
 
+        // Get time
+        data.time = RTCMK_Unix_Now();
+
+        // Always save HK if DFGM is on
+        DFGM_convertRaw_HK_data(&(data.packet));
+        update_HK(&data);
+
         // If a runtime is specified, process data
         if (secondsPassed >= DFGM_runtime) {
             DFGM_running = false;
@@ -386,9 +393,6 @@ void dfgm_rx_task(void *pvParameters) {
             }
 
         } else {
-            // Get time
-            data.time = RTCMK_Unix_Now();
-
             if (firstPacketFlag) {
                 if (HZ_100_fd > 0) {
                     red_close(HZ_100_fd);
@@ -422,9 +426,6 @@ void dfgm_rx_task(void *pvParameters) {
             // Save raw (unconverted) 100Hz data from DFGM
             savePacket(&data, HZ_raw_fd);
             DFGM_convertRawMagData(&(data.packet));
-
-            DFGM_convertRaw_HK_data(&(data.packet));
-            update_HK(&data);
 
             // Save 100Hz data to DFGM
             savePacket(&data, HZ_100_fd);
