@@ -38,6 +38,7 @@
 #include "cli/fs_utils.h"
 #include "bl_eeprom.h"
 #include "main/version.h"
+#include "cli/gps_utils.h"
 /*
  * Command Implementations
  *
