@@ -16,6 +16,7 @@
 #include "hyperion.h"
 #include "housekeeping_charon.h"
 #include "dfgm.h"
+#include "dfgm_handler.h"
 #include "northern_spirit_handler.h"
 #include "iris.h"
 
