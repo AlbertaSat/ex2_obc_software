@@ -8,9 +8,9 @@
 #include "FreeRTOS.h"
 #include "os_task.h"
 #include <string.h>
-#include "util/service_utilities.h"
 #include "system.h"
 #include "NMEAParser.h"
+#include "logger/logger.h"
 
 #define NMEA_TASK_SIZE 384
 

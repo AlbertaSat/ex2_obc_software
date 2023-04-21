@@ -5,7 +5,6 @@
 
 int tmp117_Read2ByteReg(uint8_t addr, uint8_t reg_addr, uint16_t *val) {
     uint8_t data[2] = {0};
-    uint16_t value = 0;
 
     if (i2c_Send(i2cREG2, addr, 1, &reg_addr) == -1) {
         return -1;

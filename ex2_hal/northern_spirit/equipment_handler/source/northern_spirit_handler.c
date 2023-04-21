@@ -18,6 +18,7 @@
  * @date 2021-10-22
  */
 
+#include <string.h>
 #include "northern_spirit_handler.h"
 #include "northern_spirit_io.h"
 #include "base_64.h"
@@ -83,7 +84,7 @@ NS_return NS_upload_artwork(char *filename) {
     if (answer[0] == NS_NAK_VAL) {
         xSemaphoreGive(ns_command_mutex);
         red_close(file1);
-        return answer[1];
+        return (NS_return) answer[1];
     }
 
     // Start xmodem transfer
@@ -177,7 +178,7 @@ NS_return NS_confirm_downlink(uint8_t *conf) {
     uint8_t confirmation[NS_STANDARD_ANS_LEN];
     return_val = NS_expectResponse(confirmation, NS_STANDARD_ANS_LEN, NS_CONFIRM_DOWNLINK_DELAY);
     if (confirmation[0] == NS_NAK_VAL) {
-        return_val = confirmation[1];
+        return_val = (NS_return) confirmation[1];
     }
     *conf = (confirmation[0] == 'g') ? 0 : 1;
 
@@ -197,7 +198,7 @@ NS_return NS_get_heartbeat(uint8_t *heartbeat) {
 
     *heartbeat = answer[0];
     if (answer[0] == NS_NAK_VAL) {
-        return_val = answer[1];
+        return_val = (NS_return) answer[1];
     }
     xSemaphoreGive(ns_command_mutex);
     return return_val;
@@ -221,7 +222,7 @@ NS_return NS_get_flag(char flag, bool *stat) {
     uint8_t flag_ans[NS_FLAG_DATA_LEN + NS_STANDARD_ANS_LEN];
     return_val = NS_expectResponse(flag_ans, NS_FLAG_DATA_LEN + NS_STANDARD_ANS_LEN, NS_GETFLAG_DELAY);
     if (flag_ans[0] == NS_NAK_VAL) {
-        return_val = flag_ans[1];
+        return_val = (NS_return) flag_ans[1];
     }
     *stat = (flag_ans[0] != '0') ? 1 : 0;
 

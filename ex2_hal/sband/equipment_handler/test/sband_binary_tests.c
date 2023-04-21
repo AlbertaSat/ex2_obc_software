@@ -32,7 +32,7 @@ STX_return sband_binary_test() {
     STX_getEncoder(&order, &scrambler, &filter, &mod, &rate);
     uint8_t pa_status, mode, pa_power;
     uint16_t count = 0, overrun = 0, underrun = 0;
-    float freq = 0;
+    uint32_t freq = 0;
 
     printf("Configuration at START of test:\n");
 
@@ -49,7 +49,7 @@ STX_return sband_binary_test() {
     ret = STX_getFrequency(&freq);
     if (ret != S_SUCCESS)
         return ret;
-    printf("S-band frequency: %f\n", freq);
+    printf("S-band frequency: %ld\n", freq);
 
     ret = STX_getBuffer(S_BUFFER_COUNT, &count);
     if (ret != S_SUCCESS)
@@ -70,7 +70,7 @@ STX_return sband_binary_test() {
     uint8_t message[50] = "Quentinen and Tarantined by Writtin Directinoooooo";
     uint16_t filler_16[25] = {0};
 
-    freq = 2228.0;
+    freq = 2228;
     ret = STX_setFrequency(freq);
     if (ret != S_SUCCESS)
         return ret;
@@ -132,7 +132,7 @@ STX_return sband_binary_test() {
     ret = STX_getFrequency(&freq);
     if (ret != S_SUCCESS)
         return ret;
-    printf("S-band frequency: %f\n", freq);
+    printf("S-band frequency: %ld\n", freq);
 
     ret = STX_getBuffer(0, &count);
     if (ret != S_SUCCESS)
