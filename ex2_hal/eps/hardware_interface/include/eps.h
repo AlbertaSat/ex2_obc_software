@@ -59,7 +59,6 @@ typedef struct __attribute__((packed)) {
     uint32_t timeLeftInS;
 } get_gs_wd_time_left_resp_t;
 
-#if IS_SN0072_EPS == 1
 struct __attribute__((packed)) eps_instantaneous_telemetry {
     uint8_t cmd;         // value 0
     int8_t status;       // 0 on success
@@ -92,43 +91,8 @@ struct __attribute__((packed)) eps_instantaneous_telemetry {
     uint8_t batHeaterState;   // 0 off, 1 on
     uint16_t PingWdt_toggles; // Total number of power channel toggles caused by failed ping watchdog
     uint8_t PingWdt_turnOffs; // Total number of power channel offs caused by failed ping watchdog
+    int8_t thermalProtTemperature[8]; // Temperatures of thermal protection sensors. Not on flatsat EPS SN0072
 };
-#else
-struct __attribute__((packed)) eps_instantaneous_telemetry {
-    uint8_t cmd;         // value 0
-    int8_t status;       // 0 on success
-    double timestampInS; // with ms precision
-    uint32_t uptimeInS;
-    uint32_t bootCnt;          // system startup count
-    uint32_t wdt_gs_time_left; // seconds
-    uint32_t wdt_gs_counter;
-    uint16_t mpptConverterVoltage[4];   // mV
-    uint16_t curSolarPanels[8];         // mA
-    uint16_t vBatt;                     // mV
-    uint16_t curSolar;                  // mA
-    uint16_t curBattIn;                 // mA
-    uint16_t curBattOut;                // mA
-    uint16_t curOutput[18];             // mA
-    uint16_t AOcurOutput[2];            // mA
-    uint16_t OutputConverterVoltage[8]; // mV
-    uint8_t outputConverterState;
-    uint32_t outputStatus;      // 18-bits
-    uint32_t outputFaultStatus; // 18-bits
-    uint16_t protectedOutputAccessCnt;
-    uint16_t outputOnDelta[18];  // seconds
-    uint16_t outputOffDelta[18]; // seconds
-    uint8_t outputFaultCnt[18];
-    int8_t temp[14];          // 1-4 MPPT converter temp, 5-8 output converter temp, 9 on-board battery temp, 10-12
-                              // external battery pack temp, 13-14 -output expander temp
-    uint8_t battMode;         // 0 critical, 1 safe, 2 normal, 3 full
-    uint8_t mpptMode;         // 0 HW, 1 manual, 2 auto, 3 auto with timeout
-    uint8_t batHeaterMode;    // 0 manual, 1 auto
-    uint8_t batHeaterState;   // 0 off, 1 on
-    uint16_t PingWdt_toggles; // Total number of power channel toggles caused by failed ping watchdog
-    uint8_t PingWdt_turnOffs; // Total number of power channel offs caused by failed ping watchdog
-    int8_t thermalProtTemperature[8]; // Temperatures of thermal protection sensors
-};
-#endif
 
 struct __attribute__((packed)) eps_startup_telemetry {
     uint8_t cmd;
@@ -139,11 +103,11 @@ struct __attribute__((packed)) eps_startup_telemetry {
     uint8_t FallbackConfigUsed;
     uint8_t rtcInit;
     uint8_t rtcClkSourceLSE;
-    uint8_t flashAppInit;
+    uint8_t flashAppInit; // Not on flatsat EPS SN0072
     int8_t Fram4kPartitionInit;
     int8_t Fram520kPartitionInit;
     int8_t intFlashPartitionInit;
-    uint8_t fwUpdInit;
+    uint8_t fwUpdInit; // Not on flatsat EPS SN0072
     int8_t FSInit;
     int8_t FTInit;
     int8_t supervisorInit;

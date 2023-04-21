@@ -150,11 +150,15 @@ void mock_eps_startup(eps_startup_telemetry_t *hk) {
     hk->FallbackConfigUsed = fake++;
     hk->rtcInit = fake++;
     hk->rtcClkSourceLSE = fake++;
+#if !IS_SN0072_EPS
     hk->flashAppInit = fake++;
+#endif
     hk->Fram4kPartitionInit = fake++;
     hk->Fram520kPartitionInit = fake++;
     hk->intFlashPartitionInit = fake++;
+#if !IS_SN0072_EPS
     hk->fwUpdInit = fake++;
+#endif
     hk->FSInit = fake++;
     hk->FTInit = fake++;
     hk->supervisorInit = fake++;
