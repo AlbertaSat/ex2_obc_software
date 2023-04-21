@@ -34,6 +34,7 @@
 
  */
 
+#include <base_64.h>
 #include "xmodem.h"
 #include "northern_spirit_io.h"
 #include <string.h>
@@ -41,25 +42,26 @@
 #include "logger/logger.h"
 
 int _inbyte(void *dat, size_t len, unsigned short timeout) {
-    uint8_t b;
     memset(dat, 0, len);
     if (NS_expectResponse(dat, len, timeout) == NS_OK) {
-        return b;
+        return 0;
     } else {
         return -1;
     }
 }
-void _outbyte(void *c, size_t len) { NS_sendOnly(c, len); }
+
+void _outbyte(void *c, size_t len) { NS_sendOnly((uint8_t *) c, len); }
 
 unsigned short crc16_ccitt(const void *buf, int len) {
     register int counter;
     register unsigned short crc = 0;
+    const char *p = (const char *)buf;
     for (counter = 0; counter < len; counter++)
-        crc = (crc << 8) ^ crc16tab[((crc >> 8) ^ *(char *)buf++) & 0x00FF];
+        crc = (crc << 8) ^ crc16tab[((crc >> 8) ^ *p++) & 0x00FF];
     return crc;
 }
 
-static int check(int crc, const unsigned char *buf, int sz) {
+static int check(int crc, const char *buf, int sz) {
     if (crc) {
         unsigned short crc = crc16_ccitt(buf, sz);
         unsigned short tcrc = (buf[sz] << 8) + buf[sz + 1];
@@ -81,14 +83,14 @@ static int check(int crc, const unsigned char *buf, int sz) {
 static void flushinput(void) { NS_resetQueue(); }
 
 int xmodemReceive(const unsigned char *dest) {
-    unsigned char xbuff[133]; /* 128 for XModem 1k + 3 head chars + 2 crc + nul */
+    char xbuff[133]; /* 128 for XModem 1k + 3 head chars + 2 crc + nul */
     int bufsz, crc = 0;
     unsigned char trychar = 'C';
     unsigned char packetno = 1;
     int len = 0;
     char c;
     int retry, retrans = MAXRETRANS;
-    int fd = red_open(dest, RED_O_WRONLY | RED_O_CREAT);
+    int fd = red_open((const char *) dest, RED_O_WRONLY | RED_O_CREAT);
     char ack = ACK;
     char nak = NAK;
     char can = CAN;
@@ -148,7 +150,7 @@ int xmodemReceive(const unsigned char *dest) {
         if (xbuff[1] == (unsigned char)(~xbuff[2]) &&
             (xbuff[1] == packetno || xbuff[1] == (unsigned char)packetno - 1) && check(crc, &xbuff[3], bufsz)) {
             if (xbuff[1] == packetno) {
-                int binary_size;
+                size_t binary_size;
                 void *data = base64_decode(&xbuff[3], bufsz, &binary_size);
                 red_write(fd, data, binary_size);
                 vPortFree(data);
@@ -167,7 +169,7 @@ int xmodemReceive(const unsigned char *dest) {
             _outbyte(&ack, 1);
             continue;
         }
-    reject:
+
         flushinput();
         _outbyte(&nak, 1);
     }
@@ -240,7 +242,6 @@ int xmodemTransmit(int32_t filedes, uint64_t filesz) {
                 len += 96;
                 if (bytes_read == -1) {
                     goto trans_error;
-                    return -1;
                 } else if (bytes_read == 0) {
                     goto done_trans;
                 } else {
@@ -270,7 +271,7 @@ int xmodemTransmit(int32_t filedes, uint64_t filesz) {
                     int transmitlen = bufsz + 4 + (crc ? 1 : 0);
                     _outbyte(xbuff, transmitlen);
                     _inbyte(&c, 1, DLY_1S);
-                    if (c >= 0) {
+                    if ((int)c >= 0) {
                         switch (c) {
                         case ACK:
                             ++packetno;

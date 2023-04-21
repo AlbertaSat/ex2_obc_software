@@ -520,7 +520,6 @@ void dfgm_sciNotification(sciBASE_t *sci, unsigned flags) {
  *      Success report
  */
 DFGM_return DFGM_startDataCollection(int givenRuntime) {
-    DFGM_return status = DFGM_SUCCESS;
     if (DFGM_running) {
         // DFGM is already running
         return DFGM_BUSY;
