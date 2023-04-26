@@ -812,6 +812,17 @@ SAT_returnState communication_service_app(csp_packet_t *packet) {
         break;
     }
 
+    case UHF_SET_FEC: {
+        uint8_t mode;
+        memcpy(&mode, &(packet->data[IN_DATA_BYTE]), sizeof(uint8_t));
+        csp_iface_t *iface = csp_iflist_get_by_name(SDR_IF_UHF_NAME);
+        sdr_interface_data_t *ifdata = iface->interface_data;
+        int8_t status = sdr_fec_ctl(ifdata, mode? true : false);
+        sys_log(INFO, "set_fec_ctl(%d) returns %d", mode, status);
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
+        break;
+    }
+
     default:
         sys_log(NOTICE, "No such subservice\n");
         return_state = SATR_PKT_ILLEGAL_SUBSERVICE;
