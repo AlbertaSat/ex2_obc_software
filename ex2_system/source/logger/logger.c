@@ -189,9 +189,10 @@ static void do_output(const char *str) {
         red_write(logger_file_handle, output_string, string_length);
         red_transact("VOL0:");
     }
-    if (PRINTF_SCI) {
-        printf("%s", output_string);
-    }
+
+#if defined(PRINTF_SCI)
+    printf("%s", output_string);
+#endif
 }
 
 /**
@@ -219,7 +220,7 @@ void sys_log(SysLog_Level level, const char *format, ...) {
         task_name = pcTaskGetName(NULL);
     }
 
-    if (level < 0 || level > DEBUG)
+    if (level > DEBUG)
         level = DEBUG;
 
     char buffer[PRINT_BUF_LEN + TASK_NAME_SIZE + LEVEL_LEN];

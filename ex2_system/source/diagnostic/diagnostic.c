@@ -37,22 +37,11 @@
 #include "hal_athena.h"
 #include "bl_eeprom.h"
 
-static void uhf_watchdog_daemon(void *pvParameters);
-static void sband_watchdog_daemon(void *pvParameters);
-static void charon_watchdog_daemon(void *pvParameters);
-static void adcs_watchdog_daemon(void *pvParameters);
-static void payload_watchdog_daemon(void *pvParameters);
 SAT_returnState start_diagnostic_daemon(void);
 
 const unsigned int mutex_timeout = pdMS_TO_TICKS(100);
 const unsigned int reset_wait_period = 5 * ONE_SECOND; // 5 seconds
 const unsigned int watchdog_retries = 3;
-
-static TickType_t uhf_prv_watchdog_delay = ONE_MINUTE;
-static TickType_t sband_prv_watchdog_delay = ONE_MINUTE;
-static TickType_t charon_prv_watchdog_delay = ONE_MINUTE;
-static TickType_t adcs_prv_watchdog_delay = ONE_MINUTE;
-static TickType_t payload_prv_watchdog_delay = ONE_MINUTE;
 
 static void boot_counter_reset(void *pvParameters) {
     while (1) { // Syntactic sugar, freertos tasks should be a loop.
