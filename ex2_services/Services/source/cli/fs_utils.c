@@ -257,9 +257,7 @@ static BaseType_t prvRMCommand(char *pcWriteBuffer, size_t xWriteBufferLen, cons
         1,
         /* Store the parameter string length. */
         &parameterLen);
-    bool dorecursive = false;
     if (strncmp(parameter, "-r ", strlen("-r ")) == 0) {
-        dorecursive = true;
         parameter = FreeRTOS_CLIGetParameter(
             /* The command string itself. */
             pcCommandString,

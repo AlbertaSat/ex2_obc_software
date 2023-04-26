@@ -22,6 +22,8 @@
 #ifndef PRIVILEGED_FUNCTIONS_H_
 #define PRIVILEGED_FUNCTIONS_H_
 
+#include "application_defined_privileged_functions.h"
+
 /*
  * This file works as a wrapper to allow including privileged functions in multiple files
  * Since privileged functions must be implemented in the header per FreeRTOS rules it would

@@ -707,11 +707,8 @@ SAT_returnState hk_service_app(csp_conn_t *conn, csp_packet_t *packet) {
 
         if (set_max_files(new_max_files) != SUCCESS) {
             status = -1;
-            memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
-        } else {
-            status = 0;
-            memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
         }
+        memcpy(&packet->data[STATUS_BYTE], &status, sizeof(int8_t));
 
         set_packet_length(packet, sizeof(int8_t) + 1); // +1 for subservice
 
@@ -751,8 +748,6 @@ SAT_returnState hk_service_app(csp_conn_t *conn, csp_packet_t *packet) {
         Result res = collect_hk_from_devices(&all_hk_data);
         if (res == FAILURE) {
             status = -1;
-        } else {
-            int8_t status = 0;
         }
 
         all_hk_data.hk_timeorder.final = 0;
