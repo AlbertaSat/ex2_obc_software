@@ -14,6 +14,7 @@
 #include <FreeRTOS.h>
 #include "os_task.h"
 #include "system.h"
+#include "logger/logger.h"
 
 uint32_t delay = 1000;
 static uint32_t wdt_counter = 0;

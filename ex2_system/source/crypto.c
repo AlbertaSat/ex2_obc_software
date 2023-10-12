@@ -21,6 +21,7 @@
 #include "crypto.h"
 #include "bl_eeprom.h"
 #include <stdbool.h>
+#include <string.h>
 
 #if KEY_TEST_MODE
 const char test_key[] = "6e477331cd51d63d6492fa969a3acfc75fc26370446465a339fe380c096193fa";

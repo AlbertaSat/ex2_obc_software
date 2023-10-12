@@ -26,11 +26,11 @@
 
 static BaseType_t xRunningPrivileged;
 
-void raise_privilege_() {
+static void raise_privilege_() {
     xRunningPrivileged = prvRaisePrivilege();
 }
 
-void reset_privilege_() {
+static void reset_privilege_() {
     RESET_PRIVILEGE;
 }
 #endif /* INCLUDE_APPLICATION_DEFINED_PRIVILEGED_FUNCTIONS_H_ */

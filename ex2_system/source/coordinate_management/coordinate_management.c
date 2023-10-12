@@ -20,6 +20,7 @@
 
 #include <FreeRTOS.h>
 #include <os_task.h>
+#include "logger/logger.h"
 
 static void *coordinate_management_daemon(void *pvParameters);
 SAT_returnState start_coordinate_management_daemon(void);
