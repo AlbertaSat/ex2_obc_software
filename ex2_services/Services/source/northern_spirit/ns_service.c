@@ -185,7 +185,7 @@ SAT_returnState ns_payload_service_app(csp_packet_t *packet) {
         uint16_t tx_size;
         cnv8_16LE(&(packet->data[IN_DATA_BYTE]), &repeats);
         cnv8_16LE(&(packet->data[IN_DATA_BYTE + 2]), &tx_size);
-        strncpy(fname, &(packet->data[IN_DATA_BYTE + 4]), 128);
+        strncpy(fname, (const char *) &(packet->data[IN_DATA_BYTE + 4]), 128);
         bool ret = start_nv_transmit(repeats, tx_size, fname);
         if (ret == true) {
             status = 0;

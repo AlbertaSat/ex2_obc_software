@@ -4,6 +4,7 @@
  *  Created on: Oct, 2021
  *      Author: Grace Yi
  */
+#include <string.h>
 #include "eeprom.h"
 #include "leop_eeprom.h"
 #include "F021.h"
@@ -46,5 +47,4 @@ void eeprom_reset_leop_status() {
     state.exists_flag = EXISTS_FLAG;
     state.status = false;
     eeprom_write(&state, LEOP_INFO_BLOCKNUMBER, sizeof(state));
-    return true;
 }
